@@ -63,7 +63,6 @@ public class InmateAlertService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alert> getInmateAlerts(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
         final var orderByBlank = StringUtils.isBlank(orderBy);
 
