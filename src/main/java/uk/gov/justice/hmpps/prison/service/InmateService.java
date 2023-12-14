@@ -515,7 +515,7 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
@@ -528,7 +528,7 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
         validate(detail);
@@ -538,7 +538,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
@@ -548,7 +548,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
     public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
         validate(detail);
