@@ -383,7 +383,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Assessment Information", description = "Assessment Information. Requires booking access (via caseload) or VIEW_ASSESSMENTS role")
+    @Operation(summary = "Assessment Information", description = "Assessment Information. Requires booking access (via caseload) or VIEW_ASSESSMENTS role.")
     @GetMapping("/{bookingId}/assessments")
     @VerifyBookingAccess(overrideRoles = {"VIEW_ASSESSMENTS"})
     public List<Assessment> getAssessments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
@@ -540,8 +540,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs", description = "Personal Care Need")
+    @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/personal-care-needs")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
         return healthService.getPersonalCareNeeds(bookingId, problemTypes);
     }
