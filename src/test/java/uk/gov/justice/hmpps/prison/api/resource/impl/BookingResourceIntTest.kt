@@ -773,6 +773,7 @@ class BookingResourceIntTest : ResourceTest() {
         .jsonPath("physicalAttributes").isNotEmpty
         .jsonPath("physicalCharacteristics").isNotEmpty
         .jsonPath("physicalMarks").isNotEmpty
+        .jsonPath("activeAlertCount").isEqualTo(3)
     }
 
     @Test
