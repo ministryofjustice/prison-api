@@ -180,6 +180,16 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 403 when client has role ROLE_SYSTEM_USER`() {
+      webTestClient.post().uri("/api/bookings/offenderNo/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AA\", \"A1234AF\" ]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
       webTestClient.post().uri("/api/bookings/offenderNo/alerts")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))

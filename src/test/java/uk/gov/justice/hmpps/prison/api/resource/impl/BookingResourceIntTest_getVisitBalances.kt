@@ -41,20 +41,18 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       }
 
       @Test
-      fun `returns 403 as ROLE_GLOBAL_SEARCH is not override role`() {
-        webTestClient.get().uri("/api/bookings/offenderNo/A1234AC/visit/balances")
+      fun `returns success as ROLE_GLOBAL_SEARCH is override role`() {
+        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
           .exchange()
-          .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -3.")
+          .expectStatus().isOk
       }
 
       @Test
-      fun `returns 403 as ROLE_VIEW_PRISONER_DATA is not override role`() {
+      fun `returns success as ROLE_VIEW_PRISONER_DATA is override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
-          .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
+          .expectStatus().isOk
       }
 
       @Test
@@ -66,17 +64,17 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       }
 
       @Test
-      fun `returns 200 when client has override role ROLE_SYSTEM_USER`() {
+      fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
           .exchange()
-          .expectStatus().isOk
+          .expectStatus().isForbidden
       }
 
       @Test
       fun `invalid client access produces telemetry event`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
-          .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
           .exchange()
           .expectStatus().isForbidden
 
@@ -105,20 +103,18 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 as ROLE_GLOBAL_SEARCH is not override role`() {
+      fun `returns success as ROLE_GLOBAL_SEARCH is override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/visit/balances")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_GLOBAL_SEARCH")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+          .expectStatus().isOk
       }
 
       @Test
-      fun `returns 404 as ROLE_VIEW_PRISONER_DATA is not override role`() {
+      fun `returns success as ROLE_VIEW_PRISONER_DATA is override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isOk
       }
 
       @Test
