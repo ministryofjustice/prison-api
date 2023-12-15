@@ -566,6 +566,18 @@ public class InmateRepository extends RepositoryBase {
         return offenderCategorisations.stream().filter(cat -> cat.getCategory() != null && validAssessStatus.contains(cat.getAssessStatus())).toList();
     }
 
+    public List<OffenderCategorise> getOffenderCategorisations(final List<Long> bookingIds, final String agencyId, final boolean latestOnly) {
+        final var dtos = jdbcTemplate.query(
+            InmateRepositorySql.GET_OFFENDER_CATEGORISATIONS.getSql(),
+            createParams("bookingIds", bookingIds,
+                "agencyId", agencyId,
+                "assessmentId", getCategoryAssessmentTypeId()),
+            OFFENDER_CATEGORY_MAPPER);
+
+        final var rawData = dtos.stream().map(OffenderCategoriseDto::toOffenderCategorise).toList();
+        return latestOnly ? removeEarlierCategorisations(rawData) : rawData;
+    }
+
     private Long getCategoryAssessmentTypeId() {
         return jdbcTemplate.queryForObject(InmateRepositorySql.GET_CATEGORY_ASSESSMENT_ID.getSql(), Map.of(), Long.class);
     }
