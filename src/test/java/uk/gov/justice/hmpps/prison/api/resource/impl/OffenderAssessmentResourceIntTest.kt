@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.apache.commons.lang3.StringUtils
 import org.assertj.core.api.Assertions.assertThat
@@ -427,6 +428,50 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       assertThatStatus(response, NOT_FOUND.value())
       assertThatJson(response.body!!).node("userMessage").asString().contains("Resource with id [A1234BB] not found.")
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /api/offender-assessments/assessments")
+  inner class CRSAAssessments {
+
+    @Test
+    fun testGetAssessments() {
+      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
+      val response = testRestTemplate.exchange(
+        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false",
+        GET,
+        httpEntity,
+        String::class.java,
+      )
+      assertThatJsonFileAndStatus(response, OK.value(), "assessments.json")
+    }
+
+    @Test
+    fun testGetAssessmentsMostRecentTrue() {
+      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
+      val response = testRestTemplate.exchange(
+        "/api/offender-assessments/assessments?offenderNo=A1234AD&latestOnly=false&activeOnly=false&mostRecentOnly=true",
+        GET,
+        httpEntity,
+        String::class.java,
+      )
+      assertThatStatus(response, OK.value())
+      assertThatJson(response.body!!).isArray().hasSize(1)
+      assertThatJson(response.body!!).node("[0].assessmentSeq").isEqualTo(JsonAssertions.value(1))
+    }
+
+    @Test
+    fun testGetAssessmentsMissingOffenderNo() {
+      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
+      val response = testRestTemplate.exchange(
+        "/api/offender-assessments/assessments?latestOnly=false&activeOnly=false",
+        GET,
+        httpEntity,
+        String::class.java,
+      )
+      assertThatStatus(response, BAD_REQUEST.value())
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Required request parameter 'offenderNo' for method parameter type List is not present")
     }
   }
 
