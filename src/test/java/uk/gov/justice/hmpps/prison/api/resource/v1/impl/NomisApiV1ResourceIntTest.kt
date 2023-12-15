@@ -206,6 +206,17 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
   }
 
   @Test
+  fun `Alerts are successfully returned for an offender`() {
+    webTestClient.get()
+      .uri("/api/v1/offenders/A1234AA/alerts")
+      .headers(setAuthorisation(listOf("ROLE_UNILINK")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("alerts.length()").isEqualTo(3)
+  }
+
+  @Test
   fun transferTransaction() {
     val transaction = CreateTransaction()
     transaction.amount = 1234L
