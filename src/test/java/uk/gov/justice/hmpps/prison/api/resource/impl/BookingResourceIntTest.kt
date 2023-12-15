@@ -1046,11 +1046,11 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return success when has SYSTEM_USER override role`() {
+    fun `should return 403 when has SYSTEM_USER override role`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test
