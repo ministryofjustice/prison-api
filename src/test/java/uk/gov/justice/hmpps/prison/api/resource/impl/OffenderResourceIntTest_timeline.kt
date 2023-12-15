@@ -64,6 +64,14 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
       }
 
       @Test
+      fun `access forbidden when has role ROLE_SYSTEM_USER`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_SYSTEM_USER")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
       fun `access forbidden with wrong role`() {
         webTestClient.get().uri("/api/offenders/{nomsId}/prison-timeline", prisoner.offenderNo)
           .headers(setAuthorisation(listOf("ROLE_BANANAS")))
