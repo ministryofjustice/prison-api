@@ -61,7 +61,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
 @Tag(name = "v1")
 @Validated
 @RequestMapping(value = "${api.base.path}/v1", produces = "application/json")
-@PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK')")
+@PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK')")
 public class NomisApiV1Resource {
 
     public static final String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
@@ -199,7 +199,7 @@ public class NomisApiV1Resource {
             "<p>If the account was previously closed then it will be closed again.</p>" +
             "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Transfer transferTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("previous_prison_id") @Parameter(name = "previous_prison_id", description = "Prison ID", example = "BMI", required = true) final String previousPrisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
                                         @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction) {
@@ -248,7 +248,7 @@ public class NomisApiV1Resource {
     )
     @Tag(name = "unilink")
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName,
                                          @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId,
@@ -341,7 +341,7 @@ public class NomisApiV1Resource {
     )
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
     @Tag(name = "unilink")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final StorePaymentRequest payment) {
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
