@@ -2,7 +2,11 @@ package uk.gov.justice.hmpps.prison.api.resource.v1.impl
 
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.ArgumentCaptor
 import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
@@ -15,6 +19,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.CONFLICT
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.namedparam.SqlParameterSource
 import uk.gov.justice.hmpps.prison.api.model.v1.ContactList
@@ -114,6 +119,102 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @MockBean
   private lateinit var getVisitSlotsWithCapacity: GetVisitSlotsWithCapacity
+
+  @Nested
+  @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+  inner class SecureEndpoints {
+    private fun secureGetEndpoints() =
+      listOf(
+        "/api/v1/offenders/events?prison_id=MDI&offender_id=A1492AE&event_type=e&from_datetime=2019-07-07 07:15:20.090&limit=100",
+        "/api/v1/lookup/active_offender?noms_id=G0797UA&date_of_birth=1958-04-07",
+        "/api/v1/offenders/G7806VO",
+        "/api/v1/offenders/G7806VO/image",
+        "/api/v1/offenders/G7806VO/location",
+        "/api/v1/offenders/G7806VO/charges",
+        "/api/v1/offenders/G7806VO/alerts",
+        "/api/v1/offenders/G7806VO/pss_detail",
+        "/api/v1/offenders/2425215/visits/available_dates?start_date=2077-01-01&end_date=2077-02-01",
+        "/api/v1/offenders/2425215/visits/contact_list",
+        "/api/v1/offenders/2425215/visits/unavailability?dates=2077-02-01",
+        "/api/v1/prison/WLI/offenders/2425215/holds",
+        "/api/v1/prison/WLI/live_roll",
+        "/api/v1/prison/WLI/offenders/2425215/accounts",
+        "/api/v1/prison/WLI/offenders/2425215/accounts/",
+        "/api/v1/prison/WLI/offenders/2425215/accounts/spends/transactions",
+        "/api/v1/prison/WLI/offenders/2425215/transactions/some-transactions",
+        "/api/v1/prison/WLI/slots?start_date=2077-01-01&end_date=2077-02-01",
+      )
+
+    private fun securePostEndpoints() =
+      listOf(
+        "/api/v1/prison/WLI/offenders/G1408GC/transfer_transactions",
+        "/api/v1/prison/WLI/offenders/G1408GC/transactions",
+        "/api/v1/prison/WLI/offenders/G1408GC/payment",
+      )
+
+    @ParameterizedTest
+    @MethodSource("secureGetEndpoints")
+    internal fun `requires a valid authentication token`(uri: String) {
+      webTestClient.get()
+        .uri(uri)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @ParameterizedTest
+    @MethodSource("secureGetEndpoints")
+    internal fun `requires the correct role`(uri: String) {
+      webTestClient.get()
+        .uri(uri)
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    private val createTransaction = """
+      {
+        "type": "CANT",
+        "description": "Canteen Purchase of £16.34",
+        "amount": 1634,
+        "client_transaction_id": "CL123212",
+        "client_unique_ref": "CLIENT121131-0_11"
+      }
+    """
+
+    @ParameterizedTest
+    @MethodSource("securePostEndpoints")
+    internal fun `requires a valid authentication token for post`(uri: String) {
+      webTestClient.post()
+        .uri(uri)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(createTransaction)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @ParameterizedTest
+    @MethodSource("securePostEndpoints")
+    internal fun `requires the correct role - post`(uri: String) {
+      webTestClient.post()
+        .uri(uri)
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(createTransaction)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+  }
+
+  @Test
+  fun `Alerts are successfully returned for an offender`() {
+    webTestClient.get()
+      .uri("/api/v1/offenders/A1234AA/alerts")
+      .headers(setAuthorisation(listOf("ROLE_UNILINK")))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("alerts.length()").isEqualTo(3)
+  }
 
   @Test
   fun transferTransaction() {
