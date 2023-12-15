@@ -750,13 +750,13 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "allowNoContent", required = false) @Parameter(description = "Allow no content (204) response if no data rather than returning a not found (404)") final boolean allowNoContent
     ) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "SYSTEM_USER", "VISIT_SCHEDULER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
         final var bookingId = identifiers.getBookingId();
         return bookingService.getBookingVisitBalances(bookingId).orElseThrow(
             allowNoContent ? NoContentException.withId(bookingId) : EntityNotFoundException.withId(bookingId));
