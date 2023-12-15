@@ -1,11 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod
+import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpStatus
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 
@@ -41,14 +41,14 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun shouldHaveTheCorrectRoleToAccessEndpoint() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/bookings/latest/alerts",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.RENEGADE_USER),
         object : ParameterizedTypeReference<String?>() {
         },
         "A1179MT",
       )
 
-      Assertions.assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
     @Test
@@ -56,7 +56,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun returnsImportantAlertDataForEachAlert() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/bookings/latest/alerts",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -64,30 +64,30 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
 
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].offenderNo").isEqualTo("A1179MT")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("VOP")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].offenderNo").isEqualTo("A1179MT")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("VOP")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[0].alertCodeDescription")
         .isEqualTo("Rule 45 - Own Protection")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[0].alertTypeDescription")
         .isEqualTo("Vulnerability")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].comment").isEqualTo("")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-21")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].dateExpires").isEqualTo("2021-08-01")
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[0].expired").isEqualTo(true)
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[0].active").isEqualTo(false)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].comment").isEqualTo("")
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-21")
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].dateExpires").isEqualTo("2021-08-01")
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[0].expired").isEqualTo(true)
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[0].active").isEqualTo(false)
 
       // not returned when retrieving by offender number
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByFirstName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByLastName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByFirstName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByLastName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByFirstName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].addedByLastName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByFirstName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].expiredByLastName").isNull()
     }
 
     @Test
@@ -95,7 +95,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun willReturnAllActiveAlertsWhenNoFilter() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/bookings/latest/alerts",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -103,33 +103,33 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
 
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[0].active").isEqualTo(false)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("VOP")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[0].active").isEqualTo(false)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("VOP")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[0].alertCodeDescription")
         .isEqualTo("Rule 45 - Own Protection")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[0].alertTypeDescription")
         .isEqualTo("Vulnerability")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-21")
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[0].expired").isEqualTo(true)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].offenderNo").isEqualTo("A1179MT")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].dateCreated").isEqualTo("2021-07-21")
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[0].expired").isEqualTo(true)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].offenderNo").isEqualTo("A1179MT")
 
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XTACT")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCodeDescription").isEqualTo("XTACT")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[1].active").isEqualTo(true)
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[1].expired").isEqualTo(false)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].comment").isEqualTo("whatever")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCodeDescription").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[1].active").isEqualTo(true)
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[1].expired").isEqualTo(false)
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].comment").isEqualTo("whatever")
 
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[2].alertCode").isEqualTo("XCU")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[2].alertCode").isEqualTo("XCU")
     }
 
     @Test
@@ -137,7 +137,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun willShowAlertsForTheLatestBookingOfAnOffenderWhenLatestOnlySetToTrue() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/bookings/latest/alerts",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -147,13 +147,13 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(3)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("V")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("X")
     }
 
     @Test
@@ -162,7 +162,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       var jsonContent = getBodyAsJsonContent<Any>(
         testRestTemplate.exchange(
           "/api/offenders/{offenderNo}/bookings/latest/alerts?alertCodes={alertCodes}",
-          HttpMethod.GET,
+          GET,
           createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
           object : ParameterizedTypeReference<String?>() {
           },
@@ -172,14 +172,14 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
           ),
         ),
       )
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XCU")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(2)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XCU")
 
       jsonContent = getBodyAsJsonContent(
         testRestTemplate.exchange(
           "/api/offenders/{offenderNo}/bookings/latest/alerts?alertCodes={alertCodes}",
-          HttpMethod.GET,
+          GET,
           createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
           object : ParameterizedTypeReference<String?>() {
           },
@@ -189,8 +189,8 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
           ),
         ),
       )
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(1)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(1)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
     }
   }
 
@@ -198,18 +198,98 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
   @DisplayName("GET /api/offenders/{offenderNo}/alerts/v2")
   internal inner class NewSafeEndpointAllBookings {
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if booking does not exist`() {
+      webTestClient.get().uri("/api/offenders/A9999ZZ/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A9999ZZ] not found.")
+    }
+
+    @Test
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns success if in user caseload`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     @DisplayName("should have the correct role to access offender")
     fun shouldHaveTheCorrectRoleToAccessEndpoint() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/alerts/v2",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.RENEGADE_USER),
         object : ParameterizedTypeReference<String?>() {
         },
         "A1179MT",
       )
 
-      Assertions.assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
     }
 
     @Test
@@ -217,7 +297,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun returnsImportantAlertDataForEachAlertForEachBooking() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/alerts/v2?sort=alertType,alertId,dateExpires",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -225,30 +305,30 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
 
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[8].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].offenderNo").isEqualTo("A1179MT")
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].alertCode").isEqualTo("VOP")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[8].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].offenderNo").isEqualTo("A1179MT")
+      assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].alertCode").isEqualTo("VOP")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[8].alertCodeDescription")
         .isEqualTo("Rule 45 - Own Protection")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent)
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].alertType").isEqualTo("V")
+      assertThat(jsonContent)
         .extractingJsonPathStringValue("[8].alertTypeDescription")
         .isEqualTo("Vulnerability")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].comment").isEqualTo("")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].dateCreated").isEqualTo("2021-07-21")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].dateExpires").isEqualTo("2021-08-01")
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[8].expired").isEqualTo(true)
-      Assertions.assertThat(jsonContent).extractingJsonPathBooleanValue("[8].active").isEqualTo(false)
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].comment").isEqualTo("")
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].dateCreated").isEqualTo("2021-07-21")
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].dateExpires").isEqualTo("2021-08-01")
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[8].expired").isEqualTo(true)
+      assertThat(jsonContent).extractingJsonPathBooleanValue("[8].active").isEqualTo(false)
 
       // not returned when retrieving by offender number
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].addedByFirstName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].addedByLastName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].expiredByFirstName").isNull()
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].expiredByLastName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].addedByFirstName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].addedByLastName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].expiredByFirstName").isNull()
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].expiredByLastName").isNull()
     }
 
     @Test
@@ -256,7 +336,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun willReturnAllActiveAlertsWhenNoFilter() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/alerts/v2?sort=alertType,alertId,dateExpires",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -264,38 +344,38 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
 
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(1)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[1].alertId").isEqualTo(3)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[2].alertId").isEqualTo(4)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[3].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[3].alertId").isEqualTo(6)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[4].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[4].alertId").isEqualTo(7)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[5].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[5].alertId").isEqualTo(8)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[6].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[6].alertId").isEqualTo(9)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[7].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[7].alertId").isEqualTo(10)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[8].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[9].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[9].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[10].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[10].alertId").isEqualTo(1)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[11].bookingId").isEqualTo(-35)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[11].alertId").isEqualTo(3)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[12].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[12].alertId").isEqualTo(5)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[13].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[13].alertId").isEqualTo(11)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[14].bookingId").isEqualTo(-56)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[14].alertId").isEqualTo(12)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(1)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[1].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[1].alertId").isEqualTo(3)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[2].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[2].alertId").isEqualTo(4)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[3].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[3].alertId").isEqualTo(6)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[4].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[4].alertId").isEqualTo(7)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[5].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[5].alertId").isEqualTo(8)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[6].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[6].alertId").isEqualTo(9)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[7].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[7].alertId").isEqualTo(10)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[8].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[9].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[9].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[10].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[10].alertId").isEqualTo(1)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[11].bookingId").isEqualTo(-35)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[11].alertId").isEqualTo(3)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[12].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[12].alertId").isEqualTo(5)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[13].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[13].alertId").isEqualTo(11)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[14].bookingId").isEqualTo(-56)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[14].alertId").isEqualTo(12)
     }
 
     @Test
@@ -303,7 +383,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun willOrderByAlertType() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/alerts/v2",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -313,22 +393,22 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[3].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[4].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[5].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[6].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[7].alertType").isEqualTo("R")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[8].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[9].alertType").isEqualTo("V")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[10].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[11].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[12].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[13].alertType").isEqualTo("X")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[14].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[2].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[3].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[4].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[5].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[6].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[7].alertType").isEqualTo("R")
+      assertThat(jsonContent).extractingJsonPathStringValue("[8].alertType").isEqualTo("V")
+      assertThat(jsonContent).extractingJsonPathStringValue("[9].alertType").isEqualTo("V")
+      assertThat(jsonContent).extractingJsonPathStringValue("[10].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[11].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[12].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[13].alertType").isEqualTo("X")
+      assertThat(jsonContent).extractingJsonPathStringValue("[14].alertType").isEqualTo("X")
     }
 
     @Test
@@ -336,7 +416,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     fun canChangeSortOrder() {
       val response = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}/alerts/v2?sort={sort}&direction={direction}",
-        HttpMethod.GET,
+        GET,
         createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
         object : ParameterizedTypeReference<String?>() {
         },
@@ -348,22 +428,22 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       )
 
       val jsonContent = getBodyAsJsonContent<Any>(response)
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(12)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[1].alertId").isEqualTo(11)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[2].alertId").isEqualTo(10)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[3].alertId").isEqualTo(9)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[4].alertId").isEqualTo(8)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[5].alertId").isEqualTo(7)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[6].alertId").isEqualTo(6)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[7].alertId").isEqualTo(5)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(4)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[9].alertId").isEqualTo(3)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[10].alertId").isEqualTo(3)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[11].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[12].alertId").isEqualTo(2)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[13].alertId").isEqualTo(1)
-      Assertions.assertThat(jsonContent).extractingJsonPathNumberValue("[14].alertId").isEqualTo(1)
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(15)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[0].alertId").isEqualTo(12)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[1].alertId").isEqualTo(11)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[2].alertId").isEqualTo(10)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[3].alertId").isEqualTo(9)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[4].alertId").isEqualTo(8)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[5].alertId").isEqualTo(7)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[6].alertId").isEqualTo(6)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[7].alertId").isEqualTo(5)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[8].alertId").isEqualTo(4)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[9].alertId").isEqualTo(3)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[10].alertId").isEqualTo(3)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[11].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[12].alertId").isEqualTo(2)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[13].alertId").isEqualTo(1)
+      assertThat(jsonContent).extractingJsonPathNumberValue("[14].alertId").isEqualTo(1)
     }
 
     @Test
@@ -372,7 +452,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
       var jsonContent = getBodyAsJsonContent<Any>(
         testRestTemplate.exchange(
           "/api/offenders/{offenderNo}/alerts/v2?alertCodes={alertCodes}&sort=alertType,alertId",
-          HttpMethod.GET,
+          GET,
           createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
           object : ParameterizedTypeReference<String?>() {
           },
@@ -382,17 +462,17 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
           ),
         ),
       )
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(5)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XCU")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[2].alertCode").isEqualTo("XTACT")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[3].alertCode").isEqualTo("XCU")
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[4].alertCode").isEqualTo("XCU")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(5)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathStringValue("[1].alertCode").isEqualTo("XCU")
+      assertThat(jsonContent).extractingJsonPathStringValue("[2].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathStringValue("[3].alertCode").isEqualTo("XCU")
+      assertThat(jsonContent).extractingJsonPathStringValue("[4].alertCode").isEqualTo("XCU")
 
       jsonContent = getBodyAsJsonContent(
         testRestTemplate.exchange(
           "/api/offenders/{offenderNo}/bookings/latest/alerts?alertCodes={alertCodes}",
-          HttpMethod.GET,
+          GET,
           createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA),
           object : ParameterizedTypeReference<String?>() {
           },
@@ -402,8 +482,8 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
           ),
         ),
       )
-      Assertions.assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(1)
-      Assertions.assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
+      assertThat(jsonContent).extractingJsonPathArrayValue<Any>("$").hasSize(1)
+      assertThat(jsonContent).extractingJsonPathStringValue("[0].alertCode").isEqualTo("XTACT")
     }
   }
 }
