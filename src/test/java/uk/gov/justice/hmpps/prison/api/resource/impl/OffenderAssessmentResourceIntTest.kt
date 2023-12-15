@@ -240,6 +240,33 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("POST /api/offender-assessments/category")
+  inner class PostOffenderCategorisations {
+
+    @Test
+    fun testGetOffenderCategorisationsSystem() {
+      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
+        .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+           [ "-1", "-2", "-3", "-38", "-39", "-40", "-41"]
+            """,
+        )
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[0].bookingId").isEqualTo(-1)
+        .jsonPath("[1].bookingId").isEqualTo(-3)
+        .jsonPath("[2].bookingId").isEqualTo(-38)
+        .jsonPath("[3].bookingId").isEqualTo(-39)
+        .jsonPath("[4].bookingId").isEqualTo(-40)
+        .jsonPath("[5].bookingId").isEqualTo(-41)
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/offender-assessments/csra/{bookingId}/assessment/{assessmentSeq}")
   inner class CRSAAssessment {
 

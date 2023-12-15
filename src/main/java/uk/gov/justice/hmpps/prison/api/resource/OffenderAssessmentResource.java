@@ -50,6 +50,7 @@ import jakarta.validation.constraints.NotNull;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 @RestController
 @Tag(name = "offender-assessments")
@@ -167,6 +168,17 @@ public class OffenderAssessmentResource {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Categorisation type is invalid: " + type);
         }
         return inmateService.getCategory(agencyId, enumType, date);
+    }
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
+    @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Categorisation details for all supplied Offenders using SYSTEM access")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @PostMapping("/category")
+    @SlowReportQuery
+    public List<OffenderCategorise> getOffenderCategorisationsSystem(@RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly) {
+        final var latest = latestOnly == null || latestOnly;
+        return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
     }
 
     @ApiResponses({

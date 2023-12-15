@@ -10,6 +10,7 @@ import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -476,6 +477,22 @@ public class InmateService {
     private boolean isCalculatedCsra(final AssessmentDto assessmentDto) {
         return (assessmentDto.getCalcSupLevelType() != null && !"PEND".equals(assessmentDto.getCalcSupLevelTypeDesc()))
             && assessmentDto.getOverridedSupLevelType() == null;
+    }
+
+    public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
+        return doGetOffenderCategorisations(null, bookingIds, latestOnly);
+    }
+
+    private List<OffenderCategorise> doGetOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
+        final List<OffenderCategorise> results = new ArrayList<>();
+        if (!CollectionUtils.isEmpty(bookingIds)) {
+            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
+            batch.forEach(offenderBatch -> {
+                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
+                results.addAll(categorisations);
+            });
+        }
+        return results;
     }
 
     private Optional<Assessment> findCategory(final List<Assessment> assessmentsForOffender) {
