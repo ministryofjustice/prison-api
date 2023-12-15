@@ -847,6 +847,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get secondary languages", description = "Get secondary languages")
     @GetMapping("/{bookingId}/secondary-languages")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<SecondaryLanguage> getSecondaryLanguages(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId) {
         return inmateService.getSecondaryLanguages(bookingId);
     }
