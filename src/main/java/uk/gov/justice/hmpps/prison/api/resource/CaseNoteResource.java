@@ -169,7 +169,6 @@ public class CaseNoteResource {
     @Hidden
     @GetMapping("/summary")
     @SlowReportQuery
-    // NEEDS new role
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
     public List<CaseNoteUsageByBookingId> getCaseNoteSummaryByBookingId(
         @RequestParam("bookingId") @NotEmpty @Parameter(description = "a list of booking ids to search.", required = true) final List<Long> bookingIds,
