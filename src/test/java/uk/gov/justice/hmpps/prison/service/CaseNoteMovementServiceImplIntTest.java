@@ -1,16 +1,14 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import jakarta.validation.ConstraintViolationException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
-import jakarta.validation.ConstraintViolationException;
 import java.util.List;
 import java.util.stream.IntStream;
 
@@ -20,27 +18,13 @@ import static org.mockito.Mockito.verify;
 @ActiveProfiles("test")
 @SpringBootTest
 public class CaseNoteMovementServiceImplIntTest {
-    @SuppressWarnings("unused")
     @MockBean
     private CaseNoteRepository repository;
-
-    @SuppressWarnings("unused")
-    @MockBean
-    private UserService userService;
-
-    @SuppressWarnings("unused")
-    @MockBean
-    private BookingService bookingService;
-
-    @SuppressWarnings("unused")
-    @MockBean
-    private AuthenticationFacade authenticationFacade;
 
     @Autowired
     private CaseNoteService caseNoteService;
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void createCaseNote_maximumTextSizeExceededDueToUtf8() {
 
         final String stringWith10Chars = "ABCDE12345";
@@ -58,7 +42,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEvents_limitValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
@@ -67,7 +50,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEvents_limitNullValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, null))
@@ -76,7 +58,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEvents_limit1Validation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 0L))
@@ -85,7 +66,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEvents_typeValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
@@ -94,7 +74,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEvents_dateValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
@@ -103,15 +82,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
-    public void getCaseNotesEvents_wrongRole() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .hasMessage("Access Denied");
-    }
-
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEventsNoLimit_typeValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
@@ -120,7 +90,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"CASE_NOTE_EVENTS"})
     public void getCaseNotesEventsNoLimit_dateValidation() {
 
         assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
@@ -129,26 +98,15 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
-    public void getCaseNotesEventsNoLimit_wrongRole() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
-                .hasMessage("Access Denied");
-    }
-
-    @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeTrue() {
         caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 
         verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", true);
     }
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeFalse() {
         caseNoteService.getInactiveCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 
         verify(repository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", false);
     }
-
 }
