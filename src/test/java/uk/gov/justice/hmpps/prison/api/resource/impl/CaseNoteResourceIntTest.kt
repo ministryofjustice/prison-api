@@ -4,16 +4,13 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
-import org.mockito.Mockito
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair
-import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType
 import java.time.LocalDate
@@ -21,30 +18,7 @@ import java.time.LocalDateTime
 
 class CaseNoteResourceIntTest : ResourceTest() {
   @MockBean
-  private lateinit var caseNoteRepository: CaseNoteRepository
-
-  @MockBean
   private lateinit var offenderCaseNoteRepository: OffenderCaseNoteRepository
-
-  @Nested
-  @DisplayName("GET /case-notes/staff-usage")
-  inner class StaffUsageGet {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/case-notes/staff-usage")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("api/case-notes/staff-usage?staffId=123")
-        .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-  }
 
   @Nested
   @DisplayName("POST /case-notes/staff-usage")
@@ -107,169 +81,6 @@ class CaseNoteResourceIntTest : ResourceTest() {
         .body(BodyInserters.fromValue(CaseNoteStaffUsageRequest.builder().build()))
         .exchange()
         .expectStatus().isForbidden
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /case-notes/events_no_limit")
-  inner class EventsNoLimit {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/case-notes/events_no_limit")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("api/case-notes/events_no_limit?type=FRED&createdDate=2023-01-01T00:00")
-        .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `caseNoteEvents no limit`() {
-      val fromDate = LocalDateTime.now()
-      val fredEvent = createEvent("FRED", "JOE")
-      val bobJoeEvent = createEvent("BOB", "JOE")
-      whenever(
-        caseNoteRepository.getCaseNoteEvents(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.anySet(),
-          ArgumentMatchers.anyLong(),
-        ),
-      ).thenReturn(
-        listOf(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")),
-      )
-
-      webTestClient.get()
-        .uri("/api/case-notes/events_no_limit?type=BOB+JOE&type=FRED&createdDate=$fromDate")
-        .headers(setAuthorisation(listOf("ROLE_CASE_NOTE_EVENTS")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(
-          """
-          [
-            {
-              "nomsId": "123JOE",
-              "id": 1,
-              "content": "Some content for JOE",
-              "contactTimestamp": "2019-02-01T23:22:21",
-              "notificationTimestamp": "2019-02-01T23:22:21",
-              "establishmentCode": "LEI",
-              "noteType": "BOB JOE",
-              "staffName": "Last, First"
-            },
-            {
-              "nomsId": "123JOE",
-              "id": 1,
-              "content": "Some content for JOE",
-              "contactTimestamp": "2019-02-01T23:22:21",
-              "notificationTimestamp": "2019-02-01T23:22:21",
-              "establishmentCode": "LEI",
-              "noteType": "FRED JOE",
-              "staffName": "Last, First"
-            }
-          ]
-          """.trimIndent(),
-        )
-
-      Mockito.verify(caseNoteRepository).getCaseNoteEvents(fromDate, setOf("BOB", "FRED"), Long.MAX_VALUE)
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /case-notes/events")
-  inner class Events {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/case-notes/events")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("api/case-notes/events?limit=20&type=FRED&createdDate=2023-01-01T00:00")
-        .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun caseNoteEvents() {
-      val fromDate = LocalDateTime.now()
-      val fredEvent = createEvent("FRED", "JOE")
-      val bobJoeEvent = createEvent("BOB", "JOE")
-      whenever(
-        caseNoteRepository.getCaseNoteEvents(
-          ArgumentMatchers.any(),
-          ArgumentMatchers.anySet(),
-          ArgumentMatchers.anyLong(),
-        ),
-      ).thenReturn(
-        listOf(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")),
-      )
-
-      webTestClient.get()
-        .uri("/api/case-notes/events?limit=10&type=BOB+JOE&type=FRED&createdDate=$fromDate")
-        .headers(setAuthorisation(listOf("ROLE_CASE_NOTE_EVENTS")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json(
-          """
-          [
-            {
-              "nomsId": "123JOE",
-              "id": 1,
-              "content": "Some content for JOE",
-              "contactTimestamp": "2019-02-01T23:22:21",
-              "notificationTimestamp": "2019-02-01T23:22:21",
-              "establishmentCode": "LEI",
-              "noteType": "BOB JOE",
-              "staffName": "Last, First"
-            },
-            {
-              "nomsId": "123JOE",
-              "id": 1,
-              "content": "Some content for JOE",
-              "contactTimestamp": "2019-02-01T23:22:21",
-              "notificationTimestamp": "2019-02-01T23:22:21",
-              "establishmentCode": "LEI",
-              "noteType": "FRED JOE",
-              "staffName": "Last, First"
-            }
-          ]
-          """.trimIndent(),
-        )
-
-      Mockito.verify(caseNoteRepository).getCaseNoteEvents(fromDate, setOf("BOB", "FRED"), 10)
-    }
-
-    @Test
-    fun `caseNoteEvents missing limit`() {
-      webTestClient.get()
-        .uri("/api/case-notes/events?type=BOB+JOE&type=FRED&createdDate=${LocalDateTime.now()}")
-        .headers(setAuthorisation(listOf("ROLE_CASE_NOTE_EVENTS")))
-        .exchange()
-        .expectStatus().isBadRequest
-        .expectBody()
-        .jsonPath("userMessage")
-        .isEqualTo("Required request parameter 'limit' for method parameter type Long is not present")
-        .json(
-          """
-          {
-            "status": 400,
-            "userMessage": "Required request parameter 'limit' for method parameter type Long is not present",
-            "developerMessage": "Required request parameter 'limit' for method parameter type Long is not present"
-          }
-          """.trimIndent(),
-        )
     }
   }
 
@@ -410,20 +221,5 @@ class CaseNoteResourceIntTest : ResourceTest() {
           """.trimIndent(),
         )
     }
-  }
-
-  private fun createEvent(type: String, subType: String): CaseNoteEvent {
-    return CaseNoteEvent.builder()
-      .mainNoteType(type)
-      .subNoteType(subType)
-      .content("Some content for $subType")
-      .contactTimestamp(LocalDateTime.parse("2019-02-01T23:22:21"))
-      .notificationTimestamp(LocalDateTime.parse("2019-02-01T23:22:21"))
-      .establishmentCode("LEI")
-      .firstName("FIRST")
-      .lastName("LAST")
-      .id(1L)
-      .nomsId("123$subType")
-      .build()
   }
 }

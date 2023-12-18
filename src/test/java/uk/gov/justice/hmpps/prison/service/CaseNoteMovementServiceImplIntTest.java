@@ -41,7 +41,6 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeTrue() {
         caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 
