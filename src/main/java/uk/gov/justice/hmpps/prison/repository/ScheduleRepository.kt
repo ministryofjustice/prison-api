@@ -2,6 +2,8 @@ package uk.gov.justice.hmpps.prison.repository
 
 import org.springframework.jdbc.core.SqlParameterValue
 import org.springframework.stereotype.Repository
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule
+import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonScheduleDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule
 import uk.gov.justice.hmpps.prison.api.model.PrisonerScheduleDto
 import uk.gov.justice.hmpps.prison.api.support.Order
@@ -206,9 +208,26 @@ class ScheduleRepository : RepositoryBase() {
     return schedules.toPrisonerSchedules()
   }
 
+  fun getScheduledTransfersForPrisoner(
+    prisonerNumber: String,
+  ): List<PrisonerPrisonSchedule> {
+    val schedules = jdbcTemplate.query(
+      ScheduleRepositorySql.GET_SCHEDULED_TRANSFERS_FOR_PRISONER.sql,
+      createParams(
+        "prisonerNumber",
+        prisonerNumber,
+      ),
+      PRISON_EVENT_ROW_MAPPER,
+    )
+    return schedules.toPrisonerPrisonSchedules()
+  }
+
   private companion object {
     private val EVENT_ROW_MAPPER = DataClassByColumnRowMapper(PrisonerScheduleDto::class.java)
+    private val PRISON_EVENT_ROW_MAPPER = DataClassByColumnRowMapper(PrisonerPrisonScheduleDto::class.java)
   }
 }
 
 private fun List<PrisonerScheduleDto>.toPrisonerSchedules(): List<PrisonerSchedule> = map { it.toPrisonerSchedule() }
+
+private fun List<PrisonerPrisonScheduleDto>.toPrisonerPrisonSchedules(): List<PrisonerPrisonSchedule> = map { it.toPrisonerPrisonSchedule() }

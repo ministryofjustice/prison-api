@@ -26,26 +26,23 @@ class ResourceServerConfiguration {
   fun unauthorizedHandler(): EntryPointUnauthorizedHandler = EntryPointUnauthorizedHandler()
 
   @Bean
-  fun filterChain(http: HttpSecurity): SecurityFilterChain {
-    http {
-      headers { frameOptions { sameOrigin = true } }
-      sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
-      // Can't have CSRF protection as requires session
-      csrf { disable() }
-      authorizeHttpRequests {
-        listOf(
-          "/webjars/**", "/favicon.ico", "/csrf",
-          "/health/**", "/info", "/ping", "/h2-console/**",
-          "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
-          "/swagger-resources", "/swagger-resources/configuration/ui",
-          "/swagger-resources/configuration/security", "/api/restore-info",
-        ).forEach { authorize(it, permitAll) }
-        authorize(anyRequest, authenticated)
-      }
-      oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareAuthenticationConverter() } }
+  fun filterChain(http: HttpSecurity): SecurityFilterChain = http {
+    headers { frameOptions { sameOrigin = true } }
+    sessionManagement { sessionCreationPolicy = SessionCreationPolicy.STATELESS }
+    // Can't have CSRF protection as requires session
+    csrf { disable() }
+    authorizeHttpRequests {
+      listOf(
+        "/webjars/**", "/favicon.ico", "/csrf",
+        "/health/**", "/info", "/ping", "/h2-console/**",
+        "/v3/api-docs/**", "/swagger-ui.html", "/swagger-ui/**",
+        "/swagger-resources", "/swagger-resources/configuration/ui",
+        "/swagger-resources/configuration/security", "/api/restore-info",
+      ).forEach { authorize(it, permitAll) }
+      authorize(anyRequest, authenticated)
     }
-    return http.build()
-  }
+    oauth2ResourceServer { jwt { jwtAuthenticationConverter = AuthAwareAuthenticationConverter() } }
+  }.let { http.build() }
 
   @Bean
   fun locallyCachedJwtDecoder(

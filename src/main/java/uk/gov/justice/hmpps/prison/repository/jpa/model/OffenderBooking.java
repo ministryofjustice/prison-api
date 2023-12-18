@@ -15,7 +15,6 @@ import jakarta.persistence.NamedEntityGraphs;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.OneToOne;
-import jakarta.persistence.OrderBy;
 import jakarta.persistence.OrderColumn;
 import jakarta.persistence.PrimaryKeyJoinColumn;
 import jakarta.persistence.SequenceGenerator;
@@ -51,11 +50,9 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -307,6 +304,10 @@ public class OffenderBooking extends AuditableEntity {
 
     @Column(name = "IN_OUT_STATUS", nullable = false)
     private String inOutStatus;
+
+    public boolean isIn() {
+        return inOutStatus.equals("IN");
+    }
 
     public boolean isOut() {
         return inOutStatus.equals("OUT");

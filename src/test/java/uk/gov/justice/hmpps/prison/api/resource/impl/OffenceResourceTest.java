@@ -28,7 +28,6 @@ import java.time.LocalDate;
 import java.util.List;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
@@ -41,88 +40,8 @@ public class OffenceResourceTest extends ResourceTest {
     private OffenceRepository offenceRepository;
 
     @Nested
-    @DisplayName("Tests for all the GET end points")
+    @DisplayName("Tests for the GET end point")
     public class GeneralOffencesTests {
-        @Test
-        public void testCanRetrieveAPageOfOffences() {
-            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-            final var httpEntity = createHttpEntity(token, null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offences",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "paged_offences.json");
-        }
-
-        @Test
-        public void testCanRetrieveAPageOfAllOffences() {
-            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-            final var httpEntity = createHttpEntity(token, null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offences/all?size=20",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "paged_all_offences.json");
-        }
-
-        @Test
-        public void testCanRetrieveAPageOfOffencesByHOCode() {
-            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-            final var httpEntity = createHttpEntity(token, null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offences/ho-code?code=823/02",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "paged_ho_code_offences.json");
-        }
-
-        @Test
-        public void testCanRetrieveAPageOfOffencesByStatuteCode() {
-            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-            final var httpEntity = createHttpEntity(token, null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offences/statute?code=RV98",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "paged_statute_offences.json");
-        }
-
-        @Test
-        public void testCanRetrieveAPageOfOffencesDescription() {
-            final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
-
-            final var httpEntity = createHttpEntity(token, null);
-
-            final var response = testRestTemplate.exchange(
-                "/api/offences/search?searchText=vehicle",
-                HttpMethod.GET,
-                httpEntity,
-                new ParameterizedTypeReference<String>() {
-                });
-
-            assertThatJsonFileAndStatus(response, 200, "paged_searched_for_offences.json");
-        }
-
         @Test
         public void testCanFindOffencesByOffenceCode() {
             final var token = authTokenHelper.getToken(AuthToken.NORMAL_USER);
@@ -224,7 +143,7 @@ public class OffenceResourceTest extends ResourceTest {
             assertThatStatus(response, 201);
 
             final var getResponse = testRestTemplate.exchange(
-                "/api/offences/statute?code=9235",
+                "/api/offences/code/2XX",
                 HttpMethod.GET,
                 createHttpEntity(maintainerToken, null),
                 new ParameterizedTypeReference<String>() {
@@ -253,7 +172,7 @@ public class OffenceResourceTest extends ResourceTest {
             assertThatStatus(response, 204);
 
             final var getResponse = testRestTemplate.exchange(
-                "/api/offences/search?searchText=UPDATED",
+                "/api/offences/code/M5",
                 HttpMethod.GET,
                 createHttpEntity(maintainerToken, null),
                 new ParameterizedTypeReference<String>() {

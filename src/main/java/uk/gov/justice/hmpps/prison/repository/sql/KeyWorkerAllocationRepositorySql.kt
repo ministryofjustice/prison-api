@@ -23,28 +23,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
     """,
   ),
 
-  GET_ALLOCATION_DETAIL_FOR_OFFENDERS(
-    """
-        SELECT
-        OKW.OFFENDER_BOOK_ID   BOOKING_ID,
-        O.OFFENDER_ID_DISPLAY  OFFENDER_NO,
-        OKW.OFFICER_ID         STAFF_ID,
-        O.FIRST_NAME,
-        O.LAST_NAME,
-        OKW.ASSIGNED_TIME      ASSIGNED,
-        OKW.AGY_LOC_ID         AGENCY_ID,
-        AIL.DESCRIPTION        INTERNAL_LOCATION_DESC
-                FROM OFFENDER_KEY_WORKERS OKW
-        INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
-                INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
-                LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON OB.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
-                WHERE O.OFFENDER_ID_DISPLAY IN (:offenderNos)
-        AND OB.AGY_LOC_ID IN (:agencyIds)
-        AND OB.ACTIVE_FLAG = 'Y'
-        AND OKW.ACTIVE_FLAG = 'Y'
-    """,
-  ),
-
   GET_AVAILABLE_KEY_WORKERS(
     """
         SELECT DISTINCT SM.LAST_NAME,
@@ -107,27 +85,6 @@ enum class KeyWorkerAllocationRepositorySql(val sql: String) {
         INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
                 INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
                 WHERE OKW.AGY_LOC_ID = :agencyId
-    """,
-  ),
-
-  GET_ALLOCATION_HISTORY_BY_STAFF(
-    """
-        SELECT
-        O.OFFENDER_ID_DISPLAY OFFENDER_NO,
-        OKW.OFFICER_ID        STAFF_ID,
-        OKW.AGY_LOC_ID        AGENCY_ID,
-        OKW.ASSIGNED_TIME     ASSIGNED,
-        OKW.EXPIRY_DATE       EXPIRED,
-        OKW.USER_ID           USER_ID,
-        OKW.ACTIVE_FLAG       ACTIVE,
-        OKW.CREATE_DATETIME   CREATED,
-        OKW.CREATE_USER_ID    CREATED_BY,
-        OKW.MODIFY_DATETIME   MODIFIED,
-        OKW.MODIFY_USER_ID    MODIFIED_BY
-                FROM OFFENDER_KEY_WORKERS OKW
-        INNER JOIN OFFENDER_BOOKINGS OB         ON OB.OFFENDER_BOOK_ID = OKW.OFFENDER_BOOK_ID
-                INNER JOIN OFFENDERS O                  ON OB.OFFENDER_ID = O.OFFENDER_ID
-                WHERE OKW.OFFICER_ID in (:staffIds)
     """,
   ),
 

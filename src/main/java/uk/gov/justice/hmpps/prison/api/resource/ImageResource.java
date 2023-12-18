@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
@@ -8,12 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.web.PageableDefault;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -29,18 +24,13 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderNumber;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.ImageService;
 
-import jakarta.validation.constraints.Pattern;
 import java.io.IOException;
-import java.time.LocalDateTime;
 import java.util.List;
 
-import static org.springframework.data.domain.Sort.Direction.ASC;
-import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE_TIME;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
 
 @RestController
@@ -56,7 +46,8 @@ public class ImageResource {
             @ApiResponse(responseCode = "200", description = "OK", content = @Content(schema = @Schema(type = "string", format = "binary"))),
             @ApiResponse(responseCode = "404", description = "Requested resource not found."),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
-    @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
+    @Operation(summary = "Image data (as bytes).", description = "Requires role VIEW_PRISONER_DATA.")
+    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     public ResponseEntity<byte[]> getImageData(
         @PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId,
@@ -71,7 +62,8 @@ public class ImageResource {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Image details related to offender.")
+    @Operation(summary = "Image details related to offender.", description = "Requires role VIEW_PRISONER_DATA.")
+    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
@@ -83,7 +75,8 @@ public class ImageResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Image detail (with image data).", description = "Image detail (with image data).")
+    @Operation(summary = "Image detail (with image data).", description = "Requires role VIEW_PRISONER_DATA.")
+    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
     @GetMapping("/{imageId}")
     public ImageDetail getImage(@PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId) {
         return imageService.findImageDetail(imageId);
@@ -95,7 +88,8 @@ public class ImageResource {
         @ApiResponse(responseCode = "403", description = "IMAGE_UPLOAD role required to access endpoint", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "The offender number could not be found or has no bookings.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "DEV USE ONLY *** Upload a new image for a prisoner.", description = "Requires ROLE_IMAGE_UPLOAD.")
+    @Operation(summary = "DEV USE ONLY *** Upload a new image for a prisoner.", description = "Requires ROLE_IMAGE_UPLOAD, write scope and a user in the token.")
+    @PreAuthorize("hasRole('IMAGE_UPLOAD') and hasAuthority('SCOPE_write')")
     @PostMapping(value = "/offenders/{offenderNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
     public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,

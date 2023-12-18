@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
+import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
@@ -8,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.format.annotation.DateTimeFormat.ISO;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -17,7 +19,9 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
+import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 
@@ -44,9 +48,13 @@ public class CellResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get occupancy history of a location.", description = "Requires role MAINTAIN_CELL_MOVEMENTS.")
     @GetMapping("/{locationId}/history")
+    @PreAuthorize("hasRole('MAINTAIN_CELL_MOVEMENTS')")
     @SlowReportQuery
-    public List<BedAssignment> getBedAssignmentsHistory(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime, @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
+    public List<BedAssignment> getBedAssignmentsHistory(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId,
+                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime,
+                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
         return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDateTime, toDateTime);
     }
 
@@ -55,7 +63,9 @@ public class CellResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get occupancy of locations in a prison on a date.", description = "Requires agency to be in caseload or role MAINTAIN_CELL_MOVEMENTS.")
     @GetMapping("/{agencyId}/history/{assignmentDate}")
+    @VerifyAgencyAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @SlowReportQuery
     public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(
         @Parameter(description = "Agency Id", example = "MDI", required = true) @PathVariable("agencyId") final String agencyId,
@@ -69,7 +79,9 @@ public class CellResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get details of a location.")
     @GetMapping("/{locationId}/attributes")
+    @ReferenceData(description = "Cell Attributes only")
     public OffenderCell getCellAttributes(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId) {
         return agencyService.getCellAttributes(locationId);
     }

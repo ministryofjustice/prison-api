@@ -85,30 +85,12 @@ class OffenderBookingBuilder(
       .expectStatus().isOk
       .returnResult<InmateDetail>().responseBody.blockFirst()!!.also {
       if (released) {
-        webTestClient.put()
-          .uri("/api/offenders/{nomsId}/release", offenderNo)
-          .headers(
-            setAuthorisation(
-              jwtAuthenticationHelper = jwtAuthenticationHelper,
-              roles = listOf("ROLE_RELEASE_PRISONER"),
-            ),
-          )
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .body(
-            BodyInserters.fromValue(
-              """
-          {
-            "movementReasonCode":"CR",
-            "commentText":"released prisoner today",
-            "movementTime": "${LocalDateTime.now().minusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
-            
-          }
-              """.trimIndent(),
-            ),
-          )
-          .exchange()
-          .expectStatus().isOk
+        OffenderBookingReleaseBuilder(
+          offenderNo = offenderNo,
+        ).release(
+          webTestClient = webTestClient,
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+        )
       }
     }.also { inmateDetail ->
       this.voBalance?.run {
@@ -130,5 +112,42 @@ class OffenderBookingBuilder(
         it.save(bookingId = inmateDetail.bookingId, dataLoader = dataLoader)
       }
     }
+  }
+}
+
+class OffenderBookingReleaseBuilder(
+  val offenderNo: String,
+  val movementReasonCode: String = "CR",
+  val commentText: String = "released prisoner today",
+  val releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+) : WebClientEntityBuilder() {
+  fun release(
+    webTestClient: WebTestClient,
+    jwtAuthenticationHelper: JwtAuthenticationHelper,
+  ) {
+    webTestClient.put()
+      .uri("/api/offenders/{nomsId}/release", offenderNo)
+      .headers(
+        setAuthorisation(
+          jwtAuthenticationHelper = jwtAuthenticationHelper,
+          roles = listOf("ROLE_RELEASE_PRISONER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .body(
+        BodyInserters.fromValue(
+          """
+          {
+            "movementReasonCode":"$movementReasonCode",
+            "commentText":"$commentText",
+            "releaseTime": "${releaseTime.format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}"
+            
+          }
+          """.trimIndent(),
+        ),
+      )
+      .exchange()
+      .expectStatus().isOk
   }
 }

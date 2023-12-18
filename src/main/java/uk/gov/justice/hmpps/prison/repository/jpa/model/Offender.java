@@ -28,6 +28,7 @@ import org.springframework.data.annotation.CreatedDate;
 import uk.gov.justice.hmpps.prison.api.model.SignificantMovement;
 import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
+import uk.gov.justice.hmpps.prison.api.model.TransferDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
 import java.time.LocalDate;
@@ -111,8 +112,8 @@ public class Offender extends AuditableEntity {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
-            @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "SEX_CODE", referencedColumnName = "code", nullable = false))
     })
     @Exclude
     private Gender gender;
@@ -193,7 +194,7 @@ public class Offender extends AuditableEntity {
         final var latestSeq = identifiers.stream().max(Comparator.comparing(id -> id.getOffenderIdentifierPK().getOffenderIdSeq())).map(id -> id.getOffenderIdentifierPK().getOffenderIdSeq()).orElse(0L);
         final var offenderIdentifier = OffenderIdentifier.builder()
             .offender(this)
-            .offenderIdentifierPK(new OffenderIdentifierPK(getId(), latestSeq+1))
+            .offenderIdentifierPK(new OffenderIdentifierPK(getId(), latestSeq + 1))
             .identifierType(type)
             .identifier(value)
             .issuedDate(LocalDate.now())
@@ -218,22 +219,82 @@ public class Offender extends AuditableEntity {
         bookings.forEach(OffenderBooking::incBookingSequence);
 
     }
+
+    private boolean isTransferOutOrAdmissionThatBecameATransfer(ExternalMovement movement) {
+        if (movement.getMovementType() == null)
+            return false;
+
+        if (isTransferOut(movement))
+            return true;
+
+        if (movement.getMovementReason() == null)
+            return false;
+
+        // treat transfer via court or TAP as transfers
+        return movement.getMovementType().getCode().equals("ADM") && List.of("TRNTAP", "TRNCRT").contains(movement.getMovementReason().getCode());
+    }
+
+    private boolean isAdmission(ExternalMovement movement) {
+        if (movement.getMovementType() == null)
+            return false;
+
+        return movement.getMovementType().getCode().equals("ADM");
+    }
+
+    private boolean isTransferOut(ExternalMovement movement) {
+        if (movement.getMovementType() == null)
+            return false;
+
+        return movement.getMovementType().getCode().equals("TRN") && MovementDirection.OUT.equals(movement.getMovementDirection());
+    }
+
+    private boolean isTapOrCourtOut(ExternalMovement movement) {
+        if (movement.getMovementType() == null)
+            return false;
+
+        if (MovementDirection.IN.equals(movement.getMovementDirection()))
+            return false;
+
+        return List.of("CRT", "TAP").contains(movement.getMovementType().getCode());
+    }
+
     public PrisonerInPrisonSummary getPrisonerInPrisonSummary() {
         final var movementMap = getAllMovements()
             .stream()
             .filter(f -> f.getMovementType() != null && List.of("ADM", "REL", "TAP").contains(f.getMovementType().getCode()))
             .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
 
+        final var transferMap = getAllMovements()
+            .stream()
+            .filter(this::isTransferOutOrAdmissionThatBecameATransfer)
+            .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
+
+        final var admissionsMap = getAllMovements()
+            .stream()
+            .filter(this::isAdmission)
+            .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
+
+        final var tapAndCourtOutMap = getAllMovements()
+            .stream()
+            .filter(this::isTapOrCourtOut)
+            .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
+
         final var summary = PrisonerInPrisonSummary.builder()
             .prisonerNumber(getNomsId())
             .prisonPeriod(movementMap.entrySet().stream()
-                .filter(p -> p.getValue().size() > 0)
+                .filter(p -> !p.getValue().isEmpty())
                 .map(e ->
                     PrisonPeriod.builder()
                         .bookingId(e.getKey().getBookingId())
                         .bookNumber(e.getKey().getBookNumber())
                         .prisons(getAdmissionPrisons(e.getValue()))
                         .movementDates(buildMovements(e.getValue()))
+                        .transfers(buildTransfers(
+                                transferMap.getOrDefault(e.getKey(), List.of()),
+                                admissionsMap.getOrDefault(e.getKey(), List.of()),
+                                tapAndCourtOutMap.getOrDefault(e.getKey(), List.of())
+                            )
+                        )
                         .build())
                 .collect(toList())
             )
@@ -275,6 +336,46 @@ public class Offender extends AuditableEntity {
         return movements;
     }
 
+    private List<TransferDetail> buildTransfers(final List<ExternalMovement> transferMovements,
+                                                final List<ExternalMovement> allAdmissions,
+                                                final List<ExternalMovement> allTapAndCourtOutMovements) {
+        return transferMovements.stream().map(transfer -> {
+            // a normal transfer out - so find the companion admission
+            if (isTransferOut(transfer)) {
+                var admission = findAdmissionForTransferOut(transfer, allAdmissions);
+                return TransferDetail
+                    .builder()
+                    .dateOutOfPrison(transfer.getMovementTime())
+                    .dateInToPrison(admission.map(ExternalMovement::getMovementTime).orElse(null))
+                    .transferReason(transfer.getMovementReason().getDescription())
+                    .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
+                    .toPrisonId(admission.map(ExternalMovement::getToAgency).map(AgencyLocation::getId).orElse(null))
+                    .build();
+            }
+            // an admission (which will be due to transfer via court or TAP) - so find the companion release to court/tap
+            else {
+                var courtOrTapMovement = findMovementToCourtOrTapForAdmissionIn(transfer, allTapAndCourtOutMovements);
+                return TransferDetail
+                    .builder()
+                    .dateOutOfPrison(courtOrTapMovement.map(ExternalMovement::getMovementTime).orElse(null))
+                    .dateInToPrison(transfer.getMovementTime())
+                    .transferReason(transfer.getMovementReason().getDescription())
+                    .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
+                    .toPrisonId(Optional.ofNullable(transfer.getToAgency()).map(AgencyLocation::getId).orElse(null))
+                    .build();
+            }
+
+        }).collect(toList());
+    }
+
+    private Optional<ExternalMovement> findAdmissionForTransferOut(ExternalMovement transferOut, List<ExternalMovement> admissionInMovements) {
+        return admissionInMovements.stream().filter(admission -> admission.getMovementSequence() == transferOut.getMovementSequence() + 1).findFirst();
+    }
+
+    private Optional<ExternalMovement> findMovementToCourtOrTapForAdmissionIn(ExternalMovement admission, List<ExternalMovement> courtOrTapMovementsOut) {
+        return courtOrTapMovementsOut.stream().filter(movement -> movement.getMovementSequence() == admission.getMovementSequence() - 1).findFirst();
+    }
+
     private Optional<SignificantMovement> createMovementRange(final ExternalMovement m, final SignificantMovement md) {
 
         SignificantMovement newMovement = md;
@@ -293,7 +394,7 @@ public class Offender extends AuditableEntity {
         } else if ("TAP".equals(m.getMovementType().getCode())) {
             if (newMovement.getDateInToPrison() != null && m.getMovementDirection() == MovementDirection.OUT) {
                 outward(m, newMovement);
-            } else if (m.getMovementDirection() == MovementDirection.IN){
+            } else if (m.getMovementDirection() == MovementDirection.IN) {
                 inward(m, newMovement);
             }
         }
@@ -326,6 +427,7 @@ public class Offender extends AuditableEntity {
     public String getMiddleNames() {
         return StringUtils.trimToNull(StringUtils.trimToEmpty(middleName) + " " + StringUtils.trimToEmpty(middleName2));
     }
+
     @Override
     public boolean equals(final Object o) {
         if (this == o) return true;

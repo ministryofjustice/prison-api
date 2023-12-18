@@ -17,15 +17,15 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAssessmentItem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AssessmentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-import static java.util.stream.Collectors.*;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
+import static java.util.stream.Collectors.toList;
 
 @Service
 @Validated
@@ -44,7 +44,6 @@ public class OffenderAssessmentService {
     }
 
     @Transactional(readOnly = true)
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public AssessmentDetail getOffenderAssessment(final Long bookingId, final Integer assessmentSeq) {
         final var assessment = repository.findByBookingIdAndAssessmentSeq(bookingId, assessmentSeq);
 
@@ -69,7 +68,6 @@ public class OffenderAssessmentService {
     }
 
     @Transactional(readOnly = true)
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<AssessmentSummary> getOffenderAssessments(final String offenderNo) {
         final var assessments = repository.findWithDetailsByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(List.of(offenderNo), "Y");
 

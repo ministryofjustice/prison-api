@@ -26,10 +26,6 @@ public class BookingEventSteps extends ScheduledEventSteps {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.THISWEEK);
     }
 
-    public void getNextWeeksEvents(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.NEXTWEEK);
-    }
-
     public void getTodaysEvents(final Long bookingId) {
         dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }

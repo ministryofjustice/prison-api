@@ -235,7 +235,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
       }
 
       @Test
-      internal fun `400 when trying to recall in prisoner in the future (and return a slightly inaccurate message)`() {
+      internal fun `400 when trying to recall in prisoner in the future`() {
         val offenderNo = createInactiveBooking()
         val twoMinutesInTheFuture = LocalDateTime.now().plusMinutes(2)
 
@@ -247,7 +247,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
           .isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future")
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -522,7 +522,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
       .uri("/api/offenders/{offenderNo}", offenderNo)
       .headers(
         setAuthorisation(
-          listOf("ROLE_SYSTEM_USER"),
+          listOf("ROLE_VIEW_PRISONER_DATA"),
         ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)

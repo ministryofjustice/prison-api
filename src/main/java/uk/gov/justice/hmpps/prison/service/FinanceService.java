@@ -52,7 +52,7 @@ public class FinanceService {
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final Currency currency;
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Account getBalances(final Long bookingId) {
 
         final var offenderSummary = bookingRepository.getLatestBookingByBookingId(bookingId)
@@ -78,7 +78,7 @@ public class FinanceService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'NOMIS_API_V1', 'UNILINK')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK')")
     public TransferTransactionDetail transferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction,
                                                        final String clientUniqueId) {
         final var optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true);

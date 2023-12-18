@@ -8,22 +8,20 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.check
 import org.mockito.kotlin.verify
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
-import uk.gov.justice.hmpps.prison.util.builders.OffenderAliasBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
-import uk.gov.justice.hmpps.prison.util.builders.transferOut
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -32,6 +30,9 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
   @MockBean
   private lateinit var trustAccountService: TrustAccountService
+
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
 
   @Nested
   @DisplayName("POST /offenders/{offenderNo}/booking")
@@ -117,7 +118,14 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @Test
       internal fun `400 when offender is inactive but not OUT, for instance currently being transferred`() {
-        val offenderNo = createActiveBooking(prisonId = "MDI").also { testDataContext.transferOut(it) }
+        lateinit var offenderNo: String
+        builder.build {
+          offenderNo = offender {
+            booking(prisonId = "MDI") {
+              transferOut(prisonId = "SYI")
+            }
+          }.offenderNo
+        }
 
         // when booking is created then the request is rejected
         webTestClient.post()
@@ -340,7 +348,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       }
 
       @Test
-      internal fun `400 when trying to book in prisoner in the future (and return a slightly inaccurate message)`() {
+      internal fun `400 when trying to book in prisoner in the future`() {
         val offenderNo = createInactiveBooking()
 
         // when booking is created then the request is rejected
@@ -370,7 +378,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .expectStatus().isBadRequest
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Transfer cannot be done in the future")
+          .isEqualTo("Movement cannot be done in the future")
       }
 
       @Test
@@ -415,10 +423,8 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder(
-          bookingBuilders = arrayOf(),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
+        builder.build {
+          offenderNo = offender().offenderNo
         }
       }
 
@@ -573,14 +579,12 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            released = true,
-            youthOffender = true,
-          ),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
+        builder.build {
+          offenderNo = offender {
+            booking(prisonId = "LEI", youthOffender = true) {
+              release()
+            }
+          }.offenderNo
         }
       }
 
@@ -591,7 +595,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -666,7 +670,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -729,14 +733,12 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            released = true,
-            youthOffender = false,
-          ),
-        ).save(testDataContext).also {
-          offenderNo = it.offenderNo
+        builder.build {
+          offenderNo = offender {
+            booking(prisonId = "LEI", youthOffender = false) {
+              release()
+            }
+          }.offenderNo
         }
       }
 
@@ -748,7 +750,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -823,7 +825,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -885,16 +887,14 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        OffenderBuilder().withBooking(
-          OffenderBookingBuilder(
-            prisonId = "LEI",
-            released = true,
-            youthOffender = false,
-          ),
-        ).withAliases(OffenderAliasBuilder())
-          .save(testDataContext).also {
-            offenderNo = it.offenderNo
-          }
+        builder.build {
+          offenderNo = offender {
+            alias(firstName = "JACK", lastName = "TRENT")
+            booking(prisonId = "LEI", youthOffender = false) {
+              release()
+            }
+          }.offenderNo
+        }
       }
 
       @Test
@@ -903,7 +903,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .uri("/api/offenders/{offenderNo}", offenderNo)
           .headers(
             setAuthorisation(
-              listOf("ROLE_SYSTEM_USER"),
+              listOf("ROLE_VIEW_PRISONER_DATA"),
             ),
           )
           .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -965,7 +965,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @BeforeEach
       internal fun setUp() {
-        offenderNo = createInactiveBooking(iepLevel = "ENH")
+        offenderNo = createInactiveBooking()
       }
 
       @Test
@@ -1199,16 +1199,29 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
     }
   }
 
-  fun createActiveBooking(prisonId: String = "MDI"): String = OffenderBuilder().withBooking(
-    OffenderBookingBuilder(
-      prisonId = prisonId,
-    ),
-  ).save(testDataContext).offenderNo
+  fun createActiveBooking(prisonId: String = "MDI"): String {
+    lateinit var offenderNo: String
 
-  fun createInactiveBooking(iepLevel: String = "ENH"): String = OffenderBuilder().withBooking(
-    OffenderBookingBuilder(
-      prisonId = "MDI",
-      released = true,
-    ).withIEPLevel(iepLevel),
-  ).save(testDataContext).offenderNo
+    builder.build {
+      offenderNo = offender {
+        booking(prisonId = prisonId)
+      }.offenderNo
+    }
+
+    return offenderNo
+  }
+
+  fun createInactiveBooking(): String {
+    lateinit var offenderNo: String
+
+    builder.build {
+      offenderNo = offender {
+        booking(prisonId = "MDI") {
+          release()
+        }
+      }.offenderNo
+    }
+
+    return offenderNo
+  }
 }

@@ -16,7 +16,7 @@ public class AdjustmentService {
     private final OffenderBookingRepository offenderBookingRepository;
 
     @Transactional(readOnly = true)
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         return BookingAndSentenceAdjustments.builder()

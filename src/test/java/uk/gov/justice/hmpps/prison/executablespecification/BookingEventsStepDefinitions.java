@@ -10,9 +10,9 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSte
 import java.util.List;
 
 /**
- * BDD step definitions for finance endpoints:
+ * BDD step definitions for events endpoints:
  * <ul>
- * <li>/bookings/{booking_id}/balances</li>
+ * <li>/bookings/{booking_id}/events</li>
  * </ul>
  */
 public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
@@ -28,16 +28,6 @@ public class BookingEventsStepDefinitions extends AbstractStepDefinitions {
     @When("^this week's scheduled events are requested for an offender with booking id ([0-9-]+)$")
     public void thisWeeksScheduledEventsAreRequested(final Long bookingId) throws Throwable {
         eventsSteps.getThisWeeksEvents(bookingId);
-    }
-
-    @When("^next week's scheduled events are requested for an offender with booking id ([0-9-]+)$")
-    public void nextWeeksScheduledEventsAreRequested(final Long bookingId) throws Throwable {
-        eventsSteps.getNextWeeksEvents(bookingId);
-    }
-
-    @Then("^resource not found response is received from booking events API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() throws Throwable {
-        eventsSteps.verifyResourceNotFound();
     }
 
     @Then("^response from booking events API is an empty list$")

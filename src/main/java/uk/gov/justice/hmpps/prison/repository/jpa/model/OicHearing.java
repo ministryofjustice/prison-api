@@ -34,7 +34,7 @@ import java.time.LocalDateTime;
 public class OicHearing extends AuditableEntity {
 
     public enum OicHearingStatus {
-        SCH,EXP,CAN
+        SCH,EXP,CAN,COMP
     }
 
     public enum OicHearingType {

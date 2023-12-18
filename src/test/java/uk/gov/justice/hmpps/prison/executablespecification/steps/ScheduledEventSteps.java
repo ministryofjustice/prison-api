@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import net.thucydides.core.annotations.Step;
+import net.serenitybdd.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -51,13 +51,6 @@ public abstract class ScheduledEventSteps extends CommonSteps {
     public void verifyEventStatus(final String expectedEventStatus) {
         scheduledEvents.forEach(event -> {
             assertThat(event.getEventStatus()).isEqualTo(expectedEventStatus);
-        });
-    }
-
-    @Step("Verify event status present for all scheduled events")
-    public void verifyEventStatusPresent() {
-        scheduledEvents.forEach(event -> {
-            assertThat(event.getEventStatus()).isNotBlank();
         });
     }
 
@@ -140,10 +133,6 @@ public abstract class ScheduledEventSteps extends CommonSteps {
         assertThat(scheduledEvents.isEmpty()).as("Expecting no results").isTrue();
     }
 
-    public void verifyNumber(final int number) {
-        assertThat(scheduledEvents).hasSize(number);
-    }
-
     protected void dispatchRequest(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         var urlModifier = "";
 
@@ -195,8 +184,7 @@ public abstract class ScheduledEventSteps extends CommonSteps {
 
     enum ScheduledEventPeriod {
         TODAY("/today"),
-        THISWEEK("/thisWeek"),
-        NEXTWEEK("/nextWeek");
+        THISWEEK("/thisWeek");
 
         private String urlModifier;
 

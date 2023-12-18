@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -9,13 +8,9 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.MediaType
 
 class StaffResourceIntTest : ResourceTest() {
-
-  @SpyBean
-  protected lateinit var telemetryClient: TelemetryClient
 
   @Nested
   @DisplayName("GET /api/staff/roles/{agencyId}/role/{role}")
@@ -75,7 +70,8 @@ class StaffResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("$.length()").isEqualTo(4)
-        .jsonPath("[*].staffId").value<List<Int>> { Assertions.assertThat(it).containsExactlyInAnyOrder(-1, -4, -11, -12) }
+        .jsonPath("[*].staffId")
+        .value<List<Int>> { Assertions.assertThat(it).containsExactlyInAnyOrder(-1, -4, -11, -12) }
     }
 
     @Test
@@ -142,13 +138,15 @@ class StaffResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return not found if does not have override role`() {
+    fun `should return 403 if does not have override role`() {
       webTestClient.get()
         .uri("/api/staff/roles/BMI/role/KW")
         .headers(setClientAuthorisation(listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage")
+        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role.")
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
@@ -157,20 +155,10 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return not found if agency does not exist`() {
       webTestClient.get()
         .uri("/api/staff/roles/XYZ/role/KW")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
-    }
-
-    @Test
-    fun `should return success if has SYSTEM_USER override role`() {
-      webTestClient.get()
-        .uri("/api/staff/roles/BMI/role/KW")
-        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
     }
 
     @Test
@@ -181,6 +169,33 @@ class StaffResourceIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Should find KW role for staff member`() {
+      webTestClient.get()
+        .uri("/api/staff/-1/LEI/roles/KW")
+        .headers(setClientAuthorisation(listOf()))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(String::class.java)
+        .consumeWith {
+          Assertions.assertThat(it.responseBody).isEqualTo("true")
+        }
+    }
+
+    @Test
+    fun `Should find roles for staff member`() {
+      webTestClient.get()
+        .uri("/api/staff/-2/LEI/roles")
+        .headers(setClientAuthorisation(listOf()))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(1)
+        .jsonPath("$[0].role").isEqualTo("OS")
     }
   }
 }

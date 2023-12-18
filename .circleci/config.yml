@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@7
+  hmpps: ministryofjustice/hmpps@8
 
 executor:
   &executor
@@ -10,7 +10,7 @@ executor:
     tag: "21.0"
   environment:
     # Setting max gradle workers to 1 (which means 1 running concurrently, not max 1!) - because although this doesn't stop the ktlint workers from starting it does seem to prevent the test executor from needing as much memory.
-    _JAVA_OPTIONS: -Xmx1536m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
+    _JAVA_OPTIONS: -Xmx2048m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
       -XX:ParallelGCThreads=2
       -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
       -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport
@@ -101,6 +101,7 @@ jobs:
           path: build/serenity
       - store_artifacts:
           path: build/libs
+    resource_class: large
 
 workflows:
   version: 2
@@ -128,6 +129,8 @@ workflows:
           name: deploy_dev
           env: "dev"
           jira_update: true
+          pipeline_id: <<pipeline.id>>
+          pipeline_number: <<pipeline.number>>
           context:
             - hmpps-common-vars
           filters:
@@ -149,6 +152,8 @@ workflows:
           env: "preprod"
           jira_update: true
           jira_env_type: staging
+          pipeline_id: <<pipeline.id>>
+          pipeline_number: <<pipeline.number>>
           context:
             - hmpps-common-vars
             - prison-api-preprod
@@ -164,6 +169,8 @@ workflows:
           env: "prod"
           jira_update: true
           jira_env_type: production
+          pipeline_id: <<pipeline.id>>
+          pipeline_number: <<pipeline.number>>
           slack_notification: true
           context:
             - hmpps-common-vars

@@ -5,9 +5,12 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
+import org.springframework.http.HttpMethod.GET
+import org.springframework.http.HttpMethod.POST
+import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
+import org.springframework.http.HttpStatus.OK
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 
@@ -15,16 +18,38 @@ class PrisonerResourceTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/prisoners")
   inner class GetPrisoners {
+
     @Test
-    fun testCanFindSinglePrisoner() {
-      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
-      val response = testRestTemplate.exchange(
-        "/api/prisoners?offenderNo=A1234AC",
-        HttpMethod.GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
-      )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when there is no override role`() {
+      webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has override ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].offenderNo").isEqualTo("A1234AC")
+    }
+
+    @Test
+    fun `returns 403 if has override SYSTEM_USER`() {
+      webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -32,11 +57,11 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
       val response = testRestTemplate.exchange(
         "/api/prisoners?ofenderNo=A1476AE",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+      assertThatJsonAndStatus(response, OK.value(), "[]")
     }
 
     @Test
@@ -44,11 +69,11 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
       val response = testRestTemplate.exchange(
         "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_multiple.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_multiple.json")
     }
 
     @Test
@@ -56,11 +81,11 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
       val response = testRestTemplate.exchange(
         "/api/prisoners?offenderNo=A1181MV&offenderNo=A1234AC&offenderNo=A1234AA&lastName=BATES",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }
 
     @Test
@@ -68,28 +93,59 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
       val response = testRestTemplate.exchange(
         "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, HttpStatus.FORBIDDEN)
+      assertThatStatus(response, FORBIDDEN)
     }
   }
 
   @Nested
   @DisplayName("POST /api/prisoners")
   inner class PostPrisoners {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/prisoners")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.post().uri("/api/prisoners")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/prisoners")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
     @Test
     fun testCanFindMultiplePrisonersUsingPost() {
       val token = authTokenHelper.getToken(GLOBAL_SEARCH)
       val httpEntity = createHttpEntity(token, "{ \"offenderNos\": [ \"A1234AC\", \"A1234AA\" ] }")
       val response = testRestTemplate.exchange(
         "/api/prisoners",
-        HttpMethod.POST,
+        POST,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_multiple.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_multiple.json")
     }
 
     @Test
@@ -101,27 +157,75 @@ class PrisonerResourceTest : ResourceTest() {
       )
       val response = testRestTemplate.exchange(
         "/api/prisoners",
-        HttpMethod.POST,
+        POST,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }
   }
 
   @Nested
   @DisplayName("GET /api/prisoners/{offenderNo}/full-status")
   inner class GetPrisonerFullStatus {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have any roles`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/prisoners/A1234AA/full-status")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun testCanReturnPrisonerInformationByNomsId() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA/full-status",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_information_A1234AA.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_information_A1234AA.json")
     }
 
     @Test
@@ -129,11 +233,11 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/Z0023ZZ/full-status",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_information_Z0023ZZ.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_information_Z0023ZZ.json")
     }
 
     @Test
@@ -141,7 +245,7 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/X1111XX/full-status",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
@@ -153,7 +257,7 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA/full-status",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
@@ -165,15 +269,40 @@ class PrisonerResourceTest : ResourceTest() {
   @DisplayName("GET /api/prisoners/{offenderNo}")
   inner class GetPrisoner {
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prisoners/A1234AC")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when there is no override role`() {
+      webTestClient.get().uri("/api/prisoners/A1234AC")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has override ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/prisoners/A1234AC")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].offenderNo").isEqualTo("A1234AC")
+    }
+
+    @Test
     fun testCanReturnPrisonerInformationByNomsId() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AC",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, HttpStatus.OK, "prisoners_single.json")
+      assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }
 
     @Test
@@ -185,11 +314,20 @@ class PrisonerResourceTest : ResourceTest() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
         "/api/prisoners/X1111XX",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+      assertThatJsonAndStatus(response, OK.value(), "[]")
+    }
+
+    @Test
+    fun `returns success if in user caseload`() {
+      webTestClient.get().uri("/api/prisoners/A1234AC")
+        .headers(setAuthorisation(listOf())).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].offenderNo").isEqualTo("A1234AC")
     }
 
     @Test
@@ -198,17 +336,57 @@ class PrisonerResourceTest : ResourceTest() {
 
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA",
-        HttpMethod.GET,
+        GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonAndStatus(response, HttpStatus.OK.value(), "[]")
+      assertThatJsonAndStatus(response, OK.value(), "[]")
     }
   }
 
   @Nested
   @DisplayName("GET /api/prisoners/prisoner-numbers")
   inner class GetPrisonerNumbers {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when there is no override role`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if has override role SYSTEM_USER`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success if has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success if has override role ROLE_PRISONER_INDEX`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun `can return prisoner numbers`() {
       webTestClient.get()
@@ -277,15 +455,6 @@ class PrisonerResourceTest : ResourceTest() {
             .contains("A1181FF")
             .doesNotContain("A1234AN", "A1234AO")
         }
-    }
-
-    @Test
-    fun testReturn403WhenDoesNotHavePrivs() {
-      webTestClient.get()
-        .uri("/api/prisoners/prisoner-numbers")
-        .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .exchange()
-        .expectStatus().isForbidden
     }
   }
 }

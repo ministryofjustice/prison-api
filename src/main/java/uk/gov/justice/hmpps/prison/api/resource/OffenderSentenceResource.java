@@ -11,6 +11,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
@@ -35,6 +36,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
+import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
 
@@ -99,6 +101,7 @@ public class OffenderSentenceResource {
     })
     @Operation(summary = "Retrieve the current state of the latest Home Detention Curfew for a booking")
     @GetMapping("/booking/{bookingId}/home-detention-curfews/latest")
+    @VerifyBookingAccess(overrideRoles = "VIEW_PRISONER_DATA")
     public HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable("bookingId") Long bookingId) {
         return offenderCurfewService.getLatestHomeDetentionCurfew(bookingId);
     }
@@ -110,6 +113,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Retrieve the latest Home Detention Curfew status for a list of offender booking identifiers")
     @PostMapping("/home-detention-curfews/latest")
     @SlowReportQuery
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     public List<HomeDetentionCurfew> getBatchLatestHomeDetentionCurfew(@RequestBody @Parameter(description = "A list of booking ids", required = true) final List<Long> bookingIds) {
         validateBookingIdList(bookingIds);
         return offenderCurfewService.getBatchLatestHomeDetentionCurfew(bookingIds);
@@ -124,6 +128,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Set the HDC checks passed flag")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
+    @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @Valid final HdcChecks hdcChecks) {
         offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
         return ResponseEntity.noContent().build();
@@ -138,6 +143,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Clear the HDC checks passed flag")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
+    @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> clearCurfewChecks(@PathVariable("bookingId") Long bookingId) {
         offenderCurfewService.deleteHdcChecks(bookingId);
         return ResponseEntity.noContent().build();
@@ -152,6 +158,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Set the HDC approval status")
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
+    @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @Valid final ApprovalStatus approvalStatus) {
         offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
         return ResponseEntity.noContent().build();
@@ -166,6 +173,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Clear the HDC approval status")
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
+    @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> clearApprovalStatus(@PathVariable("bookingId") Long bookingId) {
         offenderCurfewService.deleteApprovalStatus(bookingId);
         return ResponseEntity.noContent().build();
@@ -196,8 +204,9 @@ public class OffenderSentenceResource {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "Sentence term details for a prisoner."),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Sentence term details for a prisoner")
+    @Operation(summary = "Sentence term details for a prisoner", description = "Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/booking/{bookingId}/sentenceTerms")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
         return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
     }

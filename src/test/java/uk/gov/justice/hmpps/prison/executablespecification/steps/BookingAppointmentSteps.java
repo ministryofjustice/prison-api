@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import net.thucydides.core.annotations.Step;
+import net.serenitybdd.annotations.Step;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
@@ -22,26 +22,6 @@ public class BookingAppointmentSteps extends ScheduledEventSteps {
     @Override
     protected String getResourcePath() {
         return BOOKING_APPOINTMENTS_API_URL;
-    }
-
-    @Step("Get appointments for booking")
-    public void getBookingAppointments(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
-        dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
-    }
-
-    @Step("Get appointments for booking for current day only")
-    public void getBookingAppointmentsForCurrentDay(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
-    }
-
-    @Step("Get appointments for booking for 7 days ahead starting from current day")
-    public void getBookingAppointmentsForThisWeek(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.THISWEEK);
-    }
-
-    @Step("Get appointments for booking for 7 days ahead starting from a week from current day")
-    public void getBookingAppointmentsForNextWeek(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.NEXTWEEK);
     }
 
     @Step("Create appointment")

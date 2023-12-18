@@ -86,8 +86,10 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
-import uk.gov.justice.hmpps.prison.service.PrisonerReleaseAndTransferService;
+import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.DischargeToHospitalService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 
@@ -114,13 +116,15 @@ public class OffenderResource {
     private final BookingService bookingService;
     private final AuthenticationFacade authenticationFacade;
     private final PrisonerCreationService prisonerCreationService;
-    private final PrisonerReleaseAndTransferService prisonerReleaseAndTransferService;
+    private final PrisonerTransferService prisonerTransferService;
     private final OffenderDamageObligationService offenderDamageObligationService;
     private final OffenderTransactionHistoryService offenderTransactionHistoryService;
     private final MovementsService movementsService;
     private final BookingIntoPrisonService bookingIntoPrisonService;
     private final TransferIntoPrisonService transferIntoPrisonService;
     private final OffenderLocationService offenderLocationService;
+    private final ReleasePrisonerService releasePrisonerService;
+    private final DischargeToHospitalService dischargeToHospitalService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -129,9 +133,10 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(
-        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Offender details, default is 1.0, Beta is version 1.1_beta and is WIP (do not use in production)") final String version,
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo,
+        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Offender details, default is 1.0, Beta is version 1.1_beta and is WIP (do not use in production)") final String version) {
         if ("1.1_beta".equals(version)) {
             // TODO: This is WIP as not all data is yet mapped
             return bookingService.getOffender(offenderNo);
@@ -144,9 +149,138 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Summary of the different periods this prisoner has been in prison.", description = "This is a summary of the different periods this prisoner has been in prison. It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates. Transfers are not listed but prisons the person was detailed at are listed in the unordered prison list")
+    @Operation(
+        summary = "Summary of the different periods this prisoner has been in prison.",
+        description = """
+            This is a summary of the different periods this prisoner has been in prison grouped by booking. 
+            
+            It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). 
+            
+            The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates. 
+            
+            Transfers are also listed separately.
+            
+            
+            **Example response:**
+            #### Booking 47828A
+            Has 2 periods of temporary absence. In the second absence they return to a different prison. They are eventually released.
+            
+            #### Booking 47829A
+            The person is still is prison but has been transferred to a 2nd prison.
+            
+            There are a number of transfers during this booking.
+            ```
+            {
+              "prisonerNumber": "A7748DZ",
+              "prisonPeriod": [
+                {
+                  "bookNumber": "47828A",
+                  "bookingId": 1211013,
+                  "entryDate": "2023-12-08T15:50:37",
+                  "releaseDate": "2023-12-08T16:21:24",
+                  "movementDates": [
+                    {
+                      "reasonInToPrison": "Imprisonment Without Option",
+                      "dateInToPrison": "2023-12-08T15:50:37",
+                      "inwardType": "ADM",
+                      "reasonOutOfPrison": "Wedding/Civil Ceremony",
+                      "dateOutOfPrison": "2023-12-08T15:53:37",
+                      "outwardType": "TAP",
+                      "admittedIntoPrisonId": "BMI",
+                      "releaseFromPrisonId": "BSI"
+                    },
+                    {
+                      "reasonInToPrison": "Wedding/Civil Ceremony",
+                      "dateInToPrison": "2023-12-08T15:54:12",
+                      "inwardType": "TAP",
+                      "reasonOutOfPrison": "Conditional Release (CJA91) -SH Term>1YR",
+                      "dateOutOfPrison": "2023-12-08T16:20:19",
+                      "outwardType": "REL",
+                      "admittedIntoPrisonId": "BSI",
+                      "releaseFromPrisonId": "AYI"
+                    },
+                    {
+                      "reasonInToPrison": "Recall From Intermittent Custody",
+                      "dateInToPrison": "2023-12-08T16:20:45",
+                      "inwardType": "ADM",
+                      "reasonOutOfPrison": "Conditional Release (CJA91) -SH Term>1YR",
+                      "dateOutOfPrison": "2023-12-08T16:21:24",
+                      "outwardType": "REL",
+                      "admittedIntoPrisonId": "AYI",
+                      "releaseFromPrisonId": "AYI"
+                    }
+                  ],
+                  "transfers": [
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:51:09",
+                      "dateInToPrison": "2023-12-08T15:52:32",
+                      "transferReason": "Compassionate Transfer",
+                      "fromPrisonId": "BMI",
+                      "toPrisonId": "BSI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:54:56",
+                      "dateInToPrison": "2023-12-08T15:55:54",
+                      "transferReason": "Transfer Via Court",
+                      "fromPrisonId": "BSI",
+                      "toPrisonId": "BRI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T15:56:05",
+                      "dateInToPrison": "2023-12-08T15:57:25",
+                      "transferReason": "Appeals",
+                      "fromPrisonId": "BRI",
+                      "toPrisonId": "DAI"
+                    },
+                    {
+                      "dateOutOfPrison": "2023-12-08T16:18:45",
+                      "dateInToPrison": "2023-12-08T16:19:45",
+                      "transferReason": "Medical",
+                      "fromPrisonId": "DAI",
+                      "toPrisonId": "AYI"
+                    }
+                  ],
+                  "prisons": [
+                    "BMI",
+                    "BSI",
+                    "BRI",
+                    "DAI",
+                    "AYI"
+                  ]
+                },
+                {
+                  "bookNumber": "47829A",
+                  "bookingId": 1211014,
+                  "entryDate": "2023-12-08T16:21:21",
+                  "movementDates": [
+                    {
+                      "reasonInToPrison": "Imprisonment Without Option",
+                      "dateInToPrison": "2023-12-08T16:21:21",
+                      "inwardType": "ADM",
+                      "admittedIntoPrisonId": "DGI"
+                    }
+                  ],
+                  "transfers": [
+                    {
+                      "dateOutOfPrison": "2023-12-08T16:22:02",
+                      "dateInToPrison": "2023-12-08T16:23:32",
+                      "transferReason": "Overcrowding Draft",
+                      "fromPrisonId": "DGI",
+                      "toPrisonId": "BLI"
+                    }
+                  ],
+                  "prisons": [
+                    "DGI",
+                    "BLI"
+                  ]
+                }
+              ]
+            }
+            ```
+            
+            """)
     @GetMapping("/{offenderNo}/prison-timeline")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     public PrisonerInPrisonSummary getOffenderPrisonPeriods(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return movementsService.getPrisonerInPrisonSummary(offenderNo);
     }
@@ -175,11 +309,11 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/release")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER"})
+    @VerifyOffenderAccess
     public InmateDetail releasePrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
-        return prisonerReleaseAndTransferService.releasePrisoner(offenderNo, requestToReleasePrisoner, null);
+        return releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner, true);
     }
 
     @ApiResponses({
@@ -188,16 +322,15 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to release a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "*** BETA *** Discharges a prisoner to hospital, requires the RELEASE_PRISONER role")
+    @Operation(summary = "Discharges a prisoner to hospital, requires the RELEASE_PRISONER role")
     @PutMapping("/{offenderNo}/discharge-to-hospital")
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail dischargePrisonerToHospital(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
-        return prisonerReleaseAndTransferService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
+        return dischargeToHospitalService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
     }
-
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -243,7 +376,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisoner(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
     }
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -257,7 +390,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisonerToCourt(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToCourt requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisonerToCourt(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisonerToCourt(offenderNo, requestToTransferOut);
     }
 
     @ApiResponses({
@@ -272,7 +405,7 @@ public class OffenderResource {
     public InmateDetail transferOutPrisonerToTemporaryAbsence(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToTemporaryAbsence requestToTransferOut) {
-        return prisonerReleaseAndTransferService.transferOutPrisonerToTemporaryAbsence(offenderNo, requestToTransferOut);
+        return prisonerTransferService.transferOutPrisonerToTemporaryAbsence(offenderNo, requestToTransferOut);
     }
 
     @ApiResponses({
@@ -340,7 +473,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type. Requires the VIEW_INCIDENTS role.")
     @GetMapping("/{offenderNo}/incidents")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER', 'VIEW_INCIDENTS')")
+    @PreAuthorize("hasRole('VIEW_INCIDENTS')")
     public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
@@ -437,7 +570,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of alerts for all booking for a given offender No.", description = "System or cat tool access only")
     @GetMapping("/{offenderNo}/alerts/v2")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsForAllBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,

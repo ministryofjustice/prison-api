@@ -907,16 +907,6 @@ public class InmateRepository extends RepositoryBase {
         return imprisonmentStatus;
     }
 
-
-    public List<InmateBasicDetails> getBasicInmateDetailsByBookingIds(final String caseload, final List<Long> bookingIds) {
-        final var sql = InmateRepositorySql.FIND_BASIC_INMATE_DETAIL_BY_BOOKING_IDS.getSql();
-        final var details = jdbcTemplate.query(
-            sql,
-            createParams("bookingIds", bookingIds, "caseloadId", caseload),
-            OFFENDER_BASIC_DETAILS_MAPPER);
-        return details.stream().map(InmateBasicDetailsDto::toInmateBasicDetails).toList();
-    }
-
     private Integer getOffenderAssessmentSeq(final Long bookingId) {
 
         Integer maxSeq = null;

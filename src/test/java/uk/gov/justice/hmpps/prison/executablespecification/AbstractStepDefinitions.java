@@ -12,34 +12,22 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AdjudicationSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivitySteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAlertSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAppointmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingVisitSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BulkAppointmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.CurfewSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.FinanceSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.LocationsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MovementsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.MyAssignmentsSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.NomisApiV1Steps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSearchSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PersonIdentifierSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.SchedulesSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.StaffSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
@@ -85,11 +73,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public LocationsSteps location() {
-            return new LocationsSteps();
-        }
-
-        @Bean
         public BookingAliasSteps bookingAlias() {
             return new BookingAliasSteps();
         }
@@ -107,21 +90,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingActivitySteps bookingActivity() {
             return new BookingActivitySteps();
-        }
-
-        @Bean
-        public BookingAlertSteps bookingAlert() {
-            return new BookingAlertSteps();
-        }
-
-        @Bean
-        public OffenderSearchSteps offenderSearch() {
-            return new OffenderSearchSteps();
-        }
-
-        @Bean
-        public OffenderSteps offenderSteps() {
-            return new OffenderSteps();
         }
 
         @Bean
@@ -145,11 +113,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public FinanceSteps bookingFinance() {
-            return new FinanceSteps();
-        }
-
-        @Bean
         public ContactSteps bookingContact() {
             return new ContactSteps();
         }
@@ -165,11 +128,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public BookingVisitSteps bookingVisit() {
-            return new BookingVisitSteps();
-        }
-
-        @Bean
         public BookingEventSteps bookingEvent() {
             return new BookingEventSteps();
         }
@@ -180,28 +138,13 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public SchedulesSteps schedules() {
-            return new SchedulesSteps();
-        }
-
-        @Bean
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
         }
 
         @Bean
-        public KeyWorkerAllocationSteps keyWorkerAllocation() {
-            return new KeyWorkerAllocationSteps();
-        }
-
-        @Bean
         public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
             return new KeyWorkerAllocatedOffendersSteps();
-        }
-
-        @Bean
-        public KeyWorkerSteps keyWorker() {
-            return new KeyWorkerSteps();
         }
 
         @Bean
@@ -212,21 +155,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public PersonIdentifierSteps personIdentifierSteps() {
             return new PersonIdentifierSteps();
-        }
-
-        @Bean
-        public CurfewSteps curfewSteps() {
-            return new CurfewSteps();
-        }
-
-        @Bean
-        public BulkAppointmentSteps bulkAppointmentSteps() {
-            return new BulkAppointmentSteps();
-        }
-
-        @Bean
-        public NomisApiV1Steps nomisApiV1Steps() {
-            return new NomisApiV1Steps();
         }
     }
 

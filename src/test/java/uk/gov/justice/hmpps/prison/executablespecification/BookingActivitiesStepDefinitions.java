@@ -10,7 +10,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivity
  * BDD step definitions for the Booking Activities API endpoints:
  * <ul>
  *     <li>/booking/{bookingId}/activities</li>
- *     <li>/booking/{bookingId}/activities/today</li>
  * </ul>
  */
 public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
@@ -111,11 +110,6 @@ public class BookingActivitiesStepDefinitions extends AbstractStepDefinitions {
     @And("^event source description for \"([^\"]*)\" returned activity is \"([^\"]*)\"$")
     public void eventSourceDescriptionForReturnedActivityIs(final String ordinal, final String expectedSourceDescription) throws Throwable {
         bookingActivities.verifyEventSourceDescription(ord2idx(ordinal), expectedSourceDescription);
-    }
-
-    @When("^scheduled activities for current day are requested for an offender with booking id \"([^\"]*)\"$")
-    public void scheduledActivitiesForCurrentDayAreRequestedForAnOffenderWithBookingId(final String bookingId) throws Throwable {
-        bookingActivities.getBookingActivitiesForCurrentDay(Long.valueOf(bookingId));
     }
 
     @When("^scheduled activities from \"([^\"]*)\" are requested for an offender with booking id \"([^\"]*)\"$")

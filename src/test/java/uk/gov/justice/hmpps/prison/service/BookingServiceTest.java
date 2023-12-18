@@ -11,6 +11,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
@@ -73,7 +74,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -141,8 +141,6 @@ public class BookingServiceTest {
     @Mock
     private OffenderFixedTermRecallService offenderFixedTermRecallService;
     @Mock
-    private AgencyInternalLocationRepository agencyInternalLocationRepository;
-    @Mock
     private OffenderContactPersonsRepository offenderContactPersonsRepository;
     @Mock
     private OffenderRestrictionRepository offenderRestrictionRepository;
@@ -192,7 +190,6 @@ public class BookingServiceTest {
             agencyService,offenderFixedTermRecallService,
             caseLoadService,
             caseloadToAgencyMappingService,
-            agencyInternalLocationRepository,
             offenderContactPersonsRepository,
             staffUserAccountRepository,
             offenderBookingTransformer,
@@ -216,7 +213,7 @@ public class BookingServiceTest {
         when(agencyService.getAgencyIds()).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
-        bookingService.getOffenderIdentifiers("off-1");
+        bookingService.getOffenderIdentifiers("off-1", false);
     }
 
     @Test
@@ -230,8 +227,23 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1"))
+            bookingService.getOffenderIdentifiers("off-1", false))
             .isInstanceOf(EntityNotFoundException.class);
+    }
+
+    @Test
+    public void testVerifyCannotAccessLatestBookingForAccessDenied() {
+
+        final var agencyIds = Set.of("agency-1");
+        final var bookingId = 1L;
+
+        when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(agencyService.getAgencyIds()).thenReturn(agencyIds);
+        when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
+
+        assertThatThrownBy(() ->
+            bookingService.getOffenderIdentifiers("off-1", true))
+            .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test
@@ -245,7 +257,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
-        bookingService.getOffenderIdentifiers("off-1");
+        bookingService.getOffenderIdentifiers("off-1", false);
     }
 
     @Test
@@ -254,7 +266,7 @@ public class BookingServiceTest {
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
 
-        bookingService.getOffenderIdentifiers("off-1", "SYSTEM_USER", "GLOBAL_SEARCH");
+        bookingService.getOffenderIdentifiers("off-1", false, "SYSTEM_USER", "GLOBAL_SEARCH");
 
         verify(authenticationFacade).isOverrideRole(
             "SYSTEM_USER", "GLOBAL_SEARCH"
@@ -272,7 +284,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1"))
+            bookingService.getOffenderIdentifiers("off-1", false))
             .isInstanceOf(EntityNotFoundException.class);
     }
 
@@ -1283,10 +1295,10 @@ public class BookingServiceTest {
                                         OffenceIndicator.builder().indicatorCode("INDICATOR").build()
                                     ))
                                     .code("STA1234")
-                                        .statute(
-                                            Statute.builder().code("STA").build()
-                                        )
-                                        .build())
+                                    .statute(
+                                        Statute.builder().code("STA").build()
+                                    )
+                                    .build())
                                 .build()
                             )
                             .build()
@@ -1424,33 +1436,17 @@ public class BookingServiceTest {
         void bookingNotFound_throws() {
             when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(valueOf(BAD_BOOKING_ID));
-
             assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, aCellSwapLocation()))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
 
         @Test
-        void livingUnitNotFound_throws() {
-            when(offenderBookingRepository.findById(SOME_BOOKING_ID)).thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC)).thenReturn(Optional.empty());
-
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
-                .isInstanceOf(EntityNotFoundException.class)
-                .hasMessageContaining(NEW_LIVING_UNIT_DESC);
-        }
-
-        @Test
         void livingUnitNotCell_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(NEW_LIVING_UNIT_DESC)
                 .hasMessageContaining("WING");
@@ -1460,10 +1456,8 @@ public class BookingServiceTest {
         void differentAgency_throws() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(SOME_AGENCY_ID)
                 .hasMessageContaining(DIFFERENT_AGENCY_ID);
@@ -1473,23 +1467,20 @@ public class BookingServiceTest {
         void ok_updatesRepo() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID));
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
             assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
+
         @Test
         void ok_updatesRepoForReception() {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
-            when(agencyInternalLocationRepository.findOneByDescription(NEW_LIVING_UNIT_DESC))
-                .thenReturn(Optional.of(receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE)));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC);
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE));
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());

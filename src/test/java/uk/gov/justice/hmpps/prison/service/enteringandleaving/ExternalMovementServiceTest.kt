@@ -39,8 +39,11 @@ internal class ExternalMovementServiceTest {
 
   private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI" }
   private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
+  private val fromCourt =
+    AgencyLocation().apply { description = "Court2"; id = "CB"; type = AgencyLocationType.COURT_TYPE }
   private val toCourt =
     AgencyLocation().apply { description = "Court1"; id = "CA"; type = AgencyLocationType.COURT_TYPE }
+  private val out = AgencyLocation().apply { description = "Out"; id = "OUT" }
   private val toCorporateAddressId = 99L
   private val toHomeCity = City().apply { description = "Sheffield"; code = "SHEF" }
 
@@ -74,6 +77,15 @@ internal class ExternalMovementServiceTest {
     isActive = true
     toAddressId = toCorporateAddressId
   }
+  private val bookingLastMovementAdmission = ExternalMovement().apply {
+    fromAgency = fromCourt
+    toAgency = toPrison
+    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
+    movementReason = MovementReason().apply { code = "I"; description = "Imprisonment" }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = true
+  }
 
   private val service = ExternalMovementService(
     movementReasonRepository = movementReasonRepository,
@@ -82,9 +94,9 @@ internal class ExternalMovementServiceTest {
     entityManager = entityManager,
   )
 
-  @DisplayName("updateMovementsForTransfer")
+  @DisplayName("updateMovementsForTransferIn")
   @Nested
-  inner class UpdateMovementsForTransfer {
+  inner class UpdateMovementsForTransferIn {
     val movementType = MovementType().apply { code = "ADM"; description = "Admission" }
     val movementReason = MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
 
@@ -113,7 +125,7 @@ internal class ExternalMovementServiceTest {
       @Test
       internal fun `should make any active movements inactive and write to database`() {
         assertThat(booking.externalMovements.first().isActive).isTrue
-        service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(booking.externalMovements.first().isActive).isFalse
 
         verify(entityManager).flush()
@@ -122,34 +134,34 @@ internal class ExternalMovementServiceTest {
       @Test
       internal fun `should create a new transfer movement`() {
         assertThat(booking.externalMovements).hasSize(1)
-        service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(booking.externalMovements).hasSize(2)
       }
 
       @Test
       internal fun `new movement should specify the movement from and to prisons`() {
-        val movement = service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        val movement = service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(movement.toAgency).isEqualTo(toPrison)
         assertThat(movement.fromAgency).isEqualTo(fromPrison)
       }
 
       @Test
       internal fun `new movement will contain reason and comment`() {
-        val movement = service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        val movement = service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(movement.commentText).isEqualTo("😩")
         assertThat(movement.movementReason).isEqualTo(movementReason)
       }
 
       @Test
       internal fun `new movement will contain movement time from receive time`() {
-        val movement = service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        val movement = service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(movement.movementDate).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00").toLocalDate())
         assertThat(movement.movementTime).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00"))
       }
 
       @Test
       internal fun `new movement will contain now when no receive time`() {
-        val movement = service.updateMovementsForTransfer(
+        val movement = service.updateMovementsForTransferIn(
           RequestToTransferIn().apply {
             commentText = "😩"
           },
@@ -162,7 +174,7 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `new movement will be an IN direction`() {
-        val movement = service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+        val movement = service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(movement.movementDirection).isEqualTo(MovementDirection.IN)
       }
     }
@@ -194,7 +206,7 @@ internal class ExternalMovementServiceTest {
         whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+          service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         }
       }
 
@@ -203,14 +215,14 @@ internal class ExternalMovementServiceTest {
         whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
-          service.updateMovementsForTransfer(request, booking, bookingLastMovement)
+          service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         }
       }
 
       @Test
       internal fun `will throw exception if receive time is in the future`() {
         assertThatThrownBy {
-          service.updateMovementsForTransfer(
+          service.updateMovementsForTransferIn(
             RequestToTransferIn().apply {
               receiveTime = LocalDateTime.now().plusHours(1); commentText = "😩"
             },
@@ -219,13 +231,13 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
       internal fun `will throw exception if receive time before previous movement`() {
         assertThatThrownBy {
-          service.updateMovementsForTransfer(
+          service.updateMovementsForTransferIn(
             RequestToTransferIn().apply {
               receiveTime = bookingLastMovement.movementTime.minusHours(1)
             },
@@ -441,7 +453,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -669,7 +681,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -885,7 +897,7 @@ internal class ExternalMovementServiceTest {
           )
         }
           .isInstanceOf(BadRequestException::class.java)
-          .hasMessage("Transfer cannot be done in the future")
+          .hasMessage("Movement cannot be done in the future")
       }
 
       @Test
@@ -896,6 +908,218 @@ internal class ExternalMovementServiceTest {
             booking = booking,
             lastMovement = bookingLastMovementForTAP,
             toAgency = toPrison,
+            commentText = commentText,
+          )
+        }
+          .isInstanceOf(BadRequestException::class.java)
+          .hasMessage("Movement cannot be before the previous active movement")
+      }
+    }
+  }
+
+  @DisplayName("updateMovementsForRelease")
+  @Nested
+  inner class UpdateMovementsForRelease {
+    val movementType = MovementType().apply { code = "REL"; description = "Release" }
+    val movementReasonConditionalRelease = MovementReason().apply { code = "CR"; description = "Conditional Release" }
+    val agencyId: String = fromPrison.id
+    val dateTime: LocalDateTime = LocalDateTime.parse("2022-04-20T10:00:00")
+    val commentText = "😩"
+    val movementReasonCode = "I"
+
+    @Nested
+    inner class Success {
+      lateinit var booking: OffenderBooking
+
+      @BeforeEach
+      internal fun setUp() {
+        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.ofNullable(movementType))
+        whenever(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(
+          Optional.ofNullable(movementReasonConditionalRelease),
+        )
+        whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
+          listOf(bookingLastMovementAdmission),
+        )
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovementAdmission)
+          location = fromPrison
+          bookingId = 99
+        }
+      }
+
+      @Test
+      internal fun `should make any active movements inactive and write to database`() {
+        assertThat(booking.externalMovements.first().isActive).isTrue
+        service.updateMovementsForRelease(
+          releaseTime = dateTime,
+          movementReasonCode = "CR",
+          booking = booking,
+          toAgency = out,
+          commentText = commentText,
+        )
+        assertThat(booking.externalMovements.first().isActive).isFalse
+
+        verify(entityManager).flush()
+      }
+
+      @Test
+      internal fun `should create a new release movement`() {
+        assertThat(booking.externalMovements).hasSize(1)
+        service.updateMovementsForRelease(
+          releaseTime = dateTime,
+          movementReasonCode = "CR",
+          booking = booking,
+          toAgency = out,
+          commentText = commentText,
+        )
+        assertThat(booking.externalMovements).hasSize(2)
+      }
+
+      @Test
+      internal fun `new movement should specify the prison they originated from`() {
+        val movement =
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        assertThat(movement.fromAgency).isEqualTo(fromPrison)
+        assertThat(movement.toAgency.id).isEqualTo("OUT")
+      }
+
+      @Test
+      internal fun `new movement will contain reason and comment`() {
+        val movement =
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        assertThat(movement.commentText).isEqualTo("😩")
+        assertThat(movement.movementReason).isEqualTo(movementReasonConditionalRelease)
+      }
+
+      @Test
+      internal fun `new movement will contain movement time from receive time`() {
+        val movement =
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        assertThat(movement.movementDate).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00").toLocalDate())
+        assertThat(movement.movementTime).isEqualTo(LocalDateTime.parse("2022-04-20T10:00:00"))
+      }
+
+      @Test
+      internal fun `new movement will contain now when no receive time`() {
+        val movement =
+          service.updateMovementsForRelease(
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        assertThat(movement.movementDate).isEqualTo(LocalDate.now())
+        assertThat(movement.movementTime).isCloseTo(LocalDateTime.now(), within(5, ChronoUnit.SECONDS))
+      }
+
+      @Test
+      internal fun `new movement will be an OUT direction`() {
+        val movement =
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        assertThat(movement.movementDirection).isEqualTo(MovementDirection.OUT)
+      }
+    }
+
+    @Nested
+    inner class Exception {
+      lateinit var booking: OffenderBooking
+      val agencyId: String = fromPrison.id
+      val dateTime: LocalDateTime = LocalDateTime.parse("2022-04-20T10:00:00")
+      val commentText = "😩"
+
+      @BeforeEach
+      internal fun setUp() {
+        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.ofNullable(movementType))
+        whenever(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(
+          Optional.ofNullable(movementReasonConditionalRelease),
+        )
+        whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
+          listOf(bookingLastMovementAdmission),
+        )
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovementAdmission)
+          location = fromPrison
+          bookingId = 99
+        }
+      }
+
+      @Test
+      internal fun `will throw exception if cannot find movement reason`() {
+        whenever(movementReasonRepository.findById(MovementReason.pk("UNKNOWN"))).thenReturn(Optional.empty())
+
+        assertThrows<EntityNotFoundException> {
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "UNKNOWN",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        }
+      }
+
+      @Test
+      internal fun `will throw exception if cannot find movement type`() {
+        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.empty())
+
+        assertThrows<EntityNotFoundException> {
+          service.updateMovementsForRelease(
+            releaseTime = dateTime,
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        }
+      }
+
+      @Test
+      internal fun `will throw exception if receive time is in the future`() {
+        assertThatThrownBy {
+          service.updateMovementsForRelease(
+            releaseTime = LocalDateTime.now().plusHours(1),
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
+            commentText = commentText,
+          )
+        }
+          .isInstanceOf(BadRequestException::class.java)
+          .hasMessage("Movement cannot be done in the future")
+      }
+
+      @Test
+      internal fun `will throw exception if receive time before previous movement`() {
+        assertThatThrownBy {
+          service.updateMovementsForRelease(
+            releaseTime = bookingLastMovementAdmission.movementTime.minusHours(1),
+            movementReasonCode = "CR",
+            booking = booking,
+            toAgency = out,
             commentText = commentText,
           )
         }

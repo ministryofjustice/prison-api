@@ -59,7 +59,7 @@ class TransferIntoPrisonService(
       bookingEndDate = null
       location = transferMovement.toAgency
       livingUnitMv = null
-      externalMovementService.updateMovementsForTransfer(
+      externalMovementService.updateMovementsForTransferIn(
         request = request,
         booking = booking,
         lastMovement = transferMovement,
@@ -345,7 +345,7 @@ private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternal
   )
 }
 
-private inline fun <T> Result<T>.flatMap(transform: (value: T) -> Result<T>): Result<T> {
+internal inline fun <T> Result<T>.flatMap(transform: (value: T) -> Result<T>): Result<T> {
   return when {
     isSuccess -> transform(getOrThrow())
     else -> this

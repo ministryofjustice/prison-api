@@ -43,9 +43,9 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     ApiResponse(responseCode = "404", description = "Requested resource not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "List of offenders matching specified criteria.", description = "List of offenders matching specified criteria.")
+  @Operation(summary = "List of offenders matching specified criteria.", description = "List of offenders matching specified criteria. Requires GLOBAL_SEARCH role.")
   @GetMapping
-  @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+  @PreAuthorize("hasRole('GLOBAL_SEARCH')")
   @SlowReportQuery
   fun getPrisoners(
     @RequestParam(value = "includeAliases", required = false, defaultValue = "false")
@@ -142,7 +142,7 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
   )
   @Operation(
     summary = "List of offenders globally matching the offenderNo.",
-    description = "List of offenders globally matching the offenderNo, restricted by the VIEW_PRISONER_DATA or SYSTEM_USER role. " +
+    description = "List of offenders globally matching the offenderNo, Requires offender agency to be in user caseload or VIEW_PRISONER_DATA role. " +
       "Returns an empty array if no results are found or if does not have correct permissions",
   )
   @GetMapping("/{offenderNo}")
@@ -172,9 +172,9 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     ApiResponse(responseCode = "404", description = "Requested resource not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "List of offenders matching specified criteria. (POST version)", description = "List of offenders matching specified criteria.")
+  @Operation(summary = "List of offenders matching specified criteria. (POST version)", description = "List of offenders matching specified criteria. Requires GLOBAL_SEARCH role.")
   @PostMapping
-  @PreAuthorize("hasAnyRole('SYSTEM_USER','GLOBAL_SEARCH')")
+  @PreAuthorize("hasRole('GLOBAL_SEARCH')")
   @SlowReportQuery
   fun getPrisoners(
     @RequestBody
@@ -214,11 +214,11 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     results.
     This is an internal endpoint used by Prisoner Search to ensure that NOMIS and OpenSearch are in sync.
     Other services should use Prisoner Search instead to get the list of prisoners.
-    Requires PRISONER_INDEX role.
+    Requires PRISONER_INDEX or GLOBAL_SEARCH role.
     """,
   )
   @GetMapping("/prisoner-numbers")
-  @PreAuthorize("hasAnyRole('SYSTEM_USER','PRISONER_INDEX')")
+  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH','PRISONER_INDEX')")
   @SlowReportQuery
   fun getPrisonerNumbers(
     @RequestParam(value = "page", defaultValue = "0", required = false)

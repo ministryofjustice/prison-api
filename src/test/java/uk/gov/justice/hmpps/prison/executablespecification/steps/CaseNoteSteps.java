@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
 import com.google.common.base.Splitter;
 import lombok.Data;
-import net.thucydides.core.annotations.Step;
+import net.serenitybdd.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;

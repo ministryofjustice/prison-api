@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import net.thucydides.core.annotations.Step;
+import net.serenitybdd.annotations.Step;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -13,8 +13,6 @@ import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 public class BookingActivitySteps extends ScheduledEventSteps {
     private static final String BOOKING_ACTIVITIES_API_URL = API_PREFIX + "bookings/{bookingId}/activities";
     private static final String API_REQUEST_FOR_UPDATE = API_PREFIX + "bookings/offenderNo/{offenderNo}/activities/{activityId}/attendance";
-    @Autowired
-    private SchedulesSteps schedulesSteps;
 
     @Override
     protected String getResourcePath() {
@@ -24,11 +22,6 @@ public class BookingActivitySteps extends ScheduledEventSteps {
     @Step("Get activities for booking")
     public void getBookingActivities(final Long bookingId, final String fromDate, final String toDate, final String sortFields, final Order sortOrder) {
         dispatchRequest(bookingId, fromDate, toDate, sortFields, sortOrder);
-    }
-
-    @Step("Get activities for booking for current day only")
-    public void getBookingActivitiesForCurrentDay(final Long bookingId) {
-        dispatchRequestForPeriod(bookingId, ScheduledEventPeriod.TODAY);
     }
 
     private void dispatchUpdateRequest(final String offenderNo, final Long eventId, final UpdateAttendance updateAttendance) {

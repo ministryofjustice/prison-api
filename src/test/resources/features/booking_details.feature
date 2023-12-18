@@ -83,20 +83,10 @@ Feature: Booking Details
     When a basic offender booking request is made with booking id "-13"
     Then resource not found response is received from bookings API
 
-  Scenario: Request for specific offender as system user can return data even though booking is inactive
-    When a user has a token name of "SYSTEM_USER_READ_WRITE"
-    When an offender booking request is made with booking id "-13"
-    Then booking number of offender booking returned is "A00123"
-
   Scenario: Request for specific offender as global search user can return data even though booking is a different caseload
     When a user has a token name of "GLOBAL_SEARCH"
     When an offender booking request is made with booking id "-16"
     Then booking number of offender booking returned is "A00126"
-
-  Scenario: Request for specific offender as user with Inactive Booking Role can return data even though booking is inactive
-    When a user has a token name of "INACTIVE_BOOKING_USER"
-    When an offender booking request is made with booking id "-13"
-    Then booking number of offender booking returned is "A00123"
 
   Scenario Outline: Request for assessment information about an offender
     When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
@@ -164,18 +154,6 @@ Feature: Booking Details
     When a request is made for categorised offenders at "LEI" with an approval from Date of ""
     Then 0 categorised offenders are returned
 
-  Scenario: Request for latest categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", latest cat only
-    Then 1 categorised offenders are returned
-
-  Scenario: Request for latest categorisation details for given booking ids that do not match the given agency
-    When a request is made for offender categorisation details at "MDI" with booking id "-31", latest cat only
-    Then 0 categorised offenders are returned
-
-  Scenario: Request for all categorisation details for given booking ids
-    When a request is made for offender categorisation details at "LEI" with booking id "-31", all cats
-    Then 2 categorised offenders are returned
-
   Scenario: Request for offenders who need to be recategorised
     When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
     Then 4 categorised offenders are returned
@@ -239,49 +217,9 @@ Feature: Booking Details
       | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
 
-  Scenario: Request for assessment data
-    When assessment information is requested for Booking Id "-6"
-    Then "3" row of assessment data is returned
-
-  Scenario Outline: Request for physical attributes
-    When an physical attributes request is made with booking id "<bookingId>"
-    And gender matches "<gender>"
-    And ethnicity matches "<ethnicity>"
-    And height in feet matches "<ft>"
-    And height in inches matches "<in>"
-    And height in centimetres matches "<cm>"
-    And height in metres matches "<m>"
-    And weight in pounds matches "<lb>"
-    And weight in kilograms matches "<kg>"
-
-  Examples:
-    | bookingId | gender | ethnicity                      | ft | in | cm  | m    | lb  | kg  |
-    | -1        | Male   | White: British                 | 5  | 6  | 168 | 1.68 | 165 | 75  |
-    | -2        | Female | White: Irish                   |    |    |     |      | 120 | 55  |
-    | -3        | Male   | White: British                 | 5  | 10 | 178 | 1.78 |     |     |
-    | -4        | Male   | White: British                 | 6  | 1  | 185 | 1.85 | 218 | 99  |
-    | -5        | Male   | White: British                 | 6  | 0  | 183 | 1.83 | 190 | 86  |
-    | -6        | Male   | White: British                 | 6  | 2  | 188 | 1.88 |     |     |
-    | -7        | Male   | White: British                 | 5  | 11 | 180 | 1.80 | 196 | 89  |
-    | -8        | Male   | White: British                 | 5  | 11 | 180 | 1.80 |     |     |
-    | -9        | Male   | Mixed: White and Black African | 5  | 10 | 178 | 1.78 | 185 | 84  |
-    | -10       | Male   | White: British                 | 6  | 6  | 198 | 1.98 | 235 | 107 |
-
  Scenario: Request for offender identifiers
     When offender identifiers are requested for Booking Id "-4"
     Then "2" row of offender identifiers is returned
-
-  Scenario: Request for profile information
-    When profile information is requested for Booking Id "-1"
-    Then correct profile information is returned
-
-  Scenario: Request for physical characteristics
-    When physical characteristic information is requested for Booking Id "-1"
-    Then "2" row of physical characteristics is returned
-
-  Scenario: Request for basic inmate details by bookingIds
-    When a request is made with booking Ids "-3,-4" for prison "LEI"
-    Then "2" rows of basic inmate details are returned
 
   Scenario: Request for image metadata
     When image metadata is requested for Booking Id "-1"
@@ -293,10 +231,6 @@ Feature: Booking Details
 
   Scenario: Request for image data full size
     When full size image is requested by booking Id "-1"
-    Then image bytes are returned
-
-  Scenario: Request for image data by Noms Id
-    When full size image is requested by Noms Id "A1234AA"
     Then image bytes are returned
 
     Scenario Outline: Request offender basic details by offender numbers

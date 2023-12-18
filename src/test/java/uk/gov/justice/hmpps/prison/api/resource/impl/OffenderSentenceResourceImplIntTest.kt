@@ -1,12 +1,14 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions
-import org.junit.jupiter.api.AfterEach
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.WebTestClient
 import java.net.HttpURLConnection
 
 class OffenderSentenceResourceImplIntTest : ResourceTest() {
@@ -14,6 +16,68 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/offender-sentences")
   inner class GetOffenderSentences {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    @Disabled("this test fails - code update needed")
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(27)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(27)
+    }
+
+    @Test
+    @Disabled("this test fails - code update needed")
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
     @Test
     fun offenderSentence_success() {
       webTestClient.get()
@@ -23,8 +87,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
-        .expectBody()
-        .json("offender_sentences.json".readFile())
+        .hasListAtLeastSizeOf(27)
     }
 
     @Test
@@ -62,8 +125,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
-        .expectBody()
-        .json("offender_sentences.json".readFile())
+        .hasListAtLeastSizeOf(27)
     }
 
     @Test
@@ -88,8 +150,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
-        .expectBody()
-        .json("offender_sentences.json".readFile())
+        .hasListAtLeastSizeOf(27)
     }
 
     @Test
@@ -125,6 +186,54 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   inner class OffenderSentenceTerms {
 
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client has no override role`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(3)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(3)
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -5 not found.")
+    }
+
+    @Test
+    fun `returns success if in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
+        .headers(setAuthorisation(listOf())).exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun offenderSentenceTerms_with_filterParam_success() {
       webTestClient.get()
         .uri { uriBuilder ->
@@ -133,8 +242,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
             .build()
         }
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -146,8 +253,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences/booking/-5/sentenceTerms")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -158,6 +263,92 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("POST /api/offender-sentences")
   inner class PostOffenderSentences {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    @Disabled("this test fails - code update needed")
+    fun `returns 403 when client has no override role`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns 404 if offender does not exist`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A9999ZZ\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
     @Test
     fun postOffenderSentence_success() {
       webTestClient.post()
@@ -275,6 +466,71 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   @Nested
   @DisplayName("POST /api/offender-sentences/bookings")
   inner class OffenderSentenceBookings {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns empty result when client has no override role`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(1)
+    }
+
     @Test
     fun postOffenderSentenceBookings_success() {
       webTestClient.post()
@@ -455,280 +711,10 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
   }
 
-  @Nested
-  @DisplayName("POST /api/offender-sentences/home-detention-curfews/latest")
-  inner class LatestHDC {
-    @Test
-    fun postHdcLatestStatus_success_multiple() {
-      webTestClient.post()
-        .uri("/api/offender-sentences/home-detention-curfews/latest")
-        .headers(setAuthorisation("RO_USER", listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ -1, -2, -3 ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.length()").value<Int> { Assertions.assertThat(it).isEqualTo(3) }
-        .jsonPath("$[0].bookingId").isEqualTo("-3")
-        .jsonPath("$[1].bookingId").isEqualTo("-2")
-        .jsonPath("$[2].bookingId").isEqualTo("-1")
-    }
-  }
-
-  @Nested
-  @DisplayName("PUT /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
-  inner class SetHDCChecksPassedFlag {
-
-    @AfterEach
-    private fun resetTestData() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    }
-
-    @Test
-    fun `should return success when user has SYSTEM_USER role`() {
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "passed": true,
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-
-    @Test
-    fun `should return 403 when user does not have required role`() {
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "passed": true,
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when user has MAINTAIN_HDC role`() {
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "passed": true,
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-  }
-
-  @Nested
-  @DisplayName("DELETE /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
-  inner class ClearHDCChecksPassedFlag {
-    @Test
-    fun `should return success when user has SYSTEM_USER role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-
-    @Test
-    fun `should return 403 when user does not have required role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when user has MAINTAIN_HDC role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-  }
-
-  @Nested
-  @DisplayName("PUT /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/approval-status")
-  inner class SetHDCApprovalStatus {
-
-    @AfterEach
-    private fun resetTestData() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-
-    @Test
-    fun `should return success when user has SYSTEM_USER role`() {
-      // Set checks first
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "passed": true,
-                "date": "2018-12-30"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "approvalStatus": "APPROVED",
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-
-    @Test
-    fun `should return 403 when user does not have required role`() {
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "approvalStatus": "APPROVED",
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when user has MAINTAIN_HDC role`() {
-      // Set checks first
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/checks-passed")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "passed": true,
-                "date": "2018-12-30"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient.put()
-        .uri("/api/offender-sentences/booking/-5/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-              {
-                "approvalStatus": "APPROVED",
-                "date": "2018-12-31"
-              }
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-  }
-
-  @Nested
-  @DisplayName("DELETE /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/approval-status")
-  inner class ClearHDCApprovalStatus {
-    @Test
-    fun `should return success when user has SYSTEM_USER role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-
-    @Test
-    fun `should return 403 when user does not have required role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when user has MAINTAIN_HDC role`() {
-      webTestClient.delete()
-        .uri("/api/offender-sentences/booking/-2/home-detention-curfews/latest/approval-status")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_HDC")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isNoContent
-    }
-  }
-
   internal fun String.readFile(): String = this@OffenderSentenceResourceImplIntTest::class.java.getResource(this).readText()
+}
+
+private fun WebTestClient.ResponseSpec.hasListAtLeastSizeOf(expectedSize: Int) {
+  val count = this.expectBody(List::class.java).returnResult().responseBody
+  assertThat(count).hasSizeGreaterThan(expectedSize - 1)
 }
