@@ -1,10 +1,12 @@
+@steve
 Feature: Case Note Usage
 
   Acceptance Criteria:
   A logged in staff user can request usage data
 
   Background:
-    Given a user has authenticated with the API
+    # Given a user has authenticated with the API
+    Given a user has a token name of "VIEW_CASE_NOTES"
     And case note test harness initialized
 
   Scenario Outline: Get case note usage for a list of offenders and date ranges
