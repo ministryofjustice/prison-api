@@ -9,7 +9,6 @@ import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 
-import java.util.List;
 import java.util.stream.IntStream;
 
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -42,62 +41,7 @@ public class CaseNoteMovementServiceImplIntTest {
     }
 
     @Test
-    public void getCaseNotesEvents_limitValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("limit: must be less than or equal to 5000");
-    }
-
-    @Test
-    public void getCaseNotesEvents_limitNullValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, null))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("limit: must not be null");
-    }
-
-    @Test
-    public void getCaseNotesEvents_limit1Validation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 0L))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("limit: must be greater than or equal to 1");
-    }
-
-    @Test
-    public void getCaseNotesEvents_typeValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("noteTypes: must not be empty");
-    }
-
-    @Test
-    public void getCaseNotesEvents_dateValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null, 5001L))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("createdDate: must not be null");
-    }
-
-    @Test
-    public void getCaseNotesEventsNoLimit_typeValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("getCaseNotesEvents.createdDate: must not be null");
-    }
-
-    @Test
-    public void getCaseNotesEventsNoLimit_dateValidation() {
-
-        assertThatThrownBy(() -> caseNoteService.getCaseNotesEvents(List.of(), null))
-                .isInstanceOf(ConstraintViolationException.class)
-                .hasMessageContaining("createdDate: must not be null");
-    }
-
-    @Test
+    @WithMockUser(username = "ITAG_USER", roles = {"SOME_ROLE"})
     public void callgetCaseNoteTypesWithSubTypesByCaseLoadType_activeTrue() {
         caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST");
 

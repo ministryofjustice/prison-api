@@ -2,8 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.Max;
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -20,7 +18,6 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
@@ -279,25 +276,6 @@ public class CaseNoteService {
         return caseNoteStaffUsage;
     }
 
-    public List<CaseNoteEvent> getCaseNotesEvents(final List<String> noteTypes, @NotNull final LocalDateTime createdDate) {
-        return getCaseNotesEvents(noteTypes, createdDate, Long.MAX_VALUE);
-    }
-
-    public List<CaseNoteEvent> getCaseNotesEvents(@NotEmpty final List<String> noteTypes, @NotNull final LocalDateTime createdDate, @Min(1) @Max(5000) @NotNull final Long limit) {
-        final var noteTypesMap = QueryParamHelper.splitTypes(noteTypes);
-
-        final var events = caseNoteRepository.getCaseNoteEvents(createdDate, noteTypesMap.keySet(), limit);
-
-        // now filter out notes based on required note types
-        return events.stream().filter((event) -> {
-            final var subTypes = noteTypesMap.get(event.getMainNoteType());
-            // will be null if not in map, otherwise will be empty if type in map with no sub type set
-            return subTypes != null && (subTypes.isEmpty() || subTypes.contains(event.getSubNoteType()));
-        }).toList();
-    }
-
-
-
     private static class DeriveDates {
         private LocalDate fromDateToUse;
         private LocalDate toDateToUse;
@@ -330,4 +308,3 @@ public class CaseNoteService {
         }
     }
 }
-

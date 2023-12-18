@@ -9,9 +9,11 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
+import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
+import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -73,18 +75,6 @@ public class CaseNoteSteps extends CommonSteps {
         assertThat(caseNoteUsageList).hasSize(size);
     }
 
-    @Step("Verify case note usage size")
-    public void verifyCaseNoteStaffUsageSize(final int size) {
-        assertThat(size).isEqualTo(caseNoteStaffUsageList.size());
-    }
-
-    @Data
-    public static class CaseNoteWrapper {
-        private List<CaseNote> content;
-    }
-
-
-
     private void dispatchGetCaseNoteUsageRequest(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         init();
 
@@ -107,7 +97,7 @@ public class CaseNoteSteps extends CommonSteps {
 
         var urlModifier = "";
 
-        if (queryBuilder.length() > 0) {
+        if (!queryBuilder.isEmpty()) {
             urlModifier = "?" + queryBuilder.substring(1);
         }
 
@@ -115,11 +105,11 @@ public class CaseNoteSteps extends CommonSteps {
 
         try {
             final var response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    new ParameterizedTypeReference<List<CaseNoteUsage>>() {
-                    });
+                url,
+                HttpMethod.GET,
+                createEntity(),
+                new ParameterizedTypeReference<List<CaseNoteUsage>>() {
+                });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -141,8 +131,8 @@ public class CaseNoteSteps extends CommonSteps {
 
         try {
             final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<CaseNoteUsage>>() {
-                    });
+                new ParameterizedTypeReference<List<CaseNoteUsage>>() {
+                });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
@@ -155,31 +145,24 @@ public class CaseNoteSteps extends CommonSteps {
 
     private void dispatchGetCaseNoteStaffUsageRequest(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
         init();
-
-        final var queryBuilder = new StringBuilder();
-
-        if (StringUtils.isNotBlank(staffIds)) {
-            final var ids = Arrays.asList(staffIds.split(","));
-            ids.forEach(staffId -> queryBuilder.append(STAFF_IDS_QUERY_PARAM_PREFIX).append(staffId));
-        }
-
-        setQueryParams(type, subType, fromDate, toDate, queryBuilder);
-
-        var urlModifier = "";
-
-        if (queryBuilder.length() > 0) {
-            urlModifier = "?" + queryBuilder.substring(1);
-        }
-
-        final var url = API_REQUEST_FOR_CASENOTE_STAFF_USAGE + urlModifier;
+        final var ids = Arrays.stream(staffIds.split(",")).map(Integer::parseInt).toList();
+        final var requestBody = new CaseNoteStaffUsageRequest(
+            null,
+            ids,
+            null,
+            StringUtils.isEmpty(fromDate) ? null : LocalDate.parse(fromDate),
+            StringUtils.isEmpty(toDate) ? null : LocalDate.parse(toDate),
+            StringUtils.trimToNull(type),
+            StringUtils.trimToNull(subType)
+        );
 
         try {
             final var response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {
-                    });
+                API_REQUEST_FOR_CASENOTE_STAFF_USAGE,
+                HttpMethod.POST,
+                createEntity(requestBody),
+                new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {
+                });
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 

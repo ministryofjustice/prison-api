@@ -6,7 +6,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -29,14 +28,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyList;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anySet;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -165,45 +161,5 @@ public class CaseNoteMovementServiceImplTest {
         when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
 
         caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");
-
-    }
-
-    @Test
-    public void getCaseNotesEvents_noLimit() {
-        final var fromDate = LocalDateTime.now();
-        final var fredEvent = createEvent("FRED", "JOE");
-        final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "BOB+HARRY", "FRED"), fromDate);
-
-        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
-        verify(repository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), Long.MAX_VALUE);
-    }
-
-    @Test
-    public void getCaseNotesEvents() {
-        final var fromDate = LocalDateTime.now();
-        final var fredEvent = createEvent("FRED", "JOE");
-        final var bobJoeEvent = createEvent("BOB", "JOE");
-        final var bobHarryEvent = createEvent("BOB", "HARRY");
-        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, bobHarryEvent, fredEvent, createEvent("BOB", "OTHER"), createEvent("WRONG", "TYPE")));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "BOB+HARRY", "FRED"), fromDate, 10L);
-
-        assertThat(events).containsExactly(bobJoeEvent, bobHarryEvent, fredEvent);
-        verify(repository).getCaseNoteEvents(fromDate, Set.of("BOB", "FRED"), 10L);
-    }
-
-    @Test
-    public void getCaseNotesEvents_testTrimAndSeparation() {
-        final var fromDate = LocalDateTime.now();
-        final var fredEvent = createEvent("FRED", "JOE");
-        final var bobJoeEvent = createEvent("BOB", "JOE");
-        when(repository.getCaseNoteEvents(any(), anySet(), anyLong())).thenReturn(List.of(bobJoeEvent, fredEvent));
-        final var events = caseNoteService.getCaseNotesEvents(List.of("BOB+JOE", "   FRED JOE  "), fromDate, 20L);
-        assertThat(events).containsExactly(bobJoeEvent, fredEvent);
-    }
-
-    private CaseNoteEvent createEvent(final String type, final String subType) {
-        return CaseNoteEvent.builder().mainNoteType(type).subNoteType(subType).build();
     }
 }

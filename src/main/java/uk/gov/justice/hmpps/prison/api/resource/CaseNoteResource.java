@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource;
 
-
 import io.swagger.v3.oas.annotations.Hidden;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
@@ -21,7 +20,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
@@ -31,10 +29,10 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
@@ -47,29 +45,8 @@ public class CaseNoteResource {
     private final CaseNoteService caseNoteService;
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes", description = "Count of case notes")
-    @GetMapping("/staff-usage")
-    @SlowReportQuery
-    @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummary(
-        @RequestParam("staffId") @Parameter(description = "a list of staffId numbers to use.", required = true) final List<String> staffIds,
-        @RequestParam(value = "numMonths", required = false, defaultValue = "1") @Parameter(description = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month") final Integer numMonths,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") final LocalDate toDate,
-        @RequestParam(value = "type", required = false) @Parameter(description = "Case note type.") final String type,
-        @RequestParam(value = "subType", required = false) @Parameter(description = "Case note sub-type.") final String subType
-    ) {
-        final var staffIdList = staffIds.stream().map(Integer::valueOf).toList();
-        return caseNoteService.getCaseNoteStaffUsage(type, subType, staffIdList, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, 1));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by type/sub-type and staff", description = "Retrieves list of case notes grouped by type/sub-type and staff")
+            @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
+    @Operation(summary = "Retrieves list of case notes grouped by type/sub-type and staff", description = "Retrieves list of case notes grouped by type/sub-type and staff. Requires role VIEW_CASE_NOTES")
     @PostMapping("/staff-usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -78,11 +55,11 @@ public class CaseNoteResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes", description = "Count of case notes")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Count of case notes", description = "Count of case notes. Requires role VIEW_CASE_NOTES")
     @GetMapping("/usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -100,8 +77,8 @@ public class CaseNoteResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by type and offender", description = "Retrieves list of case notes grouped by type and offender")
+            @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
+    @Operation(summary = "Retrieves list of case notes grouped by type and offender", description = "Retrieves list of case notes grouped by type and offender. Requires role VIEW_CASE_NOTES")
     @PostMapping("/usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -111,7 +88,7 @@ public class CaseNoteResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by types, bookings and from dates", description = "Retrieves list of case notes grouped by type/sub and offender")
+    @Operation(summary = "Retrieves list of case notes grouped by types, bookings and from dates", description = "Retrieves list of case notes grouped by type/sub and offender. Requires role VIEW_CASE_NOTES")
     @PostMapping("/usage-by-types")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -120,52 +97,11 @@ public class CaseNoteResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetch all case notes of a given type since a given date", description = "Returns all case notes - consumed by Delius<br/>" +
-        "These are generated by  whenever a case note is created or amended for an offender.<br/>" +
-        "*Note:* An alternative call [GET /case_notes/for_delius](#case-notes-feed-fetch-case-notes-direct-get) has been created for performance reasons.<br/>" +
-        "Some case notes are automatically generated by the system in response to an action relating to the offender e.g. An alert being raised or a prison transfer.<br/>" +
-        "The note type only filters at the top note type level not the sub type.<br/>" +
-        "note_type can be presented multiples times in the URL to filter by multiple note types.")
-    @Hidden
-    @GetMapping("/events_no_limit")
-    @SlowReportQuery
-    @PreAuthorize("hasRole('CASE_NOTE_EVENTS')")
-    public List<CaseNoteEvent> getCaseNotesEventsNoLimit(
-        @RequestParam("type") @NotEmpty @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes,
-        @RequestParam("createdDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate
-    ) {
-        return caseNoteService.getCaseNotesEvents(noteTypes, createdDate);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetch all case notes of a given type since a given date", description = "Returns all case notes - consumed by Delius<br/>" +
-        "These are generated by  whenever a case note is created or amended for an offender.<br/>" +
-        "*Note:* An alternative call [GET /case_notes/for_delius](#case-notes-feed-fetch-case-notes-direct-get) has been created for performance reasons.<br/>" +
-        "Some case notes are automatically generated by the system in response to an action relating to the offender e.g. An alert being raised or a prison transfer.<br/>" +
-        "The note type only filters at the top note type level not the sub type.<br/>" +
-        "note_type can be presented multiples times in the URL to filter by multiple note types.")
-    @GetMapping("/events")
-    @PreAuthorize("hasRole('CASE_NOTE_EVENTS')")
-    public List<CaseNoteEvent> getCaseNotesEvents(
-        @RequestParam("type") @NotEmpty @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "ACP+ASSESSMENT", required = true) final List<String> noteTypes,
-        @RequestParam("createdDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "Only case notes occurring on or after this date and time (ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS) will be considered.") final LocalDateTime createdDate,
-        @RequestParam("limit") @Parameter(name = "limit", description = "Number of events to return", example = "100") final Long limit
-    ) {
-        return caseNoteService.getCaseNotesEvents(noteTypes, createdDate, limit);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes by booking id", description = "Count of case notes by booking id")
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Count of case notes by booking id", description = "Count of case notes by booking id. Requires role VIEW_CASE_NOTES")
     @Hidden
     @GetMapping("/summary")
     @SlowReportQuery

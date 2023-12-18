@@ -1,33 +1,28 @@
 package uk.gov.justice.hmpps.prison.repository;
 
+import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEvent;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteEventDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import jakarta.validation.constraints.NotNull;
 import java.sql.Types;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Predicate;
 import java.util.stream.Collectors;
@@ -44,10 +39,6 @@ public class CaseNoteRepository extends RepositoryBase {
 
     private static final RowMapper<CaseNoteStaffUsageDto> CASE_NOTE_STAFF_USAGE_MAPPER =
         new DataClassByColumnRowMapper<>(CaseNoteStaffUsageDto.class);
-
-    private static final RowMapper<CaseNoteEventDto> CASE_NOTE_EVENT_ROW_MAPPER =
-        new DataClassByColumnRowMapper<>(CaseNoteEventDto.class);
-
 
     public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
 
@@ -68,7 +59,7 @@ public class CaseNoteRepository extends RepositoryBase {
             addSql.append(" AND OCS.STAFF_ID = :staffId ");
         }
 
-        final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), addSql.length() > 0 ? addSql.toString() : "");
+        final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), !addSql.isEmpty() ? addSql.toString() : "");
 
         final var usages = jdbcTemplate.query(sql,
             createParams(
@@ -82,16 +73,6 @@ public class CaseNoteRepository extends RepositoryBase {
             CASE_NOTE_USAGE_MAPPER);
         return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
     }
-
-    public List<CaseNoteEvent> getCaseNoteEvents(final LocalDateTime fromDate, final Set<String> events, final long limit) {
-        final var casenoteevents = jdbcTemplate.query(queryBuilderFactory.getQueryBuilder(CaseNoteRepositorySql.RECENT_CASE_NOTE_EVENTS.getSql(), Map.of()).addPagination().build(),
-            createParamSource(new PageRequest(0L, limit),
-                "fromDate", new SqlParameterValue(Types.TIMESTAMP, fromDate),
-                "types", events),
-            CASE_NOTE_EVENT_ROW_MAPPER);
-        return casenoteevents.stream().map(CaseNoteEventDto::toCaseNoteEvent).collect(Collectors.toList());
-    }
-
 
     public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
 
