@@ -42,7 +42,8 @@ class PersonResourceTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json("""[{
+        .json(
+          """[{
           "identifierType": "EXTERNAL_REL",
           "identifierValue": "DELIUS_1_2"
         }, {
@@ -60,7 +61,8 @@ class PersonResourceTest : ResourceTest() {
         {
           "identifierType": "CRO",
           "identifierValue": "135196/95W"
-        }]""")
+        }]""",
+        )
     }
   }
 
