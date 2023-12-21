@@ -34,7 +34,6 @@ class ControllerTest {
 
     for (controller in controllers) {
       if (!controller.hasControllerLevelProtection) {
-
         for (endpoint in controller.endpoints) {
           if (!endpoint.hasEndpointLevelProtection) {
             val method = endpoint.method.replace(Regex("^public [^ ]+ "), "")
@@ -63,11 +62,11 @@ class ControllerTest {
   }
 
   private fun AnnotatedElement.isProtectedByAnnotation(): Boolean {
-    if (getAnnotation(VerifyOffenderAccess::class.java) != null
-      || getAnnotation(VerifyBookingAccess::class.java) != null
-      || getAnnotation(VerifyAgencyAccess::class.java) != null
-      || getAnnotation(ReferenceData::class.java) != null
-      || getAnnotation(ProgrammaticAuthorisation::class.java) != null
+    if (getAnnotation(VerifyOffenderAccess::class.java) != null ||
+      getAnnotation(VerifyBookingAccess::class.java) != null ||
+      getAnnotation(VerifyAgencyAccess::class.java) != null ||
+      getAnnotation(ReferenceData::class.java) != null ||
+      getAnnotation(ProgrammaticAuthorisation::class.java) != null
     ) {
       return true
     }
