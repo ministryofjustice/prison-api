@@ -42,6 +42,7 @@ import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
+import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.AgencyPrisonerPayProfileService;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
@@ -81,6 +82,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active agencies.", description = "List of active agencies.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping
     public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of agency records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of agency records returned.") final Long pageLimit) {
         return agencyService.getAgencies(pageOffset, pageLimit).getResponse();
@@ -92,6 +94,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of agencies by type", description = "List of active agencies by type")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/type/{type}")
     public List<Agency> getAgenciesByType(
         @PathVariable("type")
@@ -126,6 +129,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Agency detail.", description = "Agency detail.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}")
     public Agency getAgency(@PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) final String agencyId,
                             @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
@@ -170,6 +174,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active internal locations for agency.", description = "List of active internal locations for agency.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations")
     @SlowReportQuery
     public List<Location> getAgencyLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
@@ -182,6 +187,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active cells with capacity for agency.", description = "List of active cells with capacity for agency.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/cellsWithCapacity")
     @SlowReportQuery
     public List<OffenderCell> getAgencyActiveCellsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
@@ -194,6 +200,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of receptions with capacity for agency.", description = "List of active receptions with capacity for agency.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/receptionsWithCapacity")
     @SlowReportQuery
     public List<OffenderCell> getAgencyActiveReceptionsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute) {
@@ -206,6 +213,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/type/{type}")
     public List<Location> getAgencyLocationsByType(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId, @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type) {
         return agencyService.getAgencyLocationsByType(agencyId, type);
@@ -217,6 +225,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active IEP levels for agency.", description = "Do not use, use incentives API", deprecated = true, hidden = true)
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/iepLevels")
     public List<IepLevel> getAgencyIepLevels(@PathVariable("agencyId") @Parameter(description = "agencyId", required = true) final String agencyId) {
         return agencyService.getAgencyIepLevels(agencyId);
@@ -228,6 +237,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of all available Location Groups at agency.", description = "List of all available Location Groups at agency.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/groups")
     public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
@@ -239,6 +249,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of locations for agency where events (appointments, visits, activities) could be held.", description = "List of locations for agency where events (appointments, visits, activities) could be held.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/eventLocations")
     public List<Location> getAgencyEventLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
@@ -250,6 +261,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of locations for agency where events (appointments, visits, activities) are being held.", description = "List of locations for agency where events (appointments, visits, activities) are being held.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/eventLocationsBooked")
     @SlowReportQuery
     public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)",  schema = @Schema(implementation = String.class, allowableValues = {"AM","PM","ED"})) final TimeSlot timeSlot) {
@@ -262,6 +274,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of agencies for caseload.", description = "List of agencies for caseload.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/caseload/{caseload}")
     public List<Agency> getAgenciesByCaseload(@PathVariable("caseload") @Parameter(required = true) final String caseload) {
         return agencyService.getAgenciesByCaseload(caseload);
@@ -278,6 +291,7 @@ public class AgencyResource {
         In all the main usages of the endpoint we found that the clients didn't need or use the contact details so have deprecated the endpoint.
         Use /agencies/prisons to get the list of active prisons.</p>
         """, deprecated = true)
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prison")
     @Deprecated
     @SlowReportQuery
@@ -294,6 +308,7 @@ public class AgencyResource {
         <p>List of active prisons.</p>
         <p>This is the same response as normally generated by calling the /agencies/type/INST endpoint with default parameters, added here for ease of use and speed.</p>
         """)
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prisons")
     @SlowReportQuery
     public List<Prison> getPrisons() {
@@ -309,6 +324,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Prison contact detail.", description = "Prison contact detail.")
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prison/{agencyId}")
     public PrisonContactDetail getPrisonContactDetail(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
         return agencyService.getPrisonContactDetail(agencyId);
@@ -319,6 +335,7 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @ReferenceData(description = "Agency data is considered non-sensitive")
     @Operation(summary = "Return the establishment types for the given Agency.", description = "An agency can have one to many establishment types. For example a prison could be both a youth and adult establishment.")
     @GetMapping("/{agencyId}/establishment-types")
     public AgencyEstablishmentTypes getAgencyEstablishmentTypes(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
