@@ -28,7 +28,7 @@ class PersonResourceTest : ResourceTest() {
     @Test
     fun `Retrieve identifiers for a personId that does not exist`() {
       webTestClient.get().uri("/api/persons/1000/identifiers")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PROFILES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -38,7 +38,7 @@ class PersonResourceTest : ResourceTest() {
     @Test
     fun `Retrieve the identifiers for a personId having multiple identifiers`() {
       webTestClient.get().uri("/api/persons/-1/identifiers")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PROFILES")))
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
