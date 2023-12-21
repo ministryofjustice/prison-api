@@ -8,6 +8,63 @@ import org.junit.jupiter.api.Test
 class PersonResourceTest : ResourceTest() {
 
   @Nested
+  @DisplayName("GET /api/persons/{personId}/identifiers")
+  inner class Identifiers {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/persons/-1/identifiers")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client has no authorised role`() {
+      webTestClient.get().uri("/api/persons/-1/identifiers")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `Retrieve identifiers for a personId that does not exist`() {
+      webTestClient.get().uri("/api/persons/1000/identifiers")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PROFILES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `Retrieve the identifiers for a personId having multiple identifiers`() {
+      webTestClient.get().uri("/api/persons/-1/identifiers")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PROFILES")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("""[{
+          "identifierType": "EXTERNAL_REL",
+          "identifierValue": "DELIUS_1_2"
+        }, {
+          "identifierType": "DL",
+          "identifierValue": "NCDON805157PJ9FR"
+        },
+        {
+          "identifierType": "PASS",
+          "identifierValue": "PB1575411"
+        },
+        {
+          "identifierType": "MERGED",
+          "identifierValue": "A1408CM"
+        },
+        {
+          "identifierType": "CRO",
+          "identifierValue": "135196/95W"
+        }]""")
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/persons/{personId}/addresses")
   inner class Addresses {
     @Test

@@ -16,6 +16,7 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.PersonIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.service.PersonService;
 
@@ -30,6 +31,18 @@ public class PersonResource {
 
     public PersonResource(final PersonService service) {
         this.service = service;
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "The most recent value of each type of person identifier", description = "The most recent value of each type of person identifier")
+    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
+    @GetMapping("/{personId}/identifiers")
+    public List<PersonIdentifier> getPersonIdentifiers(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+        return service.getPersonIdentifiers(personId);
     }
 
     @ApiResponses({
