@@ -135,7 +135,6 @@ class ImageResourceIntTest : ResourceTest() {
     fun putImageReturnsForbiddenForIncorrectRoles() {
       webTestClient.post().uri("/api/images/offenders/A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_WRONG")))
-        .header("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
         .body(generateMultiPartFormRequestWeb())
         .exchange()
         .expectStatus().isForbidden
@@ -145,7 +144,6 @@ class ImageResourceIntTest : ResourceTest() {
     fun putImageReturnsNotFoundForInvalidOffender() {
       webTestClient.post().uri("/api/images/offenders/A9999XX")
         .headers(setClientAuthorisation(listOf("ROLE_IMAGE_UPLOAD")))
-        .header("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
         .body(generateMultiPartFormRequestWeb())
         .exchange()
         .expectStatus().isNotFound
@@ -155,7 +153,6 @@ class ImageResourceIntTest : ResourceTest() {
     fun putImageUploadsAndStoresScaledImages() {
       webTestClient.post().uri("/api/images/offenders/A1234AI")
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_IMAGE_UPLOAD")))
-        .header("Content-Type", MediaType.MULTIPART_FORM_DATA_VALUE)
         .body(generateMultiPartFormRequestWeb())
         .exchange()
         .expectStatus().isOk
