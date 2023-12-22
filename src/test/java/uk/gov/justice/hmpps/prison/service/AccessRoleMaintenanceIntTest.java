@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.security.test.context.support.WithUserDetails;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.StaffUserRole;
 
@@ -18,8 +17,32 @@ public class AccessRoleMaintenanceIntTest {
 
     @Test
     public void testGetSpecificRoles() {
-        final var roles = staffService.getRolesByCaseload(-2L, "NWEB");
+        final var roles = staffService.getStaffRoles(-2L);
         assertThat(roles).containsExactly(
+            StaffUserRole.builder()
+                .roleId(-2L)
+                .roleCode("WING_OFF")
+                .roleName("Wing Officer")
+                .caseloadId("BXI")
+                .username("ITAG_USER")
+                .staffId(-2L)
+                .build(),
+            StaffUserRole.builder()
+                .roleId(-2L)
+                .roleCode("WING_OFF")
+                .roleName("Wing Officer")
+                .caseloadId("LEI")
+                .username("ITAG_USER")
+                .staffId(-2L)
+                .build(),
+            StaffUserRole.builder()
+                .roleId(-2L)
+                .roleCode("WING_OFF")
+                .roleName("Wing Officer")
+                .caseloadId("MDI")
+                .username("ITAG_USER")
+                .staffId(-2L)
+                .build(),
             StaffUserRole.builder()
                 .roleId(-301L)
                 .roleCode("ACCESS_ROLE_ADMIN")
@@ -59,7 +82,24 @@ public class AccessRoleMaintenanceIntTest {
                 .caseloadId("NWEB")
                 .username("ITAG_USER")
                 .staffId(-2L)
-                .build());
+                .build(),
+            StaffUserRole.builder()
+                .roleId(-2L)
+                .roleCode("WING_OFF")
+                .roleName("Wing Officer")
+                .caseloadId("SYI")
+                .username("ITAG_USER")
+                .staffId(-2L)
+                .build(),
+            StaffUserRole.builder()
+                .roleId(-2L)
+                .roleCode("WING_OFF")
+                .roleName("Wing Officer")
+                .caseloadId("WAI")
+                .username("ITAG_USER")
+                .staffId(-2L)
+                .build()
+        );
     }
 
     @Test

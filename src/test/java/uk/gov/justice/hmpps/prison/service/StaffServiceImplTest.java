@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -12,19 +14,23 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffJobRole;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffRole;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffJobRoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -54,11 +60,17 @@ public class StaffServiceImplTest {
     @Mock
     private StaffJobRoleRepository staffJobRoleRepository;
 
+    @Mock
+    private AuthenticationFacade authenticationFacade;
+
+    @Mock
+    private TelemetryClient telemetryClient;
+
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, staffJobRoleRepository);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, staffJobRoleRepository, authenticationFacade, telemetryClient);
     }
 
     @Test
@@ -82,7 +94,7 @@ public class StaffServiceImplTest {
 
         final var addresses = staffService.getStaffEmailAddresses(ID_SINGLE);
 
-        assertThat(addresses).containsOnly(singleAddress.get(0));
+        assertThat(addresses).containsOnly(singleAddress.getFirst());
 
         verify(staffRepository, times(1)).findByStaffId(ID_SINGLE);
         verify(staffRepository, times(1)).findEmailAddressesForStaffId(ID_SINGLE);
@@ -108,17 +120,16 @@ public class StaffServiceImplTest {
         verify(staffRepository, times(1)).findByStaffId(ID_BAD);
     }
 
+    @Test
+    public void testFiltersOutOldRoles() {
 
-@Test
-public void testFiltersOutOldRoles() {
-
-        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffId("MDI", -1L )).thenReturn(List.of(
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffId("MDI", -1L)).thenReturn(List.of(
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
                 AgencyLocation.builder().id("MDI").build(),
-               LocalDate.now().minusDays(1),
+                LocalDate.now().minusDays(1),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 1"),
+                new StaffRole("KW", "Key worker 1"),
                 null
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -126,7 +137,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(2),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 2"),
+                new StaffRole("KW", "Key worker 2"),
                 null
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -134,7 +145,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(3),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 3"),
+                new StaffRole("KW", "Key worker 3"),
                 LocalDate.now().minusDays(2)
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -142,7 +153,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(5),
                 "POS",
                 "POM",
-                new StaffRole("POM","POM 1"),
+                new StaffRole("POM", "POM 1"),
                 LocalDate.now().minusDays(2)
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -150,7 +161,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(2),
                 "POS",
                 "POM",
-                new StaffRole("POM","POM 2"),
+                new StaffRole("POM", "POM 2"),
                 null
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -158,7 +169,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(3),
                 "POS",
                 "POM",
-                new StaffRole("POM","POM 3"),
+                new StaffRole("POM", "POM 3"),
                 null
             )
         ));
@@ -174,13 +185,13 @@ public void testFiltersOutOldRoles() {
     @Test
     public void testFindRole() {
 
-        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW" )).thenReturn(List.of(
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW")).thenReturn(List.of(
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(1),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 1"),
+                new StaffRole("KW", "Key worker 1"),
                 null
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -188,7 +199,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(2),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 2"),
+                new StaffRole("KW", "Key worker 2"),
                 null
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -196,7 +207,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(3),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 3"),
+                new StaffRole("KW", "Key worker 3"),
                 LocalDate.now().minusDays(2)
             )
         ));
@@ -204,19 +215,18 @@ public void testFiltersOutOldRoles() {
         final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
 
         assertThat(found).isTrue();
-
     }
 
     @Test
     public void testDoesNotFindRole() {
 
-        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW" )).thenReturn(List.of(
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW")).thenReturn(List.of(
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
                 AgencyLocation.builder().id("MDI").build(),
                 LocalDate.now().minusDays(2),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 2"),
+                new StaffRole("KW", "Key worker 2"),
                 LocalDate.now().minusDays(1)
             ),
             new StaffJobRole(Staff.builder().staffId(-1L).build(),
@@ -224,7 +234,7 @@ public void testFiltersOutOldRoles() {
                 LocalDate.now().minusDays(3),
                 "POS",
                 "KW",
-                new StaffRole("KW","Key worker 3"),
+                new StaffRole("KW", "Key worker 3"),
                 LocalDate.now().minusDays(2)
             )
         ));
@@ -232,7 +242,67 @@ public void testFiltersOutOldRoles() {
         final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
 
         assertThat(found).isFalse();
+    }
 
+    @Nested
+    public class TemporaryLog {
+        @Test
+        public void testTemporaryLog() {
+
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
+            when(staffUserAccountRepository.findByUsername("TEST_USER"))
+                .thenReturn(Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(234L).build()).build()));
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verify(telemetryClient).trackEvent("staff access accessing other staff details",
+                Map.of("currentUsername", "TEST_USER",
+                    "userStaffId", String.valueOf(234L),
+                    "requestedStaffId", String.valueOf(ID_SINGLE)),
+                null);
+        }
+
+        @Test
+        public void testTemporaryLogNoUsername() {
+
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verify(telemetryClient).trackEvent("staff access with no username",
+                Map.of("requestedStaffId", String.valueOf(ID_SINGLE)),
+                null);
+        }
+
+        @Test
+        public void testTemporaryLogUserMatchesStaff() {
+
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
+            when(staffUserAccountRepository.findByUsername("TEST_USER"))
+                .thenReturn(Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(ID_SINGLE).build()).build()));
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verifyNoInteractions(telemetryClient);
+        }
+
+        @Test
+        public void testTemporaryLogUserNotInNomis() {
+
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
+            when(staffUserAccountRepository.findByUsername("TEST_USER"))
+                .thenReturn(Optional.empty());
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verify(telemetryClient).trackEvent("staff access cannot find staff for username",
+                Map.of("currentUsername", "TEST_USER",
+                    "requestedStaffId", String.valueOf(ID_SINGLE)),
+                null);
+        }
     }
 
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {
