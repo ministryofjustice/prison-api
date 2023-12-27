@@ -11,12 +11,12 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
   inner class CaseNoteCount {
 
     @Test
-    fun `returns 200 if has override ROLE_SYSTEM_USER`() {
+    fun `returns 403 if has override ROLE_SYSTEM_USER`() {
       webTestClient.get()
         .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isForbidden
     }
 
     @Test

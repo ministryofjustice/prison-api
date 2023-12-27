@@ -10,7 +10,7 @@ import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
 
-@DisplayName("/api/offenders/{offenderNo}/case-notes/{caseNoteId}")
+@DisplayName("GET /api/offenders/{offenderNo}/case-notes/{caseNoteId}")
 class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
 
   @Nested
