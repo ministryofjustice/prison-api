@@ -5,7 +5,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAliasSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 
@@ -13,7 +12,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Arrays;
 import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
@@ -22,7 +20,6 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
  * BDD step definitions for the following Booking API endpoints:
  * <ul>
  *     <li>/booking/{bookingId}</li>
- *     <li>/booking/{bookingId}/aliases</li>
  *     <li>/bookings/{bookingId}/sentenceDetail</li>
  *     <li>/bookings/{bookingId}/balances</li>
  *     <li>/bookings/{bookingId}/mainSentence</li>
@@ -33,44 +30,10 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
-    private BookingAliasSteps bookingAlias;
-
-    @Autowired
     private BookingDetailSteps bookingDetail;
 
     @Autowired
     private BookingAssessmentSteps bookingAssessment;
-
-
-    @When("^aliases are requested for an offender booking \"([^\"]*)\"$")
-    public void aliasesAreRequestedForAnOffenderBooking(final String bookingId) {
-        bookingAlias.getAliasesForBooking(Long.valueOf(bookingId));
-    }
-
-    @Then("^\"([^\"]*)\" aliases are returned$")
-    public void aliasesAreReturned(final String expectedCount) {
-        bookingAlias.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
-    }
-
-    @And("^alias first names match \"([^\"]*)\"$")
-    public void aliasFirstNamesMatch(final String firstNames) {
-        bookingAlias.verifyAliasFirstNames(firstNames);
-    }
-
-    @And("^alias last names match \"([^\"]*)\"$")
-    public void aliasLastNamesMatch(final String lastNames) {
-        bookingAlias.verifyAliasLastNames(lastNames);
-    }
-
-    @And("^alias ethnicities match \"([^\"]*)\"$")
-    public void aliasEthnicitiesMatch(final String ethnicities) {
-        bookingAlias.verifyAliasEthnicities(ethnicities);
-    }
-
-    @Then("^resource not found response is received from offender aliases API$")
-    public void resourceNotFoundResponseIsReceivedFromOffenderAliasesAPI() {
-        bookingAlias.verifyResourceNotFound();
-    }
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
     public void anOffenderBookingRequestIsMadeWithBookingId(final String bookingId) {

@@ -2169,4 +2169,100 @@ class BookingResourceIntTest : ResourceTest() {
     assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
     assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
   }
+
+  @Nested
+  @DisplayName("GET /api/bookings/{bookingId}/aliases")
+  inner class GetOffenderAliases {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have authorised role`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has override role SYSTEM_USER`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 200 when client has override role GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when client has override role VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 404 if booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/aliases")
+        .headers(setAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns 404 when user does not have booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+    }
+
+    @Test
+    fun `returns success when user has booking in caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/aliases")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `successfully returns alias data `() {
+      webTestClient.get().uri("/api/bookings/-12/aliases")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].firstName").isEqualTo("DANNY")
+        .jsonPath("[0].lastName").isEqualTo("SMILEY")
+    }
+
+    @Test
+    fun `successfully returns mutliple alias data `() {
+      webTestClient.get().uri("/api/bookings/-9/aliases")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(2)
+        .jsonPath("[0].firstName").isEqualTo("CHESNEY")
+        .jsonPath("[0].lastName").isEqualTo("THOMSON")
+        .jsonPath("[1].firstName").isEqualTo("CHARLEY")
+        .jsonPath("[1].lastName").isEqualTo("THOMPSON")
+    }
+  }
 }

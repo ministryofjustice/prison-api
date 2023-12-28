@@ -662,7 +662,6 @@ public class InmateService {
         }
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
         final var defaultOrderBy = Objects.toString(StringUtils.trimToNull(orderBy), "createDate");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
