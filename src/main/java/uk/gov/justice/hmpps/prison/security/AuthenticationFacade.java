@@ -33,8 +33,7 @@ public class AuthenticationFacade {
             username = (String) userPrincipal;
         } else if (userPrincipal instanceof UserDetails) {
             username = ((UserDetails) userPrincipal).getUsername();
-        } else if (userPrincipal instanceof Map) {
-            final var userPrincipalMap = (Map) userPrincipal;
+        } else if (userPrincipal instanceof Map userPrincipalMap) {
             username = (String) userPrincipalMap.get("username");
         } else {
             username = null;
@@ -51,8 +50,21 @@ public class AuthenticationFacade {
         final var authentication = getAuthentication();
         if (!(authentication instanceof AuthAwareAuthenticationToken)) return false;
 
-        final var token = (AuthAwareAuthenticationToken) authentication;
-        return token.isClientOnly();
+        return ((AuthAwareAuthenticationToken) authentication).isClientOnly();
+    }
+
+    public String getClientId() {
+        final var authentication = getAuthentication();
+        if (!(authentication instanceof AuthAwareAuthenticationToken)) return null;
+
+        return (String)((AuthAwareAuthenticationToken) authentication).getClientId();
+    }
+
+    public String getGrantType() {
+        final var authentication = getAuthentication();
+        if (!(authentication instanceof AuthAwareAuthenticationToken)) return null;
+
+        return (String)((AuthAwareAuthenticationToken) authentication).getGrantType();
     }
 
     public AuthSource getAuthenticationSource() {

@@ -303,6 +303,31 @@ public class StaffServiceImplTest {
                     "requestedStaffId", String.valueOf(ID_SINGLE)),
                 null);
         }
+
+        @Test
+        public void testTemporaryLogSkippedGrantType() {
+            // This test is to ensure that the telemetry is not logged when the grant type is client_credentials
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
+            when(authenticationFacade.getGrantType()).thenReturn("client_credentials");
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verifyNoInteractions(telemetryClient);
+        }
+
+        @Test
+        public void testTemporaryLogSkippedOmittedClientId() {
+            // This test is to ensure that the telemetry is not logged when an omitted client id is present
+            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
+            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
+            when(authenticationFacade.getGrantType()).thenReturn("authorization_code");
+            when(authenticationFacade.getClientId()).thenReturn("hmpps-prisoner-profile-3");
+
+            staffService.getStaffDetail(ID_SINGLE);
+
+            verifyNoInteractions(telemetryClient);
+        }
     }
 
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {
