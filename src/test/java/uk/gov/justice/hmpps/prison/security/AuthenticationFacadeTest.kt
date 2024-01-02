@@ -76,7 +76,7 @@ class AuthenticationFacadeTest {
   }
 
   private fun setAuthentication(source: String?, authoritySet: Set<GrantedAuthority>, clientOnly: Boolean = false) {
-    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "client", clientOnly, source, authoritySet)
+    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "client", "clientId", "grantType", clientOnly, source, authoritySet)
     SecurityContextHolder.getContext().authentication = auth
   }
 
@@ -88,5 +88,17 @@ class AuthenticationFacadeTest {
   @Test
   fun hasRoles_NoAllowedRoleSet() {
     assertThat(AuthenticationFacade.hasRoles()).isFalse()
+  }
+
+  @Test
+  fun getClientId() {
+    setAuthentication(null)
+    assertThat(authenticationFacade.clientId).isEqualTo("clientId")
+  }
+
+  @Test
+  fun getGrantType() {
+    setAuthentication(null)
+    assertThat(authenticationFacade.grantType).isEqualTo("grantType")
   }
 }

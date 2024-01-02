@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
@@ -191,7 +192,7 @@ public class StaffService {
             telemetryClient.trackEvent("staff access with no username", Map.of(
                 "requestedStaffId", String.valueOf(staffId)
             ), null);
-        } else {
+        } else if (loggableClient()) {
             staffUserAccountRepository.findByUsername(currentUsername)
                 .ifPresentOrElse(
                     staffUserAccount -> {
@@ -211,4 +212,17 @@ public class StaffService {
                 );
         }
     }
+
+    private boolean loggableClient() {
+        if (Objects.equals(authenticationFacade.getGrantType(), "client_credentials")) {
+            return false;
+        }
+        final String clientId = authenticationFacade.getClientId();
+        if (clientId == null) {
+            return true;
+        }
+        return OMITTED_CLIENT_IDS.stream().noneMatch(clientId::startsWith);
+    }
+
+    private final static List<String> OMITTED_CLIENT_IDS = List.of("prison-staff-hub", "hmpps-prisoner-profile", "manage-key-workers", "use-of-force-client");
 }
