@@ -1,8 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
-import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
@@ -14,23 +12,19 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffJobRole;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffRole;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffJobRoleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.verifyNoInteractions;
 import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
@@ -60,17 +54,11 @@ public class StaffServiceImplTest {
     @Mock
     private StaffJobRoleRepository staffJobRoleRepository;
 
-    @Mock
-    private AuthenticationFacade authenticationFacade;
-
-    @Mock
-    private TelemetryClient telemetryClient;
-
     private StaffService staffService;
 
     @BeforeEach
     public void init() {
-        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, staffJobRoleRepository, authenticationFacade, telemetryClient);
+        staffService = new StaffService(staffRepository, staffUserAccountRepository, caseLoadRepository, userCaseloadRoleRepository, staffJobRoleRepository);
     }
 
     @Test
@@ -242,79 +230,6 @@ public class StaffServiceImplTest {
         final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
 
         assertThat(found).isFalse();
-    }
-
-    @Nested
-    public class TemporaryLog {
-        @Test
-        public void testTemporaryLog() {
-
-            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
-            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
-            when(staffUserAccountRepository.findByUsername("TEST_USER"))
-                .thenReturn(Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(234L).build()).build()));
-
-            staffService.getStaffDetail(ID_SINGLE);
-
-            verify(telemetryClient).trackEvent("staff access accessing other staff details",
-                Map.of("currentUsername", "TEST_USER",
-                    "userStaffId", String.valueOf(234L),
-                    "requestedStaffId", String.valueOf(ID_SINGLE)),
-                null);
-        }
-
-        @Test
-        public void testTemporaryLogNoUsername() {
-
-            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
-
-            staffService.getStaffDetail(ID_SINGLE);
-
-            verify(telemetryClient).trackEvent("staff access with no username",
-                Map.of("requestedStaffId", String.valueOf(ID_SINGLE)),
-                null);
-        }
-
-        @Test
-        public void testTemporaryLogUserMatchesStaff() {
-
-            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
-            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
-            when(staffUserAccountRepository.findByUsername("TEST_USER"))
-                .thenReturn(Optional.of(StaffUserAccount.builder().staff(Staff.builder().staffId(ID_SINGLE).build()).build()));
-
-            staffService.getStaffDetail(ID_SINGLE);
-
-            verifyNoInteractions(telemetryClient);
-        }
-
-        @Test
-        public void testTemporaryLogUserNotInNomis() {
-
-            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
-            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
-            when(staffUserAccountRepository.findByUsername("TEST_USER"))
-                .thenReturn(Optional.empty());
-
-            staffService.getStaffDetail(ID_SINGLE);
-
-            verify(telemetryClient).trackEvent("staff access cannot find staff for username",
-                Map.of("currentUsername", "TEST_USER",
-                    "requestedStaffId", String.valueOf(ID_SINGLE)),
-                null);
-        }
-
-        @Test
-        public void testTemporaryLogSkippedGrantType() {
-            // This test is to ensure that the telemetry is not logged when the grant type is client_credentials
-            when(staffRepository.findByStaffId(ID_SINGLE)).thenReturn(getValidStaffDetails(ID_SINGLE));
-            when(authenticationFacade.getCurrentUsername()).thenReturn("TEST_USER");
-            when(authenticationFacade.getGrantType()).thenReturn("client_credentials");
-
-            staffService.getStaffDetail(ID_SINGLE);
-
-            verifyNoInteractions(telemetryClient);
-        }
     }
 
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {

@@ -37,10 +37,6 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
-    <logger name="org.glassfish.jersey" additivity="false" level="INFO" >
-        <appender-ref ref="consoleAppender"/>
-    </logger>
-
     <logger name="com.microsoft.applicationinsights" additivity="false" level="INFO" >
         <appender-ref ref="consoleAppender"/>
     </logger>

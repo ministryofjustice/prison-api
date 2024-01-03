@@ -26,7 +26,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudic
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.StaffSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper;
@@ -138,11 +137,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
             return new KeyWorkerAllocatedOffendersSteps();
-        }
-
-        @Bean
-        public StaffSteps staff() {
-            return new StaffSteps();
         }
     }
 

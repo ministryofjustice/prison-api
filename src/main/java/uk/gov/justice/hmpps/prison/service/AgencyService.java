@@ -226,7 +226,7 @@ public class AgencyService {
         }
         if (!agencyIds.contains(agencyId)) {
             if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access agency with id %d.", agencyId));
+                throw new AccessDeniedException(format("User not authorised to access agency with id %s.", agencyId));
             }
             logUserUnauthorisedAccess(agencyId, agencyIds);
             throw EntityNotFoundException.withId(agencyId);
@@ -263,7 +263,7 @@ public class AgencyService {
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, type, true);
 
-        if (agencyInternalLocations.size() == 0) {
+        if (agencyInternalLocations.isEmpty()) {
             throw EntityNotFoundException.withMessage(format("Locations of type %s in agency %s not found", type, agencyId));
         }
 
@@ -364,7 +364,7 @@ public class AgencyService {
         if (prisonContactDetailList.isEmpty()) {
             throw EntityNotFoundException.withMessage(format("Contact details not found for Prison %s", agencyId));
         }
-        return prisonContactDetailList.get(0);
+        return prisonContactDetailList.getFirst();
 
     }
 
@@ -416,12 +416,10 @@ public class AgencyService {
         return AgencyEstablishmentTypes.builder().agencyId(agencyId).establishmentTypes(
                 agency.getEstablishmentTypes()
                     .stream()
-                    .map(establishment -> {
-                        return AgencyEstablishmentType.builder()
-                            .code(establishment.getEstablishmentType().getCode())
-                            .description(establishment.getEstablishmentType().getDescription())
-                            .build();
-                    })
+                    .map(establishment -> AgencyEstablishmentType.builder()
+                        .code(establishment.getEstablishmentType().getCode())
+                        .description(establishment.getEstablishmentType().getDescription())
+                        .build())
                     .collect(toList()))
             .build();
     }
