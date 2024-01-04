@@ -221,18 +221,6 @@ Feature: Booking Details
     When offender identifiers are requested for Booking Id "-4"
     Then "2" row of offender identifiers is returned
 
-  Scenario: Request for image metadata
-    When image metadata is requested for Booking Id "-1"
-    Then image metadata is returned
-
-  Scenario: Request for image data
-    When image data is requested by booking Id "-1"
-    Then image bytes are returned
-
-  Scenario: Request for image data full size
-    When full size image is requested by booking Id "-1"
-    Then image bytes are returned
-
     Scenario Outline: Request offender basic details by offender numbers
       When a request is made for "A1234AE,A1234AB"
       Then data is returned that includes "<firstName>" "<lastName>" "<middleName>" "<offenderNo>" "<bookingId>" "<agencyId>"

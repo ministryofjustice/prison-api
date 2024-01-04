@@ -256,21 +256,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
     }
 
-    @When("^image metadata is requested for Booking Id \"([^\"]*)\"$")
-    public void imageMetadataIsRequestedForBookingId(final String bookingId) {
-        bookingDetail.getImageMetadata(Long.valueOf(bookingId));
-    }
-
-    @When("^image data is requested by booking Id \"([^\"]*)\"$")
-    public void imageDataIsRequestedByBookingId(final String bookingId) {
-        bookingDetail.getImageData(Long.valueOf(bookingId), false);
-    }
-
-    @When("^full size image is requested by booking Id \"([^\"]*)\"$")
-    public void fullSizeImageDataIsRequestedByBookingId(final String bookingId) {
-        bookingDetail.getImageData(Long.valueOf(bookingId), true);
-    }
-
     @Then("^\"(\\d+)\" row of offender identifiers is returned$")
     public void rowOfOffenderIdentifiersIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
@@ -284,16 +269,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
     public void rowOfPhysicalCharacteristicsIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
-    }
-
-    @Then("^image metadata is returned$")
-    public void imageMetaDataIsReturned() {
-        bookingDetail.verifyImageMetadataExists();
-    }
-
-    @Then("^image bytes are returned$")
-    public void imageDataIsReturned() {
-        bookingDetail.verifyImageBytesExists();
     }
 
     @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
