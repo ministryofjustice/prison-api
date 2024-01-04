@@ -201,7 +201,7 @@ workflows:
                 - main
     jobs:
       - hmpps/gradle_owasp_dependency_check:
-          cache_key: "v3_0"
+          cache_key: "v2_0"
           jdk_tag: "21.0"
           context:
             - hmpps-common-vars
