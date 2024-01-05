@@ -49,7 +49,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
@@ -379,7 +378,6 @@ public class InmateService {
         return repository.getProfileInformation(bookingId);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ImageDetail getMainBookingImage(final Long bookingId) {
         return offenderImageRepository.findLatestByBookingId(bookingId)
             .map(OffenderImage::transform)
