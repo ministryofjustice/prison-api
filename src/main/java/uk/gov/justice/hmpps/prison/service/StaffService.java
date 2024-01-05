@@ -214,15 +214,6 @@ public class StaffService {
     }
 
     private boolean loggableClient() {
-        if (Objects.equals(authenticationFacade.getGrantType(), "client_credentials")) {
-            return false;
-        }
-        final String clientId = authenticationFacade.getClientId();
-        if (clientId == null) {
-            return true;
-        }
-        return OMITTED_CLIENT_IDS.stream().noneMatch(clientId::startsWith);
+        return !Objects.equals(authenticationFacade.getGrantType(), "client_credentials");
     }
-
-    private final static List<String> OMITTED_CLIENT_IDS = List.of("prison-staff-hub", "hmpps-prisoner-profile", "manage-key-workers", "use-of-force-client");
 }
