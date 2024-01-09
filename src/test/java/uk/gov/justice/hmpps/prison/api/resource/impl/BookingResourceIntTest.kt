@@ -18,7 +18,6 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.api.model.Alert
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges
@@ -26,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.model.AlertCreated
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
 import uk.gov.justice.hmpps.prison.api.support.Order
@@ -148,6 +146,18 @@ class BookingResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf("ROLE_INACTIVE_BOOKINGS"))).exchange()
         .expectStatus().isOk
         .expectBody().jsonPath("bookingNo").isEqualTo("A00123")
+    }
+
+    @Test
+    fun fullOffenderInformation() {
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}?extraInfo=true",
+        GET,
+        createHttpEntity(NORMAL_USER, null),
+        String::class.java,
+        "-7",
+      )
+      assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json")
     }
   }
 
@@ -705,32 +715,6 @@ class BookingResourceIntTest : ResourceTest() {
       assertThat(response.body!!.alertId).isGreaterThan(1)
       assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
     }
-  }
-
-  @Test
-  fun testGetBasicInmateDetailsForOffendersActiveOnlyFalse() {
-    val token = authTokenHelper.getToken(AuthToken.SYSTEM_USER_READ_WRITE)
-    val body = listOf("Z0020ZZ")
-    val response: ResponseEntity<List<InmateBasicDetails>> = testRestTemplate.exchange(
-      "/api/bookings/offenders?activeOnly=false",
-      POST,
-      createHttpEntity(token, body),
-      object : ParameterizedTypeReference<List<InmateBasicDetails>>() {},
-    )
-    assertThat(response.body!![0].bookingId).isEqualTo(-20)
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-  }
-
-  @Test
-  fun fullOffenderInformation() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/{bookingId}?extraInfo=true",
-      GET,
-      createHttpEntity(NORMAL_USER, null),
-      String::class.java,
-      "-7",
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json")
   }
 
   @Nested

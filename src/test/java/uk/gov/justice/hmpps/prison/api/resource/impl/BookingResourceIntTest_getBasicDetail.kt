@@ -11,7 +11,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
   fun `should return 401 when user does not even have token`() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isUnauthorized
   }
 
@@ -20,7 +20,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setClientAuthorisation(listOf()))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isBadRequest
   }
 
@@ -29,7 +29,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isBadRequest
   }
 
@@ -38,7 +38,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isOk
   }
 
@@ -47,7 +47,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isOk
   }
 
@@ -56,7 +56,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setAuthorisation(listOf()))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isOk
       .expectBody()
       .jsonPath("length()").isEqualTo(2)
@@ -67,7 +67,7 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setAuthorisation(listOf()))
-      .bodyValue("""["A1234AE","A1234AB"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB")).exchange()
       .expectStatus().isOk
       .expectBody()
       .jsonPath("length()").isEqualTo(2)
@@ -90,9 +90,32 @@ class BookingResourceIntTest_getBasicDetail : ResourceTest() {
     webTestClient.post().uri("/api/bookings/offenders")
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .headers(setAuthorisation(listOf()))
-      .bodyValue("""["A1234AE","A1234AB","Z0017ZZ"]""").exchange()
+      .bodyValue(listOf("A1234AE", "A1234AB", "Z0017ZZ")).exchange()
       .expectStatus().isOk
       .expectBody()
       .jsonPath("length()").isEqualTo(3)
+  }
+
+  @Test
+  fun `returns data when when activeOnly is false`() {
+    webTestClient.post().uri("/api/bookings/offenders?activeOnly=false")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      .bodyValue(listOf("Z0020ZZ", "A1234AE")).exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("length()").isEqualTo(2)
+      .jsonPath("[0].bookingId").isEqualTo(-20)
+  }
+
+  @Test
+  fun `returns data when when activeOnly is true`() {
+    webTestClient.post().uri("/api/bookings/offenders?activeOnly=true")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      .bodyValue(listOf("Z0020ZZ", "A1234AE")).exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("length()").isEqualTo(1)
   }
 }
