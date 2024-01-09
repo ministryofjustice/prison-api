@@ -28,6 +28,7 @@ import static org.apache.commons.lang3.StringUtils.isBlank;
 public class OffenderDatesService {
 
     private static final String ZERO_LENGTH = "00/00/00";
+    private static final String DEFAULT_REASON = "UPDATE";
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final TelemetryClient telemetryClient;
@@ -50,7 +51,7 @@ public class OffenderDatesService {
             sentenceCalculation =
                 SentenceCalculation.builder()
                     .offenderBooking(offenderBooking)
-                    .reasonCode("UPDATE")
+                    .reasonCode(isBlank(requestToUpdateOffenderDates.getReason()) ? DEFAULT_REASON : requestToUpdateOffenderDates.getReason())
                     .calculationDate(calculationDate)
                     .comments(
                         isBlank(requestToUpdateOffenderDates.getComment()) ?
@@ -87,7 +88,7 @@ public class OffenderDatesService {
         } else {
             sentenceCalculation = SentenceCalculation.builder()
                 .offenderBooking(offenderBooking)
-                .reasonCode("UPDATE")
+                .reasonCode(isBlank(requestToUpdateOffenderDates.getReason()) ? DEFAULT_REASON : requestToUpdateOffenderDates.getReason())
                 .calculationDate(calculationDate)
                 .effectiveSentenceLength(ZERO_LENGTH)
                 .comments(

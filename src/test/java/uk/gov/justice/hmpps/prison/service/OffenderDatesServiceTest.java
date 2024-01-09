@@ -223,7 +223,7 @@ public class OffenderDatesServiceTest {
     }
 
     @Test
-    void updateOffenderDates_with_passed_in_comment() {
+    void updateOffenderDates_with_passed_in_comment_and_reason() {
         // Given
         final Long bookingId = 1L;
         final var offenderBooking = OffenderBooking.builder().bookingId(bookingId).build();
@@ -240,6 +240,7 @@ public class OffenderDatesServiceTest {
             .calculationDateTime(calculationDateTime)
             .calculationUuid(calculationUuid)
             .comment("Passed in comment should override default")
+            .reason("TRANSFER")
             .build();
         final var keyDates = payload.getKeyDates();
 
@@ -249,7 +250,7 @@ public class OffenderDatesServiceTest {
         // Then
         final var expected = SentenceCalculation.builder()
             .offenderBooking(offenderBooking)
-            .reasonCode("UPDATE")
+            .reasonCode("TRANSFER")
             .calculationDate(calculationDateTime)
             .comments("Passed in comment should override default")
             .staff(staff)
