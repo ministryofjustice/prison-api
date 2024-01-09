@@ -124,25 +124,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     }
 
     // ----------------------------- Assessments --------------------------
-    @When("^an offender booking assessment information request is made with booking id ([0-9-]+) and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(final Long bookingId, final String assessmentCode) {
-        bookingAssessment.getAssessmentByCode(bookingId, assessmentCode);
-    }
-
-    @Then("^the classification is \"([^\"]*)\"$")
-    public void theClassificationIsCorrect(final String classification) throws Throwable {
-        bookingAssessment.verifyField("classification", classification);
-    }
-
-    @And("^the Cell Sharing Alert is (true|false)$")
-    public void theCellSharingAlertIs(final boolean csra) {
-        bookingAssessment.verifyCsra(csra);
-    }
-
-    @And("^the Next Review Date is \"([^\"]*)\"$")
-    public void theNextReviewDateIs(final String nextReviewDate) {
-        bookingAssessment.verifyNextReviewDate(nextReviewDate);
-    }
 
     @And("^the CSRA is \"([^\"]*)\"$")
     public void theCsraIs(final String csra) throws ReflectiveOperationException {
@@ -194,11 +175,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyResourceNotFound();
     }
 
-    @And("^user message in resource not found response from booking assessments API is \"([^\"]*)\"$")
-    public void userMessageInResourceNotFoundResponseFromBookingAssessmentsAPIIs(final String expectedUserMessage) {
-        bookingAssessment.verifyErrorUserMessage(expectedUserMessage);
-    }
-
     @When("^a request is made for uncategorised offenders at \"([^\"]*)\"$")
     public void requestUncategorisedOffenders(final String agencyId) {
         bookingAssessment.getUncategorisedOffenders(agencyId);
@@ -212,11 +188,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is made for offenders who need to be recategorised at \"([^\"]*)\" with cutoff Date of \"([^\"]*)\"$")
     public void aRequestIsMadeForRecategorisingOffenders(final String agencyId, final String cutoff) {
         bookingAssessment.getRecategorise(agencyId, cutoff);
-    }
-
-    @Then("^([0-9]+) uncategorised offenders are returned$")
-    public void returnedUncategorisedOffenders(final int size) {
-        bookingAssessment.verifyOffenderCategoryListSize(size);
     }
 
     @Then("^some uncategorised offenders are returned$")
@@ -262,11 +233,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
     public void rowOfPhysicalCharacteristicsIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
-    }
-
-    @When("^a categorisation request is made for booking \"([^\"]*)\" with category \"([^\"]*)\" for committee \"([^\"]*)\"$")
-    public void aCategorisationRequestIsMadeForBookingWithCategoryForCommitteeAt(final String bookingId, final String category, final String committee) {
-        bookingAssessment.createCategorisation(Long.parseLong(bookingId), category, committee);
     }
 
     @When("^a categorisation is approved for booking \"([^\"]*)\" with category \"([^\"]*)\" date \"([^\"]*)\" and comment \"([^\"]*)\"$")

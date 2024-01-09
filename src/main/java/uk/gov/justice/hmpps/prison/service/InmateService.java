@@ -409,24 +409,6 @@ public class InmateService {
         return repository.getBasicInmateDetail(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
     }
 
-    /**
-     * @param bookingId      tacit
-     * @param assessmentCode tacit
-     * @return Latest assessment of given code if any
-     */
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Optional<Assessment> getInmateAssessmentByCode(final Long bookingId, final String assessmentCode) {
-        final var assessmentForCodeType = repository.findAssessments(Collections.singletonList(bookingId), assessmentCode, Collections.emptySet());
-
-        Assessment assessment = null;
-
-        if (!CollectionUtils.isEmpty(assessmentForCodeType)) {
-            assessment = createAssessment(assessmentForCodeType.get(0));
-        }
-
-        return Optional.ofNullable(assessment);
-    }
-
     public List<Assessment> getInmatesAssessmentsByCode(final List<String> offenderNos, final String assessmentCode, final boolean latestOnly, final boolean activeOnly, final boolean csra,
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
