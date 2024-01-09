@@ -10,9 +10,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSt
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.List;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -261,11 +259,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
     }
 
-    @Then("^correct profile information is returned$")
-    public void correctProfileInformationIsReturned() {
-        bookingDetail.verifyProfileInformation();
-    }
-
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
     public void rowOfPhysicalCharacteristicsIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
@@ -283,41 +276,4 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.approveCategorisation(id, StringUtils.trimToNull(category), localDate, StringUtils.trimToNull(comment));
     }
 
-    @Then("^offender with booking \"([^\"]*)\" has a categorised status of AWAITING_APROVAL$")
-    public void offenderWithBookingHasACategorisedStatusOfAWAITINGAPROVAL(final String bookingId) {
-        bookingAssessment.verifyCategorisedPendingApproval(Long.parseLong(bookingId));
-    }
-
-    @Then("^offender with booking \"([^\"]*)\" is not present$")
-    public void offenderWithBookingNotPresent(final String bookingId) {
-        bookingAssessment.verifyCategorisedNotPresent(Long.parseLong(bookingId));
-    }
-
-    @When("^a request is made for \"([^\"]*)\"$")
-    public void aRequestIsMadeFor(final String offenders) {
-        bookingDetail.findBookingDetails(List.of(offenders.split(",")));
-    }
-
-    @Then("^data is returned that includes \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\" \"([^\"]*)\"$")
-    public void dataIsReturnedThatIncludes(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
-        bookingDetail.verifyOffenders(firstName, lastName, middleName, offenderNo, bookingId, agencyId);
-    }
-
-    @Then("^the total records returned are \"([^\"]*)\"$")
-    public void theTotalRecordsReturnedAre(final int size) {
-        bookingDetail.verifyOffenderCount(size);
-    }
-
-
-    private LocalDate convertTodayAndParse(final String dateAsString) {
-        if (StringUtils.isBlank(dateAsString)) return null;
-        if (dateAsString.equals("today")) return LocalDate.now();
-        return LocalDate.parse(dateAsString);
-    }
-
-    private LocalDateTime convertTodayAndParseDateTime(final String dateTimeAsString) {
-        if (StringUtils.isBlank(dateTimeAsString)) return null;
-        if (dateTimeAsString.equals("today")) return LocalDateTime.now();
-        return LocalDateTime.parse(dateTimeAsString);
-    }
 }
