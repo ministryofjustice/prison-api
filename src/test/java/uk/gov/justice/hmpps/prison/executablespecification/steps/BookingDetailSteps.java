@@ -23,13 +23,10 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class BookingDetailSteps extends CommonSteps {
     private static final String API_BOOKING_REQUEST_URL = API_PREFIX + "bookings/{bookingId}";
-    private static final String API_BOOKING_DETAILS_BY_OFFENDERS = API_PREFIX + "bookings/offenders";
 
     private InmateDetail inmateDetail;
     private PhysicalAttributes physicalAttributes;
     private List<PhysicalCharacteristic> physicalCharacteristics;
-    private List<InmateDetail> offenders;
-    private List<ProfileInformation> profileInformation;
 
     @Override
     protected void init() {
@@ -38,8 +35,6 @@ public class BookingDetailSteps extends CommonSteps {
         inmateDetail = null;
         physicalAttributes = null;
         physicalCharacteristics = null;
-        profileInformation = null;
-        offenders = null;
     }
 
     @Step("Retrieve offender booking details record")
@@ -178,49 +173,6 @@ public class BookingDetailSteps extends CommonSteps {
     public void verifyField(final String field, final String value) throws ReflectiveOperationException {
         assertThat(inmateDetail).isNotNull();
         super.verifyField(inmateDetail, field, value);
-    }
-
-    public void verifyProfileInformation() {
-        assertThat(profileInformation).asList().contains(
-                ProfileInformation.builder().type("RELF").question("Religion").resultValue("Church of England").build(),
-                ProfileInformation.builder().type("NAT").question("Nationality?").resultValue("Spaniard").build(),
-                ProfileInformation.builder().type("SMOKE").question("Is the Offender a smoker?").resultValue("No").build());
-    }
-
-    public void findBookingDetails(final List<String> offenderNumbers) {
-        init();
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            API_BOOKING_DETAILS_BY_OFFENDERS,
-                            HttpMethod.POST,
-                            createEntity(offenderNumbers),
-                            new ParameterizedTypeReference<List<InmateDetail>>() {
-                            });
-
-            offenders = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-
-    public void verifyOffenders(final String firstName, final String lastName, final String middleName, final String offenderNo, final String bookingId, final String agencyId) {
-
-        assertThat(offenders
-                .stream()
-                .filter(offender -> offender.getFirstName().equals(firstName) &&
-                        offender.getLastName().equals(lastName) &&
-                        offender.getMiddleName().equals(middleName) &&
-                        offender.getBookingId().equals(Long.parseLong(bookingId)) &&
-                        offender.getAgencyId().equals(agencyId) &&
-                        offender.getOffenderNo().equals(offenderNo))
-                .count())
-                .isEqualTo(1);
-    }
-
-    public void verifyOffenderCount(final int size) {
-        assertThat(offenders).hasSize(size);
     }
 
 }
