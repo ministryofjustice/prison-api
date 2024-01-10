@@ -32,7 +32,7 @@ public class SignificantMovement {
     private String reasonOutOfPrison;
     @Schema(description = "Date this sub-period ended - if it has ended", requiredMode = NOT_REQUIRED)
     private LocalDateTime dateOutOfPrison;
-    @Schema(description = "Type of movement out of prison", requiredMode = REQUIRED, allowableValues = {"REL", "TAP"})
+    @Schema(description = "Type of movement out of prison", requiredMode = NOT_REQUIRED, allowableValues = {"REL", "TAP"})
     private String outwardType;
     @Schema(description = "The initial prison they entered during this period", requiredMode = REQUIRED, example = "MDI")
     private String admittedIntoPrisonId;
