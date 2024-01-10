@@ -88,36 +88,6 @@ Feature: Booking Details
     When an offender booking request is made with booking id "-16"
     Then booking number of offender booking returned is "A00126"
 
-  Scenario Outline: Request for assessment information about an offender
-    When an offender booking assessment information request is made with booking id <bookingId> and "<assessmentCode>"
-    Then the classification is "<classification>"
-    And the Cell Sharing Alert is <CSRA>
-    And the Next Review Date is "<nextReviewDate>"
-
-    Examples:
-      | bookingId | assessmentCode | CSRA  | classification | nextReviewDate |
-      | -1        | CSR            | true  | High           | 2018-06-01     |
-      | -2        | CSR            | true  |                | 2018-06-02     |
-      | -3        | CSR            | true  | Low            | 2018-06-03     |
-      | -4        | CSR            | true  | Medium         | 2018-06-04     |
-      | -5        | CSR            | true  | High           | 2018-06-05     |
-      | -6        | CATEGORY       | false | Cat C          | 2018-06-07     |
-      | -6        | CSR            | true  | Standard       | 2018-06-06     |
-      | -6        | PAROLE         | false | High           | 2018-06-08     |
-
-  Scenario: Request for assessment information for booking that does not have requested assessment
-    When an offender booking assessment information request is made with booking id -9 and "CSR"
-    Then resource not found response is received from booking assessments API
-    And user message in resource not found response from booking assessments API is "Offender does not have a [CSR] assessment on record."
-
-  Scenario: Request for assessment information for booking that does not exist
-    When an offender booking assessment information request is made with booking id -99 and "CSR"
-    Then resource not found response is received from booking assessments API
-
-  Scenario: Request for assessment information for booking that is not part of any of logged on staff user's caseloads
-    When an offender booking assessment information request is made with booking id -16 and "CSR"
-    Then resource not found response is received from booking assessments API
-
   Scenario: Request for CSR assessment information for multiple offenders
     When an offender booking assessment information request is made with offender numbers "A1234AA,A1234AB,A1234AC,A1234AE,A1234AF,A1234AG,A1234AP,NEXIST" and "CSR" and latest="false" and active="true"
     Then correct results are returned as for single assessment

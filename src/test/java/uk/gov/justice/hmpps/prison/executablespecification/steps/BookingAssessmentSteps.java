@@ -7,17 +7,14 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
-import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail;
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCategorise;
-import uk.gov.justice.hmpps.prison.api.support.CategorisationStatus;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.time.LocalDate;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -25,30 +22,10 @@ import static org.springframework.http.HttpMethod.POST;
 import static org.springframework.http.HttpMethod.PUT;
 
 public class BookingAssessmentSteps extends CommonSteps {
-    private static final String API_BOOKING_PREFIX = API_PREFIX + "bookings/";
     private static final String API_ASSESSMENTS_PREFIX = API_PREFIX + "offender-assessments/";
 
-    private Assessment assessment;
     private List<Assessment> assessments;
     private List<OffenderCategorise> offenderCatList;
-    private Map createResponse;
-
-    public void getAssessmentByCode(final Long bookingId, final String assessmentCode) {
-        doSingleResultApiCall(API_BOOKING_PREFIX + bookingId + "/assessment/" + assessmentCode);
-    }
-
-    private void doSingleResultApiCall(final String url) {
-        init();
-        try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET,
-                    createEntity(), new ParameterizedTypeReference<Assessment>() {
-                    });
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            assessment = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
 
     private List<Assessment> doMultipleResultApiCall(final String url) {
         init();
@@ -105,27 +82,6 @@ public class BookingAssessmentSteps extends CommonSteps {
         }
     }
 
-    private void doCreateCategorisationApiCall(final Long bookingId, final String category, final String committee) {
-        init();
-        try {
-            final var response =
-                    restTemplate.exchange(
-                            API_ASSESSMENTS_PREFIX + "category/categorise",
-                            POST,
-                            createEntity(CategorisationDetail.builder()
-                                    .bookingId(bookingId)
-                                    .category(category)
-                                    .committee(committee)
-                                    .build()), new ParameterizedTypeReference<Map>() {
-                            });
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
-            createResponse = response.getBody();
-
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     private void doApproveCategorisationApiCall(final Long bookingId, final String category, final LocalDate date, final String comment) {
         init();
         try {
@@ -148,23 +104,8 @@ public class BookingAssessmentSteps extends CommonSteps {
     @Override
     protected void init() {
         super.init();
-        assessment = null;
         assessments = null;
         offenderCatList = null;
-        createResponse = null;
-    }
-
-    public void verifyField(final String field, final String value) throws ReflectiveOperationException {
-        assertThat(assessment).isNotNull();
-        super.verifyField(assessment, field, value);
-    }
-
-    public void verifyCsra(final boolean csra) {
-        assertThat(assessment.isCellSharingAlertFlag()).isEqualTo(csra);
-    }
-
-    public void verifyNextReviewDate(final String nextReviewDate) {
-        verifyLocalDate(assessment.getNextReviewDate(), nextReviewDate);
     }
 
     public void getAssessmentsByCode(final String offenderList, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
@@ -216,24 +157,6 @@ public class BookingAssessmentSteps extends CommonSteps {
     public void verifyOffenderCategoryListNotEmpty() {
         verifyNoError();
         assertThat(offenderCatList).asList().isNotEmpty();
-    }
-
-    public void verifyCategorisedPendingApproval(final long bookingId) {
-        verifyNoError();
-        assertThat(offenderCatList).extracting("bookingId", "status").contains(tuple(bookingId, CategorisationStatus.AWAITING_APPROVAL));
-    }
-
-    public void verifyCategorisedNotPresent(final long bookingId) {
-        verifyNoError();
-        assertThat(offenderCatList).asList().noneSatisfy(c -> {
-            assertThat(((OffenderCategorise) c).getBookingId()).isEqualTo(bookingId);
-        });
-    }
-
-    public void createCategorisation(final Long bookingId, final String category, final String committee) {
-        doCreateCategorisationApiCall(bookingId, category, committee);
-        assertThat(createResponse.get("bookingId")).isEqualTo(bookingId.intValue());
-        assertThat(createResponse.get("sequenceNumber")).isEqualTo(2);
     }
 
     public void approveCategorisation(final Long bookingId, final String category, final LocalDate date, final String comment) {
