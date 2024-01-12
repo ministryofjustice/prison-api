@@ -173,25 +173,24 @@ workflows:
           requires:
             - request-preprod-approval
 
-# Ensure this build cannot be put live.
-#      - request-prod-approval:
-#          type: approval
-#          requires:
-#            - deploy_preprod
-#
-#      - hmpps/deploy_env:
-#          name: deploy_prod
-#          env: "prod"
-#          jira_update: true
-#          jira_env_type: production
-#          pipeline_id: <<pipeline.id>>
-#          pipeline_number: <<pipeline.number>>
-#          slack_notification: true
-#          context:
-#            - hmpps-common-vars
-#            - prison-api-prod
-#          requires:
-#            - request-prod-approval
+      - request-prod-approval:
+          type: approval
+          requires:
+            - deploy_preprod
+
+      - hmpps/deploy_env:
+          name: deploy_prod
+          env: "prod"
+          jira_update: true
+          jira_env_type: production
+          pipeline_id: <<pipeline.id>>
+          pipeline_number: <<pipeline.number>>
+          slack_notification: true
+          context:
+            - hmpps-common-vars
+            - prison-api-prod
+          requires:
+            - request-prod-approval
   security:
     triggers:
       - schedule:
