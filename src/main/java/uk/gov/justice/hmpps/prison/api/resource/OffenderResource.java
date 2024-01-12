@@ -672,6 +672,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details")
     @GetMapping("/{offenderNo}/booking/latest/sentence-summary")
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }

@@ -829,8 +829,6 @@ public class BookingService {
             .toList();
     }
 
-
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
     public Optional<SentenceSummary> getSentenceSummary(final String offenderNo) {
         final var latestBooking = offenderBookingRepository.findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(offenderNo, 1)
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
