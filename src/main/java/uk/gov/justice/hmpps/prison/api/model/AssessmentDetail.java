@@ -69,13 +69,13 @@ public class AssessmentDetail extends AssessmentSummary {
     @Schema(description = "The reason for the review of the classification", example = "HI")
     private String classificationReviewReason;
 
-    @Schema(description = "Overriding classification code", example = "HI")
+    @Schema(description = "The classification code entered to override the calculated value prior to approval", example = "HI")
     private String overridingClassificationCode;
 
-    @Schema(description = "Originally calculated classification code", example = "HI")
+    @Schema(description = "The classification code originally calculated by NOMIS based on the answers given to the questions when carrying out the initial review", example = "HI")
     private String calculatedClassificationCode;
 
-    @Schema(description = "Classification code at approval", example = "HI")
+    @Schema(description = "The classification code that has been approved", example = "HI")
     private String approvedClassificationCode;
 
     @Schema(description = "Comment added at approval of classification code", example = "Comment")

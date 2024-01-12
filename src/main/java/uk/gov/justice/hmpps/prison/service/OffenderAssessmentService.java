@@ -67,7 +67,7 @@ public class OffenderAssessmentService {
             .overridingClassificationCode((assessmentDetails.getOverridingClassification() !=null)?assessmentDetails.getOverridingClassification().getCode():null)
             .calculatedClassificationCode((assessmentDetails.getCalculatedClassification() !=null)?assessmentDetails.getCalculatedClassification().getCode():null)
             .approvedClassificationCode((assessmentDetails.getReviewedClassification() !=null)?assessmentDetails.getReviewedClassification().getCode():null)
-            .approvalComment((assessmentDetails.getReviewCommitteeComment() !=null)?assessmentDetails.getReviewCommitteeComment():null)
+            .approvalComment(assessmentDetails.getReviewCommitteeComment())
             .overrideReason((assessmentDetails.getOverrideReason() !=null)?assessmentDetails.getOverrideReason().getDescription():null)
             .build();
     }
