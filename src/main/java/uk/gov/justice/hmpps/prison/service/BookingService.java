@@ -6,7 +6,6 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -131,6 +130,7 @@ import static java.time.LocalDate.now;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
 import static java.util.stream.Collectors.toList;
+import static org.apache.commons.text.WordUtils.capitalizeFully;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
@@ -869,6 +869,7 @@ public class BookingService {
         final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate(),
+            capitalizeFully(offenderBooking.getOffender().getLastName()),
             offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
         );
 
@@ -922,8 +923,8 @@ public class BookingService {
                                 .contactType(ReferenceCode.getCodeOrNull(oc.getContactType()))
                                 .contactTypeDescription(ReferenceCode.getDescriptionOrNull(oc.getContactType()))
                                 .commentText(oc.getComment())
-                                .firstName(WordUtils.capitalizeFully(oc.getPerson().getFirstName()))
-                                .lastName(WordUtils.capitalizeFully(oc.getPerson().getLastName()))
+                                .firstName(capitalizeFully(oc.getPerson().getFirstName()))
+                                .lastName(capitalizeFully(oc.getPerson().getLastName()))
                                 .dateOfBirth(oc.getPerson().getBirthDate())
                                 .emergencyContact(oc.isEmergencyContact())
                                 .nextOfKin(oc.isNextOfKin())
@@ -932,7 +933,7 @@ public class BookingService {
                                 .bookingId(oc.getOffenderBooking().getBookingId())
                                 .emails(AddressTransformer.translateEmails(oc.getPerson().getEmails()))
                                 .phones(AddressTransformer.translatePhones(oc.getPerson().getPhones()))
-                                .middleName(WordUtils.capitalizeFully(oc.getPerson().getMiddleName()))
+                                .middleName(capitalizeFully(oc.getPerson().getMiddleName()))
                                 .restrictions(mergeGlobalAndStandardRestrictions(oc))
                                 .active(oc.isActive())
                                 .build()).toList());

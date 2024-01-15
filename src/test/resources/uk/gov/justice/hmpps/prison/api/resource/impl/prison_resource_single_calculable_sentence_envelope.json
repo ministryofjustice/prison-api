@@ -2,6 +2,7 @@
     "person": {
         "prisonerNumber": "A1234AB",
         "dateOfBirth": "1998-08-28",
+        "lastName": "Anderson",
         "alerts": [
             {
                 "alertId": 1,
