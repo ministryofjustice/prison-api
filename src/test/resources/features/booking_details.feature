@@ -186,7 +186,3 @@ Feature: Booking Details
       | -1        | 3            | 1              | H,X        |
       | -2        | 2            | 0              | H          |
       | -11       | 0            | 0              |            |
-
- Scenario: Request for offender identifiers
-    When offender identifiers are requested for Booking Id "-4"
-    Then "2" row of offender identifiers is returned

@@ -607,6 +607,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Identifiers for this booking", description = "Identifiers for this booking")
     @GetMapping("/{bookingId}/identifiers")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderIdentifier> getOffenderIdentifiers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) @NotNull final Long bookingId, @RequestParam(value = "type", required = false) @Parameter(description = "Filter By Type", example = "PNC") final String identifierType) {
         return inmateService.getOffenderIdentifiers(bookingId, identifierType);
     }
