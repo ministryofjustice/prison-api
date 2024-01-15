@@ -64,7 +64,7 @@ public class UserService {
     public UserDetail getUserByUsername(final String username) {
         final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
         final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
-        if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
+        if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.getFirst().equals(EMPTY_CASELOAD))) {
             userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
         }
         return userDetail;
@@ -114,10 +114,6 @@ public class UserService {
             .stream().map(r -> allRoles ? r.transform() : r.transformWithoutCaseload())
             .sorted(Comparator.comparing(UserRole::getRoleCode))
             .toList();
-    }
-
-    public boolean isUserAccessibleCaseloadAvailable(final String caseload, final String username) {
-        return userCaseloadRepository.findById(UserCaseloadId.builder().caseload(caseload).username(username).build()).isPresent();
     }
 
     private void addDpsCaseloadToUser(final String username) {
