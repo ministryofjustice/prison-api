@@ -184,7 +184,7 @@ public class AgencyRepository extends RepositoryBase {
                     throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
             }
         }
-        end = end.minus(1, ChronoUnit.SECONDS);
+        end = end.minusSeconds(1);
         final var periodStart = DateTimeConverter.fromLocalDateTime(start);
         final var periodEnd = DateTimeConverter.fromLocalDateTime(end);
         params.addValue("periodStart", periodStart);

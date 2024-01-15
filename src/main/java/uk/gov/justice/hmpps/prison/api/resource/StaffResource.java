@@ -132,7 +132,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM. Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = false)
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
     public boolean hasStaffRole(
         @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true, example = "MDI") @NotNull final String agencyId,
