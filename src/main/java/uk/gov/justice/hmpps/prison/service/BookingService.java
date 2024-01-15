@@ -869,6 +869,7 @@ public class BookingService {
         final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate(),
+            offenderBooking.getOffender().getLastName(),
             offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
         );
 
