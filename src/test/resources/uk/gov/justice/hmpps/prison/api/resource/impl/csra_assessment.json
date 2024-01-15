@@ -8,27 +8,35 @@
   "assessmentDate": "2019-01-04",
   "assessmentAgencyId": "LEI",
   "assessmentComment": "A Comment",
+  "assessorUser": "JBRIEN",
+  "nextReviewDate": "2019-11-22",
   "assessmentCommitteeCode": "RECP",
   "assessmentCommitteeName": "Reception",
-  "assessorUser": "JBRIEN",
   "approvalDate": "2016-07-07",
   "approvalCommitteeCode": "GOV",
   "approvalCommitteeName": "Governor",
   "originalClassificationCode": "STANDARD",
   "classificationReviewReason": "Previous History",
-  "nextReviewDate": "2019-11-22",
-  "questions" : [
-      {
-          "question": "Reason for review",
-          "answer": "Scheduled"
-      },
-      {
-          "question": "Risk of harming a cell mate:",
-          "answer": "Standard"
-      },
-      {
-          "question": "Outcome of review:",
-          "answer": "A new plan must be agreed"
-      }
+  "overridingClassificationCode": "HI",
+  "calculatedClassificationCode": "STANDARD",
+  "approvedClassificationCode": "HI",
+  "approvalComment": "Review soon",
+  "overrideReason": "Previous History",
+  "questions": [
+    {
+      "question": "Reason for review",
+      "answer": "Scheduled",
+      "additionalAnswers": []
+    },
+    {
+      "question": "Risk of harming a cell mate:",
+      "answer": "Standard",
+      "additionalAnswers": []
+    },
+    {
+      "question": "Outcome of review:",
+      "answer": "A new plan must be agreed",
+      "additionalAnswers": []
+    }
   ]
 }

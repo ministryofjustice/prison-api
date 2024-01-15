@@ -97,6 +97,7 @@ class OffenderAssessmentServiceTest {
           .evaluationDate(LocalDate.parse("2019-01-03"))
           .overrideReason(AssessmentOverrideReason("OVERRIDE_DUMMY_VALUE", "Review reason"))
           .reviewCommittee(AssessmentCommittee("REVW", "Review board"))
+          .reviewCommitteeComment("Review comment")
           .nextReviewDate(LocalDate.parse("2020-01-02"))
           .build(),
       ),
@@ -138,6 +139,11 @@ class OffenderAssessmentServiceTest {
         .approvalCommitteeName("Review board")
         .originalClassificationCode("STANDARD")
         .classificationReviewReason("Review reason")
+        .calculatedClassificationCode("STANDARD")
+        .overridingClassificationCode("HI")
+        .approvedClassificationCode("HI")
+        .overrideReason("Review reason")
+        .approvalComment("Review comment")
         .questions(
           listOf(
             AssessmentQuestion.builder()
