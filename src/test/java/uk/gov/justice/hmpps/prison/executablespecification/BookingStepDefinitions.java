@@ -220,16 +220,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingAssessment.verifyResourceRecordsReturned(expectedCount);
     }
 
-    @When("^offender identifiers are requested for Booking Id \"([^\"]*)\"$")
-    public void offenderIdentifiersAreRequestedForBookingId(final String bookingId) {
-        bookingDetail.getOffenderIdentifiers(Long.valueOf(bookingId));
-    }
-
-    @Then("^\"(\\d+)\" row of offender identifiers is returned$")
-    public void rowOfOffenderIdentifiersIsReturned(final long expectedCount) {
-        bookingDetail.verifyResourceRecordsReturned(expectedCount);
-    }
-
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
     public void rowOfPhysicalCharacteristicsIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);

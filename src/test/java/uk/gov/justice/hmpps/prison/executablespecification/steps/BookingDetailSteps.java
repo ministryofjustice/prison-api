@@ -1,15 +1,11 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
 import net.serenitybdd.annotations.Step;
-import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalCharacteristic;
-import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.math.BigDecimal;
@@ -55,21 +51,6 @@ public class BookingDetailSteps extends CommonSteps {
             inmateDetail = response.getBody();
             physicalAttributes = inmateDetail.getPhysicalAttributes();
             physicalCharacteristics = inmateDetail.getPhysicalCharacteristics();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    public void getOffenderIdentifiers(final Long bookingId) {
-        init();
-        try {
-            final var response = restTemplate.exchange(
-                    API_BOOKING_REQUEST_URL + "/identifiers", HttpMethod.GET,
-                    createEntity(null, null),
-                    new ParameterizedTypeReference<List<OffenderIdentifier>>() {
-                    }, bookingId);
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-            buildResourceData(response);
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
