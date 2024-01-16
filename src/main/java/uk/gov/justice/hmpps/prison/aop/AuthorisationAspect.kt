@@ -89,7 +89,7 @@ class AuthorisationAspect(
     if (AuthenticationFacade.hasRoles(*overrideRoles)) {
       agencyService.checkAgencyExists(agencyId)
     } else {
-      agencyService.verifyAgencyAccess(agencyId, accessDeniedError)
+      agencyService.verifyAgencyAccess(agencyId, accessDeniedError, annotation.allowInactive)
     }
   }
 

@@ -106,7 +106,7 @@ class AgencyResourceIntTest : ResourceTest() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Client not authorised to access agency with id SYI due to missing override role.")
+        .isEqualTo("Client not authorised to access agency with id SYI due to missing override role, or agency inactive")
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }

@@ -33,27 +33,27 @@ import static java.util.stream.Collectors.toList;
 public class AgencyRepository extends RepositoryBase {
 
     private static final DataClassByColumnRowMapper<AgencyDto> AGENCY_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(AgencyDto.class);
+        new DataClassByColumnRowMapper<>(AgencyDto.class);
 
     private static final DataClassByColumnRowMapper<LocationDto> LOCATION_ROW_MAPPER =
-            new DataClassByColumnRowMapper<>(LocationDto.class);
+        new DataClassByColumnRowMapper<>(LocationDto.class);
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER.getFieldMap());
 
         final var sql = builder
-                .addRowCount()
-                .addOrderBy(order, orderByField)
-                .addPagination()
-                .build();
+            .addRowCount()
+            .addOrderBy(order, orderByField)
+            .addPagination()
+            .build();
 
         final var paRowMapper = new PageAwareRowMapper<>(AGENCY_ROW_MAPPER);
 
         final var agencyDtos = jdbcTemplate.query(
-                sql,
-                createParams("offset", offset, "limit", limit),
-                paRowMapper);
+            sql,
+            createParams("offset", offset, "limit", limit),
+            paRowMapper);
         final var agencies = agencyDtos.stream().map(AgencyDto::toAgency).collect(toList());
 
         return new Page<>(agencies, paRowMapper.getTotalRecords(), offset, limit);
@@ -62,24 +62,29 @@ public class AgencyRepository extends RepositoryBase {
 
     public List<Agency> getAgenciesByType(final String agencyType) {
         final var agencies = jdbcTemplate.query(
-                AgencyRepositorySql.GET_AGENCIES_BY_TYPE.getSql(),
-                createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
-                AGENCY_ROW_MAPPER);
+            AgencyRepositorySql.GET_AGENCIES_BY_TYPE.getSql(),
+            createParams("agencyType", agencyType, "activeFlag", "Y", "excludeIds", List.of("OUT", "TRN")),
+            AGENCY_ROW_MAPPER);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
 
     @Cacheable("findAgenciesByUsername")
-    public List<Agency> findAgenciesByUsername(final String username) {
+    public List<Agency> findAgenciesByUsername(final String username, final boolean allowInactive) {
         final var initialSql = AgencyRepositorySql.FIND_AGENCIES_BY_USERNAME.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, AGENCY_ROW_MAPPER.getFieldMap());
 
         final var sql = builder.addOrderBy(true, "agencyId").build();
 
         final var agencies = jdbcTemplate.query(
-                sql,
-                createParams("username", username, "caseloadType", "INST", "caseloadFunction", "GENERAL"),
-                AGENCY_ROW_MAPPER);
+            sql,
+            createParams(
+                "username", username,
+                "activeFlag", allowInactive ? null : "Y",
+                "caseloadType", "INST",
+                "caseloadFunction", "GENERAL"
+            ),
+            AGENCY_ROW_MAPPER);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
@@ -90,9 +95,9 @@ public class AgencyRepository extends RepositoryBase {
 
         final var sql = builder.build();
         final var agencies = jdbcTemplate.query(
-                sql,
-                createParams("username", username),
-                AGENCY_ROW_MAPPER);
+            sql,
+            createParams("username", username),
+            AGENCY_ROW_MAPPER);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
@@ -103,9 +108,9 @@ public class AgencyRepository extends RepositoryBase {
 
         final var sql = builder.build();
         final var agencies = jdbcTemplate.query(
-                sql,
-                createParams("caseloadId", caseload),
-                AGENCY_ROW_MAPPER);
+            sql,
+            createParams("caseloadId", caseload),
+            AGENCY_ROW_MAPPER);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
 
@@ -119,10 +124,10 @@ public class AgencyRepository extends RepositoryBase {
 
         try {
             agency = jdbcTemplate.queryForObject(sql,
-                    createParams("agencyId", agencyId,
-                            "activeFlag", filter.getActiveYesNo(),
-                            "agencyType", agencyType),
-                    AGENCY_ROW_MAPPER);
+                createParams("agencyId", agencyId,
+                    "activeFlag", filter.getActiveYesNo(),
+                    "agencyType", agencyType),
+                AGENCY_ROW_MAPPER);
         } catch (final EmptyResultDataAccessException ex) {
             agency = null;
         }
@@ -145,9 +150,9 @@ public class AgencyRepository extends RepositoryBase {
         final var sql = builder.addOrderBy(sortOrder, sortFields).build();
 
         final var locations = jdbcTemplate.query(
-                sql,
-                createParams("agencyId", agencyId, "eventTypes", eventTypes),
-                LOCATION_ROW_MAPPER);
+            sql,
+            createParams("agencyId", agencyId, "eventTypes", eventTypes),
+            LOCATION_ROW_MAPPER);
         return locations.stream().map(LocationDto::toLocation).collect(toList());
     }
 
@@ -175,10 +180,11 @@ public class AgencyRepository extends RepositoryBase {
                     end = bookedOnDay.atTime(17, 0);
                 }
                 case ED -> start = bookedOnDay.atTime(17, 0);
-                default -> throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
+                default ->
+                    throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Unrecognised timeslot: " + bookedOnPeriod);
             }
         }
-        end = end.minus(1, ChronoUnit.SECONDS);
+        end = end.minusSeconds(1);
         final var periodStart = DateTimeConverter.fromLocalDateTime(start);
         final var periodEnd = DateTimeConverter.fromLocalDateTime(end);
         params.addValue("periodStart", periodStart);

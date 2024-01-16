@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.AgencyRepository
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.StaffRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceCalcTypeRepository
 import uk.gov.justice.hmpps.prison.service.AgencyService
 import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -63,9 +62,6 @@ class CacheConfigIntTest {
 
   @SpyBean
   private lateinit var agencyRepository: AgencyRepository
-
-  @SpyBean
-  private lateinit var sentenceCalcTypeRepository: SentenceCalcTypeRepository
 
   @Test
   fun `test that each cache is tested by this class`() {
@@ -246,31 +242,31 @@ class CacheConfigIntTest {
   inner class findAgenciesByUsername_cache {
     @Test
     fun `test staff that doesn't exist won't cause cache to fall over in a heap`() {
-      val agencies = agencyService.findAgenciesByUsername("NOT_EXISTS")
+      val agencies = agencyService.findAgenciesByUsername("NOT_EXISTS", false)
       assertThat(agencies).isEmpty()
     }
 
     @Test
     fun `test staff not present won't cause cache to fall over in a heap`() {
-      val agencies = agencyService.findAgenciesByUsername(null)
+      val agencies = agencyService.findAgenciesByUsername(null, false)
       assertThat(agencies).isEmpty()
     }
 
     @Test
     fun `test staff that is blank won't cause cache to fall over in a heap`() {
-      val agencies = agencyService.findAgenciesByUsername(" ")
+      val agencies = agencyService.findAgenciesByUsername(" ", false)
       assertThat(agencies).isEmpty()
     }
 
     @Test
     fun `test staff that exist is added to cache`() {
-      val agencies = agencyService.findAgenciesByUsername("ITAG_USER")
+      val agencies = agencyService.findAgenciesByUsername("ITAG_USER", false)
       assertThat(agencies).isNotNull
 
       // calling twice should only result in one call to the repository
-      agencyService.findAgenciesByUsername("ITAG_USER")
+      agencyService.findAgenciesByUsername("ITAG_USER", false)
 
-      verify(agencyRepository).findAgenciesByUsername("ITAG_USER")
+      verify(agencyRepository).findAgenciesByUsername("ITAG_USER", false)
     }
   }
 

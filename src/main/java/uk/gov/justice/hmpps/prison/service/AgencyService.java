@@ -82,8 +82,8 @@ import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCA
 public class AgencyService {
 
     private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
-            Location::getDescription,
-            new AlphaNumericComparator());
+        Location::getDescription,
+        new AlphaNumericComparator());
 
     private final AuthenticationFacade authenticationFacade;
     private final AgencyRepository agencyRepository;
@@ -104,15 +104,15 @@ public class AgencyService {
 
     public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
         final var criteria = AgencyLocationFilter.builder()
-                .id(agencyId)
-                .type(agencyType)
-                .active(filter.getActive())
-                .build();
+            .id(agencyId)
+            .type(agencyType)
+            .active(filter.getActive())
+            .build();
 
         return agencyLocationRepository.findAll(criteria)
-                .stream()
-                .findFirst()
-                .map(agency -> translate(withAddresses, agency, skipFormatLocation)).orElseThrow(EntityNotFoundException.withId(agencyId));
+            .stream()
+            .findFirst()
+            .map(agency -> translate(withAddresses, agency, skipFormatLocation)).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
 
     private Agency translate(final boolean withAddresses, final AgencyLocation agency, final boolean skipFormatLocation) {
@@ -140,9 +140,9 @@ public class AgencyService {
     @Transactional
     public Agency createAgency(final RequestToCreateAgency agencyToCreate) {
         agencyLocationRepository.findById(agencyToCreate.getAgencyId())
-        .ifPresent(p -> {
-            throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));
-        });
+            .ifPresent(p -> {
+                throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));
+            });
 
         final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToCreate.getAgencyType())).orElseThrow(BadRequestException.withMessage(format("Agency Type [%s] not found", agencyToCreate.getAgencyType())));
 
@@ -158,15 +158,15 @@ public class AgencyService {
     public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly, List<String> courtTypes, final boolean withAddresses, final boolean skipFormatLocation) {
 
         final var filter = AgencyLocationFilter.builder()
-                .active(activeOnly ? true : null)
-                .type(agencyType)
-                .courtTypes(courtTypes)
-                .build();
+            .active(activeOnly ? true : null)
+            .type(agencyType)
+            .courtTypes(courtTypes)
+            .build();
 
         return agencyLocationRepository.findAll(filter)
-                .stream()
-                .map(agency -> translate(withAddresses, agency, skipFormatLocation))
-                .collect(toList());
+            .stream()
+            .map(agency -> translate(withAddresses, agency, skipFormatLocation))
+            .collect(toList());
     }
 
     public void checkAgencyExists(final String agencyId) {
@@ -181,9 +181,9 @@ public class AgencyService {
         return agencyRepository.getAgencies("agencyId", Order.ASC, offset, limit);
     }
 
-    public List<Agency> findAgenciesByUsername(final String username) {
+    public List<Agency> findAgenciesByUsername(final String username, final boolean allowInactive) {
         if (StringUtils.isBlank(username)) return Collections.emptyList();
-        final var agenciesByUsername = agencyRepository.findAgenciesByUsername(username);
+        final var agenciesByUsername = agencyRepository.findAgenciesByUsername(username, allowInactive);
         agenciesByUsername.forEach(a -> a.setDescription(LocationProcessor.formatLocation(a.getDescription())));
         return agenciesByUsername;
     }
@@ -192,13 +192,14 @@ public class AgencyService {
      * Gets set of agency location ids accessible to current authenticated user. This governs access to bookings - a user
      * cannot have access to an offender unless they are in a location that the authenticated user is also associated with.
      *
+     * @param allowInactive include inactive prisons
      * @return set of agency location ids accessible to current authenticated user.
      */
-    public Set<String> getAgencyIds() {
-        return findAgenciesByUsername(authenticationFacade.getCurrentUsername())
-                .stream()
-                .map(Agency::getAgencyId)
-                .collect(Collectors.toSet());
+    public Set<String> getAgencyIds(boolean allowInactive) {
+        return findAgenciesByUsername(authenticationFacade.getCurrentUsername(), allowInactive)
+            .stream()
+            .map(Agency::getAgencyId)
+            .collect(Collectors.toSet());
     }
 
     /**
@@ -207,26 +208,27 @@ public class AgencyService {
      * exception is thrown.
      *
      * @param agencyId the agency.
+     * @param allowInactive whether to allow inactive prisons in caseload
      * @throws EntityNotFoundException if current user does not have access to this agency and accessDeniedError is false.
-     * @throws AccessDeniedException if current user does not have access to this agency and accessDeniedError is true.
+     * @throws AccessDeniedException   if current user does not have access to this agency and accessDeniedError is true.
      */
-    public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError) {
+    public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError, boolean allowInactive) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        final var agencyIds = getAgencyIds();
+        final var agencyIds = getAgencyIds(allowInactive);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(agencyId);
-                throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role.", agencyId));
+                throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
             if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access agency with id %s.", agencyId));
+                throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }
             logUserUnauthorisedAccess(agencyId, agencyIds);
             throw EntityNotFoundException.withId(agencyId);
@@ -277,8 +279,8 @@ public class AgencyService {
         // Get all location usages for locations that an event could possibly be held in. (reference domain ILOC_USG )
         // Note this should be cached. Also assuming small number of values
         final var allEventLocationUsages = referenceDomainService
-                .getReferenceCodesByDomain(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(), false, null, null, 0, 1000)
-                .getItems().stream().map(ReferenceCode::getCode).collect(toList());
+            .getReferenceCodesByDomain(ReferenceDomain.INTERNAL_LOCATION_USAGE.getDomain(), false, null, null, 0, 1000)
+            .getItems().stream().map(ReferenceCode::getCode).collect(toList());
 
         final var rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
@@ -307,8 +309,8 @@ public class AgencyService {
                     .sequence(iep.getIepLevel().getListSequence())
                     .defaultLevel(iep.isDefaultIep())
                     .build()
-        ).sorted(Comparator.comparing(IepLevel::getSequence))
-        .toList();
+            ).sorted(Comparator.comparing(IepLevel::getSequence))
+            .toList();
     }
 
     public List<PrisonContactDetail> getPrisonContactDetail() {
@@ -387,10 +389,10 @@ public class AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
-                .filter((l) -> l.isActiveCellWithSpace(true))
-                .map(cell -> transform(cell, true))
-                .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
-                .collect(toList());
+            .filter((l) -> l.isActiveCellWithSpace(true))
+            .map(cell -> transform(cell, true))
+            .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
+            .collect(toList());
     }
 
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
@@ -490,7 +492,7 @@ public class AgencyService {
         agencyAddress.setAddressType(addressTypeReferenceCodeRepository.findById(AddressType.pk(requestToUpdateAddress.getAddressType())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getAddressType())));
         agencyAddress.setCity(StringUtils.isNotBlank(requestToUpdateAddress.getTown()) ? cityReferenceCodeRepository.findById(City.pk(requestToUpdateAddress.getTown())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getTown())) : null);
         agencyAddress.setCounty(StringUtils.isNotBlank(requestToUpdateAddress.getCounty()) ? countyReferenceCodeRepository.findById(County.pk(requestToUpdateAddress.getCounty())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCounty())) : null);
-        agencyAddress.setCountry(StringUtils.isNotBlank(requestToUpdateAddress.getCountry()) ?countryReferenceCodeRepository.findById(Country.pk(requestToUpdateAddress.getCountry())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCountry())) : null);
+        agencyAddress.setCountry(StringUtils.isNotBlank(requestToUpdateAddress.getCountry()) ? countryReferenceCodeRepository.findById(Country.pk(requestToUpdateAddress.getCountry())).orElseThrow(EntityNotFoundException.withId(requestToUpdateAddress.getCountry())) : null);
 
         return AddressTransformer.translate(agencyAddress);
     }

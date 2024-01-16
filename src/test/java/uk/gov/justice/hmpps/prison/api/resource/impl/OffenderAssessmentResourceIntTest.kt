@@ -182,7 +182,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage")
-          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role.")
+          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role, or agency inactive")
       }
 
       @Test
