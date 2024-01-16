@@ -30,14 +30,26 @@ internal class TeamWorkflowNotificationServiceTest {
 
   private val service = TeamWorkflowNotificationService(offenderTeamAssignmentRepository, workflowTaskService)
 
-  private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI"; }
-  private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
+  private val fromPrison = AgencyLocation().apply {
+    description = "HMPS Brixton"
+    id = "BXI"
+  }
+  private val toPrison = AgencyLocation().apply {
+    description = "HMPS Wandsworth"
+    id = "WWI"
+  }
 
   private val movement = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-    movementReason = MovementReason().apply { code = "TRNCRT"; description = "Transfer via Court" }
+    movementType = MovementType().apply {
+      code = "ADM"
+      description = "Admission"
+    }
+    movementReason = MovementReason().apply {
+      code = "TRNCRT"
+      description = "Transfer via Court"
+    }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -91,7 +103,10 @@ internal class TeamWorkflowNotificationServiceTest {
         true,
         null,
         InstitutionArea("KENT", "Kent"),
-        AgencyLocation().apply { id = "BXI"; description = "HMPS Brixton" },
+        AgencyLocation().apply {
+          id = "BXI"
+          description = "HMPS Brixton"
+        },
         2L,
       )
 

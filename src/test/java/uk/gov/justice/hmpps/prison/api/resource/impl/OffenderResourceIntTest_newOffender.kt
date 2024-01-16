@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename", "ClassName")
+
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
@@ -355,7 +357,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
             ).jsonPath("$.developerMessage")
               .isEqualTo(
                 "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
-                LocalDate.now().minusYears(16)
+                  LocalDate.now().minusYears(16)
                 }",
               )
           }
@@ -369,7 +371,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
             ).jsonPath("$.developerMessage")
               .isEqualTo(
                 "Date of birth must be between ${LocalDate.now().minusYears(110)} and ${
-                LocalDate.now().minusYears(16)
+                  LocalDate.now().minusYears(16)
                 }",
               )
           }
@@ -596,7 +598,7 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA",
                "bookingInTime": "${
-              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
               }
             }

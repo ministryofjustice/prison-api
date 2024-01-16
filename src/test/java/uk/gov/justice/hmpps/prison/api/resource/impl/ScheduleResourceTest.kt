@@ -550,8 +550,10 @@ class ScheduleResourceTest : ResourceTest() {
           token,
           gson.toJson(
             mapOf(
-              "-1" to "5", // these will be ignored as -1 is only in the afternoon
-              "-6" to "5", // these will be included in the not recorded count
+              // these will be ignored as -1 is only in the afternoon
+              "-1" to "5",
+              // these will be included in the not recorded count
+              "-6" to "5",
             ),
           ),
         ),

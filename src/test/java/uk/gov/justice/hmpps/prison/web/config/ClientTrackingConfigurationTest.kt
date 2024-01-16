@@ -52,8 +52,8 @@ class ClientTrackingConfigurationTest {
         it.hasAttribute(AttributeKey.stringKey("username"), "bob")
         it.hasAttribute(AttributeKey.stringKey("clientId"), "prison-api-client")
         it.hasAttribute(AttributeKey.stringKey("grantType"), "the-grant-type")
-      },)
-    },)
+      })
+    })
   }
 
   @Test
@@ -68,8 +68,8 @@ class ClientTrackingConfigurationTest {
     otelTesting.assertTraces().hasTracesSatisfyingExactly({ t ->
       t.hasSpansSatisfyingExactly({
         it.hasAttribute(AttributeKey.stringKey("clientId"), "prison-api-client")
-      },)
-    },)
+      })
+    })
   }
 
   @Test

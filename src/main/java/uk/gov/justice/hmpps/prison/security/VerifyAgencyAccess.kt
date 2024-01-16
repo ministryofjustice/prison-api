@@ -10,5 +10,6 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 annotation class VerifyAgencyAccess(
   val accessDeniedError: Boolean = false,
   val overrideRoles: Array<String> = [],
-  val allowInactive: Boolean = false, // allow if current caseload is an inactive prison
+  // allow if current caseload is an inactive prison
+  val allowInactive: Boolean = false,
 )

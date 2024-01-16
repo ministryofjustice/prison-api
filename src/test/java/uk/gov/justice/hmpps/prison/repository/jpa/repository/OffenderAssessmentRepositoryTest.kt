@@ -43,7 +43,8 @@ class OffenderAssessmentRepositoryTest {
         "assessmentAnswer.cellSharingAlertFlag",
         "assessmentAnswer.createDatetime",
         "assessmentAnswer.createUserId",
-        "assessmentAnswer.listSeq", // AssertJ cannot handle recursive properties - we will check the assessmentAnswer.parentAssessment separately
+        // AssertJ cannot handle recursive properties - we will check the assessmentAnswer.parentAssessment separately
+        "assessmentAnswer.listSeq",
         "assessmentAnswer.parentAssessment",
       )
       .isEqualTo(

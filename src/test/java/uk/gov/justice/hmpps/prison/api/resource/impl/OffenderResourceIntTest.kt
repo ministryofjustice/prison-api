@@ -43,6 +43,8 @@ import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.util.function.Function
 
+private const val OFFENDER_NUMBER = "A1234AB"
+
 @ContextConfiguration(classes = [OffenderResourceIntTest.TestClock::class])
 class OffenderResourceIntTest : ResourceTest() {
   @Autowired
@@ -53,15 +55,10 @@ class OffenderResourceIntTest : ResourceTest() {
 
   @TestConfiguration
   internal class TestClock {
-    private val timeIs_2020_10_01T000000 = LocalDate.parse("2020-10-01", DateTimeFormatter.ISO_DATE).atStartOfDay()
-
     @Bean
-    fun clock(): Clock {
-      return Clock.fixed(timeIs_2020_10_01T000000.toInstant(ZoneOffset.UTC), ZoneId.systemDefault())
-    }
+    fun clock(): Clock = LocalDate.parse("2020-10-01", DateTimeFormatter.ISO_DATE).atStartOfDay()
+      .run { Clock.fixed(this.toInstant(ZoneOffset.UTC), ZoneId.systemDefault()) }
   }
-
-  private val OFFENDER_NUMBER = "A1234AB"
 
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/sentences")
@@ -237,15 +234,15 @@ class OffenderResourceIntTest : ResourceTest() {
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(responseV1, 200, "offender_detail_v1.1.json")
-      val httpEntityV1_1 = createHttpEntity(token, null, mapOf("version" to "1.1_beta"))
-      val responseV1_1 = testRestTemplate.exchange(
+      val httpEntityV1point1 = createHttpEntity(token, null, mapOf("version" to "1.1_beta"))
+      val responseV1point1 = testRestTemplate.exchange(
         "/api/offenders/{offenderNo}",
         GET,
-        httpEntityV1_1,
+        httpEntityV1point1,
         object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
-      assertThatJsonFileAndStatus(responseV1_1, 200, "offender_detail_v1.1.json")
+      assertThatJsonFileAndStatus(responseV1point1, 200, "offender_detail_v1.1.json")
     }
 
     @Test

@@ -29,7 +29,8 @@ class AgencyPrisonerPayProfileServiceTest {
     whenever(
       repository.findAgencyPrisonerPayProfileByAgyLocId("MDI"),
     ).thenReturn(
-      listOf(getFakeEntity("MDI", today.minusDays(1), today.plusDays(1))), // Active
+      // Active
+      listOf(getFakeEntity("MDI", today.minusDays(1), today.plusDays(1))),
     )
 
     val payProfile = service.getAgencyPrisonerPayProfile("MDI")
@@ -57,9 +58,12 @@ class AgencyPrisonerPayProfileServiceTest {
       repository.findAgencyPrisonerPayProfileByAgyLocId("MDI"),
     ).thenReturn(
       listOf(
-        getFakeEntity("MDI", today.minusDays(10), today.minusDays(8)), // Expired
-        getFakeEntity("MDI", today.minusDays(8), today), // Active today
-        getFakeEntity("MDI", today.plusDays(1), null), // Planned
+        // Expired
+        getFakeEntity("MDI", today.minusDays(10), today.minusDays(8)),
+        // Active today
+        getFakeEntity("MDI", today.minusDays(8), today),
+        // Active today
+        getFakeEntity("MDI", today.plusDays(1), null),
       ),
     )
 
