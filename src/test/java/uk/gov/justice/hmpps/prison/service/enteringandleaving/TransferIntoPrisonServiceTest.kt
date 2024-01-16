@@ -54,11 +54,24 @@ internal class TransferIntoPrisonServiceTest {
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
   private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
 
-  private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI"; }
-  private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
+  private val fromPrison = AgencyLocation().apply {
+    description = "HMPS Brixton"
+    id = "BXI"
+  }
+  private val toPrison = AgencyLocation().apply {
+    description = "HMPS Wandsworth"
+    id = "WWI"
+  }
   private val toCourt =
-    AgencyLocation().apply { description = "Court1"; id = "CA"; type = AgencyLocationType.COURT_TYPE }
-  private val toCity = City().apply { description = "London"; code = "LON" }
+    AgencyLocation().apply {
+      description = "Court1"
+      id = "CA"
+      type = AgencyLocationType.COURT_TYPE
+    }
+  private val toCity = City().apply {
+    description = "London"
+    code = "LON"
+  }
 
   private val bookingLastMovementTransfer = getMovement()
 
@@ -102,8 +115,14 @@ internal class TransferIntoPrisonServiceTest {
       fromAgency = fromPrison
       toAgency = toAgencyIn
       toCity = toCityIn
-      movementType = MovementType().apply { code = movementTypeCode; description = "type description" }
-      movementReason = MovementReason().apply { code = movementReasonCode; description = "code description" }
+      movementType = MovementType().apply {
+        code = movementTypeCode
+        description = "type description"
+      }
+      movementReason = MovementReason().apply {
+        code = movementReasonCode
+        description = "code description"
+      }
       movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
       movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
       isActive = active
@@ -150,7 +169,10 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
@@ -159,9 +181,15 @@ internal class TransferIntoPrisonServiceTest {
     @Nested
     inner class Success {
       private val newMovementReason =
-        MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
+        MovementReason().apply {
+          code = "INT"
+          description = "Transfer In from Other Establishment"
+        }
       private val newMovementType =
-        MovementType().apply { code = "ADM"; description = "Admission" }
+        MovementType().apply {
+          code = "ADM"
+          description = "Admission"
+        }
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementReason = newMovementReason
@@ -198,7 +226,10 @@ internal class TransferIntoPrisonServiceTest {
         whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
           Optional.of(
             AgencyInternalLocation().apply {
-              this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 400; this.currentOccupancy = 3
+              this.description = "WWI-RECP"
+              this.agencyId = "WWI"
+              this.capacity = 400
+              this.currentOccupancy = 3
             },
           ),
         )
@@ -382,7 +413,10 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 4
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 4
           },
         ),
       )
@@ -429,7 +463,10 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
@@ -438,9 +475,15 @@ internal class TransferIntoPrisonServiceTest {
     @Nested
     inner class Success {
       private val newMovementReason =
-        MovementReason().apply { code = "CRT"; description = "Return to same prison after court" }
+        MovementReason().apply {
+          code = "CRT"
+          description = "Return to same prison after court"
+        }
       private val newMovementType =
-        MovementType().apply { code = "CRT"; description = "Court" }
+        MovementType().apply {
+          code = "CRT"
+          description = "Court"
+        }
       private val newMovement = ExternalMovement().apply {
         movementTime = movementSamePrisonTime
         movementReason = newMovementReason
@@ -672,14 +715,20 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-RECP"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
@@ -688,9 +737,15 @@ internal class TransferIntoPrisonServiceTest {
     @Nested
     inner class Success {
       private val newMovementReason =
-        MovementReason().apply { code = "TRNCRT"; description = "Transfer Ifrom court" }
+        MovementReason().apply {
+          code = "TRNCRT"
+          description = "Transfer Ifrom court"
+        }
       private val newMovementType =
-        MovementType().apply { code = "ADM"; description = "Admission" }
+        MovementType().apply {
+          code = "ADM"
+          description = "Admission"
+        }
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementDate = LocalDate.parse("2022-04-20")
@@ -905,7 +960,10 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
@@ -914,9 +972,15 @@ internal class TransferIntoPrisonServiceTest {
     @Nested
     inner class Success {
       private val newMovementReason =
-        MovementReason().apply { code = "C3"; description = "Funeral" }
+        MovementReason().apply {
+          code = "C3"
+          description = "Funeral"
+        }
       private val newMovementType =
-        MovementType().apply { code = "TAP"; description = "Temporary Absence" }
+        MovementType().apply {
+          code = "TAP"
+          description = "Temporary Absence"
+        }
       private val newMovement = ExternalMovement().apply {
         movementTime = movementSamePrisonTime
         movementReason = newMovementReason
@@ -1148,14 +1212,20 @@ internal class TransferIntoPrisonServiceTest {
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-1-1", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-1-1"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-1-1"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
       whenever(agencyInternalLocationRepository.findOneByDescriptionAndAgencyId("WWI-RECP", "WWI")).thenReturn(
         Optional.of(
           AgencyInternalLocation().apply {
-            this.description = "WWI-RECP"; this.agencyId = "WWI"; this.capacity = 4; this.currentOccupancy = 3
+            this.description = "WWI-RECP"
+            this.agencyId = "WWI"
+            this.capacity = 4
+            this.currentOccupancy = 3
           },
         ),
       )
@@ -1164,9 +1234,15 @@ internal class TransferIntoPrisonServiceTest {
     @Nested
     inner class Success {
       private val newMovementReason =
-        MovementReason().apply { code = "TRNTAP"; description = "Transfer via TAP" }
+        MovementReason().apply {
+          code = "TRNTAP"
+          description = "Transfer via TAP"
+        }
       private val newMovementType =
-        MovementType().apply { code = "ADM"; description = "Admission" }
+        MovementType().apply {
+          code = "ADM"
+          description = "Admission"
+        }
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementDate = LocalDate.parse("2022-04-20")

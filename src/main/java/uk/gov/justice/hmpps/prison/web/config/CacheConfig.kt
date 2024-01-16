@@ -91,7 +91,7 @@ class CacheConfig : CachingConfigurer {
     )
     cm.createCache(
       "findAgenciesByUsername",
-      String::class.java,
+      SimpleKey::class.java,
       java.util.List::class.java,
       1000,
       agencyTimeoutSeconds,

@@ -1,8 +1,7 @@
-@file:Suppress("ktlint:filename")
+@file:Suppress("ktlint:standard:filename", "ClassName")
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.annotation.JsonCreator
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
@@ -104,7 +103,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-1-3-022",
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -134,7 +133,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -171,7 +170,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -216,7 +215,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -260,7 +259,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               """
           {
             "receiveTime": "${
-              LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
               }"
             
           }
@@ -315,7 +314,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-FULL",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 }"
             
           }
@@ -343,7 +342,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-                LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 }"
             
           }
@@ -370,7 +369,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "transferReasonCode":"NOTR",
             "commentText":"admitted",
             "receiveTime": "${
-                LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  LocalDateTime.now().minusHours(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 }"
             
           }
@@ -412,7 +411,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             "commentText":"admitted",
             "cellLocation":"MDI-RECP",
             "receiveTime": "${
-                LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+                  LocalDateTime.now().minusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
                 }"
             
           }
@@ -722,8 +721,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
               .containsExactly(
                 tuple(1L, IN, false),
-                tuple(2L, OUT, false), // updated false
-                tuple(3L, IN, true), // new created transfer in event
+                // updated false
+                tuple(2L, OUT, false),
+                // new created transfer in event
+                tuple(3L, IN, true),
               )
           }
 
@@ -767,17 +768,20 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
+                // admission to original prison
                 tuple(
                   "ADM",
                   bookingInTime.toLocalDate(),
                   transferOutDateTime.toLocalDate(),
-                ), // admission to original prison
+                ),
+                // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(
                   "19",
                   transferOutDateTime.toLocalDate(),
                   null,
-                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
-                tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
+                ),
+                // as per nomis
+                tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }
 
@@ -981,11 +985,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
+                // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(
                   "ADM",
                   bookingInTime.toLocalDate(),
                   null,
-                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                ),
                 tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }
@@ -1514,8 +1519,10 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               )
               .containsExactly(
                 tuple(1L, IN, false),
-                tuple(2L, OUT, false), // updated false
-                tuple(3L, IN, true), // new created transfer in event
+                // updated false
+                tuple(2L, OUT, false),
+                // new created transfer in event
+                tuple(3L, IN, true),
               )
           }
 
@@ -1549,13 +1556,16 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
-                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()), // admission to original prison
+                // admission to original prison
+                tuple("ADM", bookingInTime.toLocalDate(), LocalDate.now()),
+                // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(
                   "C3",
                   transferOutDateTime.toLocalDate(),
                   null,
-                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
-                tuple(null, receiveDateTime.toLocalDate(), null), // as per nomis
+                ),
+                // as per nomis
+                tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }
 
@@ -1691,11 +1701,12 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 BedAssignmentHistory::getAssignmentEndDate,
               )
               .containsExactly(
+                // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
                 tuple(
                   "ADM",
                   bookingInTime.toLocalDate(),
                   null,
-                ), // trigger end_prev_bed_assg_hty will add an end date to the previous movement, but can't be tested
+                ),
                 tuple(null, receiveDateTime.toLocalDate(), null),
               )
           }
@@ -1713,7 +1724,8 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           scheduledEventId = dataLoaderTransaction.save {
             testDataContext.createScheduledTemporaryAbsence(
               bookingId,
-              addressId, // corporate address
+              // corporate address
+              addressId,
               LocalDateTime.now().minusDays(1),
             ).id
           }
@@ -1978,9 +1990,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   private fun lastMovement(bookingId: Long) = testDataContext.getMovements(bookingId).find { it.isActive }!!
 }
 
-class RestResponsePage<T>
-@JsonCreator(mode = JsonCreator.Mode.PROPERTIES)
-constructor(
+class RestResponsePage<T>(
   @JsonProperty("content") content: List<T>,
   @JsonProperty("number") number: Int,
   @JsonProperty("size") size: Int,

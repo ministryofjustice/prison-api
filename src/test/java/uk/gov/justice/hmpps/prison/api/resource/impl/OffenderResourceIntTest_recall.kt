@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename", "ClassName")
+
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat

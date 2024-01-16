@@ -260,7 +260,7 @@ class StaffResourceIntTest : ResourceTest() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role.")
+        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role, or agency inactive")
 
       verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
@@ -397,6 +397,21 @@ class StaffResourceIntTest : ResourceTest() {
           .returnResult()
           .responseBody,
       ).isEqualTo("true")
+    }
+
+    @Test
+    fun `Should be able to check role for staff member at inactive agency`() {
+      // PRISON_ANALYST_LOCAL -28 has the ghost establishment (inactive) in their caseload
+      assertThat(
+        webTestClient.get()
+          .uri("/api/staff/-28/ZZGHI/roles/KW")
+          .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf("")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody(String::class.java)
+          .returnResult()
+          .responseBody,
+      ).isEqualTo("false")
     }
   }
 
