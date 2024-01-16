@@ -494,7 +494,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offence history.", description = "All Offences recorded for this offender.")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
-    @PreAuthorize("hasAnyRole('SYSTEM_USER','VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     @SlowReportQuery
     public List<OffenceHistoryDetail> getOffenceHistory(@PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo, @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @Parameter(description = "include offences with convictions only") final boolean convictionsOnly) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
