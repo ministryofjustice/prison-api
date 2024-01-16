@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:filename", "ClassName")
+
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
@@ -368,7 +370,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA",
                "bookingInTime": "${
-            LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().plusMinutes(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             }"
             }
             """.trimIndent(),
@@ -402,7 +404,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
                "movementReasonCode": "24", 
                "imprisonmentStatus": "CUR_ORA",
                "bookingInTime": "${
-            LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
+              LocalDateTime.now().minusMonths(2).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)
             }"
             }
             """.trimIndent(),

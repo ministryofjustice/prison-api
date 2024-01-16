@@ -137,7 +137,14 @@ class SmokeTestHelperServiceTest {
     @Test
     fun ok() {
       whenever(offenderRepository.findOffenderByNomsId(any()))
-        .thenReturn(Optional.of(Offender().apply { firstName = "Joe"; lastName = "Bloggs" }))
+        .thenReturn(
+          Optional.of(
+            Offender().apply {
+              firstName = "Joe"
+              lastName = "Bloggs"
+            },
+          ),
+        )
 
       smokeTestHelperService.updatePrisonerDetails(SOME_OFFENDER_NO, UpdatePrisonerDetails("Fred", "Smith"))
       verify(offenderRepository).save(

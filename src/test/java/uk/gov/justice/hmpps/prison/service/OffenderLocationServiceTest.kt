@@ -167,7 +167,10 @@ class OffenderLocationServiceTest {
       PageImpl(
         listOf(
           BedAssignmentHistory().also { bed ->
-            bed.location = AgencyInternalLocation().also { it.locationCode = "COURT"; it.agencyId = "MDI" }
+            bed.location = AgencyInternalLocation().also {
+              it.locationCode = "COURT"
+              it.agencyId = "MDI"
+            }
           },
           BedAssignmentHistory().also { bed ->
             bed.location = AgencyInternalLocation().also {
@@ -225,7 +228,10 @@ class OffenderLocationServiceTest {
       PageImpl(
         listOf(
           BedAssignmentHistory().also { bed ->
-            bed.location = AgencyInternalLocation().also { it.locationCode = "COURT"; it.agencyId = "MDI" }
+            bed.location = AgencyInternalLocation().also {
+              it.locationCode = "COURT"
+              it.agencyId = "MDI"
+            }
           },
           BedAssignmentHistory().also { bed ->
             bed.location = AgencyInternalLocation().also {

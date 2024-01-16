@@ -221,7 +221,7 @@ public class OffenceResourceTest extends ResourceTest {
         }
 
         private boolean doesMappingExist(Schedule schedule, String offenceCode) {
-            return offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(schedule.getCode(), offenceCode);
+            return offenceIndicatorRepository.existsByIndicatorCodeAndOffenceCode(schedule.getCode(), offenceCode);
         }
 
         private OffenceToScheduleMappingDto getMappingDto(String offenceCode, Schedule schedule) {

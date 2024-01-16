@@ -165,7 +165,7 @@ public class OffenceService {
                 .indicatorCode(o.getSchedule().getCode())
                 .build()
             )
-            .filter(oi -> !offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(oi.getIndicatorCode(), oi.getOffence().getCode()))
+            .filter(oi -> !offenceIndicatorRepository.existsByIndicatorCodeAndOffenceCode(oi.getIndicatorCode(), oi.getOffence().getCode()))
             .toList();
 
         offenceIndicatorRepository.saveAll(offenceIndicators);
@@ -174,7 +174,7 @@ public class OffenceService {
     @Transactional
     public void unlinkOffencesFromSchedules(final List<OffenceToScheduleMappingDto> offencesToSchedules) {
         offencesToSchedules.forEach(o ->
-            offenceIndicatorRepository.deleteByIndicatorCodeAndOffence_Code(o.getSchedule().getCode(), o.getOffenceCode())
+            offenceIndicatorRepository.deleteByIndicatorCodeAndOffenceCode(o.getSchedule().getCode(), o.getOffenceCode())
         );
     }
 

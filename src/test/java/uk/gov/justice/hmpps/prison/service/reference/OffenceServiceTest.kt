@@ -297,13 +297,13 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML025")).thenReturn(
         false,
       )
 
       service.linkOffencesToSchedules(mappingDtos)
 
-      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML025")
       verify(offenceIndicatorRepository, times(1)).saveAll(
         listOf(
           OffenceIndicator.builder()
@@ -327,17 +327,17 @@ internal class OffenceServiceTest {
 
       val pks = mappingDtos.map { PK(it.offenceCode, it.statuteCode) }.toSet()
       whenever(offenceRepository.findAllById(pks)).thenReturn(listOf(murderOffence, manslaughterOffence))
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")).thenReturn(
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML025")).thenReturn(
         true,
       )
-      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")).thenReturn(
+      whenever(offenceIndicatorRepository.existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML026")).thenReturn(
         false,
       )
 
       service.linkOffencesToSchedules(mappingDtos)
 
-      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML025")
-      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffence_Code(SCHEDULE_15.code, "COML026")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML025")
+      verify(offenceIndicatorRepository, times(1)).existsByIndicatorCodeAndOffenceCode(SCHEDULE_15.code, "COML026")
       verify(offenceIndicatorRepository, times(1)).saveAll(
         listOf(
           OffenceIndicator.builder()
@@ -354,7 +354,7 @@ internal class OffenceServiceTest {
       val mappingDto = OffenceToScheduleMappingDto("COML025", SCHEDULE_15)
       service.unlinkOffencesFromSchedules(listOf(mappingDto))
 
-      verify(offenceIndicatorRepository, times(1)).deleteByIndicatorCodeAndOffence_Code(
+      verify(offenceIndicatorRepository, times(1)).deleteByIndicatorCodeAndOffenceCode(
         mappingDto.schedule.code,
         mappingDto.offenceCode,
       )

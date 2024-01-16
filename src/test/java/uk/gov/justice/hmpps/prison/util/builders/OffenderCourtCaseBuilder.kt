@@ -16,18 +16,30 @@ class OffenderCourtCaseBuilder(var courtId: String = "COURT1") {
     val beginDate = LocalDate.now()
     return dataLoader.offenderCourtCaseRepository.save(
       OffenderCourtCase(
-        /* id = */ null,
-        /* offenderBooking = */ offenderBooking,
-        /* caseSeq = */ nextCaseSequence,
-        /* beginDate = */ beginDate,
-        /* agencyLocation = */ court,
-        /* legalCaseType = */ caseType,
-        /* caseInfoPrefix = */ null,
-        /* caseInfoNumber = */ null,
-        /* caseStatus = */ caseStatus,
-        /* combinedCase = */ null,
-        /* courtEvents = */ listOf(),
-        /* sentences = */ listOf(),
+        /* id = */
+        null,
+        /* offenderBooking = */
+        offenderBooking,
+        /* caseSeq = */
+        nextCaseSequence,
+        /* beginDate = */
+        beginDate,
+        /* agencyLocation = */
+        court,
+        /* legalCaseType = */
+        caseType,
+        /* caseInfoPrefix = */
+        null,
+        /* caseInfoNumber = */
+        null,
+        /* caseStatus = */
+        caseStatus,
+        /* combinedCase = */
+        null,
+        /* courtEvents = */
+        listOf(),
+        /* sentences = */
+        listOf(),
       ),
     )
   }

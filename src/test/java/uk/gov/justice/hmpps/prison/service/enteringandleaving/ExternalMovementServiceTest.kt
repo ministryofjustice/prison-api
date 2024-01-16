@@ -37,21 +37,47 @@ internal class ExternalMovementServiceTest {
   private val movementTypeRepository: ReferenceCodeRepository<MovementType> = mock()
   private val entityManager: EntityManager = mock()
 
-  private val fromPrison = AgencyLocation().apply { description = "HMPS Brixton"; id = "BXI" }
-  private val toPrison = AgencyLocation().apply { description = "HMPS Wandsworth"; id = "WWI" }
+  private val fromPrison = AgencyLocation().apply {
+    description = "HMPS Brixton"
+    id = "BXI"
+  }
+  private val toPrison = AgencyLocation().apply {
+    description = "HMPS Wandsworth"
+    id = "WWI"
+  }
   private val fromCourt =
-    AgencyLocation().apply { description = "Court2"; id = "CB"; type = AgencyLocationType.COURT_TYPE }
+    AgencyLocation().apply {
+      description = "Court2"
+      id = "CB"
+      type = AgencyLocationType.COURT_TYPE
+    }
   private val toCourt =
-    AgencyLocation().apply { description = "Court1"; id = "CA"; type = AgencyLocationType.COURT_TYPE }
-  private val out = AgencyLocation().apply { description = "Out"; id = "OUT" }
+    AgencyLocation().apply {
+      description = "Court1"
+      id = "CA"
+      type = AgencyLocationType.COURT_TYPE
+    }
+  private val out = AgencyLocation().apply {
+    description = "Out"
+    id = "OUT"
+  }
   private val toCorporateAddressId = 99L
-  private val toHomeCity = City().apply { description = "Sheffield"; code = "SHEF" }
+  private val toHomeCity = City().apply {
+    description = "Sheffield"
+    code = "SHEF"
+  }
 
   private val bookingLastMovement = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply { code = "TRN"; description = "Transfer" }
-    movementReason = MovementReason().apply { code = "TRN"; description = "Transfer" }
+    movementType = MovementType().apply {
+      code = "TRN"
+      description = "Transfer"
+    }
+    movementReason = MovementReason().apply {
+      code = "TRN"
+      description = "Transfer"
+    }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -60,8 +86,14 @@ internal class ExternalMovementServiceTest {
   private val bookingLastMovementCourt = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toCourt
-    movementType = MovementType().apply { code = "CRT"; description = "Court" }
-    movementReason = MovementReason().apply { code = "CRT"; description = "Court" }
+    movementType = MovementType().apply {
+      code = "CRT"
+      description = "Court"
+    }
+    movementReason = MovementReason().apply {
+      code = "CRT"
+      description = "Court"
+    }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -70,8 +102,14 @@ internal class ExternalMovementServiceTest {
     fromAgency = fromPrison
     toAgency = toCourt
     toCity = toHomeCity
-    movementType = MovementType().apply { code = "TAP"; description = "Temporary Absence" }
-    movementReason = MovementReason().apply { code = "C3"; description = "Funeral" }
+    movementType = MovementType().apply {
+      code = "TAP"
+      description = "Temporary Absence"
+    }
+    movementReason = MovementReason().apply {
+      code = "C3"
+      description = "Funeral"
+    }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -80,8 +118,14 @@ internal class ExternalMovementServiceTest {
   private val bookingLastMovementAdmission = ExternalMovement().apply {
     fromAgency = fromCourt
     toAgency = toPrison
-    movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-    movementReason = MovementReason().apply { code = "I"; description = "Imprisonment" }
+    movementType = MovementType().apply {
+      code = "ADM"
+      description = "Admission"
+    }
+    movementReason = MovementReason().apply {
+      code = "I"
+      description = "Imprisonment"
+    }
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -97,14 +141,23 @@ internal class ExternalMovementServiceTest {
   @DisplayName("updateMovementsForTransferIn")
   @Nested
   inner class UpdateMovementsForTransferIn {
-    val movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-    val movementReason = MovementReason().apply { code = "INT"; description = "Transfer In from Other Establishment" }
+    val movementType = MovementType().apply {
+      code = "ADM"
+      description = "Admission"
+    }
+    val movementReason = MovementReason().apply {
+      code = "INT"
+      description = "Transfer In from Other Establishment"
+    }
 
     @Nested
     inner class Success {
       lateinit var booking: OffenderBooking
       private val request =
-        RequestToTransferIn().apply { receiveTime = LocalDateTime.parse("2022-04-20T10:00:00"); commentText = "😩" }
+        RequestToTransferIn().apply {
+          receiveTime = LocalDateTime.parse("2022-04-20T10:00:00")
+          commentText = "😩"
+        }
 
       @BeforeEach
       internal fun setUp() {
@@ -119,7 +172,10 @@ internal class ExternalMovementServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovement)
+          bookingId = 99
+        }
       }
 
       @Test
@@ -183,7 +239,10 @@ internal class ExternalMovementServiceTest {
     inner class Exception {
       lateinit var booking: OffenderBooking
       private val request =
-        RequestToTransferIn().apply { receiveTime = LocalDateTime.parse("2022-04-20T10:00:00"); commentText = "😩" }
+        RequestToTransferIn().apply {
+          receiveTime = LocalDateTime.parse("2022-04-20T10:00:00")
+          commentText = "😩"
+        }
 
       @BeforeEach
       internal fun setUp() {
@@ -198,7 +257,10 @@ internal class ExternalMovementServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovement)
+          bookingId = 99
+        }
       }
 
       @Test
@@ -224,7 +286,8 @@ internal class ExternalMovementServiceTest {
         assertThatThrownBy {
           service.updateMovementsForTransferIn(
             RequestToTransferIn().apply {
-              receiveTime = LocalDateTime.now().plusHours(1); commentText = "😩"
+              receiveTime = LocalDateTime.now().plusHours(1)
+              commentText = "😩"
             },
             booking,
             bookingLastMovement,
@@ -254,15 +317,23 @@ internal class ExternalMovementServiceTest {
   @DisplayName("updateMovementsForCourtTransferToSamePrison")
   @Nested
   inner class UpdateMovementsForCourtTransferToSamePrison {
-    val movementType = MovementType().apply { code = "CRT"; description = "Court" }
-    val movementReasonCourt = MovementReason().apply { code = "CRT"; description = "Transfer to court" }
+    val movementType = MovementType().apply {
+      code = "CRT"
+      description = "Court"
+    }
+    val movementReasonCourt = MovementReason().apply {
+      code = "CRT"
+      description = "Transfer to court"
+    }
 
     @Nested
     inner class Success {
       lateinit var booking: OffenderBooking
       private val request =
         RequestForCourtTransferIn().apply {
-          agencyId = fromPrison.id; dateTime = LocalDateTime.parse("2022-04-20T10:00:00"); commentText = "😩"
+          agencyId = fromPrison.id
+          dateTime = LocalDateTime.parse("2022-04-20T10:00:00")
+          commentText = "😩"
         }
 
       @BeforeEach
@@ -279,7 +350,10 @@ internal class ExternalMovementServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementCourt); bookingId = 99 }
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementCourt)
+            bookingId = 99
+          }
       }
 
       @Test
@@ -390,7 +464,10 @@ internal class ExternalMovementServiceTest {
     inner class Exception {
       lateinit var booking: OffenderBooking
       private val request =
-        RequestForCourtTransferIn().apply { dateTime = LocalDateTime.parse("2022-04-20T10:00:00"); commentText = "😩" }
+        RequestForCourtTransferIn().apply {
+          dateTime = LocalDateTime.parse("2022-04-20T10:00:00")
+          commentText = "😩"
+        }
 
       @BeforeEach
       internal fun setUp() {
@@ -405,7 +482,10 @@ internal class ExternalMovementServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovement)
+          bookingId = 99
+        }
       }
 
       @Test
@@ -477,8 +557,14 @@ internal class ExternalMovementServiceTest {
   @DisplayName("updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison")
   @Nested
   inner class UpdateMovementsForTransferInAfterTemporaryAbsenceToSamePrison {
-    val movementType = MovementType().apply { code = "TAP"; description = "Temporary Absence" }
-    val movementReasonFuneral = MovementReason().apply { code = "C3"; description = "Funeral" }
+    val movementType = MovementType().apply {
+      code = "TAP"
+      description = "Temporary Absence"
+    }
+    val movementReasonFuneral = MovementReason().apply {
+      code = "C3"
+      description = "Funeral"
+    }
     val agencyId: String = fromPrison.id
     val dateTime: LocalDateTime = LocalDateTime.parse("2022-04-20T10:00:00")
     val commentText = "😩"
@@ -502,7 +588,10 @@ internal class ExternalMovementServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementForTAP)
+            bookingId = 99
+          }
       }
 
       @Test
@@ -633,7 +722,10 @@ internal class ExternalMovementServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovement)
+          bookingId = 99
+        }
       }
 
       @Test
@@ -705,8 +797,14 @@ internal class ExternalMovementServiceTest {
   @DisplayName("updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison")
   @Nested
   inner class UpdateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison {
-    val movementType = MovementType().apply { code = "ADM"; description = "Admission" }
-    val movementReasonTransferViaTAP = MovementReason().apply { code = "TRNTAP"; description = "Transfer via TAP" }
+    val movementType = MovementType().apply {
+      code = "ADM"
+      description = "Admission"
+    }
+    val movementReasonTransferViaTAP = MovementReason().apply {
+      code = "TRNTAP"
+      description = "Transfer via TAP"
+    }
     val agencyId: String = fromPrison.id
     val dateTime: LocalDateTime = LocalDateTime.parse("2022-04-20T10:00:00")
     val commentText = "😩"
@@ -730,7 +828,10 @@ internal class ExternalMovementServiceTest {
           ),
         )
         booking =
-          OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovementForTAP); bookingId = 99 }
+          OffenderBooking().apply {
+            externalMovements = mutableListOf(bookingLastMovementForTAP)
+            bookingId = 99
+          }
       }
 
       @Test
@@ -852,7 +953,10 @@ internal class ExternalMovementServiceTest {
             bookingLastMovement,
           ),
         )
-        booking = OffenderBooking().apply { externalMovements = mutableListOf(bookingLastMovement); bookingId = 99 }
+        booking = OffenderBooking().apply {
+          externalMovements = mutableListOf(bookingLastMovement)
+          bookingId = 99
+        }
       }
 
       @Test
@@ -920,8 +1024,14 @@ internal class ExternalMovementServiceTest {
   @DisplayName("updateMovementsForRelease")
   @Nested
   inner class UpdateMovementsForRelease {
-    val movementType = MovementType().apply { code = "REL"; description = "Release" }
-    val movementReasonConditionalRelease = MovementReason().apply { code = "CR"; description = "Conditional Release" }
+    val movementType = MovementType().apply {
+      code = "REL"
+      description = "Release"
+    }
+    val movementReasonConditionalRelease = MovementReason().apply {
+      code = "CR"
+      description = "Conditional Release"
+    }
     val agencyId: String = fromPrison.id
     val dateTime: LocalDateTime = LocalDateTime.parse("2022-04-20T10:00:00")
     val commentText = "😩"

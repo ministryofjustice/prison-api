@@ -69,13 +69,19 @@ internal class CaseNoteMovementServiceTest {
     internal fun setUp() {
       fromPrison = AgencyLocation().apply { description = "HMP Brixton" }
       toPrison = AgencyLocation().apply { description = "HMP Wandsworth" }
-      booking = OffenderBooking().apply { bookingId = 99L; createLocation = toPrison }
+      booking = OffenderBooking().apply {
+        bookingId = 99L
+        createLocation = toPrison
+      }
       movement = ExternalMovement().apply {
         offenderBooking = booking
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = toPrison
-        movementReason = MovementReason().apply { code = "TRANSFERRED"; description = "Transferred" }
+        movementReason = MovementReason().apply {
+          code = "TRANSFERRED"
+          description = "Transferred"
+        }
       }
     }
 
@@ -83,12 +89,18 @@ internal class CaseNoteMovementServiceTest {
     internal fun `will create case note with transfer type`() {
       whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("TRANSFER"))).thenReturn(
         Optional.of(
-          CaseNoteType().apply { code = "TRANSFER"; description = "Transfer" },
+          CaseNoteType().apply {
+            code = "TRANSFER"
+            description = "Transfer"
+          },
         ),
       )
       whenever(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("FROMTOL"))).thenReturn(
         Optional.of(
-          CaseNoteSubType().apply { code = "FROMTOL"; description = "From Transfer" },
+          CaseNoteSubType().apply {
+            code = "FROMTOL"
+            description = "From Transfer"
+          },
         ),
       )
 
@@ -142,32 +154,58 @@ internal class CaseNoteMovementServiceTest {
     @BeforeEach
     internal fun setUp() {
       fromPrison = AgencyLocation().apply { description = "HMP Brixton" }
-      out = AgencyLocation().apply { id = "OUT"; description = "Out" }
-      booking = OffenderBooking().apply { bookingId = 99L; location = out }
+      out = AgencyLocation().apply {
+        id = "OUT"
+        description = "Out"
+      }
+      booking = OffenderBooking().apply {
+        bookingId = 99L
+        location = out
+      }
       movement = ExternalMovement().apply {
         offenderBooking = booking
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out
-        movementReason = MovementReason().apply { code = "TRANSFERRED"; description = "Transferred" }
+        movementReason = MovementReason().apply {
+          code = "TRANSFERRED"
+          description = "Transferred"
+        }
       }
     }
 
     @Test
     internal fun `will create case note for release`() {
-      booking = OffenderBooking().apply { bookingId = 99L; createLocation = fromPrison; location = out }
+      booking = OffenderBooking().apply {
+        bookingId = 99L
+        createLocation = fromPrison
+        location = out
+      }
       movement = ExternalMovement().apply {
         offenderBooking = booking
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out
-        movementReason = MovementReason().apply { code = "CR"; description = "Conditional Release" }
+        movementReason = MovementReason().apply {
+          code = "CR"
+          description = "Conditional Release"
+        }
       }
       whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON"))).thenReturn(
-        Optional.of(CaseNoteType().apply { code = "PRISON"; description = "Prison" }),
+        Optional.of(
+          CaseNoteType().apply {
+            code = "PRISON"
+            description = "Prison"
+          },
+        ),
       )
       whenever(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("RELEASE"))).thenReturn(
-        Optional.of(CaseNoteSubType().apply { code = "RELEASE"; description = "Release" }),
+        Optional.of(
+          CaseNoteSubType().apply {
+            code = "RELEASE"
+            description = "Release"
+          },
+        ),
       )
 
       service.createReleaseNote(booking, movement)

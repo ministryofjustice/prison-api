@@ -26,5 +26,4 @@ enum class Schedule(val code: String, val description: String) {
   PCSC_SDS("PCSC/SDS", "PCSC SDS between 4 and 7 years"),
   PCSC_SDS_PLUS("PCSC/SDS+", "PCSC SDS+"),
   PCSC_SEC_250("PCSC/SEC250", "PCSC Sec250 >7 years"),
-  ;
 }
