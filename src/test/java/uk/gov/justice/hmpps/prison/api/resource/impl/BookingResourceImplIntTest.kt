@@ -633,7 +633,7 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @Test
   fun offences() {
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_SYSTEM_USER"), mapOf())
+    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA"), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/A1234AA/offenceHistory?convictionsOnly=false", GET, requestEntity, String::class.java)
     assertThatJsonFileAndStatus(responseEntity, 200, "offender_offences.json")
   }
