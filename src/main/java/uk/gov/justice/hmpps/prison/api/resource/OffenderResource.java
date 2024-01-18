@@ -74,6 +74,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
+import uk.gov.justice.hmpps.prison.service.Belief;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -82,6 +83,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
+import uk.gov.justice.hmpps.prison.service.OffenderBeliefService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
@@ -89,9 +91,9 @@ import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.DischargeToHospitalService;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
-import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 
 import java.time.LocalDate;
 import java.util.Arrays;
@@ -125,6 +127,7 @@ public class OffenderResource {
     private final OffenderLocationService offenderLocationService;
     private final ReleasePrisonerService releasePrisonerService;
     private final DischargeToHospitalService dischargeToHospitalService;
+    private final OffenderBeliefService offenderBeliefService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -848,5 +851,19 @@ public class OffenderResource {
         @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot
         ) {
         return adjudicationService.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, offenderNos, timeSlot);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to view belief history.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'GLOBAL_SEARCH')")
+    @Operation(summary = "Get belief history for a prisoner")
+    @GetMapping("/{offenderNo}/belief-history")
+    public List<Belief> getOffenderBeliefHistory(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+                                                 @RequestParam(value = "bookingId", required = false) final String bookingId) {
+        return offenderBeliefService.getOffenderBeliefHistory(prisonerNumber, bookingId);
     }
 }

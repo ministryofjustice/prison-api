@@ -1,0 +1,14 @@
+[
+  {
+    "beliefId": 98765,
+    "bookingId": 123456,
+    "beliefCode": "SCIE",
+    "beliefDescription": "Scientologist",
+    "startDate": "2024-01-01",
+    "changeReason": true,
+    "comments": "Comments",
+    "addedByFirstName": "John",
+    "addedByLastName": "Smith",
+    "verified": false
+  }
+]
