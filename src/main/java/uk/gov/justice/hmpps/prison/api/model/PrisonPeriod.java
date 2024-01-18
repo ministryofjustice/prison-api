@@ -29,7 +29,10 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @ToString
 public class PrisonPeriod {
 
+    @Schema(description = "The book number for this booking", requiredMode = REQUIRED)
     private String bookNumber;
+
+    @Schema(description = "The ID of this booking", requiredMode = REQUIRED)
     private Long bookingId;
 
     @Schema(description = "Date they first entered prison in this booking", requiredMode = REQUIRED)
