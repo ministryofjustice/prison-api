@@ -6,6 +6,14 @@ generic-service:
   service:
     enabled: true
 
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1024Mi
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
+
   ingress:
     enabled: true
     host: prison-api-preprod.prison.service.justice.gov.uk
@@ -44,5 +52,6 @@ generic-service:
       SecRuleUpdateActionById 959100 "t:none,deny,status:406,logdata:%{SERVER_NAME}"
 
   env:
+    JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
