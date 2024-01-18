@@ -3,7 +3,7 @@
 generic-service:
   nameOverride: prison-api
   productId: DPS060
-  replicaCount: 6
+  replicaCount: 5 # One per node
 
   image:
     repository: quay.io/hmpps/prison-api
@@ -27,14 +27,14 @@ generic-service:
 
   resources:
     requests:
-      cpu: 100m
-      memory: 640Mi
+      cpu: 1000m
+      memory: 2048Mi
     limits:
-      cpu: 2000m
+      cpu: 3000m
       memory: 2048Mi
 
   env:
-    JAVA_OPTS: "-Xmx1024m"
+    JAVA_OPTS: "-Xms1024m -Xmx1024m"
     SERVER_PORT: 8080
     APPLICATIONINSIGHTS_CONNECTION_STRING: "InstrumentationKey=$(APPINSIGHTS_INSTRUMENTATIONKEY);IngestionEndpoint=https://northeurope-0.in.applicationinsights.azure.com/;LiveEndpoint=https://northeurope.livediagnostics.monitor.azure.com/"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
