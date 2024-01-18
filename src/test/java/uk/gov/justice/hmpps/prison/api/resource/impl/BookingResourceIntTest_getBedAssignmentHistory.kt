@@ -2,26 +2,59 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 
+@DisplayName("GET /api/bookings/{bookingId}/cell-history")
 class BookingResourceIntTest_getBedAssignmentHistory : ResourceTest() {
+
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 401 without an auth token`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
-      // RO_USER has no caseloads
-      .headers(setAuthorisation("RO_USER", listOf("ROLE_DUMMY"))).exchange().expectStatus().isNotFound
+      .exchange().expectStatus().isUnauthorized
   }
 
   @Test
-  fun `returns 200 if not in user caseload but has ROLE_SYSTEM_USER`() {
+  fun `should return 403 if no override role`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
-      .headers(setAuthorisation("RO_USER", listOf("ROLE_SYSTEM_USER"))).exchange().expectStatus().isOk
+      .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 403 if has override role ROLE_SYSTEM_USER`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER"))).exchange().expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 200 if has override role ROLE_MAINTAIN_CELL_MOVEMENTS`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_CELL_MOVEMENTS"))).exchange().expectStatus().isOk
+  }
+
+  @Test
+  fun `returns 200 if has override role ROLE_VIEW_PRISONER_DATA`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isOk
   }
 
   @Test
   fun `returns 200 if not in user caseload but has ROLE_VIEW_PRISONER_DATA`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
       .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isOk
+  }
+
+  @Test
+  fun `returns 200 if in user caseload`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      .headers(setAuthorisation(listOf())).exchange().expectStatus().isOk
+  }
+
+  @Test
+  fun `returns 404 if not in user caseload`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      // RO_USER has no caseloads
+      .headers(setAuthorisation("RO_USER", listOf("ROLE_DUMMY"))).exchange().expectStatus().isNotFound
   }
 
   @Test

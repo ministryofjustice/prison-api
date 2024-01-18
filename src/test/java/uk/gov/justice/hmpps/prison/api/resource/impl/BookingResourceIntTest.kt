@@ -973,28 +973,103 @@ class BookingResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun offenceHistory() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/offenderNo/{offenderNo}/offenceHistory",
-      GET,
-      createHttpEntity(VIEW_PRISONER_DATA, null),
-      String::class.java,
-      "A1234AG",
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_main_offences.json")
-  }
+  @Nested
+  @DisplayName("GET /api/bookings/offenderNo/{offenderNo}/offenceHistory")
+  inner class OffenderOffenceHistory {
 
-  @Test
-  fun offenceHistoryIncludeOffenderWithoutConviction() {
-    val response = testRestTemplate.exchange(
-      "/api/bookings/offenderNo/{offenderNo}/offenceHistory?convictionsOnly=false",
-      GET,
-      createHttpEntity(VIEW_PRISONER_DATA, null),
-      String::class.java,
-      "A1234AB",
-    )
-    assertThatJsonFileAndStatus(response, 200, "offender_offence_history_A12234AB_include_non_convictions.json")
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when has SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has CREATE_CATEGORISISATION override role`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .headers(setClientAuthorisation(listOf("CREATE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has APPROVE_CATEGORISISATION override role`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory")
+        .headers(setClientAuthorisation(listOf("APPROVE_CATEGORISATION")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns empty list response if offender not found`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A9999ZZ/offenceHistory")
+        .headers(setAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns offence history`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AG/offenceHistory")
+        .headers(setAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(2)
+        .jsonPath("[0].bookingId").isEqualTo(-7)
+        .jsonPath("[0].offenceDescription").isEqualTo("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.")
+        .jsonPath("[0].offenceCode").isEqualTo("RC86360")
+        .jsonPath("[0].statuteCode").isEqualTo("RC86")
+        .jsonPath("[1].bookingId").isEqualTo(-7)
+        .jsonPath("[1].offenceDescription").isEqualTo("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury")
+        .jsonPath("[1].offenceCode").isEqualTo("RC86355")
+        .jsonPath("[1].statuteCode").isEqualTo("RC86")
+    }
+
+    @Test
+    fun `returns offence history including offender without conviction`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A1234AB/offenceHistory?convictionsOnly=false")
+        .headers(setAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].bookingId").isEqualTo(-2)
+        .jsonPath("[0].offenceDescription").isEqualTo("Actual bodily harm")
+        .jsonPath("[0].offenceCode").isEqualTo("M1")
+        .jsonPath("[0].statuteCode").isEqualTo("RC86")
+        .jsonPath("[0].mostSerious").isEqualTo(true)
+        .jsonPath("[0].primaryResultCode").isEqualTo("3514")
+        .jsonPath("[0].primaryResultDescription").isEqualTo("Adjourned for Consideration of an ASBO")
+        .jsonPath("[0].primaryResultConviction").isEqualTo(false)
+        .jsonPath("[0].secondaryResultConviction").isEqualTo(false)
+        .jsonPath("[0].courtDate").isEqualTo("2017-02-22")
+    }
   }
 
   @Test
