@@ -6,11 +6,16 @@ import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.GET
-import uk.gov.justice.hmpps.prison.repository.jpa.model.*
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import java.time.LocalDateTime
 
-class OffenderResourceImplIntTest_getOffenderBeliefHistory : ResourceTest() {
+class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
 
   private val beliefCode = ProfileCode.builder().id(ProfileCode.PK(ProfileType.builder().type("RELF").build(), "SCIE")).build()
   private val staffUserAccount = StaffUserAccount.builder()
