@@ -27,8 +27,8 @@ generic-service:
 
   resources:
     requests:
-      cpu: 1000m
-      memory: 2048Mi
+      cpu: 500m
+      memory: 1600Mi
     limits:
       cpu: 3000m
       memory: 2048Mi
