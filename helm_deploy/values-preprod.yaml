@@ -1,7 +1,16 @@
 ---
 # Per environment values which override defaults in prison-api/values.yaml
 generic-service:
-  replicaCount: 4
+  replicaCount: 2
+
+  resources:
+    requests:
+      cpu: 100m
+      memory: 1024Mi
+    limits:
+      cpu: 2000m
+      memory: 2048Mi
 
   env:
+    JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
