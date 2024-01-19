@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
 import java.time.LocalDate
 
 @Service
@@ -14,7 +13,6 @@ import java.time.LocalDate
 class OffenderBeliefService(
   private val offenderBeliefRepository: OffenderBeliefRepository,
 ) {
-  @VerifyBookingAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<Belief> {
     return offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, bookingId).map(this::transformBelief)
   }

@@ -7,17 +7,16 @@ import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
-import lombok.AllArgsConstructor
-import lombok.NoArgsConstructor
+import org.hibernate.Hibernate
 import org.hibernate.annotations.JoinColumnOrFormula
 import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
 import org.hibernate.type.YesNoConverter
+import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDateTime
 
 @Entity
-@NoArgsConstructor
-@AllArgsConstructor
+@EntityOpen
 @Table(name = "OFFENDER_BELIEFS")
 data class OffenderBelief(
   @Id
@@ -67,4 +66,15 @@ data class OffenderBelief(
   @ManyToOne(optional = true)
   @JoinColumn(name = "MODIFY_USER_ID")
   val modifiedByUser: StaffUserAccount? = null,
-)
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as OffenderBelief
+    return beliefId == other.beliefId
+  }
+
+  override fun hashCode(): Int {
+    return this.javaClass.hashCode()
+  }
+}

@@ -5,7 +5,6 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.http.HttpMethod.GET
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
@@ -70,12 +69,19 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
   @Test
   fun shouldReturnOffenderBeliefHistory() {
     stubRepositoryCall()
-    val responseEntity = testRestTemplate.exchange(
-      "/api/offenders/B1101BB/belief-history",
-      GET,
-      createHttpEntity(validToken(listOf("ROLE_VIEW_PRISONER_DATA")), null),
-      String::class.java,
-    )
-    assertThatJsonFileAndStatus(responseEntity, 200, "offender_belief_history.json")
+    webTestClient.get().uri("/api/offenders/B1101BB/belief-history")
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      .exchange()
+      .expectBody()
+      .jsonPath("[0].beliefId").isEqualTo(98765)
+      .jsonPath("[0].bookingId").isEqualTo(123456)
+      .jsonPath("[0].beliefCode").isEqualTo("SCIE")
+      .jsonPath("[0].beliefDescription").isEqualTo("Scientologist")
+      .jsonPath("[0].startDate").isEqualTo("2024-01-01")
+      .jsonPath("[0].changeReason").isEqualTo(true)
+      .jsonPath("[0].comments").isEqualTo("Comments")
+      .jsonPath("[0].addedByFirstName").isEqualTo("John")
+      .jsonPath("[0].addedByLastName").isEqualTo("Smith")
+      .jsonPath("[0].verified").isEqualTo(false)
   }
 }
