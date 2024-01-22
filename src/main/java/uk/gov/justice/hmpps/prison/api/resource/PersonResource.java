@@ -39,7 +39,7 @@ public class PersonResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The most recent value of each type of person identifier", description = "Requires role ROLE_VIEW_CONTACTS")
-    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
+    @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/identifiers")
     public List<PersonIdentifier> getPersonIdentifiers(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPersonIdentifiers(personId);
@@ -51,7 +51,7 @@ public class PersonResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The addresses for person", description = "Requires role ROLE_VIEW_CONTACTS")
-    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
+    @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/addresses")
     public List<AddressDto> getPersonAddresses(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getAddresses(personId);
@@ -63,7 +63,7 @@ public class PersonResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The phone numbers for person", description = "Requires role ROLE_VIEW_CONTACTS")
-    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
+    @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/phones")
     public List<Telephone> getPersonPhones(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPhones(personId);
@@ -75,7 +75,7 @@ public class PersonResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "The emails for person", description = "Requires role ROLE_VIEW_CONTACTS")
-    @PreAuthorize("hasRole('ROLE_VIEW_CONTACTS')")
+    @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/emails")
     public List<Email> getPersonEmails(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getEmails(personId);

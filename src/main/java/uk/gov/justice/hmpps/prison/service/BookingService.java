@@ -341,7 +341,7 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_PAY')")
+    @PreAuthorize("hasRole('PAY')")
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
@@ -349,7 +349,7 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_PAY')")
+    @PreAuthorize("hasRole('PAY')")
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance, boolean lockTimeout) {
         final Long latestBookingId = getLatestBookingByBookingId(bookingId).getBookingId();
         if (lockTimeout) {
@@ -360,7 +360,7 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('ROLE_PAY')")
+    @PreAuthorize("hasRole('PAY')")
     public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         log.info("updateAttendanceForMultipleBookingIds() received {} activities", bookingActivities.size());
 

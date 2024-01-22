@@ -47,7 +47,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found."),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Requires role VIEW_PRISONER_DATA.")
-    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     public ResponseEntity<byte[]> getImageData(
         @PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId,
@@ -63,7 +63,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image details related to offender.", description = "Requires role VIEW_PRISONER_DATA.")
-    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
@@ -76,7 +76,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image detail (with image data).", description = "Requires role VIEW_PRISONER_DATA.")
-    @PreAuthorize("hasRole('ROLE_VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/{imageId}")
     public ImageDetail getImage(@PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId) {
         return imageService.findImageDetail(imageId);
