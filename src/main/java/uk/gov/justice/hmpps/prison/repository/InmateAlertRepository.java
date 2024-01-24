@@ -207,6 +207,7 @@ public class InmateAlertRepository extends RepositoryBase {
                         "alertType", alert.getAlertType(),
                         "alertSubType", alert.getAlertCode(),
                         "alertDate", DateTimeConverter.toDate(alert.getAlertDate()),
+                        "expiryDate", DateTimeConverter.toDate(alert.getExpiryDate()),
                         "commentText", alert.getComment()
                 ),
                 newAlertsSeqHolder,

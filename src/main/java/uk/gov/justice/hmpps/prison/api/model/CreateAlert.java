@@ -2,6 +2,9 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -9,11 +12,9 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import org.apache.commons.lang3.StringUtils;
 
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @Schema(description = "Create new alert")
@@ -42,6 +43,9 @@ public class CreateAlert {
     @Schema(description = "Date the alert became effective", example = "2019-02-13", requiredMode = REQUIRED)
     @NotNull
     private LocalDate alertDate;
+
+    @Schema(description = "Date the alert should expire", example = "2099-02-13", requiredMode = NOT_REQUIRED)
+    private LocalDate expiryDate;
 
     public String getAlertType() {
         return StringUtils.isNotBlank(alertType) ? alertType.toUpperCase() : alertType;
