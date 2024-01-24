@@ -189,7 +189,7 @@ public class InmateAlertService {
         if (alert.getAlertDate().isBefore(sevenDaysAgo))
             throw new IllegalArgumentException("Alert date cannot go back more than seven days.");
 
-        if (alert.getExpiryDate().isBefore(today))
+        if (alert.getExpiryDate() != null && alert.getExpiryDate().isBefore(today))
             throw new IllegalArgumentException("Expiry date cannot be in the past.");
 
         final var existingActiveAlerts = inmateAlertRepository.getActiveAlerts(bookingId);
