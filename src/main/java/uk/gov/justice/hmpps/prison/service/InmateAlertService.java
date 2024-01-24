@@ -22,13 +22,11 @@ import uk.gov.justice.hmpps.prison.repository.InmateAlertRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -191,6 +189,9 @@ public class InmateAlertService {
         if (alert.getAlertDate().isBefore(sevenDaysAgo))
             throw new IllegalArgumentException("Alert date cannot go back more than seven days.");
 
+        if (alert.getExpiryDate() != null && alert.getExpiryDate().isBefore(today))
+            throw new IllegalArgumentException("Expiry date cannot be in the past.");
+
         final var existingActiveAlerts = inmateAlertRepository.getActiveAlerts(bookingId);
         final var matches = existingActiveAlerts
                 .stream().anyMatch(al -> al.getAlertType().equals(alert.getAlertType()) &&
@@ -202,14 +203,18 @@ public class InmateAlertService {
         final var alertId = inmateAlertRepository.createNewAlert(bookingId, alert);
 
         log.info("Created new alert {}", alert);
-        telemetryClient.trackEvent("Alert created", Map.of(
+        var createdAlert = new HashMap<>(Map.of(
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertId),
                 "alertDate", alert.getAlertDate().toString(),
                 "alertCode", alert.getAlertCode(),
                 "alertType", alert.getAlertType(),
                 "created_by", username
-        ), null);
+        ));
+        if (alert.getExpiryDate() != null) {
+            createdAlert.put("expiryDate", alert.getExpiryDate().toString());
+        }
+        telemetryClient.trackEvent("Alert created", createdAlert, null);
 
         return alertId;
     }
