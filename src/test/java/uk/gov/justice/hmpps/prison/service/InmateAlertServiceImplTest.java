@@ -138,6 +138,37 @@ public class InmateAlertServiceImplTest {
     }
 
     @Test
+    public void testAlertRepository_CreateAlertIsCalledWithExpiryDateParams() {
+        final ReferenceCode alertType = getAlertReferenceCode();
+
+        when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
+                .thenReturn(Optional.of(alertType));
+
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
+
+        final var alertId = service.createNewAlert(-1L, CreateAlert
+                .builder()
+                .alertCode("X")
+                .alertType("XX")
+                .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
+                .expiryDate(LocalDate.now().plusMonths(1).atStartOfDay().toLocalDate())
+                .comment("comment1")
+                .build());
+
+        assertThat(alertId).isEqualTo(1L);
+
+        verify(inmateAlertRepository).createNewAlert(-1L, CreateAlert
+                .builder()
+                .alertCode("X")
+                .alertType("XX")
+                .alertDate(LocalDate.now().atStartOfDay().toLocalDate())
+                .expiryDate(LocalDate.now().plusMonths(1).atStartOfDay().toLocalDate())
+                .comment("comment1")
+                .build());
+    }
+
+    @Test
     public void testAlertDate_SevenDaysInThePastThrowsException() {
         assertThat(catchThrowable(() -> service.createNewAlert(-1L, CreateAlert
             .builder().alertDate(LocalDate.now().minusDays(8)).build())))
@@ -149,6 +180,13 @@ public class InmateAlertServiceImplTest {
         assertThat(catchThrowable(() -> service.createNewAlert(-1L, CreateAlert
             .builder().alertDate(LocalDate.now().plusDays(1)).build())))
             .as("Alert date cannot be in the future.").isInstanceOf(IllegalArgumentException.class);
+    }
+
+    @Test
+    public void testExpiryDate_InThePastThrowsException() {
+        assertThat(catchThrowable(() -> service.createNewAlert(-1L, CreateAlert
+            .builder().expiryDate(LocalDate.now().minusDays(1)).build())))
+            .as("Expiry date cannot be in the past.").isInstanceOf(IllegalArgumentException.class);
     }
 
     @Test

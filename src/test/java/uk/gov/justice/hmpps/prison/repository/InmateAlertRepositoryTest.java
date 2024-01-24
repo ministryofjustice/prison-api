@@ -124,6 +124,56 @@ public class InmateAlertRepositoryTest {
     }
 
     @Test
+    public void testThatAnAlertGetsCreatedWithExpiryDate() {
+        final var bookingId = -10L;
+        final var alert = CreateAlert
+            .builder()
+            .alertDate(LocalDate.now())
+            .expiryDate(LocalDate.now().plusMonths(1))
+            .alertType("X")
+            .alertCode("XX")
+            .comment("Poor behaviour")
+            .build();
+
+        final var latestAlertSeq = repository.createNewAlert(bookingId, alert);
+
+        final var alerts = jdbcTemplate.queryForList("SELECT * FROM  OFFENDER_ALERTS WHERE OFFENDER_BOOK_ID = ? AND ALERT_SEQ = ?",
+            bookingId, latestAlertSeq
+        );
+        final var workFlowEntries = jdbcTemplate.queryForList(
+            " SELECT * FROM WORK_FLOWS WF" +
+                " LEFT JOIN WORK_FLOW_LOGS WFL ON WFL.WORK_FLOW_ID = WF.WORK_FLOW_ID" +
+                " WHERE WF.OBJECT_ID = ? AND WF.OBJECT_SEQ = ? AND WF.OBJECT_CODE = 'ALERT'",
+            bookingId, latestAlertSeq);
+
+        assertThat(alerts)
+            .asList()
+            .extracting(
+                extractLong("OFFENDER_BOOK_ID"),
+                extractString("ALERT_TYPE"),
+                extractString("ALERT_CODE"),
+                extractLong("ALERT_SEQ"),
+                extractDate("ALERT_DATE"),
+                extractDate("EXPIRY_DATE"),
+                extractString("ALERT_STATUS"),
+                extractString("COMMENT_TEXT"),
+                extractString("CREATE_USER_ID"),
+                extractString("CASELOAD_TYPE"))
+            .contains(Tuple.tuple(bookingId, "X", "XX", latestAlertSeq, LocalDate.now(), LocalDate.now().plusMonths(1), "ACTIVE", "Poor behaviour", "SA", "INST"));
+
+        assertThat(workFlowEntries)
+            .asList()
+            .extracting(
+                extractString("OBJECT_CODE"),
+                extractString("WORK_ACTION_CODE"),
+                extractString("CREATE_USER_ID"),
+                extractDate("CREATE_DATE"),
+                extractString("WORK_FLOW_STATUS"))
+            .contains(Tuple.tuple("ALERT", "ENT", "SA", LocalDate.now(), "DONE"));
+
+    }
+
+    @Test
     public void testThatAnAlertGetsUpdated() {
         final var bookingId = -14L;
         final var alertSeq = 1L;
