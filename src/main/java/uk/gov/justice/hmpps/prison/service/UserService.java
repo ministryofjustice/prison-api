@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
@@ -120,7 +119,6 @@ public class UserService {
         userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(apiCaseloadId).build()).startDate(LocalDate.now()).build());
     }
 
-    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','MAINTAIN_ACCESS_ROLES_ADMIN')")
     @Transactional
     public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
         final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
