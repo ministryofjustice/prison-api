@@ -759,7 +759,7 @@ public class InmateRepository extends RepositoryBase {
                 detail.getCategory(),
                 detail.getBookingId()));
         }
-        final int maxSequence = sequences.get(0);
+        final int maxSequence = sequences.getFirst();
 
         if (detail.getAssessmentSeq() != null && detail.getAssessmentSeq() != maxSequence) {
             log.warn(String.format("approveCategory: sequences do not match for booking id %d: maxSequence = %d, PG Nomis seq = %d",
@@ -936,7 +936,7 @@ public class InmateRepository extends RepositoryBase {
 
         if (criteria.getOffenderNos() != null && !criteria.getOffenderNos().isEmpty()) {
             if (criteria.getOffenderNos().size() == 1) {
-                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().get(0), eqTemplate, logicOperator);
+                appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().getFirst(), eqTemplate, logicOperator);
             } else {
                 appendNonBlankCriteria(query, "offenderNo", criteria.getOffenderNos().stream().collect(Collectors.joining("'|'", "'", "'")), inTemplate, logicOperator);
             }
@@ -985,7 +985,7 @@ public class InmateRepository extends RepositoryBase {
     static void appendNonBlankCriteria(final StringBuilder query, final String criteriaName, final String criteriaValue,
                                        final String operatorTemplate, final String logicOperator) {
         if (StringUtils.isNotBlank(criteriaValue)) {
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 
@@ -1015,7 +1015,7 @@ public class InmateRepository extends RepositoryBase {
                 throw new IllegalArgumentException("Incorrectly formatted PNC number.");
             }
 
-            if (query.length() > 0) {
+            if (!query.isEmpty()) {
                 query.append(",").append(logicOperator);
             }
 

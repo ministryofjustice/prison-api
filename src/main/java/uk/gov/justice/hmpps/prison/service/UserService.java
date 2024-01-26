@@ -4,7 +4,6 @@ import com.google.common.collect.Lists;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
@@ -64,7 +63,7 @@ public class UserService {
     public UserDetail getUserByUsername(final String username) {
         final var userDetail = userRepository.findByUsername(username).orElseThrow(EntityNotFoundException.withId(username));
         final var caseLoadsForUser = caseLoadService.getCaseLoadsForUser(username, false);
-        if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.get(0).equals(EMPTY_CASELOAD))) {
+        if (userDetail.getActiveCaseLoadId() == null && (caseLoadsForUser.isEmpty() || caseLoadsForUser.getFirst().equals(EMPTY_CASELOAD))) {
             userDetail.setActiveCaseLoadId(EMPTY_CASELOAD.getCaseLoadId());
         }
         return userDetail;
@@ -116,15 +115,10 @@ public class UserService {
             .toList();
     }
 
-    public boolean isUserAccessibleCaseloadAvailable(final String caseload, final String username) {
-        return userCaseloadRepository.findById(UserCaseloadId.builder().caseload(caseload).username(username).build()).isPresent();
-    }
-
     private void addDpsCaseloadToUser(final String username) {
         userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(apiCaseloadId).build()).startDate(LocalDate.now()).build());
     }
 
-    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','MAINTAIN_ACCESS_ROLES_ADMIN')")
     @Transactional
     public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
         final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);

@@ -7,6 +7,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -48,9 +51,6 @@ import uk.gov.justice.hmpps.prison.service.AgencyPrisonerPayProfileService;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -84,7 +84,8 @@ public class AgencyResource {
     @Operation(summary = "List of active agencies.", description = "List of active agencies.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping
-    public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of agency records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of agency records returned.") final Long pageLimit) {
+    public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of agency records.") final Long pageOffset,
+                                                    @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of agency records returned.") final Long pageLimit) {
         return agencyService.getAgencies(pageOffset, pageLimit).getResponse();
     }
 
@@ -98,8 +99,7 @@ public class AgencyResource {
     @GetMapping("/type/{type}")
     public List<Agency> getAgenciesByType(
         @PathVariable("type")
-        @Parameter(description = "Agency Type", required = true)
-        final String agencyType,
+        @Parameter(description = "Agency Type", required = true) final String agencyType,
 
         @RequestParam(value = "activeOnly", defaultValue = "true", required = false)
         @Parameter(description = "Only return active agencies")
@@ -112,7 +112,7 @@ public class AgencyResource {
 
         @RequestParam(value = "courtType", required = false)
         @Parameter(description = "Only return courts that match the supplied court types(s)", example = "MC")
-            List<String> courtTypes,
+        List<String> courtTypes,
 
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
         @Parameter(description = "Returns Address Information") final boolean withAddresses,
@@ -131,11 +131,12 @@ public class AgencyResource {
     @Operation(summary = "Agency detail.", description = "Agency detail.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}")
-    public Agency getAgency(@PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) final String agencyId,
-                            @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
-                            @RequestParam(value = "agencyType", required = false) @Parameter(description = "Agency Type") final String agencyType,
-                            @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @Parameter(description = "Returns Address Information") final boolean withAddresses,
-                            @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @Parameter(description = "Don't format the location") final boolean skipFormatLocation) {
+    public Agency getAgency(
+        @PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) final String agencyId,
+        @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
+        @RequestParam(value = "agencyType", required = false) @Parameter(description = "Agency Type") final String agencyType,
+        @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @Parameter(description = "Returns Address Information") final boolean withAddresses,
+        @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @Parameter(description = "Don't format the location") final boolean skipFormatLocation) {
         return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses, skipFormatLocation);
     }
 
@@ -149,8 +150,9 @@ public class AgencyResource {
     @PutMapping("/{agencyId}")
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public Agency updateAgency(@PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
-                               @RequestBody @NotNull @Valid RequestToUpdateAgency agencyToUpdate) {
+    public Agency updateAgency(
+        @PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) @Valid @Length(max = 6, message = "Agency Id is max 6 characters") final String agencyId,
+        @RequestBody @NotNull @Valid RequestToUpdateAgency agencyToUpdate) {
         return agencyService.updateAgency(agencyId, agencyToUpdate);
     }
 
@@ -164,8 +166,7 @@ public class AgencyResource {
     @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public ResponseEntity<Agency> createAgency(@RequestBody @NotNull @Valid final RequestToCreateAgency agencyToCreate) {
-        return ResponseEntity.status(HttpStatus.CREATED)
-            .body(agencyService.createAgency(agencyToCreate));
+        return ResponseEntity.status(HttpStatus.CREATED).body(agencyService.createAgency(agencyToCreate));
     }
 
     @ApiResponses({
@@ -177,7 +178,12 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations")
     @SlowReportQuery
-    public List<Location> getAgencyLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public List<Location> getAgencyLocations(
+        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType,
+        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields,
+        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder
+    ) {
         return agencyService.getAgencyLocations(agencyId, eventType, sortFields, sortOrder);
     }
 
@@ -190,7 +196,9 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/cellsWithCapacity")
     @SlowReportQuery
-    public List<OffenderCell> getAgencyActiveCellsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
+    public List<OffenderCell> getAgencyActiveCellsWithCapacity(
+        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
         return agencyService.getCellsWithCapacityInAgency(agencyId, attribute);
     }
 
@@ -203,7 +211,10 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/receptionsWithCapacity")
     @SlowReportQuery
-    public List<OffenderCell> getAgencyActiveReceptionsWithCapacity(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute) {
+    public List<OffenderCell> getAgencyActiveReceptionsWithCapacity(
+        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute
+    ) {
         return agencyService.getReceptionsWithCapacityInAgency(agencyId, attribute);
     }
 
@@ -215,7 +226,10 @@ public class AgencyResource {
     @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/type/{type}")
-    public List<Location> getAgencyLocationsByType(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId, @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type) {
+    public List<Location> getAgencyLocationsByType(
+        @PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId,
+        @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type
+    ) {
         return agencyService.getAgencyLocationsByType(agencyId, type);
     }
 
@@ -251,7 +265,11 @@ public class AgencyResource {
     @Operation(summary = "List of locations for agency where events (appointments, visits, activities) could be held.", description = "List of locations for agency where events (appointments, visits, activities) could be held.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/eventLocations")
-    public List<Location> getAgencyEventLocations(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public List<Location> getAgencyEventLocations(
+        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields,
+        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder
+    ) {
         return agencyService.getAgencyEventLocations(agencyId, sortFields, sortOrder);
     }
 
@@ -264,7 +282,10 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/eventLocationsBooked")
     @SlowReportQuery
-    public List<Location> getAgencyEventLocationsBooked(@PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date, @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)",  schema = @Schema(implementation = String.class, allowableValues = {"AM","PM","ED"})) final TimeSlot timeSlot) {
+    public List<Location> getAgencyEventLocationsBooked(
+        @PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date,
+        @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)", schema = @Schema(implementation = String.class, allowableValues = {"AM", "PM", "ED"})) final TimeSlot timeSlot
+    ) {
         return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }
 
@@ -375,7 +396,7 @@ public class AgencyResource {
         @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
         @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
         @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
-        ) {
+    ) {
 
         return agencyService.updateAgencyAddress(agencyId, addressId, requestToUpdateAddress);
     }
@@ -450,7 +471,7 @@ public class AgencyResource {
         @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
         @PathVariable @Parameter(description = "The ID of the contact", required = true) final Long phoneId
     ) {
-         agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
+        agencyService.deleteAgencyAddressPhone(agencyId, addressId, phoneId);
     }
 
 
