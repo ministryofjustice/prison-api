@@ -13,5 +13,7 @@ data class Person(
 
   var lastName: String,
 
+  var agencyId: String,
+
   val alerts: List<Alert>,
 )

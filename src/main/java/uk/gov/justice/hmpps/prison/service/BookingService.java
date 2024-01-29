@@ -855,6 +855,7 @@ public class BookingService {
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate(),
             capitalizeFully(offenderBooking.getOffender().getLastName()),
+            offenderBooking.getLocation().getId(),
             offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
         );
 
