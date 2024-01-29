@@ -3,6 +3,7 @@
     "prisonerNumber": "A1234AE",
     "dateOfBirth": "1956-02-28",
     "lastName": "Matthews",
+    "agencyId": "LEI",
     "alerts": [{
       "alertId": 1,
       "bookingId": -5,

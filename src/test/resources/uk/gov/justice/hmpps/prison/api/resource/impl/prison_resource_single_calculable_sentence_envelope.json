@@ -3,6 +3,7 @@
         "prisonerNumber": "A1234AB",
         "dateOfBirth": "1998-08-28",
         "lastName": "Anderson",
+        "agencyId": "LEI",
         "alerts": [
             {
                 "alertId": 1,
