@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.api.support.PageRequest
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService
@@ -145,6 +146,7 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     description = "List of offenders globally matching the offenderNo, Requires offender agency to be in user caseload or VIEW_PRISONER_DATA role. " +
       "Returns an empty array if no results are found or if does not have correct permissions",
   )
+  @ProgrammaticAuthorisation("For legacy reasons this returns an empty list if the user does not have the correct permissions")
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
     @PathVariable("offenderNo")

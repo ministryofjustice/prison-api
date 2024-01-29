@@ -66,6 +66,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationH
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
@@ -155,7 +156,7 @@ public class OffenderResource {
     @Operation(
         summary = "Summary of the different periods this prisoner has been in prison.",
         description = """
-            This is a summary of the different periods this prisoner has been in prison grouped by booking. 
+            This is a summary of the different periods this prisoner has been in prison grouped by booking.
             
             It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). 
             
@@ -727,6 +728,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Military Records", description = "Military Records")
+    @ProgrammaticAuthorisation("Checked in service for legacy reasons")
     @GetMapping("/{offenderNo}/military-records")
     public MilitaryRecords getMilitaryRecords(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo
@@ -780,6 +782,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "All scheduled events for offender.", description = "All scheduled events for offender.")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/events")
     public List<ScheduledEvent> getEvents(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,

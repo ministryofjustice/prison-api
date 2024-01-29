@@ -6,7 +6,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Contact;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.repository.ContactRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.util.Comparator;
 import java.util.List;
@@ -25,7 +24,6 @@ public class ContactService {
         this.repository = contactRepository;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ContactDetail getContacts(final Long bookingId) {
         final var contacts = repository.getOffenderRelationships(bookingId, null);
 
@@ -43,5 +41,4 @@ public class ContactService {
                         .sorted(sortCriteria)
                         .collect(toList())).build();
     }
-
 }

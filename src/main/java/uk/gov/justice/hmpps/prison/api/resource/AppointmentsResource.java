@@ -8,6 +8,7 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -38,6 +39,7 @@ public class AppointmentsResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The appointments have been created.")})
+    @HasWriteScope // FIXME: Called by old dps & profile with auth token - needs client token. Write scope allows everyone to call this endpoint.
     @Operation(summary = "Create multiple appointments", description = "Create multiple appointments")
     @PostMapping
     @ProxyUser
@@ -53,10 +55,10 @@ public class AppointmentsResource {
         @ApiResponse(responseCode = "404", description = "The appointment was not found"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation")
     })
-    @Operation(summary = "Delete an appointment.", description = "Delete appointment.")
+    @Operation(summary = "Delete an appointment.", description = "Requires role GLOBAL_APPOINTMENT and write scope")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
     @DeleteMapping("/{appointmentId}")
-    @HasWriteScope
     @ProxyUser
     public void deleteAppointment(
         @PathVariable("appointmentId")
@@ -70,10 +72,10 @@ public class AppointmentsResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
     })
-    @Operation(summary = "Delete multiple appointments.", description = "Delete multiple appointments.")
+    @Operation(summary = "Delete multiple appointments.", description = "Requires role GLOBAL_APPOINTMENT and write scope")
     @ResponseStatus(HttpStatus.NO_CONTENT)
+    @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
     @PostMapping("/delete")
-    @HasWriteScope
     @ProxyUser
     public void deleteAppointments(
         @Parameter(description = "The unique identifier for the appointment", required = true)
@@ -87,8 +89,9 @@ public class AppointmentsResource {
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
         @ApiResponse(responseCode = "404", description = "The appointment was not found")
     })
-    @Operation(summary = "Get an appointment by id.", description = "Get appointment byId.")
+    @Operation(summary = "Get an appointment by id.", description = "Requires role GLOBAL_APPOINTMENT")
     @ResponseStatus(HttpStatus.OK)
+    @PreAuthorize("hasRole('GLOBAL_APPOINTMENT')")
     @GetMapping("/{appointmentId}")
     public ScheduledEvent getAppointment(
         @PathVariable("appointmentId")
@@ -98,13 +101,13 @@ public class AppointmentsResource {
         return appointmentsService.getBookingAppointment(appointmentId);
     }
 
-    @Operation(summary = "Change an appointment's comment.")
+    @Operation(summary = "Change an appointment's comment.", description = "Requires role GLOBAL_APPOINTMENT")
     @ApiResponses({
         @ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
         @ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
         @ApiResponse(responseCode = "404", description = "The appointment was not found."),
     })
-    @HasWriteScope
+    @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
     @PutMapping(path = "/{appointmentId}/comment", consumes = {MediaType.TEXT_PLAIN_VALUE})
     @ResponseStatus(HttpStatus.NO_CONTENT)
     public void updateAppointmentComment(
