@@ -135,21 +135,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyField("category", category);
     }
 
-    @When("^an offender booking assessment information request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\" and latest=\"(true|false)\" and active=\"(true|false)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeWithBookingIdAnd(final String offenderNoList, final String assessmentCode, final boolean latestOnly, final boolean activeOnly) {
-        bookingAssessment.getAssessmentsByCode(offenderNoList, assessmentCode, latestOnly, activeOnly);
-    }
-
-    @When("^an offender booking assessment information POST request is made with offender numbers \"([^\"]*)\" and \"([^\"]*)\"$")
-    public void anOffenderBookingAssessmentInformationRequestIsMadeUsingPost(final String offenderNoList, final String assessmentCode) {
-        bookingAssessment.getAssessmentsByCodeUsingPost(offenderNoList, assessmentCode);
-    }
-
-    @When("^an offender booking CSRA information POST request is made with offender numbers \"([^\"]*)\"$")
-    public void anOffenderBookingCSRAInformationRequestIsMadeUsingPost(final String offenderNoList) {
-        bookingAssessment.getCsrasUsingPost(offenderNoList);
-    }
-
     @Then("^bad request response is received from booking assessments API with message \"([^\"]*)\"$")
     public void badRequestResponseIsReceivedFromBookingAssessmentsAPI(final String message) {
         bookingAssessment.verifyBadRequest(message);
@@ -158,16 +143,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @Then("^access denied response is received from booking assessments API$")
     public void accessDeniedResponseIsReceivedFromAssessmentsAPI() {
         bookingAssessment.verifyAccessDenied();
-    }
-
-    @Then("^correct results are returned as for single assessment$")
-    public void multipleIsCorrect() {
-        bookingAssessment.verifyMultipleAssessments();
-    }
-
-    @Then("^full category history is returned$")
-    public void multipleCategoriesCorrect() {
-        bookingAssessment.verifyMultipleCategoryAssessments();
     }
 
     @Then("^resource not found response is received from booking assessments API$")

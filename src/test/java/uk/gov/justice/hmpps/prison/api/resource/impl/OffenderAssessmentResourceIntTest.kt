@@ -246,7 +246,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun testGetOffenderCategorisationsSystem() {
-      webTestClient.post().uri("/api/offender-assessments/category?latest=false")
+      webTestClient.post().uri("/api/offender-assessments/category?latestOnly=true")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
@@ -264,6 +264,114 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         .jsonPath("[3].bookingId").isEqualTo(-39)
         .jsonPath("[4].bookingId").isEqualTo(-40)
         .jsonPath("[5].bookingId").isEqualTo(-41)
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /api/offender-assessments/csra/list")
+  inner class GetCSRAList {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB"))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should not return data if no override role`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should not return data for offenders not in caseload`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    fun `should return 400 if user has no caseloads`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("User has no active caseloads.")
+    }
+
+    @Test
+    fun `should return 400 when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_ASSESSMENTS override role`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+    }
+
+    @Test
+    fun `should return data for override role`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsExactly(-1, -3, -5, -6) }
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsExactly("A1234AA", "A1234AC", "A1234AE", "A1234AF") }
+        .jsonPath("[*].classification").value<List<String>> { assertThat(it).contains("High", "Low", "Standard") }
+        .jsonPath("[*].assessmentCode").value<List<String>> { assertThat(it).contains("CSR") }
+        .jsonPath("[*].cellSharingAlertFlag").value<List<Boolean>> { assertThat(it).contains(true) }
+        .jsonPath("[*].nextReviewDate").value<List<String>> {
+          assertThat(it).containsExactly("2018-06-01", "2018-06-03", "2018-06-05", "2018-06-06")
+        }
+    }
+
+    @Test
+    fun `should return data for offenders in caseload`() {
+      webTestClient.post().uri("/api/offender-assessments/csra/list")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(4)
     }
   }
 
@@ -355,13 +463,273 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/offender-assessments/{assessmentCode}")
+  inner class GetOffenderAssessmentsByCode {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 400 as does not have override role`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return 400 when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_ASSESSMENTS override role`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 400 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("User has no active caseloads.")
+    }
+
+    @Test
+    fun `should return 400 if no offender numbers provided`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return data for a single assessment`() {
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=A1234AA&latestOnly=true&activeOnly=true")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].bookingId").isEqualTo(-1)
+        .jsonPath("[0].offenderNo").isEqualTo("A1234AA")
+        .jsonPath("[0].classification").isEqualTo("High")
+        .jsonPath("[0].assessmentCode").isEqualTo("CSR")
+        .jsonPath("[0].cellSharingAlertFlag").isEqualTo(true)
+        .jsonPath("[0].nextReviewDate").isEqualTo("2018-06-01")
+    }
+
+    @Test
+    fun `should return CSR data for multiple assessments`() {
+      val offenders = listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST").joinToString("&offenderNo=")
+      webTestClient.get().uri("/api/offender-assessments/CSR?offenderNo=$offenders&latestOnly=true&activeOnly=true")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsExactly(-1, -2, -3, -5, -6, -7) }
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsExactly("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG") }
+        .jsonPath("[*].classification").value<List<String>> { assertThat(it).containsOnly("High", "Low", "Standard") }
+        .jsonPath("[*].assessmentCode").value<List<String>> { assertThat(it).containsOnly("CSR") }
+        .jsonPath("[*].cellSharingAlertFlag").value<List<Boolean>> { assertThat(it).containsOnly(true) }
+        .jsonPath("[*].nextReviewDate").value<List<String>> {
+          assertThat(it).containsExactly("2018-06-01", "2018-06-02", "2018-06-03", "2018-06-05", "2018-06-06", "2020-06-01")
+        }
+    }
+
+    @Test
+    fun `should return inactive CATEGORY data for multiple assessments`() {
+      webTestClient.get().uri("/api/offender-assessments/CATEGORY?offenderNo=A1234AE&offenderNo=A1234AF&latestOnly=false&activeOnly=false")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(5)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-5, -6, -48) }
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsOnly("A1234AE", "A1234AF") }
+        .jsonPath("[*].classification").value<List<String>> { assertThat(it).containsOnly("Cat A", "Cat B", "Cat C", "Unclass") }
+        .jsonPath("[*].assessmentCode").value<List<String>> { assertThat(it).containsOnly("CATEGORY") }
+        .jsonPath("[*].nextReviewDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-06-08", "2018-06-07", "2018-05-08", "2016-08-08", "2016-03-08")
+        }
+        .jsonPath("[*].assessmentAgencyId").value<List<String>> { assertThat(it).containsOnly("LEI", "MDI") }
+        .jsonPath("[*].assessmentDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-04-04", "2017-04-04", "2016-05-04", "2016-04-04", "2016-03-04")
+        }
+        .jsonPath("[*].approvalDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-05-09", "2016-07-07", "2016-03-09")
+        }
+    }
+  }
+
+  @Nested
+  @DisplayName("POST /api/offender-assessments/{assessmentCode}")
+  inner class GetByPostOffenderAssessmentsByCode {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 400 as does not have override role`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `returns 400 if user has no caseloads`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("User has no active caseloads.")
+    }
+
+    @Test
+    fun `should return 400 when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isBadRequest
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_ASSESSMENTS override role`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return 400 if no offender numbers provided`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(emptyList<String>())
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("List of Offender Ids must be provided.")
+    }
+
+    @Test
+    fun `should return data for a single assessment`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR?latestOnly=true&activeOnly=true")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].bookingId").isEqualTo(-1)
+        .jsonPath("[0].offenderNo").isEqualTo("A1234AA")
+        .jsonPath("[0].classification").isEqualTo("High")
+        .jsonPath("[0].assessmentCode").isEqualTo("CSR")
+        .jsonPath("[0].cellSharingAlertFlag").isEqualTo(true)
+        .jsonPath("[0].nextReviewDate").isEqualTo("2018-06-01")
+    }
+
+    @Test
+    fun `should return CSR data for multiple assessments`() {
+      webTestClient.post().uri("/api/offender-assessments/CSR?latestOnly=true&activeOnly=true")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG", "A1234AP", "NEXIST"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(6)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsExactly(-1, -2, -3, -5, -6, -7) }
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsExactly("A1234AA", "A1234AB", "A1234AC", "A1234AE", "A1234AF", "A1234AG") }
+        .jsonPath("[*].classification").value<List<String>> { assertThat(it).containsOnly("High", "Low", "Standard") }
+        .jsonPath("[*].assessmentCode").value<List<String>> { assertThat(it).containsOnly("CSR") }
+        .jsonPath("[*].cellSharingAlertFlag").value<List<Boolean>> { assertThat(it).containsOnly(true) }
+        .jsonPath("[*].nextReviewDate").value<List<String>> {
+          assertThat(it).containsExactly("2018-06-01", "2018-06-02", "2018-06-03", "2018-06-05", "2018-06-06", "2020-06-01")
+        }
+    }
+
+    @Test
+    fun `should return inactive CATEGORY data for multiple assessments`() {
+      webTestClient.post().uri("/api/offender-assessments/CATEGORY?latestOnly=false&activeOnly=false")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1234AE", "A1234AF"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(5)
+        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-5, -6, -48) }
+        .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsOnly("A1234AE", "A1234AF") }
+        .jsonPath("[*].classification").value<List<String>> { assertThat(it).containsOnly("Cat A", "Cat B", "Cat C", "Unclass") }
+        .jsonPath("[*].assessmentCode").value<List<String>> { assertThat(it).containsOnly("CATEGORY") }
+        .jsonPath("[*].nextReviewDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-06-08", "2018-06-07", "2018-05-08", "2016-08-08", "2016-03-08")
+        }
+        .jsonPath("[*].assessmentAgencyId").value<List<String>> { assertThat(it).containsOnly("LEI", "MDI") }
+        .jsonPath("[*].assessmentDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-04-04", "2017-04-04", "2016-05-04", "2016-04-04", "2016-03-04")
+        }
+        .jsonPath("[*].approvalDate").value<List<String>> {
+          assertThat(it).containsExactly("2016-05-09", "2016-07-07", "2016-03-09")
+        }
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/offender-assessments/csra/{offenderNo}")
   inner class CRSAOffenderAssessments {
 
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -378,7 +746,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -387,7 +754,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/offender-assessments/csra/A1183JE")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
     }
@@ -434,6 +800,45 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/offender-assessments/assessments")
   inner class CRSAAssessments {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/offender-assessments/assessments?offenderNo=A1234AD")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 as endpoint does not have override role`() {
+      webTestClient.get().uri("/api/offender-assessments/assessments?offenderNo=A1234AD")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when has ROLE_SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/offender-assessments/assessments?offenderNo=A1234AD")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when user does not have override role`() {
+      webTestClient.get().uri("/api/offender-assessments/assessments?offenderNo=A1234AD")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
+      webTestClient.get().uri("/api/offender-assessments/assessments?offenderNo=A1234AD")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
 
     @Test
     fun testGetAssessments() {
