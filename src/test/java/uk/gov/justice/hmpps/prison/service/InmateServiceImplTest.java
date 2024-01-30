@@ -152,6 +152,7 @@ public class InmateServiceImplTest {
             AssessmentDto.builder().bookingId(12L).calcSupLevelType("STANDARD").offenderNo("OFFENDER12").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).assessmentCreateLocation("EXI").assessmentSeq(2).build()
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11", "OFFENDER12"), "THECODE", Collections.emptySet(), true, true)).thenReturn(data);
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
 
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11","OFFENDER12"), "THECODE", true, true, true, true);
 
@@ -174,7 +175,7 @@ public class InmateServiceImplTest {
             AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).assessmentSeq(1).build()
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, false)).thenReturn(data);
-
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, false, false, true);
 
         assertThat(assessments).hasSize(2); // 1 per offender
@@ -195,6 +196,7 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 7)).cellSharingAlertFlag(true).build(),
                 AssessmentDto.builder().bookingId(11L).offenderNo("OFFENDER11").assessmentCode("THECODE").assessmentDate(LocalDate.of(2018, Month.MAY, 6)).cellSharingAlertFlag(true).build()
         );
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", Collections.emptySet(), false, true)).thenReturn(data);
 
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), "THECODE", false, true, false, false);
@@ -222,6 +224,7 @@ public class InmateServiceImplTest {
                 AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("CODE2").assessmentDate(LocalDate.of(2018, Month.APRIL, 1)).cellSharingAlertFlag(false).reviewSupLevelType("HIGH").reviewSupLevelTypeDesc("High").build()
         );
         when(repository.findAssessmentsByOffenderNo(Arrays.asList("OFFENDER10", "OFFENDER11"), null, Collections.emptySet(), false, true)).thenReturn(data);
+        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
 
         final var assessments = serviceToTest.getInmatesAssessmentsByCode(Arrays.asList("OFFENDER10", "OFFENDER11"), null, false, true, false, true);
 
@@ -296,7 +299,7 @@ public class InmateServiceImplTest {
 
         Assertions.assertThatThrownBy(() -> serviceToTest.getBasicInmateDetailsForOffenders(Set.of("A123"), true))
                 .isInstanceOf(HttpClientErrorException.class)
-                .hasMessageContaining("User has not active caseloads");
+                .hasMessageContaining("User has no active caseloads");
     }
 
     @Test
