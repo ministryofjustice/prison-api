@@ -168,7 +168,7 @@ public class InmateService {
     private Set<String> loadCaseLoadsOrThrow() {
         final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
         if (CollectionUtils.isEmpty(caseloads)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has not active caseloads.");
+            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has no active caseloads.");
         }
 
         return caseloads;
@@ -412,9 +412,9 @@ public class InmateService {
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
-            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("SYSTEM_USER", "VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
+            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
                 ? Collections.emptySet()
-                : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+                : loadCaseLoadsOrThrow();
 
             final var batch = Lists.partition(offenderNos, maxBatchSize);
             batch.forEach(offenderBatch -> {
