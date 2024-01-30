@@ -10,7 +10,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
@@ -166,7 +165,6 @@ public class InmateAlertService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public long createNewAlert(final long bookingId, final CreateAlert alert) {
         final var today = LocalDate.now();
         final var sevenDaysAgo = LocalDate.now().minusDays(7);
@@ -220,7 +218,6 @@ public class InmateAlertService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     public Alert updateAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final boolean lockTimeout) {
         if (alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment())) {
             throw new IllegalArgumentException("Please provide an expiry date, or a comment");
@@ -283,4 +280,3 @@ public class InmateAlertService {
         return expiredAlert;
     }
 }
-

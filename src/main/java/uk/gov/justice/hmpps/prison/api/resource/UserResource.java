@@ -155,7 +155,7 @@ public class UserResource {
     }
 
     @ApiResponses({@ApiResponse(responseCode = "200", description = "The list of user details")})
-    @Operation(summary = "Returns the user details for supplied usernames - POST version to allow large user lists.", description = "user details for supplied usernames")
+    @Operation(summary = "Returns the user details for supplied usernames - POST version to allow large user lists.", description = "Requires role STAFF_SEARCH")
     @PreAuthorize("hasRole('STAFF_SEARCH')")
     @PostMapping("/list")
     public List<UserDetail> getUserDetailsList(@RequestBody @Parameter(description = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
@@ -166,8 +166,8 @@ public class UserResource {
         @ApiResponse(responseCode = "200", description = "No New Users", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
         @ApiResponse(responseCode = "201", description = "New Users Enabled", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
     })
-    @Operation(summary = "Add the NWEB caseload to specified caseload.", description = "Add the NWEB caseload to specified caseload.")
-    @PutMapping("/add/default/{caseload}") // This is the only endpoint which is only called with client_credentials
+    @Operation(summary = "Add the NWEB caseload to specified caseload.", description = "Requires role MAINTAIN_ACCESS_ROLES or MAINTAIN_ACCESS_ROLES_ADMIN")
+    @PutMapping("/add/default/{caseload}")
     @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','MAINTAIN_ACCESS_ROLES_ADMIN')")
     @ProxyUser
     public ResponseEntity<CaseloadUpdate> addApiAccessForCaseload(@PathVariable("caseload") @Parameter(description = "The caseload (equates to prison) id to add all active users to default API caseload (NWEB)", required = true) final String caseload) {

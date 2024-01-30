@@ -496,6 +496,25 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun testUpdateAttendance_WithMultipleBookingIds_wrongRole() {
+      val token = authTokenHelper.getToken(NORMAL_USER)
+      val body = UpdateAttendanceBatch
+        .builder()
+        .eventOutcome("ATT")
+        .performance("STANDARD")
+        .bookingActivities(setOf(BookingActivity.builder().activityId(-11L).build()))
+        .build()
+      val httpEntity = createHttpEntity(token, body)
+      val response = testRestTemplate.exchange(
+        "/api/bookings/activities/attendance",
+        PUT,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+      )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+    }
+
+    @Test
     fun testUpdateAttendance_WithMultipleBookingIds_invalidEvent() {
       val token = authTokenHelper.getToken(AuthToken.PAY)
       val body = UpdateAttendanceBatch

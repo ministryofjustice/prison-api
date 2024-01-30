@@ -77,6 +77,7 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
@@ -159,8 +160,11 @@ public class BookingResource {
     @Operation(summary = "Offender detail.", description = "Offender detail.")
     @GetMapping("/{bookingId}")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public InmateDetail getOffenderBooking(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "basicInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then only basic data is returned") final boolean basicInfo, @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when requesting more than basic data, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo) {
-
+    public InmateDetail getOffenderBooking(
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @RequestParam(value = "basicInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then only basic data is returned") final boolean basicInfo,
+        @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when requesting more than basic data, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo
+    ) {
         return basicInfo && !extraInfo ?
             inmateService.getBasicInmateDetail(bookingId)
             : inmateService.findInmate(bookingId, extraInfo, false);
@@ -174,7 +178,12 @@ public class BookingResource {
     @Operation(summary = "Offender detail.", description = "Offender detail.")
     @GetMapping("/offenderNo/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public InmateDetail getOffenderBookingByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo, @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then full data is returned") final boolean fullInfo, @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo, @RequestParam(value = "csraSummary", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns the applicable CSRA classification for this offender") final boolean csraSummary) {
+    public InmateDetail getOffenderBookingByOffenderNo(
+        @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
+        @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then full data is returned") final boolean fullInfo,
+        @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo,
+        @RequestParam(value = "csraSummary", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns the applicable CSRA classification for this offender") final boolean csraSummary
+    ) {
         return fullInfo || extraInfo ?
             inmateService.findOffender(offenderNo, extraInfo, csraSummary) :
             inmateService.getBasicInmateDetail(bookingService.getLatestBookingByOffenderNo(offenderNo).getBookingId());
@@ -185,10 +194,14 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender detail.", description = "Offender detail for offenders")
+    @Operation(summary = "Offender detail.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or prisoners are in caseload")
+    @ProgrammaticAuthorisation("Access based on VIEW_PRISONER_DATA or GLOBAL_SEARCH, or prisoners are in caseload")
     @PostMapping("/offenders")
     @SlowReportQuery
-    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(@RequestBody @Parameter(description = "The offenderNo of offender", required = true) final Set<String> offenders, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included") final Boolean activeOnly) {
+    public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(
+        @RequestBody @Parameter(description = "The offenderNo of offender", required = true) final Set<String> offenders,
+        @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only Offender details with an active booking if true, otherwise Offenders without an active booking are included") final Boolean activeOnly
+    ) {
         final var active = activeOnly == null || activeOnly;
         return inmateService.getBasicInmateDetailsForOffenders(offenders, active);
     }
@@ -198,10 +211,19 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All scheduled activities for offender.", description = "All scheduled activities for offender.")
+    @Operation(summary = "All scheduled activities for offender.", description = "Requires booking id to be in caseload, or role VIEW_SCHEDULES")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_SCHEDULES"})
     @GetMapping("/{bookingId}/activities")
     @SlowReportQuery
-    public ResponseEntity<List<ScheduledEvent>> getBookingActivities(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of activity records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of activity records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<ScheduledEvent>> getBookingActivities(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
+        @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of activity records.") final Long pageOffset,
+        @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of activity records returned.") final Long pageLimit,
+        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields,
+        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder
+    ) {
         final var activities = bookingService.getBookingActivities(
             bookingId,
             fromDate,
@@ -222,6 +244,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update offender attendance and pay.", description = "Requires role PAY")
+    @PreAuthorize("hasRole('PAY')")
     @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @ProxyUser
     public ResponseEntity<Void> updateAttendance(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo,
@@ -238,7 +262,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Update offender attendance and pay.", description = "Update offender attendance and pay.")
+    @Operation(summary = "Update offender attendance and pay.", description = "Requires role PAY")
+    @PreAuthorize("hasRole('PAY')")
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ProxyUser
     public ResponseEntity<Void> updateAttendance(
@@ -257,8 +282,9 @@ public class BookingResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Update attendance and pay for multiple bookings.", description = "Update offender attendance and pay.")
+    @Operation(summary = "Update attendance and pay for multiple bookings.", description = "Requires role PAY")
     @ResponseStatus(HttpStatus.CREATED)
+    @PreAuthorize("hasRole('PAY')")
     @PutMapping("/activities/attendance")
     public ResponseEntity<Void> updateAttendanceForMultipleBookingIds(@RequestBody @Parameter(required = true) final @NotNull UpdateAttendanceBatch body) {
         bookingService.updateAttendanceForMultipleBookingIds(body.getBookingActivities(), UpdateAttendance
@@ -276,7 +302,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Create an alert")
+    @Operation(summary = "Create an alert", description = "Requires role UPDATE_ALERT")
+    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     @PostMapping("/{bookingId}/alert")
     @ProxyUser
     public ResponseEntity<AlertCreated> postAlert(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId, @Valid @RequestBody @Parameter(description = "Alert details", required = true) final CreateAlert alert) {
@@ -291,7 +318,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Update an alert")
+    @Operation(summary = "Update an alert", description = "Requires role UPDATE_ALERT")
+    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     @PutMapping("/{bookingId}/alert/{alertSeq}")
     @ProxyUser
     public Alert updateAlert(
@@ -338,7 +366,10 @@ public class BookingResource {
     @PostMapping("/offenderNo/{agencyId}/alerts")
     @SlowReportQuery
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<Alert> getAlertsByOffenderNosAtAgency(@PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId, @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
+    public List<Alert> getAlertsByOffenderNosAtAgency(
+        @PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId,
+        @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos
+    ) {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
@@ -358,7 +389,13 @@ public class BookingResource {
     @Operation(summary = "Offender aliases.", description = "Offender aliases.")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/aliases")
-    public ResponseEntity<List<Alias>> getOffenderAliases(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of alias records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "5", required = false) @Parameter(description = "Requested limit to number of alias records returned.") final Long pageLimit, @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName, age, dob, middleName, nameType, createDate</b>") final String sortFields, @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public ResponseEntity<List<Alias>> getOffenderAliases(
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of alias records.") final Long pageOffset,
+        @RequestHeader(value = "Page-Limit", defaultValue = "5", required = false) @Parameter(description = "Requested limit to number of alias records returned.") final Long pageLimit,
+        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName, age, dob, middleName, nameType, createDate</b>") final String sortFields,
+        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder
+    ) {
         return inmateService.findInmateAliases(
             bookingId,
             sortFields,
@@ -386,7 +423,10 @@ public class BookingResource {
     @Operation(summary = "Image data (as bytes).", description = "Image data (as bytes).")
     @GetMapping(value = "/offenderNo/{offenderNo}/image/data", produces = "image/jpeg")
     @VerifyOffenderAccess(accessDeniedError = true, overrideRoles = {"VIEW_PRISONER_DATA"})
-    public ResponseEntity<byte[]> getMainBookingImageDataByNo(@PathVariable("offenderNo") @Parameter(description = "The offender No of offender", required = true) final String offenderNo, @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage) {
+    public ResponseEntity<byte[]> getMainBookingImageDataByNo(
+        @PathVariable("offenderNo") @Parameter(description = "The offender No of offender", required = true) final String offenderNo,
+        @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage
+    ) {
         return imageService.getImageContent(offenderNo, fullSizeImage)
             .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
             .orElse(new ResponseEntity<>(NOT_FOUND));
@@ -400,7 +440,10 @@ public class BookingResource {
     @GetMapping(value = "/{bookingId}/image/data", produces = "image/jpeg")
     @SlowReportQuery
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public ResponseEntity<byte[]> getMainBookingImageData(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage) {
+    public ResponseEntity<byte[]> getMainBookingImageData(
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage
+    ) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
         return imageService.getImageContent(mainBookingImage.getImageId(), fullSizeImage)
             .map(bytes -> new ResponseEntity<>(bytes, HttpStatus.OK))
@@ -419,7 +462,9 @@ public class BookingResource {
           <li>If there is no confirmed release date for the offender, the offender release date is either the actual parole date or the home detention curfew actual date.</li>
           <li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li>
         </ul>
+        Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA
         """)
+    @ProgrammaticAuthorisation("Access check at service level")
     @GetMapping("/{bookingId}/sentenceDetail")
     @SlowReportQuery
     public SentenceCalcDates getBookingSentenceDetail(
@@ -436,7 +481,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender sentence adjustments.")
+    @Operation(summary = "Offender sentence adjustments.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/sentenceAdjustments")
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return bookingService.getBookingSentenceAdjustments(bookingId);
@@ -447,7 +493,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender account balances.", description = "Offender account balances.")
+    @Operation(summary = "Offender account balances.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/balances")
     public Account getBalances(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return financeService.getBalances(bookingId);
@@ -458,7 +505,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active property containers", description = "List of active property containers")
+    @Operation(summary = "List of active property containers", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/property")
     public List<PropertyContainer> getOffenderPropertyContainers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getOffenderPropertyContainers(bookingId);
@@ -469,7 +517,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get Offender main offence detail.", description = "Offender main offence detail.")
+    @Operation(summary = "Get Offender main offence detail.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/mainOffence")
     public List<OffenceDetail> getMainOffence(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getMainOffenceDetails(bookingId);
@@ -480,7 +529,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get Offender main offence detail.", description = "Post version to allow specifying a large number of bookingIds.")
+    @Operation(summary = "Get Offender main offence detail.", description = "Post version to allow specifying a large number of bookingIds. Requires role VIEW_PRISONER_DATA")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/mainOffence")
     @SlowReportQuery
     public List<OffenceDetail> getMainOffence(@RequestBody @Parameter(description = "The bookingIds to identify the offenders", required = true) final Set<Long> bookingIds) {
@@ -496,7 +546,10 @@ public class BookingResource {
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
     @SlowReportQuery
-    public List<OffenceHistoryDetail> getOffenceHistory(@PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo, @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @Parameter(description = "include offences with convictions only") final boolean convictionsOnly) {
+    public List<OffenceHistoryDetail> getOffenceHistory(
+        @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo,
+        @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @Parameter(description = "include offences with convictions only") final boolean convictionsOnly
+    ) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
     }
 
@@ -521,7 +574,10 @@ public class BookingResource {
     @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/personal-care-needs")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public PersonalCareNeeds getPersonalCareNeeds(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+    public PersonalCareNeeds getPersonalCareNeeds(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
+    ) {
         return healthService.getPersonalCareNeeds(bookingId, problemTypes);
     }
 
@@ -530,9 +586,13 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs  - POST version to allow for large numbers of offenders", description = "Personal Care Needs")
+    @Operation(summary = "Personal Care Needs  - POST version to allow for large numbers of offenders", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH")
+    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     @PostMapping("/offenderNo/personal-care-needs")
-    public List<PersonalCareNeeds> getPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos, @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes) {
+    public List<PersonalCareNeeds> getPersonalCareNeeds(
+        @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
+        @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
+    ) {
         return healthService.getPersonalCareNeeds(offenderNos, problemTypes);
     }
 
@@ -541,12 +601,15 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs Counter - POST version to allow to count heath problem by type for large numbers of offenders", description = "Personal Care Needs")
+    @Operation(summary = "Personal Care Needs Counter - POST version to allow to count heath problem by type for large numbers of offenders", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @PostMapping("/offenderNo/personal-care-needs/count")
-    public List<PersonalCareCounterDto> countPersonalCareNeeds(@RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
-                                                               @RequestParam(value = "type") @NotEmpty(message = "type: must not be empty") @Parameter(description = "problem type", example = "DISAB", required = true) final String problemType,
-                                                               @RequestParam(value = "fromStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or after this date (in YYYY-MM-DD format).") final LocalDate fromStartDate,
-                                                               @RequestParam(value = "toStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or before this date (in YYYY-MM-DD format).") final LocalDate toStartDate) {
+    public List<PersonalCareCounterDto> countPersonalCareNeeds(
+        @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
+        @RequestParam(value = "type") @NotEmpty(message = "type: must not be empty") @Parameter(description = "problem type", example = "DISAB", required = true) final String problemType,
+        @RequestParam(value = "fromStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or after this date (in YYYY-MM-DD format).") final LocalDate fromStartDate,
+        @RequestParam(value = "toStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or before this date (in YYYY-MM-DD format).") final LocalDate toStartDate
+    ) {
         return healthService.countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(offenderNos, problemType, fromStartDate, toStartDate);
     }
 
@@ -555,7 +618,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs", description = "Personal Care Need")
+    @Operation(summary = "Personal Care Needs", description = "Requires role MAINTAIN_HEALTH_PROBLEMS and scope write")
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/personal-care-needs")
     @ProxyUser
@@ -571,7 +634,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Military Records", description = "Military Records")
+    @Operation(summary = "Military Records", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
+    @ProgrammaticAuthorisation("Checked in service for legacy reasons")
     @GetMapping("/{bookingId}/military-records")
     public MilitaryRecords getMilitaryRecords(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getMilitaryRecords(bookingId);
@@ -585,7 +649,10 @@ public class BookingResource {
     @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public ReasonableAdjustments getReasonableAdjustments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes) {
+    public ReasonableAdjustments getReasonableAdjustments(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes
+    ) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
     }
 
@@ -594,7 +661,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Today's scheduled events for offender.", description = "Today's scheduled events for offender.")
+    @Operation(summary = "Today's scheduled events for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/today")
     public List<ScheduledEvent> getEventsToday(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsToday(bookingId);
@@ -608,7 +676,10 @@ public class BookingResource {
     @Operation(summary = "Identifiers for this booking", description = "Identifiers for this booking")
     @GetMapping("/{bookingId}/identifiers")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<OffenderIdentifier> getOffenderIdentifiers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) @NotNull final Long bookingId, @RequestParam(value = "type", required = false) @Parameter(description = "Filter By Type", example = "PNC") final String identifierType) {
+    public List<OffenderIdentifier> getOffenderIdentifiers(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) @NotNull final Long bookingId,
+        @RequestParam(value = "type", required = false) @Parameter(description = "Filter By Type", example = "PNC") final String identifierType
+    ) {
         return inmateService.getOffenderIdentifiers(bookingId, identifierType);
     }
 
@@ -617,9 +688,14 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All scheduled events for offender.", description = "All scheduled events for offender.")
+    @Operation(summary = "All scheduled events for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events")
-    public List<ScheduledEvent> getEvents(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate) {
+    public List<ScheduledEvent> getEvents(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
+    ) {
         return bookingService.getEvents(bookingId, fromDate, toDate);
     }
 
@@ -628,7 +704,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Scheduled events for offender for coming week (from current day).", description = "Scheduled events for offender for coming week (from current day).")
+    @Operation(summary = "Scheduled events for offender for coming week (from current day).", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/thisWeek")
     public List<ScheduledEvent> getEventsThisWeek(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsThisWeek(bookingId);
@@ -639,7 +716,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Scheduled events for offender for following week.", description = "Scheduled events for offender for following week.")
+    @Operation(summary = "Scheduled events for offender for following week.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/nextWeek")
     public List<ScheduledEvent> getEventsNextWeek(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsNextWeek(bookingId);
@@ -650,7 +728,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender contacts (e.g. next of kin).", description = "Offender contacts (e.g. next of kin).")
+    @Operation(summary = "Offender contacts (e.g. next of kin).", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/contacts")
     public ContactDetail getContacts(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return contactService.getContacts(bookingId);
@@ -665,7 +744,13 @@ public class BookingResource {
     @GetMapping("/{bookingId}/caseNotes/{type}/{subType}/count")
     @SlowReportQuery
     @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"})
-    public CaseNoteCount getCaseNoteCount(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type, @PathVariable("subType") @Parameter(description = "Case note sub-type.", required = true) final String subType, @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate) {
+    public CaseNoteCount getCaseNoteCount(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type,
+        @PathVariable("subType") @Parameter(description = "Case note sub-type.", required = true) final String subType,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate
+    ) {
         return caseNoteService.getCaseNoteCount(
             bookingId,
             type,
@@ -684,7 +769,11 @@ public class BookingResource {
         deprecated = true, hidden = true)
     @GetMapping("/{bookingId}/adjudications")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
-    public AdjudicationSummary getAdjudicationSummary(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "awardCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate, @RequestParam(value = "adjudicationCutoffDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate) {
+    public AdjudicationSummary getAdjudicationSummary(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "awardCutoffDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate,
+        @RequestParam(value = "adjudicationCutoffDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate
+    ) {
         return adjudicationService.getAdjudicationSummary(bookingId,
             awardCutoffDate, adjudicationCutoffDate);
     }
@@ -700,8 +789,8 @@ public class BookingResource {
     @VerifyBookingAccess
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "fromDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestParam(value = "visitType", required = false) @Parameter(description = "Type of visit", schema = @Schema(implementation = String.class, allowableValues = {"SCON", "OFFI"})) final String visitType,
         @RequestParam(value = "visitStatus", required = false) @Parameter(name = "Status of visit. code from VIS_COMPLETE domain, e.g: CANC (Cancelled) or SCH (Scheduled)", example = "SCH") final String visitStatus,
         @RequestParam(value = "cancellationReason", required = false) @Parameter(name = "Reason for cancellation. code from MOVE_CANC_RS domain, e.g: VISCANC (Visitor Cancelled) or NO_VO (No Visiting Order)", example = "NSHOW") final String cancellationReason,
@@ -736,7 +825,8 @@ public class BookingResource {
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "allowNoContent", required = false) @Parameter(description = "Allow no content (204) response if no data rather than returning a not found (404)") final boolean allowNoContent
     ) {
-        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER").getBookingAndSeq().orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
+        final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, false, "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER").getBookingAndSeq()
+            .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNo));
         final var bookingId = identifiers.getBookingId();
         return bookingService.getBookingVisitBalances(bookingId).orElseThrow(
             allowNoContent ? NoContentException.withId(bookingId) : EntityNotFoundException.withId(bookingId));
@@ -762,7 +852,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The next visit for the offender.", description = "The next visit for the offender. Will return 200 with no body if no next visit is scheduled")
+    @Operation(summary = "The next visit for the offender.", description = "The next visit for the offender. Will return 200 with no body if no next visit is scheduled. Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/visits/next")
     @SlowReportQuery
     public VisitDetails getBookingVisitsNext(
@@ -776,7 +867,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found or no permissions to see it.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The summary of the visits for the offender.", description = "Will return whether there are any visits and also the date of the next scheduled visit")
+    @Operation(summary = "The summary of the visits for the offender.", description = "Will return whether there are any visits and also the date of the next scheduled visit. Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/visits/summary")
     @SlowReportQuery
     public VisitSummary getBookingVisitsSummary(
@@ -789,7 +881,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "The list of prisons for which there are visits for the specified booking.", description = "To be used for filtering visits by prison")
+    @Operation(summary = "The list of prisons for which there are visits for the specified booking.", description = "To be used for filtering visits by prison. Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/visits/prisons")
     public List<PrisonDetails> getBookingVisitsPrisons(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
@@ -798,8 +891,9 @@ public class BookingResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "The appointment has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ScheduledEvent.class))})})
-    @Operation(summary = "Create appointment for offender.", description = "Create appointment for offender.")
+    @Operation(summary = "Create appointment for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @ResponseStatus(HttpStatus.CREATED)
+    @VerifyBookingAccess(overrideRoles = "GLOBAL_APPOINTMENT")
     @PostMapping("/{bookingId}/appointments")
     @HasWriteScope
     @ProxyUser
@@ -814,9 +908,13 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Court Cases", description = "Court Cases")
+    @Operation(summary = "Court Cases", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/court-cases")
-    public List<CourtCase> getCourtCases(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Only return active court cases") final boolean activeOnly) {
+    public List<CourtCase> getCourtCases(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Only return active court cases") final boolean activeOnly
+    ) {
         return bookingService.getOffenderCourtCases(bookingId, activeOnly);
     }
 
@@ -854,7 +952,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "No Fixed Term Recall exists for this booking", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Gets the Fixed Term Recall details for a booking")
+    @Operation(summary = "Gets the Fixed Term Recall details for a booking", description = "Requires role VIEW_PRISONER_DATA, or booking is in caseload")
+    @ProgrammaticAuthorisation("Access is checked in service for legacy reasons")
     @GetMapping("/{bookingId}/fixed-term-recall")
     public FixedTermRecallDetails getFixedTermRecallDetails(@PathVariable("bookingId") @Parameter(description = "The offenders bookingID", required = true) final Long bookingId) {
         return fixedTermRecallService.getFixedTermRecallDetails(bookingId);
@@ -883,6 +982,4 @@ public class BookingResource {
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
         return bookingService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
     }
-
-
 }
