@@ -6,7 +6,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.BookingAndSentenceAdjustments;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 @Service
 @Slf4j
@@ -16,7 +15,6 @@ public class AdjustmentService {
     private final OffenderBookingRepository offenderBookingRepository;
 
     @Transactional(readOnly = true)
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         return BookingAndSentenceAdjustments.builder()

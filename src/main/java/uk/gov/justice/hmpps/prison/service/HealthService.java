@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderHealthProblem;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderHealthProblemRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.LocalDate;
 import java.util.Collection;
@@ -68,7 +67,6 @@ public class HealthService {
         return new PersonalCareNeeds(returnList);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
         final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
 
@@ -93,7 +91,6 @@ public class HealthService {
         return map.entrySet().stream().map(e -> new PersonalCareNeeds(e.getKey(), e.getValue())).toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PersonalCareCounterDto> countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(
         final List<String> offenderNos,
         final String problemType,

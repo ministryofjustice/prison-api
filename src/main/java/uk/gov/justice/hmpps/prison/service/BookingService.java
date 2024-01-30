@@ -14,7 +14,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -284,7 +283,6 @@ public class BookingService {
             sentenceDetail.getConfirmedReleaseDate());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
             .map(OffenderBooking::getSentenceAdjustmentDetail)
@@ -312,7 +310,6 @@ public class BookingService {
         return alerts;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"VIEW_SCHEDULES"})
     public uk.gov.justice.hmpps.prison.api.support.Page<ScheduledEvent> getBookingActivities(final Long bookingId, final LocalDate fromDate, final LocalDate toDate, final long offset, final long limit, final String orderByFields, final Order order) {
         validateScheduledEventsRequest(fromDate, toDate);
 
@@ -341,7 +338,6 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('PAY')")
     public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
         final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
@@ -349,7 +345,6 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('PAY')")
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance, boolean lockTimeout) {
         final Long latestBookingId = getLatestBookingByBookingId(bookingId).getBookingId();
         if (lockTimeout) {
@@ -360,7 +355,6 @@ public class BookingService {
     }
 
     @Transactional
-    @PreAuthorize("hasRole('PAY')")
     public void updateAttendanceForMultipleBookingIds(final Set<BookingActivity> bookingActivities, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
         log.info("updateAttendanceForMultipleBookingIds() received {} activities", bookingActivities.size());
 
@@ -504,7 +498,6 @@ public class BookingService {
         return bookingRepository.getBookingVisits(bookingIds, fromDate, toDate, sortFields, sortOrder);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<VisitDetails> getBookingVisitNext(final Long bookingId, final boolean withVisitors) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         if (withVisitors) {
@@ -621,12 +614,10 @@ public class BookingService {
         }
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenceDetail> getMainOffenceDetails(final Long bookingId) {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
 
         final List<OffenceDetail> results = new ArrayList<>();
@@ -654,7 +645,6 @@ public class BookingService {
         return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today);
@@ -664,19 +654,16 @@ public class BookingService {
         return getEvents(bookingIds, day, day);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsThisWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today, today.plusDays(6));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEventsNextWeek(final Long bookingId) {
         final var today = now();
         return getEvents(bookingId, today.plusDays(7), today.plusDays(13));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var activities = getBookingActivities(bookingId, from, to, null, null);
         final var visits = getBookingVisits(bookingId, from, to, null, null);
@@ -786,7 +773,6 @@ public class BookingService {
                 )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
         return offenderBookingRepository.findById(bookingId)
                 .map(booking -> activeOnly ? booking.getActiveCourtCases() : booking.getCourtCases())
@@ -794,7 +780,6 @@ public class BookingService {
                 .orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<PropertyContainer> getOffenderPropertyContainers(final Long bookingId) {
         return offenderBookingRepository.findById(bookingId)
                 .map(OffenderBooking::getActivePropertyContainers)
@@ -870,6 +855,7 @@ public class BookingService {
             offenderBooking.getOffender().getNomsId(),
             offenderBooking.getOffender().getBirthDate(),
             capitalizeFully(offenderBooking.getOffender().getLastName()),
+            offenderBooking.getLocation().getId(),
             offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
         );
 
@@ -1205,7 +1191,6 @@ public class BookingService {
             .toList());
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<PrisonDetails> getBookingVisitsPrisons(final Long bookingId) {
         return visitInformationRepository.findByBookingIdGroupByPrisonId(bookingId)
             .stream().map(prison -> PrisonDetails.builder()
@@ -1215,7 +1200,6 @@ public class BookingService {
             .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public VisitSummary getBookingVisitsSummary(final Long bookingId) {
         final var visit = bookingRepository.getBookingVisitNext(bookingId, LocalDateTime.now());
         final var count = visitInformationRepository.countByBookingId(bookingId);

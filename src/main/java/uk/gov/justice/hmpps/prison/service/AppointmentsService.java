@@ -1,9 +1,10 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -19,17 +20,13 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCrea
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.support.StringWithAbbreviationsProcessor;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
 
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotNull;
 import java.time.Duration;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -74,7 +71,6 @@ public class AppointmentsService {
         this.scheduledAppointmentRepository = scheduledAppointmentRepository;
     }
 
-    @HasWriteScope
     @Transactional
     public List<CreatedAppointmentDetails> createAppointments(@NotNull @Valid final AppointmentsToCreate appointments) {
 
@@ -117,7 +113,6 @@ public class AppointmentsService {
     }
 
     @Transactional
-    @VerifyBookingAccess(overrideRoles = "GLOBAL_APPOINTMENT")
     public ScheduledEvent createBookingAppointment(final Long bookingId, final String username, @Valid final NewAppointment appointmentSpecification) {
         validateStartTime(appointmentSpecification);
         validateEndTime(appointmentSpecification);
@@ -132,13 +127,11 @@ public class AppointmentsService {
     }
 
     @Transactional(readOnly = true)
-    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public ScheduledEvent getBookingAppointment(Long appointmentId) {
         return getScheduledEventOrThrowEntityNotFound(appointmentId);
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void deleteBookingAppointments(List<Long> appointmentIds) {
         appointmentIds.forEach(appointmentId -> bookingRepository
             .getBookingAppointmentByEventId(appointmentId)
@@ -150,7 +143,6 @@ public class AppointmentsService {
 
 
     @Transactional
-    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void deleteBookingAppointment(final long eventId) {
         final ScheduledEvent appointmentForDeletion = getScheduledEventOrThrowEntityNotFound(eventId);
         bookingRepository.deleteBookingAppointment(eventId);
@@ -158,7 +150,6 @@ public class AppointmentsService {
     }
 
     @Transactional
-    @PreAuthorize("hasAnyRole('GLOBAL_APPOINTMENT')")
     public void updateComment(final Long appointmentId, final String comment) {
         if (!bookingRepository.updateBookingAppointmentComment(appointmentId, comment)) {
             throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId);

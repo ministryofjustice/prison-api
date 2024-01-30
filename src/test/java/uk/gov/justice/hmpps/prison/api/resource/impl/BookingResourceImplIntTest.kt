@@ -128,7 +128,8 @@ class BookingResourceImplIntTest : ResourceTest() {
     @Test
     fun postPersonalCareNeedsForOffenders() {
       `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyList(), ArgumentMatchers.anySet())).thenReturn(createPersonalCareNeedsForOffenders())
-      val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf(), listOf("A1234AA", "A1234AB", "A1234AC"))
+      val requestEntity =
+        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
       val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC", POST, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds_offenders.json")
       verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA", "A1234AB", "A1234AC"), setOf("DISAB", "MATSTAT"))
@@ -136,14 +137,16 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun postPersonalCareNeedsForOffenders_missingOffenders() {
-      val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf(), listOf<Any>())
+      val requestEntity =
+        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), emptyList<String>())
       val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT", POST, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_offender_validation.json")
     }
 
     @Test
     fun postPersonalCareNeedsForOffenders_missingProblemType() {
-      val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf(), listOf("A1234AA", "A1234AB", "A1234AC"))
+      val requestEntity =
+        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
       val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs", POST, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json")
     }

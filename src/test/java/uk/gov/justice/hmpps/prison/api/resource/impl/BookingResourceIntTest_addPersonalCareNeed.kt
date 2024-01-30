@@ -51,7 +51,7 @@ class BookingResourceIntTest_addPersonalCareNeed : ResourceTest() {
     @Test
     fun `requires authorization`() {
       webTestClient.post()
-        .uri("/api/personal-care-needs")
+        .uri("/api/bookings/-2/personal-care-needs")
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
