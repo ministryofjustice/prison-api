@@ -41,11 +41,12 @@ public class Movement {
     @Schema(requiredMode = NOT_REQUIRED, description = "Description of the agency travelling from")
     private String fromAgencyDescription;
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Agency travelling to")
+    @Nullable
+    @Schema(requiredMode = NOT_REQUIRED, description = "Agency travelling to")
     private String toAgency;
 
-    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling to")
+    @Nullable
+    @Schema(requiredMode = NOT_REQUIRED, description = "Description of the agency travelling to")
     private String toAgencyDescription;
 
     @Schema(description = "City offender was received from")
