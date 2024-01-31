@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.annotation.Nullable;
 import lombok.Builder;
 import lombok.Data;
 
@@ -11,6 +12,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 
+import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 /**
@@ -31,11 +33,12 @@ public class Movement {
     @Schema(requiredMode = REQUIRED, description = "Timestamp when the external movement record was created")
     private LocalDateTime createDateTime;
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Agency travelling from")
+    @Nullable
+    @Schema(requiredMode = NOT_REQUIRED, description = "Agency travelling from")
     private String fromAgency;
 
-    @Schema(requiredMode = REQUIRED, description = "Description of the agency travelling from")
+    @Nullable
+    @Schema(requiredMode = NOT_REQUIRED, description = "Description of the agency travelling from")
     private String fromAgencyDescription;
 
     @NotBlank
