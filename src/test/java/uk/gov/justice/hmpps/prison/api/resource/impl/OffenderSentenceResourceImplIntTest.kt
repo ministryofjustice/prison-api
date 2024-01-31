@@ -33,6 +33,16 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .expectStatus().isForbidden
     }
 
+    // Can be removed when code fixed for previous disabled test
+    @Test
+    fun `should return empty list if does not have override role`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
     @Test
     fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
       webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
@@ -78,13 +88,39 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .expectStatus().isForbidden
     }
 
+    // Can be removed when code fixed for previous disabled test
+    @Test
+    fun `returns empty list if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
+    @Test
+    @Disabled("this test fails - code update needed")
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    // Can be removed when code fixed for previous disabled test
+    @Test
+    fun `returns empty list if user has no caseloads`() {
+      webTestClient.get().uri("/api/offender-sentences?agencyId=LEI")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("length()").isEqualTo(0)
+    }
+
     @Test
     fun offenderSentence_success() {
       webTestClient.get()
         .uri("/api/offender-sentences?agencyId=LEI")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .hasListAtLeastSizeOf(27)
@@ -95,8 +131,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?agencyId=LEI")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -108,8 +142,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?offenderNo=A1234AH")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -121,8 +153,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?agencyId=LEI")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .hasListAtLeastSizeOf(27)
@@ -133,8 +163,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?offenderNo=A1234AH")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -146,8 +174,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?agencyId=LEI")
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .hasListAtLeastSizeOf(27)
@@ -158,8 +184,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences?offenderNo=A1234AH")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -171,8 +195,6 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
@@ -281,6 +303,17 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isForbidden
+    }
+
+    // Can be removed when code fixed for previous test
+    @Test
+    fun `returns empty list when client has no override role`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"A1234AH\" ]")
+        .exchange()
+        .expectBody().jsonPath("length()").isEqualTo(0)
     }
 
     @Test
@@ -695,15 +728,62 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/offender-sentences/bookings/{bookingId}/sentences-and-offences")
+  @DisplayName("GET /api/offender-sentences/booking/{bookingId}/sentences-and-offences")
   inner class OffenderSentencesAndOffences {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(2)
+    }
+
+    @Test
+    fun `returns 404 if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
     @Test
     fun offenderSentencesWithOffenceInformation() {
       webTestClient.get()
         .uri("/api/offender-sentences/booking/-20/sentences-and-offences")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()

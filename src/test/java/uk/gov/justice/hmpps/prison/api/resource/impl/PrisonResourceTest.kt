@@ -5,6 +5,7 @@ import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.Assertions.assertFalse
 import org.junit.jupiter.api.Assertions.assertTrue
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -18,6 +19,7 @@ import org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 import java.time.LocalDate
 
+@DisplayName("GET /api/prison/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
 class PrisonResourceTest : ResourceTest() {
 
   @Autowired
@@ -111,6 +113,14 @@ class PrisonResourceTest : ResourceTest() {
     }
 
     @Test
+    fun `should return 403 if has authorised role and SYSTEM_USER override role`() {
+      webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
+        .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun `should return 200 if has authorised role and override role`() {
       webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
         .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "VIEW_PRISONER_DATA")))
@@ -119,11 +129,11 @@ class PrisonResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 if does not have prison in caseload`() {
+    fun `should return 404 if does not have prison in caseload`() {
       webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
-        .headers(setAuthorisation(listOf("WAI_USER", "ROLE_RELEASE_DATE_MANUAL_COMPARER")))
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
         .exchange()
-        .expectStatus().isOk
+        .expectStatus().isNotFound
     }
 
     @Test

@@ -795,7 +795,7 @@ public class BookingService {
         updateLivingUnit(offenderBooking, location);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"SYSTEM_USER", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
         return offenderSentences.stream()
