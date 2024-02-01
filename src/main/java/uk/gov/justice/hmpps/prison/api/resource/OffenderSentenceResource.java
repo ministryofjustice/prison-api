@@ -33,6 +33,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
@@ -74,12 +75,11 @@ public class OffenderSentenceResource {
           <li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li>
         </ul>
         """)
+    @ProgrammaticAuthorisation("Access is determined programmatically by the service")
     @GetMapping
     @SlowReportQuery
     public List<OffenderSentenceDetail> getOffenderSentences(@RequestParam(value = "agencyId", required = false) @Parameter(description = "agency/prison to restrict results, if none provided current active caseload will be used, unless offenderNo list is specified") final String agencyId, @RequestParam(value = "offenderNo", required = false) @Parameter(description = "a list of offender numbers to search.") final List<String> offenderNos) {
-        return bookingService.getOffenderSentencesSummary(
-                agencyId,
-                offenderNos);
+        return bookingService.getOffenderSentencesSummary(agencyId, offenderNos);
     }
 
     @ApiResponses({
@@ -88,6 +88,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of offenders eligible for HDC", description = "Version 1")
+    @ProgrammaticAuthorisation("Access is determined in the service by limiting to the user's caseloads")
     @GetMapping("/home-detention-curfew-candidates")
     @SlowReportQuery
     public List<OffenderSentenceCalc<BaseSentenceCalcDates>> getOffenderSentencesHomeDetentionCurfewCandidates() {
@@ -182,6 +183,7 @@ public class OffenderSentenceResource {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
     @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version to allow large offender lists.")
+    @ProgrammaticAuthorisation("Access is determined programmatically by the service")
     @PostMapping
     @SlowReportQuery
     public List<OffenderSentenceDetail> postOffenderSentences(@RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
@@ -194,6 +196,7 @@ public class OffenderSentenceResource {
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The list of offenders is returned.")})
     @Operation(summary = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.", description = "Retrieves list of offenders (with associated sentence detail) - POST version using booking id lists.")
+    @ProgrammaticAuthorisation("Access is determined by annotation on the service")
     @PostMapping("/bookings")
     @SlowReportQuery
     public List<OffenderSentenceDetail> postOffenderSentencesBookings(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final List<Long> bookingIds) {
@@ -215,6 +218,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence and offence details  for a prisoner")
+    @ProgrammaticAuthorisation("Access is determined by annotation on the service")
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);

@@ -830,7 +830,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AP] not found.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
     }
 
     @Test
@@ -841,6 +841,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
     }
 
     @Test
@@ -1055,7 +1056,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody
+        .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       removeCaseNoteCreated(response.caseNoteId)
     }
@@ -1077,7 +1078,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody
+        .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       removeCaseNoteCreated(response.caseNoteId)
     }
@@ -1090,7 +1091,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .bodyValue(caseNote)
         .exchange()
         .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody
+        .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       removeCaseNoteCreated(response.caseNoteId)
     }
@@ -1111,7 +1112,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody
+        .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       removeCaseNoteCreated(caseNote.caseNoteId)
     }
@@ -1133,7 +1134,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody
+        .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       assertThat(caseNote.caseNoteId).isGreaterThan(0)
       assertThat(caseNote.source).isEqualTo(caseNoteSource)
@@ -1165,7 +1166,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .returnResult(CaseNote::class.java).responseBody.blockFirst()
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()!!
 
       assertThat(caseNote1.caseNoteId).isGreaterThan(0)
       assertThat(caseNote1.source).isEqualTo(caseNoteSource)
@@ -1185,7 +1186,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isOk
-        .returnResult(CaseNote::class.java).responseBody.blockFirst()
+        .returnResult(CaseNote::class.java).responseBody.blockFirst()!!
 
       assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(10)
 

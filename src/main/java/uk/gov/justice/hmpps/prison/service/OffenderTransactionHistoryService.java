@@ -15,7 +15,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionDetai
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionHistory;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionHistoryRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.values.AccountCode;
 
 import java.math.BigDecimal;
@@ -61,7 +60,6 @@ public class OffenderTransactionHistoryService {
         this.entityManager = entityManager;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderTransactionHistoryDto> getTransactionHistory(final String offenderNo,
                                                                      final String accountCode,
                                                                      final LocalDate fromDate,

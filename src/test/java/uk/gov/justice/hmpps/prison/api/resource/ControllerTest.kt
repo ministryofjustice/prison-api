@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
 import com.fasterxml.jackson.annotation.JsonIgnore
+import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AnnotationTypeFilter

@@ -891,7 +891,7 @@ public class BookingResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "The appointment has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ScheduledEvent.class))})})
-    @Operation(summary = "Create appointment for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
+    @Operation(summary = "Create appointment for offender.", description = "Requires role GLOBAL_APPOINTMENT, or booking is in caseload")
     @ResponseStatus(HttpStatus.CREATED)
     @VerifyBookingAccess(overrideRoles = "GLOBAL_APPOINTMENT")
     @PostMapping("/{bookingId}/appointments")

@@ -3,13 +3,11 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import net.minidev.json.JSONArray
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
-import uk.gov.justice.hmpps.prison.service.OffenderLocation
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 
@@ -36,11 +34,26 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
   }
 
   @Test
-  internal fun `empty response when offender not in prison`() {
+  fun `should return 401 when user does not even have token`() {
+    webTestClient.get().uri("/api/offenders/{offenderNo}/housing-location", "A1234AA")
+      .exchange()
+      .expectStatus().isUnauthorized
+  }
+
+  @Test
+  fun `should return 403 as endpoint does not have override role`() {
+    webTestClient.get().uri("/api/offenders/{offenderNo}/housing-location", "A1234AA")
+      .headers(setClientAuthorisation(listOf()))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  internal fun `404 response when offender not in prison`() {
     val offenderNo =
       OffenderBuilder().withBooking(OffenderBookingBuilder(released = true)).save(testDataContext).offenderNo
 
-    val location = webTestClient.get()
+    webTestClient.get()
       .uri("/api/offenders/{offenderNo}/housing-location", offenderNo)
       .headers(
         setAuthorisation(
@@ -50,11 +63,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
-      .expectStatus().isOk
-      .returnResult(OffenderLocation::class.java)
-      .responseBody.blockFirst()!!
-
-    assertThat(location).isEqualTo(OffenderLocation())
+      .expectStatus().isNotFound
 
     // tidy up
     offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)
@@ -81,7 +90,8 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].level").isEqualTo(JSONArray().also { it.addAll(listOf(1, 2, 3)) })
       .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("A", "1", "10")) })
       .jsonPath("levels[*].type").isEqualTo(JSONArray().also { it.addAll(listOf("WING", "LAND", "CELL")) })
-      .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "Landing A/1", "Cell 10")) })
+      .jsonPath("levels[*].description")
+      .isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "Landing A/1", "Cell 10")) })
       .jsonPath("lastPermanentLevels").doesNotExist()
 
     // tidy up

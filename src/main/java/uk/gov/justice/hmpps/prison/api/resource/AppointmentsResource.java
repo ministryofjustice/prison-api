@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
+import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 
@@ -37,10 +38,10 @@ import java.util.List;
 public class AppointmentsResource {
     private final AppointmentsService appointmentsService;
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "The appointments have been created.")})
-    @HasWriteScope // FIXME: Called by old dps & profile with auth token - needs client token. Write scope allows everyone to call this endpoint.
-    @Operation(summary = "Create multiple appointments", description = "Create multiple appointments")
+    @ApiResponses({@ApiResponse(responseCode = "200", description = "The appointments have been created.")})
+    @ProgrammaticAuthorisation("Access is calculated in service")
+    @HasWriteScope
+    @Operation(summary = "Create multiple appointments", description = "Requires bookings to be in caseload and write scope, and role BULK_APPOINTMENTS if more than 1 appointment is being created")
     @PostMapping
     @ProxyUser
     public List<CreatedAppointmentDetails> createAppointments(

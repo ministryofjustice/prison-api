@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.http.HttpStatus.FORBIDDEN;
 
 public class OffenderTransactionHistoryResourceTest extends ResourceTest {
 
@@ -36,7 +37,7 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
             },
             OFFENDER_NO);
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(HTTP_OK);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).isInstanceOf(List.class);
         assertThat(response.getBody().size()).isEqualTo(0);
     }
@@ -361,5 +362,14 @@ public class OffenderTransactionHistoryResourceTest extends ResourceTest {
             "A1234AJ");
 
         assertThatJsonFileAndStatus(response, 200, "a-earn-transaction-history.json");
+    }
+
+    @Test
+    public void When_GetOffenderTransactionHistory_called_with_no_Role() {
+        webTestClient.get()
+            .uri("/api/offenders/{offenderNo}/transaction-history", OFFENDER_NO)
+            .headers(setClientAuthorisation(List.of()))
+            .exchange()
+            .expectStatus().isEqualTo(FORBIDDEN);
     }
 }

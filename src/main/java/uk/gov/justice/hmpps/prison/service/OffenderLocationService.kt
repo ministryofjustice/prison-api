@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LivingUnitReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
 
 @Service
 @Transactional(readOnly = true)
@@ -21,8 +20,7 @@ class OffenderLocationService(
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository,
   private val bedAssignmentHistoriesRepository: BedAssignmentHistoriesRepository,
 ) {
-  @VerifyBookingAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
-  fun getOffenderLocation(@Suppress("UNUSED_PARAMETER") bookingId: Long, summary: OffenderSummary): OffenderLocation {
+  fun getOffenderLocation(bookingId: Long, summary: OffenderSummary): OffenderLocation {
     // booking not active or no current internal location then no location to report
     if (summary.currentlyInPrison != "Y" || summary.internalLocationId == null) return OffenderLocation()
 

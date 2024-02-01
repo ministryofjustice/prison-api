@@ -96,7 +96,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorReposit
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
@@ -674,7 +673,6 @@ public class BookingService {
                 .toList();
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<ScheduledEvent> getScheduledEvents(final Long bookingId, final LocalDate from, final LocalDate to) {
         final var fromDate = from == null ? now() : from;
         final var toDate = to == null ? fromDate : to;
@@ -725,7 +723,6 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
         return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
             .map(offender -> offender.getLatestBooking().map(booking ->
@@ -1066,12 +1063,11 @@ public class BookingService {
                 .build();
     }
 
-
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
         final var viewAllBookings = isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES);
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
-
+// possible bug!
         if (offenderNos == null || offenderNos.isEmpty()) {
             return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
         } else {
