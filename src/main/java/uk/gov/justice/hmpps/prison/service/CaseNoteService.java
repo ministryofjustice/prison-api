@@ -36,7 +36,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTyp
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
@@ -175,7 +174,6 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyOffenderAccess
     public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);

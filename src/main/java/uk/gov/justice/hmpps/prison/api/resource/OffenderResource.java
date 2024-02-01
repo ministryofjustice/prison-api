@@ -158,9 +158,9 @@ public class OffenderResource {
         description = """
             This is a summary of the different periods this prisoner has been in prison grouped by booking.
             
-            It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included). 
+            It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included).
             
-            The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates. 
+            The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates.
             
             Transfers are also listed separately.
             
@@ -487,7 +487,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a list of addresses for a given offender, most recent first.")
+    @Operation(summary = "Return a list of addresses for a given offender, most recent first.", description = "Requires offender to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/addresses")
     @SlowReportQuery
     public List<AddressDto> getAddressesByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull String offenderNo) {
@@ -635,6 +636,7 @@ public class OffenderResource {
     @Operation(summary = "Create case note for offender.", description = "Create case note for offender. Will attach to the latest booking", hidden = true)
     @PostMapping("/{offenderNo}/case-notes")
     @HasWriteScope
+    @ProgrammaticAuthorisation("Checked in service to customise error message")
     @ProxyUser
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
         try {
@@ -650,7 +652,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to amend case note.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - offender or case note does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Amend offender case note.", description = "Amend offender case note.", hidden = true)
+    @Operation(summary = "Amend offender case note.", description = "Requires offender to be in caseload", hidden = true)
+    @VerifyOffenderAccess
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
@@ -664,7 +667,8 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceDetail.class))})})
-    @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details")
+    @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/sentences")
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
@@ -685,7 +689,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Offender does not exists or is in a different caseload to the user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a list of damage obligations")
+    @Operation(summary = "Return a list of damage obligations", description = "Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/damage-obligations")
     public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Filter by obligation status. Leave blank to return all", example = "ACTIVE", schema = @Schema(implementation = String.class, allowableValues = {"INACT","PAID","ONH","ACTIVE","APPEAL"})) final String status) {
         final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, lookupStatusOrDefaultToAll(status));
@@ -706,7 +711,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.",
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
-            "All transaction amounts are represented as pence values.")
+            "All transaction amounts are represented as pence values. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/transaction-history")
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
@@ -798,7 +804,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All future (scheduled) events for offender", description = "All future events for offender that are in a scheduled and not cancelled state.")
+    @Operation(summary = "All future (scheduled) events for offender", description = "All future events for offender that are in a scheduled and not cancelled state. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/scheduled-events")
     public List<ScheduledEvent> getScheduledEvents(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
@@ -824,8 +831,9 @@ public class OffenderResource {
         This endpoint will therefore also return different information from Whereabouts API as that service re-maps the NOMIS layout to include spurs etc.</p>
         <p>If the current location is temporary (reception, court, tap, cell swap or early conditional licence) then the previous permanent location is also returned, provided
         that the location is at the same prison and they haven't moved to a different prison in the meantime.</p>
-        <p>Requires a relationship (via caseload) with the prisoner or VIEW_PRISONER_DATA role.</p>
+        <p>Requires a relationship (via caseload) with the prisoner or the GLOBAL_SEARCH or VIEW_PRISONER_DATA role.</p>
         """)
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/housing-location")
     public OffenderLocation getHousingLocation(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {

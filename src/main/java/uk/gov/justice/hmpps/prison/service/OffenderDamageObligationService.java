@@ -8,11 +8,9 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationModel;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Collectors;
 
 @Service
 public class OffenderDamageObligationService {
@@ -25,7 +23,6 @@ public class OffenderDamageObligationService {
         this.repository = repository;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @Transactional
     public List<OffenderDamageObligationModel> getDamageObligations(final String offenderNo, final Status status) {
 
