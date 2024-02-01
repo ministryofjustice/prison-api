@@ -1,8 +1,8 @@
 version: '3.1'
 services:
-  oauth-server:
+  hmpps-auth:
     image: quay.io/hmpps/hmpps-auth:latest
-    container_name: oauth-server
+    container_name: hmpps-auth
     ports:
       - "9090:8080"
     healthcheck:
@@ -10,12 +10,13 @@ services:
     environment:
       - SERVER_PORT=8080
       - SPRING_PROFILES_ACTIVE=dev
+      - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
   prison-api:
     image: quay.io/hmpps/prison-api:latest
     container_name: prison-api
     depends_on:
-      - oauth-server
+      - hmpps-auth
     ports:
       - "8080:8080"
     healthcheck:

@@ -21,15 +21,15 @@
 * Dependencies
   To minimise dependency management we use Spring Boot because it gives us a broad set of
   frameworks with the right version avoiding library conflicts.
-  
+
 * Build command
 
     `gradlew clean build`
-  
+
 * Database configuration
   To connect the application to a database, change the configurations in your configuration profile file, for example in mobile-dev.yml.
 
-### How to run the Application? ###
+### How to run the application? ###
 
 1) Run `uk.gov.justice.hmpps.prison.PrisonApiServer` using spring boot profile `nomis-hsqldb`
 
@@ -46,30 +46,63 @@ gradlew bootRun
 ./gradlew bootRun --args='--spring.profiles.active=nomis-hsqldb'
 ```
 
-In order to get the `/info` endpoint to work you will need to add in
+### Running the application against dev (t3) database
+
+Steps are:
+1. Create a tunnel to the database
+```shell
+ssh -f -D 1086 -N -Snone hmppgw1 -L1521:t3nomis-b.test.nomis.service.justice.gov.uk:1521
 ```
--add-opens java.base/java.lang=ALL-UNNAMED
--add-opens java.base/java.util=ALL-UNNAMED
+For the tunnel to work you will need host information for `hmppgw1` in your `~/.ssh/config`.  Please see
+[confluence](https://dsdmoj.atlassian.net/wiki/spaces/NOM/pages/800686284/Accessing+and+Developing+in+the+T3+Environment#SSH-config)
+for more information.
+2. Start Prison API with the following VM options
+```shell
+-Doracle.jdbc.J2EE13Compliant=true -Xmx1024m -Xms1024m
 ```
-to your run configuration.  This is because the current version of ehcache needs to calculate the size of the objects in the cache, which the latest version of openjdk disallows.
+and with profiles
+```shell
+nomis
+```
+and the following properties
+```shell
+spring.datasource.url=jdbc:oracle:thin:@localhost:1521/NOMIS_TAF
+spring.replica.datasource.url=jdbc:oracle:thin:@localhost:1521/NOMIS_TAF
+spring.datasource.username=<your t3 user>
+spring.datasource.password=<your t3 password>
+spring.replica.datasource.username=<your t3 user>
+spring.replica.datasource.password=<your t3 password>
+spring.security.oauth2.resourceserver.jwt.jwk-set-uri=https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json
+```
+
+Running
+```shell
+http http://localhost:8080/health
+```
+will then test that the application is up and running successfully.
+
+In order to then make calls to Prison API you will need to call HMPPS Auth first in dev to get a token, in the same
+way as calling any Prison API endpoints in dev.
 
 #### Authenticating with JWT when running locally
 
-When running locally with the profile `dev` JWTs are verified against http://localhost:9090/auth/.well-known/jwks.json.  When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at https://<auth-server>/auth/.well-known/jwks.json.
+When running locally with the profile `dev` JWTs are verified against http://localhost:9090/auth/.well-known/jwks.json.
+When deployed to t3, t2, preprod or prod, JWTs are verified against the public key hosted by the auth server at
+https://<auth-server>/auth/.well-known/jwks.json.
 
 ### Coding Standards
 There are a few different styles in this project due to historical reasons and the accumulation of technical debt.
 
 The preferred patterns going forward are:
 - Use Spring Rest Controllers for APIs
-- Use thin controllers and apply business logic in an associated service 
+- Use thin controllers and apply business logic in an associated service
 - Use SpringJPA for database access
 - Use WebTestClient for integration testing (e.g. extend ResourceTest, do not use Cucumber)
 - Use ControllerAdvice for error handling
 - Do not create interfaces with single implementations
 
 There are some recent examples around PrisonStatusController and OffenderImageRepository and AgencyResourceImplIntTest.
-  
+
 #### Health
 
 - `/health/ping`: will respond `{"status":"UP"}` to all requests.  This should be used by dependent systems to check connectivity to prison api,
@@ -78,17 +111,17 @@ rather than calling the `/health` endpoint.
 by prison-api health monitoring (e.g. pager duty) and not other systems who wish to find out the state of prison api
 - `/info`: provides information about the version of deployed application.
 
-### Querying a local HSQLDB Database 
+### Querying a local HSQLDB Database
 
 The feature tests and repository integration tests create and populate a local in-memory HSQLDB called `nomis-db`.
-This is by definition transient but it can be very useful to persist this database temporarily in order to 
+This is by definition transient but it can be very useful to persist this database temporarily in order to
 execute test queries, examine the data and check your repository queries.
 
 To do this:
 
 * Alter the file `application-nomis-hsqldb.yml` to use a file-based url.
   In this example I created a directory ~/dbs under my home directory first.
-  
+
 `spring:
    datasource:
      url: jdbc:hsqldb:file:~/dbs/nomis-db;sql.syntax_ora=true;get_column_name=false;shutdown=false;sql.nulls_first=false;sql.nulls_order=false
@@ -96,7 +129,7 @@ To do this:
      password: changeme
 `
 
-* Add a temporary password to the spring datasource (by default its blank) which 
+* Add a temporary password to the spring datasource (by default its blank) which
   then does not allow a client connection via the IntelliJ database tools.
 
 * Run one of the repository integration tests in IntelliJ to create and populate the DB
@@ -114,11 +147,11 @@ To do this:
 
 * Important: Close the connection and remove the database files before attempting
   to re-run any integration or feature tests.
-  
+
   `$ cd ~/dbs`
   `$ rm -rf nomis-db*`
 
-* Don't commit these changes!  
+* Don't commit these changes!
 
 ### Environment Variables
 
@@ -163,7 +196,7 @@ To run all feature tests in IntelliJ, avoiding any known @wip or @broken tests, 
 * Obtain a correct JWT Token from 'Auth' service
 * Go to http://<`host:port`>/swagger-ui/
 * Click on top right button 'Authorize'
-* In the 'Authorize' dialog enter 
+* In the 'Authorize' dialog enter
     * `Bearer <Your Token>`
     * Like so `Bearer eyJhbGciOiJ...OsgGjHBuA`
  * Then click 'Authorize' and close dialog
