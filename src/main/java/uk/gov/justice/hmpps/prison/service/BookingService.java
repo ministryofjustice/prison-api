@@ -1067,7 +1067,7 @@ public class BookingService {
 
         final var viewAllBookings = isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES);
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
-// possible bug!
+
         if (offenderNos == null || offenderNos.isEmpty()) {
             return offenderSentenceSummaries(agencyId, caseLoadIdsForUser, !viewAllBookings);
         } else {
