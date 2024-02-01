@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
+import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
@@ -11,6 +12,7 @@ import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 import java.time.LocalDate
 
+@DisplayName("GET /api/bookings/latest/calculable-sentence-envelope")
 class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
 
   @Autowired
@@ -40,7 +42,15 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
   }
 
   @Test
-  fun `returns 200 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and override role`() {
+  fun `returns 403 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and SYSTEM_USER override role`() {
+    webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
+      .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "ROLE_SYSTEM_USER")))
+      .exchange()
+      .expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 200 when client has authorised role ROLE_RELEASE_DATE_MANUAL_COMPARER and VIEW_PRISONER_DATA override role`() {
     webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
       .headers(setClientAuthorisation(listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER", "ROLE_VIEW_PRISONER_DATA")))
       .exchange()
