@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
 import com.fasterxml.jackson.annotation.JsonIgnore
-import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.context.annotation.ClassPathScanningCandidateComponentProvider
 import org.springframework.core.type.filter.AnnotationTypeFilter
@@ -12,6 +12,7 @@ import uk.gov.justice.hmpps.prison.core.ReferenceData
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
+import uk.gov.justice.hmpps.prison.security.VerifyStaffAccess
 import java.lang.reflect.AnnotatedElement
 import java.lang.reflect.Method
 
@@ -31,7 +32,7 @@ class ControllerTest {
   @Test
   fun `Ensure all endpoints have a role annotation`() {
     val controllers = getControllers()
-    var failed = false
+    val failedEndpoints = ArrayList<String>()
 
     for (controller in controllers) {
       if (!controller.hasControllerLevelProtection) {
@@ -39,13 +40,13 @@ class ControllerTest {
           if (!endpoint.hasEndpointLevelProtection) {
             val method = endpoint.method.replace(Regex("^public [^ ]+ "), "")
             println(method)
-            failed = true
+            failedEndpoints += method
           }
         }
       }
     }
-    // For now just print out the endpoints that don't have a role annotation
-    // assertThat(failed).withFailMessage { "Found endpoints with no annotation" }.isFalse()
+    // Print out any endpoints that don't have a role annotation
+    assertThat(failedEndpoints).isEmpty()
   }
 
   private fun getControllers() = ClassPathScanningCandidateComponentProvider(false)
@@ -66,6 +67,7 @@ class ControllerTest {
     if (getAnnotation(VerifyOffenderAccess::class.java) != null ||
       getAnnotation(VerifyBookingAccess::class.java) != null ||
       getAnnotation(VerifyAgencyAccess::class.java) != null ||
+      getAnnotation(VerifyStaffAccess::class.java) != null ||
       getAnnotation(ReferenceData::class.java) != null ||
       getAnnotation(ProgrammaticAuthorisation::class.java) != null
     ) {
