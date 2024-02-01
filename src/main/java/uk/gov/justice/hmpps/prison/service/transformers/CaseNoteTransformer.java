@@ -108,7 +108,7 @@ public class CaseNoteTransformer {
                     final var caseNoteAmendment = CaseNoteAmendment.builder()
                             .additionalNoteText(caseNoteText.trim())
                             .authorName(getFullNameFromUsername(m.group(1)))
-                            .authorUserId(m.group(1))
+                            .authorUsername(m.group(1))
                             .creationDateTime(amendmentDateTime)
                             .build();
                     caseNote.getAmendments().add(caseNoteAmendment);

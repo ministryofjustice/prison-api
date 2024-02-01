@@ -34,9 +34,9 @@ public class CaseNoteAmendment {
     @NotBlank
     private String authorName;
 
-    @Schema(requiredMode = REQUIRED, description = "Id of user who amended the case note", example = "AB123456")
+    @Schema(requiredMode = REQUIRED, description = "Username of user who amended the case note", example = "AAA11B")
     @NotBlank
-    private String authorUserId;
+    private String authorUsername;
 
     @Schema(requiredMode = REQUIRED, description = "Additional Case Note Information", example = "Some Additional Text")
     @NotBlank
