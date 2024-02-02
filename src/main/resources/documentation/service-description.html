@@ -57,9 +57,9 @@
     restricting access. However it then calls <code>InmateAlertService.getInmateAlertsByOffenderNosAtAgency</code>. This has the following annotation and
     method signature:
   <pre>
-      @VerifyAgencyAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+      @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
       public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
-    </pre>
+  </pre>
   which means that either the token has one of those three roles, or the user associated with the token has <code>agencyId</code> as one of their caseloads.
   </p>
 </div>

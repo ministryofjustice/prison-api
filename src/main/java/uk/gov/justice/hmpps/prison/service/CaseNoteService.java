@@ -167,7 +167,7 @@ public class CaseNoteService {
     }
 
     @Transactional
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "ADD_CASE_NOTES"})
+    @VerifyOffenderAccess(overrideRoles = {"ADD_CASE_NOTES"})
     public CaseNote createCaseNote(String offenderNo, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return createCaseNote(latestBookingByOffenderNo.getBookingId(), caseNote, username);
