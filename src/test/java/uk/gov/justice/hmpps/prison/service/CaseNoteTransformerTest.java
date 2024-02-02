@@ -46,8 +46,8 @@ public class CaseNoteTransformerTest {
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("test1");
         assertThat(returnedCaseNote.getAmendments()).containsExactly(
-                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "hi there"),
-                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "hi again"));
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "MWILLIS_GEN", "hi there"),
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "SRENDELL", "hi again"));
     }
 
     @Test
@@ -61,8 +61,8 @@ public class CaseNoteTransformerTest {
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("test1");
         assertThat(returnedCaseNote.getAmendments()).containsExactly(
-                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "hi there"),
-                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "hi again"));
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T11:59:18"), "Willis, Michael", "MWILLIS_GEN", "hi there"),
+                new CaseNoteAmendment(LocalDateTime.parse("2017-10-04T12:00:06"), "Mc'rendell, Steven", "SRENDELL", "hi again"));
     }
 
     @Test
