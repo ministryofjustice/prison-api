@@ -14,7 +14,7 @@ Feature: Offenders Adjudications
     And the associated agencies for this offender are: "LEI,MDI"
 
   Scenario: A staff user views many adjudications for an existing offender
-    Given a user has a token name of "SYSTEM_USER_READ_WRITE"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When I view the adjudications of offender with offender display number of "A1181GG"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings       |
@@ -25,7 +25,7 @@ Feature: Offenders Adjudications
     And the associated agencies for this offender are: "MDI, LEI, BXI"
 
   Scenario: A staff user views adjudications for an offender at a single prison
-    Given a user has a token name of "SYSTEM_USER_READ_WRITE"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When I view the adjudications of offender with offender display number of "A1181GG" at "LEI" with charge of type: "86"
     Then the adjudication results are:
       | adjudicationNumber | reportDate       | agencyId | offenceCodes | findings      |
@@ -44,7 +44,7 @@ Feature: Offenders Adjudications
     Then resource not found response is received from adjudication API
 
   Scenario: A staff user views adjudication details for an existing offender
-    Given a user has a token name of "SYSTEM_USER_READ_WRITE"
+    Given a user has a token name of "VIEW_PRISONER_DATA"
     When I view the adjudication details of offender display number of "A1181HH" with a adjudication number of "-7"
     Then the adjudication details are found
 
