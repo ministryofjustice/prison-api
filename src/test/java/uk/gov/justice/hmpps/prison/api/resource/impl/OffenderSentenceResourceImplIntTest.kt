@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
@@ -597,7 +596,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.length()").value<Int> { Assertions.assertThat(it).isEqualTo(3) }
+        .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(3) }
         .jsonPath("$[0].offenderNo").isEqualTo("A1234AA")
         .jsonPath("$[1].offenderNo").isEqualTo("A1234AP")
         .jsonPath("$[2].offenderNo").isEqualTo("A1180MA")
@@ -619,7 +618,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("$.length()").value<Int> { Assertions.assertThat(it).isEqualTo(2) }
+        .jsonPath("$.length()").value<Int> { assertThat(it).isEqualTo(2) }
         .jsonPath("$[0].offenderNo").isEqualTo("A1234AK")
         .jsonPath("$[1].offenderNo").isEqualTo("A1234AE")
     }
@@ -791,7 +790,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
   }
 
-  internal fun String.readFile(): String = this@OffenderSentenceResourceImplIntTest::class.java.getResource(this).readText()
+  internal fun String.readFile(): String = this@OffenderSentenceResourceImplIntTest::class.java.getResource(this)!!.readText()
 }
 
 private fun WebTestClient.ResponseSpec.hasListAtLeastSizeOf(expectedSize: Int) {
