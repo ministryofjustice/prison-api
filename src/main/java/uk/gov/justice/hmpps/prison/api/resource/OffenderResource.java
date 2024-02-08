@@ -543,7 +543,7 @@ public class OffenderResource {
         description = "Deprecated - use Adjudications API to get adjudications, requires VIEW_ADJUDICATIONS",
         deprecated = true, hidden = true)
     @GetMapping("/{offenderNo}/adjudications/{adjudicationNo}")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
     public AdjudicationDetail getAdjudication(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @PathVariable("adjudicationNo") @Parameter(description = "adjudicationNo", required = true) final long adjudicationNo) {
         return adjudicationService.findAdjudication(offenderNo, adjudicationNo);
     }
