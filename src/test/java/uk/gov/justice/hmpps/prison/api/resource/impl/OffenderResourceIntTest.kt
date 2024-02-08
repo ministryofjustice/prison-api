@@ -1040,8 +1040,8 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `Create case note success for offender not in user caseloads but has override role ROLE_SYSTEM_USER`() {
-      val response = webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
+    fun `Create case note returns 404 for offender not in user caseloads but has override role ROLE_SYSTEM_USER`() {
+      webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_SYSTEM_USER")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
@@ -1055,10 +1055,8 @@ class OffenderResourceIntTest : ResourceTest() {
           """,
         )
         .exchange()
-        .expectStatus().isOk
-        .expectBody(CaseNote::class.java).returnResult().responseBody!!
-
-      removeCaseNoteCreated(response.caseNoteId)
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AB] not found.")
     }
 
     @Test
