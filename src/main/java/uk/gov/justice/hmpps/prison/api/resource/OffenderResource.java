@@ -555,7 +555,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of alerts for latest booking for a given offender No.", description = "System or cat tool access only")
     @GetMapping("/{offenderNo}/bookings/latest/alerts")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsForLatestBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,

@@ -39,6 +39,29 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
   @DisplayName("GET /api/offenders/{offenderNo}/bookings/latest/alerts")
   internal inner class NewSafeEndpoint {
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if does not have override role`() {
+      webTestClient.get().uri("/api/offenders/A1179MT/bookings/latest/alerts")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when client has override role ROLE_SYSTEM_USER `() {
+      webTestClient.get().uri("/api/offenders/A1179MT/bookings/latest/alerts")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     @DisplayName("should have the correct role to access offender")
     fun shouldHaveTheCorrectRoleToAccessEndpoint() {
       val response = testRestTemplate.exchange(
