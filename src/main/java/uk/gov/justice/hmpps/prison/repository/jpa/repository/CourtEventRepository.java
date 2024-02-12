@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
@@ -34,4 +35,6 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
     Optional<CourtEvent> findOneByOffenderBookingBookingIdAndParentCourtEventId(Long bookingId, Long parentCourtEventId);
 
     List<CourtEvent> findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(Set<Long> bookingIds, String caseStatusCode);
+
+    Optional<CourtEvent> findFirstByOffenderBooking_BookingIdAndStartTimeGreaterThanEqual(Long bookingId, LocalDateTime earliestTime, Sort sort);
 }
