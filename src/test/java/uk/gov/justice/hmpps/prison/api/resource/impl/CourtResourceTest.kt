@@ -26,7 +26,7 @@ class CourtResourceTest : ResourceTest() {
   inner class NextCourtEvent {
     @Test
     fun `Retrieve next court event with everything populated`() {
-       webTestClient.get()
+      webTestClient.get()
         .uri("/api/court/${BOOKING_ID_MINUS_FIVE}/next-court-event")
         .headers(setAuthorisation(listOf("RELEASE_DATES_CALCULATOR")))
         .exchange()
@@ -41,7 +41,7 @@ class CourtResourceTest : ResourceTest() {
 
     @Test
     fun `Retrieve next court event with minimal data populated`() {
-       webTestClient.get()
+      webTestClient.get()
         .uri("/api/court/${BOOKING_ID_MINUS_SIX}/next-court-event")
         .headers(setAuthorisation(listOf("RELEASE_DATES_CALCULATOR")))
         .exchange()
