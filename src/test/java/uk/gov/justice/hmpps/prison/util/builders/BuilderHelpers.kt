@@ -248,7 +248,7 @@ fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestCl
   .uri("/api/offenders/{offenderNo}/case-notes/v2?size=999", offenderNo)
   .headers(
     setAuthorisation(
-      listOf("ROLE_SYSTEM_USER"),
+      listOf("ROLE_VIEW_CASE_NOTES"),
     ),
   )
   .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)

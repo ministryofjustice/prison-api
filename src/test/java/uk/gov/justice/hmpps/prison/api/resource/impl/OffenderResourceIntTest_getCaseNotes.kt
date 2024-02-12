@@ -59,17 +59,17 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
       }
 
       @Test
-      fun `returns 200 if has override ROLE_SYSTEM_USER`() {
+      fun `returns 403 if has override ROLE_SYSTEM_USER`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
           .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
           .exchange()
-          .expectStatus().isOk
+          .expectStatus().isForbidden
       }
 
       @Test
       fun `returns 404 if case note does not exist`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-999")
-          .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+          .headers(setClientAuthorisation(listOf("ROLE_VIEW_CASE_NOTES")))
           .exchange()
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
