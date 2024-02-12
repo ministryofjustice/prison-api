@@ -478,7 +478,11 @@ public class OffenderResource {
     @Operation(summary = "Return a set Incidents for a given offender No.", description = "Can be filtered by participation type and incident type. Requires the VIEW_INCIDENTS role.")
     @GetMapping("/{offenderNo}/incidents")
     @PreAuthorize("hasRole('VIEW_INCIDENTS')")
-    public List<IncidentCase> getIncidentsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes, @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV","ASSIAL","FIGHT","IMPED","PERP","SUSASS","SUSINV","VICT","AI","PAS","AO"})) final List<String> participationRoles) {
+    public List<IncidentCase> getIncidentsByOffenderNo(
+        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
+        @RequestParam("incidentType") @Parameter(description = "incidentType", example = "ASSAULT") final List<String> incidentTypes,
+        @RequestParam("participationRoles") @Parameter(description = "participationRoles", example = "ASSIAL", schema = @Schema(implementation = String.class, allowableValues = {"ACTINV", "ASSIAL", "FIGHT", "IMPED", "PERP", "SUSASS", "SUSINV", "VICT", "AI", "PAS", "AO"})) final List<String> participationRoles
+    ) {
         return incidentService.getIncidentCasesByOffenderNo(offenderNo, incidentTypes, participationRoles);
     }
 
@@ -505,14 +509,16 @@ public class OffenderResource {
         deprecated = true, hidden = true)
     @GetMapping("/{offenderNo}/adjudications")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_ADJUDICATIONS", "VIEW_PRISONER_DATA"})
-    public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
-                                                                                   @RequestParam(value = "offenceId", required = false) @Parameter(description = "An offence id to allow optionally filtering by type of offence") final String offenceId,
-                                                                                   @RequestParam(value = "agencyId", required = false) @Parameter(description = "An agency id to allow optionally filtering by the agency in which the offence occurred") final String agencyId,
-                                                                                   @RequestParam(value = "finding", required = false) @Parameter(description = "Finding code to allow optionally filtering by type of finding", example = "NOT_PROVEN") final String finding,
-                                                                                   @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate, @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") LocalDate toDate,
-                                                                                   @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of adjudications.") final Long pageOffset,
-                                                                                   @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of adjudications returned.") final Long pageLimit) {
-
+    public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(
+        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
+        @RequestParam(value = "offenceId", required = false) @Parameter(description = "An offence id to allow optionally filtering by type of offence") final String offenceId,
+        @RequestParam(value = "agencyId", required = false) @Parameter(description = "An agency id to allow optionally filtering by the agency in which the offence occurred") final String agencyId,
+        @RequestParam(value = "finding", required = false) @Parameter(description = "Finding code to allow optionally filtering by type of finding", example = "NOT_PROVEN") final String finding,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "Adjudications must have been reported on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "Adjudications must have been reported on or before this date (in YYYY-MM-DD format).") LocalDate toDate,
+        @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of adjudications.") final Long pageOffset,
+        @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of adjudications returned.") final Long pageLimit
+    ) {
         val criteria = AdjudicationSearchCriteria.builder()
             .offenderNumber(offenderNo)
             .offenceId(offenceId)
@@ -555,12 +561,13 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of alerts for latest booking for a given offender No.", description = "System or cat tool access only")
     @GetMapping("/{offenderNo}/bookings/latest/alerts")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
     public List<Alert> getAlertsForLatestBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
         @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId","bookingId","alertType","alertCode","comment","dateCreated","dateExpires","active"})) final String sort,
-        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction) {
+        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
+    ) {
         return alertService.getAlertsForLatestBookingForOffender(
             offenderNo,
             alertCodes,
@@ -580,7 +587,8 @@ public class OffenderResource {
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
         @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId","bookingId","alertType","alertCode","comment","dateCreated","dateExpires","active"})) final String sort,
-        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction) {
+        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
+    ) {
         return alertService.getAlertsForAllBookingsForOffender(
             offenderNo,
             alertCodes,
@@ -592,7 +600,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking", hidden = true)
     @GetMapping("/{offenderNo}/case-notes/v2")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
     @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
@@ -620,7 +628,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case note detail.", description = "Retrieve an single offender case note", hidden = true)
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         try {
@@ -657,7 +665,11 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
-    public CaseNote updateOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true, example = "1212134") final Long caseNoteId, @RequestBody @Parameter(required = true) final UpdateCaseNote body) {
+    public CaseNote updateOffenderCaseNote(
+        @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
+        @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true, example = "1212134") final Long caseNoteId,
+        @RequestBody @Parameter(required = true) final UpdateCaseNote body
+    ) {
         try {
             return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
         } catch (EntityNotFoundException e) {
@@ -692,7 +704,10 @@ public class OffenderResource {
     @Operation(summary = "Return a list of damage obligations", description = "Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/damage-obligations")
-    public OffenderDamageObligationResponse getOffenderDamageObligations(@NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo, @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Filter by obligation status. Leave blank to return all", example = "ACTIVE", schema = @Schema(implementation = String.class, allowableValues = {"INACT","PAID","ONH","ACTIVE","APPEAL"})) final String status) {
+    public OffenderDamageObligationResponse getOffenderDamageObligations(
+        @NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo,
+        @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Filter by obligation status. Leave blank to return all", example = "ACTIVE", schema = @Schema(implementation = String.class, allowableValues = {"INACT", "PAID", "ONH", "ACTIVE", "APPEAL"})) final String status
+    ) {
         final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, lookupStatusOrDefaultToAll(status));
         return new OffenderDamageObligationResponse(damageObligations);
     }
@@ -754,7 +769,7 @@ public class OffenderResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender Contacts", description = "Active Contacts including restrictions, using latest offender booking  and including inactive contacts by default")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "OFFENDER_CONTACTS"})
+    @VerifyOffenderAccess(overrideRoles = {"OFFENDER_CONTACTS", "VIEW_CONTACTS"})
     @GetMapping("/{offenderNo}/contacts")
     public OffenderContacts getOffenderContacts(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
@@ -772,7 +787,7 @@ public class OffenderResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking",
         description = "Get offender visit restrictions by offender No. <p>Requires a relationship (via caseload) with the offender or VISIT_SCHEDULER role.</p>")
-    @VerifyOffenderAccess(overrideRoles = {"SYSTEM_USER", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"VISIT_SCHEDULER"})
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
             @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
