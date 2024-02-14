@@ -71,7 +71,7 @@ class AuthenticationFacadeTest {
   }
 
   private fun setAuthentication(source: AuthSource, authoritySet: Set<GrantedAuthority>, userName: String? = "userName") {
-    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), userName, "clientId", source, authoritySet)
+    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "clientId", userName, source, authoritySet)
     SecurityContextHolder.getContext().authentication = auth
   }
 

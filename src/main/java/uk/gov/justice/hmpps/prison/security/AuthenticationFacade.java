@@ -50,10 +50,7 @@ public class AuthenticationFacade {
     public boolean isClientOnly() {
         final var authentication = getAuthentication();
         if (!(authentication instanceof AuthAwareAuthenticationToken)) return false;
-        final var client = ((AuthAwareAuthenticationToken) authentication).getClientId();
-        final var principal = ((AuthAwareAuthenticationToken) authentication).getPrincipal();
-
-        return client.equals(principal);
+        return  ((AuthAwareAuthenticationToken) authentication).isSystemClientCredentials();
     }
 
     public String getClientId() {
