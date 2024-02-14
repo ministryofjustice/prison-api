@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.2"
   kotlin("plugin.spring") version "1.9.22"
   kotlin("plugin.jpa") version "1.9.22"
   kotlin("plugin.lombok") version "1.9.22"
@@ -38,19 +38,19 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  implementation("commons-codec:commons-codec:1.16.0")
+  implementation("commons-codec:commons-codec:1.16.1")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.1.0")
 
-  implementation("io.swagger:swagger-annotations:1.6.12")
+  implementation("io.swagger:swagger-annotations:1.6.13")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
 
   implementation("org.apache.commons:commons-lang3:3.14.0")
   implementation("commons-io:commons-io:2.15.1")
   implementation("com.google.guava:guava:33.0.0-jre")
   implementation("org.apache.commons:commons-text:1.11.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.21.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.22.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   compileOnly("org.projectlombok:lombok:1.18.30")
@@ -70,16 +70,16 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.2")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.4")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.0.44")
-  testImplementation("net.serenity-bdd:serenity-junit:4.0.44")
-  testImplementation("net.serenity-bdd:serenity-spring:4.0.44")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.0.44")
+  testImplementation("net.serenity-bdd:serenity-core:4.1.0")
+  testImplementation("net.serenity-bdd:serenity-junit:4.1.0")
+  testImplementation("net.serenity-bdd:serenity-spring:4.1.0")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.0")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.3.1")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.3")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.3")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.20") {
     exclude(group = "io.swagger.core.v3")
   }
