@@ -4,8 +4,8 @@ import org.aspectj.lang.annotation.Aspect
 import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.util.Assert
-import uk.gov.justice.hmpps.prison.security.AuthSource
-import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER
 import java.sql.Connection

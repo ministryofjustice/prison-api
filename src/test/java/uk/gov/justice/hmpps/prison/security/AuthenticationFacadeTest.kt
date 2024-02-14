@@ -10,30 +10,25 @@ import org.springframework.security.core.GrantedAuthority
 import org.springframework.security.core.authority.SimpleGrantedAuthority
 import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.security.oauth2.jwt.Jwt
-import uk.gov.justice.hmpps.prison.security.AuthSource.AUTH
-import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
-import uk.gov.justice.hmpps.prison.security.AuthSource.NONE
-import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken
+import uk.gov.justice.hmpps.kotlin.auth.AuthAwareAuthenticationToken
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.AUTH
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NONE
 
 class AuthenticationFacadeTest {
   private val authenticationFacade = AuthenticationFacade()
 
   @Test
   fun getAuthenticationSource_AuthSource_nomis() {
-    setAuthentication("nomis")
+    setAuthentication(NOMIS)
     assertThat(authenticationFacade.authenticationSource).isEqualTo(NOMIS)
   }
 
   @Test
   fun getProxyUserAuthenticationSource_AuthSource_auth() {
-    setAuthentication("auth")
+    setAuthentication(AUTH)
     assertThat(authenticationFacade.authenticationSource).isEqualTo(AUTH)
-  }
-
-  @Test
-  fun getProxyUserAuthenticationSource_AuthSource_null() {
-    setAuthentication(null)
-    assertThat(authenticationFacade.authenticationSource).isEqualTo(NONE)
   }
 
   @Test
@@ -46,7 +41,7 @@ class AuthenticationFacadeTest {
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
   fun hasRolesTest(role: String, expected: Boolean) {
     setAuthentication(
-      "auth",
+      AUTH,
       setOf<GrantedAuthority>(
         SimpleGrantedAuthority("ROLE_SYSTEM_USER"),
       ),
@@ -60,23 +55,23 @@ class AuthenticationFacadeTest {
   @CsvSource("ROLE_SYSTEM_USER,true", "SYSTEM_USER,true", "SYSTEMUSER,false")
   fun hasClientRolesTest(role: String, expected: Boolean) {
     setAuthentication(
-      "auth",
+      AUTH,
       setOf<GrantedAuthority>(
         SimpleGrantedAuthority("ROLE_SYSTEM_USER"),
       ),
-      true,
+      userName = null,
     )
     assertThat(AuthenticationFacade.hasRoles(role)).isEqualTo(expected)
     assertThat(authenticationFacade.isOverrideRole(role)).isEqualTo(expected)
     assertThat(authenticationFacade.isClientOnly).isTrue
   }
 
-  private fun setAuthentication(source: String?) {
+  private fun setAuthentication(source: AuthSource) {
     setAuthentication(source, emptySet())
   }
 
-  private fun setAuthentication(source: String?, authoritySet: Set<GrantedAuthority>, clientOnly: Boolean = false) {
-    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), "client", "clientId", "grantType", clientOnly, source, authoritySet)
+  private fun setAuthentication(source: AuthSource, authoritySet: Set<GrantedAuthority>, userName: String? = "userName") {
+    val auth: Authentication = AuthAwareAuthenticationToken(mock(Jwt::class.java), userName, "clientId", source, authoritySet)
     SecurityContextHolder.getContext().authentication = auth
   }
 
@@ -92,13 +87,7 @@ class AuthenticationFacadeTest {
 
   @Test
   fun getClientId() {
-    setAuthentication(null)
+    setAuthentication(NONE)
     assertThat(authenticationFacade.clientId).isEqualTo("clientId")
-  }
-
-  @Test
-  fun getGrantType() {
-    setAuthentication(null)
-    assertThat(authenticationFacade.grantType).isEqualTo("grantType")
   }
 }
