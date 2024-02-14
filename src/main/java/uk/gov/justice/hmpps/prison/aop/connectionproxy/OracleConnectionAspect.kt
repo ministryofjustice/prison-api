@@ -6,8 +6,8 @@ import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
-import uk.gov.justice.hmpps.prison.security.AuthSource
-import uk.gov.justice.hmpps.prison.security.AuthSource.NOMIS
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.util.MdcUtility.IP_ADDRESS
 import uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER

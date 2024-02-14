@@ -31,15 +31,12 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.30")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.0.6")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
-  implementation("org.springframework.boot:spring-boot-starter-security")
-  implementation("org.springframework.boot:spring-boot-starter-cache")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
-
-  implementation("org.springframework.boot:spring-boot-starter-oauth2-resource-server")
 
   implementation("commons-codec:commons-codec:1.16.0")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")

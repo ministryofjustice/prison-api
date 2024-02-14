@@ -21,7 +21,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.slf4j.MDC
-import uk.gov.justice.hmpps.prison.security.AuthSource
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.util.MdcUtility
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource

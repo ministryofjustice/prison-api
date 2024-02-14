@@ -8,7 +8,8 @@ import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.prison.web.config.AuthAwareAuthenticationToken;
+import uk.gov.justice.hmpps.kotlin.auth.AuthAwareAuthenticationToken;
+import uk.gov.justice.hmpps.kotlin.auth.AuthSource;
 
 import java.util.Arrays;
 import java.util.Collection;
@@ -49,8 +50,10 @@ public class AuthenticationFacade {
     public boolean isClientOnly() {
         final var authentication = getAuthentication();
         if (!(authentication instanceof AuthAwareAuthenticationToken)) return false;
+        final var client = ((AuthAwareAuthenticationToken) authentication).getClientId();
+        final var principal = ((AuthAwareAuthenticationToken) authentication).getPrincipal();
 
-        return ((AuthAwareAuthenticationToken) authentication).isClientOnly();
+        return client.equals(principal);
     }
 
     public String getClientId() {
@@ -58,13 +61,6 @@ public class AuthenticationFacade {
         if (!(authentication instanceof AuthAwareAuthenticationToken)) return null;
 
         return (String)((AuthAwareAuthenticationToken) authentication).getClientId();
-    }
-
-    public String getGrantType() {
-        final var authentication = getAuthentication();
-        if (!(authentication instanceof AuthAwareAuthenticationToken)) return null;
-
-        return (String)((AuthAwareAuthenticationToken) authentication).getGrantType();
     }
 
     public AuthSource getAuthenticationSource() {
