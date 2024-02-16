@@ -125,7 +125,7 @@ class OffenderResourceIntTest : ResourceTest() {
 
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/case-notes/v2")
-  inner class GetOffenderCaseNotes{
+  inner class GetOffenderCaseNotes {
     @Test
     fun testCanRetrieveCaseNotesForOffender() {
       val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
