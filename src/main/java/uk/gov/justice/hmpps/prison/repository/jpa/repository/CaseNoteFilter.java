@@ -27,8 +27,6 @@ import java.util.Map;
 public class CaseNoteFilter implements Specification<OffenderCaseNote> {
 
     private Long bookingId;
-    private String type;
-    private String subType;
     private String prisonId;
     private LocalDate startDate;
     private LocalDate endDate;
@@ -40,14 +38,6 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
 
         if (bookingId != null) {
             predicateBuilder.add(cb.equal(root.get("offenderBooking").get("bookingId"), bookingId));
-        }
-
-        if (StringUtils.isNotBlank(type)) {
-            predicateBuilder.add(cb.equal(root.get("type").get("code"), type));
-        }
-
-        if (StringUtils.isNotBlank(subType)) {
-            predicateBuilder.add(cb.equal(root.get("subType").get("code"), subType));
         }
 
         if (StringUtils.isNotBlank(prisonId)) {
@@ -63,34 +53,37 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
         }
 
         if(types!=null&&!types.isEmpty()){
-            final ImmutableList.Builder<Predicate> typesPredicateorBuilder = ImmutableList.builder();
-            types.forEach((String type, List<String> subTypes)->{
-
-                if(subTypes==null||subTypes.isEmpty()){
-                    typesPredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
-                }
-                else{
-
-                    final ImmutableList.Builder<Predicate>  typePredicateorBuilder = ImmutableList.builder();
-                    typePredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
-
-                    final var inTypes = cb.in(root.get("subType").get("code"));
-                    subTypes.forEach(inTypes::value);
-                    typePredicateorBuilder.add(inTypes);
-
-                    final var typePredicates = typePredicateorBuilder.build();
-                    typesPredicateorBuilder.add(cb.and(typePredicates.toArray(new Predicate[0])));
-
-                }
-
-            });
-           final var typesPredicates=  typesPredicateorBuilder.build();
-           predicateBuilder.add(cb.or(typesPredicates.toArray(new Predicate[0])));
+           predicateBuilder.add(getTypesPredicate(root,cb));
         }
 
         final var predicates = predicateBuilder.build();
         return cb.and(predicates.toArray(new Predicate[0]));
+    }
 
+    private Predicate getTypesPredicate(final Root<OffenderCaseNote> root, final CriteriaBuilder cb) {
+        final ImmutableList.Builder<Predicate> typesPredicateorBuilder = ImmutableList.builder();
+        types.forEach((String type, List<String> subTypes)->{
 
+            if(subTypes==null||subTypes.isEmpty()){
+                typesPredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
+            }
+            else{
+                typesPredicateorBuilder.add(getSubtypesPredicate(root,cb,type,subTypes));
+            }
+        });
+        final var typesPredicates=  typesPredicateorBuilder.build();
+        return cb.or(typesPredicates.toArray(new Predicate[0]));
+    }
+
+    private Predicate getSubtypesPredicate(final Root<OffenderCaseNote> root, final CriteriaBuilder cb,final String type, final List<String> subTypes) {
+        final ImmutableList.Builder<Predicate>  typePredicateorBuilder = ImmutableList.builder();
+        typePredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
+
+        final var inTypes = cb.in(root.get("subType").get("code"));
+        subTypes.forEach(inTypes::value);
+        typePredicateorBuilder.add(inTypes);
+
+        final var typePredicates = typePredicateorBuilder.build();
+        return cb.and(typePredicates.toArray(new Predicate[0]));
     }
 }
