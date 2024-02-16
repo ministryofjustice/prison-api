@@ -44,9 +44,11 @@ import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.lang.String.format;
@@ -100,7 +102,27 @@ public class CaseNoteService {
         this.staffUserAccountRepository = staffUserAccountRepository;
     }
 
-    public Page<CaseNote> getCaseNotes(final CaseNoteFilter caseNoteFilter, final Pageable pageable) {
+    public Page<CaseNote> getCaseNotes(final String offenderNo,final LocalDate from,final LocalDate to,final String type,final String subType,final String prisonId,final List<String> caseNoteTypeSubTypes, final Pageable pageable) {
+        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        final var types = new ArrayList<>(Optional.ofNullable(caseNoteTypeSubTypes).orElseGet(Collections::emptyList));
+        //Add request param type and subtype for backward compatibility
+        if(type!=null){
+            if(subType!=null){
+                types.add(type+"+"+subType);
+            }
+            else{
+                types.add(type);
+            }
+        }
+
+        final var caseNoteFilter = CaseNoteFilter.builder()
+            .types(QueryParamHelper.splitTypes(types))
+            .prisonId(prisonId)
+            .startDate(from)
+            .endDate(to)
+            .bookingId(latestBookingByOffenderNo.getBookingId())
+            .build();
+
         final var pagedListOfCaseNotes = offenderCaseNoteRepository.findAll(caseNoteFilter, pageable);
         final var transformedCaseNotes = pagedListOfCaseNotes.stream().map(transformer::transform).toList();
 

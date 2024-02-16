@@ -16,6 +16,8 @@ import jakarta.persistence.criteria.CriteriaQuery;
 import jakarta.persistence.criteria.Predicate;
 import jakarta.persistence.criteria.Root;
 import java.time.LocalDate;
+import java.util.List;
+import java.util.Map;
 
 @Getter
 @Builder(toBuilder = true)
@@ -30,6 +32,7 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
     private String prisonId;
     private LocalDate startDate;
     private LocalDate endDate;
+    private Map<String, List<String>> types;
 
     @Override
     public Predicate toPredicate(@NotNull final Root<OffenderCaseNote> root, @NotNull final CriteriaQuery<?> query, @NotNull final CriteriaBuilder cb) {
@@ -57,6 +60,32 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
 
         if (endDate != null) {
             predicateBuilder.add(cb.lessThan(root.get("occurrenceDate"), endDate.plusDays(1)));
+        }
+
+        if(types!=null&&!types.isEmpty()){
+            final ImmutableList.Builder<Predicate> typesPredicateorBuilder = ImmutableList.builder();
+            types.forEach((String type, List<String> subTypes)->{
+
+                if(subTypes==null||subTypes.isEmpty()){
+                    typesPredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
+                }
+                else{
+
+                    final ImmutableList.Builder<Predicate>  typePredicateorBuilder = ImmutableList.builder();
+                    typePredicateorBuilder.add(cb.equal(root.get("type").get("code"), type));
+
+                    final var inTypes = cb.in(root.get("subType").get("code"));
+                    subTypes.forEach(inTypes::value);
+                    typePredicateorBuilder.add(inTypes);
+
+                    final var typePredicates = typePredicateorBuilder.build();
+                    typesPredicateorBuilder.add(cb.and(typePredicates.toArray(new Predicate[0])));
+
+                }
+
+            });
+           final var typesPredicates=  typesPredicateorBuilder.build();
+           predicateBuilder.add(cb.or(typesPredicates.toArray(new Predicate[0])));
         }
 
         final var predicates = predicateBuilder.build();

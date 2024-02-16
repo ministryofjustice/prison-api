@@ -123,46 +123,92 @@ class OffenderResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun testCanRetrieveCaseNotesForOffender() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "casenotes.json")
-  }
+  @Nested
+  @DisplayName("GET /api/offenders/{offenderNo}/case-notes/v2")
+  inner class GetOffenderCaseNotes{
+    @Test
+    fun testCanRetrieveCaseNotesForOffender() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "casenotes.json")
+    }
 
-  @Test
-  fun testViewCaseNotesRoleCanRetrieveCaseNotesForOffender() {
-    val token = authTokenHelper.getToken(AuthToken.VIEW_CASE_NOTES)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThatJsonFileAndStatus(response, 200, "casenotes.json")
-  }
+    @Test
+    fun testViewCaseNotesRoleCanRetrieveCaseNotesForOffender() {
+      val token = authTokenHelper.getToken(AuthToken.VIEW_CASE_NOTES)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "casenotes.json")
+    }
 
-  @Test
-  fun testCannotRetrieveCaseNotesForOffenderWithViewPrisonerData() {
-    val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-      OFFENDER_NUMBER,
-    )
-    assertThat(response.statusCode.value()).isEqualTo(403)
+    @Test
+    fun testCanFilterCaseNotesByType() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2?type=ETE",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "casenotes_type_ETE.json")
+    }
+
+    @Test
+    fun testCanFilterCaseNotesByTypeAndSubType() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2?type=ETE&subType=ETERTO",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "casenotes_type_ETE.json")
+    }
+
+    @Test
+    fun testCanFilterCaseNotesByMultipleTypeAndSubTypes() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2?type=ETE&subType=ETERTO&caseNoteTypeSubTypes=APP&caseNoteTypeSubTypes=COMMS+COM_IN",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThatJsonFileAndStatus(response, 200, "casenotes_by_multiple_type_and_subTypes.json")
+    }
+
+    @Test
+    fun testCannotRetrieveCaseNotesForOffenderWithViewPrisonerData() {
+      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+        OFFENDER_NUMBER,
+      )
+      assertThat(response.statusCode.value()).isEqualTo(403)
+    }
   }
 
   @Nested
