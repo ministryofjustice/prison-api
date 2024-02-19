@@ -722,7 +722,6 @@ public class AgencyResourceTest extends ResourceTest {
             httpEntity,
             new ParameterizedTypeReference<String>() {
             });
-        System.out.println(response);
         assertThatJsonFileAndStatus(response, 200, "reception_with_capacity.json");
     }
 

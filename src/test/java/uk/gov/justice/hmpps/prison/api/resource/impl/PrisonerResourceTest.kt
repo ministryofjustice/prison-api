@@ -241,6 +241,39 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
+    fun `does not return released prisoner release date when client does not have override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/prisoners/Z0020ZZ/full-status")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("establishmentCode").isEqualTo("OUT")
+        .jsonPath("releaseDate").doesNotExist()
+    }
+
+    @Test
+    fun `returns released prisoner release date when client has override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/prisoners/Z0020ZZ/full-status")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA", "INACTIVE_BOOKINGS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("establishmentCode").isEqualTo("OUT")
+        .jsonPath("releaseDate").isNotEmpty
+    }
+
+    @Test
+    fun `does not return released prisoner release date when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/prisoners/Z0020ZZ/full-status")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA", "SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("establishmentCode").isEqualTo("OUT")
+        .jsonPath("releaseDate").doesNotExist()
+    }
+
+    @Test
     fun testReturn404WhenOffenderNotFound() {
       val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
       val response = testRestTemplate.exchange(
