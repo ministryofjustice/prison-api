@@ -83,7 +83,7 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
         }
 
         final var predicates = predicateBuilder.build();
-        return cb.and(predicates.toArray(new Predicate[0]));
+        return cb.and(predicates.toArray(Predicate[]::new));
     }
 
     private Predicate getTypesPredicate(final Root<OffenderCaseNote> root, final CriteriaBuilder cb) {
@@ -110,6 +110,6 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
         typePredicateorBuilder.add(inTypes);
 
         final var typePredicates = typePredicateorBuilder.build();
-        return cb.and(typePredicates.toArray(new Predicate[0]));
+        return cb.and(typePredicates.toArray(Predicate[]::new));
     }
 }
