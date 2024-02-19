@@ -611,15 +611,15 @@ public class OffenderResource {
                                                @RequestParam(value = "typeSubTypes", required = false) @Parameter(description = "Filter by list of case note types and optional case note sub types separated by plus. Cannot be used in conjunction with type or subType.", example = "KA+KE,OBS,POMK+GEN") final List<String> typeSubTypes,
                                                @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        final var caseNoteFilter = CaseNoteFilter.builder()
-            .type(type)
-            .subType(subType)
-            .typesSubTypes(typeSubTypes)
-            .prisonId(prisonId)
-            .startDate(from)
-            .endDate(to)
-            .bookingId(latestBookingByOffenderNo.getBookingId())
-            .build();
+        final var caseNoteFilter = new CaseNoteFilter(
+            latestBookingByOffenderNo.getBookingId(),
+            prisonId,
+            from,
+            to,
+            type,
+            subType,
+            typeSubTypes
+        );
         return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
 
     }
