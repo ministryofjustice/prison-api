@@ -6,7 +6,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.HttpMethod
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.web.reactive.server.WebTestClient
 import java.net.HttpURLConnection
 
@@ -190,6 +191,38 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns released prisoner sentence detail when client has override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/offender-sentences?offenderNo=Z0020ZZ")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_INACTIVE_BOOKINGS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].agencyLocationId").isEqualTo("OUT")
+        .jsonPath("[0].sentenceDetail.bookingId").isEqualTo(-20)
+        .jsonPath("[0].sentenceDetail.releaseDate").isNotEmpty
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.get().uri("/api/offender-sentences?offenderNo=Z0020ZZ")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_SYSTEM_USER")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client does not have override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.get().uri("/api/offender-sentences?offenderNo=Z0020ZZ")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
     fun offenderSentence_400ErrorWhenNoCaseloadsProvided() {
       webTestClient.get()
         .uri("/api/offender-sentences")
@@ -287,7 +320,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.post().uri("/api/offender-sentences")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isUnauthorized
@@ -298,7 +331,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns 403 when client has no override role`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isForbidden
@@ -309,7 +342,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns empty list when client has no override role`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectBody().jsonPath("length()").isEqualTo(0)
@@ -319,7 +352,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isOk
@@ -330,7 +363,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isOk
@@ -341,7 +374,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isOk
@@ -352,7 +385,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isOk
@@ -363,7 +396,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns 404 if not in user caseload`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A1234AH\" ]")
         .exchange()
         .expectStatus().isOk
@@ -374,7 +407,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns 404 if offender does not exist`() {
       webTestClient.post().uri("/api/offender-sentences")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ \"A9999ZZ\" ]")
         .exchange()
         .expectStatus().isOk
@@ -382,17 +415,54 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns released prisoner sentence detail when client has override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_INACTIVE_BOOKINGS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"Z0020ZZ\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].agencyLocationId").isEqualTo("OUT")
+        .jsonPath("[0].sentenceDetail.bookingId").isEqualTo(-20)
+        .jsonPath("[0].sentenceDetail.releaseDate").isNotEmpty
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"Z0020ZZ\" ]").exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client does not have override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.post().uri("/api/offender-sentences")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ \"Z0020ZZ\" ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
     fun postOffenderSentence_success() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [ "A1234AH" ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -404,7 +474,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [
@@ -414,7 +484,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
             ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -426,13 +496,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [ "A1234AH" ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -444,13 +514,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [ "A1234AH" ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -462,13 +532,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [ "A1234AH" ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -480,13 +550,13 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             []
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
@@ -502,7 +572,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isUnauthorized
@@ -512,7 +582,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns empty result when client has no override role`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
         .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isOk
@@ -523,7 +593,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isOk
@@ -534,7 +604,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isOk
@@ -545,7 +615,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_CREATE_CATEGORISATION`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
         .headers(setClientAuthorisation(listOf("ROLE_CREATE_CATEGORISATION")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isOk
@@ -556,7 +626,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_APPROVE_CATEGORISATION`() {
       webTestClient.post().uri("/api/offender-sentences/bookings")
         .headers(setClientAuthorisation(listOf("ROLE_APPROVE_CATEGORISATION")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .exchange()
         .expectStatus().isOk
@@ -564,17 +634,51 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns released prisoner sentence detail when client has override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_INACTIVE_BOOKINGS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -20 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("[0].agencyLocationId").isEqualTo("OUT")
+        .jsonPath("[0].sentenceDetail.bookingId").isEqualTo(-20)
+        .jsonPath("[0].sentenceDetail.releaseDate").isNotEmpty
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client has override role ROLE_SYSTEM_USER`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "ROLE_SYSTEM_USER")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -20 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `does not return released prisoner sentence detail when client does not have override role ROLE_INACTIVE_BOOKINGS`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -20 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
     fun postOffenderSentenceBookings_success() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-8" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -586,13 +690,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-1", "-16", "-36" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -1, -16, -36 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -608,13 +708,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-11", "-5", "-16" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -11, -5, -16 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -628,16 +724,16 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(
           """
             [ 
-              "-58", "-34", "-33", "-32", "-31", "-30", "-29", "-28", "-27", "-25", "-24", "-19", "-18", 
-              "-17", "-12", "-11", "-10", "-9", "-8", "-7", "-6", "-5", "-4", "-3", "-2", "-1", "16048" 
+              -58, -34, -33, -32, -31, -30, -29, -28, -27, -25, -24, -19, -18, 
+              -17, -12, -11, -10, -9, -8, -7, -6, -5, -4, -3, -2, -1, 16048 
             ]
           """,
         )
-        .accept(MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -649,13 +745,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-8" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -671,13 +763,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("UNKNOWN_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-8" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -693,13 +781,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            [ "-8" ]
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -8 ]")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -711,13 +795,9 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            []
-          """,
-        )
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(" [] ")
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
