@@ -78,7 +78,7 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
             predicateBuilder.add(cb.lessThan(root.get("occurrenceDate"), endDate.plusDays(1)));
         }
 
-        if(typesSubTypes != null && !typesSubTypes.isEmpty()){
+        if(typesSubTypes != null){
            predicateBuilder.add(getTypesPredicate(root, cb));
         }
 
