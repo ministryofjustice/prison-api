@@ -605,23 +605,23 @@ public class OffenderResource {
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
                                                @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
-                                               @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type", example = "GEN") final String type,
-                                               @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type", example = "OBS") final String subType,
+                                               @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type. Cannot be used in conjunction with typeSubTypes.", example = "GEN") final String type,
+                                               @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type. Cannot be used in conjunction with typeSubTypes.", example = "OBS") final String subType,
                                                @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
+                                               @RequestParam(value = "typeSubTypes", required = false) @Parameter(description = "Filter by list of case note types and optional case note sub types separated by plus. Cannot be used in conjunction with type or subType.", example = "KA+KE,OBS,POMK+GEN") final List<String> typeSubTypes,
                                                @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
-
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-
         final var caseNoteFilter = CaseNoteFilter.builder()
             .type(type)
             .subType(subType)
+            .typesSubTypes(typeSubTypes)
             .prisonId(prisonId)
             .startDate(from)
             .endDate(to)
             .bookingId(latestBookingByOffenderNo.getBookingId())
             .build();
-
         return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
+
     }
 
     @ApiResponses({

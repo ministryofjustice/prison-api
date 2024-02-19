@@ -1,0 +1,77 @@
+{
+  "content": [
+    {
+      "caseNoteId": -5,
+      "bookingId": -2,
+      "type": "COMMS",
+      "typeDescription": "Communication",
+      "subType": "COM_OUT",
+      "subTypeDescription": "Communication OUT",
+      "creationDateTime": "2017-05-06T17:11:00",
+      "occurrenceDateTime": "2017-05-06T17:11:00",
+      "staffId": -2,
+      "authorName": "User, Api",
+      "text": "Test outward communication one.",
+      "originalNoteText": "Test outward communication one.",
+      "agencyId": "LEI",
+      "amendments": []
+    },
+    {
+      "caseNoteId": -3,
+      "bookingId": -2,
+      "type": "APP",
+      "typeDescription": "Appointment",
+      "subType": "OUTCOME",
+      "subTypeDescription": "Outcome of Schedule",
+      "creationDateTime": "2017-04-11T18:42:00",
+      "occurrenceDateTime": "2017-04-11T18:42:00",
+      "staffId": -1,
+      "authorName": "User, Prison",
+      "text": "Appointment with dentist.",
+      "originalNoteText": "Appointment with dentist.",
+      "agencyId": "LEI",
+      "amendments": []
+    },
+    {
+      "caseNoteId": -2,
+      "bookingId": -2,
+      "type": "COMMS",
+      "typeDescription": "Communication",
+      "subType": "COM_IN",
+      "subTypeDescription": "Communication IN",
+      "creationDateTime": "2017-04-05T13:23:00",
+      "occurrenceDateTime": "2017-04-05T13:23:00",
+      "staffId": -1,
+      "authorName": "User, Prison",
+      "text": "Test inward communication one.",
+      "originalNoteText": "Test inward communication one.",
+      "agencyId": "LEI",
+      "amendments": []
+    }
+  ],
+  "pageable": {
+    "sort": {
+      "sorted": true,
+      "unsorted": false,
+      "empty": false
+    },
+    "offset": 0,
+    "pageNumber": 0,
+    "pageSize": 10,
+    "paged": true,
+    "unpaged": false
+  },
+  "last": true,
+  "totalElements": 3,
+  "totalPages": 1,
+  "size": 10,
+  "number": 0,
+  "sort": {
+    "sorted": true,
+    "unsorted": false,
+    "empty": false
+  },
+  "numberOfElements": 3,
+  "first": true,
+  "empty": false
+}
