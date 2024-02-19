@@ -97,9 +97,8 @@ public class CaseNoteFilter implements Specification<OffenderCaseNote> {
                 else{
                     return getSubtypesPredicate(root, cb, typeSet.getKey() ,typeSet.getValue());
                 }
-            })
-            .toList();
-        return cb.or(typesPredicates.toArray(new Predicate[0]));
+            });
+        return cb.or(typesPredicates.toArray(Predicate[]::new));
     }
 
     private Predicate getSubtypesPredicate(final Root<OffenderCaseNote> root, final CriteriaBuilder cb, final String type, final List<String> subTypes) {
