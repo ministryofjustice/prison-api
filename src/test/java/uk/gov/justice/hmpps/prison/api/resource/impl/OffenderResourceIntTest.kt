@@ -183,17 +183,33 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun testCanFilterCaseNotesByMultipleTypeAndSubTypes() {
+    fun testCanFilterCaseNotesByTypeSubType() {
       val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}/case-notes/v2?type=ETE&subType=ETERTO&caseNoteTypeSubTypes=APP&caseNoteTypeSubTypes=COMMS+COM_IN",
+        "/api/offenders/{nomsId}/case-notes/v2?typeSubTypes=APP&typeSubTypes=COMMS+COM_IN&typeSubTypes=COMMS+COM_OUT",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes_by_multiple_type_and_subTypes.json")
+    }
+
+    @Test
+    fun testCannotSetBothTypeAndTypeSubTypes() {
+      val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{nomsId}/case-notes/v2?type=ETE&subType=ETERTO&typeSubTypes=APP&typeSubTypes=COMMS+COM_IN",
+        GET,
+        httpEntity,
+        ErrorResponse::class.java,
+        OFFENDER_NUMBER,
+      )
+      val error = response.body!!
+      assertThat(response.statusCode.value()).isEqualTo(400)
+      assertThat(error.userMessage).contains("Both type and typesAndSubTypes are set, please only use one to filter.")
     }
 
     @Test

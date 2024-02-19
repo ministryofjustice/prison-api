@@ -70,6 +70,7 @@ import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
@@ -607,9 +608,19 @@ public class OffenderResource {
                                                @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type", example = "GEN") final String type,
                                                @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type", example = "OBS") final String subType,
                                                @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
-                                               @RequestParam(value = "caseNoteTypeSubTypes", required = false) @Parameter(description = "Filter by list of case note types and optional case note sub types separated by plus", example = "KA+KE,OBS,POMK+GEN") final List<String> caseNoteTypeSubTypes,
+                                               @RequestParam(value = "typeSubTypes", required = false) @Parameter(description = "Filter by list of case note types and optional case note sub types separated by plus", example = "KA+KE,OBS,POMK+GEN") final List<String> typeSubTypes,
                                                @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
-        return caseNoteService.getCaseNotes(offenderNo,from,to,type,subType,prisonId,caseNoteTypeSubTypes,pageable);
+        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
+        final var caseNoteFilter = CaseNoteFilter.builder()
+            .type(type)
+            .subType(subType)
+            .typesSubTypes(typeSubTypes)
+            .prisonId(prisonId)
+            .startDate(from)
+            .endDate(to)
+            .bookingId(latestBookingByOffenderNo.getBookingId())
+            .build();
+        return caseNoteService.getCaseNotes(caseNoteFilter,pageable);
 
     }
 
