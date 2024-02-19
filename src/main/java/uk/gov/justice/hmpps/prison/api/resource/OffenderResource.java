@@ -620,7 +620,7 @@ public class OffenderResource {
             .endDate(to)
             .bookingId(latestBookingByOffenderNo.getBookingId())
             .build();
-        return caseNoteService.getCaseNotes(caseNoteFilter,pageable);
+        return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
 
     }
 
