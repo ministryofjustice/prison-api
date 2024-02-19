@@ -32,7 +32,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter.builder
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter
 import java.time.Clock
@@ -209,7 +209,7 @@ class OffenderResourceIntTest : ResourceTest() {
       )
       val error = response.body!!
       assertThat(response.statusCode.value()).isEqualTo(400)
-      assertThat(error.userMessage).contains("Both type and typesAndSubTypes are set, please only use one to filter.")
+      assertThat(error.userMessage).contains("Both type and typesSubTypes are set, please only use one to filter.")
     }
 
     @Test
@@ -1209,7 +1209,7 @@ class OffenderResourceIntTest : ResourceTest() {
 
     @Test
     fun `Multiple case notes successfully created for offender`() {
-      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(8)
+      assertThat(offenderCaseNoteRepository.findAll(CaseNoteFilter(bookingId = -32), unpaged())).size().isEqualTo(8)
 
       val caseNote1 = webTestClient.post().uri("/api/offenders/A1176RS/case-notes")
         .headers(setAuthorisation(listOf()))
@@ -1248,7 +1248,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .returnResult(CaseNote::class.java).responseBody.blockFirst()!!
 
-      assertThat(offenderCaseNoteRepository.findAll(builder().bookingId(-32).build(), unpaged())).size().isEqualTo(10)
+      assertThat(offenderCaseNoteRepository.findAll(CaseNoteFilter(bookingId = -32), unpaged())).size().isEqualTo(10)
 
       removeCaseNoteCreated(caseNote1.caseNoteId)
       removeCaseNoteCreated(caseNote2.caseNoteId)
