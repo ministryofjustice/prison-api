@@ -38,15 +38,6 @@ class CacheConfig : CachingConfigurer {
 
   @Bean
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
-    // single item cache jwks json with no expiry
-    cm.createCache(
-      "jwks",
-      Eh107Configuration.fromEhcacheCacheConfiguration(
-        CacheConfigurationBuilder
-          .newCacheConfigurationBuilder(String::class.java, String::class.java, ResourcePoolsBuilder.heap(1)),
-      ),
-    )
-
     cm.createCache(
       "referenceDomain",
       String::class.java,

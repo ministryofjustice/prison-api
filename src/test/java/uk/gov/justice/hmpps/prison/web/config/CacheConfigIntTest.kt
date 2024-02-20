@@ -67,7 +67,7 @@ class CacheConfigIntTest {
   fun `test that each cache is tested by this class`() {
     val nestedTests = this::class.nestedClasses.map { it.simpleName!!.replace("_.*".toRegex(), "") }.toSet()
 
-    assertThat(cacheManager.cacheNames.toSet().minus(nestedTests).minus("jwks")).isEmpty()
+    assertThat(cacheManager.cacheNames.toSet().minus(nestedTests)).isEmpty()
   }
 
   @Nested
