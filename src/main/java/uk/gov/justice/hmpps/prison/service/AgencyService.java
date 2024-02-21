@@ -389,7 +389,7 @@ public class AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
-            .filter((l) -> l.isActiveCellWithSpace(true))
+            .filter((l) -> l.isActiveCellWithSpace())
             .map(cell -> transform(cell, true))
             .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
             .collect(toList());
@@ -398,7 +398,7 @@ public class AgencyService {
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(agencyId, "RECP", true);
         return receptions.stream()
-            .filter(l -> l.isActiveReceptionWithSpace(true))
+            .filter(l -> l.isActiveReceptionWithSpace())
             .map(recep -> transform(recep, true))
             .filter(recep -> attribute == null || recep.getAttributes().stream().anyMatch(a -> a.getCode().equals(attribute)))
             .collect(toList());
@@ -437,7 +437,7 @@ public class AgencyService {
                 .build())
             .collect(toList());
         return OffenderCell.builder()
-            .capacity(cell.getActualCapacity(treatZeroOperationalCapacityAsNull))
+            .capacity(cell.getActualCapacity())
             .noOfOccupants(cell.getCurrentOccupancy())
             .id(cell.getLocationId())
             .description(cell.getDescription())
