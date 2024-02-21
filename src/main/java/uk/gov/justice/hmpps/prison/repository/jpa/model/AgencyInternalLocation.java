@@ -142,8 +142,8 @@ public class AgencyInternalLocation {
         return isActive() && isReception();
     }
 
-    public boolean hasSpace(final boolean treatZeroOperationalCapacityAsNull) {
-        final var capacity = getActualCapacity(treatZeroOperationalCapacityAsNull);
+    public boolean hasSpace() {
+        final var capacity = getActualCapacity();
         return capacity != null && currentOccupancy != null && currentOccupancy < capacity;
     }
 
@@ -157,15 +157,15 @@ public class AgencyInternalLocation {
         return currentOccupancy;
     }
 
-    public boolean isActiveCellWithSpace(final boolean treatZeroOperationalCapacityAsNull) {
-        return isActiveCell() && hasSpace(treatZeroOperationalCapacityAsNull);
+    public boolean isActiveCellWithSpace() {
+        return isActiveCell() && hasSpace();
     }
-    public boolean isActiveReceptionWithSpace(final boolean treatZeroOperationalCapacityAsNull) {
-        return isActiveReception() && hasSpace(treatZeroOperationalCapacityAsNull);
+    public boolean isActiveReceptionWithSpace() {
+        return isActiveReception() && hasSpace();
     }
 
-    public Integer getActualCapacity(final boolean treatZeroOperationalCapacityAsNull) {
-        final var useOperationalCapacity = operationalCapacity != null && !(treatZeroOperationalCapacityAsNull && operationalCapacity == 0);
+    public Integer getActualCapacity() {
+        final var useOperationalCapacity = operationalCapacity != null && operationalCapacity != 0;
         return useOperationalCapacity ? operationalCapacity : capacity;
     }
 

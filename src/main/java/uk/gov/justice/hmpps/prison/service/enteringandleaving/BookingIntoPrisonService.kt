@@ -236,7 +236,7 @@ class BookingIntoPrisonService(
   ): Result<AgencyInternalLocation> =
     agencyInternalLocationRepository.findOneByDescriptionAndAgencyIdOrNull(internalLocationDescription, prison.id)
       ?.let {
-        it.takeIf { it.hasSpace(true) }?.let { internalLocation -> success(internalLocation) } ?: failure(
+        it.takeIf { it.hasSpace() }?.let { internalLocation -> success(internalLocation) } ?: failure(
           ConflictingRequestException.withMessage(
             "The cell $internalLocationDescription does not have any available capacity",
             CustomErrorCodes.NO_CELL_CAPACITY,
