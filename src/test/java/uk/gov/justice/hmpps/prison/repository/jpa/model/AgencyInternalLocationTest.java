@@ -33,7 +33,7 @@ public class AgencyInternalLocationTest {
                 .currentOccupancy(50)
                 .build();
 
-        assertThat(location.isActiveCellWithSpace(false)).isEqualTo(false);
+        assertThat(location.isActiveCellWithSpace()).isEqualTo(false);
     }
 
     @Test
@@ -46,20 +46,7 @@ public class AgencyInternalLocationTest {
                 .currentOccupancy(5)
                 .build();
 
-        assertThat(location.isActiveCellWithSpace(true)).isEqualTo(true);
-    }
-
-    @Test
-    public void testHasSpace_UseZeroOperationalCapacity(){
-        final var location = AgencyInternalLocation.builder()
-            .active(true)
-            .locationType("CELL")
-            .operationalCapacity(0)
-            .capacity(10)
-            .currentOccupancy(5)
-            .build();
-
-        assertThat(location.isActiveCellWithSpace(false)).isEqualTo(false);
+        assertThat(location.isActiveCellWithSpace()).isEqualTo(true);
     }
 
     @Test
@@ -71,7 +58,7 @@ public class AgencyInternalLocationTest {
                 .currentOccupancy(50)
                 .build();
 
-        assertThat(location.isActiveCellWithSpace(false)).isEqualTo(true);
+        assertThat(location.isActiveCellWithSpace()).isEqualTo(true);
     }
 
 
@@ -84,7 +71,7 @@ public class AgencyInternalLocationTest {
                 .currentOccupancy(100)
                 .build();
 
-        assertThat(location.isActiveCellWithSpace(false)).isEqualTo(false);
+        assertThat(location.isActiveCellWithSpace()).isEqualTo(false);
     }
 
     @Test
@@ -97,19 +84,6 @@ public class AgencyInternalLocationTest {
             .currentOccupancy(5)
             .build();
 
-        assertThat(location.getActualCapacity(true)).isEqualTo(10);
-    }
-
-    @Test
-    public void testCapacity_UseZeroOperationalCapacity(){
-        final var location = AgencyInternalLocation.builder()
-            .active(true)
-            .locationType("CELL")
-            .operationalCapacity(0)
-            .capacity(10)
-            .currentOccupancy(5)
-            .build();
-
-        assertThat(location.getActualCapacity(false)).isEqualTo(0);
+        assertThat(location.getActualCapacity()).isEqualTo(10);
     }
 }

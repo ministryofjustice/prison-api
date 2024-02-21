@@ -5,11 +5,9 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 
 import java.time.Clock;
 import java.time.LocalDateTime;
@@ -55,7 +53,7 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
             return transformToCellSwapResult(offenderBooking);
 
-        if (internalLocation.isActiveCellWithSpace(false) || internalLocation.isActiveReceptionWithSpace(false) )
+        if (internalLocation.isActiveCellWithSpace() || internalLocation.isActiveReceptionWithSpace() )
         {
             return saveAndReturnInternalMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
         }

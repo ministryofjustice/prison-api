@@ -334,7 +334,7 @@ private fun ExternalMovement.assertIsActiveTAPTransfer(): Result<ExternalMovemen
 private fun ExternalMovement.isTransfer() = this.movementType.code == MovementType.TRN.code
 private fun ExternalMovement.isCourtTransfer() = this.movementType.code == MovementType.CRT.code
 private fun ExternalMovement.isTAPTransfer() = this.movementType.code == MovementType.TAP.code
-private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternalLocation> = if (this.hasSpace(true)) {
+private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternalLocation> = if (this.hasSpace()) {
   success(this)
 } else {
   failure(
