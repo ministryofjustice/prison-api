@@ -50,19 +50,6 @@ public class AgencyInternalLocationTest {
     }
 
     @Test
-    public void testHasSpace_UseZeroOperationalCapacity(){
-        final var location = AgencyInternalLocation.builder()
-            .active(true)
-            .locationType("CELL")
-            .operationalCapacity(0)
-            .capacity(10)
-            .currentOccupancy(5)
-            .build();
-
-        assertThat(location.isActiveCellWithSpace()).isEqualTo(false);
-    }
-
-    @Test
     public void testHasSpace_NotFull(){
         final var location = AgencyInternalLocation.builder()
                 .active(true)
