@@ -94,11 +94,11 @@ class OffenderResourceIntTest_addressesIntTest : ResourceTest() {
         }
 
         @Test
-        fun `can not view inactive prisoner with even with the correct role`() {
+        fun `can view inactive prisoner with the correct role`() {
           webTestClient.get().uri("/api/offenders/{nomsId}/addresses", inactivePrisoner.offenderNo)
             .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isOk
         }
       }
 
@@ -127,7 +127,7 @@ class OffenderResourceIntTest_addressesIntTest : ResourceTest() {
         }
 
         @Test
-        fun `still can not view inactive prisoner's address even when the user has INACTIVE_BOOKINGS role`() {
+        fun `can view inactive prisoner's address when the user has INACTIVE_BOOKINGS role`() {
           webTestClient.get().uri("/api/offenders/{nomsId}", inactivePrisoner.offenderNo)
             .headers(setAuthorisation(listOf("INACTIVE_BOOKINGS")))
             .exchange()
@@ -135,7 +135,7 @@ class OffenderResourceIntTest_addressesIntTest : ResourceTest() {
           webTestClient.get().uri("/api/offenders/{nomsId}/addresses", inactivePrisoner.offenderNo)
             .headers(setAuthorisation(listOf("INACTIVE_BOOKINGS")))
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isOk
         }
       }
     }
