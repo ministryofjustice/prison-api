@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.3"
   kotlin("plugin.spring") version "1.9.22"
   kotlin("plugin.jpa") version "1.9.22"
   kotlin("plugin.lombok") version "1.9.22"
@@ -25,13 +25,14 @@ val jsqlParserVersion by extra("4.6")
 val hsqldbVersion by extra("2.5.1")
 
 ext["rest-assured.version"] = "5.3.2"
+ext["hibernate.version"] = "6.4.2.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.30")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.1.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.1.2")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -70,12 +71,12 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.4")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.1.0")
-  testImplementation("net.serenity-bdd:serenity-junit:4.1.0")
-  testImplementation("net.serenity-bdd:serenity-spring:4.1.0")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.0")
+  testImplementation("net.serenity-bdd:serenity-core:4.1.3")
+  testImplementation("net.serenity-bdd:serenity-junit:4.1.3")
+  testImplementation("net.serenity-bdd:serenity-spring:4.1.3")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.3")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.4.1")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
