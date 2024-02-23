@@ -31,7 +31,6 @@ import java.util.Set;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -59,7 +58,7 @@ public class OffenderAddressServiceImplTest {
         final var offender = Offender.builder().id(1L).rootOffenderId(1L).build();
         offender.setRootOffender(offender);
         final var offenderBooking = OffenderBooking.builder().offender(offender).build();
-        when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), anyBoolean())).thenReturn(Optional.of(offenderBooking));
+        when(offenderBookingRepository.findByOffenderNomsId(any())).thenReturn(Optional.of(offenderBooking));
         var addresses = List.of(
                 OffenderAddress.builder()
                         .addressId(-15L)
@@ -121,7 +120,7 @@ public class OffenderAddressServiceImplTest {
 
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        verify(offenderBookingRepository).findByOffenderNomsIdAndActive(offenderNo, true);
+        verify(offenderBookingRepository).findByOffenderNomsId(offenderNo);
 
         // ignore Set order for phone and addresses
         RecursiveComparisonConfiguration configuration = RecursiveComparisonConfiguration
@@ -196,12 +195,12 @@ public class OffenderAddressServiceImplTest {
     }
 
     @Test
-    public void testThatExceptionIsThrown_WhenNoActiveOffenderBookingsAreFound() {
-        when(offenderBookingRepository.findByOffenderNomsIdAndActive(any(), anyBoolean()))
+    public void testThatExceptionIsThrown_WhenOffenderIsFound() {
+        when(offenderBookingRepository.findByOffenderNomsId(any()))
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> offenderAddressService.getAddressesByOffenderNo("A12345"))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("No active offender bookings found for offender number A12345\n");
+            .hasMessageContaining("No active offender found for offender number A12345\n");
     }
 }

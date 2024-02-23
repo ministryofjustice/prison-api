@@ -25,6 +25,7 @@ public interface OffenderBookingRepository extends
     CrudRepository<OffenderBooking, Long> {
 
     Optional<OffenderBooking> findByOffenderNomsIdAndActive(String nomsId, boolean active);
+    Optional<OffenderBooking> findByOffenderNomsId(String nomsId);
 
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
