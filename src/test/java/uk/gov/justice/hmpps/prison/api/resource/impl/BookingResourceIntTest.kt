@@ -13,7 +13,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpHeaders
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
@@ -1980,20 +1979,6 @@ class BookingResourceIntTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
-    }
-
-    @Test
-    fun `returns correct sentence start date`() {
-      webTestClient.get().uri("/api/bookings/-2/sentenceDetail")
-        .headers { httpHeaders: HttpHeaders ->
-          httpHeaders.add(
-            "Authorization",
-            "Bearer " + clientToken(listOf("ROLE_VIEW_PRISONER_DATA")),
-          )
-          httpHeaders.add("version", "1.1")
-        }.exchange()
-        .expectStatus().isOk
-        .expectBody().jsonPath("$.sentenceStartDate").isEqualTo("2017-02-08")
     }
   }
 

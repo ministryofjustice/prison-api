@@ -35,12 +35,10 @@ public interface OffenderBookingRepository extends
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
-    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     Page<OffenderBooking> findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
         AgencyLocation agencyLocation, String status, String calculationType, String category, Pageable pageable
     );
 
-    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
         Set<String> nomsIds,
         String status,
