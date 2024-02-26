@@ -557,12 +557,14 @@ public class BookingService {
      * exception is thrown.
      *
      * @param bookingId offender booking id.
+     * @param accessDeniedError true if the method should throw a 403, instead of a 404, if access to the booking is disallowed.
+     * @param rolesAllowed Any system override role that allows access to the booking.
      * @throws EntityNotFoundException if current user does not have access to specified booking and accessDeniedError is false.
      * @throws AccessDeniedException if current user does not have access to specified booking and accessDeniedError is true.
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
-        // system user has access to everything
-        if (isAllowedToViewAllPrisonerData(rolesAllowed)) return;
+
+        if (hasAnySystemOverrideRole(rolesAllowed)) return;
 
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -575,6 +577,10 @@ public class BookingService {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
                 throw new AccessDeniedException(format("Client not authorised to access booking with id %d.", bookingId));
             }
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
+            }
+            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
@@ -599,6 +605,7 @@ public class BookingService {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("bookingId", bookingId.toString());
         logMap.put("bookingCaseload", bookingAgencyId);
+        logMap.put("clientId", authenticationFacade.getClientId());
         logMap.put("currentUser", authenticationFacade.getCurrentUsername());
         logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
@@ -719,7 +726,7 @@ public class BookingService {
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
         final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false),
-            !isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES));
+            !hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES));
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
@@ -988,7 +995,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -1065,7 +1072,7 @@ public class BookingService {
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final List<String> offenderNos) {
 
-        final var viewAllBookings = isAllowedToViewAllPrisonerData(RESTRICTED_ALLOWED_ROLES);
+        final var viewAllBookings = hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES);
         final var caseLoadIdsForUser = getCaseLoadIdForUserIfRequired();
 
         if (offenderNos == null || offenderNos.isEmpty()) {
@@ -1107,7 +1114,7 @@ public class BookingService {
                 .toList();
     }
 
-    private boolean isAllowedToViewAllPrisonerData(final String[] overrideRoles) {
+    private boolean hasAnySystemOverrideRole(final String[] overrideRoles) {
         return authenticationFacade.isOverrideRole(overrideRoles);
     }
 

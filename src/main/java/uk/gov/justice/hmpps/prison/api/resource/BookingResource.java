@@ -177,7 +177,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender detail.", description = "Offender detail.")
     @GetMapping("/offenderNo/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
     public InmateDetail getOffenderBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then full data is returned") final boolean fullInfo,

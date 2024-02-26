@@ -46,8 +46,8 @@ class BookingResourceIntTest_getImageData : ResourceTest() {
     webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/image/data")
       .headers(setAuthorisation("RO_USER", listOf()))
       .exchange()
-      .expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+      .expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
   }
 
   @Test
