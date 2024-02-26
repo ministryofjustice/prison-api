@@ -19,9 +19,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -38,7 +37,7 @@ import static org.mockito.Mockito.when;
 public class OffenderAddressServiceImplTest {
 
     @Mock
-    private OffenderBookingRepository offenderBookingRepository;
+    private OffenderRepository offenderRepository;
 
     @Mock
     private OffenderAddressRepository offenderAddressRepository;
@@ -47,7 +46,7 @@ public class OffenderAddressServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        offenderAddressService = new OffenderAddressService(offenderBookingRepository,offenderAddressRepository);
+        offenderAddressService = new OffenderAddressService(offenderRepository,offenderAddressRepository);
     }
 
     @Test
@@ -57,13 +56,12 @@ public class OffenderAddressServiceImplTest {
 
         final var offender = Offender.builder().id(1L).rootOffenderId(1L).build();
         offender.setRootOffender(offender);
-        final var offenderBooking = OffenderBooking.builder().offender(offender).build();
-        when(offenderBookingRepository.findByOffenderNomsId(any())).thenReturn(Optional.of(offenderBooking));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(any())).thenReturn(Optional.of(offender));
         var addresses = List.of(
                 OffenderAddress.builder()
                         .addressId(-15L)
                         .addressType(new AddressType("HOME", "Home Address"))
-                        .offender(offenderBooking.getOffender())
+                        .offender(offender)
                         .noFixedAddressFlag("N")
                         .commentText(null)
                         .primaryFlag("Y")
@@ -99,7 +97,7 @@ public class OffenderAddressServiceImplTest {
             OffenderAddress.builder()
                         .addressId(-16L)
                         .addressType(new AddressType("BUS", "Business Address"))
-                        .offender(offenderBooking.getOffender())
+                        .offender(offender)
                         .noFixedAddressFlag("Y")
                         .commentText(null)
                         .primaryFlag("N")
@@ -120,7 +118,7 @@ public class OffenderAddressServiceImplTest {
 
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        verify(offenderBookingRepository).findByOffenderNomsId(offenderNo);
+        verify(offenderRepository).findOffenderWithLatestBookingByNomsId(offenderNo);
 
         // ignore Set order for phone and addresses
         RecursiveComparisonConfiguration configuration = RecursiveComparisonConfiguration
@@ -196,11 +194,11 @@ public class OffenderAddressServiceImplTest {
 
     @Test
     public void testThatExceptionIsThrown_WhenOffenderIsFound() {
-        when(offenderBookingRepository.findByOffenderNomsId(any()))
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(any()))
             .thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> offenderAddressService.getAddressesByOffenderNo("A12345"))
             .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("No active offender found for offender number A12345\n");
+            .hasMessageContaining("No offender found for offender number A12345\n");
     }
 }

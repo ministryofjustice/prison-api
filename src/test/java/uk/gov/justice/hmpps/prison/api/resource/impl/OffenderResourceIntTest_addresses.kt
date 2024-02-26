@@ -139,5 +139,106 @@ class OffenderResourceIntTest_addressesIntTest : ResourceTest() {
         }
       }
     }
+
+    @Nested
+    @TestInstance(TestInstance.Lifecycle.PER_CLASS)
+    inner class HappyPath {
+      private lateinit var prisoner: OffenderId
+      private lateinit var prisonerNoAddresses: OffenderId
+
+      @BeforeAll
+      fun setUp() {
+        builder.build {
+          prisoner = offender(lastName = "DUBOIS") {
+            booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2022-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              release(releaseTime = LocalDateTime.parse("2022-08-19T10:00:00"))
+            }
+            booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {}
+            alias(lastName = "DUBBY")
+            alias(lastName = "DUBS")
+            address(
+              premise = "43",
+              street = "FANCY ROAD",
+              locality = "Sheffield",
+              cityCode = "1357",
+              postalCode = "S1 2JH",
+              primary = true,
+              noFixedAddress = false,
+            )
+            address(street = "HIGH ROAD")
+          }
+          prisonerNoAddresses = offender(lastName = "FRANZ") {
+            booking(
+              prisonId = "MDI",
+              bookingInTime = LocalDateTime.parse("2023-07-19T10:00:00"),
+              movementReasonCode = REMAND_REASON,
+            ) {
+              release()
+            }
+          }
+        }
+      }
+
+      @AfterAll
+      fun deletePrisoner() {
+        builder.deletePrisoner(prisoner.offenderNo)
+      }
+
+      @Test
+      fun `will return the address`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/addresses", prisoner.offenderNo)
+          .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("[0].premise").isEqualTo("43")
+          .jsonPath("[0].street").isEqualTo("FANCY ROAD")
+          .jsonPath("[0].locality").isEqualTo("Sheffield")
+          .jsonPath("[0].town").isEqualTo("Shefford")
+          .jsonPath("[0].postalCode").isEqualTo("S1 2JH")
+          .jsonPath("[0].country").isEqualTo("England")
+          .jsonPath("[0].noFixedAddress").isEqualTo(false)
+          .jsonPath("[0].primary").isEqualTo(true)
+      }
+
+      @Test
+      fun `will return all addresses`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/addresses", prisoner.offenderNo)
+          .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("size()").isEqualTo("2")
+      }
+
+      @Test
+      fun `will return OK but empty array for no addresses`() {
+        webTestClient.get().uri("/api/offenders/{nomsId}/addresses", prisonerNoAddresses.offenderNo)
+          .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("size()").isEqualTo("0")
+      }
+    }
+
+    @Nested
+    inner class Validation {
+      @Test
+      fun `will return 404 when prisoner does not exist`() {
+        webTestClient.get().uri("/api/offenders/A8765ZZ/addresses")
+          .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+          .exchange()
+          .expectStatus().isNotFound
+      }
+    }
   }
 }
