@@ -19,8 +19,8 @@ public class OffenderAddressService {
     private final OffenderAddressRepository offenderAddressRepository;
 
     public List<AddressDto> getAddressesByOffenderNo(@NotNull final String offenderNo) {
-        final var offenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
-            .orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender bookings found for offender number %s\n", offenderNo)));
+        final var offenderBooking = offenderBookingRepository.findByOffenderNomsId(offenderNo)
+            .orElseThrow(EntityNotFoundException.withMessage(String.format("No active offender found for offender number %s\n", offenderNo)));
         final var addresses = offenderAddressRepository.findByOffenderId(offenderBooking.getOffender().getRootOffender().getId());
         return AddressTransformer.translate(addresses);
     }
