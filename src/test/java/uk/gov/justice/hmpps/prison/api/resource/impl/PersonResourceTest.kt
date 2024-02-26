@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@DisplayName("GET /api/incidents/{incidentId}")
 class PersonResourceTest : ResourceTest() {
 
   @Nested
@@ -93,6 +93,18 @@ class PersonResourceTest : ResourceTest() {
         .expectBody()
         .json("[]")
     }
+
+    @Test
+    fun `returns multiple addresses for addresses with single and multiple phones`() {
+      webTestClient.get().uri("/api/persons/-8/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(2)
+        .jsonPath("[0].phones.length()").isEqualTo(1)
+        .jsonPath("[1].phones.length()").isEqualTo(2)
+    }
   }
 
   @Nested
@@ -121,6 +133,34 @@ class PersonResourceTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody()
         .json("[]")
+    }
+
+    @Test
+    fun `returns success when person has single phone`() {
+      webTestClient.get().uri("/api/persons/-3/phones")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].phoneId").isEqualTo(-14)
+        .jsonPath("[0].number").isEqualTo("07998 123345")
+        .jsonPath("[0].type").isEqualTo("MOB")
+        .jsonPath("[0].ext").doesNotExist()
+    }
+
+    @Test
+    fun `returns success when person has multiple phones`() {
+      webTestClient.get().uri("/api/persons/-8/phones")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(2)
+        .jsonPath("[*].phoneId").value<List<Int>> { assertThat(it).containsExactlyInAnyOrder(-12, -13) }
+        .jsonPath("[*].number").value<List<String>> { assertThat(it).containsExactlyInAnyOrder("07878 7556677", "0114 2345346") }
+        .jsonPath("[*].type").value<List<String>> { assertThat(it).containsExactlyInAnyOrder("MOB", "HOME") }
+        .jsonPath("[*].ext").value<List<String>> { assertThat(it).containsOnly("345") }
     }
   }
 
