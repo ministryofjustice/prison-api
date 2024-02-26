@@ -764,7 +764,7 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when has offender not in caseload`() {
+    fun `should return 403 when user does not have offender in caseload`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
@@ -772,7 +772,7 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 403 when has offender no in caseload`() {
+    fun `should return 403 when user does not have any caseloads`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
