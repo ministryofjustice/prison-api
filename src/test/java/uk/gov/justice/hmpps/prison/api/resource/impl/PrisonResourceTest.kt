@@ -83,7 +83,7 @@ class PrisonResourceTest : ResourceTest() {
     assertThat(secondPageResponse.pageable.pageNumber).isEqualTo(1)
     assertThat(secondPageResponse.totalPages).isEqualTo(2)
     assertTrue(secondPageResponse.isLast)
-    assertThat(secondPageResponse.content.size).isEqualTo(1)
+    assertThat(secondPageResponse.content.size).isEqualTo(2)
   }
 
   private fun getPrisonResourceAsText(path: String): String {
