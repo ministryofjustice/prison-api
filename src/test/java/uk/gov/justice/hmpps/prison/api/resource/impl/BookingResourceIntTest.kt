@@ -764,6 +764,22 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return 403 when has offender not in caseload`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when has offender no in caseload`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
       webTestClient.get().uri("/api/bookings/offenderNo/{offenderNo}?extraInfo=true", "A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))

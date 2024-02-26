@@ -575,6 +575,10 @@ public class BookingService {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
                 throw new AccessDeniedException(format("Client not authorised to access booking with id %d.", bookingId));
             }
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
+            }
+            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
@@ -599,6 +603,7 @@ public class BookingService {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("bookingId", bookingId.toString());
         logMap.put("bookingCaseload", bookingAgencyId);
+        logMap.put("clientId", authenticationFacade.getClientId());
         logMap.put("currentUser", authenticationFacade.getCurrentUsername());
         logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
