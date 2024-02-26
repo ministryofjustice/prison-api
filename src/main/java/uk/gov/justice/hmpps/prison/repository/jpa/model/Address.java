@@ -20,6 +20,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.experimental.SuperBuilder;
+import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
@@ -121,6 +122,7 @@ public abstract class Address extends AuditableEntity {
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AddressPhone.PHONE_TYPE+"'")
     @Default
+    @BatchSize(size = 200)
     private Set<AddressPhone> phones = new HashSet<>();
 
     public void removePhone(final AddressPhone phone) {

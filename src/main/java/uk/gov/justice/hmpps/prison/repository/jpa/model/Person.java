@@ -41,15 +41,14 @@ import java.util.Set;
 @Table(name = "PERSONS")
 @ToString(of = {"id"})
 @NamedEntityGraph(
-    name = "person-address-with-phones-and-usage",
+    name = "person-address-with-detail",
     attributeNodes =  {
-        @NamedAttributeNode(value = "addresses", subgraph = "address-phone"),
+        @NamedAttributeNode(value = "addresses", subgraph = "address-detail"),
     },
     subgraphs = {
         @NamedSubgraph(
-            name = "address-phone",
+            name = "address-detail",
             attributeNodes = {
-                @NamedAttributeNode("phones"),
                 @NamedAttributeNode("addressUsages"),
                 @NamedAttributeNode("city"),
                 @NamedAttributeNode("county"),
