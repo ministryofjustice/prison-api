@@ -1172,30 +1172,27 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .expectStatus().isForbidden
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/secondary-languages")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .expectStatus().isForbidden
     }
 
     @Test
-    fun `returns 404 if booking not found`() {
+    fun `returns 403 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/secondary-languages")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+        .expectStatus().isForbidden
     }
 
     @Test
