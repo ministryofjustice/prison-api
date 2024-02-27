@@ -104,11 +104,15 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if prison is not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-2")
-        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
@@ -134,10 +138,10 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if prison booking is inactive and does not have role ROLE_INACTIVE_BOOKINGS`() {
+    fun `returns 403 if prison booking is inactive and does not have role ROLE_INACTIVE_BOOKINGS`() {
       webTestClient.get().uri("/api/bookings/-13")
         .headers(setAuthorisation(listOf())).exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
