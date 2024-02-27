@@ -75,14 +75,6 @@ Feature: Booking Details
       | -11       | A00121    | Hair Colour=Brunette,Complexion=Blotched |
       | -12       | A00122    | Hair Colour=Bald                         |
 
-  Scenario: Request for specific offender booking record that does not exist
-    When an offender booking request is made with booking id "-9999"
-    Then resource not found response is received from bookings API
-
-  Scenario: Request for specific offender inactive booking record
-    When a basic offender booking request is made with booking id "-13"
-    Then resource not found response is received from bookings API
-
   Scenario: Request for specific offender as global search user can return data even though booking is a different caseload
     When a user has a token name of "GLOBAL_SEARCH"
     When an offender booking request is made with booking id "-16"

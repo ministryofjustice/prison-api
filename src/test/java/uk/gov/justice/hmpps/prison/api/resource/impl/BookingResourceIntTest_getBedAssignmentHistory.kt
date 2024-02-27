@@ -51,10 +51,15 @@ class BookingResourceIntTest_getBedAssignmentHistory : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
-      // RO_USER has no caseloads
-      .headers(setAuthorisation("RO_USER", listOf("ROLE_DUMMY"))).exchange().expectStatus().isNotFound
+      .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 403 if user has no caseloads`() {
+    webTestClient.get().uri("/api/bookings/-36/cell-history")
+      .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
   }
 
   @Test
