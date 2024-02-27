@@ -271,6 +271,18 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
     fun testGetFullOffenderInformation() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
@@ -794,7 +806,6 @@ class OffenderResourceIntTest : ResourceTest() {
     fun `Attempt to get address for offender that is not part of any of logged on staff user's caseloads`() {
       webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
@@ -806,7 +817,6 @@ class OffenderResourceIntTest : ResourceTest() {
     fun `Attempt to get address for offender that does not exist`() {
       webTestClient.get().uri("/api/offenders/A1111ZZ/addresses")
         .headers(setAuthorisation("ITAG_USER", listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
