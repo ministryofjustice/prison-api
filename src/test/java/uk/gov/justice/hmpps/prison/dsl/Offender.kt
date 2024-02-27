@@ -36,6 +36,20 @@ interface OffenderDsl {
     firstName: String = randomName(),
     birthDate: LocalDate = LocalDate.of(1990, 8, 20),
   ): AliasId
+
+  @OffenderAddressDslMarker
+  fun address(
+    premise: String = "18",
+    street: String = "High Street",
+    locality: String = "City center",
+    cityCode: String = "1357",
+    postalCode: String = "S1 3GG",
+    countryCode: String = "ENG",
+    primary: Boolean = true,
+    pafValidated: Boolean = false,
+    mail: Boolean = false,
+    noFixedAddress: Boolean = false,
+  ): AddressId
 }
 
 @Component
@@ -88,10 +102,11 @@ class OffenderBuilderFactory(
   private val bookingBuilderFactory: BookingBuilderFactory,
   private val aliasBuilderFactory: AliasBuilderFactory,
   private val repository: OffenderBuilderRepository,
+  private val offenderAddressBuilderFactory: OffenderAddressBuilderFactory,
 ) {
 
   fun builder(): OffenderBuilder {
-    return OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory)
+    return OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory, offenderAddressBuilderFactory)
   }
 
   fun deletePrisoner(offenderNo: String) {
@@ -103,6 +118,7 @@ class OffenderBuilder(
   private val repository: OffenderBuilderRepository,
   private val bookingBuilderFactory: BookingBuilderFactory,
   private val aliasBuilderFactory: AliasBuilderFactory,
+  private val offenderAddressBuilderFactory: OffenderAddressBuilderFactory,
 ) : OffenderDsl {
   private lateinit var offenderId: OffenderId
 
@@ -169,6 +185,31 @@ class OffenderBuilder(
     lastName = lastName,
     firstName = firstName,
     birthDate = birthDate,
+  )
+
+  override fun address(
+    premise: String,
+    street: String,
+    locality: String,
+    cityCode: String,
+    postalCode: String,
+    countryCode: String,
+    primary: Boolean,
+    pafValidated: Boolean,
+    mail: Boolean,
+    noFixedAddress: Boolean,
+  ) = offenderAddressBuilderFactory.builder().build(
+    offenderId = offenderId,
+    premise = premise,
+    street = street,
+    locality = locality,
+    cityCode = cityCode,
+    postalCode = postalCode,
+    countryCode = countryCode,
+    primary = primary,
+    pafValidated = pafValidated,
+    mail = mail,
+    noFixedAddress = noFixedAddress,
   )
 }
 
