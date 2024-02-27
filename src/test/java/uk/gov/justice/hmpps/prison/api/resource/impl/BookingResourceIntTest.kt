@@ -116,6 +116,18 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 404 if booking not found`() {
+      webTestClient.get().uri("/api/bookings/-99999")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 403 if booking inactive`() {
+      webTestClient.get().uri("/api/bookings/-13")
+        .headers(setAuthorisation(listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
     fun testGetBooking() {
       val token = authTokenHelper.getToken(NORMAL_USER)
       val httpEntity = createHttpEntity(token, null)

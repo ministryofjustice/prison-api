@@ -43,11 +43,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.findBookingDetails(Long.valueOf(bookingId), true);
     }
 
-    @Then("^resource not found response is received from bookings API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingsAPI() {
-        bookingDetail.verifyResourceNotFound();
-    }
-
     @Then("^booking number of offender booking returned is \"([^\"]*)\"$")
     public void bookingNumberOfOffenderBookingReturnedIs(final String bookingNo) {
         bookingDetail.verifyOffenderBookingNo(bookingNo);
