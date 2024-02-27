@@ -89,17 +89,15 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
       }
 
       @Test
-      fun `returns 404 as ROLE_BANANAS is not override role`() {
+      fun `returns 403 as ROLE_BANANAS is not override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_BANANAS")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -113,7 +111,8 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       @Test
       fun `returns success as ROLE_VIEW_PRISONER_DATA is override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
-          .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
+          .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
+          .exchange()
           .expectStatus().isOk
       }
 
@@ -122,8 +121,7 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("WAI_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
       }
 
       @Test
@@ -138,20 +136,9 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       @Test
       fun `returns 200 if in user caseload`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isOk
-      }
-
-      @Test
-      fun `invalid user access produces telemetry event`() {
-        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
-          .headers(setAuthorisation("WAI_USER", listOf("")))
-          .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
-
-        verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
       }
     }
   }
