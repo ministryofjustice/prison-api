@@ -69,7 +69,7 @@ class BookingResourceIntTest_getBedAssignmentHistory : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if client does not have override role and booking does not exist`() {
+  fun `returns 403 if client does not have override role and booking does not exist`() {
     webTestClient.get().uri("/api/bookings/-99999/cell-history")
       .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isForbidden
   }
