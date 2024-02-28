@@ -250,7 +250,7 @@ enum class BookingRepositorySql(val sql: String) {
   ),
   GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER(
     """
-      SELECT OB.OFFENDER_BOOK_ID            BOOKING_ID,
+        SELECT OB.OFFENDER_BOOK_ID            BOOKING_ID,
         O.OFFENDER_ID_DISPLAY               OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
