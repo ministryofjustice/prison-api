@@ -48,6 +48,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -725,7 +726,7 @@ public class BookingService {
         return bookingRepository.getOffenderSentenceCalculations(agencyIds);
     }
 
-    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
         return bookingRepository.getOffenderSentenceCalculationsForPrisoner(prisonerId);
     }
 
