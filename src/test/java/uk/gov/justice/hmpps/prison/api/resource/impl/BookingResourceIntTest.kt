@@ -1603,31 +1603,39 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setAuthorisation("RO_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setAuthorisation("WAI_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
-      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
-    fun `returns 404 if booking not found`() {
+    fun `returns 404 if client has override role and booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setAuthorisation("WAI_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 403 if client does not have override role and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user does not have any caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
