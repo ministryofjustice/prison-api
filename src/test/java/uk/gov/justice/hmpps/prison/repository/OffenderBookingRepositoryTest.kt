@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
-import java.util.List
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -108,7 +107,7 @@ class OffenderBookingRepositoryTest {
       .builder()
       .bookingSequence(1)
       .active(true)
-      .bookingIds(List.of(-1L, -2L))
+      .bookingIds(listOf(-1L, -2L))
       .build()
 
     val pageOfBookings = repository.findAll(

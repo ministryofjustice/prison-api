@@ -565,18 +565,14 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
 
+        checkBookingExists(bookingId);
         if (hasAnySystemOverrideRole(rolesAllowed)) return;
-
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var agencyIds = agencyService.getAgencyIds(false);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
-        // Temporary Logging
-        if (!bookingRepository.checkBookingExists(bookingId)) {
-            logBookingNotFound(bookingId, agencyIds, rolesAllowed);
-        }
+
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
