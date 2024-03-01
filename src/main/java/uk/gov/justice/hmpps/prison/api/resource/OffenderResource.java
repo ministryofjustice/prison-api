@@ -727,7 +727,7 @@ public class OffenderResource {
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.",
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
             "All transaction amounts are represented as pence values. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/{offenderNo}/transaction-history")
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
