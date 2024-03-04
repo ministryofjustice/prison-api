@@ -23,12 +23,12 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -1595,34 +1595,27 @@ public class BookingServiceTest {
         assertThat(offenceHistoryDetails).hasSize(charges.size());
     }
 
-
     @Test
     public void givenCalculationsThenReturnAll() {
-        when(bookingService.getOffenderSentenceCalculationsForPrisoner(anyString())).thenReturn(offenderSentenceCalculations());
+        var sentenceCalculationSummaries = offenderSentenceCalculationSummaries();
+        when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString())).thenReturn(sentenceCalculationSummaries);
+
         final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A");
+
         verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"));
-        assertThat(results).hasSize(5);
+        assertThat(results).hasSize(sentenceCalculationSummaries.size());
     }
 
-    private static final LocalDate TODAY = LocalDate.of(2017, 6, 15);
-    private static final int CUTOFF_DAYS_OFFSET = 28;
-
-    private List<OffenderSentenceCalculation> offenderSentenceCalculations() {
-
+    private List<SentenceCalculationSummary> offenderSentenceCalculationSummaries() {
         return List.of(
-            offenderSentenceDetail(1L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 2)),
-            offenderSentenceDetail(2L, TODAY.plusDays(CUTOFF_DAYS_OFFSET - 1)),
-            offenderSentenceDetail(3L, TODAY.plusDays(CUTOFF_DAYS_OFFSET)),
-            offenderSentenceDetail(4L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 1)),
-            offenderSentenceDetail(5L, TODAY.plusDays(CUTOFF_DAYS_OFFSET + 2)));
+            sentenceCalculationSummary(1L),
+            sentenceCalculationSummary(2L),
+            sentenceCalculationSummary(3L),
+            sentenceCalculationSummary(4L),
+            sentenceCalculationSummary(5L));
     }
 
-    private OffenderSentenceCalculation offenderSentenceDetail(final Long bookingId,
-                                                               final LocalDate automaticReleaseDate) {
-
-        return OffenderSentenceCalculation.builder()
-            .bookingId(bookingId)
-            .automaticReleaseDate(automaticReleaseDate)
-            .build();
+    private SentenceCalculationSummary sentenceCalculationSummary(final Long bookingId) {
+        return new SentenceCalculationSummary(bookingId, "ABC", "first name", "last name", "SYI", "Shrewsbury", 1, LocalDateTime.now(), 1L, "comment", "Adjust Sentence", "user");
     }
 }
