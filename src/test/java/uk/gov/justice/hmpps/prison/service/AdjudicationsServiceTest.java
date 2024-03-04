@@ -1924,7 +1924,7 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getOffenderBookId()).isEqualTo(offenderBookId);
             assertThat(sanctionCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(sanctionCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.0");
+            assertThat(sanctionCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.00");
             assertThat(sanctionCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(sanctionCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(sanctionCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -2085,7 +2085,7 @@ public class AdjudicationsServiceTest {
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.0");
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.00");
             assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -2380,7 +2380,7 @@ public class AdjudicationsServiceTest {
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(offenderBookId);
             assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(sanctionSeq);
             assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.0");
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.00");
             assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(updatedSanctionDays);
             assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
@@ -2516,7 +2516,7 @@ public class AdjudicationsServiceTest {
             assertThat(saveCapture.getValue().getOffenderBookId()).isEqualTo(200L);
             assertThat(saveCapture.getValue().getSanctionSeq()).isEqualTo(7L);
             assertThat(saveCapture.getValue().getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.0");
+            assertThat(saveCapture.getValue().getCompensationAmount()).isEqualByComparingTo("1000.00");
             assertThat(saveCapture.getValue().getSanctionDays()).isEqualTo(30L);
             assertThat(saveCapture.getValue().getCommentText()).isEqualTo("comment");
             assertThat(saveCapture.getValue().getEffectiveDate()).isEqualTo(today);
