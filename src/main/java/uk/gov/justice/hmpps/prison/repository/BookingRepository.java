@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSummaryDto;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEventDto;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalancesDto;
@@ -99,6 +100,9 @@ public class BookingRepository extends RepositoryBase {
 
     private static final RowMapper<OffenderSentenceCalculation> SENTENCE_CALC_ROW_MAPPER =
             new StandardBeanPropertyRowMapper<>(OffenderSentenceCalculation.class);
+
+    private static final RowMapper<SentenceCalculationSummary> SENTENCE_CALC_SUMMARY_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(SentenceCalculationSummary.class);
 
     private static final RowMapper<VisitDetailsDto> VISIT_ROW_MAPPER =
             new DataClassByColumnRowMapper<>(VisitDetailsDto.class);
@@ -686,13 +690,13 @@ public class BookingRepository extends RepositoryBase {
     }
 
 
-    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
         final var sql = BookingRepositorySql.GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER.getSql();
         return jdbcTemplate
             .query(
                 sql,
                 createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
-                SENTENCE_CALC_ROW_MAPPER);
+                SENTENCE_CALC_SUMMARY_ROW_MAPPER);
     }
 
     public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {

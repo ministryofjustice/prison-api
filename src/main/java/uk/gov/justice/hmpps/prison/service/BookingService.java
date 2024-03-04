@@ -48,6 +48,7 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -572,6 +573,10 @@ public class BookingService {
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
+        // Temporary Logging
+        if (!bookingRepository.checkBookingExists(bookingId)) {
+            logBookingNotFound(bookingId, agencyIds, rolesAllowed);
+        }
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
@@ -612,6 +617,18 @@ public class BookingService {
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
     }
+
+    private void logBookingNotFound(final Long bookingId, final Set<String> agencyIds, final String... rolesAllowed) {
+        final Map<String, String> logMap = new HashMap<>();
+        logMap.put("bookingId", bookingId.toString());
+        logMap.put("clientId", authenticationFacade.getClientId());
+        logMap.put("user", authenticationFacade.getCurrentUsername());
+        logMap.put("roles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
+        logMap.put("caseloads", StringUtils.join(agencyIds, ","));
+        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
+        telemetryClient.trackEvent("MissingBookingAccess", logMap, null);
+    }
+
     public void checkBookingExists(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -709,7 +726,7 @@ public class BookingService {
         return bookingRepository.getOffenderSentenceCalculations(agencyIds);
     }
 
-    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
         return bookingRepository.getOffenderSentenceCalculationsForPrisoner(prisonerId);
     }
 
