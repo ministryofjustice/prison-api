@@ -85,7 +85,7 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
     @Nested
     inner class UserAccess {
       @Test
-      fun `should return 404 when user does not have any caseloads`() {
+      fun `should return 403 when user does not have any caseloads`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
@@ -117,7 +117,7 @@ class BookingResourceIntTest_getVisitBalances : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if not in user caseload`() {
+      fun `returns 403 if not in user caseload`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/visit/balances")
           .headers(setAuthorisation("WAI_USER", listOf()))
           .exchange()
