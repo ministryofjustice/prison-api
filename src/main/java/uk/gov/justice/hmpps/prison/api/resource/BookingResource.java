@@ -819,7 +819,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"}, accessDeniedError = true)
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
