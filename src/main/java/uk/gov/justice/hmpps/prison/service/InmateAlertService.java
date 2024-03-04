@@ -28,6 +28,7 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import java.util.Objects;
 
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.mapSortProperty;
 
@@ -219,22 +220,28 @@ public class InmateAlertService {
 
     @Transactional
     public Alert updateAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final boolean lockTimeout) {
-        if (alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment())) {
+        final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
+            .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        if ((existingAlert.getDateExpires() == null && alertChanges.getExpiryDate() == null) && StringUtils.isBlank(alertChanges.getComment())) {
             throw new IllegalArgumentException("Please provide an expiry date, or a comment");
         }
         if (lockTimeout) {
             inmateAlertRepository.lockAlert(bookingId, alertSeq);
         }
-        if (alertChanges.getExpiryDate() == null && StringUtils.isNotBlank(alertChanges.getComment())) {
+        if (Objects.equals(existingAlert.getDateExpires(), alertChanges.getExpiryDate()) && StringUtils.isNotBlank(alertChanges.getComment())) {
             return updateAlertComment(bookingId, alertSeq, alertChanges);
         }
-        return expireAlert(bookingId, alertSeq, alertChanges);
+        if ((existingAlert.getDateExpires() != null && alertChanges.getExpiryDate() == null)) {
+            return unexpireAlert(bookingId, alertSeq, alertChanges, existingAlert);
+        }
+        return expireAlert(bookingId, alertSeq, alertChanges, existingAlert);
     }
 
     private Alert updateAlertComment(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
         final var username = authenticationFacade.getCurrentUsername();
 
-        var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
+        var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, AlertChanges.builder().comment(alertChanges.getComment()).build())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
         log.info("updateAlertComment() Alert updated {}", alert);
@@ -248,11 +255,8 @@ public class InmateAlertService {
         return alert;
     }
 
-    private Alert expireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
+    private Alert expireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
         final var username = authenticationFacade.getCurrentUsername();
-
-        final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
-                .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
@@ -265,6 +269,25 @@ public class InmateAlertService {
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
                 "expiryDate", alertChanges.getExpiryDate().toString(),
+                "updated_by", username
+        ), null);
+        return alert;
+    }
+
+    private Alert unexpireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
+        final var username = authenticationFacade.getCurrentUsername();
+
+        if (!existingAlert.isActive())
+            throw new IllegalArgumentException("Alert is already inactive.");
+
+        final var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, alertChanges)
+                .orElseThrow(EntityNotFoundException.withId(alertSeq));
+
+        log.info("unexpireAlert() Alert updated {}", alert);
+        telemetryClient.trackEvent("Alert updated", Map.of(
+                "bookingId", String.valueOf(bookingId),
+                "alertSeq", String.valueOf(alertSeq),
+                "expiryDate", "Expiry date removed",
                 "updated_by", username
         ), null);
         return alert;
