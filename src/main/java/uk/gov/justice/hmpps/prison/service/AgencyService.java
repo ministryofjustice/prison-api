@@ -297,7 +297,10 @@ public class AgencyService {
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
         final var processedLocations = LocationProcessor.processLocations(locations, true);
-        return processedLocations.stream().sorted(LOCATION_DESCRIPTION_COMPARATOR).toList();
+        return processedLocations.stream()
+            .filter(location -> StringUtils.isNotBlank(location.getUserDescription()))
+            .sorted(LOCATION_DESCRIPTION_COMPARATOR)
+            .toList();
     }
 
     public List<IepLevel> getAgencyIepLevels(final String prisonId) {
@@ -389,8 +392,8 @@ public class AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
-            .filter((l) -> l.isActiveCellWithSpace())
-            .map(cell -> transform(cell, true))
+            .filter(AgencyInternalLocation::isActiveCellWithSpace)
+            .map(this::transform)
             .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
             .collect(toList());
     }
@@ -398,15 +401,15 @@ public class AgencyService {
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(agencyId, "RECP", true);
         return receptions.stream()
-            .filter(l -> l.isActiveReceptionWithSpace())
-            .map(recep -> transform(recep, true))
+            .filter(AgencyInternalLocation::isActiveReceptionWithSpace)
+            .map(this::transform)
             .filter(recep -> attribute == null || recep.getAttributes().stream().anyMatch(a -> a.getCode().equals(attribute)))
             .collect(toList());
     }
 
     public OffenderCell getCellAttributes(@NotNull final Long locationId) {
         final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
-        final var offenderCell = agencyInternalLocation.map(cell -> transform(cell, false)).orElse(null);
+        final var offenderCell = agencyInternalLocation.map(this::transform).orElse(null);
         if (offenderCell == null) {
             throw EntityNotFoundException.withMessage(format("No cell details found for location id %s", locationId));
         }
@@ -426,7 +429,7 @@ public class AgencyService {
             .build();
     }
 
-    private OffenderCell transform(final AgencyInternalLocation cell, final boolean treatZeroOperationalCapacityAsNull) {
+    private OffenderCell transform(final AgencyInternalLocation cell) {
         final var attributes = cell.getProfiles()
             .stream()
             .filter(AgencyInternalLocationProfile::isAttribute)
