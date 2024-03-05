@@ -1,13 +1,13 @@
 spring:
   datasource:
-    url: jdbc:h2:mem:nomisdb;MODE=Oracle
+    url: jdbc:h2:mem:nomisdb;MODE=Oracle;DEFAULT_NULL_ORDERING=HIGH
     # url: jdbc:h2:tcp://localhost:9092/~/nomisdb;MODE=Oracle;DB_CLOSE_DELAY=-1
     username: sa
     hikari:
       maximum-pool-size: 2
   replica:
     datasource:
-      url: jdbc:h2:mem:nomisdb;MODE=Oracle
+      url: jdbc:h2:mem:nomisdb;MODE=Oracle;DEFAULT_NULL_ORDERING=HIGH
       username: sa
       hikari:
         maximum-pool-size: 2
