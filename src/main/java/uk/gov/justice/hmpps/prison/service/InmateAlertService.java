@@ -28,7 +28,6 @@ import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
 
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.mapSortProperty;
 
@@ -223,17 +222,17 @@ public class InmateAlertService {
         final var existingAlert = inmateAlertRepository.getAlert(bookingId, alertSeq)
             .orElseThrow(EntityNotFoundException.withId(alertSeq));
 
-        if ((existingAlert.getDateExpires() == null && alertChanges.getExpiryDate() == null) && StringUtils.isBlank(alertChanges.getComment())) {
+        if (!alertChanges.isRemoveExpiryDate() && alertChanges.getExpiryDate() == null && StringUtils.isBlank(alertChanges.getComment())) {
             throw new IllegalArgumentException("Please provide an expiry date, or a comment");
         }
         if (lockTimeout) {
             inmateAlertRepository.lockAlert(bookingId, alertSeq);
         }
-        if (Objects.equals(existingAlert.getDateExpires(), alertChanges.getExpiryDate()) && StringUtils.isNotBlank(alertChanges.getComment())) {
-            return updateAlertComment(bookingId, alertSeq, alertChanges);
-        }
-        if ((existingAlert.getDateExpires() != null && alertChanges.getExpiryDate() == null)) {
+        if (alertChanges.isRemoveExpiryDate()) {
             return unexpireAlert(bookingId, alertSeq, alertChanges, existingAlert);
+        }
+        if (alertChanges.getExpiryDate() == null && StringUtils.isNotBlank(alertChanges.getComment())) {
+            return updateAlertComment(bookingId, alertSeq, alertChanges);
         }
         return expireAlert(bookingId, alertSeq, alertChanges, existingAlert);
     }

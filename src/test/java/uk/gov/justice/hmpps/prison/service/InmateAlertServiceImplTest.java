@@ -253,7 +253,7 @@ public class InmateAlertServiceImplTest {
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
-        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").expiryDate(LocalDate.now().plusDays(5)).build(), false);
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build(), false);
 
         verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build());
     }
@@ -330,9 +330,9 @@ public class InmateAlertServiceImplTest {
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
 
-        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build(), false);
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").removeExpiryDate(true).build(), false);
 
-        verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build());
+        verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").removeExpiryDate(true).build());
 
         verify(telemetryClient).trackEvent("Alert updated", Map.of(
                 "bookingId", "1",
