@@ -53,10 +53,10 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.30")
 
-  runtimeOnly("com.h2database:h2:2.1.210")
-  testRuntimeOnly("com.h2database:h2:2.1.210")
+  runtimeOnly("com.h2database:h2:2.2.224")
   runtimeOnly("org.flywaydb:flyway-core")
 
+  testRuntimeOnly("com.h2database:h2:2.2.224")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.4.0")

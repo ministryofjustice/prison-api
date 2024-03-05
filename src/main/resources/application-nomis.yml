@@ -1,10 +1,4 @@
 spring:
-
-  jpa:
-    properties:
-      hibernate:
-        dialect: org.hibernate.community.dialect.Oracle10gDialect
-
   datasource:
     hikari:
       maximum-pool-size: 10

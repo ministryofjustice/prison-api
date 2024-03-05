@@ -15,6 +15,6 @@ class OracleConditionalSqlService : ConditionalSqlService {
 
 @Service
 @Profile("!nomis")
-class HsqlConditionalSqlService : ConditionalSqlService {
+class H2ConditionalSqlService : ConditionalSqlService {
   override fun getWaitClause(lockWaitTime: Int) = ""
 }
