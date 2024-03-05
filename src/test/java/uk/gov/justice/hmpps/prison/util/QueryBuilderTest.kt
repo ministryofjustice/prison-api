@@ -51,7 +51,7 @@ class QueryBuilderTest {
 
   @Test
   fun buildSqlHsqlDBAndRowCountShouldReturnOracleNativePaginatedSql() {
-    val sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+    val sql = h2Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
       .removeSpecialChars()
       .addRowCount()
       .build()
@@ -82,7 +82,7 @@ class QueryBuilderTest {
 
   @Test
   fun buildSqlHsqlDBAndPaginationShouldReturnOracleNativePaginatedSql() {
-    val sql = hsqldbBuilder.getQueryBuilder(INITIAL_SQL, agencyMapping)
+    val sql = h2Builder.getQueryBuilder(INITIAL_SQL, agencyMapping)
       .removeSpecialChars()
       .addPagination()
       .build()
@@ -160,6 +160,6 @@ class QueryBuilderTest {
     private val oracle11Builder = QueryBuilderFactory(DatabaseDialect.ORACLE_11)
     private val oracle12Builder = QueryBuilderFactory(DatabaseDialect.ORACLE_12)
     private val postgresBuilder = QueryBuilderFactory(DatabaseDialect.POSTGRES)
-    private val hsqldbBuilder = QueryBuilderFactory(DatabaseDialect.HSQLDB)
+    private val h2Builder = QueryBuilderFactory(DatabaseDialect.H2)
   }
 }
