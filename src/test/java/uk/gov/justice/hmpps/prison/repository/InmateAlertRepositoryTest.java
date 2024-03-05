@@ -174,7 +174,7 @@ public class InmateAlertRepositoryTest {
     }
 
     @Test
-    public void testThatAnAlertGetsUpdated() {
+    public void testThatAnAlertGetsUpdatedWithExpiryDate() {
         final var bookingId = -14L;
         final var alertSeq = 1L;
         final var expiryDate = LocalDate.now();
@@ -281,5 +281,21 @@ public class InmateAlertRepositoryTest {
     public void testThatModifiedAtComesBack() {
         final var alert = repository.getAlert(-15L, 1).orElseThrow();
         assertThat(alert.getModifiedDateTime()).isEqualTo("2006-12-10T03:52:25");
+    }
+
+    @Test
+    public void testThatAnAlertHasExpiryDateRemoved() {
+        final var bookingId = -14L;
+        final var alertSeq = 1L;
+
+        repository.updateAlert(bookingId, alertSeq, AlertChanges
+            .builder()
+            .removeExpiryDate(true)
+            .build());
+        final var alert = repository.getAlert(bookingId, alertSeq).orElse(Alert.builder().build());
+
+        assertThat(alert)
+            .extracting("alertId", "comment", "dateExpires", "active")
+            .contains(alertSeq, "Test alert for expiry", null, true);
     }
 }

@@ -143,6 +143,22 @@ enum class InmateAlertRepositorySql(val sql: String) {
     """,
   ),
 
+  UNEXPIRE_ALERT(
+    """
+        UPDATE OFFENDER_ALERTS SET
+        ALERT_STATUS = 'ACTIVE',
+        EXPIRY_DATE = null,
+        COMMENT_TEXT =
+                CASE WHEN :comment is NULL
+                        THEN (SELECT COMMENT_TEXT FROM OFFENDER_ALERTS OA WHERE OA.OFFENDER_BOOK_ID = :bookingId AND OA.ALERT_SEQ = :alertSeq)
+        ELSE :comment
+        END,
+        MODIFY_USER_ID = USER
+        WHERE ALERT_SEQ = :alertSeq
+        AND OFFENDER_BOOK_ID = :bookingId
+    """,
+  ),
+
   UPDATE_ALERT_COMMENT(
     """
         UPDATE OFFENDER_ALERTS SET
