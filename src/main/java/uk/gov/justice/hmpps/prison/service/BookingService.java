@@ -859,12 +859,13 @@ public class BookingService {
     }
 
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+        final var bookingIds = offenderBookingRepository.findDistinctByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             offenderNumbers,
             "A",
             "%AGG%",
             "LICENCE"
         );
+        final var activeBookings = offenderBookingRepository.findAllByBookingIdIn(bookingIds.stream().map(OffenderBookingId::getBookingId).toList());
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 

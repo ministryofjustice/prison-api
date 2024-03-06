@@ -42,11 +42,16 @@ public interface OffenderBookingRepository extends
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     List<OffenderBooking> findAllByBookingIdIn(List<Long> bookingIds);
 
-    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
-    List<OffenderBooking> findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+    /**
+     * Need a distinct here otherwise we will get the same offender bookings more than once as it does two left joins.
+     * Also workaround hibernate bug that seems to cause not enough sentence data to be returned, but splitting into
+     * this query and then calling findAllByBookingIdIn to get the data.
+     */
+    List<OffenderBookingId> findDistinctByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
         Set<String> nomsIds,
         String status,
-        String calculationType, String category
+        String calculationType,
+        String category
     );
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
