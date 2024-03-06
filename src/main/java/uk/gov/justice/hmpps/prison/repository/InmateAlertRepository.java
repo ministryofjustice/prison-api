@@ -154,10 +154,19 @@ public class InmateAlertRepository extends RepositoryBase {
 
     public Optional<Alert> updateAlert(final long bookingId, final long alertSeq, final AlertChanges alert) {
         final var expireAlertSql = InmateAlertRepositorySql.EXPIRE_ALERT.getSql();
+        final var unexpireAlertSql = InmateAlertRepositorySql.UNEXPIRE_ALERT.getSql();
         final var updateAlertCommentSql = InmateAlertRepositorySql.UPDATE_ALERT_COMMENT.getSql();
         final var insertNextWorkFlowLogEntry = InmateAlertRepositorySql.INSERT_NEXT_WORK_FLOW_LOG.getSql();
 
-        if (alert.getExpiryDate() != null) {
+        if (alert.isRemoveExpiryDate()) {
+            jdbcTemplate.update(
+                unexpireAlertSql,
+                createParams(
+                    "alertSeq", alertSeq,
+                    "bookingId", bookingId,
+                    "comment", alert.getComment()
+                ));
+        } else if (alert.getExpiryDate() != null) {
             jdbcTemplate.update(
                     expireAlertSql,
                     createParams(
