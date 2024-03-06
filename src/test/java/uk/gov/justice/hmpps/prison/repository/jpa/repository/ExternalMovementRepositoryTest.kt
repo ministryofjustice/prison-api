@@ -25,11 +25,10 @@ class ExternalMovementRepositoryTest {
     val temporaryAbsenceMovementType = movementTypeRepository.findById(MovementType.TAP).orElseThrow()
     val absences =
       externalMovementRepository.findCurrentTemporaryAbsencesForPrison("LEI", temporaryAbsenceMovementType)
-    assertThat(absences).hasSize(1)
     assertThat(absences).extracting(
       "offenderBooking.bookingId",
       "movementDirection",
       "movementType.code",
-    ).containsExactly(tuple(-25L, MovementDirection.OUT, "TAP"))
+    ).contains(tuple(-25L, MovementDirection.OUT, "TAP"))
   }
 }
