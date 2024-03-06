@@ -25,12 +25,8 @@ public interface OffenderBookingRepository extends
     CrudRepository<OffenderBooking, Long> {
 
     Optional<OffenderBooking> findByOffenderNomsIdAndActive(String nomsId, boolean active);
-    Optional<OffenderBooking> findByOffenderNomsId(String nomsId);
 
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
-
-    @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-livingUnits")
-    Optional<OffenderBooking> findWithDetailsByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
