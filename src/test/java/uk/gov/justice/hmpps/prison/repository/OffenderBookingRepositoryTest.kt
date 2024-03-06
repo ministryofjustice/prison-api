@@ -10,7 +10,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.domain.Sort
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
@@ -138,19 +137,29 @@ class OffenderBookingRepositoryTest {
 
   @Test
   fun `test findWithSentenceSummaryByOffenderNomsIdAndBookingSequence returns correct number of sentences`() {
+    val bookings = repository.findAllByBookingIdIn(listOf(-3L))
+
+    assertThat(bookings.first { it.bookingId == -3L }.sentences).extracting<LocalDate> { it.sentenceStartDate }.containsOnlyOnce(
+      LocalDate.parse("2017-07-04"),
+      LocalDate.parse("2017-07-05"),
+    )
+  }
+
+  @Test
+  fun `check things`() {
     val agencyLocation = agencyLocationRepository.getReferenceById("LEI")
 
-    val bookings = repository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+    val ids = repository.findDistinctByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
       agencyLocation,
       "A",
       "BOB",
       "JOE",
-      Pageable.unpaged(),
+      PageRequest.of(0, 2, Sort.by("bookingId")),
     )
+    assertThat(ids.content).hasSize(2)
+    assertThat(ids.totalElements).isGreaterThanOrEqualTo(20)
 
-    assertThat(bookings.content.first { it.bookingId == -3L }.sentences).extracting<LocalDate> { it.sentenceStartDate }.containsOnlyOnce(
-      LocalDate.parse("2017-07-04"),
-      LocalDate.parse("2017-07-05"),
-    )
+    val bookings = repository.findAllByBookingIdIn(ids.content.map { it.bookingId })
+    assertThat(bookings).hasSize(2)
   }
 }
