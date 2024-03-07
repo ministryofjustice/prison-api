@@ -10,16 +10,18 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 import uk.gov.justice.hmpps.prison.api.model.calculation.Person
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFixedTermRecall
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingId
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFixedTermRecallRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer
 
 @Service
 @Transactional(readOnly = true)
 class SentenceEnvelopeService(
   private val agencyLocationRepository: AgencyLocationRepository,
-  private val offenderFixedTermRecallService: OffenderFixedTermRecallService,
+  private val offenderFixedTermRecallRepository: OffenderFixedTermRecallRepository,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val bookingService: BookingService,
 ) {
@@ -74,7 +76,7 @@ class SentenceEnvelopeService(
       it.status == "A" &&
         !it.calculationType.calculationType.contains("AGG") &&
         it.calculationType.category != "LICENCE"
-    }.filterNotNull().map { it.sentenceAndOffenceDetail }
+    }.filterNotNull().map { it.sentenceAndOffenceDetail }.sortedBy { it.sentenceSequence }
 
     val offenderFinePaymentDtoList = sentences.takeIf { sentences.any { it.isAFine } }?.let {
       bookingService.getOffenderFinePayments(bookingId)
@@ -82,7 +84,9 @@ class SentenceEnvelopeService(
 
     val fixedTermRecallDetails = sentences
       .takeIf { sentences.any { it.isFixedTermRecallType } }?.let {
-        offenderFixedTermRecallService.getFixedTermRecallDetails(bookingId)
+        offenderFixedTermRecallRepository.findById(bookingId)
+          .map(OffenderFixedTermRecall::mapToFixedTermRecallDetails)
+          .orElseThrow(EntityNotFoundException.withMessage("No fixed term recall found for booking $bookingId"))
       }
     return CalculableSentenceEnvelope(
       person,
