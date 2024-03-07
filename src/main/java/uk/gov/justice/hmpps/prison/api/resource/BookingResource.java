@@ -99,6 +99,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
+import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
@@ -133,6 +134,7 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
+    private final SentenceEnvelopeService sentenceEnvelopeService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -980,6 +982,6 @@ public class BookingResource {
     @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
     @GetMapping("/latest/calculable-sentence-envelope")
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
-        return bookingService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
+        return sentenceEnvelopeService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
     }
 }
