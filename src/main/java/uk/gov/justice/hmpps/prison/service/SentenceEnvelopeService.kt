@@ -7,21 +7,13 @@ import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment
-import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails
-import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
 import uk.gov.justice.hmpps.prison.api.model.calculation.Person
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingId
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer
-import java.util.Objects
-import java.util.stream.Collectors
 
 @Service
 @Transactional(readOnly = true)
@@ -47,14 +39,13 @@ class SentenceEnvelopeService(
         pageRequest,
       )
     val activeBookings =
-      offenderBookingRepository.findAllByBookingIdIn(bookingIds.stream().map(OffenderBookingId::bookingId).toList())
-    val calculableSentenceEnvelopes = activeBookings.stream()
-      .map { offenderBooking: OffenderBooking -> determineCalculableSentenceEnvelope(offenderBooking) }
-      .toList()
+      offenderBookingRepository.findAllByBookingIdIn(bookingIds.map(OffenderBookingId::bookingId).toList())
+    val calculableSentenceEnvelopes =
+      activeBookings.map { determineCalculableSentenceEnvelope(it) }.sortedBy { it.bookingId }
     return PageImpl(calculableSentenceEnvelopes, pageRequest, bookingIds.totalElements)
   }
 
-  fun getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers: Set<String?>?): List<CalculableSentenceEnvelope> {
+  fun getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers: Set<String?>): List<CalculableSentenceEnvelope> {
     val bookingIds =
       offenderBookingRepository.findDistinctByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
         offenderNumbers,
@@ -62,11 +53,8 @@ class SentenceEnvelopeService(
         "%AGG%",
         "LICENCE",
       )
-    val activeBookings =
-      offenderBookingRepository.findAllByBookingIdIn(bookingIds.stream().map(OffenderBookingId::bookingId).toList())
-    return activeBookings.stream()
-      .map { offenderBooking: OffenderBooking -> determineCalculableSentenceEnvelope(offenderBooking) }
-      .toList()
+    val activeBookings = offenderBookingRepository.findAllByBookingIdIn(bookingIds.map(OffenderBookingId::bookingId))
+    return activeBookings.map { determineCalculableSentenceEnvelope(it) }
   }
 
   private fun determineCalculableSentenceEnvelope(offenderBooking: OffenderBooking): CalculableSentenceEnvelope {
@@ -75,48 +63,36 @@ class SentenceEnvelopeService(
       offenderBooking.offender.birthDate,
       WordUtils.capitalizeFully(offenderBooking.offender.lastName),
       offenderBooking.location.id,
-      offenderBooking.alerts.stream().filter { obj: OffenderAlert -> obj.isActive }
-        .map { offenderAlert: OffenderAlert? -> OffenderAlertTransformer.transformForOffender(offenderAlert) }
-        .collect(Collectors.toList()),
+      offenderBooking.alerts.filter { it.isActive }
+        .map { OffenderAlertTransformer.transformForOffender(it) },
     )
-    val sentenceAdjustments =
-      offenderBooking.getSentenceAdjustments().stream().filter { obj: SentenceAdjustmentValues -> obj.isActive }
-        .toList()
-    val bookingAdjustments =
-      offenderBooking.getBookingAdjustments().stream().filter { obj: BookingAdjustment -> obj.isActive }
-        .toList()
-    val sentences = bookingService.getSentenceAndOffenceDetails(offenderBooking.bookingId).stream()
-      .filter { obj: OffenderSentenceAndOffences? -> Objects.nonNull(obj) }
-      .filter { sentence: OffenderSentenceAndOffences -> sentence.sentenceStatus == "A" }.toList()
-    val containsFine = sentences.stream().anyMatch { obj: OffenderSentenceAndOffences -> obj.isAFine }
-    val containsFixedTermRecall =
-      sentences.stream().anyMatch { obj: OffenderSentenceAndOffences -> obj.isFixedTermRecallType }
-    val offenderFinePaymentDtoList = getFinesIfRequired(containsFine, offenderBooking.bookingId)
-    val fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.bookingId)
-    val sentenceCalcDates = bookingService.getBookingSentenceCalcDatesV1_1(offenderBooking.bookingId)
+    val sentenceAdjustments = offenderBooking.getSentenceAdjustments().filter { it.isActive }
+    val bookingAdjustments = offenderBooking.getBookingAdjustments().filter { it.isActive }
+    val bookingId = offenderBooking.bookingId
+
+    val sentences = offenderBooking.sentences.filter {
+      it.status == "A" &&
+        !it.calculationType.calculationType.contains("AGG") &&
+        it.calculationType.category != "LICENCE"
+    }.filterNotNull().map { it.sentenceAndOffenceDetail }
+
+    val offenderFinePaymentDtoList = sentences.takeIf { sentences.any { it.isAFine } }?.let {
+      bookingService.getOffenderFinePayments(bookingId)
+    } ?: emptyList()
+
+    val fixedTermRecallDetails = sentences
+      .takeIf { sentences.any { it.isFixedTermRecallType } }?.let {
+        offenderFixedTermRecallService.getFixedTermRecallDetails(bookingId)
+      }
     return CalculableSentenceEnvelope(
       person,
-      offenderBooking.bookingId,
+      bookingId,
       sentences,
       sentenceAdjustments,
       bookingAdjustments,
       offenderFinePaymentDtoList,
       fixedTermRecallDetails,
-      sentenceCalcDates,
+      offenderBooking.sentenceCalcDates,
     )
   }
-
-  private fun getFinesIfRequired(containsFine: Boolean, bookingId: Long): List<OffenderFinePaymentDto> =
-    if (containsFine) {
-      bookingService.getOffenderFinePayments(bookingId)
-    } else {
-      emptyList()
-    }
-
-  private fun getFixedTermRecall(containsRecall: Boolean, bookingId: Long): FixedTermRecallDetails? =
-    if (containsRecall) {
-      offenderFixedTermRecallService.getFixedTermRecallDetails(bookingId)
-    } else {
-      null
-    }
 }
