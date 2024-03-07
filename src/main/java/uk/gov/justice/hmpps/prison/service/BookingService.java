@@ -82,6 +82,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingId;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -848,21 +849,23 @@ public class BookingService {
     public Page<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
         final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
         PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+        final var bookingIds = offenderBookingRepository.findDistinctByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             agencyLocation, "A", "%AGG%", "LICENCE", pageRequest
         );
+        final var activeBookings = offenderBookingRepository.findAllByBookingIdIn(bookingIds.stream().map(OffenderBookingId::getBookingId).toList());
         final var calculableSentenceEnvelopes = activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
 
-        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, activeBookings.getTotalElements());
+        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, bookingIds.getTotalElements());
     }
 
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
+        final var bookingIds = offenderBookingRepository.findDistinctByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
             offenderNumbers,
             "A",
             "%AGG%",
             "LICENCE"
         );
+        final var activeBookings = offenderBookingRepository.findAllByBookingIdIn(bookingIds.stream().map(OffenderBookingId::getBookingId).toList());
         return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
     }
 
