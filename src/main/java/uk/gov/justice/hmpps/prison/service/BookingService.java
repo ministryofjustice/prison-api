@@ -885,18 +885,19 @@ public class BookingService {
 
         final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments().stream().filter(SentenceAdjustmentValues::isActive).toList();
         final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments().stream().filter(BookingAdjustment::isActive).toList();
-        final List<OffenderSentenceAndOffences> sentences = this.getSentenceAndOffenceDetails(offenderBooking.getBookingId()).stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getSentenceStatus(), "A")).toList();
+        final var bookingId = offenderBooking.getBookingId();
+        final List<OffenderSentenceAndOffences> sentences = getSentenceAndOffenceDetails(bookingId).stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getSentenceStatus(), "A")).toList();
 
         final boolean containsFine = sentences.stream().anyMatch(OffenderSentenceAndOffences::isAFine);
         final boolean containsFixedTermRecall = sentences.stream().anyMatch(OffenderSentenceAndOffences::isFixedTermRecallType);
 
-        final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
-        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.getBookingId());
-        final SentenceCalcDates sentenceCalcDates = this.getBookingSentenceCalcDatesV1_1(offenderBooking.getBookingId());
+        final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = getFinesIfRequired(containsFine, bookingId);
+        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, bookingId);
+        final SentenceCalcDates sentenceCalcDates = offenderBooking.getSentenceCalcDates();
 
         return new CalculableSentenceEnvelope(
             person,
-            offenderBooking.getBookingId(),
+            bookingId,
             sentences,
             sentenceAdjustments,
             bookingAdjustments,
