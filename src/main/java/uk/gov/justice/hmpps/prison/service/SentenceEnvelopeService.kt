@@ -82,12 +82,11 @@ class SentenceEnvelopeService(
         it.calculationType.category != "LICENCE"
     }.filterNotNull().map { it.sentenceAndOffenceDetail }.sortedBy { it.sentenceSequence }
 
-    val offenderFinePaymentDtoList = sentences.takeIf { sentences.any { it.isAFine } }?.let {
-      bookingService.getOffenderFinePayments(bookingId)
-    } ?: emptyList()
+    val offenderFinePaymentDtoList =
+      if (sentences.any { it.isAFine }) bookingService.getOffenderFinePayments(bookingId) else emptyList()
 
     val fixedTermRecallDetails = sentences
-      .takeIf { sentences.any { it.isFixedTermRecallType } }?.let {
+      .takeIf { s -> s.any { it.isFixedTermRecallType } }?.let {
         offenderFixedTermRecallRepository.findById(bookingId)
           .map(OffenderFixedTermRecall::mapToFixedTermRecallDetails)
           .orElseThrow(EntityNotFoundException.withMessage("No fixed term recall found for booking $bookingId"))
