@@ -28,7 +28,6 @@ public class AgencySteps extends CommonSteps {
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
     private static final String API_IEP_LEVELS_URL = API_REF_PREFIX + "{agencyId}/iepLevels";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
-    private static final String API_BOOKED_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocationsBooked";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
     private Agency agency;
@@ -195,11 +194,6 @@ public class AgencySteps extends CommonSteps {
     @Step("Submit request for any event locations")
     public void getLocationsForAnyEvents(final String agencyId) {
         dispatchListRequest(API_EVENT_LOCATIONS_URL, agencyId, null, null);
-    }
-
-    @Step("Submit request for booked agency locations")
-    public void getBookedLocations(final String agencyId, final String bookedOnDay, final TimeSlot timeSlot) {
-        dispatchBookedLocationsRequest(API_BOOKED_EVENT_LOCATIONS_URL, agencyId, bookedOnDay, timeSlot);
     }
 
     public void verifyAgencyList(final List<Agency> expected) {

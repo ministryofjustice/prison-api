@@ -218,49 +218,126 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testExceptionIsThrown_WhenExpiryDateAndCommentAreNull() {
-        assertThatThrownBy(() -> service.updateAlert(1L, 2L, AlertChanges.builder().build(), false))
+        final var alert = Alert.builder()
+            .alertId(4L)
+            .bookingId(-1L)
+            .alertType(format("ALERTYPE%d", 1L))
+            .alertCode(format("ALERTCODE%d", 1L))
+            .active(true)
+            .comment(format("This is a comment %d", 1L))
+            .dateCreated(LocalDate.now())
+            .build();
+
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
+
+        assertThatThrownBy(() -> service.updateAlert(1L, 4L, AlertChanges.builder().build(), false))
             .isInstanceOf(IllegalArgumentException.class)
             .hasMessage("Please provide an expiry date, or a comment");
     }
 
     @Test
-    public void testThatOnlyTheCommentTextGetsUpdate_WhenExpiryIsNull() {
+    public void testThatOnlyTheCommentTextGetsUpdate_WhenExpiryDateIsUnchanged() {
+        final var alert = Alert.builder()
+            .alertId(4L)
+            .bookingId(-1L)
+            .alertType(format("ALERTYPE%d", 1L))
+            .alertCode(format("ALERTCODE%d", 1L))
+            .active(true)
+            .comment(format("This is a comment %d", 1L))
+            .dateCreated(LocalDate.now())
+            .dateExpires(LocalDate.now().plusDays(5))
+            .build();
+
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
-        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), false);
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build(), false);
 
-        verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+        verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build());
     }
 
     @Test
     public void testAlertRepository_LockingIsCalled() {
+        final var alert = Alert.builder()
+            .alertId(4L)
+            .bookingId(-1L)
+            .alertType(format("ALERTYPE%d", 1L))
+            .alertCode(format("ALERTCODE%d", 1L))
+            .active(true)
+            .comment(format("This is a comment %d", 1L))
+            .dateCreated(LocalDate.now())
+            .dateExpires(LocalDate.now().plusDays(5))
+            .build();
+
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
-        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), true);
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build(), true);
 
-        verify(inmateAlertRepository).lockAlert(1L, 2L);
+        verify(inmateAlertRepository).lockAlert(1L, 4L);
     }
 
     @Test
     public void testThatTelemetryFires_WhenCommentIsUpdated() {
+        final var alert = Alert.builder()
+            .alertId(4L)
+            .bookingId(-1L)
+            .alertType(format("ALERTYPE%d", 1L))
+            .alertCode(format("ALERTCODE%d", 1L))
+            .active(true)
+            .comment(format("This is a comment %d", 1L))
+            .dateCreated(LocalDate.now())
+            .build();
 
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
         when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
 
-        service.updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build(), false);
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build(), false);
 
-        verify(inmateAlertRepository).updateAlert(1L, 2L, AlertChanges.builder().comment("Test").build());
+        verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").build());
 
         verify(telemetryClient).trackEvent("Alert updated", Map.of(
                 "bookingId", "1",
-                "alertSeq", "2",
+                "alertSeq", "4",
                 "comment", "Comment text updated",
+                "updated_by", "ITAG_USER"
+        ), null);
+    }
+
+    @Test
+    public void testThatTelemetryFires_WhenExpiryDateIsRemoved() {
+        final var alert = Alert.builder()
+            .alertId(4L)
+            .bookingId(-1L)
+            .alertType(format("ALERTYPE%d", 1L))
+            .alertCode(format("ALERTCODE%d", 1L))
+            .active(true)
+            .comment(format("This is a comment %d", 1L))
+            .dateCreated(LocalDate.now())
+            .dateExpires(LocalDate.now().plusDays(5))
+            .build();
+
+        when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
+        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+
+        when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
+                .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
+
+        service.updateAlert(1L, 4L, AlertChanges.builder().comment("Test").removeExpiryDate(true).build(), false);
+
+        verify(inmateAlertRepository).updateAlert(1L, 4L, AlertChanges.builder().comment("Test").removeExpiryDate(true).build());
+
+        verify(telemetryClient).trackEvent("Alert updated", Map.of(
+                "bookingId", "1",
+                "alertSeq", "4",
+                "expiryDate", "Expiry date removed",
                 "updated_by", "ITAG_USER"
         ), null);
     }

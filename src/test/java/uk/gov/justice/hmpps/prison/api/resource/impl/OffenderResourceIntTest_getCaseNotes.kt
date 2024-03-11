@@ -89,21 +89,21 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
     @Nested
     inner class UserAccess {
       @Test
-      fun `returns 404 when user does not have any roles`() {
-        webTestClient.get().uri("/api/offenders/Z00034/case-notes/-89")
+      fun `returns 403 when user does not have any roles`() {
+        webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-89")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [Z00034] not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
       }
 
       @Test
-      fun `returns 404 as ROLE_BANANAS is not override role`() {
-        webTestClient.get().uri("/api/offenders/Z00034/case-notes/-89")
+      fun `returns 403 as ROLE_BANANAS is not override role`() {
+        webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-89")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_BANANAS")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [Z00034] not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
       }
 
       @Test
@@ -125,7 +125,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
       @Test
       fun `returns 404 if case note does not exist`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-999")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
@@ -134,21 +134,34 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
       @Test
       fun `returns 200 if has correct caseload`() {
         webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isOk
       }
+    }
 
-      @Test
-      fun `invalid user access produces telemetry event`() {
-        webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
-          .headers(setAuthorisation("WAI_USER", listOf("")))
-          .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+    @Test
+    fun `returns 404 if client has override role and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/-11")
+        .headers(setClientAuthorisation(listOf("VIEW_CASE_NOTES"))).exchange().expectStatus().isNotFound
+    }
 
-        verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
-      }
+    @Test
+    fun `returns 404 if client does not have override role and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/-11")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/-11")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/-11")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
     }
   }
 }
