@@ -24,6 +24,6 @@ public class OffenderSubAccountRepositoryTest {
     void testOffenderSubAccountMapping() {
         final var optionalOffenderSubAccount = repository.findById(new Pk("LEI", -1001L, 2101L));
 
-        assertThat(optionalOffenderSubAccount).get().extracting(OffenderSubAccount::getBalance).isEqualTo(new BigDecimal("1.24"));
+        assertThat(optionalOffenderSubAccount).get().extracting(OffenderSubAccount::getBalance).usingComparator(BigDecimal::compareTo).isEqualTo(new BigDecimal("1.24"));
     }
 }

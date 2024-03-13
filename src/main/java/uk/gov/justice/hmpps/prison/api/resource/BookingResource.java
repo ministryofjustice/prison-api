@@ -99,6 +99,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
+import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
@@ -133,6 +134,7 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
+    private final SentenceEnvelopeService sentenceEnvelopeService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -819,7 +821,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"}, accessDeniedError = true)
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
@@ -877,7 +879,7 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "Ok"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -980,6 +982,6 @@ public class BookingResource {
     @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
     @GetMapping("/latest/calculable-sentence-envelope")
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
-        return bookingService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
+        return sentenceEnvelopeService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
     }
 }

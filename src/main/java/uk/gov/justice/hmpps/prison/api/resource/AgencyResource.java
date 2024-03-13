@@ -35,6 +35,8 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummaryDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
@@ -278,13 +280,20 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of locations for agency where events (appointments, visits, activities) are being held.", description = "List of locations for agency where events (appointments, visits, activities) are being held.")
+    @Operation(summary = "List of location summaries for agency where events (appointments, visits, activities) are being held.",
+        description = "List of location summaries for agency where events (appointments, visits, activities) are being held.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/eventLocationsBooked")
     @SlowReportQuery
-    public List<Location> getAgencyEventLocationsBooked(
-        @PathVariable("agencyId") @Parameter(required = true) final String agencyId, @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true) final LocalDate date,
-        @RequestParam(value = "timeSlot", required = false) @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)", schema = @Schema(implementation = String.class, allowableValues = {"AM", "PM", "ED"})) final TimeSlot timeSlot
+    public List<LocationSummary> getAgencyEventLocationsBooked(
+        @PathVariable("agencyId") @Parameter(required = true)
+        final String agencyId,
+        @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
+        @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true)
+        final LocalDate date,
+        @RequestParam(value = "timeSlot", required = false)
+        @Parameter(description = "Only return locations which prisoners will be attending in this time slot (AM, PM or ED, and bookedOnDay must be specified)", schema = @Schema(implementation = String.class, allowableValues = {"AM", "PM", "ED"}))
+        final TimeSlot timeSlot
     ) {
         return agencyService.getAgencyEventLocationsBooked(agencyId, date, timeSlot);
     }

@@ -35,9 +35,9 @@ public class FinanceRepositoryTest {
     public void testGetAccount() {
         final var account = repository.getBalances(-1L, "LEI");
         assertThat(account).isNotNull();
-        assertThat(account.getCash().toString()).isEqualTo("1.24");
-        assertThat(account.getSpends().toString()).isEqualTo("2.50");
-        assertThat(account.getSavings().toString()).isEqualTo("200.50");
+        assertThat(account.getCash()).isEqualByComparingTo("1.24");
+        assertThat(account.getSpends()).isEqualByComparingTo("2.50");
+        assertThat(account.getSavings()).isEqualByComparingTo("200.50");
     }
 
     @Test
@@ -62,8 +62,8 @@ public class FinanceRepositoryTest {
     public void testWherePrisonerHasSpendsInDifferentPrison() {
         final var account = repository.getBalances(-1L, "MDI");
         assertThat(account).isNotNull();
-        assertThat(account.getSpends().toString()).isEqualTo("12.75");
-        assertThat(account.getCash().toString()).isEqualTo("0.00");
-        assertThat(account.getSavings().toString()).isEqualTo("0.00");
+        assertThat(account.getSpends()).isEqualByComparingTo("12.75");
+        assertThat(account.getCash()).isEqualByComparingTo("0.00");
+        assertThat(account.getSavings()).isEqualByComparingTo("0.00");
     }
 }
