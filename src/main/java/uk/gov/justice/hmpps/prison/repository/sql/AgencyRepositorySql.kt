@@ -129,7 +129,9 @@ enum class AgencyRepositorySql(val sql: String) {
     """
         SELECT DISTINCT 
           AIL.INTERNAL_LOCATION_ID LOCATION_ID,
-          AIL.USER_DESC USER_DESCRIPTION
+          AIL.USER_DESC USER_DESCRIPTION,
+          AIL.DESCRIPTION DESCRIPTION,
+          AIL.AGY_LOC_ID AGENCY_ID
         FROM AGENCY_INTERNAL_LOCATIONS AIL
         WHERE AIL.AGY_LOC_ID = :agencyId
           AND AIL.ACTIVE_FLAG = 'Y'
