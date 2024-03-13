@@ -149,19 +149,22 @@ class AgencyResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .jsonPath("length()").isEqualTo(4)
-        .jsonPath("[0].locationId").isEqualTo(-26)
-        .jsonPath("[0].description").isEqualTo("Carpentry Workshop")
-        .jsonPath("[0].userDescription").isEqualTo("Carpentry Workshop")
-        .jsonPath("[1].locationId").isEqualTo(-25)
-        .jsonPath("[1].description").isEqualTo("Chapel")
-        .jsonPath("[1].userDescription").isEqualTo("Chapel")
-        .jsonPath("[2].locationId").isEqualTo(-27)
-        .jsonPath("[2].description").isEqualTo("Classroom 1")
-        .jsonPath("[2].userDescription").isEqualTo("Classroom 1")
-        .jsonPath("[3].locationId").isEqualTo(-29)
-        .jsonPath("[3].description").isEqualTo("Medical Centre")
-        .jsonPath("[3].userDescription").isEqualTo("Medical Centre")
+        .jsonPath("length()").isEqualTo(5)
+        .jsonPath("[0].locationId").isEqualTo(-5)
+        .jsonPath("[0].description").isEqualTo("LEI-A-1-3")
+        .jsonPath("[0].userDescription").isEqualTo("A-1-3")
+        .jsonPath("[1].locationId").isEqualTo(-26)
+        .jsonPath("[1].description").isEqualTo("LEI-CARP")
+        .jsonPath("[1].userDescription").isEqualTo("Carpentry Workshop")
+        .jsonPath("[2].locationId").isEqualTo(-25)
+        .jsonPath("[2].description").isEqualTo("LEI-CHAP")
+        .jsonPath("[2].userDescription").isEqualTo("Chapel")
+        .jsonPath("[3].locationId").isEqualTo(-27)
+        .jsonPath("[3].description").isEqualTo("LEI-CRM1")
+        .jsonPath("[3].userDescription").isEqualTo("Classroom 1")
+        .jsonPath("[4].locationId").isEqualTo(-29)
+        .jsonPath("[4].description").isEqualTo("LEI-MED")
+        .jsonPath("[4].userDescription").isEqualTo("Medical Centre")
     }
 
     @Test
@@ -173,7 +176,7 @@ class AgencyResourceIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("length()").isEqualTo(1)
         .jsonPath("[0].locationId").isEqualTo(-25)
-        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].description").isEqualTo("LEI-CHAP")
         .jsonPath("[0].userDescription").isEqualTo("Chapel")
     }
 
@@ -186,7 +189,7 @@ class AgencyResourceIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("length()").isEqualTo(1)
         .jsonPath("[0].locationId").isEqualTo(-25)
-        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].description").isEqualTo("LEI-CHAP")
         .jsonPath("[0].userDescription").isEqualTo("Chapel")
     }
 
@@ -199,7 +202,7 @@ class AgencyResourceIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("length()").isEqualTo(1)
         .jsonPath("[0].locationId").isEqualTo(-25)
-        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].description").isEqualTo("LEI-CHAP")
         .jsonPath("[0].userDescription").isEqualTo("Chapel")
     }
   }
