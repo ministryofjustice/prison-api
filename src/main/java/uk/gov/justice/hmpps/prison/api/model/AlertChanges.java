@@ -23,11 +23,14 @@ public class AlertChanges {
     @Schema(description = "Alert comment")
     private String comment;
 
+    @Schema(description = "Remove expiry date")
+    private boolean removeExpiryDate;
+
     @JsonIgnore
     public String getAlertStatus() {
         if (expiryDate == null)
             return null;
 
-        return expiryDate.compareTo(LocalDate.now()) <= 0 ? "INACTIVE" : "ACTIVE";
+        return !expiryDate.isAfter(LocalDate.now()) ? "INACTIVE" : "ACTIVE";
     }
 }

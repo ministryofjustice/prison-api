@@ -600,7 +600,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking", hidden = true)
     @GetMapping("/{offenderNo}/case-notes/v2")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"}, accessDeniedError = true)
     @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
@@ -727,7 +727,7 @@ public class OffenderResource {
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.",
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
             "All transaction amounts are represented as pence values. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/{offenderNo}/transaction-history")
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(

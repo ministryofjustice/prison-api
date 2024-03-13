@@ -69,8 +69,7 @@ class PersonAddressRepositoryTest {
     assertThat(addresses).usingRecursiveComparison().ignoringFields("phones", "addressUsages", "person", "createDatetime", "createUserId").isEqualTo(expected)
 
     assertThat(
-      addresses.stream()
-        .map { address: PersonAddress -> ArrayList(address.addressUsages) },
+      addresses.map { address: PersonAddress -> ArrayList(address.addressUsages) },
     ).isEqualTo(listOf(emptyList(), emptyList<Any>()))
   }
 }

@@ -8,7 +8,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 
 import java.util.List;
@@ -85,16 +84,6 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\" sorted by \"([^\"]*)\" in \"([^\"]*)\" order$")
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyAndEventTypeSortedByInOrder(final String agencyId, final String eventType, final String sortFields, final String sortOrder) throws Throwable {
         agencySteps.getLocations(agencyId, eventType, sortFields, parseSortOrder(sortOrder));
-    }
-
-    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on date \"([^\"]*)\"$")
-    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(final String agencyId, final String bookedOnDay) throws Throwable {
-        agencySteps.getBookedLocations(agencyId, bookedOnDay, null);
-    }
-
-    @When("^a request is submitted to retrieve locations for agency \"([^\"]*)\" for booked events on \"([^\"]*)\" and timeslot \"([^\"]*)\"$")
-    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyBooked(final String agencyId, final String bookedOnDay, final TimeSlot timeSlot) throws Throwable {
-        agencySteps.getBookedLocations(agencyId, bookedOnDay, timeSlot);
     }
 
     @Then("^the returned agency locations are as follows:$")

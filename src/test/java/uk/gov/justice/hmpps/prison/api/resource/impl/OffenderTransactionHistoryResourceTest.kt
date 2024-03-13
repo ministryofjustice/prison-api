@@ -27,14 +27,38 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/offenders/$OFFENDER_NO/transaction-history")
-      .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isNotFound
+      .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
   }
 
   @Test
-  fun `returns 404 if user has no caseloads`() {
+  fun `returns 403 if user has no caseloads`() {
     webTestClient.get().uri("/api/offenders/$OFFENDER_NO/transaction-history")
+      .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+  }
+
+  @Test
+  fun `returns 404 if client has override role and booking does not exist`() {
+    webTestClient.get().uri("/api/offenders/-99999/transaction-history")
+      .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if client does not have override role and booking does not exist`() {
+    webTestClient.get().uri("/api/offenders/-99999/transaction-history")
+      .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if user has caseloads and booking does not exist`() {
+    webTestClient.get().uri("/api/offenders/-99999/transaction-history")
+      .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if user does not have any caseloads and booking does not exist`() {
+    webTestClient.get().uri("/api/offenders/-99999/transaction-history")
       .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
   }
 

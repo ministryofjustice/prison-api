@@ -122,4 +122,85 @@ class AgencyResourceIntTest : ResourceTest() {
         .isEqualTo("Locations of type WXYZ in agency SYI not found")
     }
   }
+
+  @Nested
+  @DisplayName("/api/agencies/{agencyId}/eventLocationsBooked")
+  inner class EventLocationsBooked {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-09-15")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return success if authorised`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-09-15")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return locations for an agency, that are booked for offenders on the given date`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-09-15")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(4)
+        .jsonPath("[0].locationId").isEqualTo(-26)
+        .jsonPath("[0].description").isEqualTo("Carpentry Workshop")
+        .jsonPath("[0].userDescription").isEqualTo("Carpentry Workshop")
+        .jsonPath("[1].locationId").isEqualTo(-25)
+        .jsonPath("[1].description").isEqualTo("Chapel")
+        .jsonPath("[1].userDescription").isEqualTo("Chapel")
+        .jsonPath("[2].locationId").isEqualTo(-27)
+        .jsonPath("[2].description").isEqualTo("Classroom 1")
+        .jsonPath("[2].userDescription").isEqualTo("Classroom 1")
+        .jsonPath("[3].locationId").isEqualTo(-29)
+        .jsonPath("[3].description").isEqualTo("Medical Centre")
+        .jsonPath("[3].userDescription").isEqualTo("Medical Centre")
+    }
+
+    @Test
+    fun `should return locations for an agency, that are booked for offenders on the given date with timeslot`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-09-15&timeSlot=AM")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].locationId").isEqualTo(-25)
+        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].userDescription").isEqualTo("Chapel")
+    }
+
+    @Test
+    fun `should return locations for an agency, that are booked for offenders on the given date (appointment event_id=-15)`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-12-25")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].locationId").isEqualTo(-25)
+        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].userDescription").isEqualTo("Chapel")
+    }
+
+    @Test
+    fun `should return locations for an agency, that are booked for offenders on the given date (offender_visit_id=-14)`() {
+      webTestClient.get().uri("/api/agencies/LEI/eventLocationsBooked?bookedOnDay=2017-03-10")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("[0].locationId").isEqualTo(-25)
+        .jsonPath("[0].description").isEqualTo("Chapel")
+        .jsonPath("[0].userDescription").isEqualTo("Chapel")
+    }
+  }
 }
