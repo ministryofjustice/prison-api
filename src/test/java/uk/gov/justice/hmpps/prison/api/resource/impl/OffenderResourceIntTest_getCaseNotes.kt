@@ -72,7 +72,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setClientAuthorisation(listOf("ROLE_VIEW_CASE_NOTES")))
           .exchange()
           .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [-999] not found.")
       }
 
       @Test
@@ -128,7 +128,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AC] not found.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [-999] not found.")
       }
 
       @Test
