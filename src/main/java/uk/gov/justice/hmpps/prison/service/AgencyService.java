@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
@@ -81,8 +82,8 @@ import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCA
 @AllArgsConstructor
 public class AgencyService {
 
-    private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
-        Location::getDescription,
+    private static final Comparator<LocationSummary> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
+        LocationSummary::getUserDescription,
         new AlphaNumericComparator());
 
     private final AuthenticationFacade authenticationFacade;
@@ -288,17 +289,16 @@ public class AgencyService {
     }
 
     @Cacheable(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
-    public List<Location> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
+    public List<LocationSummary> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
 
-    private List<Location> getAgencyLocationsOnDayAndPeriod(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
+    private List<LocationSummary> getAgencyLocationsOnDayAndPeriod(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-        final var processedLocations = LocationProcessor.processLocations(locations, true);
+        final var processedLocations = LocationProcessor.processLocationSummaries(locations);
         return processedLocations.stream()
-            .filter(location -> StringUtils.isNotBlank(location.getUserDescription()))
             .sorted(LOCATION_DESCRIPTION_COMPARATOR)
             .toList();
     }

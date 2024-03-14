@@ -631,11 +631,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"}, accessDeniedError = true)
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        try {
-            return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
-        } catch (EntityNotFoundException e) {
-            throw EntityNotFoundException.withId(offenderNo);
-        }
+        return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
     }
 
     @ApiResponses({
