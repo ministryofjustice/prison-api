@@ -300,6 +300,18 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
     fun testGetFullOffenderInformation() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
