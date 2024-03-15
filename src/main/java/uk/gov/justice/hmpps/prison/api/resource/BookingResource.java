@@ -607,7 +607,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Personal Care Needs Counter - POST version to allow to count heath problem by type for large numbers of offenders", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     @PostMapping("/offenderNo/personal-care-needs/count")
     public List<PersonalCareCounterDto> countPersonalCareNeeds(
         @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
