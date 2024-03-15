@@ -119,7 +119,7 @@ class OffenderResourceIntTest_addressesIntTest : ResourceTest() {
           webTestClient.get().uri("/api/offenders/{nomsId}", inactivePrisoner.offenderNo)
             .headers(setAuthorisation(listOf()))
             .exchange()
-            .expectStatus().isNotFound
+            .expectStatus().isForbidden
           webTestClient.get().uri("/api/offenders/{nomsId}/addresses", inactivePrisoner.offenderNo)
             .headers(setAuthorisation(listOf()))
             .exchange()
