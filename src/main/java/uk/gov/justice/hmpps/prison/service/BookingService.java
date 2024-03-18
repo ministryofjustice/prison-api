@@ -21,10 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
-import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
-import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -46,7 +44,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
@@ -58,7 +55,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
@@ -66,7 +62,6 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -82,7 +77,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingId;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -101,7 +95,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
@@ -112,7 +105,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -562,18 +554,14 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
 
+        checkBookingExists(bookingId);
         if (hasAnySystemOverrideRole(rolesAllowed)) return;
-
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var agencyIds = agencyService.getAgencyIds(false);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
-        // Temporary Logging
-        if (!bookingRepository.checkBookingExists(bookingId)) {
-            logBookingNotFound(bookingId, agencyIds, rolesAllowed);
-        }
+
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
@@ -613,17 +601,6 @@ public class BookingService {
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
-    }
-
-    private void logBookingNotFound(final Long bookingId, final Set<String> agencyIds, final String... rolesAllowed) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("bookingId", bookingId.toString());
-        logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("user", authenticationFacade.getCurrentUsername());
-        logMap.put("roles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        logMap.put("caseloads", StringUtils.join(agencyIds, ","));
-        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
-        telemetryClient.trackEvent("MissingBookingAccess", logMap, null);
     }
 
     public void checkBookingExists(final Long bookingId) {

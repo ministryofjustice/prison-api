@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -115,7 +114,6 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    @Disabled("this test fails - code/role update needed")
     fun `returns 403 when client has no override role`() {
       webTestClient.post().uri("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT")
         .headers(setClientAuthorisation(listOf()))
