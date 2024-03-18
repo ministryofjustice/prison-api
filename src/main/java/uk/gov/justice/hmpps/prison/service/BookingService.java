@@ -554,18 +554,14 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
 
+        checkBookingExists(bookingId);
         if (hasAnySystemOverrideRole(rolesAllowed)) return;
-
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var agencyIds = agencyService.getAgencyIds(false);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
-        // Temporary Logging
-        if (!bookingRepository.checkBookingExists(bookingId)) {
-            logBookingNotFound(bookingId, agencyIds, rolesAllowed);
-        }
+
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
@@ -605,17 +601,6 @@ public class BookingService {
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
-    }
-
-    private void logBookingNotFound(final Long bookingId, final Set<String> agencyIds, final String... rolesAllowed) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("bookingId", bookingId.toString());
-        logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("user", authenticationFacade.getCurrentUsername());
-        logMap.put("roles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        logMap.put("caseloads", StringUtils.join(agencyIds, ","));
-        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
-        telemetryClient.trackEvent("MissingBookingAccess", logMap, null);
     }
 
     public void checkBookingExists(final Long bookingId) {
