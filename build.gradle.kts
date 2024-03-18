@@ -21,18 +21,14 @@ dependencyCheck {
 // Temporarily kept at 4.6 as 4.7 not compatible with spring data jpa
 val jsqlParserVersion by extra("4.6")
 
-// Temporarily keep at 2.5.1 until can switch to h2 instead (tests break anyway with 2.6.1)
-val hsqldbVersion by extra("2.5.1")
-
 ext["rest-assured.version"] = "5.3.2"
-ext["hibernate.version"] = "6.4.2.Final"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.30")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.1.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -56,7 +52,7 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.30")
 
-  runtimeOnly("org.hsqldb:hsqldb:$hsqldbVersion")
+  runtimeOnly("org.hsqldb:hsqldb:2.7.2")
   runtimeOnly("org.flywaydb:flyway-core")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")

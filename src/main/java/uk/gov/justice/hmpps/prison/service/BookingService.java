@@ -21,10 +21,8 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
-import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
-import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
@@ -46,8 +44,8 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
@@ -57,7 +55,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
@@ -65,7 +62,6 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
@@ -99,7 +95,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
@@ -110,7 +105,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.Collections;
 import java.util.Comparator;
 import java.util.HashMap;
 import java.util.List;
@@ -140,7 +134,6 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
 @Validated
 @Slf4j
 public class BookingService {
-    private final AgencyLocationRepository agencyLocationRepository;
 
     private static final String AGENCY_LOCATION_ID_KEY = "agencyLocationId";
     public static final String[] RESTRICTED_ALLOWED_ROLES = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"};
@@ -159,7 +152,6 @@ public class BookingService {
     private final SentenceTermRepository sentenceTermRepository;
     private final AgencyService agencyService;
     private final CaseLoadService caseLoadService;
-    private final OffenderFixedTermRecallService offenderFixedTermRecallService;
     private final CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     private final OffenderContactPersonsRepository offenderContactPersonsRepository;
     private final OffenderRestrictionRepository offenderRestrictionRepository;
@@ -212,7 +204,6 @@ public class BookingService {
         this.sentenceRepository = sentenceRepository;
         this.sentenceTermRepository = sentenceTermRepository;
         this.agencyService = agencyService;
-        this.offenderFixedTermRecallService = offenderFixedTermRecallService;
         this.caseLoadService = caseLoadService;
         this.caseloadToAgencyMappingService = caseloadToAgencyMappingService;
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
@@ -226,7 +217,6 @@ public class BookingService {
         this.offenderChargeTransformer = offenderChargeTransformer;
         this.telemetryClient = telemetryClient;
         this.maxBatchSize = maxBatchSize;
-        this.agencyLocationRepository = agencyLocationRepository;
     }
 
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -564,14 +554,14 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
 
+        checkBookingExists(bookingId);
         if (hasAnySystemOverrideRole(rolesAllowed)) return;
-
-        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
         final var agencyIds = agencyService.getAgencyIds(false);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
+
         if (agencyIds.isEmpty()) {
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
@@ -612,6 +602,7 @@ public class BookingService {
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
         telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
     }
+
     public void checkBookingExists(final Long bookingId) {
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -709,7 +700,7 @@ public class BookingService {
         return bookingRepository.getOffenderSentenceCalculations(agencyIds);
     }
 
-    public List<OffenderSentenceCalculation> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
         return bookingRepository.getOffenderSentenceCalculationsForPrisoner(prisonerId);
     }
 
@@ -808,10 +799,6 @@ public class BookingService {
     }
 
     public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
-        return getOffenderFinePaymentsFromRepository(bookingId);
-    }
-
-    private List<OffenderFinePaymentDto>  getOffenderFinePaymentsFromRepository(final Long bookingId) {
         final var offenderFinePayments = offenderFinePaymentRepository.findByOffenderBooking_BookingId(bookingId);
         return offenderFinePayments.stream()
             .map(OffenderFinePayment::getOffenderFinePaymentDto)
@@ -828,77 +815,9 @@ public class BookingService {
             .build());
     }
 
-    public Page<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByEstablishment(String caseLoad, int pageNumber, int pageSize) {
-        final var agencyLocation = agencyLocationRepository.getReferenceById(caseLoad);
-        PageRequest pageRequest = PageRequest.of(pageNumber, pageSize, Sort.by("bookingId"));
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
-            agencyLocation, "A", "%AGG%", "LICENCE", pageRequest
-        );
-        final var calculableSentenceEnvelopes = activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
-
-        return new PageImpl<>(calculableSentenceEnvelopes, pageRequest, activeBookings.getTotalElements());
-    }
-
-    public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNumbers(Set<String> offenderNumbers) {
-        final var activeBookings = offenderBookingRepository.findAllOffenderBookingsByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
-            offenderNumbers,
-            "A",
-            "%AGG%",
-            "LICENCE"
-        );
-        return activeBookings.stream().map(this::determineCalculableSentenceEnvelope).toList();
-    }
-
     public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Set<Long> bookingIds) {
         final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A");
         return courtEvents.stream().map(event -> new CourtEventOutcome(event.getOffenderBooking().getBookingId(), event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();
-    }
-
-    private CalculableSentenceEnvelope determineCalculableSentenceEnvelope(OffenderBooking offenderBooking) {
-        final var person = new uk.gov.justice.hmpps.prison.api.model.calculation.Person(
-            offenderBooking.getOffender().getNomsId(),
-            offenderBooking.getOffender().getBirthDate(),
-            capitalizeFully(offenderBooking.getOffender().getLastName()),
-            offenderBooking.getLocation().getId(),
-            offenderBooking.getAlerts().stream().filter(OffenderAlert::isActive).map(OffenderAlertTransformer::transformForOffender).collect(toList())
-        );
-
-        final List<SentenceAdjustmentValues> sentenceAdjustments = offenderBooking.getSentenceAdjustments().stream().filter(SentenceAdjustmentValues::isActive).toList();
-        final List<BookingAdjustment> bookingAdjustments = offenderBooking.getBookingAdjustments().stream().filter(BookingAdjustment::isActive).toList();
-        final List<OffenderSentenceAndOffences> sentences = this.getSentenceAndOffenceDetails(offenderBooking.getBookingId()).stream().filter(Objects::nonNull).filter(sentence -> Objects.equals(sentence.getSentenceStatus(), "A")).toList();
-
-        final boolean containsFine = sentences.stream().anyMatch(OffenderSentenceAndOffences::isAFine);
-        final boolean containsFixedTermRecall = sentences.stream().anyMatch(OffenderSentenceAndOffences::isFixedTermRecallType);
-
-        final List<OffenderFinePaymentDto> offenderFinePaymentDtoList = this.getFinesIfRequired(containsFine, offenderBooking.getBookingId());
-        final FixedTermRecallDetails fixedTermRecallDetails = getFixedTermRecall(containsFixedTermRecall, offenderBooking.getBookingId());
-        final SentenceCalcDates sentenceCalcDates = this.getBookingSentenceCalcDatesV1_1(offenderBooking.getBookingId());
-
-        return new CalculableSentenceEnvelope(
-            person,
-            offenderBooking.getBookingId(),
-            sentences,
-            sentenceAdjustments,
-            bookingAdjustments,
-            offenderFinePaymentDtoList,
-            fixedTermRecallDetails,
-            sentenceCalcDates
-        );
-    }
-
-    private List<OffenderFinePaymentDto> getFinesIfRequired(boolean containsFine, Long bookingId){
-        if(containsFine) {
-            return this.getOffenderFinePaymentsFromRepository(bookingId);
-        } else {
-            return Collections.emptyList();
-        }
-    }
-
-    private FixedTermRecallDetails getFixedTermRecall(boolean containsRecall, Long bookingId) {
-        if (containsRecall) {
-            return offenderFixedTermRecallService.getFixedTermRecallDetails(bookingId);
-        }
-        return null;
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {

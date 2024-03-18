@@ -2,13 +2,11 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
 
 class OffenderFinePaymentResourceTest : ResourceTest() {
   @Test
   fun `should return 401 when user does not even have token`() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .exchange()
       .expectStatus().isUnauthorized
   }
@@ -16,7 +14,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
   @Test
   fun `should return 403 if client does not have override role`() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
-      .headers(setClientAuthorisation(listOf("")))
+      .headers(setClientAuthorisation(listOf()))
       .exchange()
       .expectStatus().isForbidden
   }
@@ -24,7 +22,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
   @Test
   fun `returns 404 if user has no caseloads`() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
-      .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
+      .headers(setAuthorisation("RO_USER", listOf())).exchange()
       .expectStatus().isNotFound
       .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
   }
@@ -40,7 +38,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
   @Test
   fun `returns success if in user caseload`() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
-      .headers(setAuthorisation(listOf(""))).exchange()
+      .headers(setAuthorisation(listOf())).exchange()
       .expectStatus().isOk
       .expectBody().jsonPath("length()").isEqualTo(1)
   }

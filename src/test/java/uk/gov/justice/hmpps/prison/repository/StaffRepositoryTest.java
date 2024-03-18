@@ -130,7 +130,7 @@ public class StaffRepositoryTest {
         assertThat(slr.getRoleDescription()).isEqualTo("Key Worker");
         assertThat(slr.getScheduleType()).isEqualTo("FT");
         assertThat(slr.getScheduleTypeDescription()).isEqualTo("Full Time");
-        assertThat(slr.getHoursPerWeek()).isEqualTo(BigDecimal.valueOf(11).setScale(2));
+        assertThat(slr.getHoursPerWeek()).isEqualByComparingTo("11");
     }
 
     @Test
@@ -184,7 +184,7 @@ public class StaffRepositoryTest {
         assertThat(slr.getRoleDescription()).isEqualTo("Offender Supervisor");
         assertThat(slr.getScheduleType()).isEqualTo("FT");
         assertThat(slr.getScheduleTypeDescription()).isEqualTo("Full Time");
-        assertThat(slr.getHoursPerWeek()).isEqualTo(BigDecimal.valueOf(7).setScale(2));
+        assertThat(slr.getHoursPerWeek()).isEqualByComparingTo("7");
     }
 
     @Test

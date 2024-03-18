@@ -17,13 +17,14 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
-import uk.gov.justice.hmpps.prison.service.BookingService
+import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
+import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService
 
 @RestController
 @Tag(name = "prison")
 @Validated
 @RequestMapping(value = ["/api/prison"], produces = ["application/json"])
-class PrisonResource(private val bookingService: BookingService) {
+class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeService) {
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -45,18 +46,18 @@ class PrisonResource(private val bookingService: BookingService) {
   )
   @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment (paged response)")
   @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
-  @GetMapping("/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
+  @VerifyAgencyAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @GetMapping("/{agencyId}/booking/latest/paged/calculable-sentence-envelope")
   fun getCalculableSentenceEnvelopeByEstablishment(
     @PathVariable
     @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
-    establishmentId: String,
+    agencyId: String,
     @RequestParam(value = "page", defaultValue = "0", required = false)
     @Parameter(description = "The page number to retrieve of the paged results (starts at zero)")
     page: Int,
     @RequestParam(value = "size", defaultValue = "200", required = false)
     @Parameter(description = "Requested limit of the page size (i.e. the number of bookings in response)")
     size: Int,
-  ): Page<CalculableSentenceEnvelope> {
-    return this.bookingService.getCalculableSentenceEnvelopeByEstablishment(establishmentId, page, size)
-  }
+  ): Page<CalculableSentenceEnvelope> =
+    sentenceEnvelopeService.getCalculableSentenceEnvelopeByEstablishment(agencyId, page, size)
 }
