@@ -2,8 +2,6 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import jakarta.persistence.LockModeType
 import org.jetbrains.annotations.NotNull
-import org.springframework.data.domain.PageRequest
-import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
@@ -19,11 +17,8 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
 
   fun findByLastNameAndFirstNameAndBirthDate(lastName: String, firstName: String, dob: LocalDate): List<Offender>
 
-  @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId order by b.bookingSequence asc")
-  fun findOffendersByNomsId(@Param("nomsId") nomsId: String, pageable: Pageable): List<Offender>
-
-  fun findOffenderByNomsId(nomsId: String): Optional<Offender> =
-    findOffendersByNomsId(nomsId, PageRequest.of(0, 1)).stream().findFirst()
+  @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and o.id = o.rootOffenderId")
+  fun findOffenderByNomsId(nomsId: String): Optional<Offender>
 
   @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and b.bookingSequence = 1")
   fun findOffenderWithLatestBookingByNomsId(@Param("nomsId") nomsId: String): Optional<Offender>
