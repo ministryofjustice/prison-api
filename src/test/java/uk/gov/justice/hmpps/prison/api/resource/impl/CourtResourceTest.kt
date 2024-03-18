@@ -77,7 +77,6 @@ class CourtResourceTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody(Int::class.java).isEqualTo(2)
     }
-
   }
 
   private companion object {
