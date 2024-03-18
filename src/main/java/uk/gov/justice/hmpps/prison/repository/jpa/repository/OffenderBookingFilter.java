@@ -1,6 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import com.google.common.collect.ImmutableList;
+import jakarta.persistence.criteria.CriteriaBuilder;
+import jakarta.persistence.criteria.CriteriaQuery;
+import jakarta.persistence.criteria.Predicate;
+import jakarta.persistence.criteria.Root;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
@@ -11,10 +15,6 @@ import org.springframework.data.jpa.domain.Specification;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseloadAgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
-import jakarta.persistence.criteria.CriteriaQuery;
-import jakarta.persistence.criteria.Predicate;
-import jakarta.persistence.criteria.Root;
 import java.util.List;
 import java.util.Optional;
 
@@ -62,7 +62,6 @@ public class OffenderBookingFilter implements Specification<OffenderBooking> {
 
         Optional
             .ofNullable(caseloadIds)
-            .filter(java.util.function.Predicate.not(List::isEmpty))
             .ifPresent(caseloads -> {
                 final var subquery = query.subquery(CaseloadAgencyLocation.class);
                 final var subqueryRoot = subquery.from(CaseloadAgencyLocation.class);

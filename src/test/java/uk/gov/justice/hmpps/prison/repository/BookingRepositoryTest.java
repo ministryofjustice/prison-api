@@ -553,4 +553,13 @@ public class BookingRepositoryTest {
         assertThat(repository.updateBookingAppointmentComment(id, "Don't care")).isFalse();
     }
 
+    @Test
+    public void getOffenderSentenceCalculationsForPrisoner() {
+        var sentenceCalculations = repository.getOffenderSentenceCalculationsForPrisoner("Z0024ZZ");
+        assertThat(sentenceCalculations).isNotNull();
+        assertThat(sentenceCalculations.size()).isEqualTo(1);
+        assertThat(sentenceCalculations.getFirst().getOffenderNo()).isEqualTo("Z0024ZZ");
+        assertThat(sentenceCalculations.getFirst().getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(sentenceCalculations.getFirst().getCalculationReason()).isEqualTo("New Sentence");
+    }
 }

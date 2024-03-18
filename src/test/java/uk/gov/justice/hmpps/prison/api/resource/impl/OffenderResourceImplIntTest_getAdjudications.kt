@@ -13,8 +13,6 @@ import org.springframework.test.web.reactive.server.WebTestClient.ListBodySpec
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing
 import java.time.LocalDateTime
-import java.util.List
-import java.util.Map
 
 class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
 
@@ -83,7 +81,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/offenders/A1234AA/adjudications",
         HttpMethod.GET,
-        createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), Map.of()),
+        createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf()),
         object : ParameterizedTypeReference<String?>() {
         },
       )
@@ -102,7 +100,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/offenders/A1234AA/adjudications",
         HttpMethod.GET,
-        createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf(), Map.of()),
+        createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf(), mapOf()),
         ErrorResponse::class.java,
       )
 
@@ -114,7 +112,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/offenders/A1234AA/adjudications",
         HttpMethod.GET,
-        createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf("ROLE_VIEW_ADJUDICATIONS"), Map.of()),
+        createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf("ROLE_VIEW_ADJUDICATIONS"), mapOf()),
         object : ParameterizedTypeReference<String?>() {
         },
       )
@@ -136,7 +134,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         .exchange()
         .expectBodyList(ParameterizedTypeReference.forType<Any>(OffenderAdjudicationHearing::class.java))
         .isEqualTo<ListBodySpec<Any>>(
-          List.of<Any>(
+          listOf<Any>(
             OffenderAdjudicationHearing(
               "LEI",
               "A1181HH",

@@ -63,6 +63,30 @@ class BookingResourceIntTest_getBedAssignmentHistory : ResourceTest() {
   }
 
   @Test
+  fun `returns 404 if client has override role and booking does not exist`() {
+    webTestClient.get().uri("/api/bookings/-99999/cell-history")
+      .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if client does not have override role and booking does not exist`() {
+    webTestClient.get().uri("/api/bookings/-99999/cell-history")
+      .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if user has caseloads and booking does not exist`() {
+    webTestClient.get().uri("/api/bookings/-99999/cell-history")
+      .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+  }
+
+  @Test
+  fun `returns 404 if user does not have any caseloads and booking does not exist`() {
+    webTestClient.get().uri("/api/bookings/-99999/cell-history")
+      .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
+  }
+
+  @Test
   fun `bed assignment history with default sorting`() {
     webTestClient.get().uri("/api/bookings/-36/cell-history")
       .headers(setAuthorisation(listOf())).exchange().expectStatus().isOk.expectBody()

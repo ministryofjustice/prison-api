@@ -50,9 +50,11 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.Comparator;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -102,23 +104,6 @@ import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransform
                 attributeNodes = {
                     @NamedAttributeNode("type"),
                     @NamedAttributeNode("courtType"),
-
-                }
-            ),
-        }
-    ),
-    @NamedEntityGraph(
-        name = "booking-with-livingUnits",
-        attributeNodes = {
-            @NamedAttributeNode(value = "offender"),
-            @NamedAttributeNode(value = "location"),
-            @NamedAttributeNode(value = "assignedLivingUnit", subgraph = "agency-internal-location-details"),
-        },
-        subgraphs = {
-            @NamedSubgraph(
-                name = "agency-internal-location-details",
-                attributeNodes = {
-                    @NamedAttributeNode("livingUnit"),
                 }
             ),
         }
@@ -255,7 +240,7 @@ public class OffenderBooking extends AuditableEntity {
     @Default
     @Exclude
     @BatchSize(size = 1000)
-    private List<OffenderSentence> sentences = new ArrayList<>();
+    private Set<OffenderSentence> sentences = new HashSet<>();
 
     @OneToMany(mappedBy = "offenderBooking", cascade = CascadeType.ALL)
     @Default

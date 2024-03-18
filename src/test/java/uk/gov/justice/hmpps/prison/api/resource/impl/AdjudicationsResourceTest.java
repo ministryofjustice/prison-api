@@ -923,7 +923,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
             assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualByComparingTo("1000.55");
             assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
             assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
@@ -1001,7 +1001,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanctions.get(0).getOffenderBookId()).isEqualTo(-50L);
             assertThat(oicSanctions.get(0).getSanctionSeq()).isEqualTo(1L);
             assertThat(oicSanctions.get(0).getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanctions.get(0).getCompensationAmount()).isEqualByComparingTo("1000.55");
             assertThat(oicSanctions.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(oicSanctions.get(0).getCommentText()).isEqualTo("comment");
             assertThat(oicSanctions.get(0).getEffectiveDate()).isEqualTo("2021-01-04");
@@ -1083,7 +1083,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanction.getOffenderBookId()).isEqualTo(-35L);
             assertThat(oicSanction.getSanctionSeq()).isEqualTo(2L);
             assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.ADA);
-            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("1000.55"));
+            assertThat(oicSanction.getCompensationAmount()).isEqualByComparingTo("1000.55");
             assertThat(oicSanction.getSanctionDays()).isEqualTo(30L);
             assertThat(oicSanction.getCommentText()).isEqualTo("comment_new");
             assertThat(oicSanction.getEffectiveDate()).isEqualTo("2021-01-05");
@@ -1151,7 +1151,7 @@ public class AdjudicationsResourceTest extends ResourceTest  {
             assertThat(oicSanction.getOffenderBookId()).isEqualTo(-35L);
             assertThat(oicSanction.getSanctionSeq()).isEqualTo(1L);
             assertThat(oicSanction.getOicSanctionCode()).isEqualTo(OicSanctionCode.FORFEIT);
-            assertThat(oicSanction.getCompensationAmount()).isEqualTo(new BigDecimal("50.00"));
+            assertThat(oicSanction.getCompensationAmount()).isEqualByComparingTo("50.00");
             assertThat(oicSanction.getSanctionDays()).isEqualTo(21L);
             assertThat(oicSanction.getCommentText()).isEqualTo("comment");
             assertThat(oicSanction.getEffectiveDate()).isEqualTo("2017-11-13");
