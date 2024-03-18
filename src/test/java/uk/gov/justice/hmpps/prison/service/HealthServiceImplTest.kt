@@ -40,7 +40,6 @@ class HealthServiceImplTest {
   private val healthProblemStatusReferenceCodeRepository: ReferenceCodeRepository<HealthProblemStatus> = mock()
   private val offenderHealthProblemRepository: OffenderHealthProblemRepository = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
-  private val bookingService: BookingService = mock()
 
   private var serviceToTest = HealthService(
     offenderBookingRepository,
@@ -48,7 +47,6 @@ class HealthServiceImplTest {
     healthProblemCodeReferenceCodeRepository,
     healthProblemStatusReferenceCodeRepository,
     offenderHealthProblemRepository,
-    bookingService,
     100,
   )
 
