@@ -1631,21 +1631,21 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 if client does not have override role and booking does not exist`() {
+    fun `returns 404 if client does not have override role and booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isForbidden
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
     }
 
     @Test
-    fun `returns 403 if user has caseloads and booking does not exist`() {
+    fun `returns 404 if user has caseloads and booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isForbidden
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
     }
 
     @Test
-    fun `returns 403 if user does not have any caseloads and booking does not exist`() {
+    fun `returns 404 if user does not have any caseloads and booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99999/reasonable-adjustments?type=WHEELCHR_ACC")
-        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
     }
 
     @Test
