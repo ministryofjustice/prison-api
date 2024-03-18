@@ -1198,11 +1198,11 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 if booking not found`() {
+    fun `returns 404 if booking not found`() {
       webTestClient.get().uri("/api/bookings/-99999/secondary-languages")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isNotFound
     }
 
     @Test
