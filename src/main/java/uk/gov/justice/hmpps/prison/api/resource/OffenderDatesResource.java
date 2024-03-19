@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -58,7 +59,7 @@ public class OffenderDatesResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Offender key dates found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = SentenceCalcDates.class))}),
+        @ApiResponse(responseCode = "200", description = "Offender key dates found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderCalculatedKeyDates.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update an offender's dates", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -74,7 +75,7 @@ public class OffenderDatesResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Offender calculations found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceCalculation.class))}),
+        @ApiResponse(responseCode = "200", description = "Offender calculations found", content = {@Content(mediaType = "application/json", array = @ArraySchema( schema = @Schema(implementation = SentenceCalculationSummary.class)))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update an offender's dates", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),

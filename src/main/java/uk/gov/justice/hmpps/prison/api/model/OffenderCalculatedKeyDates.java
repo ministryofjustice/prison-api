@@ -9,6 +9,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Schema(description = "Offender Calculated Key Dates")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -25,13 +26,16 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
     private String comment;
     @Schema(description = "The reason code for the calculation", example = "NEW")
     private String reasonCode;
+    @Schema(description = "The date and time the calculation was recorded", example = "2017-10-31T01:30:00")
+    private LocalDateTime calculatedAt;
 
     @Builder(builderMethodName = "offenderCalculatedKeyDates")
-    public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate, LocalDate earlyTermDate, LocalDate midTermDate, LocalDate lateTermDate, LocalDate dtoPostRecallReleaseDate, LocalDate automaticReleaseDate, LocalDate conditionalReleaseDate, LocalDate paroleEligibilityDate, LocalDate nonParoleDate, LocalDate licenceExpiryDate, LocalDate postRecallReleaseDate, LocalDate sentenceExpiryDate, LocalDate topupSupervisionExpiryDate, LocalDate earlyRemovalSchemeEligibilityDate, LocalDate effectiveSentenceEndDate, String sentenceLength, LocalDate releaseOnTemporaryLicenceDate, String judiciallyImposedSentenceLength, String comment, String reasonCode, LocalDate homeDetentionCurfewApprovedDate, LocalDate tariffDate, LocalDate tariffExpiredRemovalSchemeEligibilityDate, LocalDate approvedParoleDate) {
+    public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate, LocalDate earlyTermDate, LocalDate midTermDate, LocalDate lateTermDate, LocalDate dtoPostRecallReleaseDate, LocalDate automaticReleaseDate, LocalDate conditionalReleaseDate, LocalDate paroleEligibilityDate, LocalDate nonParoleDate, LocalDate licenceExpiryDate, LocalDate postRecallReleaseDate, LocalDate sentenceExpiryDate, LocalDate topupSupervisionExpiryDate, LocalDate earlyRemovalSchemeEligibilityDate, LocalDate effectiveSentenceEndDate, String sentenceLength, LocalDate releaseOnTemporaryLicenceDate, String judiciallyImposedSentenceLength, String comment, String reasonCode, LocalDate homeDetentionCurfewApprovedDate, LocalDate tariffDate, LocalDate tariffExpiredRemovalSchemeEligibilityDate, LocalDate approvedParoleDate, LocalDateTime calculatedAt) {
         super(homeDetentionCurfewEligibilityDate, earlyTermDate, midTermDate, lateTermDate, dtoPostRecallReleaseDate, automaticReleaseDate, conditionalReleaseDate, paroleEligibilityDate, nonParoleDate, licenceExpiryDate, postRecallReleaseDate, sentenceExpiryDate, topupSupervisionExpiryDate, earlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate, sentenceLength, homeDetentionCurfewApprovedDate, tariffDate, tariffExpiredRemovalSchemeEligibilityDate, approvedParoleDate, releaseOnTemporaryLicenceDate);
         this.releaseOnTemporaryLicenceDate = releaseOnTemporaryLicenceDate;
         this.judiciallyImposedSentenceLength = judiciallyImposedSentenceLength;
         this.comment = comment;
         this.reasonCode = reasonCode;
+        this.calculatedAt = calculatedAt;
     }
 }
