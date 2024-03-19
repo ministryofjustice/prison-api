@@ -29,7 +29,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,6 +36,7 @@ import static org.mockito.Mockito.when;
 public class OffenderDatesServiceTest {
 
     private static final LocalDate NOV_11_2021 = LocalDate.of(2021, 11, 8);
+    private static final LocalDateTime NOV_11_2021_10AM = LocalDateTime.of(2021, 11, 8, 10, 0, 0);
 
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
@@ -45,7 +45,7 @@ public class OffenderDatesServiceTest {
     @Mock
     private TelemetryClient telemetryClient;
 
-    private final Clock clock  = Clock.fixed(Instant.now(), ZoneId.systemDefault());
+    private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
 
     private OffenderDatesService service;
 
@@ -110,11 +110,11 @@ public class OffenderDatesServiceTest {
         );
         assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
         verify(telemetryClient).trackEvent("OffenderKeyDatesUpdated",
-                ImmutableMap.of(
-                    "bookingId", bookingId.toString(),
-                    "calculationUuid", calculationUuid.toString(),
-                    "submissionUser", submissionUser
-                ), null);
+            ImmutableMap.of(
+                "bookingId", bookingId.toString(),
+                "calculationUuid", calculationUuid.toString(),
+                "submissionUser", submissionUser
+            ), null);
     }
 
     @Test
@@ -287,7 +287,8 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, "11/00/00",
-            "11/00/00", NOV_11_2021, NOV_11_2021, "Comments", "NEW");
+            "11/00/00", NOV_11_2021, NOV_11_2021,
+            "Comments", "NEW" , NOV_11_2021_10AM);
     }
 
     public static OffenderKeyDates createOffenderKeyDates() {
@@ -305,8 +306,9 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00",
-            "11/00/00", NOV_11_2021, "Comments", "NEW");
+            NOV_11_2021, NOV_11_2021, NOV_11_2021,
+            "11/00/00", "11/00/00", NOV_11_2021,
+            "Comments", "NEW", NOV_11_2021_10AM);
     }
 
     public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
@@ -328,7 +330,8 @@ public class OffenderDatesServiceTest {
                                                           LocalDate earlyRemovalSchemeEligibilityDate,
                                                           LocalDate releaseOnTemporaryLicenceDate,
                                                           String comment,
-                                                          String reasonCode) {
+                                                          String reasonCode,
+                                                          LocalDateTime calculationDate) {
 
         return SentenceCalculation.builder()
             .id(1L)
@@ -352,6 +355,7 @@ public class OffenderDatesServiceTest {
             .rotlOverridedDate(releaseOnTemporaryLicenceDate)
             .comments(comment)
             .reasonCode(reasonCode)
+            .calculationDate(calculationDate)
             .build();
     }
 
@@ -392,25 +396,26 @@ public class OffenderDatesServiceTest {
     }
 
     public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
-                                                                             LocalDate earlyTermDate,
-                                                                             LocalDate midTermDate,
-                                                                             LocalDate lateTermDate,
-                                                                             LocalDate dtoPostRecallReleaseDate,
-                                                                             LocalDate automaticReleaseDate,
-                                                                             LocalDate conditionalReleaseDate,
-                                                                             LocalDate paroleEligibilityDate,
-                                                                             LocalDate nonParoleDate,
-                                                                             LocalDate licenceExpiryDate,
-                                                                             LocalDate postRecallReleaseDate,
-                                                                             LocalDate sentenceExpiryDate,
-                                                                             LocalDate topupSupervisionExpiryDate,
-                                                                             LocalDate earlyRemovalSchemeEligibilityDate,
-                                                                             LocalDate effectiveSentenceEndDate,
-                                                                             String sentenceLength,
-                                                                             String judiciallyImposedSentenceLength,
-                                                                             LocalDate releaseOnTemporaryLicenceDate,
-                                                                             String comment,
-                                                                             String reasonCode) {
+                                                                              LocalDate earlyTermDate,
+                                                                              LocalDate midTermDate,
+                                                                              LocalDate lateTermDate,
+                                                                              LocalDate dtoPostRecallReleaseDate,
+                                                                              LocalDate automaticReleaseDate,
+                                                                              LocalDate conditionalReleaseDate,
+                                                                              LocalDate paroleEligibilityDate,
+                                                                              LocalDate nonParoleDate,
+                                                                              LocalDate licenceExpiryDate,
+                                                                              LocalDate postRecallReleaseDate,
+                                                                              LocalDate sentenceExpiryDate,
+                                                                              LocalDate topupSupervisionExpiryDate,
+                                                                              LocalDate earlyRemovalSchemeEligibilityDate,
+                                                                              LocalDate effectiveSentenceEndDate,
+                                                                              String sentenceLength,
+                                                                              String judiciallyImposedSentenceLength,
+                                                                              LocalDate releaseOnTemporaryLicenceDate,
+                                                                              String comment,
+                                                                              String reasonCode,
+                                                                              LocalDateTime calculatedAt) {
         return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
             .earlyTermDate(earlyTermDate)
@@ -432,6 +437,7 @@ public class OffenderDatesServiceTest {
             .releaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate)
             .comment(comment)
             .reasonCode(reasonCode)
+            .calculatedAt(calculatedAt)
             .build();
     }
 }
