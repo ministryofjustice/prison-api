@@ -210,6 +210,7 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -223,6 +224,7 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -238,6 +240,7 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
@@ -253,6 +256,7 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -265,6 +269,7 @@ public class BookingServiceTest {
         when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
+        when(bookingRepository.checkBookingExists(-1L)).thenReturn(true);
 
         bookingService.getOffenderIdentifiers("off-1", false, "SYSTEM_USER", "GLOBAL_SEARCH");
 
@@ -280,6 +285,7 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
+        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 

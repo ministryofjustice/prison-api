@@ -7,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
@@ -82,6 +83,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
   }
 
   private fun stubVerifyOffenderAccess(offenderNo: String) {
+    whenever(bookingRepository.checkBookingExists(anyLong())).thenReturn(true)
     whenever(bookingRepository.getLatestBookingIdentifierForOffender(any()))
       .thenReturn(Optional.of(OffenderBookingIdSeq(offenderNo, 1L, 1)))
     whenever(bookingRepository.verifyBookingAccess(any(), any())).thenReturn(true)
