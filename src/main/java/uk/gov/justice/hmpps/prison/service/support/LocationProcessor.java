@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service.support;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import uk.gov.justice.hmpps.prison.api.model.Location;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 
 import java.util.List;
 import java.util.Objects;
@@ -115,6 +116,20 @@ public class LocationProcessor {
                 .internalLocationCode(location.getInternalLocationCode())
                 .subLocations(location.getSubLocations())
                 .build();
+    }
+    public static List<LocationSummary> processLocationSummaries(final List<LocationSummary> locations) {
+        return locations.stream().map(loc -> processLocationSummary(loc)).toList();
+    }
+
+    public static LocationSummary processLocationSummary(final LocationSummary locationSummary) {
+        return LocationSummary.builder()
+            .locationId(locationSummary.getLocationId())
+            .userDescription(
+                StringUtils.defaultIfBlank(locationSummary.getUserDescription(),
+                    stripAgencyId(locationSummary.getDescription(), locationSummary.getAgencyId())))
+            .description(locationSummary.getDescription())
+            .agencyId(locationSummary.getAgencyId())
+            .build();
     }
 
     private static String newDescription(Location location, boolean preferUserDescription) {

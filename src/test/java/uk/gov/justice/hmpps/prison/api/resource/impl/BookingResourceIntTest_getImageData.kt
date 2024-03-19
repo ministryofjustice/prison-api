@@ -4,7 +4,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.http.MediaType
 
 @DisplayName("GET /api/bookings/offenderNo/{offenderNo}/image/data")
 class BookingResourceIntTest_getImageData : ResourceTest() {
@@ -12,7 +11,6 @@ class BookingResourceIntTest_getImageData : ResourceTest() {
   @Test
   fun `should return 401 when user does not even have token`() {
     webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/image/data")
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .exchange()
       .expectStatus().isUnauthorized
   }

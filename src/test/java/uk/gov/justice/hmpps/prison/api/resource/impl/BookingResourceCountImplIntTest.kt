@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
@@ -10,7 +9,6 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.web.reactive.function.BodyInserters
 
 class BookingResourceCountImplIntTest : ResourceTest() {
   @Autowired
@@ -23,26 +21,54 @@ class BookingResourceCountImplIntTest : ResourceTest() {
     webTestClient.post()
       .uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&fromStartDate=2010-01-01&toStartDate=2011-01-01")
       .header("Content-Type", APPLICATION_JSON_VALUE)
-      .headers(setAuthorisation(mutableListOf("ITAG_USER")))
+      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
       .accept(APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue("[\"A1234AA\",\"A1234AD\"]"),
-      ).exchange()
+      .bodyValue("""["A1234AA","A1234AD"]""")
+      .exchange()
       .expectStatus().isOk()
-      .expectBody(String::class.java).isEqualTo("[{\"offenderNo\":\"A1234AA\",\"size\":4},{\"offenderNo\":\"A1234AD\",\"size\":1}]")
+      .expectBody().json("""[{"offenderNo":"A1234AA","size":4},{"offenderNo":"A1234AD","size":1}]""")
   }
 
   @Test
-  fun countPersonalCareNeedsForOffenders_missingProblemType() {
+  fun countPersonalCareNeedsForOffendersMissingProblemType() {
     webTestClient.post()
       .uri("/api/bookings/offenderNo/personal-care-needs/count?fromStartDate=2010-01-01&toStartDate=2011-01-01")
       .header("Content-Type", APPLICATION_JSON_VALUE)
-      .headers(setAuthorisation(mutableListOf("ITAG_USER")))
+      .headers(setAuthorisation(listOf()))
       .accept(APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue("[\"A1234AA\",\"A1234AD\"]"),
-      ).exchange()
+      .bodyValue("""["A1234AA","A1234AD"]""")
+      .exchange()
       .expectStatus().isBadRequest()
+      .expectBody()
+      .jsonPath("userMessage").isEqualTo("Required request parameter 'type' for method parameter type String is not present")
+  }
+
+  @Test
+  fun countPersonalCareNeedsForOffendersMissingFromStartDate() {
+    webTestClient.post()
+      .uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&toStartDate=2011-01-01")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation(listOf()))
+      .accept(APPLICATION_JSON)
+      .bodyValue("""["A1234AA","A1234AD"]""")
+      .exchange()
+      .expectStatus().isBadRequest()
+      .expectBody()
+      .jsonPath("userMessage").isEqualTo("Required request parameter 'fromStartDate' for method parameter type LocalDate is not present")
+  }
+
+  @Test
+  fun countPersonalCareNeedsForOffendersMissingToStartDate() {
+    webTestClient.post()
+      .uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&fromStartDate=2011-01-01")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation(listOf()))
+      .accept(APPLICATION_JSON)
+      .bodyValue("""["A1234AA","A1234AD"]""")
+      .exchange()
+      .expectStatus().isBadRequest()
+      .expectBody()
+      .jsonPath("userMessage").isEqualTo("Required request parameter 'toStartDate' for method parameter type LocalDate is not present")
   }
 
   @Test
@@ -50,11 +76,10 @@ class BookingResourceCountImplIntTest : ResourceTest() {
     webTestClient.post()
       .uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&fromStartDate=2010-01-01&toStartDate=2011-01-01")
       .header("Content-Type", APPLICATION_JSON_VALUE)
-      .headers(setAuthorisation(mutableListOf("ITAG_USER")))
+      .headers(setAuthorisation(listOf()))
       .accept(APPLICATION_JSON)
-      .body(
-        BodyInserters.fromValue(""),
-      ).exchange()
+      .bodyValue("")
+      .exchange()
       .expectStatus().isBadRequest()
   }
 
@@ -62,20 +87,18 @@ class BookingResourceCountImplIntTest : ResourceTest() {
   fun `returns 401 without an auth token`() {
     webTestClient.post().uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&fromStartDate=2010-01-01&toStartDate=2011-01-01")
       .header("Content-Type", APPLICATION_JSON_VALUE)
-      .accept(APPLICATION_JSON)
-      .bodyValue("[ \"A1234AA\" ]")
+      .bodyValue("""[ "A1234AA" ]""")
       .exchange()
       .expectStatus().isUnauthorized
   }
 
   @Test
-  @Disabled("this test fails - code/role update needed")
   fun `returns 403 when client has no override role`() {
     webTestClient.post().uri("/api/bookings/offenderNo/personal-care-needs/count?type=DISAB&fromStartDate=2010-01-01&toStartDate=2011-01-01")
       .headers(setClientAuthorisation(listOf()))
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .accept(APPLICATION_JSON)
-      .bodyValue("[ \"A1234AA\" ]")
+      .bodyValue("""[ "A1234AA" ]""")
       .exchange()
       .expectStatus().isForbidden
   }

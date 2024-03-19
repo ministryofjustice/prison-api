@@ -126,6 +126,19 @@ class OffenderResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/case-notes/v2")
   inner class GetOffenderCaseNotes {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/case-notes/v2")
+        .exchange().expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return 403 if no override role`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/case-notes/v2")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isForbidden
+    }
+
     @Test
     fun testCanRetrieveCaseNotesForOffender() {
       val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
@@ -214,16 +227,32 @@ class OffenderResourceIntTest : ResourceTest() {
 
     @Test
     fun testCannotRetrieveCaseNotesForOffenderWithViewPrisonerData() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}/case-notes/v2",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
-        OFFENDER_NUMBER,
-      )
-      assertThat(response.statusCode.value()).isEqualTo(403)
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/case-notes/v2")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if client has override role and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/v2")
+        .headers(setClientAuthorisation(listOf("VIEW_CASE_NOTES"))).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if client does not have override role and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/v2")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/v2")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and offender does not exist`() {
+      webTestClient.get().uri("/api/offenders/-99999/case-notes/v2")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
     }
   }
 
@@ -247,7 +276,7 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 if has authorised ROLE_SYSTEM_USER`() {
+    fun `returns 403 if has unauthorised ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
@@ -268,6 +297,18 @@ class OffenderResourceIntTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
@@ -632,7 +673,7 @@ class OffenderResourceIntTest : ResourceTest() {
         }
       """.trimIndent(),
     )
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange<RestResponsePage<CaseNote>>(
+    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
       GET,
       createEmptyHttpEntity(GLOBAL_SEARCH),
@@ -691,7 +732,7 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(latestMovement.toAgency).isEqualTo("OUT")
     assertThat(latestMovement.movementType).isEqualTo("REL")
     assertThat(latestMovement.movementReason).isEqualTo("Final Discharge To Hospital-Psychiatric")
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange<RestResponsePage<CaseNote>>(
+    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
       GET,
       createEmptyHttpEntity(GLOBAL_SEARCH),
@@ -794,7 +835,6 @@ class OffenderResourceIntTest : ResourceTest() {
     fun `Attempt to get address for offender that is not part of any of logged on staff user's caseloads`() {
       webTestClient.get().uri("/api/offenders/$OFFENDER_NUMBER/addresses")
         .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
@@ -806,7 +846,6 @@ class OffenderResourceIntTest : ResourceTest() {
     fun `Attempt to get address for offender that does not exist`() {
       webTestClient.get().uri("/api/offenders/A1111ZZ/addresses")
         .headers(setAuthorisation("ITAG_USER", listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")

@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -189,21 +188,21 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    @Disabled("this test fails - code update needed")
-    fun `should return 403 if does not have override role`() {
+    fun `should return empty list if client does not have override role`() {
       webTestClient.get().uri("/api/bookings/v2?prisonId=BXI")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(0)
     }
 
     @Test
-    @Disabled("this test fails - code update needed")
-    fun `should return 403 when client has role ROLE_SYSTEM_USER `() {
+    fun `should return empty list when client has role ROLE_SYSTEM_USER `() {
       webTestClient.get().uri("/api/bookings/v2?prisonId=BXI")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isForbidden
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(0)
     }
 
     @Test
@@ -212,14 +211,25 @@ class BookingResourceIntTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(1)
     }
 
     @Test
-    @Disabled("this test fails - code update needed")
-    fun `returns 403 if prison is not in user caseload`() {
+    fun `returns empty list if prison is not in user caseload`() {
       webTestClient.get().uri("/api/bookings/v2?prisonId=LEI")
-        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
-        .expectStatus().isForbidden
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(0)
+    }
+
+    @Test
+    fun `returns empty list if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/v2?prisonId=BXI")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("totalElements").isEqualTo(0)
     }
 
     @Test

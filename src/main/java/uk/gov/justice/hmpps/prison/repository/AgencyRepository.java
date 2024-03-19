@@ -10,6 +10,8 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyDto;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationDto;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummaryDto;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -20,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.List;
 import java.util.Optional;
 
@@ -37,6 +38,9 @@ public class AgencyRepository extends RepositoryBase {
 
     private static final DataClassByColumnRowMapper<LocationDto> LOCATION_ROW_MAPPER =
         new DataClassByColumnRowMapper<>(LocationDto.class);
+
+    private static final DataClassByColumnRowMapper<LocationSummaryDto> LOCATION_SUMMARY_ROW_MAPPER =
+        new DataClassByColumnRowMapper<>(LocationSummaryDto.class);
 
     public Page<Agency> getAgencies(final String orderByField, final Order order, final long offset, final long limit) {
         final var initialSql = AgencyRepositorySql.GET_AGENCIES.getSql();
@@ -156,17 +160,17 @@ public class AgencyRepository extends RepositoryBase {
         return locations.stream().map(LocationDto::toLocation).collect(toList());
     }
 
-    public List<Location> getAgencyLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
+    public List<LocationSummary> getAgencyLocationsBooked(final String agencyId, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         final var params = createParams("agencyId", agencyId);
 
         final var initialSql = AgencyRepositorySql.GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED.getSql();
         setupDates(params, bookedOnDay, bookedOnPeriod);
 
-        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_ROW_MAPPER);
+        final var builder = queryBuilderFactory.getQueryBuilder(initialSql, LOCATION_SUMMARY_ROW_MAPPER);
         final var sql = builder.build();
 
-        final var locations = jdbcTemplate.query(sql, params, LOCATION_ROW_MAPPER);
-        return locations.stream().map(LocationDto::toLocation).collect(toList());
+        final var locations = jdbcTemplate.query(sql, params, LOCATION_SUMMARY_ROW_MAPPER);
+        return locations.stream().map(LocationSummaryDto::toLocationSummary).collect(toList());
     }
 
     private void setupDates(final MapSqlParameterSource params, final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
