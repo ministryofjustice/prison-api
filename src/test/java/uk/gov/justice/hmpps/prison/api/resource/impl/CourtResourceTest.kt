@@ -55,6 +55,30 @@ class CourtResourceTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("GET /api/court/{bookingId}/count-active-cases")
+  @Sql(
+    scripts = ["/sql/create_active_and_inactive_court_case.sql"],
+    executionPhase = BEFORE_TEST_CLASS,
+    config = SqlConfig(transactionMode = ISOLATED),
+  )
+  @Sql(
+    scripts = ["/sql/delete_future_court_events.sql"],
+    executionPhase = AFTER_TEST_CLASS,
+    config = SqlConfig(transactionMode = ISOLATED),
+  )
+  inner class ActiveCourtCasesCount {
+    @Test
+    fun `Count court cases`() {
+      webTestClient.get()
+        .uri("/api/court/${BOOKING_ID_MINUS_FIVE}/count-active-cases")
+        .headers(setAuthorisation(listOf("RELEASE_DATES_CALCULATOR")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(Int::class.java).isEqualTo(2)
+    }
+  }
+
   private companion object {
     const val BOOKING_ID_MINUS_FIVE = -5
     const val BOOKING_ID_MINUS_SIX = -6

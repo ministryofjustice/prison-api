@@ -5,12 +5,14 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.CourtEventDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
 import java.time.LocalDateTime
 
 @Service
 @Transactional(readOnly = true)
 class CourtService(
   private val courtEventRepository: CourtEventRepository,
+  private val offenderCourtCaseRepository: OffenderCourtCaseRepository,
 ) {
   fun getNextCourtEvent(bookingId: Long): CourtEventDetails? {
     val nextCourtEvent = courtEventRepository.findFirstByOffenderBooking_BookingIdAndStartTimeGreaterThanEqual(
@@ -28,4 +30,6 @@ class CourtService(
       courtEventType = nextCourtEvent.courtEventType.description,
     )
   }
+
+  fun getCountOfActiveCases(bookingId: Long): Int = offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).filter { it.isActive }.size
 }
