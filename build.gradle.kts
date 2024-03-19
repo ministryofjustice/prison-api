@@ -28,7 +28,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.30")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.2")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -41,11 +41,11 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.1.0")
 
   implementation("io.swagger:swagger-annotations:1.6.13")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.3.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
 
   implementation("org.apache.commons:commons-lang3:3.14.0")
   implementation("commons-io:commons-io:2.15.1")
-  implementation("com.google.guava:guava:33.0.0-jre")
+  implementation("com.google.guava:guava:33.1.0-jre")
   implementation("org.apache.commons:commons-text:1.11.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.22.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -69,15 +69,15 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.1.3")
-  testImplementation("net.serenity-bdd:serenity-junit:4.1.3")
-  testImplementation("net.serenity-bdd:serenity-spring:4.1.3")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.3")
+  testImplementation("net.serenity-bdd:serenity-core:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-junit:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-spring:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.4")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.4.1")
+  testImplementation("org.wiremock:wiremock:3.4.2")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.20") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.21") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.20")
