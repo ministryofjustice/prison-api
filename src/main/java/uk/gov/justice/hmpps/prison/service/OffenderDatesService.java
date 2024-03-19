@@ -137,6 +137,7 @@ public class OffenderDatesService {
             .earlyRemovalSchemeEligibilityDate(sentenceCalculation.getErsedOverridedDate())
             .comment(sentenceCalculation.getComments())
             .reasonCode(sentenceCalculation.getReasonCode())
+            .calculatedAt(sentenceCalculation.getCalculationDate())
             .build();
     }
 }

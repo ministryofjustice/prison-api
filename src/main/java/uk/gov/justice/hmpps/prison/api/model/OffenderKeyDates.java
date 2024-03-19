@@ -80,7 +80,6 @@ public class OffenderKeyDates {
     @Schema(description = "APD - Approved Parole date", example = "2020-02-03")
     private LocalDate approvedParoleDate;
 
-
     @Schema(description = "ROTL = Release on temporary licence date", example = "2020-02-03")
     private LocalDate releaseOnTemporaryLicenceDate;
 }
