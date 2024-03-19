@@ -1693,21 +1693,43 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
-      webTestClient.get().uri("/api/bookings/-6/property")
-        .headers(setAuthorisation("WAI_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+    fun `returns 404 if client has override role and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/property")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
     }
 
     @Test
-    fun `returns 404 if booking not found`() {
+    fun `returns 404 if client does not have override role and booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99999/property")
-        .headers(setAuthorisation(listOf()))
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/property")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/property")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/-6/property")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
     }
 
     @Test

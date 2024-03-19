@@ -511,7 +511,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active property containers", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/{bookingId}/property")
     public List<PropertyContainer> getOffenderPropertyContainers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getOffenderPropertyContainers(bookingId);
