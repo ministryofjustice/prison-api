@@ -21,7 +21,7 @@ class AliasBuilderRepository(
     lastName: String,
     firstName: String,
     birthDate: LocalDate,
-  ): AliasId = offenderRepository.findOffenderByNomsId(offenderId.offenderNo).orElseThrow().let {
+  ): AliasId = offenderRepository.findOffenderWithLatestBookingByNomsId(offenderId.offenderNo).orElseThrow().let {
     offenderRepository.save(
       Offender.builder()
         .nomsId(it.nomsId)

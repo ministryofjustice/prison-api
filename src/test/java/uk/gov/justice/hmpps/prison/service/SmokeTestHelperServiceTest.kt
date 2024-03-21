@@ -136,7 +136,7 @@ class SmokeTestHelperServiceTest {
 
     @Test
     fun ok() {
-      whenever(offenderRepository.findOffenderByNomsId(any()))
+      whenever(offenderRepository.findOffenderWithLatestBookingByNomsId(any()))
         .thenReturn(
           Optional.of(
             Offender().apply {

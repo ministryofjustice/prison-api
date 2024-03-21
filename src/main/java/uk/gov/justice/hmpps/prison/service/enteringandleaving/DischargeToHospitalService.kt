@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderWithLatestBookingByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService
@@ -91,7 +92,7 @@ class DischargeToHospitalService(
   }
 
   private fun findOffender(offenderNo: String): Result<Offender> =
-    offenderRepository.findOffenderByNomsId(offenderNo).orElse(null)
+    offenderRepository.findOffenderWithLatestBookingByNomsIdOrNull(offenderNo)
       ?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $offenderNo"))
 

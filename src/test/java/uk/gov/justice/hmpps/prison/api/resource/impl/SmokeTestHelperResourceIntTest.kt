@@ -132,7 +132,7 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
 
-      val prisoner = offenderRepository.findOffenderByNomsId(prisonerNo).orElseThrow()
+      val prisoner = offenderRepository.findOffenderWithLatestBookingByNomsId(prisonerNo).orElseThrow()
       assertThat(prisoner.firstName).isEqualTo("JOHN")
       assertThat(prisoner.lastName).isEqualTo("SMITH")
     }
