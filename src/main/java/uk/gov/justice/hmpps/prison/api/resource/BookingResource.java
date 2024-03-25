@@ -748,7 +748,7 @@ public class BookingResource {
     @Operation(summary = "Count of case notes", description = "Count of case notes")
     @GetMapping("/{bookingId}/caseNotes/{type}/{subType}/count")
     @SlowReportQuery
-    @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"}, accessDeniedError = true)
     public CaseNoteCount getCaseNoteCount(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type,
