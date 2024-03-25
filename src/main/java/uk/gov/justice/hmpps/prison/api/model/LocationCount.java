@@ -63,9 +63,9 @@ public class LocationCount {
     }
 
     /**
-     * Phyical Count Id
+     * Physical Count Id
      */
-    @Schema(requiredMode = REQUIRED, description = "Phyical Count Id")
+    @Schema(requiredMode = REQUIRED, description = "Physical Count Id")
     @JsonProperty("physicalCountId")
     public Long getPhysicalCountId() {
         return physicalCountId;
