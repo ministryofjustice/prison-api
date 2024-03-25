@@ -13,6 +13,12 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
   inner class CaseNoteCount {
 
     @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
+        .exchange().expectStatus().isUnauthorized
+    }
+
+    @Test
     fun `returns 403 if has override ROLE_SYSTEM_USER`() {
       webTestClient.get()
         .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
@@ -41,13 +47,15 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     }
 
     @Test
-    fun `Case note count is requested for booking that is not part of any of logged on staff user's caseloads`() {
-      webTestClient.get()
-        .uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/bookings/-16/caseNotes/CHAP/FAMMAR/count")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test

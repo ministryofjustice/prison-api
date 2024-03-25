@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.3"
-  kotlin("plugin.spring") version "1.9.22"
-  kotlin("plugin.jpa") version "1.9.22"
-  kotlin("plugin.lombok") version "1.9.22"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.4"
+  kotlin("plugin.spring") version "1.9.23"
+  kotlin("plugin.jpa") version "1.9.23"
+  kotlin("plugin.lombok") version "1.9.23"
 }
 
 configurations {
@@ -25,8 +25,8 @@ ext["rest-assured.version"] = "5.3.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.30")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.30")
+  annotationProcessor("org.projectlombok:lombok:1.18.32")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
   implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.2")
   implementation("org.springframework.boot:spring-boot-starter-aop")
@@ -40,7 +40,7 @@ dependencies {
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.1.0")
 
-  implementation("io.swagger:swagger-annotations:1.6.13")
+  implementation("io.swagger:swagger-annotations:1.6.14")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
 
   implementation("org.apache.commons:commons-lang3:3.14.0")
@@ -50,7 +50,7 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc10:19.22.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  compileOnly("org.projectlombok:lombok:1.18.30")
+  compileOnly("org.projectlombok:lombok:1.18.32")
 
   runtimeOnly("org.hsqldb:hsqldb:2.7.2")
   runtimeOnly("org.flywaydb:flyway-core")
@@ -80,11 +80,11 @@ dependencies {
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.21") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.20")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.21")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.32.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.35.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.30")
+  testCompileOnly("org.projectlombok:lombok:1.18.32")
 }
 
 java {

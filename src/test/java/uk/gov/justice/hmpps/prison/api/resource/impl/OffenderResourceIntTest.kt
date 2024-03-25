@@ -1141,7 +1141,7 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `Create case note returns 404 for offender not in user caseloads but has override role ROLE_SYSTEM_USER`() {
+    fun `Create case note returns 403 for offender not in user caseloads but has override role ROLE_SYSTEM_USER`() {
       webTestClient.post().uri("/api/offenders/$OFFENDER_NUMBER/case-notes")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_SYSTEM_USER")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1156,8 +1156,8 @@ class OffenderResourceIntTest : ResourceTest() {
           """,
         )
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AB] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
     }
 
     @Test
@@ -1501,8 +1501,8 @@ class OffenderResourceIntTest : ResourceTest() {
           """,
         )
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1234AP] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -16.")
     }
 
     @Test
@@ -1510,19 +1510,42 @@ class OffenderResourceIntTest : ResourceTest() {
       webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
         .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            {
-              "type": "GEN",
-              "subType": "OSE",
-              "text": "A new case note",
-              "occurrenceDateTime": "2017-04-14T10:15:30"      
-            }
-          """,
-        )
+        .bodyValue(caseNote)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [A1111ZZ] not found.")
+    }
+
+    @Test
+    fun `returns 404 if client has override role and offender does not exist`() {
+      webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
+        .headers(setClientAuthorisation(listOf("ROLE_ADD_CASE_NOTE")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if client does not have override role and offender does not exist`() {
+      webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
+        .headers(setClientAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and offender does not exist`() {
+      webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and offender does not exist`() {
+      webTestClient.post().uri("/api/offenders/A1111ZZ/case-notes")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(caseNote).exchange().expectStatus().isNotFound
     }
   }
 
