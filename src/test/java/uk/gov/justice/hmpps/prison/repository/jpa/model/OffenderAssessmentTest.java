@@ -68,7 +68,10 @@ public class OffenderAssessmentTest {
             arguments("STANDARD", "HI", "HI", "Approval Comment", "Override Comment", "HI", "STANDARD", "Override Comment"),
             arguments("STANDARD", "HI", "HI", "Approval Comment", null, "HI", "STANDARD", "Approval Comment"),
             arguments("STANDARD", "HI", "HI", null, null, "HI", "STANDARD", null),
-            arguments("STANDARD", "HI", null, null, "Override Comment", null, null, null),
+            // When STANDARD has been overridden with HI we should return the higher of the two
+            arguments("STANDARD", "HI", null, null, "Override Comment", "HI", null, null),
+            // When HI has been overridden with STANDARD we should return the higher of the two
+            arguments("HI", "STANDARD", null, null, "Override Comment", "HI", null, null),
             arguments("STANDARD", "HI", "STANDARD", "Approval Comment", "Override Comment", "STANDARD", null, "Approval Comment"),
             arguments("STANDARD", null, "STANDARD", null, "Override Comment", "STANDARD", null, null),
             arguments(null, "HI", "STANDARD", "Approval Comment", "Override Comment", "STANDARD", null, "Override Comment"),
@@ -83,7 +86,7 @@ public class OffenderAssessmentTest {
     private static Stream<Arguments> classificationsWithExpectedIsSetResults() {
         return Stream.of(
             arguments("STANDARD", "HI", "HI", true),
-            arguments("STANDARD", "HI", null, false),
+            arguments("STANDARD", "HI", null, true),
             arguments("STANDARD", null, "STANDARD", true),
             arguments("STANDARD", null, null, true),
             arguments(null, "HI", "STANDARD", true),
