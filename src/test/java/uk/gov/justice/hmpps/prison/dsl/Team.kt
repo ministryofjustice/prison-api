@@ -8,9 +8,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
 
-@DslMarker
-annotation class TeamDslMarker
-
 @NomisDataDslMarker
 interface TeamDsl
 

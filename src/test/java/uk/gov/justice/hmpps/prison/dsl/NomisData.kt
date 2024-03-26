@@ -38,7 +38,6 @@ class NomisData(
   private val teamBuilderFactory: TeamBuilderFactory,
 ) : NomisDataDsl {
 
-  @OffenderDslMarker
   override fun offender(
     pncNumber: String?,
     croNumber: String?,
@@ -69,7 +68,6 @@ class NomisData(
           }
       }
 
-  @TeamDslMarker
   override fun team(
     code: String,
     description: String,
@@ -95,7 +93,6 @@ class NomisData(
 
 @NomisDataDslMarker
 interface NomisDataDsl {
-  @OffenderDslMarker
   fun offender(
     pncNumber: String? = null,
     croNumber: String? = null,
@@ -109,7 +106,6 @@ interface NomisDataDsl {
     dsl: OffenderDsl.() -> Unit = {},
   ): OffenderId
 
-  @TeamDslMarker
   fun team(
     code: String = UUID.randomUUID().toString().takeLast(20),
     description: String = UUID.randomUUID().toString().takeLast(40),
@@ -121,4 +117,5 @@ interface NomisDataDsl {
 }
 
 @DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 annotation class NomisDataDslMarker

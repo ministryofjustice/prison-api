@@ -12,12 +12,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@DslMarker
-annotation class CourtCaseDslMarker
-
 @NomisDataDslMarker
 interface CourtCaseDsl {
-  @CourtHearingDslMarker
   fun hearing(
     fromPrisonLocation: String = "LEI",
     toCourtLocation: String = "COURT1",

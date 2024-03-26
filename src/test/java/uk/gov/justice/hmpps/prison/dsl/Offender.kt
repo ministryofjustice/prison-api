@@ -9,12 +9,8 @@ import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@DslMarker
-annotation class OffenderDslMarker
-
 @NomisDataDslMarker
 interface OffenderDsl {
-  @BookingDslMarker
   fun booking(
     prisonId: String = "MDI",
     bookingInTime: LocalDateTime = LocalDateTime.now().minusDays(1),
@@ -30,14 +26,12 @@ interface OffenderDsl {
     dsl: BookingDsl.() -> Unit = {},
   ): OffenderBookingId
 
-  @AliasDslMarker
   fun alias(
     lastName: String = "ALIAS",
     firstName: String = randomName(),
     birthDate: LocalDate = LocalDate.of(1990, 8, 20),
   ): AliasId
 
-  @OffenderAddressDslMarker
   fun address(
     premise: String = "18",
     street: String = "High Street",

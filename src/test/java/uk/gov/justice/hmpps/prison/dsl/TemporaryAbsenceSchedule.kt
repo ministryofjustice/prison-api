@@ -11,9 +11,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualS
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import java.time.LocalDateTime
 
-@DslMarker
-annotation class TemporaryAbsenceScheduleDslMarker
-
 @NomisDataDslMarker
 interface TemporaryAbsenceScheduleDsl
 

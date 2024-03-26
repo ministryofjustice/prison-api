@@ -9,9 +9,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 
-@DslMarker
-annotation class OffenderAddressDslMarker
-
 @NomisDataDslMarker
 interface OffenderAddressDsl
 

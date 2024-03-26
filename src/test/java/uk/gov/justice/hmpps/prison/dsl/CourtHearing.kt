@@ -7,9 +7,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import java.time.LocalDateTime
 
-@DslMarker
-annotation class CourtHearingDslMarker
-
 @NomisDataDslMarker
 interface CourtHearingDsl
 

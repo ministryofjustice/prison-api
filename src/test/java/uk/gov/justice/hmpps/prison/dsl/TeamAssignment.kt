@@ -7,9 +7,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import java.time.LocalDate
 
-@DslMarker
-annotation class TeamAssignmentDslMarker
-
 @NomisDataDslMarker
 interface TeamAssignmentDsl
 

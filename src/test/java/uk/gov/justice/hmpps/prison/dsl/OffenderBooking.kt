@@ -19,22 +19,14 @@ import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerSer
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService
 import java.time.LocalDateTime
 
-@DslMarker
-annotation class BookingDslMarker
-
-@DslMarker
-annotation class MovementActionDslMarker
-
 @NomisDataDslMarker
 interface BookingDsl {
-  @MovementActionDslMarker
   fun release(
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "CR",
     commentText: String = "Conditional release",
   )
 
-  @MovementActionDslMarker
   fun recall(
     prisonId: String = "MDI",
     recallTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
@@ -42,7 +34,6 @@ interface BookingDsl {
     commentText: String = "Recalled",
   )
 
-  @MovementActionDslMarker
   fun temporaryAbsenceRelease(
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "C3",
@@ -51,7 +42,6 @@ interface BookingDsl {
     shouldReleaseBed: Boolean = false,
   )
 
-  @MovementActionDslMarker
   fun temporaryAbsenceReturn(
     prisonId: String = "MDI",
     returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
@@ -59,7 +49,6 @@ interface BookingDsl {
     commentText: String = "Day release",
   )
 
-  @MovementActionDslMarker
   fun sendToCourt(
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "19",
@@ -69,7 +58,6 @@ interface BookingDsl {
     courtEventId: Long? = null,
   )
 
-  @MovementActionDslMarker
   fun returnFromCourt(
     prisonId: String = "MDI",
     returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
@@ -77,7 +65,6 @@ interface BookingDsl {
     commentText: String = "Court appearance",
   )
 
-  @MovementActionDslMarker
   fun transferOut(
     prisonId: String = "MDI",
     transferTime: LocalDateTime = LocalDateTime.now().minusHours(1),
@@ -85,32 +72,27 @@ interface BookingDsl {
     commentText: String = "Transfer",
   )
 
-  @MovementActionDslMarker
   fun transferIn(
     receiveTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
     movementReasonCode: String = "CA",
     commentText: String = "Transfer",
   )
 
-  @VisitBalanceDslMarker
   fun visitBalance(
     voBalance: Int = 4,
     pvoBalance: Int = 2,
   )
 
-  @CourtCaseDslMarker
   fun courtCase(
     courtId: String = "COURT1",
     dsl: CourtCaseDsl.() -> Unit = {},
   )
 
-  @TemporaryAbsenceScheduleDslMarker
   fun scheduleTemporaryAbsence(
     startTime: LocalDateTime = LocalDateTime.now().plusDays(1),
     toAddressId: Long = -22,
   ): OffenderIndividualSchedule
 
-  @TeamAssignmentDslMarker
   fun teamAssignment(
     teamToAssign: Team,
     functionTypeCode: String = "AUTO_TRN",

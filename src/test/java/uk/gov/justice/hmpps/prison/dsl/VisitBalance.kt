@@ -3,9 +3,6 @@ package uk.gov.justice.hmpps.prison.dsl
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 
-@DslMarker
-annotation class VisitBalanceDslMarker
-
 @NomisDataDslMarker
 interface VisitBalanceDsl
 
