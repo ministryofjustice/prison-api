@@ -9,12 +9,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 
-@DslMarker
-annotation class OffenderAddressDslMarker
-
-@NomisDataDslMarker
-interface OffenderAddressDsl
-
 @Component
 class OffenderAddressBuilderRepository(
   private val offenderRepository: OffenderRepository,
@@ -65,9 +59,10 @@ class OffenderAddressBuilderFactory(
   fun builder() = OffenderAddressBuilder(repository)
 }
 
+@NomisDataDslMarker
 class OffenderAddressBuilder(
   private val repository: OffenderAddressBuilderRepository,
-) : OffenderAddressDsl {
+) {
 
   private lateinit var addressId: AddressId
 

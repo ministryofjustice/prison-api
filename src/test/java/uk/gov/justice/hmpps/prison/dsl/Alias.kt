@@ -6,12 +6,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import java.time.LocalDate
 
-@DslMarker
-annotation class AliasDslMarker
-
-@NomisDataDslMarker
-interface AliasDsl
-
 @Component
 class AliasBuilderRepository(
   private val offenderRepository: OffenderRepository,
@@ -46,10 +40,10 @@ class AliasBuilderFactory(
   fun builder() = AliasBuilder(repository)
 }
 
+@NomisDataDslMarker
 class AliasBuilder(
   private val repository: AliasBuilderRepository,
-) : AliasDsl {
-
+) {
   private lateinit var aliasId: AliasId
 
   fun build(
@@ -57,14 +51,12 @@ class AliasBuilder(
     lastName: String,
     firstName: String,
     birthDate: LocalDate,
-  ): AliasId {
-    return repository.save(
-      offenderId = offenderId,
-      lastName = lastName,
-      firstName = firstName,
-      birthDate = birthDate,
-    ).also { aliasId = it }
-  }
+  ): AliasId = repository.save(
+    offenderId = offenderId,
+    lastName = lastName,
+    firstName = firstName,
+    birthDate = birthDate,
+  ).also { aliasId = it }
 }
 
 data class AliasId(val offenderId: Long)

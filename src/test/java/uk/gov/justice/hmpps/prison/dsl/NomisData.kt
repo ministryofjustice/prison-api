@@ -33,23 +33,22 @@ class NomisDataBuilder(
   }
 }
 
+@NomisDataDslMarker
 class NomisData(
   private val offenderBuilderFactory: OffenderBuilderFactory,
   private val teamBuilderFactory: TeamBuilderFactory,
-) : NomisDataDsl {
-
-  @OffenderDslMarker
-  override fun offender(
-    pncNumber: String?,
-    croNumber: String?,
-    lastName: String,
-    firstName: String,
-    middleName1: String?,
-    middleName2: String?,
-    birthDate: LocalDate,
-    genderCode: String,
-    ethnicity: String?,
-    dsl: OffenderDsl.() -> Unit,
+) {
+  fun offender(
+    pncNumber: String? = null,
+    croNumber: String? = null,
+    lastName: String = "NTHANDA",
+    firstName: String = randomName(),
+    middleName1: String? = null,
+    middleName2: String? = null,
+    birthDate: LocalDate = LocalDate.of(1965, 7, 19),
+    genderCode: String = "F",
+    ethnicity: String? = null,
+    dsl: OffenderBuilder.() -> Unit = {},
   ): OffenderId =
     offenderBuilderFactory.builder()
       .let { builder ->
@@ -69,14 +68,13 @@ class NomisData(
           }
       }
 
-  @TeamDslMarker
-  override fun team(
-    code: String,
-    description: String,
-    areaCode: String,
-    categoryCode: String,
-    agencyId: String,
-    dsl: TeamDsl.() -> Unit,
+  fun team(
+    code: String = UUID.randomUUID().toString().takeLast(20),
+    description: String = UUID.randomUUID().toString().takeLast(40),
+    areaCode: String = "LON",
+    categoryCode: String = "MANAGE",
+    agencyId: String = "MDI",
+    dsl: TeamBuilder.() -> Unit = {},
   ): Team =
     teamBuilderFactory.builder()
       .let { builder ->
@@ -93,32 +91,6 @@ class NomisData(
       }
 }
 
-@NomisDataDslMarker
-interface NomisDataDsl {
-  @OffenderDslMarker
-  fun offender(
-    pncNumber: String? = null,
-    croNumber: String? = null,
-    lastName: String = "NTHANDA",
-    firstName: String = randomName(),
-    middleName1: String? = null,
-    middleName2: String? = null,
-    birthDate: LocalDate = LocalDate.of(1965, 7, 19),
-    genderCode: String = "F",
-    ethnicity: String? = null,
-    dsl: OffenderDsl.() -> Unit = {},
-  ): OffenderId
-
-  @TeamDslMarker
-  fun team(
-    code: String = UUID.randomUUID().toString().takeLast(20),
-    description: String = UUID.randomUUID().toString().takeLast(40),
-    areaCode: String = "LON",
-    categoryCode: String = "MANAGE",
-    agencyId: String = "MDI",
-    dsl: TeamDsl.() -> Unit = {},
-  ): Team
-}
-
 @DslMarker
+@Target(AnnotationTarget.CLASS, AnnotationTarget.TYPE)
 annotation class NomisDataDslMarker
