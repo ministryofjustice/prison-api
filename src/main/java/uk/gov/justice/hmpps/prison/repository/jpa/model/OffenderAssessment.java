@@ -187,9 +187,17 @@ public class OffenderAssessment extends AuditableEntity {
         }
 
         if (overridingClassification != null && calculatedClassification != null) {
-            // If either of these is high it should be displayed as a priority
-            if (overridingClassification.getCode().equals("HI") || calculatedClassification.getCode().equals("HI")) {
-                return new ClassificationSummary(new AssessmentClassification("HI", "High"), null, null);
+            // We should display the highest one in order of priority
+            String[] priorities = new String[]{"HI", "STANDARD", "MED", "LOW"};
+
+            for (String priority : priorities) {
+                if (overridingClassification.getCode().equals(priority)) {
+                    return new ClassificationSummary(overridingClassification, null, null);
+                }
+
+                if (calculatedClassification.getCode().equals(priority)) {
+                    return new ClassificationSummary(calculatedClassification, null, null);
+                }
             }
         }
 
