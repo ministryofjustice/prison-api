@@ -34,7 +34,7 @@ import java.util.List;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Data
-@EqualsAndHashCode(callSuper=false)
+@EqualsAndHashCode(callSuper = false)
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
@@ -150,17 +150,17 @@ public class OffenderAssessment extends AuditableEntity {
     private LocalDate evaluationDate;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="CREATION_USER")
+    @JoinColumn(name = "CREATION_USER")
     private StaffUserAccount creationUser;
 
     @OneToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name="ASSESSMENT_TYPE_ID")
+    @JoinColumn(name = "ASSESSMENT_TYPE_ID")
     private AssessmentEntry assessmentType;
 
     @OneToMany(fetch = FetchType.LAZY)
     @JoinColumns({
-        @JoinColumn(name="OFFENDER_BOOK_ID", referencedColumnName="OFFENDER_BOOK_ID"),
-        @JoinColumn(name="ASSESSMENT_SEQ", referencedColumnName="ASSESSMENT_SEQ")
+        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID"),
+        @JoinColumn(name = "ASSESSMENT_SEQ", referencedColumnName = "ASSESSMENT_SEQ")
     })
     private List<OffenderAssessmentItem> assessmentItems;
 
@@ -185,8 +185,28 @@ public class OffenderAssessment extends AuditableEntity {
         if (reviewedClassification != null && !reviewedClassification.isPending()) {
             return new ClassificationSummary(reviewedClassification, getPreviousClassification(), getApprovalReason());
         }
+
+        if (overridingClassification != null && calculatedClassification != null) {
+            // We should display the highest one in order of priority
+            String[] priorities = new String[]{"HI", "STANDARD", "MED", "LOW"};
+
+            for (String priority : priorities) {
+                if (overridingClassification.getCode().equals(priority)) {
+                    return new ClassificationSummary(overridingClassification, null, null);
+                }
+
+                if (calculatedClassification.getCode().equals(priority)) {
+                    return new ClassificationSummary(calculatedClassification, null, null);
+                }
+            }
+        }
+
+        if(overridingClassification != null) {
+            return new ClassificationSummary(overridingClassification, null, null);
+        }
+
         if (calculatedClassification != null && !calculatedClassification.isPending() &&
-                overridingClassification == null) {
+            overridingClassification == null) {
             return new ClassificationSummary(calculatedClassification, null, null);
         }
         return ClassificationSummary.withoutClassification();
