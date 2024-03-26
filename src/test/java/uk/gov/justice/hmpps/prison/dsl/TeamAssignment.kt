@@ -7,9 +7,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTeamAssignmentRepository
 import java.time.LocalDate
 
-@NomisDataDslMarker
-interface TeamAssignmentDsl
-
 @Component
 class TeamAssignmentBuilderRepository(
   private val offenderBookingRepository: OffenderBookingRepository,
@@ -41,9 +38,10 @@ class TeamAssignmentBuilderFactory(
   }
 }
 
+@NomisDataDslMarker
 class TeamAssignmentBuilder(
   private val repository: TeamAssignmentBuilderRepository,
-) : TeamAssignmentDsl {
+) {
   fun build(
     offenderBookingId: OffenderBookingId,
     teamToAssign: Team,

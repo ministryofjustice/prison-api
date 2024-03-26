@@ -3,9 +3,6 @@ package uk.gov.justice.hmpps.prison.dsl
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 
-@NomisDataDslMarker
-interface VisitBalanceDsl
-
 @Component
 class VisitBalanceBuilderRepository(
   private val bookingRepository: BookingRepository,
@@ -29,9 +26,10 @@ class VisitBalanceBuilderFactory(
   }
 }
 
+@NomisDataDslMarker
 class VisitBalanceBuilder(
   private val repository: VisitBalanceBuilderRepository,
-) : VisitBalanceDsl {
+) {
   fun build(
     offenderBookingId: OffenderBookingId,
     voBalance: Int,

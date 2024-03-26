@@ -8,9 +8,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TeamRepository
 
-@NomisDataDslMarker
-interface TeamDsl
-
 @Component
 class TeamBuilderRepository(
   private val teamRepository: TeamRepository,
@@ -49,9 +46,10 @@ class TeamBuilderFactory(
   }
 }
 
+@NomisDataDslMarker
 class TeamBuilder(
   private val repository: TeamBuilderRepository,
-) : TeamDsl {
+) {
   private lateinit var team: Team
 
   fun build(

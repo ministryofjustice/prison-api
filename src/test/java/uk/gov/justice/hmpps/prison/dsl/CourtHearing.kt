@@ -7,9 +7,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import java.time.LocalDateTime
 
-@NomisDataDslMarker
-interface CourtHearingDsl
-
 @Component
 class CourtHearingBuilderRepository(
   private val courtHearingsService: CourtHearingsService,
@@ -39,15 +36,13 @@ class CourtHearingBuilderRepository(
 class CourtHearingBuilderFactory(
   private val repository: CourtHearingBuilderRepository,
 ) {
-
-  fun builder(): CourtHearingBuilder {
-    return CourtHearingBuilder(repository)
-  }
+  fun builder(): CourtHearingBuilder = CourtHearingBuilder(repository)
 }
 
+@NomisDataDslMarker
 class CourtHearingBuilder(
   private val repository: CourtHearingBuilderRepository,
-) : CourtHearingDsl {
+) {
   fun build(
     bookingId: Long,
     courtCase: OffenderCourtCase,

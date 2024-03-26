@@ -12,16 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import java.time.LocalDate
 import java.time.LocalDateTime
 
-@NomisDataDslMarker
-interface CourtCaseDsl {
-  fun hearing(
-    fromPrisonLocation: String = "LEI",
-    toCourtLocation: String = "COURT1",
-    courtHearingDateTime: LocalDateTime = LocalDateTime.now().plusHours(1),
-    comments: String = "court appearance",
-  ): CourtHearing
-}
-
 @Component
 class CourtCaseBuilderRepository(
   val offenderBookingRepository: OffenderBookingRepository,
@@ -67,10 +57,11 @@ class CourtCaseBuilderFactory(
   }
 }
 
+@NomisDataDslMarker
 class CourtCaseBuilder(
   private val repository: CourtCaseBuilderRepository,
   private val courtHearingBuilderFactory: CourtHearingBuilderFactory,
-) : CourtCaseDsl {
+) {
   private lateinit var courtCase: OffenderCourtCase
   fun build(
     offenderBookingId: OffenderBookingId,
@@ -82,11 +73,11 @@ class CourtCaseBuilder(
     courtCase = it
   }
 
-  override fun hearing(
-    fromPrisonLocation: String,
-    toCourtLocation: String,
-    courtHearingDateTime: LocalDateTime,
-    comments: String,
+  fun hearing(
+    fromPrisonLocation: String = "LEI",
+    toCourtLocation: String = "COURT1",
+    courtHearingDateTime: LocalDateTime = LocalDateTime.now().plusHours(1),
+    comments: String = "court appearance",
   ): CourtHearing =
     courtHearingBuilderFactory.builder().build(
       bookingId = courtCase.offenderBooking.bookingId,

@@ -11,9 +11,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualS
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import java.time.LocalDateTime
 
-@NomisDataDslMarker
-interface TemporaryAbsenceScheduleDsl
-
 @Component
 class TemporaryAbsenceScheduleBuilderRepository(
   private val scheduleRepository: OffenderIndividualScheduleRepository,
@@ -59,9 +56,10 @@ class TemporaryAbsenceScheduleBuilderFactory(
   }
 }
 
+@NomisDataDslMarker
 class TemporaryAbsenceScheduleBuilder(
   private val repository: TemporaryAbsenceScheduleBuilderRepository,
-) : TemporaryAbsenceScheduleDsl {
+) {
   fun build(
     bookingId: Long,
     startTime: LocalDateTime,

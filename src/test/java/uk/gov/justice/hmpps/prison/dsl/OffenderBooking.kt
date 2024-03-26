@@ -10,94 +10,12 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferIn
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOut
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTeamAssignment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService
 import java.time.LocalDateTime
-
-@NomisDataDslMarker
-interface BookingDsl {
-  fun release(
-    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
-    movementReasonCode: String = "CR",
-    commentText: String = "Conditional release",
-  )
-
-  fun recall(
-    prisonId: String = "MDI",
-    recallTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
-    movementReasonCode: String = "24",
-    commentText: String = "Recalled",
-  )
-
-  fun temporaryAbsenceRelease(
-    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
-    movementReasonCode: String = "C3",
-    commentText: String = "Day release",
-    toLocation: String = "18248",
-    shouldReleaseBed: Boolean = false,
-  )
-
-  fun temporaryAbsenceReturn(
-    prisonId: String = "MDI",
-    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
-    movementReasonCode: String = "C3",
-    commentText: String = "Day release",
-  )
-
-  fun sendToCourt(
-    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
-    movementReasonCode: String = "19",
-    commentText: String = "Court appearance",
-    toLocation: String = "COURT1",
-    shouldReleaseBed: Boolean = false,
-    courtEventId: Long? = null,
-  )
-
-  fun returnFromCourt(
-    prisonId: String = "MDI",
-    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
-    movementReasonCode: String = "19",
-    commentText: String = "Court appearance",
-  )
-
-  fun transferOut(
-    prisonId: String = "MDI",
-    transferTime: LocalDateTime = LocalDateTime.now().minusHours(1),
-    movementReasonCode: String = "NOTR",
-    commentText: String = "Transfer",
-  )
-
-  fun transferIn(
-    receiveTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
-    movementReasonCode: String = "CA",
-    commentText: String = "Transfer",
-  )
-
-  fun visitBalance(
-    voBalance: Int = 4,
-    pvoBalance: Int = 2,
-  )
-
-  fun courtCase(
-    courtId: String = "COURT1",
-    dsl: CourtCaseDsl.() -> Unit = {},
-  )
-
-  fun scheduleTemporaryAbsence(
-    startTime: LocalDateTime = LocalDateTime.now().plusDays(1),
-    toAddressId: Long = -22,
-  ): OffenderIndividualSchedule
-
-  fun teamAssignment(
-    teamToAssign: Team,
-    functionTypeCode: String = "AUTO_TRN",
-  ): OffenderTeamAssignment
-}
 
 @Component
 class BookingBuilderRepository(
@@ -302,13 +220,14 @@ class BookingBuilderFactory(
     )
 }
 
+@NomisDataDslMarker
 class BookingBuilder(
   private val repository: BookingBuilderRepository,
   private val visitBalanceBuilderFactory: VisitBalanceBuilderFactory,
   private val courtCaseBuilderFactory: CourtCaseBuilderFactory,
   private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
   private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
-) : BookingDsl {
+) {
 
   private lateinit var offenderBookingId: OffenderBookingId
 
@@ -342,7 +261,11 @@ class BookingBuilder(
     ).also { offenderBookingId = it }
   }
 
-  override fun release(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  fun release(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "CR",
+    commentText: String = "Conditional release",
+  ) {
     repository.release(
       offenderNo = offenderBookingId.offenderNo,
       releaseTime = releaseTime,
@@ -351,7 +274,12 @@ class BookingBuilder(
     )
   }
 
-  override fun recall(prisonId: String, recallTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  fun recall(
+    prisonId: String = "MDI",
+    recallTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "24",
+    commentText: String = "Recalled",
+  ) {
     repository.recall(
       offenderNo = offenderBookingId.offenderNo,
       recallTime = recallTime,
@@ -361,12 +289,12 @@ class BookingBuilder(
     )
   }
 
-  override fun temporaryAbsenceRelease(
-    releaseTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
-    toLocation: String,
-    shouldReleaseBed: Boolean,
+  fun temporaryAbsenceRelease(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "C3",
+    commentText: String = "Day release",
+    toLocation: String = "18248",
+    shouldReleaseBed: Boolean = false,
   ) {
     repository.temporaryAbsenceRelease(
       offenderNo = offenderBookingId.offenderNo,
@@ -378,11 +306,11 @@ class BookingBuilder(
     )
   }
 
-  override fun temporaryAbsenceReturn(
-    prisonId: String,
-    returnTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
+  fun temporaryAbsenceReturn(
+    prisonId: String = "MDI",
+    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "C3",
+    commentText: String = "Day release",
   ) {
     repository.temporaryAbsenceReturn(
       offenderNo = offenderBookingId.offenderNo,
@@ -393,13 +321,13 @@ class BookingBuilder(
     )
   }
 
-  override fun sendToCourt(
-    releaseTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
-    toLocation: String,
-    shouldReleaseBed: Boolean,
-    courtEventId: Long?,
+  fun sendToCourt(
+    releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "19",
+    commentText: String = "Court appearance",
+    toLocation: String = "COURT1",
+    shouldReleaseBed: Boolean = false,
+    courtEventId: Long? = null,
   ) {
     repository.sendToCourt(
       offenderNo = offenderBookingId.offenderNo,
@@ -412,11 +340,11 @@ class BookingBuilder(
     )
   }
 
-  override fun returnFromCourt(
-    prisonId: String,
-    returnTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
+  fun returnFromCourt(
+    prisonId: String = "MDI",
+    returnTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "19",
+    commentText: String = "Court appearance",
   ) {
     repository.returnFromCourt(
       offenderNo = offenderBookingId.offenderNo,
@@ -427,11 +355,11 @@ class BookingBuilder(
     )
   }
 
-  override fun transferOut(
-    prisonId: String,
-    transferTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
+  fun transferOut(
+    prisonId: String = "MDI",
+    transferTime: LocalDateTime = LocalDateTime.now().minusHours(1),
+    movementReasonCode: String = "NOTR",
+    commentText: String = "Transfer",
   ) {
     repository.transferOut(
       offenderNo = offenderBookingId.offenderNo,
@@ -442,10 +370,10 @@ class BookingBuilder(
     )
   }
 
-  override fun transferIn(
-    receiveTime: LocalDateTime,
-    movementReasonCode: String,
-    commentText: String,
+  fun transferIn(
+    receiveTime: LocalDateTime = LocalDateTime.now().minusMinutes(30),
+    movementReasonCode: String = "CA",
+    commentText: String = "Transfer",
   ) {
     repository.transferIn(
       offenderNo = offenderBookingId.offenderNo,
@@ -455,7 +383,10 @@ class BookingBuilder(
     )
   }
 
-  override fun visitBalance(voBalance: Int, pvoBalance: Int) {
+  fun visitBalance(
+    voBalance: Int = 4,
+    pvoBalance: Int = 2,
+  ) {
     visitBalanceBuilderFactory.builder().build(
       offenderBookingId = offenderBookingId,
       voBalance = voBalance,
@@ -463,9 +394,9 @@ class BookingBuilder(
     )
   }
 
-  override fun courtCase(
-    courtId: String,
-    dsl: CourtCaseDsl.() -> Unit,
+  fun courtCase(
+    courtId: String = "COURT1",
+    dsl: CourtCaseBuilder.() -> Unit = {},
   ) {
     courtCaseBuilderFactory.builder().let { builder ->
       builder.build(
@@ -477,14 +408,20 @@ class BookingBuilder(
     }
   }
 
-  override fun scheduleTemporaryAbsence(startTime: LocalDateTime, toAddressId: Long) =
+  fun scheduleTemporaryAbsence(
+    startTime: LocalDateTime = LocalDateTime.now().plusDays(1),
+    toAddressId: Long = -22,
+  ) =
     temporaryAbsenceScheduleBuilderFactory.builder().build(
       bookingId = offenderBookingId.bookingId,
       startTime = startTime,
       toAddressId = toAddressId,
     )
 
-  override fun teamAssignment(teamToAssign: Team, functionTypeCode: String) =
+  fun teamAssignment(
+    teamToAssign: Team,
+    functionTypeCode: String = "AUTO_TRN",
+  ) =
     teamAssignmentBuilderFactory.builder().build(
       offenderBookingId = offenderBookingId,
       teamToAssign = teamToAssign,
