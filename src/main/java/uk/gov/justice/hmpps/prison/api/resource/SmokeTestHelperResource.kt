@@ -42,16 +42,14 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
   )
-  @Operation(summary = "Sets imprisonment status smoke test data for this offender")
-  @PostMapping("/offenders/{offenderNo}/imprisonment-status")
+  @Operation(summary = "Sets the status for this offender to IN if it currently OUT, with smoke test data")
+  @PutMapping("/offenders/{offenderNo}/status")
   @ProxyUser
-  fun imprisonmentDataSetup(
+  fun offenderStatusSetup(
     @PathVariable("offenderNo")
     @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
-  ) {
-    service.imprisonmentDataSetup(offenderNo)
-  }
+  ) = service.offenderStatusSetup(offenderNo)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -73,9 +71,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
     @PathVariable("offenderNo")
     @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
-  ) {
-    service.releasePrisoner(offenderNo)
-  }
+  ) = service.releasePrisoner(offenderNo)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -97,9 +93,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
     @PathVariable("offenderNo")
     @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
-  ) {
-    service.recallPrisoner(offenderNo)
-  }
+  ) = service.recallPrisoner(offenderNo)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -123,9 +117,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
     offenderNo: String,
     @RequestBody @Valid
     prisonerDetails: UpdatePrisonerDetails,
-  ) {
-    service.updatePrisonerDetails(offenderNo, prisonerDetails)
-  }
+  ) = service.updatePrisonerDetails(offenderNo, prisonerDetails)
 }
 
 data class UpdatePrisonerDetails(

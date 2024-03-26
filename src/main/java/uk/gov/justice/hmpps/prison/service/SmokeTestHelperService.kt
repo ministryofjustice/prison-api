@@ -5,23 +5,22 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner
 import uk.gov.justice.hmpps.prison.api.resource.UpdatePrisonerDetails
-import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq
-import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq.BookingAndSeq
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
-import java.time.LocalDateTime
 
 @Service
 class SmokeTestHelperService(
-  private val bookingService: BookingService,
-  private val offenderBookingRepository: OffenderBookingRepository,
+  private val inmateService: InmateService,
   private val releasePrisonerService: ReleasePrisonerService,
   private val bookingIntoPrisonService: BookingIntoPrisonService,
   private val offenderRepository: OffenderRepository,
 ) {
+  companion object {
+    const val SMOKE_TEST_PRISON_ID = "LEI"
+  }
+
   @Transactional
   fun updatePrisonerDetails(offenderNo: String, prisonerDetails: UpdatePrisonerDetails) {
     offenderRepository.findOffenderByNomsIdOrNull(offenderNo)?.apply {
@@ -32,22 +31,13 @@ class SmokeTestHelperService(
   }
 
   @Transactional
-  fun imprisonmentDataSetup(offenderNo: String) {
-    val latestOffenderBooking = bookingService.getOffenderIdentifiers(offenderNo, false, "SMOKE_TEST")
-    val bookingAndSeq = getBookingAndSeqOrThrow(offenderNo, latestOffenderBooking)
-    val booking = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, bookingAndSeq.bookingSeq)
-      .orElseThrow(
-        EntityNotFoundException.withMessage("No booking found for offender $offenderNo and seq ${bookingAndSeq.bookingSeq}"),
-      )
-    val currentImprisonmentStatus = booking.activeImprisonmentStatus.orElseThrow {
-      BadRequestException("Unable to find active imprisonment status for offender number $offenderNo")
+  fun offenderStatusSetup(offenderNo: String) {
+    val offender = inmateService.findOffender(offenderNo, false, false)
+    when (offender.inOutStatus) {
+      "OUT" -> recallPrisoner(offenderNo)
+      "TRN" -> throw IllegalStateException("The offender should have status 'IN' but has status '${offender.inOutStatus}' for agencyId ${offender.agencyId}, unable to recall into $SMOKE_TEST_PRISON_ID Prison")
     }
-    booking.setImprisonmentStatus(currentImprisonmentStatus.toBuilder().build(), LocalDateTime.now())
   }
-
-  private fun getBookingAndSeqOrThrow(offenderNo: String, latestOffenderBooking: OffenderBookingIdSeq): BookingAndSeq =
-    latestOffenderBooking.bookingAndSeq
-      .orElseThrow { EntityNotFoundException.withMessage("No booking found for offender $offenderNo") }
 
   @Transactional
   fun releasePrisoner(offenderNo: String) {
@@ -61,7 +51,7 @@ class SmokeTestHelperService(
   @Transactional
   fun recallPrisoner(offenderNo: String) {
     val requestToRecall = RequestToRecall.builder()
-      .prisonId("LEI")
+      .prisonId(SMOKE_TEST_PRISON_ID)
       .movementReasonCode("24")
       .imprisonmentStatus("CUR_ORA")
       .build()
