@@ -36,8 +36,6 @@ import static org.mockito.Mockito.when;
 public class OffenderDatesServiceTest {
 
     private static final LocalDate NOV_11_2021 = LocalDate.of(2021, 11, 8);
-    private static final LocalDateTime NOV_11_2021_10AM = LocalDateTime.of(2021, 11, 8, 10, 0, 0);
-
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
@@ -206,10 +204,38 @@ public class OffenderDatesServiceTest {
     void getOffenderKeyDates_all_data_available() {
         // Given
         final var bookingId = 1L;
+
         final var offenderBooking = OffenderBooking.builder()
             .bookingId(bookingId)
             .sentenceCalculations(List.of(
-                createSentenceCalculation()
+                SentenceCalculation.builder()
+                    .id(1L)
+                    .hdcedCalculatedDate(LocalDate.of(2021, 11, 1))
+                    .etdCalculatedDate(LocalDate.of(2021, 11, 2))
+                    .mtdCalculatedDate(LocalDate.of(2021, 11, 3))
+                    .ltdCalculatedDate(LocalDate.of(2021, 11, 4))
+                    .dprrdCalculatedDate(LocalDate.of(2021, 11, 5))
+                    .ardCalculatedDate(LocalDate.of(2021, 11, 6))
+                    .crdCalculatedDate(LocalDate.of(2021, 11, 7))
+                    .pedCalculatedDate(LocalDate.of(2021, 11, 8))
+                    .npdCalculatedDate(LocalDate.of(2021, 11, 9))
+                    .ledCalculatedDate(LocalDate.of(2021, 11, 10))
+                    .prrdCalculatedDate(LocalDate.of(2021, 11, 11))
+                    .sedCalculatedDate(LocalDate.of(2021, 11, 12))
+                    .tusedCalculatedDate(LocalDate.of(2021, 11, 13))
+                    .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
+                    .effectiveSentenceLength("11/00/11")
+                    .ersedOverridedDate(LocalDate.of(2021, 11, 15))
+                    .hdcadOverridedDate(LocalDate.of(2021, 11, 16))
+                    .tariffOverridedDate(LocalDate.of(2021, 11, 17))
+                    .tersedOverridedDate(LocalDate.of(2021, 11, 18))
+                    .apdOverridedDate(LocalDate.of(2021, 11, 19))
+                    .rotlOverridedDate(LocalDate.of(2021, 11, 20))
+                    .judiciallyImposedSentenceLength("11/00/00")
+                    .comments("Comments")
+                    .reasonCode("NEW")
+                    .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+                    .build()
             ))
             .build();
         when(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(offenderBooking));
@@ -218,7 +244,33 @@ public class OffenderDatesServiceTest {
         final var result = service.getOffenderKeyDates(bookingId);
 
         // Then
-        assertEquals(result, createOffenderCalculatedKeyDates());
+        assertEquals(result, OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
+            .homeDetentionCurfewEligibilityDate(LocalDate.of(2021, 11, 1))
+            .earlyTermDate(LocalDate.of(2021, 11, 2))
+            .midTermDate(LocalDate.of(2021, 11, 3))
+            .lateTermDate(LocalDate.of(2021, 11, 4))
+            .dtoPostRecallReleaseDate(LocalDate.of(2021, 11, 5))
+            .automaticReleaseDate(LocalDate.of(2021, 11, 6))
+            .conditionalReleaseDate(LocalDate.of(2021, 11, 7))
+            .paroleEligibilityDate(LocalDate.of(2021, 11, 8))
+            .nonParoleDate(LocalDate.of(2021, 11, 9))
+            .licenceExpiryDate(LocalDate.of(2021, 11, 10))
+            .postRecallReleaseDate(LocalDate.of(2021, 11, 11))
+            .sentenceExpiryDate(LocalDate.of(2021, 11, 12))
+            .topupSupervisionExpiryDate(LocalDate.of(2021, 11, 13))
+            .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
+            .sentenceLength("11/00/11")
+            .earlyRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 15))
+            .homeDetentionCurfewApprovedDate(LocalDate.of(2021, 11, 16))
+            .tariffDate(LocalDate.of(2021, 11, 17))
+            .tariffExpiredRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 18))
+            .approvedParoleDate(LocalDate.of(2021, 11, 19))
+            .releaseOnTemporaryLicenceDate(LocalDate.of(2021, 11, 20))
+            .judiciallyImposedSentenceLength("11/00/00")
+            .comment("Comments")
+            .reasonCode("NEW")
+            .calculatedAt(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+            .build());
 
     }
 
@@ -280,17 +332,6 @@ public class OffenderDatesServiceTest {
     }
 
 
-    public static SentenceCalculation createSentenceCalculation() {
-        return sentenceCalculation(
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, "11/00/00",
-            "11/00/00", NOV_11_2021, NOV_11_2021,
-            "Comments", "NEW" , NOV_11_2021_10AM);
-    }
-
     public static OffenderKeyDates createOffenderKeyDates() {
         return createOffenderKeyDates(
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
@@ -298,65 +339,6 @@ public class OffenderDatesServiceTest {
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021,
             NOV_11_2021, NOV_11_2021, NOV_11_2021, "11/00/00");
-    }
-
-    public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates() {
-        return createOffenderCalculatedKeyDates(
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            NOV_11_2021, NOV_11_2021, NOV_11_2021,
-            "11/00/00", "11/00/00", NOV_11_2021,
-            "Comments", "NEW", NOV_11_2021_10AM);
-    }
-
-    public static SentenceCalculation sentenceCalculation(LocalDate homeDetentionCurfewEligibilityDate,
-                                                          LocalDate earlyTermDate,
-                                                          LocalDate midTermDate,
-                                                          LocalDate lateTermDate,
-                                                          LocalDate dtoPostRecallReleaseDate,
-                                                          LocalDate automaticReleaseDate,
-                                                          LocalDate conditionalReleaseDate,
-                                                          LocalDate paroleEligibilityDate,
-                                                          LocalDate nonParoleDate,
-                                                          LocalDate licenceExpiryDate,
-                                                          LocalDate postRecallReleaseDate,
-                                                          LocalDate sentenceExpiryDate,
-                                                          LocalDate topupSupervisionExpiryDate,
-                                                          LocalDate effectiveSentenceEndDate,
-                                                          String effectiveSentenceLength,
-                                                          String judiciallyImposedSentenceLength,
-                                                          LocalDate earlyRemovalSchemeEligibilityDate,
-                                                          LocalDate releaseOnTemporaryLicenceDate,
-                                                          String comment,
-                                                          String reasonCode,
-                                                          LocalDateTime calculationDate) {
-
-        return SentenceCalculation.builder()
-            .id(1L)
-            .hdcedCalculatedDate(homeDetentionCurfewEligibilityDate)
-            .etdCalculatedDate(earlyTermDate)
-            .mtdCalculatedDate(midTermDate)
-            .ltdCalculatedDate(lateTermDate)
-            .dprrdCalculatedDate(dtoPostRecallReleaseDate)
-            .ardCalculatedDate(automaticReleaseDate)
-            .crdCalculatedDate(conditionalReleaseDate)
-            .pedCalculatedDate(paroleEligibilityDate)
-            .npdCalculatedDate(nonParoleDate)
-            .ledCalculatedDate(licenceExpiryDate)
-            .prrdCalculatedDate(postRecallReleaseDate)
-            .sedCalculatedDate(sentenceExpiryDate)
-            .tusedCalculatedDate(topupSupervisionExpiryDate)
-            .effectiveSentenceEndDate(effectiveSentenceEndDate)
-            .effectiveSentenceLength(effectiveSentenceLength)
-            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
-            .ersedOverridedDate(earlyRemovalSchemeEligibilityDate)
-            .rotlOverridedDate(releaseOnTemporaryLicenceDate)
-            .comments(comment)
-            .reasonCode(reasonCode)
-            .calculationDate(calculationDate)
-            .build();
     }
 
     public static OffenderKeyDates createOffenderKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
@@ -395,49 +377,4 @@ public class OffenderDatesServiceTest {
             .build();
     }
 
-    public static OffenderCalculatedKeyDates createOffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
-                                                                              LocalDate earlyTermDate,
-                                                                              LocalDate midTermDate,
-                                                                              LocalDate lateTermDate,
-                                                                              LocalDate dtoPostRecallReleaseDate,
-                                                                              LocalDate automaticReleaseDate,
-                                                                              LocalDate conditionalReleaseDate,
-                                                                              LocalDate paroleEligibilityDate,
-                                                                              LocalDate nonParoleDate,
-                                                                              LocalDate licenceExpiryDate,
-                                                                              LocalDate postRecallReleaseDate,
-                                                                              LocalDate sentenceExpiryDate,
-                                                                              LocalDate topupSupervisionExpiryDate,
-                                                                              LocalDate earlyRemovalSchemeEligibilityDate,
-                                                                              LocalDate effectiveSentenceEndDate,
-                                                                              String sentenceLength,
-                                                                              String judiciallyImposedSentenceLength,
-                                                                              LocalDate releaseOnTemporaryLicenceDate,
-                                                                              String comment,
-                                                                              String reasonCode,
-                                                                              LocalDateTime calculatedAt) {
-        return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
-            .homeDetentionCurfewEligibilityDate(homeDetentionCurfewEligibilityDate)
-            .earlyTermDate(earlyTermDate)
-            .midTermDate(midTermDate)
-            .lateTermDate(lateTermDate)
-            .dtoPostRecallReleaseDate(dtoPostRecallReleaseDate)
-            .automaticReleaseDate(automaticReleaseDate)
-            .conditionalReleaseDate(conditionalReleaseDate)
-            .paroleEligibilityDate(paroleEligibilityDate)
-            .nonParoleDate(nonParoleDate)
-            .licenceExpiryDate(licenceExpiryDate)
-            .postRecallReleaseDate(postRecallReleaseDate)
-            .sentenceExpiryDate(sentenceExpiryDate)
-            .topupSupervisionExpiryDate(topupSupervisionExpiryDate)
-            .earlyRemovalSchemeEligibilityDate(earlyRemovalSchemeEligibilityDate)
-            .effectiveSentenceEndDate(effectiveSentenceEndDate)
-            .sentenceLength(sentenceLength)
-            .judiciallyImposedSentenceLength(judiciallyImposedSentenceLength)
-            .releaseOnTemporaryLicenceDate(releaseOnTemporaryLicenceDate)
-            .comment(comment)
-            .reasonCode(reasonCode)
-            .calculatedAt(calculatedAt)
-            .build();
-    }
 }
