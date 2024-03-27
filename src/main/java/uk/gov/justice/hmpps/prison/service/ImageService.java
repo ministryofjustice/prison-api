@@ -64,7 +64,7 @@ public class ImageService {
         final int thumbWidth = 150, thumbHeight = 200;
 
         final var offender = offenderRepository
-            .findOffenderByNomsId(offenderNumber)
+            .findOffenderWithLatestBookingByNomsId(offenderNumber)
             .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNumber)));
 
         final var booking = offender

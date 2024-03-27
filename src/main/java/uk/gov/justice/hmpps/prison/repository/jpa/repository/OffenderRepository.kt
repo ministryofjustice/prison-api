@@ -17,9 +17,11 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
 
   fun findByLastNameAndFirstNameAndBirthDate(lastName: String, firstName: String, dob: LocalDate): List<Offender>
 
-  @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and o.id = o.rootOffenderId")
-  fun findOffenderByNomsId(nomsId: String): Optional<Offender>
-
+  /**
+   * The offender with the latest booking is deemed to be the working name of the offender, all other offender records
+   * are aliases for that offender.  The root offender record appears to be the first offender record created and is
+   * simply used to tie all the aliases for an offender together.
+   */
   @Query("select o from Offender o left join fetch o.bookings b WHERE o.nomsId = :nomsId and b.bookingSequence = 1")
   fun findOffenderWithLatestBookingByNomsId(@Param("nomsId") nomsId: String): Optional<Offender>
 

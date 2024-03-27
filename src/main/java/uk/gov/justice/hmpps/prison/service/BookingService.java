@@ -1067,7 +1067,7 @@ public class BookingService {
     }
 
     public InmateDetail getOffender(final String offenderNo) {
-        return  offenderRepository.findOffenderByNomsId(offenderNo)
+        return  offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
                 .map(offenderTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withId(offenderNo));
     }

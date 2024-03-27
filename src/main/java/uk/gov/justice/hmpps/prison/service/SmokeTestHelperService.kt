@@ -6,7 +6,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner
 import uk.gov.justice.hmpps.prison.api.resource.UpdatePrisonerDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderByNomsIdOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOffenderWithLatestBookingByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 
@@ -23,7 +23,7 @@ class SmokeTestHelperService(
 
   @Transactional
   fun updatePrisonerDetails(offenderNo: String, prisonerDetails: UpdatePrisonerDetails) {
-    offenderRepository.findOffenderByNomsIdOrNull(offenderNo)?.apply {
+    offenderRepository.findOffenderWithLatestBookingByNomsIdOrNull(offenderNo)?.apply {
       firstName = prisonerDetails.firstName.uppercase()
       lastName = prisonerDetails.lastName.uppercase()
       offenderRepository.save(this)

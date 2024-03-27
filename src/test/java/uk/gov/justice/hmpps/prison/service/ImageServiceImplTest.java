@@ -105,7 +105,7 @@ public class ImageServiceImplTest {
     @Test
     public void putImageForOffenderNotFound() {
 
-        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty());
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
@@ -117,7 +117,7 @@ public class ImageServiceImplTest {
 
         Offender offenderAndBooking = Offender.builder().id(1L).build();
 
-        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
 
         assertThatThrownBy(() -> service.putImageForOffender(OFFENDER_NUMBER, new ByteArrayInputStream(imageData)))
             .isInstanceOf(EntityNotFoundException.class)
@@ -145,7 +145,7 @@ public class ImageServiceImplTest {
             .build();
 
 
-        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
         when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty());
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
 
@@ -188,7 +188,7 @@ public class ImageServiceImplTest {
             .build();
 
 
-        when(offenderRepository.findOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
+        when(offenderRepository.findOffenderWithLatestBookingByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.of(offenderAndBooking));
         when(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.of(prevImage));
         when(offenderImageRepository.save(prevImage)).thenReturn(prevImage);
         when(offenderImageRepository.save(newImage)).thenReturn(newImage);
