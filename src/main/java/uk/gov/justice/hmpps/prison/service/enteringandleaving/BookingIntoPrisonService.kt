@@ -74,7 +74,13 @@ class BookingIntoPrisonService(
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
     // grab a lock on the offender and their bookings to ensure that no-one else can add a booking to the offender
     // during our transaction.  Other processes / threads will hang waiting for this to complete.
-    val offender = offenderForUpdate(prisonerIdentifier).getOrThrow()
+
+    // The current offender alias is linked to the booking with sequence 1
+    val offender = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerIdentifier)
+      .map { it.offender }
+      // if there are no bookings then get the root offender instead
+      .orElseGet { rootOffenderForUpdate(prisonerIdentifier).getOrThrow() }
+
     return newBookingWithoutUpdateLock(offender, requestForNewBooking)
   }
 
@@ -93,8 +99,8 @@ class BookingIntoPrisonService(
     val bookNumber: String = bookNumberGenerationService.generateBookNumber()
     val staff = getLoggedInStaff().getOrThrow().staff
 
-    // now increment the sequence on each booking
-    offender.bookings.forEach(OffenderBooking::incBookingSequence)
+    // now increment the sequence on each booking - bookings are linked via the root offender
+    offender.rootOffender.bookings.forEach(OffenderBooking::incBookingSequence)
 
     return offenderBookingRepository.save(
       OffenderBooking.builder()
@@ -194,8 +200,8 @@ class BookingIntoPrisonService(
     }
   }
 
-  private fun offenderForUpdate(prisonerIdentifier: String): Result<Offender> =
-    offenderRepository.findOffenderByNomsIdOrNullForUpdate(prisonerIdentifier).map { success(it) }
+  private fun rootOffenderForUpdate(prisonerIdentifier: String): Result<Offender> =
+    offenderRepository.findRootOffenderByNomsIdForUpdate(prisonerIdentifier).map { success(it) }
       .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
 
   private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> =

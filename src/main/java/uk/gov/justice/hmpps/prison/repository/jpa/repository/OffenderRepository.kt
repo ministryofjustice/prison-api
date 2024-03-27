@@ -24,6 +24,6 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
   fun findOffenderWithLatestBookingByNomsId(@Param("nomsId") nomsId: String): Optional<Offender>
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("SELECT o from Offender o left join fetch o.bookings where o.nomsId = :nomsId and o.id = o.rootOffenderId")
-  fun findOffenderByNomsIdOrNullForUpdate(@NotNull nomsId: String): Optional<Offender>
+  @Query("SELECT o from Offender o where o.nomsId = :nomsId and o.id = o.rootOffenderId")
+  fun findRootOffenderByNomsIdForUpdate(@NotNull nomsId: String): Optional<Offender>
 }

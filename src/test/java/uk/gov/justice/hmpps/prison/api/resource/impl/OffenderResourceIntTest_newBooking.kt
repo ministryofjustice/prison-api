@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -20,6 +21,8 @@ import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -35,6 +38,12 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
   @Autowired
   private lateinit var builder: NomisDataBuilder
+
+  @Autowired
+  private lateinit var offenderBookingRepository: OffenderBookingRepository
+
+  @Autowired
+  private lateinit var offenderRepository: OffenderRepository
 
   @Nested
   @DisplayName("POST /offenders/{offenderNo}/booking")
@@ -886,17 +895,24 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
     @DisplayName("when offender has an alias (multiple offender records)")
     inner class OffenderWithAlias {
       private lateinit var offenderNo: String
+      private var aliasId: Long = 0
+      private var bookingId: Long = 0
 
       @BeforeEach
       internal fun setUp() {
         builder.build {
-          offenderNo = offender {
-            alias(firstName = "JACK", lastName = "TRENT")
-            booking(prisonId = "LEI", youthOffender = false) {
+          offenderNo = offender(firstName = "Root", lastName = "Offender") {
+            aliasId = alias(firstName = "JACK", lastName = "TRENT").offenderId
+            bookingId = booking(prisonId = "LEI", youthOffender = false) {
               release()
-            }
+            }.bookingId
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      internal fun tearDown() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Test
@@ -915,6 +931,9 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .expectBody()
           .jsonPath("activeFlag").isEqualTo(false)
           .jsonPath("inOutStatus").isEqualTo("OUT")
+          // check name is the name of the root offender
+          .jsonPath("firstName").isEqualTo("ROOT")
+          .jsonPath("lastName").isEqualTo("OFFENDER")
 
         // when booking is created
         webTestClient.post()
@@ -957,6 +976,76 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .jsonPath("activeFlag").isEqualTo(true)
           .jsonPath("profileInformation[0].type").isEqualTo("YOUTH")
           .jsonPath("profileInformation[0].resultValue").isEqualTo("No")
+          // with name of offender still set to the root offender
+          .jsonPath("firstName").isEqualTo("ROOT")
+          .jsonPath("lastName").isEqualTo("OFFENDER")
+      }
+
+      @Test
+      internal fun `will create a new booking keeping working name`() {
+        // need to reassign the booking to the offender alias
+        val booking = offenderBookingRepository.findById(bookingId).orElseThrow()
+        booking.offender = offenderRepository.findById(aliasId).orElseThrow()
+        offenderBookingRepository.save(booking)
+
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_VIEW_PRISONER_DATA"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("activeFlag").isEqualTo(false)
+          .jsonPath("inOutStatus").isEqualTo("OUT")
+          // check name should now be the alias as the latest booking is against the alias
+          .jsonPath("firstName").isEqualTo("JACK")
+          .jsonPath("lastName").isEqualTo("TRENT")
+
+        // when booking is created
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            """
+            {
+               "prisonId": "SYI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "24", 
+               "youthOffender": "false", 
+               "imprisonmentStatus": "CUR_ORA", 
+               "cellLocation": "SYI-A-1-1"     
+            }
+            """.trimIndent(),
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+
+        // then we have an active booking
+        webTestClient.get()
+          .uri("/api/offenders/{offenderNo}", offenderNo)
+          .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("activeFlag").isEqualTo(true)
+          .jsonPath("profileInformation[0].type").isEqualTo("YOUTH")
+          .jsonPath("profileInformation[0].resultValue").isEqualTo("No")
+          // with prisoner name still the alias
+          .jsonPath("firstName").isEqualTo("JACK")
+          .jsonPath("lastName").isEqualTo("TRENT")
       }
     }
 
