@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.hmpps.prison.repository
 
 import lombok.extern.slf4j.Slf4j
@@ -146,7 +148,7 @@ class OffenderBookingRepositoryTest {
   }
 
   @Test
-  fun `check things`() {
+  fun `test findDistinctByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot`() {
     val agencyLocation = agencyLocationRepository.getReferenceById("LEI")
 
     val ids = repository.findDistinctByActiveTrueAndLocationAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(
@@ -161,5 +163,19 @@ class OffenderBookingRepositoryTest {
 
     val bookings = repository.findAllByBookingIdIn(ids.content.map { it.bookingId })
     assertThat(bookings).hasSize(2)
+  }
+
+  @Nested
+  inner class findLatestOffenderBookingByNomsIdForUpdate {
+    @Test
+    fun `test find latest offender booking`() {
+      assertThat(repository.findLatestOffenderBookingByNomsIdForUpdate("A1234AI")).get()
+        .extracting { it.bookNumber }.isEqualTo("A00119")
+    }
+
+    @Test
+    fun `test find latest offender booking none found`() {
+      assertThat(repository.findLatestOffenderBookingByNomsIdForUpdate("A1234DD")).isNotPresent
+    }
   }
 }

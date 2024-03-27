@@ -125,8 +125,8 @@ class PrisonerCreationService(
 
   private fun validPncNumber(pncNumber: String?): Result<String>? =
     pncNumber?.takeIf { it.isNotBlank() }?.let { pnc ->
-      return Pnc.getShortPncNumber(pnc).checkForDuplicatePncNumber().map {
-        return Pnc.getLongPncNumber(pnc).checkForDuplicatePncNumber()
+      Pnc.getShortPncNumber(pnc).checkForDuplicatePncNumber().flatMap {
+        Pnc.getLongPncNumber(pnc).checkForDuplicatePncNumber()
       }
     }
 

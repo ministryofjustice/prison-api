@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import jakarta.persistence.LockModeType;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -7,6 +8,8 @@ import org.springframework.data.jpa.domain.Specification;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
+import org.springframework.data.jpa.repository.Lock;
+import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -26,6 +29,10 @@ public interface OffenderBookingRepository extends
     Optional<OffenderBooking> findByOffenderNomsIdAndActive(String nomsId, boolean active);
 
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @Query("SELECT ob from OffenderBooking ob join ob.offender o where o.nomsId = :nomsId and ob.bookingSequence = 1")
+    Optional<OffenderBooking>  findLatestOffenderBookingByNomsIdForUpdate(@NotNull String nomsId);
 
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-sentence-summary")
     Optional<OffenderBooking> findWithSentenceSummaryByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
