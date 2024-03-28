@@ -36,6 +36,12 @@
     "active": true
   },
   {
+    "agencyId": "RSI",
+    "description": "Risley",
+    "agencyType": "INST",
+    "active": true
+  },
+  {
     "agencyId": "SYI",
     "description": "Shrewsbury",
     "agencyType": "INST",
