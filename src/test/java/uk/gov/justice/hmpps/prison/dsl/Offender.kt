@@ -98,27 +98,11 @@ class OffenderBuilderRepository(
 }
 
 @Component
-class OffenderBuilderFactory(
-  private val bookingBuilderFactory: BookingBuilderFactory,
-  private val aliasBuilderFactory: AliasBuilderFactory,
-  private val repository: OffenderBuilderRepository,
-  private val offenderAddressBuilderFactory: OffenderAddressBuilderFactory,
-) {
-
-  fun builder(): OffenderBuilder {
-    return OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory, offenderAddressBuilderFactory)
-  }
-
-  fun deletePrisoner(offenderNo: String) {
-    repository.deletePrisoner(offenderNo)
-  }
-}
-
 class OffenderBuilder(
   private val repository: OffenderBuilderRepository,
-  private val bookingBuilderFactory: BookingBuilderFactory,
-  private val aliasBuilderFactory: AliasBuilderFactory,
-  private val offenderAddressBuilderFactory: OffenderAddressBuilderFactory,
+  private val bookingBuilder: BookingBuilder,
+  private val aliasBuilder: AliasBuilder,
+  private val offenderAddressBuilder: OffenderAddressBuilder,
 ) : OffenderDsl {
   private lateinit var offenderId: OffenderId
 
@@ -146,6 +130,10 @@ class OffenderBuilder(
     offenderId = it
   }
 
+  fun deletePrisoner(offenderNo: String) {
+    repository.deletePrisoner(offenderNo)
+  }
+
   override fun booking(
     prisonId: String,
     bookingInTime: LocalDateTime,
@@ -159,28 +147,25 @@ class OffenderBuilder(
     pvoBalance: Int?,
     youthOffender: Boolean,
     dsl: BookingDsl.() -> Unit,
-  ): OffenderBookingId = bookingBuilderFactory.builder()
-    .let { builder ->
-      builder.build(
-        offenderId = offenderId,
-        prisonId = prisonId,
-        bookingInTime = bookingInTime,
-        fromLocationId = fromLocationId,
-        movementReasonCode = movementReasonCode,
-        cellLocation = cellLocation,
-        imprisonmentStatus = imprisonmentStatus,
-        iepLevel = iepLevel,
-        iepLevelComment = iepLevelComment,
-        voBalance = voBalance,
-        pvoBalance = pvoBalance,
-        youthOffender = youthOffender,
-      )
-        .also {
-          builder.apply(dsl)
-        }
+  ): OffenderBookingId = bookingBuilder.build(
+    offenderId = offenderId,
+    prisonId = prisonId,
+    bookingInTime = bookingInTime,
+    fromLocationId = fromLocationId,
+    movementReasonCode = movementReasonCode,
+    cellLocation = cellLocation,
+    imprisonmentStatus = imprisonmentStatus,
+    iepLevel = iepLevel,
+    iepLevelComment = iepLevelComment,
+    voBalance = voBalance,
+    pvoBalance = pvoBalance,
+    youthOffender = youthOffender,
+  )
+    .also {
+      bookingBuilder.apply(dsl)
     }
 
-  override fun alias(lastName: String, firstName: String, birthDate: LocalDate) = aliasBuilderFactory.builder().build(
+  override fun alias(lastName: String, firstName: String, birthDate: LocalDate) = aliasBuilder.build(
     offenderId = offenderId,
     lastName = lastName,
     firstName = firstName,
@@ -198,7 +183,7 @@ class OffenderBuilder(
     pafValidated: Boolean,
     mail: Boolean,
     noFixedAddress: Boolean,
-  ) = offenderAddressBuilderFactory.builder().build(
+  ) = offenderAddressBuilder.build(
     offenderId = offenderId,
     premise = premise,
     street = street,

@@ -303,29 +303,12 @@ class BookingBuilderRepository(
 }
 
 @Component
-class BookingBuilderFactory(
-  private val repository: BookingBuilderRepository,
-  private val visitBalanceBuilderFactory: VisitBalanceBuilderFactory,
-  private val courtCaseBuilderFactory: CourtCaseBuilderFactory,
-  private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
-  private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
-) {
-  fun builder() =
-    BookingBuilder(
-      repository,
-      visitBalanceBuilderFactory,
-      courtCaseBuilderFactory,
-      teamAssignmentBuilderFactory,
-      temporaryAbsenceScheduleBuilderFactory,
-    )
-}
-
 class BookingBuilder(
   private val repository: BookingBuilderRepository,
-  private val visitBalanceBuilderFactory: VisitBalanceBuilderFactory,
-  private val courtCaseBuilderFactory: CourtCaseBuilderFactory,
-  private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
-  private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
+  private val visitBalanceBuilder: VisitBalanceBuilder,
+  private val courtCaseBuilder: CourtCaseBuilder,
+  private val teamAssignmentBuilder: TeamAssignmentBuilder,
+  private val temporaryAbsenceScheduleBuilder: TemporaryAbsenceScheduleBuilder,
 ) : BookingDsl {
 
   private lateinit var offenderBookingId: OffenderBookingId
@@ -474,7 +457,7 @@ class BookingBuilder(
   }
 
   override fun visitBalance(voBalance: Int, pvoBalance: Int) {
-    visitBalanceBuilderFactory.builder().build(
+    visitBalanceBuilder.build(
       offenderBookingId = offenderBookingId,
       voBalance = voBalance,
       pvoBalance = pvoBalance,
@@ -485,25 +468,23 @@ class BookingBuilder(
     courtId: String,
     dsl: CourtCaseDsl.() -> Unit,
   ) {
-    courtCaseBuilderFactory.builder().let { builder ->
-      builder.build(
-        offenderBookingId = offenderBookingId,
-        courtId = courtId,
-      ).also {
-        builder.apply(dsl)
-      }
+    courtCaseBuilder.build(
+      offenderBookingId = offenderBookingId,
+      courtId = courtId,
+    ).also {
+      courtCaseBuilder.apply(dsl)
     }
   }
 
   override fun scheduleTemporaryAbsence(startTime: LocalDateTime, toAddressId: Long) =
-    temporaryAbsenceScheduleBuilderFactory.builder().build(
+    temporaryAbsenceScheduleBuilder.build(
       bookingId = offenderBookingId.bookingId,
       startTime = startTime,
       toAddressId = toAddressId,
     )
 
   override fun teamAssignment(teamToAssign: Team, functionTypeCode: String) =
-    teamAssignmentBuilderFactory.builder().build(
+    teamAssignmentBuilder.build(
       offenderBookingId = offenderBookingId,
       teamToAssign = teamToAssign,
       functionTypeCode = functionTypeCode,

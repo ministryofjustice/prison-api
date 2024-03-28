@@ -61,19 +61,9 @@ class CourtCaseBuilderRepository(
 }
 
 @Component
-class CourtCaseBuilderFactory(
-  private val repository: CourtCaseBuilderRepository,
-  private val courtHearingBuilderFactory: CourtHearingBuilderFactory,
-) {
-
-  fun builder(): CourtCaseBuilder {
-    return CourtCaseBuilder(repository, courtHearingBuilderFactory)
-  }
-}
-
 class CourtCaseBuilder(
   private val repository: CourtCaseBuilderRepository,
-  private val courtHearingBuilderFactory: CourtHearingBuilderFactory,
+  private val courtHearingBuilder: CourtHearingBuilder,
 ) : CourtCaseDsl {
   private lateinit var courtCase: OffenderCourtCase
   fun build(
@@ -92,7 +82,7 @@ class CourtCaseBuilder(
     courtHearingDateTime: LocalDateTime,
     comments: String,
   ): CourtHearing =
-    courtHearingBuilderFactory.builder().build(
+    courtHearingBuilder.build(
       bookingId = courtCase.offenderBooking.bookingId,
       courtCase = courtCase,
       fromPrisonLocation = fromPrisonLocation,

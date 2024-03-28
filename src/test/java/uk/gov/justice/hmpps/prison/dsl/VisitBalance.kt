@@ -23,15 +23,6 @@ class VisitBalanceBuilderRepository(
 }
 
 @Component
-class VisitBalanceBuilderFactory(
-  private val repository: VisitBalanceBuilderRepository,
-) {
-
-  fun builder(): VisitBalanceBuilder {
-    return VisitBalanceBuilder(repository)
-  }
-}
-
 class VisitBalanceBuilder(
   private val repository: VisitBalanceBuilderRepository,
 ) : VisitBalanceDsl {

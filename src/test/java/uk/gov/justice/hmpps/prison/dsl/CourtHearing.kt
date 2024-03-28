@@ -39,15 +39,6 @@ class CourtHearingBuilderRepository(
 }
 
 @Component
-class CourtHearingBuilderFactory(
-  private val repository: CourtHearingBuilderRepository,
-) {
-
-  fun builder(): CourtHearingBuilder {
-    return CourtHearingBuilder(repository)
-  }
-}
-
 class CourtHearingBuilder(
   private val repository: CourtHearingBuilderRepository,
 ) : CourtHearingDsl {

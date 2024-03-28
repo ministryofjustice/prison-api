@@ -41,12 +41,6 @@ class AliasBuilderRepository(
 }
 
 @Component
-class AliasBuilderFactory(
-  private val repository: AliasBuilderRepository,
-) {
-  fun builder() = AliasBuilder(repository)
-}
-
 class AliasBuilder(
   private val repository: AliasBuilderRepository,
 ) : AliasDsl {

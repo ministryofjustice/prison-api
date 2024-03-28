@@ -59,12 +59,6 @@ class OffenderAddressBuilderRepository(
 }
 
 @Component
-class OffenderAddressBuilderFactory(
-  private val repository: OffenderAddressBuilderRepository,
-) {
-  fun builder() = OffenderAddressBuilder(repository)
-}
-
 class OffenderAddressBuilder(
   private val repository: OffenderAddressBuilderRepository,
 ) : OffenderAddressDsl {
