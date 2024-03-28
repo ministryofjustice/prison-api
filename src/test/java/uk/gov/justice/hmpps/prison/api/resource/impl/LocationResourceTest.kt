@@ -145,7 +145,6 @@ class LocationResourceTest : ResourceTest() {
         .uri("/api/locations/description/LEI/inmates")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
         .header("Page-Limit", "30")
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -168,7 +167,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?convictedStatus=Convicted")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange().expectStatus().isOk
         .expectBody()
         .jsonPath("$.length()").isEqualTo(8)
@@ -176,7 +174,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?convictedStatus=Remand")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange().expectStatus().isOk
         .expectBody()
         .jsonPath("$.length()").isEqualTo(3)
@@ -187,7 +184,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectHeader().valueEquals("Page-Offset", 0)
@@ -200,7 +196,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=ANDERSON")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -215,7 +210,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=ARTHUR")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -230,7 +224,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=MATTHEWS")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -245,7 +238,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=anderson")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -258,7 +250,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=AnDersOn")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -271,7 +262,6 @@ class LocationResourceTest : ResourceTest() {
       webTestClient.get()
         .uri("/api/locations/description/LEI/inmates?keywords=UNKNOWN")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -718,15 +708,26 @@ class LocationResourceTest : ResourceTest() {
         .exchange()
         .expectStatus().isForbidden
     }
+  }
+
+  @Nested
+  @DisplayName("GET api/locations/{locationId}/inmates")
+  inner class LocationInmates {
+    @Test
+    fun `Retrieve a list of inmates no matching caseload`() {
+      webTestClient.get()
+        .uri("/api/locations/-8/inmates")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
 
     @Test
     fun `Perform location search by location id`() {
       webTestClient.get()
         .uri("/api/locations/-8/inmates")
         .headers(setAuthorisation("ITAG_USER", listOf("VIEW_PRISONER_DATA")))
-        // .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .header("Page-Limit", "30")
-        .accept(MediaType.APPLICATION_JSON)
         .exchange().expectStatus().isOk
         .expectBody()
         .jsonPath("$.length()").isEqualTo(1)

@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
+import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
@@ -81,8 +82,8 @@ import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCA
 @AllArgsConstructor
 public class AgencyService {
 
-    private static final Comparator<Location> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
-        Location::getDescription,
+    private static final Comparator<LocationSummary> LOCATION_DESCRIPTION_COMPARATOR = Comparator.comparing(
+        LocationSummary::getUserDescription,
         new AlphaNumericComparator());
 
     private final AuthenticationFacade authenticationFacade;
@@ -288,16 +289,18 @@ public class AgencyService {
     }
 
     @Cacheable(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
-    public List<Location> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
+    public List<LocationSummary> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
 
-    private List<Location> getAgencyLocationsOnDayAndPeriod(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
+    private List<LocationSummary> getAgencyLocationsOnDayAndPeriod(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         Objects.requireNonNull(bookedOnDay, "bookedOnDay must be specified.");
 
         final var locations = agencyRepository.getAgencyLocationsBooked(agencyId, bookedOnDay, bookedOnPeriod);
-        final var processedLocations = LocationProcessor.processLocations(locations, true);
-        return processedLocations.stream().sorted(LOCATION_DESCRIPTION_COMPARATOR).toList();
+        final var processedLocations = LocationProcessor.processLocationSummaries(locations);
+        return processedLocations.stream()
+            .sorted(LOCATION_DESCRIPTION_COMPARATOR)
+            .toList();
     }
 
     public List<IepLevel> getAgencyIepLevels(final String prisonId) {
@@ -389,8 +392,8 @@ public class AgencyService {
     public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
         return cells.stream()
-            .filter((l) -> l.isActiveCellWithSpace())
-            .map(cell -> transform(cell, true))
+            .filter(AgencyInternalLocation::isActiveCellWithSpace)
+            .map(this::transform)
             .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
             .collect(toList());
     }
@@ -398,15 +401,15 @@ public class AgencyService {
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
         final var receptions = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(agencyId, "RECP", true);
         return receptions.stream()
-            .filter(l -> l.isActiveReceptionWithSpace())
-            .map(recep -> transform(recep, true))
+            .filter(AgencyInternalLocation::isActiveReceptionWithSpace)
+            .map(this::transform)
             .filter(recep -> attribute == null || recep.getAttributes().stream().anyMatch(a -> a.getCode().equals(attribute)))
             .collect(toList());
     }
 
     public OffenderCell getCellAttributes(@NotNull final Long locationId) {
         final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
-        final var offenderCell = agencyInternalLocation.map(cell -> transform(cell, false)).orElse(null);
+        final var offenderCell = agencyInternalLocation.map(this::transform).orElse(null);
         if (offenderCell == null) {
             throw EntityNotFoundException.withMessage(format("No cell details found for location id %s", locationId));
         }
@@ -426,7 +429,7 @@ public class AgencyService {
             .build();
     }
 
-    private OffenderCell transform(final AgencyInternalLocation cell, final boolean treatZeroOperationalCapacityAsNull) {
+    private OffenderCell transform(final AgencyInternalLocation cell) {
         final var attributes = cell.getProfiles()
             .stream()
             .filter(AgencyInternalLocationProfile::isAttribute)

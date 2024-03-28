@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -9,26 +8,26 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SMOKE_TEST
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.service.InmateService
+import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService.Companion.SMOKE_TEST_PRISON_ID
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
-import java.time.LocalDateTime
-import java.time.temporal.ChronoUnit
 
 class SmokeTestHelperResourceIntTest : ResourceTest() {
-  @Autowired
-  private lateinit var offenderImprisonmentStatusRepository: OffenderImprisonmentStatusRepository
 
   @Autowired
   private lateinit var offenderRepository: OffenderRepository
 
+  @Autowired
+  private lateinit var inmateService: InmateService
+
   @Nested
-  inner class ImprisonmentStatus {
+  inner class OffenderStatus {
     @Test
     @DisplayName("requires ROLE_SMOKE_TEST")
     fun requiresCorrectRole() {
-      webTestClient.post()
-        .uri("/api/smoketest/offenders/A1234AA/imprisonment-status")
+      webTestClient.put()
+        .uri("/api/smoketest/offenders/A1234AA/status")
         .headers { it.setBearerAuth(authTokenHelper.getToken(SYSTEM_USER_READ_WRITE)) }
         .exchange()
         .expectStatus().isForbidden
@@ -37,34 +36,40 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
     @Test
     @DisplayName("not found")
     fun notFound() {
-      webTestClient.post()
-        .uri("/api/smoketest/offenders/NOT_AN_OFFENDER/imprisonment-status")
+      webTestClient.put()
+        .uri("/api/smoketest/offenders/NOT_AN_OFFENDER/status")
         .headers { it.setBearerAuth(authTokenHelper.getToken(SMOKE_TEST)) }
         .exchange()
         .expectStatus().isNotFound
     }
 
     @Test
-    @DisplayName("will add new imprisonment status to active booking")
-    fun willAddImprisonmentStatus() {
-      // GIVEN the offender booking as a single imprisonment status
-      val bookingId = -1L
-      assertThat(offenderImprisonmentStatusRepository.findByOffenderBookingId(bookingId)).hasSize(1)
+    @DisplayName("will set offender status to IN")
+    fun willSetOffenderStatus() {
+      val offenderToRecall = "Z0023ZZ"
+      val outOffender = inmateService.findOffender(offenderToRecall, false, false)
+      assertThat(outOffender.inOutStatus).isEqualTo("OUT")
+      assertThat(outOffender.agencyId).isEqualTo("OUT")
 
-      // WHEN I setup the smoke test data
-      webTestClient.post()
-        .uri("/api/smoketest/offenders/A1234AA/imprisonment-status")
+      webTestClient.put()
+        .uri("/api/smoketest/offenders/$offenderToRecall/status")
         .headers { it.setBearerAuth(authTokenHelper.getToken(SMOKE_TEST)) }
         .exchange()
         .expectStatus().isOk
 
-      // THEN I have two imprisonment statuses
-      val statuses = offenderImprisonmentStatusRepository.findByOffenderBookingId(bookingId)
-      assertThat(statuses).hasSize(2)
-      assertThat(statuses[0].isActiveLatestStatus).isFalse()
-      assertThat(statuses[0].expiryDate).isCloseTo(LocalDateTime.now(), within(60, ChronoUnit.SECONDS))
-      assertThat(statuses[1].expiryDate).isNull()
-      assertThat(statuses[1].isActiveLatestStatus).isTrue()
+      val inOffender = inmateService.findOffender(offenderToRecall, false, false)
+      assertThat(inOffender.inOutStatus).isEqualTo("IN")
+      assertThat(inOffender.agencyId).isEqualTo(SMOKE_TEST_PRISON_ID)
+
+      // tidy up - revert to original OUT status
+      webTestClient.put()
+        .uri("/api/smoketest/offenders/$offenderToRecall/release")
+        .headers { it.setBearerAuth(authTokenHelper.getToken(SMOKE_TEST)) }
+        .exchange()
+        .expectStatus().isOk
+      val outAgainOffender = inmateService.findOffender(offenderToRecall, false, false)
+      assertThat(outAgainOffender.inOutStatus).isEqualTo("OUT")
+      assertThat(outAgainOffender.agencyId).isEqualTo("OUT")
     }
   }
 

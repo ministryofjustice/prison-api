@@ -25,6 +25,7 @@ class AliasBuilderRepository(
     offenderRepository.save(
       Offender.builder()
         .nomsId(it.nomsId)
+        .rootOffenderId(it.rootOffenderId)
         .rootOffender(it.rootOffender)
         .birthDate(birthDate)
         .lastName(lastName)

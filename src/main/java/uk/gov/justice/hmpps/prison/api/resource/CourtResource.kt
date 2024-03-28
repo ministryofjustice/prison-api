@@ -42,7 +42,7 @@ class CourtResource(private val courtService: CourtService) {
     ),
   )
   @Operation(summary = "Returns the next court event details (if one exists) related to the passed in booking")
-  @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
   @GetMapping("/{bookingId}/next-court-event")
   fun getNextCourtEvent(
     @PathVariable
@@ -50,5 +50,34 @@ class CourtResource(private val courtService: CourtService) {
     bookingId: Long,
   ): CourtEventDetails? {
     return this.courtService.getNextCourtEvent(bookingId)
+  }
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(
+      responseCode = "400",
+      description = "Invalid request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "Requested resource not found.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  @Operation(summary = "Returns the number of active court cases for the passed in bookingId")
+  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
+  @GetMapping("/{bookingId}/count-active-cases")
+  fun getCountOfActiveCourtCases(
+    @PathVariable
+    @Parameter(description = "The bookingId to check court cases against", required = true)
+    bookingId: Long,
+  ): Int {
+    return this.courtService.getCountOfActiveCases(bookingId)
   }
 }

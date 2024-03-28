@@ -20,6 +20,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.format.annotation.DateTimeFormat.ISO;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -99,6 +100,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
+import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
@@ -133,14 +135,17 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
+    private final SentenceEnvelopeService sentenceEnvelopeService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Prisoners Booking Summary ", description = "Returns data that is available to the users caseload privileges, at least one attribute of a prisonId, bookingId or offenderNo must be specified")
+    @Operation(summary = "Prisoners Booking Summary ",
+        description = "Returns data that is available to the users caseload privileges, at least one attribute of a prisonId, bookingId or offenderNo must be specified." +
+        "Requires parameter(s) prisonId/bookingIds/offenderNos to be in caseload, or VIEW_PRISONER_DATA")
     @GetMapping("/v2")
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @ProgrammaticAuthorisation("Access check at service level")
     public Page<PrisonerBookingSummary> getPrisonerBookingsV2(
         @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by prison Id", example = "MDI") final String prisonId,
         @RequestParam(value = "bookingId", required = false) @Parameter(description = "Filter by a list of booking ids") final List<Long> bookingIds,
@@ -217,8 +222,8 @@ public class BookingResource {
     @SlowReportQuery
     public ResponseEntity<List<ScheduledEvent>> getBookingActivities(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of activity records.") final Long pageOffset,
         @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of activity records returned.") final Long pageLimit,
         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>eventDate, startTime, endTime, eventLocation</b>") final String sortFields,
@@ -341,11 +346,11 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public Page<Alert> getOffenderAlertsV2(
         @PathVariable("bookingId") @Parameter(description = "The booking id for the booking", required = true) final Long bookingId,
-        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "start alert date to search from", example = "2021-02-03") final LocalDate from,
-        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
+        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "start alert date to search from", example = "2021-02-03") final LocalDate from,
+        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
         @RequestParam(value = "alertType", required = false) @Parameter(description = "Filter by alert type", example = "X") final String alertType,
         @RequestParam(value = "alertStatus", required = false) @Parameter(description = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Sort.Direction.DESC) final Pageable pageable) {
+        @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Direction.DESC) final Pageable pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
     }
@@ -506,7 +511,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active property containers", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/{bookingId}/property")
     public List<PropertyContainer> getOffenderPropertyContainers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getOffenderPropertyContainers(bookingId);
@@ -602,13 +607,13 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Personal Care Needs Counter - POST version to allow to count heath problem by type for large numbers of offenders", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     @PostMapping("/offenderNo/personal-care-needs/count")
     public List<PersonalCareCounterDto> countPersonalCareNeeds(
         @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
         @RequestParam(value = "type") @NotEmpty(message = "type: must not be empty") @Parameter(description = "problem type", example = "DISAB", required = true) final String problemType,
-        @RequestParam(value = "fromStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or after this date (in YYYY-MM-DD format).") final LocalDate fromStartDate,
-        @RequestParam(value = "toStartDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Personal needs care must be on or before this date (in YYYY-MM-DD format).") final LocalDate toStartDate
+        @RequestParam(value = "fromStartDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Personal needs care must be on or after this date (in YYYY-MM-DD format).") final LocalDate fromStartDate,
+        @RequestParam(value = "toStartDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Personal needs care must be on or before this date (in YYYY-MM-DD format).") final LocalDate toStartDate
     ) {
         return healthService.countPersonalCareNeedsByOffenderNoAndProblemTypeBetweenDates(offenderNos, problemType, fromStartDate, toStartDate);
     }
@@ -648,7 +653,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/reasonable-adjustments")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
     public ReasonableAdjustments getReasonableAdjustments(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes
@@ -693,8 +698,8 @@ public class BookingResource {
     @GetMapping("/{bookingId}/events")
     public List<ScheduledEvent> getEvents(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
     ) {
         return bookingService.getEvents(bookingId, fromDate, toDate);
     }
@@ -743,13 +748,13 @@ public class BookingResource {
     @Operation(summary = "Count of case notes", description = "Count of case notes")
     @GetMapping("/{bookingId}/caseNotes/{type}/{subType}/count")
     @SlowReportQuery
-    @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"}, accessDeniedError = true)
     public CaseNoteCount getCaseNoteCount(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type,
         @PathVariable("subType") @Parameter(description = "Case note sub-type.", required = true) final String subType,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate
     ) {
         return caseNoteService.getCaseNoteCount(
             bookingId,
@@ -771,8 +776,8 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
     public AdjudicationSummary getAdjudicationSummary(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "awardCutoffDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate,
-        @RequestParam(value = "adjudicationCutoffDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate
+        @RequestParam(value = "awardCutoffDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate,
+        @RequestParam(value = "adjudicationCutoffDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate
     ) {
         return adjudicationService.getAdjudicationSummary(bookingId,
             awardCutoffDate, adjudicationCutoffDate);
@@ -789,8 +794,8 @@ public class BookingResource {
     @VerifyBookingAccess
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
+        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
+        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestParam(value = "visitType", required = false) @Parameter(description = "Type of visit", schema = @Schema(implementation = String.class, allowableValues = {"SCON", "OFFI"})) final String visitType,
         @RequestParam(value = "visitStatus", required = false) @Parameter(name = "Status of visit. code from VIS_COMPLETE domain, e.g: CANC (Cancelled) or SCH (Scheduled)", example = "SCH") final String visitStatus,
         @RequestParam(value = "cancellationReason", required = false) @Parameter(name = "Reason for cancellation. code from MOVE_CANC_RS domain, e.g: VISCANC (Visitor Cancelled) or NO_VO (No Visiting Order)", example = "NSHOW") final String cancellationReason,
@@ -819,7 +824,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"}, accessDeniedError = true)
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
@@ -877,7 +882,7 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "200", description = "Ok"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
@@ -925,7 +930,7 @@ public class BookingResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get secondary languages", description = "Get secondary languages")
     @GetMapping("/{bookingId}/secondary-languages")
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"}, accessDeniedError = true)
     public List<SecondaryLanguage> getSecondaryLanguages(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId) {
         return inmateService.getSecondaryLanguages(bookingId);
     }
@@ -980,6 +985,6 @@ public class BookingResource {
     @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
     @GetMapping("/latest/calculable-sentence-envelope")
     public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
-        return bookingService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
+        return sentenceEnvelopeService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
     }
 }

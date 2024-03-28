@@ -6,11 +6,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.HttpStatusCode;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.service.OffenderDatesServiceTest;
 
@@ -166,7 +165,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
     public void testGetAllCalculationsForPrisoner() {
         // Given
         final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
-        final var type = new ParameterizedTypeReference<List<OffenderSentenceCalculation>>() {};
+        final var type = new ParameterizedTypeReference<List<SentenceCalculationSummary>>() {};
         // When
         final var response = testRestTemplate.exchange(
             "/api/offender-dates/calculations/{nomsId}",
@@ -178,7 +177,12 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         assertThat(response.getBody()).hasSize(1);
-        assertThat(response.getBody().get(0).getCommentText()).isEqualTo("Some Comment Text");
+        var calculationSummary = response.getBody().getFirst();
+        assertThat(calculationSummary.getOffenderNo()).isEqualTo("A1234AA");
+        assertThat(calculationSummary.getLastName()).isEqualTo("ANDERSON");
+        assertThat(calculationSummary.getAgencyDescription()).isEqualTo("LEEDS");
+        assertThat(calculationSummary.getCommentText()).isEqualTo("Some Comment Text");
+        assertThat(calculationSummary.getCalculationReason()).isEqualTo("New Sentence");
     }
 
 }

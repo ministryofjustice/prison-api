@@ -127,44 +127,46 @@ enum class AgencyRepositorySql(val sql: String) {
 
   GET_AGENCY_LOCATIONS_FOR_EVENTS_BOOKED(
     """
-        SELECT DISTINCT AIL.INTERNAL_LOCATION_ID LOCATION_ID,
-        AIL.USER_DESC USER_DESCRIPTION
-                FROM AGENCY_INTERNAL_LOCATIONS AIL
+        SELECT DISTINCT 
+          AIL.INTERNAL_LOCATION_ID LOCATION_ID,
+          AIL.USER_DESC USER_DESCRIPTION,
+          AIL.DESCRIPTION DESCRIPTION,
+          AIL.AGY_LOC_ID AGENCY_ID
+        FROM AGENCY_INTERNAL_LOCATIONS AIL
         WHERE AIL.AGY_LOC_ID = :agencyId
-        AND AIL.ACTIVE_FLAG = 'Y'
-        AND AIL.DEACTIVATE_DATE IS NULL
-                AND AIL.INTERNAL_LOCATION_ID in (
-                (SELECT distinct CA.INTERNAL_LOCATION_ID
-                        FROM OFFENDER_PROGRAM_PROFILES OPP
-                        INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OPP.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'
+          AND AIL.ACTIVE_FLAG = 'Y'
+          AND AIL.DEACTIVATE_DATE IS NULL
+          AND AIL.INTERNAL_LOCATION_ID in (
+           (SELECT distinct CA.INTERNAL_LOCATION_ID
+             FROM OFFENDER_PROGRAM_PROFILES OPP
+                INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OPP.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'
                 INNER JOIN COURSE_ACTIVITIES CA ON CA.CRS_ACTY_ID = OPP.CRS_ACTY_ID
                 INNER JOIN COURSE_SCHEDULES CS ON CA.CRS_ACTY_ID = CS.CRS_ACTY_ID
-                AND CS.SCHEDULE_DATE >= TRUNC(OPP.OFFENDER_START_DATE)
-                AND TRUNC(CS.SCHEDULE_DATE) <=
-                COALESCE(OPP.OFFENDER_END_DATE, CA.SCHEDULE_END_DATE, CS.SCHEDULE_DATE)
-                AND CS.START_TIME BETWEEN :periodStart AND :periodEnd
-                AND CS.SCHEDULE_DATE = TRUNC(:periodStart)
-        WHERE OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
-        AND CA.ACTIVE_FLAG = 'Y'
-        AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
-        AND CS.CATCH_UP_CRS_SCH_ID IS NULL
-                AND CA.AGY_LOC_ID = :agencyId
-        ) UNION (
+                  AND CS.SCHEDULE_DATE >= TRUNC(OPP.OFFENDER_START_DATE)
+                  AND TRUNC(CS.SCHEDULE_DATE) <= COALESCE(OPP.OFFENDER_END_DATE, CA.SCHEDULE_END_DATE, CS.SCHEDULE_DATE)
+                  AND CS.START_TIME BETWEEN :periodStart AND :periodEnd
+                  AND CS.SCHEDULE_DATE = TRUNC(:periodStart)
+             WHERE OPP.OFFENDER_PROGRAM_STATUS = 'ALLOC'
+               AND CA.ACTIVE_FLAG = 'Y'
+               AND CA.COURSE_ACTIVITY_TYPE IS NOT NULL
+               AND CS.CATCH_UP_CRS_SCH_ID IS NULL
+               AND CA.AGY_LOC_ID = :agencyId
+           ) UNION (
                 SELECT distinct OIS.TO_INTERNAL_LOCATION_ID
-                        FROM OFFENDER_IND_SCHEDULES OIS
-                        INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OIS.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'
+                FROM OFFENDER_IND_SCHEDULES OIS
+                   INNER JOIN OFFENDER_BOOKINGS OB ON OB.OFFENDER_BOOK_ID = OIS.OFFENDER_BOOK_ID AND OB.ACTIVE_FLAG = 'Y'
                 WHERE OIS.EVENT_TYPE = 'APP'
-                AND OIS.START_TIME BETWEEN :periodStart AND :periodEnd
-                AND OIS.EVENT_DATE = TRUNC(:periodStart)
-        AND OIS.AGY_LOC_ID = :agencyId
-        ) UNION (
+                  AND OIS.START_TIME BETWEEN :periodStart AND :periodEnd
+                  AND OIS.EVENT_DATE = TRUNC(:periodStart)
+                  AND OIS.AGY_LOC_ID = :agencyId
+           ) UNION (
                 SELECT distinct VIS.VISIT_INTERNAL_LOCATION_ID
                         FROM OFFENDER_VISITS VIS
                         WHERE VIS.START_TIME BETWEEN :periodStart AND :periodEnd
                 AND VIS.VISIT_DATE = TRUNC(:periodStart)
-        AND VIS.AGY_LOC_ID = :agencyId
-        )
-        )
+              AND VIS.AGY_LOC_ID = :agencyId
+           )
+          )
         ORDER BY USER_DESCRIPTION
     """,
   ),
