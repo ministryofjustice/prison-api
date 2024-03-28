@@ -137,7 +137,7 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves details of a single CSRA assessment.", description = "Requires offender in the caseload, or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
     public AssessmentDetail getOffenderCsraAssessment(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
