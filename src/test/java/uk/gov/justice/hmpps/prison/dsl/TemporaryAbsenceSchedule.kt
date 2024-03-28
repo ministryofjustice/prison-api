@@ -53,15 +53,6 @@ class TemporaryAbsenceScheduleBuilderRepository(
 }
 
 @Component
-class TemporaryAbsenceScheduleBuilderFactory(
-  private val repository: TemporaryAbsenceScheduleBuilderRepository,
-) {
-
-  fun builder(): TemporaryAbsenceScheduleBuilder {
-    return TemporaryAbsenceScheduleBuilder(repository)
-  }
-}
-
 class TemporaryAbsenceScheduleBuilder(
   private val repository: TemporaryAbsenceScheduleBuilderRepository,
 ) : TemporaryAbsenceScheduleDsl {

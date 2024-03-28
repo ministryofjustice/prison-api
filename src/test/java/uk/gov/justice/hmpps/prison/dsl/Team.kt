@@ -43,15 +43,6 @@ class TeamBuilderRepository(
 }
 
 @Component
-class TeamBuilderFactory(
-  private val repository: TeamBuilderRepository,
-) {
-
-  fun builder(): TeamBuilder {
-    return TeamBuilder(repository)
-  }
-}
-
 class TeamBuilder(
   private val repository: TeamBuilderRepository,
 ) : TeamDsl {

@@ -35,15 +35,6 @@ class TeamAssignmentBuilderRepository(
 }
 
 @Component
-class TeamAssignmentBuilderFactory(
-  private val repository: TeamAssignmentBuilderRepository,
-) {
-
-  fun builder(): TeamAssignmentBuilder {
-    return TeamAssignmentBuilder(repository)
-  }
-}
-
 class TeamAssignmentBuilder(
   private val repository: TeamAssignmentBuilderRepository,
 ) : TeamAssignmentDsl {
