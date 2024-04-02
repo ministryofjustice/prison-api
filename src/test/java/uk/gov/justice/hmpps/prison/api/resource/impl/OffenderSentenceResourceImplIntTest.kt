@@ -751,24 +751,21 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
-        .exchange()
-        .expectStatus().isUnauthorized
+        .exchange().expectStatus().isUnauthorized
     }
 
     @Test
     fun `should return 403 if does not have override role`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
         .headers(setClientAuthorisation(listOf()))
-        .exchange()
-        .expectStatus().isForbidden
+        .exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns success when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .exchange()
-        .expectStatus().isForbidden
+        .exchange().expectStatus().isForbidden
     }
 
     @Test
@@ -781,19 +778,39 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
-        .headers(setAuthorisation("WAI_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
-        .headers(setAuthorisation("RO_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if client has override role and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-99999/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if client does not have override role and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-99999/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-99999/sentences-and-offences")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-99999/sentences-and-offences")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
     }
 
     @Test
