@@ -423,42 +423,48 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun testGetCsraAssessmentNotAccessibleWithoutPermissions() {
-      val httpEntity = createHttpEntity(NORMAL_USER, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/-43/assessment/2",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
-    }
-
-    @Test
-    fun testGetCsraAssessmentInvalidBookingId() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/-999/assessment/2",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -999 not found.")
-    }
-
-    @Test
     fun testGetCsraAssessmentInvalidAssessmentSeq() {
-      val httpEntity = createHttpEntity(AuthToken.VIEW_PRISONER_DATA, null)
-      val response = testRestTemplate.exchange(
-        "/api/offender-assessments/csra/-43/assessment/200",
-        GET,
-        httpEntity,
-        String::class.java,
-      )
-      assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Csra assessment for booking -43 and sequence 200 not found.")
+      webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/200")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Csra assessment for booking -43 and sequence 200 not found.")
+    }
+
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -43.")
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if client has override role and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-99999/assessment/2")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns 404 if client does not have override role and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-99999/assessment/2")
+        .headers(setClientAuthorisation(listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user has caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-99999/assessment/2")
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 404 if user does not have any caseloads and booking does not exist`() {
+      webTestClient.get().uri("/api/offender-assessments/csra/-99999/assessment/2")
+        .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isNotFound
     }
   }
 
