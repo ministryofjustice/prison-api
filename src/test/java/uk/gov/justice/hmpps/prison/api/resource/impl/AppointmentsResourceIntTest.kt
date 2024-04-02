@@ -126,7 +126,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .expectBodyList(CreatedAppointmentDetails::class.java).returnResult().responseBody
 
-      assertThat(appointments.size).isEqualTo(2)
+      assertThat(appointments!!.size).isEqualTo(2)
       val appointment31 = bookingRepository.getBookingAppointments(-31, tomorrow, tomorrow, "startTime", Order.ASC)
       assertThat(appointment31.size).isEqualTo(1)
       assertThat(appointment31[0].bookingId).isEqualTo(-31)
@@ -186,7 +186,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .expectBodyList(CreatedAppointmentDetails::class.java).returnResult().responseBody
 
-      assertThat(appointments.size).isEqualTo(4)
+      assertThat(appointments!!.size).isEqualTo(4)
       val appointment31 = bookingRepository.getBookingAppointments(-31, twoDaysTime, twoDaysTime, "startTime", Order.ASC)
       assertThat(appointment31[0].bookingId).isEqualTo(-31)
       assertThat(appointment31[0].eventSubType).isEqualTo("ACTI")
