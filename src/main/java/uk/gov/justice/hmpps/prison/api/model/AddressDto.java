@@ -57,6 +57,9 @@ public class AddressDto {
     @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "Y")
     private Boolean primary;
 
+    @Schema(requiredMode = REQUIRED, description = "Mail Address", example = "Y")
+    private Boolean mail;
+
     @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "N")
     private Boolean noFixedAddress;
 
