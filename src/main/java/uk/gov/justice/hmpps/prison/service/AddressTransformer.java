@@ -40,6 +40,7 @@ public class AddressTransformer {
                 .noFixedAddress("Y".equals(address.getNoFixedAddressFlag()))
                 .premise(address.getPremise())
                 .primary("Y".equals(address.getPrimaryFlag()))
+                .mail("Y".equals(address.getMailFlag()))
                 .startDate(address.getStartDate())
                 .endDate(address.getEndDate())
                 .street(address.getStreet())
