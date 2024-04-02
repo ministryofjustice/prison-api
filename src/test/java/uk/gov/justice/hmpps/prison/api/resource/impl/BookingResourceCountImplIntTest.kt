@@ -1,19 +1,14 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
-import org.springframework.test.web.reactive.server.WebTestClient
 
 class BookingResourceCountImplIntTest : ResourceTest() {
-  @Autowired
-  protected lateinit var webTestClient: WebTestClient
-
   @Sql(scripts = ["/sql/addingHealthProblems_init.sql"], executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
   @Sql(scripts = ["/sql/addingHealthProblems_clean.sql"], executionPhase = ExecutionPhase.AFTER_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
   @Test
