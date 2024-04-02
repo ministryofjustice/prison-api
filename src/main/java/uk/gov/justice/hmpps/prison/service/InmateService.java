@@ -511,7 +511,7 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
@@ -524,7 +524,7 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
         validate(detail);
