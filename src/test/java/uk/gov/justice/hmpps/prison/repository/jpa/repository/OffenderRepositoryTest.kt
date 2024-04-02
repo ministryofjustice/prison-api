@@ -30,7 +30,7 @@ class OffenderRepositoryTest {
   inner class findOffenderByNomsId {
     @Test
     fun findByOffenderNomsIdUnique() {
-      val offender = repository.findOffenderByNomsId("A1234AL").orElseThrow()
+      val offender = repository.findRootOffenderByNomsId("A1234AL").orElseThrow()
       assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1012L, -1012L)
       assertThat(offender.bookings).hasSize(2)
       val latestBooking = offender.latestBooking.get()

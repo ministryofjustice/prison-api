@@ -45,7 +45,7 @@ class SmokeTestHelperServiceTest {
 
     @Test
     fun ok() {
-      whenever(offenderRepository.findOffenderByNomsId(any()))
+      whenever(offenderRepository.findRootOffenderByNomsId(any()))
         .thenReturn(
           Optional.of(
             Offender().apply {

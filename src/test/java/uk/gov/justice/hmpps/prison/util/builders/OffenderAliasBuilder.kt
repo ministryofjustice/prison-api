@@ -12,7 +12,7 @@ class OffenderAliasBuilder(
   var birthDate: LocalDate = LocalDate.of(1990, 8, 20),
 ) {
   fun save(inmate: InmateDetail, dataLoader: DataLoaderRepository): Offender {
-    val offender = dataLoader.offenderRepository.findOffenderByNomsId(inmate.offenderNo).orElseThrow()
+    val offender = dataLoader.offenderRepository.findRootOffenderByNomsId(inmate.offenderNo).orElseThrow()
 
     val alias = Offender.builder()
       .nomsId(offender.nomsId)
