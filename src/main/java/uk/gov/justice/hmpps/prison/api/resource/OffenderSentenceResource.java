@@ -218,7 +218,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence and offence details  for a prisoner")
-    @ProgrammaticAuthorisation("Access is determined by annotation on the service")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"}, accessDeniedError = true)
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
