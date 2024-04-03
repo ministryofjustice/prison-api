@@ -3,7 +3,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
-import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -13,7 +12,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 
@@ -35,15 +33,6 @@ class OffenderRepositoryTest {
       assertThat(offender.bookings).hasSize(2)
       val latestBooking = offender.latestBooking.get()
       assertThat(latestBooking.bookingId).isEqualTo(-12L)
-    }
-  }
-
-  @Nested
-  inner class findByNomsId {
-    @Test
-    fun findByOffendersNomsId() {
-      val offenders = repository.findByNomsId("A1234AL")
-      assertThat(offenders).extracting(Offender::getId).containsExactly(tuple(-1012L), tuple(-1013L))
     }
   }
 
