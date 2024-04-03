@@ -137,7 +137,7 @@ public class BookingMovementsResource {
     )
     @ProxyUser
     @Deprecated
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"}, accessDeniedError = true)
     @HasWriteScope
     public CellMoveResult moveToCellSwap(@PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId, @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap) {
         final var dateTime = requestMoveToCellSwap.getDateTime();
