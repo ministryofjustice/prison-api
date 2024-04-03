@@ -13,8 +13,6 @@ import java.util.Optional
 
 @Repository
 interface OffenderRepository : JpaRepository<Offender, Long> {
-  fun findByNomsId(nomsId: String): List<Offender>
-
   fun findByLastNameAndFirstNameAndBirthDate(lastName: String, firstName: String, dob: LocalDate): List<Offender>
 
   /**

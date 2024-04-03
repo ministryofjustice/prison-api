@@ -35,7 +35,6 @@ public class ImageService {
     private final OffenderRepository offenderRepository;
 
     public List<ImageDetail> findOffenderImagesFor(final String offenderNumber) {
-        if (offenderRepository.findByNomsId(offenderNumber).isEmpty()) throw EntityNotFoundException.withId(offenderNumber);
         return offenderImageRepository.getImagesByOffenderNumber(offenderNumber).stream()
                 .map(OffenderImage::transform)
                 .collect(toList());
