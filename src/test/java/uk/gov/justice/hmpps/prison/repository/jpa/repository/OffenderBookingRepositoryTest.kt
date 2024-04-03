@@ -1,7 +1,10 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.iterable.ThrowingExtractor
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -227,18 +230,58 @@ class OffenderBookingRepositoryTest {
       )
   }
 
-  @Test
-  fun findByOffenderNomsIdAndActive() {
-    val optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", true)
-    assertThat(optionalOffenderBooking).get().extracting(
-      { it.bookingId },
-      { it.rootOffender.id },
-    ).containsExactly(-1L, -1001L)
+  @Nested
+  inner class findByOffenderNomsIdAndActive {
+    @Test
+    fun `test find active booking`() {
+      val optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", true)
+      assertThat(optionalOffenderBooking).get().extracting(
+        { it.bookingId },
+        { it.rootOffender.id },
+      ).containsExactly(-1L, -1001L)
+    }
+
+    @Test
+    fun `test find inactive booking`() {
+      val optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", false)
+      assertThat(optionalOffenderBooking).isEmpty()
+    }
   }
 
-  @Test
-  fun findByOffenderNomsIdAndActiveIsN() {
-    val optionalOffenderBooking = repository.findByOffenderNomsIdAndActive("A1234AA", false)
-    assertThat(optionalOffenderBooking).isEmpty()
+  @Nested
+  inner class findLatestOffenderBookingByNomsId {
+    @Test
+    fun `test find latest booking`() {
+      val optionalOffenderBooking = repository.findLatestOffenderBookingByNomsId("A1234AA")
+      assertThat(optionalOffenderBooking).get().extracting { it.bookingId }.isEqualTo(-1L)
+    }
+
+    @Test
+    fun `test find latest booking kotlin null`() {
+      val offenderBooking = repository.findLatestOffenderBookingByNomsIdOrNull("A1234AA")
+      assertThat(offenderBooking).extracting { it?.bookingId }.isEqualTo(-1L)
+    }
+
+    @Test
+    fun `test find latest booking when no bookings exist`() {
+      val optionalOffenderBooking = repository.findLatestOffenderBookingByNomsId("UNKNOWN")
+      assertThat(optionalOffenderBooking).isEmpty
+    }
+
+    @Test
+    fun `test find latest booking when no bookings exist kotlin null`() {
+      val offenderBooking = repository.findLatestOffenderBookingByNomsIdOrNull("UNKNOWN")
+      assertThat(offenderBooking).isNull()
+    }
+
+    @Test
+    fun `test find latest booking with multiple bookings for offender`() {
+      val optionalOffenderBooking = repository.findLatestOffenderBookingByNomsId("A1234AL").orElseThrow()
+      assertThat(optionalOffenderBooking).extracting { it.bookingId }.isEqualTo(-12L)
+
+      // sanity check that there are multiple bookings
+      val secondBooking = repository.findByOffenderNomsIdAndBookingSequence("A1234AL", 2).orElseThrow()
+      assertThat(secondBooking).extracting { it.bookingId }.isEqualTo(-13L)
+    }
   }
 }
