@@ -721,24 +721,22 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
-    public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
-            .map(offender -> offender.getLatestBooking().map(booking ->
+    public OffenderSentenceDetail getOffenderSentenceDetail(final String offenderNo) {
+        return offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
                     .mostRecentActiveBooking(booking.isActive())
                     .bookingId(booking.getBookingId())
-                    .firstName(offender.getFirstName())
-                    .lastName(offender.getLastName())
-                    .dateOfBirth(offender.getBirthDate())
+                    .firstName(booking.getOffender().getFirstName())
+                    .lastName(booking.getOffender().getLastName())
+                    .dateOfBirth(booking.getOffender().getBirthDate())
                     .facialImageId(booking.getLatestFaceImage().map(OffenderImage::getId).orElse(null))
                     .agencyLocationDesc(booking.getLocation().getDescription())
                     .agencyLocationId(booking.getLocation().getId())
                     .internalLocationDesc(booking.getAssignedLivingUnit() != null ? LocationProcessor.stripAgencyId(booking.getAssignedLivingUnit().getDescription(), booking.getLocation().getId()) : null)
                     .sentenceDetail(getBookingSentenceCalcDates(booking.getBookingId()))
                     .build()
-            ))
-            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
+            ).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
     }
 
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
