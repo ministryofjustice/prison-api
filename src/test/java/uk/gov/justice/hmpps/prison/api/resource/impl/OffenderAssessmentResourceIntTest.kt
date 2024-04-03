@@ -1502,7 +1502,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if user has no caseloads`() {
+      fun `returns 403 if user has no caseloads`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("RO_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1519,12 +1519,12 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -34 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -34.")
       }
 
       @Test
-      fun `returns 404 if not in user caseload`() {
+      fun `returns 403 if not in user caseload`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1541,8 +1541,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -34 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -34.")
       }
 
       @Test
@@ -1799,7 +1799,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if user has no caseloads`() {
+      fun `returns 403 if user has no caseloads`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("RO_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1815,12 +1815,12 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -38 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
       }
 
       @Test
-      fun `returns 404 if not in user caseload`() {
+      fun `returns 403 if not in user caseload`() {
         webTestClient.put().uri("/api/offender-assessments/category/reject")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -1836,8 +1836,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
             """,
           )
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -38 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
       }
 
       @Test
