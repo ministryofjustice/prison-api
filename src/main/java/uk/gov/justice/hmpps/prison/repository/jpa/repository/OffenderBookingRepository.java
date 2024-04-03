@@ -30,6 +30,10 @@ public interface OffenderBookingRepository extends
 
     Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequence(String nomsId, Integer bookingSequence);
 
+    default Optional<OffenderBooking> findLatestOffenderBookingByNomsId(String nomsId) {
+        return findByOffenderNomsIdAndBookingSequence(nomsId, 1);
+    }
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ob from OffenderBooking ob join ob.offender o where o.nomsId = :nomsId and ob.bookingSequence = 1")
     Optional<OffenderBooking>  findLatestOffenderBookingByNomsIdForUpdate(@NotNull String nomsId);

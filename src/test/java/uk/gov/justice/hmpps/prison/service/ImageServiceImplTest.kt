@@ -6,11 +6,10 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import java.io.ByteArrayInputStream
 import java.time.LocalDateTime
 import java.util.Base64
@@ -20,8 +19,8 @@ class ImageServiceImplTest {
   private val imageData = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==")
 
   private val offenderImageRepository: OffenderImageRepository = mock()
-  private val offenderRepository: OffenderRepository = mock()
-  private val service: ImageService = ImageService(offenderImageRepository, offenderRepository)
+  private val offenderBookingRepository: OffenderBookingRepository = mock()
+  private val service: ImageService = ImageService(offenderImageRepository, offenderBookingRepository)
 
   @Test
   fun findOffenderImages() {
@@ -70,18 +69,9 @@ class ImageServiceImplTest {
   }
 
   @Test
-  fun putImageForOffenderNotFound() {
-    whenever(offenderRepository.findRootOffenderByNomsId(OFFENDER_NUMBER)).thenReturn(Optional.empty())
-    assertThatThrownBy { service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData)) }
-      .isInstanceOf(EntityNotFoundException::class.java)
-      .hasMessage("No prisoner found for prisoner number %s", OFFENDER_NUMBER)
-  }
-
-  @Test
   fun putImageForOffenderWithNoBooking() {
-    val offenderAndBooking = Offender.builder().id(1L).build()
-    whenever(offenderRepository.findRootOffenderByNomsId(OFFENDER_NUMBER))
-      .thenReturn(Optional.of(offenderAndBooking))
+    whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_NUMBER))
+      .thenReturn(Optional.empty())
     assertThatThrownBy { service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData)) }
       .isInstanceOf(EntityNotFoundException::class.java)
       .hasMessage("There are no bookings for %s", OFFENDER_NUMBER)
@@ -89,9 +79,7 @@ class ImageServiceImplTest {
 
   @Test
   fun putImageForOffenderOk() {
-    val offenderAndBooking = Offender.builder().id(1L).bookings(
-      listOf(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build()),
-    ).build()
+    val booking = OffenderBooking.builder().bookingId(1L).bookingSequence(1).build()
     val newImage = OffenderImage
       .builder()
       .captureDateTime(LocalDateTime.now())
@@ -100,12 +88,12 @@ class ImageServiceImplTest {
       .imageType("OFF_BKG")
       .active(true)
       .sourceCode("GEN")
-      .offenderBooking(if (offenderAndBooking.latestBooking.isPresent) offenderAndBooking.latestBooking.get() else null)
+      .offenderBooking(booking)
       .thumbnailImage(imageData)
       .fullSizeImage(imageData)
       .build()
-    whenever(offenderRepository.findRootOffenderByNomsId(OFFENDER_NUMBER))
-      .thenReturn(Optional.of(offenderAndBooking))
+    whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_NUMBER))
+      .thenReturn(Optional.of(booking))
     whenever(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty())
     whenever(offenderImageRepository.save(newImage)).thenReturn(newImage)
     val savedImage = service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData))
@@ -114,9 +102,7 @@ class ImageServiceImplTest {
 
   @Test
   fun putImageUpdatesPreviousToInactive() {
-    val offenderAndBooking = Offender.builder().id(1L).bookings(
-      listOf(OffenderBooking.builder().bookingId(1L).bookingSequence(1).build()),
-    ).build()
+    val booking = OffenderBooking.builder().bookingId(1L).bookingSequence(1).build()
     val prevImage = OffenderImage
       .builder()
       .captureDateTime(LocalDateTime.now())
@@ -125,7 +111,7 @@ class ImageServiceImplTest {
       .imageType("OFF_BKG")
       .active(false)
       .sourceCode("GEN")
-      .offenderBooking(if (offenderAndBooking.latestBooking.isPresent) offenderAndBooking.latestBooking.get() else null)
+      .offenderBooking(booking)
       .thumbnailImage(imageData)
       .fullSizeImage(imageData)
       .build()
@@ -137,12 +123,12 @@ class ImageServiceImplTest {
       .imageType("OFF_BKG")
       .active(true)
       .sourceCode("GEN")
-      .offenderBooking(if (offenderAndBooking.latestBooking.isPresent) offenderAndBooking.latestBooking.get() else null)
+      .offenderBooking(booking)
       .thumbnailImage(imageData)
       .fullSizeImage(imageData)
       .build()
-    whenever(offenderRepository.findRootOffenderByNomsId(OFFENDER_NUMBER))
-      .thenReturn(Optional.of(offenderAndBooking))
+    whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_NUMBER))
+      .thenReturn(Optional.of(booking))
     whenever(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.of(prevImage))
     whenever(offenderImageRepository.save(prevImage)).thenReturn(prevImage)
     whenever(offenderImageRepository.save(newImage)).thenReturn(newImage)
