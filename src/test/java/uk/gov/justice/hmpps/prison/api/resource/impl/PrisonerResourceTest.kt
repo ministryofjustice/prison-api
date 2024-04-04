@@ -343,15 +343,13 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturnEmptyArrayWhenOffenderNotFound() {
-      val httpEntity = createEmptyHttpEntity(AuthToken.VIEW_PRISONER_DATA)
-      val response = testRestTemplate.exchange(
-        "/api/prisoners/X1111XX",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
-      )
-      assertThatJsonAndStatus(response, OK.value(), "[]")
+    fun testReturn404WhenOffenderNotFound() {
+      webTestClient.get().uri("/api/prisoners/X1111XX")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Resource with id [X1111XX] not found.")
     }
 
     @Test
@@ -364,16 +362,13 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturnEmptyArrayWhenDoesNotHavePrivs() {
-      val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
-
-      val response = testRestTemplate.exchange(
-        "/api/prisoners/A1234AA",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
-      )
-      assertThatJsonAndStatus(response, OK.value(), "[]")
+    fun testReturn403WhenDoesNotHavePrivs() {
+      webTestClient.get().uri("/api/prisoners/A1234AA")
+        .headers(setClientAuthorisation(emptyList()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
     }
   }
 
