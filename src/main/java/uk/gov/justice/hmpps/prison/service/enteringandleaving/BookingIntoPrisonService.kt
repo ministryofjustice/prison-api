@@ -76,16 +76,16 @@ class BookingIntoPrisonService(
     // during our transaction.  Other processes / threads will hang waiting for this to complete.
 
     // The current offender alias is linked to the booking with sequence 1
-    val offender = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerIdentifier)
-      .map { it.offender }
+    val (offender, offenderBooking) = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerIdentifier)
+      .map { Pair(it.offender, it) }
       // if there are no bookings then get the root offender instead
-      .orElseGet { rootOffenderForUpdate(prisonerIdentifier).getOrThrow() }
+      .orElseGet { Pair(rootOffenderForUpdate(prisonerIdentifier).getOrThrow(), null) }
 
-    return newBookingWithoutUpdateLock(offender, requestForNewBooking)
+    return newBookingWithoutUpdateLock(offender, offenderBooking, requestForNewBooking)
   }
 
-  fun newBookingWithoutUpdateLock(offender: Offender, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    val previousBooking: OffenderBooking? = previousInactiveBooking(offender).getOrThrow()
+  fun newBookingWithoutUpdateLock(offender: Offender, previousBooking: OffenderBooking?, requestForNewBooking: RequestForNewBooking): InmateDetail {
+    previousInactiveBooking(previousBooking).getOrThrow()
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
     val prison = prison(requestForNewBooking.prisonId).getOrThrow()
@@ -208,8 +208,8 @@ class BookingIntoPrisonService(
     offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
       ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
 
-  private fun previousInactiveBooking(offender: Offender): Result<OffenderBooking?> =
-    offender.latestBookingOrNull?.inActiveOut() ?: success(null)
+  private fun previousInactiveBooking(offenderBooking: OffenderBooking?): Result<OffenderBooking?> =
+    offenderBooking?.inActiveOut() ?: success(null)
 
   private fun fromLocation(location: String?): Result<AgencyLocation> = location?.takeIf { it.isNotBlank() }?.let {
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
@@ -283,9 +283,6 @@ private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
     MovementType.ADM.code,
     true,
   ).isNotEmpty()
-
-private val Offender.latestBookingOrNull: OffenderBooking?
-  get() = this.latestBooking.orElse(null)
 
 private fun OffenderBooking.inActiveOut(): Result<OffenderBooking> {
   if (this.isActive) {

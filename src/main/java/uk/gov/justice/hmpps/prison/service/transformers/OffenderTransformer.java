@@ -17,10 +17,8 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.Clock;
 import java.time.LocalDate;
-import java.time.Period;
 import java.util.Collections;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
@@ -31,10 +29,8 @@ public class OffenderTransformer {
 
     private final Clock clock;
 
-    public InmateDetail transform(final Offender offender) {
-        return offender.getLatestBooking()
-            .map(this::transform)
-            .orElse(buildOffender(offender).build());
+    public InmateDetail transformWithoutBooking(final Offender offender) {
+        return buildOffender(offender).build();
     }
 
     public InmateDetail transform(final OffenderBooking latestBooking) {
