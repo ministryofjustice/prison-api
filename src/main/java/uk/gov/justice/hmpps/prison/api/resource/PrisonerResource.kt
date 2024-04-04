@@ -27,9 +27,8 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetail
 import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.api.support.PageRequest
-import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
-import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService
 import java.time.LocalDate
 
@@ -146,26 +145,22 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     description = "List of offenders globally matching the offenderNo, Requires offender agency to be in user caseload or VIEW_PRISONER_DATA role. " +
       "Returns an empty array if no results are found or if does not have correct permissions",
   )
-  @ProgrammaticAuthorisation("For legacy reasons this returns an empty list if the user does not have the correct permissions")
+  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"], accessDeniedError = true)
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
     @PathVariable("offenderNo")
     @Parameter(description = "The offenderNo to search for", required = true)
     offenderNo: String,
   ): List<PrisonerDetail> {
-    try {
-      log.info("Global Search with search criteria offender No: {}", offenderNo)
-      return globalSearchService.findOffender(
-        offenderNo,
-        PageRequest(null, null, 0L, 1000L),
-      )
-        .also {
-          log.debug("Global Search returned {} records", it.totalRecords)
-        }
-        .items
-    } catch (enfe: EntityNotFoundException) {
-      return listOf()
-    }
+    log.info("Global Search with search criteria offender No: {}", offenderNo)
+    return globalSearchService.findOffender(
+      offenderNo,
+      PageRequest(null, null, 0L, 1000L),
+    )
+      .also {
+        log.debug("Global Search returned {} records", it.totalRecords)
+      }
+      .items
   }
 
   @ApiResponses(
