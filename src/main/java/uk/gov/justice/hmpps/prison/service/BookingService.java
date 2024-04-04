@@ -1065,9 +1065,9 @@ public class BookingService {
 
     public InmateDetail getOffender(final String offenderNo) {
         telemetryClient.trackEvent("getOffender 1.1_beta version used");
-        return offenderRepository.findRootOffenderByNomsId(offenderNo)
+        return offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo)
                 .map(offenderTransformer::transform)
-                .orElseThrow(EntityNotFoundException.withId(offenderNo));
+                .orElseGet(() -> offenderTransformer.transformWithoutBooking(offenderRepository.findRootOffenderByNomsId(offenderNo).orElseThrow()));
     }
 
 

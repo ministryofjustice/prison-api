@@ -178,10 +178,6 @@ public class Offender extends AuditableEntity {
         return identifiers.stream().collect(Collectors.groupingBy(OffenderIdentifier::getIdentifierType));
     }
 
-    public Optional<OffenderBooking> getLatestBooking() {
-        return getBookings().stream().min(Comparator.comparing(OffenderBooking::getBookingSequence));
-    }
-
     public Optional<String> getPnc() {
         return getLatestIdentifierOfType("PNC").map(OffenderIdentifier::getIdentifier);
     }

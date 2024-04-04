@@ -80,8 +80,8 @@ class PrisonerCreationService(
     }
 
     return prisoner.takeIf { requestToCreate.booking != null }
-      ?.let { bookingIntoPrisonService.newBookingWithoutUpdateLock(it, requestToCreate.booking) }
-      ?: offenderTransformer.transform(prisoner)
+      ?.let { bookingIntoPrisonService.newBookingWithoutUpdateLock(it, null, requestToCreate.booking) }
+      ?: offenderTransformer.transformWithoutBooking(prisoner)
   }
 
   fun getNextPrisonerIdentifier(): PrisonerIdentifier {
