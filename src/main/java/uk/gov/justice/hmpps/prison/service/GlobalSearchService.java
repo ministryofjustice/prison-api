@@ -17,7 +17,6 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.repository.InmateRepository;
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.util.Collections;
@@ -42,7 +41,6 @@ public class GlobalSearchService {
         this.prisonerRepository = prisonerRepository;
     }
 
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public Page<PrisonerDetail> findOffender(final String offenderNo, final PageRequest pageRequest) {
         val criteria = PrisonerDetailSearchCriteria.builder()
             .offenderNos(List.of(offenderNo))

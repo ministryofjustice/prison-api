@@ -1145,36 +1145,26 @@ public class BookingServiceTest {
 
     @Test
     void getOffenderSentenceDetail_most_recent_active_booking() {
-        final var offender =
-            Offender.builder().bookings(
-                    List.of(
-                        OffenderBooking.builder()
-                            .bookingSequence(2)
-                            .active(false)
-                            .location(AgencyLocation.builder()
-                                .description("Agency Description 2 An Inactive Booking")
-                                .build())
-                            .build(),
-                        OffenderBooking.builder()
-                            .bookingSequence(1)
-                            .active(true)
-                            .location(AgencyLocation.builder()
-                                .description("Agency Description 1 An Active Booking")
-                                .build())
-                            .build()))
+        final var offenderBooking =
+            OffenderBooking.builder()
+                .bookingSequence(1)
+                .active(true)
+                .offender(Offender.builder().build())
+                .location(AgencyLocation.builder()
+                    .description("Agency Description 1 An Active Booking")
+                    .build())
                 .build();
 
-        when(offenderRepository.findOffenderWithLatestBookingByNomsId("NomsId")).thenReturn(Optional.of(offender));
-        Optional<OffenderSentenceDetail> offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
+        when(offenderBookingRepository.findLatestOffenderBookingByNomsId("NomsId")).thenReturn(Optional.of(offenderBooking));
+        OffenderSentenceDetail offenderSentenceDetail = bookingService.getOffenderSentenceDetail("NomsId");
 
         assertThat(offenderSentenceDetail)
-            .isNotEmpty()
-            .map(OffenderSentenceDetail::getMostRecentActiveBooking)
-            .hasValue(true);
+            .extracting(OffenderSentenceDetail::getMostRecentActiveBooking)
+            .isEqualTo(true);
 
         assertThat(offenderSentenceDetail)
-            .map(OffenderSentenceDetail::getAgencyLocationDesc)
-            .hasValue("Agency Description 1 An Active Booking");
+            .extracting(OffenderSentenceDetail::getAgencyLocationDesc)
+            .isEqualTo("Agency Description 1 An Active Booking");
     }
 
     @Test

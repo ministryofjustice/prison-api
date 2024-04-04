@@ -56,7 +56,7 @@ public class OffenderAddressServiceImplTest {
 
         final var offender = Offender.builder().id(1L).rootOffenderId(1L).build();
         offender.setRootOffender(offender);
-        when(offenderRepository.findOffenderWithLatestBookingByNomsId(any())).thenReturn(Optional.of(offender));
+        when(offenderRepository.findRootOffenderByNomsId(any())).thenReturn(Optional.of(offender));
         var addresses = List.of(
                 OffenderAddress.builder()
                         .addressId(-15L)
@@ -118,7 +118,7 @@ public class OffenderAddressServiceImplTest {
 
         List<AddressDto> results = offenderAddressService.getAddressesByOffenderNo(offenderNo);
 
-        verify(offenderRepository).findOffenderWithLatestBookingByNomsId(offenderNo);
+        verify(offenderRepository).findRootOffenderByNomsId(offenderNo);
 
         // ignore Set order for phone and addresses
         RecursiveComparisonConfiguration configuration = RecursiveComparisonConfiguration
@@ -133,6 +133,7 @@ public class OffenderAddressServiceImplTest {
                     .addressType("Home Address")
                     .noFixedAddress(false)
                     .primary(true)
+                    .mail(false)
                     .comment(null)
                     .flat("Flat 1")
                     .premise("Brook Hamlets")
@@ -176,6 +177,7 @@ public class OffenderAddressServiceImplTest {
                     .addressType("Business Address")
                     .noFixedAddress(true)
                     .primary(false)
+                    .mail(false)
                     .comment(null)
                     .flat(null)
                     .premise(null)
@@ -190,15 +192,5 @@ public class OffenderAddressServiceImplTest {
                     .addressUsages(List.of())
                     .build()));
 
-    }
-
-    @Test
-    public void testThatExceptionIsThrown_WhenOffenderIsFound() {
-        when(offenderRepository.findOffenderWithLatestBookingByNomsId(any()))
-            .thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> offenderAddressService.getAddressesByOffenderNo("A12345"))
-            .isInstanceOf(EntityNotFoundException.class)
-            .hasMessageContaining("No offender found for offender number A12345\n");
     }
 }

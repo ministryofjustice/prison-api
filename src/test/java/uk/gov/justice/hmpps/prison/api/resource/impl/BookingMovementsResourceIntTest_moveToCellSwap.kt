@@ -107,12 +107,12 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   }
 
   @Test
-  fun noBookingAccess_notFound() {
+  fun noBookingAccess_forbidden() {
     val dateTime = now().minusHours(1)
 
     val response = requestMoveToCellSwap(differentAgencyToken(), BOOKING_ID_S, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME))
 
-    verifyErrorResponse(response, NOT_FOUND, BOOKING_ID_S)
+    verifyErrorResponse(response, FORBIDDEN, BOOKING_ID_S)
     verifyOffenderBookingLivingUnit()
     verifyLastBedAssignmentHistory()
   }

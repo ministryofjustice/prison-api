@@ -21,12 +21,12 @@ class AliasBuilderRepository(
     lastName: String,
     firstName: String,
     birthDate: LocalDate,
-  ): AliasId = offenderRepository.findOffenderByNomsId(offenderId.offenderNo).orElseThrow().let {
+  ): AliasId = offenderRepository.findRootOffenderByNomsId(offenderId.offenderNo).orElseThrow().let {
     offenderRepository.save(
       Offender.builder()
         .nomsId(it.nomsId)
-        .rootOffenderId(it.rootOffenderId)
-        .rootOffender(it.rootOffender)
+        .rootOffenderId(it.id)
+        .rootOffender(it)
         .birthDate(birthDate)
         .lastName(lastName)
         .firstName(firstName)

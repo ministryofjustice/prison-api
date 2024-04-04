@@ -721,24 +721,22 @@ public class BookingService {
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
 
-    public Optional<OffenderSentenceDetail> getOffenderSentenceDetail(final String offenderNo) {
-        return offenderRepository.findOffenderWithLatestBookingByNomsId(offenderNo)
-            .map(offender -> offender.getLatestBooking().map(booking ->
+    public OffenderSentenceDetail getOffenderSentenceDetail(final String offenderNo) {
+        return offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).map(booking ->
                 OffenderSentenceDetail.offenderSentenceDetailBuilder()
                     .offenderNo(offenderNo)
                     .mostRecentActiveBooking(booking.isActive())
                     .bookingId(booking.getBookingId())
-                    .firstName(offender.getFirstName())
-                    .lastName(offender.getLastName())
-                    .dateOfBirth(offender.getBirthDate())
+                    .firstName(booking.getOffender().getFirstName())
+                    .lastName(booking.getOffender().getLastName())
+                    .dateOfBirth(booking.getOffender().getBirthDate())
                     .facialImageId(booking.getLatestFaceImage().map(OffenderImage::getId).orElse(null))
                     .agencyLocationDesc(booking.getLocation().getDescription())
                     .agencyLocationId(booking.getLocation().getId())
                     .internalLocationDesc(booking.getAssignedLivingUnit() != null ? LocationProcessor.stripAgencyId(booking.getAssignedLivingUnit().getDescription(), booking.getLocation().getId()) : null)
                     .sentenceDetail(getBookingSentenceCalcDates(booking.getBookingId()))
                     .build()
-            ))
-            .orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
+            ).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
     }
 
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
@@ -790,7 +788,6 @@ public class BookingService {
         updateLivingUnit(offenderBooking, location);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
         return offenderSentences.stream()
@@ -1067,7 +1064,8 @@ public class BookingService {
     }
 
     public InmateDetail getOffender(final String offenderNo) {
-        return  offenderRepository.findOffenderByNomsId(offenderNo)
+        telemetryClient.trackEvent("getOffender 1.1_beta version used");
+        return offenderRepository.findRootOffenderByNomsId(offenderNo)
                 .map(offenderTransformer::transform)
                 .orElseThrow(EntityNotFoundException.withId(offenderNo));
     }

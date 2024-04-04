@@ -10,7 +10,6 @@ import org.apache.commons.text.WordUtils;
 import org.jetbrains.annotations.Nullable;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
@@ -511,7 +510,7 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
@@ -524,7 +523,7 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
         validate(detail);
@@ -534,7 +533,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
         validate(detail);
@@ -544,7 +543,7 @@ public class InmateService {
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
     @Transactional
     public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
         validate(detail);

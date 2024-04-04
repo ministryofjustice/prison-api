@@ -34,7 +34,7 @@ class OffenderAddressBuilderRepository(
     pafValidated: Boolean,
     mail: Boolean,
     noFixedAddress: Boolean,
-  ): AddressId = offenderRepository.findOffenderByNomsId(offenderId.offenderNo).orElseThrow().let {
+  ): AddressId = offenderRepository.findRootOffenderByNomsId(offenderId.offenderNo).orElseThrow().let {
     offenderAddressRepository.save(
       OffenderAddress.builder()
         .offender(it)
