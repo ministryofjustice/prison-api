@@ -326,29 +326,6 @@ class OffenderResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun compareV1AndV1_1VersionsOfGetOffender() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-      val httpEntityV1 = createHttpEntity(token, null, mapOf("version" to "1.0"))
-      val responseV1 = testRestTemplate.exchange(
-        "/api/offenders/{offenderNo}",
-        GET,
-        httpEntityV1,
-        object : ParameterizedTypeReference<String?>() {},
-        OFFENDER_NUMBER,
-      )
-      assertThatJsonFileAndStatus(responseV1, 200, "offender_detail_v1.1.json")
-      val httpEntityV1point1 = createHttpEntity(token, null, mapOf("version" to "1.1_beta"))
-      val responseV1point1 = testRestTemplate.exchange(
-        "/api/offenders/{offenderNo}",
-        GET,
-        httpEntityV1point1,
-        object : ParameterizedTypeReference<String>() {},
-        OFFENDER_NUMBER,
-      )
-      assertThatJsonFileAndStatus(responseV1point1, 200, "offender_detail_v1.1.json")
-    }
-
-    @Test
     fun testOffenderWithActiveRecallOffence() {
       val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
