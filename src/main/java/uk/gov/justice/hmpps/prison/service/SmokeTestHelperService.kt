@@ -5,8 +5,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
 import uk.gov.justice.hmpps.prison.api.model.RequestToReleasePrisoner
 import uk.gov.justice.hmpps.prison.api.resource.UpdatePrisonerDetails
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.findRootOffenderByNomsIdOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 
@@ -15,21 +14,19 @@ class SmokeTestHelperService(
   private val inmateService: InmateService,
   private val releasePrisonerService: ReleasePrisonerService,
   private val bookingIntoPrisonService: BookingIntoPrisonService,
-  private val offenderRepository: OffenderRepository,
+  private val offenderBookingRepository: OffenderBookingRepository,
 ) {
   companion object {
-    const val SMOKE_TEST_PRISON_ID = "LEI"
+    const val SMOKE_TEST_PRISON_ID = "RSI"
   }
 
   @Transactional
   fun updatePrisonerDetails(offenderNo: String, prisonerDetails: UpdatePrisonerDetails) {
-    // TODO (PGP): This is incorrect - should be grabbing the offender record with the latest booking and updating
-    // that one instead of the root
-    offenderRepository.findRootOffenderByNomsIdOrNull(offenderNo)?.apply {
-      firstName = prisonerDetails.firstName.uppercase()
-      lastName = prisonerDetails.lastName.uppercase()
-      offenderRepository.save(this)
-    } ?: throw EntityNotFoundException.withMessage("Offender $offenderNo not found")
+    offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(offenderNo).map {
+      it.offender.firstName = prisonerDetails.firstName.uppercase()
+      it.offender.lastName = prisonerDetails.lastName.uppercase()
+      offenderBookingRepository.save(it)
+    }.orElseThrow { EntityNotFoundException.withMessage("Offender $offenderNo not found") }
   }
 
   @Transactional
