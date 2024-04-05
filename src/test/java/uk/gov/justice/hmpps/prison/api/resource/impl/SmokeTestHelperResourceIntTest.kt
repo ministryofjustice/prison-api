@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SMOKE_TEST
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -14,6 +15,9 @@ import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService.Companion.SMOK
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 
 class SmokeTestHelperResourceIntTest : ResourceTest() {
+
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
 
   @Autowired
   private lateinit var offenderRepository: OffenderRepository
@@ -119,7 +123,12 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
 
     @Test
     fun `will change prisoner name`() {
-      val prisonerNo = createPrisoner()
+      var prisonerNo: String? = null
+      builder.build {
+        prisonerNo = offender {
+          booking { }
+        }.offenderNo
+      }
 
       webTestClient.post()
         .uri("/api/smoketest/offenders/$prisonerNo/details")
@@ -137,7 +146,7 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
 
-      val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo).orElseThrow()
+      val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo!!).orElseThrow()
       assertThat(prisoner.firstName).isEqualTo("JOHN")
       assertThat(prisoner.lastName).isEqualTo("SMITH")
     }

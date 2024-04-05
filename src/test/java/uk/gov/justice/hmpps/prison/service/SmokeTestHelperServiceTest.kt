@@ -17,7 +17,8 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.resource.UpdatePrisonerDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService
 import java.util.Optional
@@ -25,13 +26,13 @@ import java.util.Optional
 class SmokeTestHelperServiceTest {
   private val inmateService: InmateService = mock()
   private val releasePrisonerService: ReleasePrisonerService = mock()
-  private val offenderRepository: OffenderRepository = mock()
+  private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val bookingIntoPrisonService: BookingIntoPrisonService = mock()
   private val smokeTestHelperService = SmokeTestHelperService(
     inmateService,
     releasePrisonerService,
     bookingIntoPrisonService,
-    offenderRepository,
+    offenderBookingRepository,
   )
 
   @Nested
@@ -45,21 +46,25 @@ class SmokeTestHelperServiceTest {
 
     @Test
     fun ok() {
-      whenever(offenderRepository.findRootOffenderByNomsId(any()))
+      val offenderBooking = OffenderBooking.builder().offender(
+        Offender().apply {
+          firstName = "Joe"
+          lastName = "Bloggs"
+        },
+      ).build()
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(any()))
         .thenReturn(
           Optional.of(
-            Offender().apply {
-              firstName = "Joe"
-              lastName = "Bloggs"
-            },
+            offenderBooking,
           ),
         )
+      whenever(offenderBookingRepository.save(any())).thenReturn(offenderBooking)
 
       smokeTestHelperService.updatePrisonerDetails(SOME_OFFENDER_NO, UpdatePrisonerDetails("Fred", "Smith"))
-      verify(offenderRepository).save(
+      verify(offenderBookingRepository).save(
         check {
-          assertThat(it.firstName).isEqualTo("FRED")
-          assertThat(it.lastName).isEqualTo("SMITH")
+          assertThat(it.offender.firstName).isEqualTo("FRED")
+          assertThat(it.offender.lastName).isEqualTo("SMITH")
         },
       )
     }
