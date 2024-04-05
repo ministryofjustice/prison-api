@@ -129,14 +129,13 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
 
       @Test
       internal fun `400 when offender is inactive but not OUT, for instance currently being transferred`() {
-        lateinit var offenderNo: String
-        builder.build {
-          offenderNo = offender {
+        val offenderNo = builder.build {
+          offender {
             booking(prisonId = "MDI") {
               transferOut(prisonId = "SYI")
             }
-          }.offenderNo
-        }
+          }
+        }.offenders.first().offenderNo
 
         // when booking is created then the request is rejected
         webTestClient.post()
@@ -1290,29 +1289,17 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
     }
   }
 
-  fun createActiveBooking(prisonId: String = "MDI"): String {
-    lateinit var offenderNo: String
-
-    builder.build {
-      offenderNo = offender {
-        booking(prisonId = prisonId)
-      }.offenderNo
+  fun createActiveBooking(prisonId: String = "MDI"): String = builder.build {
+    offender {
+      booking(prisonId = prisonId)
     }
+  }.offenders.first().offenderNo
 
-    return offenderNo
-  }
-
-  fun createInactiveBooking(): String {
-    lateinit var offenderNo: String
-
-    builder.build {
-      offenderNo = offender {
-        booking(prisonId = "MDI") {
-          release()
-        }
-      }.offenderNo
+  fun createInactiveBooking(): String = builder.build {
+    offender {
+      booking(prisonId = "MDI") {
+        release()
+      }
     }
-
-    return offenderNo
-  }
+  }.offenders.first().offenderNo
 }

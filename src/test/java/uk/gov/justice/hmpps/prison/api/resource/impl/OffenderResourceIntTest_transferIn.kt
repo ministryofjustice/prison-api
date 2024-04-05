@@ -59,11 +59,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   private lateinit var workflowTaskService: WorkflowTaskService
 
   private val team: Team by lazy {
-    lateinit var team: Team
-    builder.build {
-      team = team()
-    }
-    team
+    builder.build { team() }.teams.first()
   }
 
   @Nested

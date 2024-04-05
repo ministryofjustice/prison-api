@@ -14,7 +14,7 @@ class NomisDataBuilder(
   private val offenderBuilderFactory: OffenderBuilderFactory,
   private val teamBuilderFactory: TeamBuilderFactory,
 ) {
-  fun build(dsl: NomisData.() -> Unit) {
+  fun build(dsl: NomisData.() -> Unit): NomisData {
     SecurityContextHolder.setContext(
       SecurityContextHolder.createEmptyContext().apply {
         val principal = User("ITAG_USER", "", true, true, true, true, emptyList())
@@ -25,7 +25,7 @@ class NomisDataBuilder(
         )
       },
     )
-    NomisData(offenderBuilderFactory, teamBuilderFactory).apply(dsl)
+    return NomisData(offenderBuilderFactory, teamBuilderFactory).apply(dsl)
   }
 
   fun deletePrisoner(offenderNo: String) {
@@ -37,6 +37,8 @@ class NomisData(
   private val offenderBuilderFactory: OffenderBuilderFactory,
   private val teamBuilderFactory: TeamBuilderFactory,
 ) : NomisDataDsl {
+  val offenders = mutableListOf<OffenderId>()
+  val teams = mutableListOf<Team>()
 
   @OffenderDslMarker
   override fun offender(
@@ -66,6 +68,7 @@ class NomisData(
         )
           .also {
             builder.apply(dsl)
+            offenders += it
           }
       }
 
@@ -89,6 +92,7 @@ class NomisData(
         )
           .also {
             builder.apply(dsl)
+            teams += it
           }
       }
 }

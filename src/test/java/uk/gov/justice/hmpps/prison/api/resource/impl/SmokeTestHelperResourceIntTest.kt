@@ -123,12 +123,11 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
 
     @Test
     fun `will change prisoner name`() {
-      var prisonerNo: String? = null
-      builder.build {
-        prisonerNo = offender {
+      val prisonerNo = builder.build {
+        offender {
           booking { }
         }.offenderNo
-      }
+      }.offenders.first().offenderNo
 
       webTestClient.post()
         .uri("/api/smoketest/offenders/$prisonerNo/details")
@@ -146,7 +145,7 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
 
-      val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo!!).orElseThrow()
+      val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo).orElseThrow()
       assertThat(prisoner.firstName).isEqualTo("JOHN")
       assertThat(prisoner.lastName).isEqualTo("SMITH")
     }
