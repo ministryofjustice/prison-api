@@ -907,8 +907,8 @@ class OffenderResourceIntTest : ResourceTest() {
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(caseNoteUpdate)
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -16.")
     }
 
     @Test

@@ -652,7 +652,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Resource not found - offender or case note does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Amend offender case note.", description = "Requires offender to be in caseload", hidden = true)
-    @VerifyOffenderAccess
+    @VerifyOffenderAccess(accessDeniedError = true)
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
