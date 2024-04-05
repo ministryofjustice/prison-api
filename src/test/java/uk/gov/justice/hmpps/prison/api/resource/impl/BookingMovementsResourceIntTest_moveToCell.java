@@ -159,12 +159,12 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
 
 
     @Test
-    public void noBookingAccess_notFound() {
+    public void noBookingAccess_forbidden() {
         final var dateTime = LocalDateTime.now().minusHours(1);
 
         final var response = requestMoveToCell(differentAgencyToken(), BOOKING_ID_S, NEW_CELL_DESC, "BEH", dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME));
 
-        verifyErrorResponse(response, NOT_FOUND, BOOKING_ID_S);
+        verifyErrorResponse(response, FORBIDDEN, BOOKING_ID_S);
         verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL);
         verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL);
     }
