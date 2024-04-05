@@ -1063,14 +1063,6 @@ public class BookingService {
         return AGENCY_LOCATION_ID_KEY + ":eq:'" + agencyId + "'";
     }
 
-    public InmateDetail getOffender(final String offenderNo) {
-        telemetryClient.trackEvent("getOffender 1.1_beta version used");
-        return offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo)
-                .map(offenderTransformer::transform)
-                .orElseGet(() -> offenderTransformer.transformWithoutBooking(offenderRepository.findRootOffenderByNomsId(offenderNo).orElseThrow()));
-    }
-
-
     public Page<PrisonerBookingSummary> getPrisonerBookingSummary(final String prisonId,
                                                                   final List<Long> bookingIds,
                                                                   final List<String> offenderNos,
