@@ -6,7 +6,15 @@ spring:
   codec:
     max-in-memory-size: 10MB
 
-spring.cache.type: none
+  cache.type: none
+
+#  jpa:
+#    show-sql: false
+#    properties.hibernate.format_sql: true
+#
+#  main.allow-bean-definition-overriding: true
+#
+#smoke.test.aware: true
 
 #logging:
 #  level:
