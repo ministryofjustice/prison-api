@@ -8,14 +8,6 @@ spring:
 
   cache.type: none
 
-#  jpa:
-#    show-sql: false
-#    properties.hibernate.format_sql: true
-#
-#  main.allow-bean-definition-overriding: true
-#
-#smoke.test.aware: true
-
 #logging:
 #  level:
 #     org.hibernate.SQL: DEBUG
