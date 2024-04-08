@@ -11,9 +11,22 @@ spring:
       connectionTimeout: 2500
       validationTimeout: 500
 
+    url: jdbc:oracle:thin:@localhost:1521:CNOMT3
+    username: api_proxy_user
+    password:
+
   replica:
     datasource:
       hikari:
         maximum-pool-size: 10
         connectionTimeout: 2000
         validationTimeout: 500
+
+  flyway:
+    enabled: false
+    locations:
+
+api.caseNote.sourceCode: INST
+schema:
+  type: nomis
+  database.dialect: ORACLE_11

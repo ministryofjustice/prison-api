@@ -13,10 +13,8 @@ spring:
 
   profiles:
     group:
-      nomis-local:
-        - "connection-proxy"
       nomis:
-        - "nomis-local"
+        - "connection-proxy"
         - "ai"
       nomis-hsqldb:
         - "dev"
