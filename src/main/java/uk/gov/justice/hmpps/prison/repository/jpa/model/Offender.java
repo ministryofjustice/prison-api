@@ -11,6 +11,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -103,6 +104,8 @@ public class Offender extends AuditableEntity {
     @OneToMany(mappedBy = "rootOffender", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     @Exclude
+    @Getter(AccessLevel.NONE)
+    @Setter(AccessLevel.NONE)
     private List<OffenderBooking> bookings = new ArrayList<>();
 
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -202,18 +205,15 @@ public class Offender extends AuditableEntity {
     }
 
     public List<ExternalMovement> getAllMovements() {
-        final var externalMovements = new ArrayList<ExternalMovement>();
-        bookings.forEach(b -> externalMovements.addAll(b.getExternalMovements()));
-        return externalMovements.stream()
-            .sorted(Comparator.comparing(ExternalMovement::getMovementSequence))
-            .toList();
+        final var externalMovements = getAllBookings().stream().flatMap(b -> b.getExternalMovements().stream());
+        return externalMovements.sorted(Comparator.comparing(ExternalMovement::getMovementSequence)).toList();
     }
 
     public void addBooking(final OffenderBooking booking) {
         booking.setOffender(this);
-        bookings.add(booking);
-        bookings.forEach(OffenderBooking::incBookingSequence);
-
+        booking.setRootOffender(this.rootOffender);
+        getAllBookings().add(booking);
+        getAllBookings().forEach(OffenderBooking::incBookingSequence);
     }
 
     private boolean isTransferOutOrAdmissionThatBecameATransfer(ExternalMovement movement) {
@@ -255,23 +255,20 @@ public class Offender extends AuditableEntity {
     }
 
     public PrisonerInPrisonSummary getPrisonerInPrisonSummary() {
-        final var movementMap = getAllMovements()
-            .stream()
+        List<ExternalMovement> allMovements = getAllMovements();
+        final var movementMap = allMovements.stream()
             .filter(f -> f.getMovementType() != null && List.of("ADM", "REL", "TAP").contains(f.getMovementType().getCode()))
             .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
 
-        final var transferMap = getAllMovements()
-            .stream()
+        final var transferMap = allMovements.stream()
             .filter(this::isTransferOutOrAdmissionThatBecameATransfer)
             .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
 
-        final var admissionsMap = getAllMovements()
-            .stream()
+        final var admissionsMap = allMovements.stream()
             .filter(this::isAdmission)
             .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
 
-        final var tapAndCourtOutMap = getAllMovements()
-            .stream()
+        final var tapAndCourtOutMap = allMovements.stream()
             .filter(this::isTapOrCourtOut)
             .collect(Collectors.groupingBy(ExternalMovement::getOffenderBooking));
 
@@ -422,6 +419,10 @@ public class Offender extends AuditableEntity {
 
     public String getMiddleNames() {
         return StringUtils.trimToNull(StringUtils.trimToEmpty(middleName) + " " + StringUtils.trimToEmpty(middleName2));
+    }
+
+    public List<OffenderBooking> getAllBookings() {
+        return rootOffender.bookings;
     }
 
     @Override

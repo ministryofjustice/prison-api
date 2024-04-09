@@ -30,8 +30,8 @@ class OffenderRepositoryTest {
     fun findByOffenderNomsIdUnique() {
       val offender = repository.findRootOffenderByNomsId("A1234AL").orElseThrow()
       assertThat(offender).extracting({ it.id }, { it.rootOffender.id }).containsExactly(-1012L, -1012L)
-      assertThat(offender.bookings).hasSize(2)
-      val latestBooking = offender.bookings.minBy { it.bookingSequence }
+      assertThat(offender.allBookings).hasSize(2)
+      val latestBooking = offender.allBookings.minBy { it.bookingSequence }
       assertThat(latestBooking.bookingId).isEqualTo(-12L)
     }
   }
@@ -46,7 +46,7 @@ class OffenderRepositoryTest {
       assertThat(offender.rootOffenderId).isEqualTo(-1012L)
       assertThat(offender.rootOffender.id).isEqualTo(-1012L)
 
-      assertThat(offender.bookings).hasSizeGreaterThan(0)
+      assertThat(offender.allBookings).hasSizeGreaterThan(0)
     }
 
     @Test
@@ -57,7 +57,7 @@ class OffenderRepositoryTest {
       assertThat(offender.rootOffenderId).isEqualTo(-1056L)
       assertThat(offender.rootOffender.id).isEqualTo(-1056L)
 
-      assertThat(offender.bookings).hasSize(0)
+      assertThat(offender.allBookings).hasSize(0)
     }
   }
 }

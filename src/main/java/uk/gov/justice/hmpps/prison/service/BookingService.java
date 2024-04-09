@@ -23,7 +23,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
-import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
@@ -74,14 +73,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.SentenceTermRepository;
@@ -97,7 +94,6 @@ import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
@@ -144,7 +140,6 @@ public class BookingService {
     private final CourtEventRepository courtEventRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final OffenderChargeRepository offenderChargeRepository;
-    private final OffenderRepository offenderRepository;
     private final VisitInformationRepository visitInformationRepository;
     private final VisitorRepository visitorRepository;
     private final VisitVisitorRepository visitVisitorRepository;
@@ -159,7 +154,6 @@ public class BookingService {
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
-    private final OffenderTransformer offenderTransformer;
     private final AuthenticationFacade authenticationFacade;
     private final OffenderChargeTransformer offenderChargeTransformer;
     private final TelemetryClient telemetryClient;
@@ -170,26 +164,22 @@ public class BookingService {
                           final CourtEventRepository courtEventRepository,
                           final OffenderBookingRepository offenderBookingRepository,
                           final OffenderChargeRepository offenderChargeRepository,
-                          final OffenderRepository offenderRepository,
                           final VisitorRepository visitorRepository,
                           final VisitInformationRepository visitInformationRepository,
                           final VisitVisitorRepository visitVisitorRepository,
                           final SentenceRepository sentenceRepository,
                           final SentenceTermRepository sentenceTermRepository,
                           final AgencyService agencyService,
-                          final OffenderFixedTermRecallService offenderFixedTermRecallService,
                           final CaseLoadService caseLoadService,
                           final CaseloadToAgencyMappingService caseloadToAgencyMappingService,
                           final OffenderContactPersonsRepository offenderContactPersonsRepository,
                           final StaffUserAccountRepository staffUserAccountRepository,
                           final OffenderBookingTransformer offenderBookingTransformer,
-                          final OffenderTransformer offenderTransformer,
                           final AuthenticationFacade authenticationFacade,
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
                           final OffenderChargeTransformer offenderChargeTransformer,
-                          final AgencyLocationRepository agencyLocationRepository,
                           final TelemetryClient telemetryClient,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
@@ -197,7 +187,6 @@ public class BookingService {
         this.courtEventRepository = courtEventRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.offenderChargeRepository = offenderChargeRepository;
-        this.offenderRepository = offenderRepository;
         this.visitInformationRepository = visitInformationRepository;
         this.visitorRepository = visitorRepository;
         this.visitVisitorRepository = visitVisitorRepository;
@@ -209,7 +198,6 @@ public class BookingService {
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
         this.offenderBookingTransformer = offenderBookingTransformer;
-        this.offenderTransformer = offenderTransformer;
         this.authenticationFacade = authenticationFacade;
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
