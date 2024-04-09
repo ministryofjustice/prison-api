@@ -66,7 +66,7 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
         (-26, 'CARP', 'WSHP',  'LEI',   null, 'N',  null,  null, 'LEI-CARP', null, 'Carpentry Workshop', null),
         (-27, 'CRM1', 'CLAS',  'LEI',   null, 'N',  null,  null, 'LEI-CRM1', null, 'Classroom 1', null),
         (-28, 'VIS',  'VISIT', 'LEI',   null, 'N',  null,  null, 'LEI-VIS', null, 'Visiting Room', null),
-        (-29, 'MED',  'AREA',  'LEI',   null, 'N',  null,  null, 'LEI-MED', null, 'Medical Centre', null),
+        (-29, 'MED',  'AREA',  'LEI',   null, 'N',  null,  null, 'LEI-MED', null, 'MEDICAL CENTRE', null),
         (-30, 'A',    'WING',  'ZZGHI', 'NA', 'Y',  1,  1, 'ZZGHI-A', null, 'Block A', null);
 INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_CODE, INTERNAL_LOCATION_TYPE, AGY_LOC_ID, UNIT_TYPE, CERTIFIED_FLAG, CAPACITY, OPERATION_CAPACITY, DESCRIPTION, PARENT_INTERNAL_LOCATION_ID, USER_DESC, ACTIVE_FLAG)
  VALUES (-31, 'B', 'WING', 'LEI', 'NA', 'Y', 0, 0, 'LEI-B', null, 'Block B', 'N');

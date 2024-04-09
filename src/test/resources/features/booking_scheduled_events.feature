@@ -17,7 +17,7 @@ Feature: Booking Scheduled Events
       | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
-      | APP        | Medical Centre     |
+      | APP        | MEDICAL CENTRE     |
       | APP        | Visiting Room      |
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
@@ -31,14 +31,14 @@ Feature: Booking Scheduled Events
       | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Chapel             |
       | VISIT      | Visiting Room      |
-      | APP        | Medical Centre     |
+      | APP        | MEDICAL CENTRE     |
       | APP        | Visiting Room      |
       | PRISON_ACT | Carpentry Workshop |
       | PRISON_ACT | Carpentry Workshop |
       | VISIT      | Carpentry Workshop |
       | APP        | Visiting Room      |
       | VISIT      | Carpentry Workshop |
-      | VISIT      | Medical Centre     |
-      | PRISON_ACT | Medical Centre     |
+      | VISIT      | MEDICAL CENTRE    |
+      | PRISON_ACT | MEDICAL CENTRE     |
       | VISIT      | LEI-H              |
       | PRISON_ACT | Visiting Room      |
