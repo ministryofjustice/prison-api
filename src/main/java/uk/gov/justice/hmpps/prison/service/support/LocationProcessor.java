@@ -104,19 +104,20 @@ public class LocationProcessor {
         final String newDescription = newDescription(location, preferUserDescription);
 
         return Location.builder()
-                .agencyId(location.getAgencyId())
-                .currentOccupancy(location.getCurrentOccupancy())
-                .description(formatDescription ? formatLocation(newDescription) : newDescription)
-                .locationId(location.getLocationId())
-                .locationPrefix(newLocationPrefix)
-                .locationType(location.getLocationType())
-                .operationalCapacity(location.getOperationalCapacity())
-                .parentLocationId(location.getParentLocationId())
-                .userDescription(formatLocation(location.getUserDescription()))
-                .internalLocationCode(location.getInternalLocationCode())
-                .subLocations(location.getSubLocations())
-                .build();
+            .agencyId(location.getAgencyId())
+            .currentOccupancy(location.getCurrentOccupancy())
+            .description(formatDescription ? formatLocation(newDescription) : newDescription)
+            .locationId(location.getLocationId())
+            .locationPrefix(newLocationPrefix)
+            .locationType(location.getLocationType())
+            .operationalCapacity(location.getOperationalCapacity())
+            .parentLocationId(location.getParentLocationId())
+            .userDescription(formatLocation(location.getUserDescription()))
+            .internalLocationCode(location.getInternalLocationCode())
+            .subLocations(location.getSubLocations())
+            .build();
     }
+
     public static List<LocationSummary> processLocationSummaries(final List<LocationSummary> locations) {
         return locations.stream().map(loc -> processLocationSummary(loc)).toList();
     }
@@ -124,12 +125,15 @@ public class LocationProcessor {
     public static LocationSummary processLocationSummary(final LocationSummary locationSummary) {
         return LocationSummary.builder()
             .locationId(locationSummary.getLocationId())
-            .userDescription(
-                StringUtils.defaultIfBlank(locationSummary.getUserDescription(),
-                    stripAgencyId(locationSummary.getDescription(), locationSummary.getAgencyId())))
+            .userDescription(formatUserDescription(locationSummary))
             .description(locationSummary.getDescription())
             .agencyId(locationSummary.getAgencyId())
             .build();
+    }
+
+    private static String formatUserDescription(LocationSummary locationSummary) {
+        return StringUtils.defaultIfBlank(formatLocation(locationSummary.getUserDescription()),
+            stripAgencyId(locationSummary.getDescription(), locationSummary.getAgencyId()));
     }
 
     private static String newDescription(Location location, boolean preferUserDescription) {
@@ -141,10 +145,8 @@ public class LocationProcessor {
     }
 
     /**
-     *
      * @param locationDescription string to convert
      * @return new location with correct titlecase
-     *
      */
     public static String formatLocation(final String locationDescription) {
         return StringWithAbbreviationsProcessor.format(locationDescription);

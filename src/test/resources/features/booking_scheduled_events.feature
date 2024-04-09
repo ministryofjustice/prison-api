@@ -38,7 +38,7 @@ Feature: Booking Scheduled Events
       | VISIT      | Carpentry Workshop |
       | APP        | Visiting Room      |
       | VISIT      | Carpentry Workshop |
-      | VISIT      | Medical Centre     |
+      | VISIT      | Medical Centre    |
       | PRISON_ACT | Medical Centre     |
       | VISIT      | LEI-H              |
       | PRISON_ACT | Visiting Room      |
