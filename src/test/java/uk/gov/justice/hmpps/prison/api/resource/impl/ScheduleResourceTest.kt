@@ -293,7 +293,7 @@ class ScheduleResourceTest : ResourceTest() {
             "endTime":"2017-01-02T18:30:00",
             "appointmentTypeDescription":"Medical - Dentist",
             "appointmentTypeCode":"MEDE",
-            "locationDescription":"Medical Centre",
+            "locationDescription":"MEDICAL CENTRE",
             "locationId":-29,
             "createUserId":"SA",
             "agencyId":"LEI"
@@ -828,13 +828,13 @@ class ScheduleResourceTest : ResourceTest() {
           "A1234AC",
           "AM",
           listOf("Education", "Medical - Dentist"),
-          listOf("Visiting Room", "Medical Centre"),
+          listOf("Visiting Room", "MEDICAL CENTRE"),
         ),
         AppointmentScheduleRow(
           "A1234AC",
           "",
           listOf("Education", "Medical - Dentist"),
-          listOf("Visiting Room", "Medical Centre"),
+          listOf("Visiting Room", "MEDICAL CENTRE"),
         ),
         AppointmentScheduleRow(
           "A1234AE",
