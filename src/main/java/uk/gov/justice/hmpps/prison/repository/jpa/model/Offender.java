@@ -104,7 +104,7 @@ public class Offender extends AuditableEntity {
     @OneToMany(mappedBy = "rootOffender", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
     @Default
     @Exclude
-    @Getter(AccessLevel.NONE)
+    @Getter(AccessLevel.PROTECTED) // should be private but need to go via the getter to trigger hibernate load
     @Setter(AccessLevel.NONE)
     private List<OffenderBooking> bookings = new ArrayList<>();
 
@@ -422,7 +422,7 @@ public class Offender extends AuditableEntity {
     }
 
     public List<OffenderBooking> getAllBookings() {
-        return rootOffender.bookings;
+        return rootOffender.getBookings();
     }
 
     @Override
