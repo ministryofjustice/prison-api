@@ -55,9 +55,9 @@ Feature: Agencies
     When a request is submitted to retrieve location codes for agency "LEI" and event type "APP"
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
-      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
 
   Scenario: Retrieve locations, for an agency, that can be used for occurrences
@@ -80,9 +80,9 @@ Feature: Agencies
     Then the returned agency locations are as follows:
       | locationId | description | userDescription    | locationPrefix | locationUsage |
       | -29        | MED         | Medical Centre     | LEI-MED        | APP           |
-      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
       | -25        | CHAP        | Chapel             | LEI-CHAP       | APP           |
       | -26        | CARP        | Carpentry Workshop | LEI-CARP       | APP           |
+      | -27        | CRM1        | Classroom 1        | LEI-CRM1       | APP           |
 
   Scenario: Retrieve locations, for an agency, that can be used for any events
     When a request is submitted to retrieve location codes for agency "LEI" for any events
@@ -92,9 +92,9 @@ Feature: Agencies
       | 13411      | OTHER-ABEX         | A/b Exercise Yard  | LEI-OTHER-ABEX         | OCCUR         |
       | 14439      | RES-BWING          | B Wing             | LEI-RES-BWING          | OCCUR         |
       | 14444      | RES-CWING          | C Wing             | LEI-RES-CWING          | OCCUR         |
+      | -27        | CRM1               | Classroom 1        | LEI-CRM1               | APP           |
       | -26        | CARP               | Carpentry Workshop | LEI-CARP               | APP           |
       | -25        | CHAP               | Chapel             | LEI-CHAP               | APP           |
-      | -27        | CRM1               | Classroom 1        | LEI-CRM1               | APP           |
       | 14448      | RES-DWING          | D Wing             | LEI-RES-DWING          | OCCUR         |
       | 13392      | EDUC               | Education          | LEI-EDUC               | OCCUR         |
       | 13402      | GYM                | Gym                | LEI-GYM                | OCCUR         |
