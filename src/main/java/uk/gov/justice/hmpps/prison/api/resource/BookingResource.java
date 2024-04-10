@@ -473,8 +473,8 @@ public class BookingResource {
     @GetMapping("/{bookingId}/sentenceDetail")
     @SlowReportQuery
     public SentenceCalcDates getBookingSentenceDetail(
-        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Sentence Calc Dates, 1.0 is default") final String version,
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Sentence Calc Dates, 1.0 is default") final String version) {
         if ("1.1".equals(version)) {
             return bookingService.getBookingSentenceCalcDatesV1_1(bookingId);
         }
