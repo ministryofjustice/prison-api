@@ -207,7 +207,7 @@ public class BookingService {
         this.maxBatchSize = maxBatchSize;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISONER_INDEX"})
     public SentenceCalcDates getBookingSentenceCalcDates(final Long bookingId) {
 
         final var sentenceCalcDates = getSentenceCalcDates(bookingId);
