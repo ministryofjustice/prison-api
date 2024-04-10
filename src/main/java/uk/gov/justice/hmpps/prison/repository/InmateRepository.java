@@ -4,11 +4,13 @@ import com.google.common.collect.ImmutableMap;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
+import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import org.springframework.web.client.HttpClientErrorException;
@@ -676,9 +678,20 @@ public class InmateRepository extends RepositoryBase {
         return Optional.ofNullable(inmate);
     }
 
-
     public Page<Alias> findInmateAliasesByBooking(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
         final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES_BY_BOOKING.getSql();
+        final var params = createParams("bookingId", bookingId, "offset", offset, "limit", limit);
+        return getInmateAliases(orderByFields, order, offset, limit, initialSql, params);
+    }
+
+    public Page<Alias> findInmateAliases(final Long offenderId, final String orderByFields, final Order order, final long offset, final long limit) {
+        final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES.getSql();
+        final var params = createParams("offenderId", offenderId, "offset", offset, "limit", limit);
+        return getInmateAliases(orderByFields, order, offset, limit, initialSql, params);
+    }
+
+    @NotNull
+    private Page<Alias> getInmateAliases(String orderByFields, Order order, long offset, long limit, String initialSql, MapSqlParameterSource params) {
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, ALIAS_MAPPING);
 
         final var sql = builder
@@ -692,12 +705,11 @@ public class InmateRepository extends RepositoryBase {
 
         final var results = jdbcTemplate.query(
             sql,
-            createParams("bookingId", bookingId, "offset", offset, "limit", limit),
+            params,
             paRowMapper);
         results.forEach(alias -> alias.setAge(getAge(alias.getDob(), LocalDate.now(clock))));
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
-
 
     public Map<String, Long> insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 

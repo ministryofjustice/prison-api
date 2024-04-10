@@ -783,6 +783,29 @@ enum class InmateRepositorySql(val sql: String) {
     """,
   ),
 
+  FIND_INMATE_ALIASES(
+    """
+        SELECT A.LAST_NAME,
+        A.FIRST_NAME,
+        A.MIDDLE_NAME,
+        A.BIRTH_DATE,
+        RCE.DESCRIPTION AS ETHNICITY,
+        RCS.DESCRIPTION AS SEX,
+        RCNT.DESCRIPTION AS ALIAS_TYPE,
+        A.CREATE_DATE
+        FROM OFFENDERS O
+        INNER JOIN OFFENDERS A ON O.ROOT_OFFENDER_ID = A.ROOT_OFFENDER_ID
+                              AND O.OFFENDER_ID != A.OFFENDER_ID
+        LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
+                AND RCE.DOMAIN = 'ETHNICITY'
+        LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
+                AND RCS.DOMAIN = 'SEX'
+        LEFT JOIN REFERENCE_CODES RCNT ON O.ALIAS_NAME_TYPE = RCNT.CODE
+                AND RCNT.DOMAIN = 'NAME_TYPE'
+        WHERE O.OFFENDER_ID = :offenderId
+    """,
+  ),
+
   FIND_OFFENDERS(
     """
         SELECT

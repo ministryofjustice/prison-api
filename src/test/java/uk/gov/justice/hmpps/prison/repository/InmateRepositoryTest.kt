@@ -1,3 +1,5 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.hmpps.prison.repository
 
 import org.assertj.core.api.Assertions
@@ -5,6 +7,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.BeforeEach
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
@@ -17,6 +20,7 @@ import org.springframework.test.context.ContextConfiguration
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
+import uk.gov.justice.hmpps.prison.api.model.Alias
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail
 import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail
@@ -59,165 +63,168 @@ class InmateRepositoryTest {
     SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("itag_user", "password")
   }
 
-  @Test
-  fun testSearchForOffenderBookings() {
-    val pageRequest = PageRequest("lastName, firstName")
-    val caseloads = setOf("LEI", "BXI")
-    val alertFilter = listOf("XA", "HC")
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(caseloads)
-        .offenderNo("A1234AA")
-        .searchTerm1("A")
-        .searchTerm2("A")
-        .locationPrefix("LEI")
-        .alerts(alertFilter)
-        .convictedStatus("All")
-        .pageRequest(pageRequest)
-        .build(),
-    )
-    val results = foundInmates.items
-    assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc")
-      .containsExactly(
-        tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"),
+  @Nested
+  inner class searchForOffenderBookings {
+    @Test
+    fun testSearchForOffenderBookings() {
+      val pageRequest = PageRequest("lastName, firstName")
+      val caseloads = setOf("LEI", "BXI")
+      val alertFilter = listOf("XA", "HC")
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(caseloads)
+          .offenderNo("A1234AA")
+          .searchTerm1("A")
+          .searchTerm2("A")
+          .locationPrefix("LEI")
+          .alerts(alertFilter)
+          .convictedStatus("All")
+          .pageRequest(pageRequest)
+          .build(),
       )
-  }
+      val results = foundInmates.items
+      assertThat(results).extracting("bookingId", "offenderNo", "dateOfBirth", "assignedLivingUnitDesc")
+        .containsExactly(
+          tuple(-1L, "A1234AA", LocalDate.of(1969, Month.DECEMBER, 30), "A-1-1"),
+        )
+    }
 
-  @Test
-  fun testSearchForOffenderBookingsSpaceInSurname() {
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(setOf("LEI", "MDI"))
-        .searchTerm1("HAR")
-        .searchTerm2("JO")
-        .locationPrefix("MDI")
-        .pageRequest(PageRequest("lastName, firstName"))
-        .build(),
-    )
-    assertThat(foundInmates.items)
-      .extracting(
-        { it.bookingId },
-        { it.offenderNo },
-        { it.dateOfBirth },
-        { it.assignedLivingUnitDesc },
+    @Test
+    fun testSearchForOffenderBookingsSpaceInSurname() {
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(setOf("LEI", "MDI"))
+          .searchTerm1("HAR")
+          .searchTerm2("JO")
+          .locationPrefix("MDI")
+          .pageRequest(PageRequest("lastName, firstName"))
+          .build(),
       )
-      .containsExactly(tuple(-55L, "A1180HL", LocalDate.parse("1980-05-21"), "1-2-014"))
-  }
+      assertThat(foundInmates.items)
+        .extracting(
+          { it.bookingId },
+          { it.offenderNo },
+          { it.dateOfBirth },
+          { it.assignedLivingUnitDesc },
+        )
+        .containsExactly(tuple(-55L, "A1180HL", LocalDate.parse("1980-05-21"), "1-2-014"))
+    }
 
-  @Test
-  fun testSearchForOffenderBookingsSpaceInForename() {
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(setOf("LEI", "MDI"))
-        .searchTerm1("JO")
-        .searchTerm2("JAM")
-        .locationPrefix("MDI")
-        .pageRequest(PageRequest("lastName, firstName"))
-        .build(),
-    )
-    assertThat(foundInmates.items)
-      .extracting(
-        { it.bookingId },
-        { it.offenderNo },
-        { it.dateOfBirth },
-        { it.assignedLivingUnitDesc },
+    @Test
+    fun testSearchForOffenderBookingsSpaceInForename() {
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(setOf("LEI", "MDI"))
+          .searchTerm1("JO")
+          .searchTerm2("JAM")
+          .locationPrefix("MDI")
+          .pageRequest(PageRequest("lastName, firstName"))
+          .build(),
       )
-      .containsExactly(tuple(-55L, "A1180HL", LocalDate.parse("1980-05-21"), "1-2-014"))
-  }
+      assertThat(foundInmates.items)
+        .extracting(
+          { it.bookingId },
+          { it.offenderNo },
+          { it.dateOfBirth },
+          { it.assignedLivingUnitDesc },
+        )
+        .containsExactly(tuple(-55L, "A1180HL", LocalDate.parse("1980-05-21"), "1-2-014"))
+    }
 
-  @Test
-  fun testSearchForOffenderBookingsReturnsLatestActiveImprisonmentStatus() {
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(setOf("LEI", "MDI"))
-        .searchTerm1("JO")
-        .searchTerm2("JAM")
-        .locationPrefix("MDI")
-        .pageRequest(PageRequest("lastName, firstName"))
-        .build(),
-    )
-    val inmates = foundInmates.items
-    assertThat(inmates)
-      .extracting(
-        { it.bookingId },
-        { it.imprisonmentStatus },
-        { it.bandCode },
+    @Test
+    fun testSearchForOffenderBookingsReturnsLatestActiveImprisonmentStatus() {
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(setOf("LEI", "MDI"))
+          .searchTerm1("JO")
+          .searchTerm2("JAM")
+          .locationPrefix("MDI")
+          .pageRequest(PageRequest("lastName, firstName"))
+          .build(),
       )
-      .containsExactly(tuple(-55L, "TRL", "12"))
-  }
+      val inmates = foundInmates.items
+      assertThat(inmates)
+        .extracting(
+          { it.bookingId },
+          { it.imprisonmentStatus },
+          { it.bandCode },
+        )
+        .containsExactly(tuple(-55L, "TRL", "12"))
+    }
 
-  @Test
-  fun testSearchForOffenderBookingsReturnsEmptyImprisonmentStatusIfNone() {
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(setOf("MDI"))
-        .searchTerm2("TRESCOTHICK")
-        .locationPrefix("MDI")
-        .pageRequest(PageRequest("lastName, firstName"))
-        .build(),
-    )
-    val inmates = foundInmates.items
-    assertThat(inmates)
-      .extracting(
-        { it.bookingId },
-        { it.imprisonmentStatus },
-        { it.bandCode },
+    @Test
+    fun testSearchForOffenderBookingsReturnsEmptyImprisonmentStatusIfNone() {
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(setOf("MDI"))
+          .searchTerm2("TRESCOTHICK")
+          .locationPrefix("MDI")
+          .pageRequest(PageRequest("lastName, firstName"))
+          .build(),
       )
-      .containsExactly(tuple(-35L, null, null))
-  }
+      val inmates = foundInmates.items
+      assertThat(inmates)
+        .extracting(
+          { it.bookingId },
+          { it.imprisonmentStatus },
+          { it.bandCode },
+        )
+        .containsExactly(tuple(-35L, null, null))
+    }
 
-  @Test
-  fun testSearchForConvictedOffenderBookings() {
-    val pageRequest = PageRequest("lastName, firstName")
-    val caseloads = setOf("LEI")
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(caseloads)
-        .locationPrefix("LEI")
-        .convictedStatus("Convicted")
-        .pageRequest(pageRequest)
-        .build(),
-    )
-    val results = foundInmates.items
-    assertThat(results).hasSizeGreaterThanOrEqualTo(8)
-    assertThat(results).extracting("convictedStatus").containsOnly("Convicted")
-    assertThat(results).extracting("imprisonmentStatus").containsAnyOf("SENT", "DEPORT", "SENT03")
-  }
+    @Test
+    fun testSearchForConvictedOffenderBookings() {
+      val pageRequest = PageRequest("lastName, firstName")
+      val caseloads = setOf("LEI")
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(caseloads)
+          .locationPrefix("LEI")
+          .convictedStatus("Convicted")
+          .pageRequest(pageRequest)
+          .build(),
+      )
+      val results = foundInmates.items
+      assertThat(results).hasSizeGreaterThanOrEqualTo(8)
+      assertThat(results).extracting("convictedStatus").containsOnly("Convicted")
+      assertThat(results).extracting("imprisonmentStatus").containsAnyOf("SENT", "DEPORT", "SENT03")
+    }
 
-  @Test
-  fun testSearchForRemandOffenderBookings() {
-    val pageRequest = PageRequest("lastName, firstName")
-    val caseloads = setOf("LEI")
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(caseloads)
-        .locationPrefix("LEI")
-        .convictedStatus("Remand")
-        .pageRequest(pageRequest)
-        .build(),
-    )
-    val results = foundInmates.items
-    assertThat(results).hasSize(3)
-    assertThat(results).extracting("convictedStatus").containsOnly("Remand")
-    assertThat(results).extracting("imprisonmentStatus").containsOnly("TRL")
-  }
+    @Test
+    fun testSearchForRemandOffenderBookings() {
+      val pageRequest = PageRequest("lastName, firstName")
+      val caseloads = setOf("LEI")
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(caseloads)
+          .locationPrefix("LEI")
+          .convictedStatus("Remand")
+          .pageRequest(pageRequest)
+          .build(),
+      )
+      val results = foundInmates.items
+      assertThat(results).hasSize(3)
+      assertThat(results).extracting("convictedStatus").containsOnly("Remand")
+      assertThat(results).extracting("imprisonmentStatus").containsOnly("TRL")
+    }
 
-  @Test
-  fun testSearchForAllConvictedStatus() {
-    val pageRequest = PageRequest("lastName, firstName")
-    val caseloads = setOf("LEI")
-    val foundInmates = repository.searchForOffenderBookings(
-      OffenderBookingSearchRequest.builder()
-        .caseloads(caseloads)
-        .locationPrefix("LEI")
-        .convictedStatus("All")
-        .pageRequest(pageRequest)
-        .build(),
-    )
-    val results = foundInmates.items
-    assertThat(results).hasSize(10)
-    assertThat(results).extracting("convictedStatus").containsAll(listOf("Convicted", "Remand"))
-    assertThat(results).extracting("imprisonmentStatus").containsAll(listOf("TRL", "SENT"))
+    @Test
+    fun testSearchForAllConvictedStatus() {
+      val pageRequest = PageRequest("lastName, firstName")
+      val caseloads = setOf("LEI")
+      val foundInmates = repository.searchForOffenderBookings(
+        OffenderBookingSearchRequest.builder()
+          .caseloads(caseloads)
+          .locationPrefix("LEI")
+          .convictedStatus("All")
+          .pageRequest(pageRequest)
+          .build(),
+      )
+      val results = foundInmates.items
+      assertThat(results).hasSize(10)
+      assertThat(results).extracting("convictedStatus").containsAll(listOf("Convicted", "Remand"))
+      assertThat(results).extracting("imprisonmentStatus").containsAll(listOf("TRL", "SENT"))
+    }
   }
 
   @Test
@@ -1519,80 +1526,76 @@ class InmateRepositoryTest {
     )
   }
 
-  @get:Test
-  val personalCareNeeds: Unit
-    get() {
-      val info = repository.findPersonalCareNeeds(-1, setOf("DISAB", "MATSTAT"))
-      assertThat(info).containsExactly(
-        PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText("Some Description Text 1")
-          .startDate(LocalDate.parse("2010-06-21")).build(),
-        PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
-          .problemStatus("ON")
-          .problemDescription("Preg, acc under 9mths").commentText("P1")
-          .startDate(LocalDate.parse("2010-06-21")).build(),
-      )
-    }
+  @Test
+  fun personalCareNeeds() {
+    val info = repository.findPersonalCareNeeds(-1, setOf("DISAB", "MATSTAT"))
+    assertThat(info).containsExactly(
+      PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).build(),
+      PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
+        .problemStatus("ON")
+        .problemDescription("Preg, acc under 9mths").commentText("P1")
+        .startDate(LocalDate.parse("2010-06-21")).build(),
+    )
+  }
 
-  @get:Test
-  val personalCareNeedsForOffenderNos: Unit
-    get() {
-      val info = repository.findPersonalCareNeeds(
-        listOf("A1234AA", "A1234AB", "A1234AC", "A1234AD"),
-        setOf("DISAB", "MATSTAT"),
-      )
-      assertThat(info).containsExactly(
-        PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
-          .problemStatus("ON")
-          .problemDescription("Preg, acc under 9mths").commentText("P1")
-          .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText("Some Description Text 1")
-          .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText(null)
-          .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText(null)
-          .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText("Some Description Text 2")
-          .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
-      )
-    }
+  @Test
+  fun personalCareNeedsForOffenderNos() {
+    val info = repository.findPersonalCareNeeds(
+      listOf("A1234AA", "A1234AB", "A1234AC", "A1234AD"),
+      setOf("DISAB", "MATSTAT"),
+    )
+    assertThat(info).containsExactly(
+      PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
+        .problemStatus("ON")
+        .problemDescription("Preg, acc under 9mths").commentText("P1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText(null)
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText(null)
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 2")
+        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
+    )
+  }
 
-  @get:Test
-  val reasonableAdjustment: Unit
-    get() {
-      val expectedInfo = listOf(
-        ReasonableAdjustment.builder()
-          .treatmentCode("COMP SOFT")
-          .treatmentDescription("Computer software")
-          .commentText("EFGH")
-          .startDate(LocalDate.of(2010, 6, 21))
-          .agencyId("LEI")
-          .agencyDescription("Leeds")
-          .personalCareNeedId(-206L)
-          .build(),
-        ReasonableAdjustment.builder()
-          .treatmentCode("WHEELCHR_ACC")
-          .treatmentDescription("Wheelchair accessibility")
-          .commentText("Some Comment Text")
-          .startDate(LocalDate.of(2010, 6, 21))
-          .personalCareNeedId(-206L)
-          .build(),
-      )
-      val treatmentCodes = listOf("WHEELCHR_ACC", "COMP SOFT")
-      val info = repository.findReasonableAdjustments(-1, treatmentCodes)
-      assertThat(info).isEqualTo(expectedInfo)
-    }
+  @Test
+  fun reasonableAdjustment() {
+    val expectedInfo = listOf(
+      ReasonableAdjustment.builder()
+        .treatmentCode("COMP SOFT")
+        .treatmentDescription("Computer software")
+        .commentText("EFGH")
+        .startDate(LocalDate.of(2010, 6, 21))
+        .agencyId("LEI")
+        .agencyDescription("Leeds")
+        .personalCareNeedId(-206L)
+        .build(),
+      ReasonableAdjustment.builder()
+        .treatmentCode("WHEELCHR_ACC")
+        .treatmentDescription("Wheelchair accessibility")
+        .commentText("Some Comment Text")
+        .startDate(LocalDate.of(2010, 6, 21))
+        .personalCareNeedId(-206L)
+        .build(),
+    )
+    val treatmentCodes = listOf("WHEELCHR_ACC", "COMP SOFT")
+    val info = repository.findReasonableAdjustments(-1, treatmentCodes)
+    assertThat(info).isEqualTo(expectedInfo)
+  }
 
-  @get:Test
-  val offenderDetailsContainsReceptionDate: Unit
-    get() {
-      val offender = repository.findOffender("A1234AA")
-      assertThat(offender.orElseThrow().receptionDate).isEqualTo(LocalDate.now())
-    }
+  @Test
+  fun offenderDetailsContainsReceptionDate() {
+    val offender = repository.findOffender("A1234AA")
+    assertThat(offender.orElseThrow().receptionDate).isEqualTo(LocalDate.now())
+  }
 
   @Test
   fun testSearchForInmatesByWingLocation() {
@@ -1640,6 +1643,38 @@ class InmateRepositoryTest {
     assertThat(results.items[0]).isEqualTo(
       expectedInfo[0],
     )
+  }
+
+  @Nested
+  inner class findInmateAliasesByBooking {
+    @Test
+    fun `test get aliases`() {
+      val aliases = repository.findInmateAliasesByBooking(-12, "createdBy", null, 0, 10).items
+      assertThat(aliases).hasSize(1)
+      assertThat(aliases).extracting(Alias::getLastName).contains(tuple("SMILEY"))
+    }
+
+    @Test
+    fun `test get aliases no aliases`() {
+      val aliases = repository.findInmateAliasesByBooking(-1, "createdBy", null, 0, 10).items
+      assertThat(aliases).isEmpty()
+    }
+  }
+
+  @Nested
+  inner class findInmateAliases {
+    @Test
+    fun `test get aliases`() {
+      val aliases = repository.findInmateAliases(-1056, "createdBy", null, 0, 10).items
+      assertThat(aliases).hasSize(2)
+      assertThat(aliases).extracting(Alias::getLastName).contains(tuple("DOE2"), tuple("DOE3"))
+    }
+
+    @Test
+    fun `test get aliases no aliases`() {
+      val aliases = repository.findInmateAliases(-1001, "createdBy", null, 0, 10).items
+      assertThat(aliases).isEmpty()
+    }
   }
 
   /** */
