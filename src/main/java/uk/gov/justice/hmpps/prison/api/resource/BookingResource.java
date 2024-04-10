@@ -469,7 +469,7 @@ public class BookingResource {
         </ul>
         Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA
         """)
-    @ProgrammaticAuthorisation("Access check at service level")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/sentenceDetail")
     @SlowReportQuery
     public SentenceCalcDates getBookingSentenceDetail(
