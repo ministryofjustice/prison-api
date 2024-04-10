@@ -677,8 +677,8 @@ public class InmateRepository extends RepositoryBase {
     }
 
 
-    public Page<Alias> findInmateAliases(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
-        final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES.getSql();
+    public Page<Alias> findInmateAliasesByBooking(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
+        final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES_BY_BOOKING.getSql();
         final var builder = queryBuilderFactory.getQueryBuilder(initialSql, ALIAS_MAPPING);
 
         final var sql = builder

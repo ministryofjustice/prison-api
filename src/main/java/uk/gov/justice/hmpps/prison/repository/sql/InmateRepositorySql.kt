@@ -760,7 +760,7 @@ enum class InmateRepositorySql(val sql: String) {
     """,
   ),
 
-  FIND_INMATE_ALIASES(
+  FIND_INMATE_ALIASES_BY_BOOKING(
     """
         SELECT O.LAST_NAME,
         O.FIRST_NAME,
