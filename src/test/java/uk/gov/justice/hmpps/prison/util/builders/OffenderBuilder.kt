@@ -17,7 +17,7 @@ class OffenderBuilder(
   var firstName: String = randomName(),
   private var middleName1: String? = null,
   private var middleName2: String? = null,
-  private var birthDate: LocalDate = LocalDate.of(1965, 7, 19),
+  private var birthDate: LocalDate = LocalDate.of(1975, 7, 19),
   private var genderCode: String = "M",
   var ethnicity: String? = null,
   private var bookingBuilders: Array<OffenderBookingBuilder> = Array(1) {
