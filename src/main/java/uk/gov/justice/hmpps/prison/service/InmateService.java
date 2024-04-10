@@ -227,7 +227,7 @@ public class InmateService {
                 // TODO: Hack for now to make sure there wasn't a reason this was removed.
             }
             if (extraInfo) {
-                inmate.setAliases(repository.findInmateAliases(bookingId, "createDate", Order.ASC, 0, 100).getItems());
+                inmate.setAliases(repository.findInmateAliasesByBooking(bookingId, "createDate", Order.ASC, 0, 100).getItems());
                 inmate.setSentenceDetail(bookingService.getBookingSentenceCalcDates(bookingId));
                 inmate.setPersonalCareNeeds(healthService.getPersonalCareNeeds(bookingId, List.of("DISAB", "MATSTAT", "PHY", "PSYCH", "SC")).getPersonalCareNeeds());
 
@@ -644,7 +644,7 @@ public class InmateService {
         final var defaultOrderBy = Objects.toString(StringUtils.trimToNull(orderBy), "createDate");
         final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
 
-        return repository.findInmateAliases(bookingId, defaultOrderBy, sortOrder, offset, limit);
+        return repository.findInmateAliasesByBooking(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
 
     public List<SecondaryLanguage> getSecondaryLanguages(final Long bookingId) {
