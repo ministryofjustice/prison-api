@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findRootOffenderByNomsIdOrNull
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService
@@ -70,7 +71,7 @@ class DischargeToHospitalService(
   private fun getOrCreateBooking(offenderNo: String, dischargeTime: LocalDateTime, fromLocation: String?, prison: String?): Result<OffenderBooking> {
     val rootOffender = findRootOffender(offenderNo).getOrThrow()
 
-    if (rootOffender.bookings.isEmpty()) {
+    if (rootOffender.allBookings.isEmpty()) {
       log.info("Prisoner booking not yet created for $offenderNo, creating a booking in order to discharge to hospital")
       if (fromLocation == null) return failure(BadRequestException("fromLocationId is required when creating a new booking"))
       if (prison == null) return failure(BadRequestException("prison is required when creating a new booking"))
@@ -91,7 +92,7 @@ class DischargeToHospitalService(
   }
 
   private fun findRootOffender(offenderNo: String): Result<Offender> =
-    offenderRepository.findRootOffenderByNomsId(offenderNo).orElse(null)
+    offenderRepository.findRootOffenderByNomsIdOrNull(offenderNo)
       ?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $offenderNo"))
 

@@ -100,7 +100,7 @@ class BookingIntoPrisonService(
     val staff = getLoggedInStaff().getOrThrow().staff
 
     // now increment the sequence on each booking - bookings are linked via the root offender
-    offender.rootOffender.bookings.forEach(OffenderBooking::incBookingSequence)
+    offender.allBookings.forEach(OffenderBooking::incBookingSequence)
 
     return offenderBookingRepository.save(
       OffenderBooking.builder()
