@@ -558,24 +558,25 @@ public class BookingRepository extends RepositoryBase {
         }
     }
 
-    public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
-        final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
-        final var generatedKeyHolder = new GeneratedKeyHolder();
-        final var startTime = newAppointment.getStartTime();
-        jdbcTemplate.update(
-                sql,
-                createParams("bookingId", bookingId,
-                        "eventSubType", newAppointment.getAppointmentType(),
-                        "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
-                        "startTime", DateTimeConverter.fromLocalDateTime(startTime),
-                        "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
-                        "comment", newAppointment.getComment(),
-                        "locationId", newAppointment.getLocationId(),
-                        "agencyId", agencyId),
-                generatedKeyHolder,
-                new String[]{"EVENT_ID"});
-        return generatedKeyHolder.getKey().longValue();
-    }
+//    public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
+//        final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
+//        final var generatedKeyHolder = new GeneratedKeyHolder();
+//        final var startTime = newAppointment.getStartTime();
+//        jdbcTemplate.update(
+//            sql,
+//            createParams("bookingId", bookingId,
+//                "eventSubType", newAppointment.getAppointmentType(),
+//                "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
+//                "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+//                "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
+//                "comment", newAppointment.getComment(),
+//                "locationId", newAppointment.getLocationId(),
+//                "agencyId", agencyId),
+//            generatedKeyHolder,
+//            new String[]{"EVENT_ID"});
+//        return generatedKeyHolder.getKey().longValue();
+//    }
+
 
     public void deleteBookingAppointment(final long eventId) {
         // Not deleting a row because it doesn't exist isn't an error.
@@ -699,15 +700,28 @@ public class BookingRepository extends RepositoryBase {
                 SENTENCE_CALC_SUMMARY_ROW_MAPPER);
     }
 
-    public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
-        final var generatedKeyHolder = new GeneratedKeyHolder();
-        jdbcTemplate.update(
-            BookingRepositorySql.INSERT_APPOINTMENT.getSql(),
-            toSqlParameterSource(details, defaults, agencyId),
-            generatedKeyHolder,
-            new String[]{"EVENT_ID"});
-        return generatedKeyHolder.getKey().longValue();
-    }
+ //   public long createAppointment(final AppointmentDetails details,
+    //   final AppointmentDefaults defaults,
+    //   final String agencyId) {
+//        final var generatedKeyHolder = new GeneratedKeyHolder();
+//        jdbcTemplate.update(
+//            BookingRepositorySql.INSERT_APPOINTMENT.getSql(),
+//            toSqlParameterSource(details, defaults, agencyId),
+//            generatedKeyHolder,
+//            new String[]{"EVENT_ID"});
+//        return generatedKeyHolder.getKey().longValue();
+
+//    }
+    /*
+     INSERT_APPOINTMENT(
+    """
+        INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, COMMENT_TEXT,
+                EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, AGY_LOC_ID, TO_INTERNAL_LOCATION_ID)
+        VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
+                'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
+    """,
+  ),
+     */
 
     private SqlParameterSource toSqlParameterSource(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
         return createParams(

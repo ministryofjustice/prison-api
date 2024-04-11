@@ -21,6 +21,12 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointment
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
@@ -50,25 +56,37 @@ public class AppointmentsService {
     private static final int APPOINTMENT_TIME_LIMIT_IN_DAYS = 365;
 
     private final BookingRepository bookingRepository;
+    private final OffenderBookingRepository offenderBookingRepository;
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;
     private final ReferenceDomainService referenceDomainService;
     private final TelemetryClient telemetryClient;
     private final ScheduledAppointmentRepository scheduledAppointmentRepository;
+    private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
+    private final AgencyLocationRepository agencyLocationRepository;
+    private final AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     public AppointmentsService(
         final BookingRepository bookingRepository,
+        final OffenderBookingRepository offenderBookingRepository,
         final AuthenticationFacade authenticationFacade,
         final LocationService locationService,
         final ReferenceDomainService referenceDomainService,
         final TelemetryClient telemetryClient,
-        final ScheduledAppointmentRepository scheduledAppointmentRepository) {
+        final ScheduledAppointmentRepository scheduledAppointmentRepository,
+        final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository,
+        final AgencyLocationRepository agencyLocationRepository,
+        AgencyInternalLocationRepository agencyInternalLocationRepository) {
         this.bookingRepository = bookingRepository;
+        this.offenderBookingRepository = offenderBookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
         this.referenceDomainService = referenceDomainService;
         this.telemetryClient = telemetryClient;
         this.scheduledAppointmentRepository = scheduledAppointmentRepository;
+        this.offenderIndividualScheduleRepository = offenderIndividualScheduleRepository;
+        this.agencyLocationRepository = agencyLocationRepository;
+        this.agencyInternalLocationRepository = agencyInternalLocationRepository;
     }
 
     @Transactional
@@ -94,10 +112,27 @@ public class AppointmentsService {
         assertThatAppointmentsFallWithin(appointmentsWithRepeats, appointmentTimeLimit());
 
         final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
-                final var appointmentId = bookingRepository.createAppointment(a, defaults, agencyId);
+                //final var appointmentId = //bookingRepository.createAppointment(a, defaults, agencyId);
+
+                var appointment = new OffenderIndividualSchedule();
+
+                OffenderBooking booking = offenderBookingRepository.findById(a.getBookingId())
+                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+                appointment.setOffenderBooking(booking);
+                appointment.setEventSubType(defaults.getAppointmentType());
+                appointment.setEventDate(a.getStartTime().toLocalDate());
+                appointment.setStartTime(a.getStartTime());
+                appointment.setEndTime(a.getEndTime());
+                appointment.setInternalLocation(agencyInternalLocationRepository.findById(defaults.getLocationId())
+                    .orElseThrow(() -> new RuntimeException("Location not found")));
+                appointment.setFromLocation(agencyLocationRepository.findById(agencyId)
+                    .orElseThrow(() -> new RuntimeException("Prison not found")));
+                appointment.setComment(a.getComment());
+
+                var savedAppointment = offenderIndividualScheduleRepository.save(appointment);
 
                 return CreatedAppointmentDetails.builder()
-                    .appointmentEventId(appointmentId)
+                    .appointmentEventId(savedAppointment.getId())
                     .bookingId(a.getBookingId())
                     .startTime(a.getStartTime())
                     .endTime(a.getEndTime())
@@ -119,9 +154,26 @@ public class AppointmentsService {
         validateEventType(appointmentSpecification);
 
         final var agencyId = validateLocationAndGetAgency(username, appointmentSpecification);
-        final var eventId = bookingRepository.createBookingAppointment(bookingId, appointmentSpecification, agencyId);
+        //final var eventId = bookingRepository.createBookingAppointment(bookingId, appointmentSpecification, agencyId);
 
-        final var createdAppointment = getScheduledEventOrThrowEntityNotFound(eventId);
+        var appointment = new OffenderIndividualSchedule();
+
+        OffenderBooking booking = offenderBookingRepository.findById(bookingId)
+            .orElseThrow(() -> new RuntimeException("Booking not found"));
+        appointment.setOffenderBooking(booking);
+        appointment.setEventSubType(appointmentSpecification.getAppointmentType());
+        appointment.setEventDate(appointmentSpecification.getStartTime().toLocalDate());
+        appointment.setStartTime(appointmentSpecification.getStartTime());
+        appointment.setEndTime(appointmentSpecification.getEndTime());
+        appointment.setInternalLocation(agencyInternalLocationRepository.findById(appointmentSpecification.getLocationId())
+            .orElseThrow(() -> new RuntimeException("Location not found")));
+        appointment.setFromLocation(agencyLocationRepository.findById(agencyId)
+            .orElseThrow(() -> new RuntimeException("Prison not found")));
+        appointment.setComment(appointmentSpecification.getComment());
+
+        var savedAppointment = offenderIndividualScheduleRepository.save(appointment);
+
+        final var createdAppointment = getScheduledEventOrThrowEntityNotFound(savedAppointment.getId());
         trackSingleAppointmentCreation(createdAppointment);
         return createdAppointment;
     }

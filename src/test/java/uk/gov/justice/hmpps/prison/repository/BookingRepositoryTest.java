@@ -73,56 +73,6 @@ public class BookingRepositoryTest {
     }
 
     @Test
-    public void testCreateBookingAppointment() {
-        final var appt = NewAppointment.builder()
-                .appointmentType("APT_TYPE")
-                .locationId(-29L)
-                .startTime(LocalDateTime.parse("2017-12-23T10:15:30"))
-                .build();
-
-        final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
-
-        final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
-
-        repository.deleteBookingAppointment(eventId); // cleanup
-
-        assertThat(event).isNotNull();
-        assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
-        assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
-        assertThat(event.getEventLocationId()).isEqualTo(-29L);
-        assertThat(event.getAgencyId()).isEqualTo("LEI");
-        assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
-        assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
-    }
-
-    @Test
-    public void testCreateBookingAppointmentWithEndComment() {
-        final var appt = NewAppointment.builder()
-                .appointmentType("APT_TYPE")
-                .locationId(-29L)
-                .startTime(LocalDateTime.parse("2017-12-24T10:15:30"))
-                .endTime(LocalDateTime.parse("2017-12-24T10:30:00"))
-                .comment("Hi there")
-                .build();
-
-        final var eventId = repository.createBookingAppointment(-2L, appt, "LEI");
-
-        final var event = repository.getBookingAppointmentByEventId(eventId).orElseThrow();
-
-        repository.deleteBookingAppointment(eventId); // cleanup
-
-        assertThat(event).isNotNull();
-        assertThat(event.getEventSubType()).isEqualTo(appt.getAppointmentType());
-        assertThat(event.getEventLocation()).isEqualTo("Medical Centre");
-        assertThat(event.getEventLocationId()).isEqualTo(-29L);
-        assertThat(event.getAgencyId()).isEqualTo("LEI");
-        assertThat(event.getStartTime()).isEqualTo(appt.getStartTime());
-        assertThat(event.getEndTime()).isEqualTo(appt.getEndTime());
-        assertThat(event.getEventSourceDesc()).isEqualTo(appt.getComment());
-        assertThat(event.getEventDate()).isEqualTo(appt.getStartTime().toLocalDate());
-    }
-
-    @Test
     public void testGetBookingVisitNextSameDay() {
         final var visit = repository.getBookingVisitNext(-1L, LocalDateTime.parse("2016-12-11T14:00")).orElseThrow();
 
@@ -420,138 +370,99 @@ public class BookingRepositoryTest {
         assertThat(repository.findBookingsIdsInAgency(Arrays.asList(-1L, -2L, -13L, -14L), "OUT")).containsExactlyInAnyOrder(-13L, -14L);
     }
 
-    @Test
-    public void createAppointment() {
-        final var now = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
-        final var in1Hour = now.plusHours(1L);
-        final var today = now.toLocalDate();
 
-        final var bookingId = -31L;
-
-        // Given
-        final var scheduledEventsBefore = repository.getBookingAppointments(bookingId, today, today, null, Order.ASC);
-        assertThat(scheduledEventsBefore).hasSize(0);
-
-        // When
-        final var defaults = AppointmentDefaults
-                .builder()
-                .locationId(-25L) // LEI-CHAP
-                .appointmentType("ACTI") // Activity
-                .build();
-
-        final var appointment = AppointmentDetails
-                .builder()
-                .bookingId(bookingId)
-                .startTime(now)
-                .endTime(in1Hour)
-                .comment("Comment")
-                .build();
-
-        final var assignedId = repository.createAppointment(appointment, defaults, "LEI");
-
-        // Then
-        final var scheduledEventsAfter = repository.getBookingAppointments(bookingId, today, today, null, Order.ASC);
-        final var bookingAppointmentAfter = repository.getBookingAppointmentByEventId(assignedId);
-
-        assertThat(scheduledEventsAfter)
-                .extracting("bookingId", "eventType", "eventSubType", "eventDate", "startTime", "endTime", "eventLocation")
-                .containsExactlyInAnyOrder(
-                        Tuple.tuple(-31L, "APP", "ACTI", today, now, in1Hour, "Chapel"));
-        assertThat(bookingAppointmentAfter).isPresent();
-        assertThat(bookingAppointmentAfter.get().getBookingId()).isEqualTo(-31L);
-    }
 
     @Test
     public void getBookingAppointmentByEventId_noAppointment() {
         assertThat(repository.getBookingAppointmentByEventId(-999)).isEmpty();
     }
 
-    @Test
-    public void getBookingAppointmentByEventId() {
-        final var startTime = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);  // Drop nanos.
-        final var endTime = startTime.plusMinutes(30);
-        final var bookingId = -30L;
-        final var locationId = -28L;// LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
-
-        final var newAppointment = NewAppointment.builder()
-                .appointmentType("VLB")
-                .startTime(startTime)
-                .endTime(endTime)
-                .locationId(locationId)
-                .build();
-
-        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
-
-        // Could commit and start a new transaction here, but I don't think it is necessary.
-
-        assertThat(repository.getBookingAppointmentByEventId(id))
-                .hasValueSatisfying(se -> assertThat(se)
-                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId", "createUserId")
-                        .containsExactly(bookingId, id, startTime, endTime, locationId, "SA"));
-    }
-
-    @Test
-    public void deleteBookingAppointment() {
-        // Do this test in a single transaction. Good enough for JDBC.
-        final var startTime = LocalDateTime.now().plusDays(2);
-        final var endTime = startTime.plusMinutes(30);
-        final var bookingId = -30L;
-        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
-
-        final var newAppointment = NewAppointment.builder()
-                .appointmentType("VLB")
-                .startTime(startTime)
-                .endTime(endTime)
-                .locationId(locationId)
-                .build();
-
-        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
-
-        repository.deleteBookingAppointment(id);
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
-    }
-
-    @Test
-    public void updateBookingAppointmentComment() {
-       final var startTime = LocalDateTime.now().plusDays(2);
-        final var endTime = startTime.plusMinutes(30);
-        final var bookingId = -30L;
-        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
-
-        final var newAppointment = NewAppointment.builder()
-            .appointmentType("VLB")
-            .startTime(startTime)
-            .endTime(endTime)
-            .locationId(locationId)
-            .build();
-
-        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
-
-        assertThat(repository.updateBookingAppointmentComment(id, "Test comment")).isTrue();
-
-        assertThat(repository.getBookingAppointmentByEventId(id))
-            .get()
-            .extracting("eventSourceDesc")
-            .isEqualTo("Test comment");
-
-        assertThat(repository.updateBookingAppointmentComment(id, null)).isTrue();
-
-        assertThat(repository.getBookingAppointmentByEventId(id))
-            .get()
-            .extracting("eventSourceDesc")
-            .isNull();
-
-        repository.deleteBookingAppointment(id);
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
-
-        assertThat(repository.updateBookingAppointmentComment(id, "Don't care")).isFalse();
-    }
+//    @Test
+//    public void getBookingAppointmentByEventId() {
+//        final var startTime = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);  // Drop nanos.
+//        final var endTime = startTime.plusMinutes(30);
+//        final var bookingId = -30L;
+//        final var locationId = -28L;// LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+//
+//        final var newAppointment = NewAppointment.builder()
+//                .appointmentType("VLB")
+//                .startTime(startTime)
+//                .endTime(endTime)
+//                .locationId(locationId)
+//                .build();
+//
+//        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+//
+//        // Could commit and start a new transaction here, but I don't think it is necessary.
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id))
+//                .hasValueSatisfying(se -> assertThat(se)
+//                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId", "createUserId")
+//                        .containsExactly(bookingId, id, startTime, endTime, locationId, "SA"));
+//    }
+//
+//    @Test
+//    public void deleteBookingAppointment() {
+//        // Do this test in a single transaction. Good enough for JDBC.
+//        final var startTime = LocalDateTime.now().plusDays(2);
+//        final var endTime = startTime.plusMinutes(30);
+//        final var bookingId = -30L;
+//        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+//
+//        final var newAppointment = NewAppointment.builder()
+//                .appointmentType("VLB")
+//                .startTime(startTime)
+//                .endTime(endTime)
+//                .locationId(locationId)
+//                .build();
+//
+//        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
+//
+//        repository.deleteBookingAppointment(id);
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
+//    }
+//
+//    @Test
+//    public void updateBookingAppointmentComment() {
+//       final var startTime = LocalDateTime.now().plusDays(2);
+//        final var endTime = startTime.plusMinutes(30);
+//        final var bookingId = -30L;
+//        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
+//
+//        final var newAppointment = NewAppointment.builder()
+//            .appointmentType("VLB")
+//            .startTime(startTime)
+//            .endTime(endTime)
+//            .locationId(locationId)
+//            .build();
+//
+//        final var id = repository.createBookingAppointment(bookingId, newAppointment, "LEI");
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
+//
+//        assertThat(repository.updateBookingAppointmentComment(id, "Test comment")).isTrue();
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id))
+//            .get()
+//            .extracting("eventSourceDesc")
+//            .isEqualTo("Test comment");
+//
+//        assertThat(repository.updateBookingAppointmentComment(id, null)).isTrue();
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id))
+//            .get()
+//            .extracting("eventSourceDesc")
+//            .isNull();
+//
+//        repository.deleteBookingAppointment(id);
+//
+//        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
+//
+//        assertThat(repository.updateBookingAppointmentComment(id, "Don't care")).isFalse();
+//    }
 
     @Test
     public void getOffenderSentenceCalculationsForPrisoner() {

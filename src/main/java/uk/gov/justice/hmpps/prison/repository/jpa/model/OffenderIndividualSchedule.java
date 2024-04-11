@@ -62,6 +62,9 @@ public class OffenderIndividualSchedule extends AuditableEntity {
     @Column(name = "START_TIME", nullable = false)
     private LocalDateTime startTime;
 
+    @Column(name = "END_TIME")
+    private LocalDateTime endTime;
+
     @Enumerated(STRING)
     @Column(name = "EVENT_CLASS", nullable = false)
     private EventClass eventClass;
@@ -95,6 +98,10 @@ public class OffenderIndividualSchedule extends AuditableEntity {
     @JoinColumn(name = "TO_AGY_LOC_ID")
     private AgencyLocation toLocation;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "TO_INTERNAL_LOCATION_ID")
+    private AgencyInternalLocation internalLocation;
+
     @ManyToOne
     @NotFound(action = EXCEPTION)
     @JoinColumnsOrFormulas(value = {
@@ -120,6 +127,9 @@ public class OffenderIndividualSchedule extends AuditableEntity {
 
     @Column(name = "TO_ADDRESS_OWNER_CLASS")
     private String toAddressOwnerClass;
+
+    @Column(name = "COMMENT_TEXT")
+    private String comment;
 
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());

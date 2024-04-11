@@ -567,15 +567,6 @@ enum class BookingRepositorySql(val sql: String) {
     """,
   ),
 
-  INSERT_APPOINTMENT(
-    """
-        INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, COMMENT_TEXT,
-                EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, AGY_LOC_ID, TO_INTERNAL_LOCATION_ID)
-        VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
-                'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
-    """,
-  ),
-
   DELETE_APPOINTMENT(
     """
         DELETE FROM OFFENDER_IND_SCHEDULES

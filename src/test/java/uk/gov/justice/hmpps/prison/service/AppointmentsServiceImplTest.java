@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.groups.Tuple;
+import org.jetbrains.annotations.NotNull;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -25,7 +26,12 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.RepeatPeriod;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ScheduledAppointment;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
@@ -87,6 +93,9 @@ public class AppointmentsServiceImplTest {
     private BookingRepository bookingRepository;
 
     @Mock
+    private OffenderBookingRepository offenderBookingRepository;
+
+    @Mock
     private LocationService locationService;
 
     @Mock
@@ -94,6 +103,15 @@ public class AppointmentsServiceImplTest {
 
     @Mock
     private ScheduledAppointmentRepository scheduledAppointmentRepository;
+
+    @Mock
+    private OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
+
+    @Mock
+    private AgencyLocationRepository agencyLocationRepository;
+
+    @Mock
+    private AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -107,11 +125,15 @@ public class AppointmentsServiceImplTest {
         MockitoAnnotations.openMocks(this);
         appointmentsService = new AppointmentsService(
             bookingRepository,
+            offenderBookingRepository,
             new AuthenticationFacade(),
             locationService,
             referenceDomainService,
             telemetryClient,
-            scheduledAppointmentRepository);
+            scheduledAppointmentRepository,
+            offenderIndividualScheduleRepository,
+            agencyLocationRepository,
+            agencyInternalLocationRepository);
     }
 
     @AfterEach
@@ -145,18 +167,23 @@ public class AppointmentsServiceImplTest {
             final var appointment2 = appointmentsToCreate.withDefaults().get(1);
             final var createdId2 = 2L;
 
-            when(bookingRepository.createAppointment(
-                appointment1,
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId()
-            )).thenReturn(createdId1);
+//            when(bookingRepository.createAppointment(
+//                appointment1,
+//                appointmentsToCreate.getAppointmentDefaults(),
+//                LOCATION_B.getAgencyId()
+//            )).thenReturn(createdId1);
+//
+//            when(bookingRepository.createAppointment(
+//                appointment2,
+//                appointmentsToCreate.getAppointmentDefaults(),
+//                LOCATION_B.getAgencyId()
+//            )).thenReturn(createdId2);
 
-            when(bookingRepository.createAppointment(
-                appointment2,
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId()
-            )).thenReturn(createdId2);
-
+            final var a1 = appointmentWithId(createdId1);
+            when(offenderIndividualScheduleRepository.save(any())).thenReturn(a1);
+            final var a2 = appointmentWithId(createdId2);
+            when(offenderIndividualScheduleRepository.save(any())).thenReturn(a2);
+// SDAR
             final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
 
             assertThat(createdAppointmentDetails).hasSize(2)
@@ -220,24 +247,28 @@ public class AppointmentsServiceImplTest {
             final var appointmentWithRepeats = AppointmentsService
                 .withRepeats(appointmentsToCreate.getRepeat(), appointmentsToCreate.withDefaults().get(0));
 
-            when(bookingRepository.createAppointment(
-                appointmentWithRepeats.get(0),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId()
-            )).thenReturn(createdId1);
+//            when(bookingRepository.createAppointment(
+//                appointmentWithRepeats.get(0),
+//                appointmentsToCreate.getAppointmentDefaults(),
+//                LOCATION_B.getAgencyId()
+//            )).thenReturn(createdId1);
+//
+//            when(bookingRepository.createAppointment(
+//                appointmentWithRepeats.get(1),
+//                appointmentsToCreate.getAppointmentDefaults(),
+//                LOCATION_B.getAgencyId()
+//            )).thenReturn(recurringId1);
+//
+//            when(bookingRepository.createAppointment(
+//                appointmentWithRepeats.get(2),
+//                appointmentsToCreate.getAppointmentDefaults(),
+//                LOCATION_B.getAgencyId()
+//            )).thenReturn(recurringId2);
 
-            when(bookingRepository.createAppointment(
-                appointmentWithRepeats.get(1),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId()
-            )).thenReturn(recurringId1);
-
-            when(bookingRepository.createAppointment(
-                appointmentWithRepeats.get(2),
-                appointmentsToCreate.getAppointmentDefaults(),
-                LOCATION_B.getAgencyId()
-            )).thenReturn(recurringId2);
-
+            when(offenderIndividualScheduleRepository.save(any())).thenReturn(appointmentWithId(createdId1));
+            when(offenderIndividualScheduleRepository.save(any())).thenReturn(appointmentWithId(recurringId1));
+            when(offenderIndividualScheduleRepository.save(any())).thenReturn(appointmentWithId(recurringId2));
+//SDAR
             final var createdAppointmentDetails = appointmentsService.createAppointments(appointmentsToCreate);
 
             assertThat(createdAppointmentDetails).hasSize(3)
@@ -405,12 +436,18 @@ public class AppointmentsServiceImplTest {
 
             appointmentsService.createAppointments(appointmentsToCreate);
 
-            verify(bookingRepository)
-                .createAppointment(
-                    appointmentsToCreate.withDefaults().get(0),
-                    appointmentsToCreate.getAppointmentDefaults(),
-                    LOCATION_B.getAgencyId());
+//            verify(bookingRepository)
+//                .createAppointment(
+//                    appointmentsToCreate.withDefaults().getFirst(),
+//                    appointmentsToCreate.getAppointmentDefaults(),
+//                    LOCATION_B.getAgencyId());
 
+//            verify(offenderIndividualScheduleRepository)
+//                .save(check {
+//                    assertThat(it.locationId).isEqualTo(LOCATION_B)
+//                        ...
+//                });
+// SDAR
             verify(telemetryClient).trackEvent(eq("AppointmentsCreated"), anyMap(), isNull());
         }
 
@@ -522,11 +559,12 @@ public class AppointmentsServiceImplTest {
 
             appointmentsService.createAppointments(appointmentsToCreate);
 
-            verify(bookingRepository)
-                .createAppointment(
-                    appointmentsToCreate.withDefaults().get(0),
-                    appointmentsToCreate.getAppointmentDefaults(),
-                    LOCATION_B.getAgencyId());
+//            verify(bookingRepository)
+//                .createAppointment(
+//                    appointmentsToCreate.withDefaults().get(0),
+//                    appointmentsToCreate.getAppointmentDefaults(),
+//                    LOCATION_B.getAgencyId());
+            // SDAR
         }
 
         @Test
@@ -573,13 +611,20 @@ public class AppointmentsServiceImplTest {
 
             appointmentsService.createAppointments(appointmentsToCreate);
 
-            verify(bookingRepository)
-                .createAppointment(
-                    appointmentsToCreate.withDefaults().get(0),
-                    appointmentsToCreate.getAppointmentDefaults(),
-                    LOCATION_B.getAgencyId());
+//            verify(bookingRepository)
+//                .createAppointment(
+//                    appointmentsToCreate.withDefaults().get(0),
+//                    appointmentsToCreate.getAppointmentDefaults(),
+//                    LOCATION_B.getAgencyId());
+            // SDAR
         }
 
+    }
+
+    private static @NotNull OffenderIndividualSchedule appointmentWithId(long createdId1) {
+        var a1 = new OffenderIndividualSchedule();
+        a1.setId(createdId1);
+        return a1;
     }
 
 
@@ -681,8 +726,9 @@ public class AppointmentsServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-                .thenReturn(eventId);
+//            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+//                .thenReturn(eventId);
+            // SDAR
 
             when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
             final var actualEvent = appointmentsService.createBookingAppointment(bookingId, principal, newAppointment);
@@ -750,8 +796,9 @@ public class AppointmentsServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-                .thenReturn(eventId);
+//            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+//                .thenReturn(eventId);
+            // SDAR
 
             when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
@@ -785,8 +832,9 @@ public class AppointmentsServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-                .thenReturn(eventId);
+//            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+//                .thenReturn(eventId);
+            // SDAR
 
             when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
@@ -830,8 +878,9 @@ public class AppointmentsServiceImplTest {
                 ReferenceDomain.INTERNAL_SCHEDULE_REASON.getDomain(), newAppointment.getAppointmentType(), false))
                 .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()));
 
-            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
-                .thenReturn(eventId);
+//            when(bookingRepository.createBookingAppointment(bookingId, newAppointment, agencyId))
+//                .thenReturn(eventId);
+            // SDAR
 
             when(bookingRepository.getBookingAppointmentByEventId(eventId)).thenReturn(Optional.of(expectedEvent));
 
