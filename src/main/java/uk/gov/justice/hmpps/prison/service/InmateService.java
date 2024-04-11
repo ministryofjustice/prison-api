@@ -270,7 +270,7 @@ public class InmateService {
 
     public static String calculateReleaseLocationDescription(final ExternalMovement lastMovement) {
         return REL.getCode().equals(lastMovement.getMovementType().getCode())
-            ? "Outside - released from " + lastMovement.getFromAgency().getDescription()
+            ? "Outside - released from " + LocationProcessor.formatLocation(lastMovement.getFromAgency().getDescription())
             : "Outside - " + lastMovement.getMovementType().getDescription();
     }
 
