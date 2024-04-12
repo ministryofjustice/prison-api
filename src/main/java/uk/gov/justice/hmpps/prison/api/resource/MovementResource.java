@@ -84,10 +84,13 @@ public class MovementResource {
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/rollcount/{agencyId}")
     @SlowReportQuery
-    public List<RollCount> getRollcount(
+    public List<RollCount> getRollCount(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
-        @RequestParam(value = "unassigned", required = false, defaultValue = "false") @Parameter(description = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.") final boolean unassigned) {
-        return movementsService.getRollCount(agencyId, unassigned);
+        @RequestParam(value = "unassigned", required = false, defaultValue = "false") @Parameter(description = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.") final boolean unassigned,
+        @RequestParam(value = "parentLocationId", required = false) @Parameter(description = "When specified, it will also all locations directly below this location, this should be used, when displaying cell lists for a specified landing.") final Long parentLocationId,
+        @RequestParam(value = "showCells", required = false, defaultValue = "false") @Parameter(description = "Show cell roll count summary along with Wings and Landings") final boolean showCells,
+        @RequestParam(value = "wingOnly", required = false, defaultValue = "true") @Parameter(description = "Only show the wings and not the landings and cells (this is the default)") final boolean wingOnly) {
+        return movementsService.getRollCount(agencyId, unassigned, parentLocationId, showCells, wingOnly);
     }
 
     @ApiResponses({

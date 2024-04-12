@@ -1,7 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.model
 
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor
+
 data class RollCountDto(
   val livingUnitId: Long?,
+  val fullLocationPath: String?,
+  val locationPath: String?,
   val livingUnitDesc: String?,
   val bedsInUse: Int?,
   val currentlyInCell: Int?,
@@ -13,8 +17,10 @@ data class RollCountDto(
   val availablePhysical: Int?,
   val outOfOrder: Int?,
 ) {
-  fun toRollCount() = RollCount(
+  fun toRollCount(prisonId: String) = RollCount(
     this.livingUnitId,
+    this.fullLocationPath,
+    LocationProcessor.stripAgencyId(this.fullLocationPath, prisonId),
     this.livingUnitDesc,
     this.bedsInUse,
     this.currentlyInCell,

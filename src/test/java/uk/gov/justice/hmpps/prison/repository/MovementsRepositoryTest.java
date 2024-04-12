@@ -60,8 +60,8 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveRollcountCells() {
-        final var rollCountList = repository.getRollCount("LEI", "Y");
+    public void canRetrieveRollCountCells() {
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, false, true);
         assertThat(rollCountList).hasSize(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -71,8 +71,59 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveRollcountUnassigned() {
-        final var rollCountList = repository.getRollCount("LEI", "N");
+    public void canRetrieveRollCountIncludingLandings() {
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, false, false);
+        assertThat(rollCountList).hasSize(4);
+        assertThat(rollCountList).asList()
+            .extracting("livingUnitId", "fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+            .contains(
+                tuple(-1L,  "LEI-A",   "A",   "Block A",     12, 11, 1, 0, 13, 1, 14, 2, 3),
+                tuple(-2L,  "LEI-A-1", "A-1", "Landing A/1", 12, 11, 1, 0, 13, 1, 14, 2, 1),
+                tuple(-13L, "LEI-H",   "H",   "H",           14, 12, 0, 2, 20, 6, 20, 6, 0),
+                tuple(-14L, "LEI-H-1", "H-1", "Landing H/1", 14, 12, 0, 2, 20, 6, 20, 6, 0)
+            );
+    }
+
+    @Test
+    public void canRetrieveRollCountShowingCells() {
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, true, false);
+        assertThat(rollCountList).hasSize(27);
+        assertThat(rollCountList).asList()
+            .extracting("livingUnitId", "fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+            .contains(
+                tuple(-1L,  "LEI-A",   "A",   "Block A",     12, 11, 1, 0, 13, 1, 14, 2, 3),
+                tuple(-2L,  "LEI-A-1", "A-1", "Landing A/1", 12, 11, 1, 0, 13, 1, 14, 2, 1),
+                tuple(-13L, "LEI-H",   "H",   "H",           14, 12, 0, 2, 20, 6, 20, 6, 0),
+                tuple(-14L, "LEI-H-1", "H-1", "Landing H/1", 14, 12, 0, 2, 20, 6, 20, 6, 0)
+            );
+    }
+
+    @Test
+    public void canRetrieveRollCountOfCellsOnALanding() {
+        final var rollCountList = repository.getRollCount("LEI", "Y", -2L, true, false);
+        assertThat(rollCountList).hasSize(13);
+        assertThat(rollCountList).asList()
+            .extracting("fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+            .contains(
+                tuple("LEI-A-1-1", "A-1-1", "LEI-A-1-1", 3, 3, 0, 0, 2, -1, 2, -1, 0),
+                tuple("LEI-A-1-2", "A-1-2", "2", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-3", "A-1-3", "3", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-4", "A-1-4", "4", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-5", "A-1-5", "5", 1, 0, 1, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-6", "A-1-6", "6", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-7", "A-1-7", "7", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-8", "A-1-8", "8", 0, 0, 0, 0, 1, 1, 1, 1, 0),
+                tuple("LEI-A-1-9", "A-1-9", "9", 0, 0, 0, 0, 1, 1, 1, 1, 0),
+                tuple("LEI-A-1-10", "A-1-10", "10", 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("LEI-A-1-1001", "A-1-1001", "BROKEN", 0, 0, 0, 0, 1, 1, 1, 1, 1),
+                tuple("LEI-A-1-1002", "A-1-1002", "REPURPOSED", 0, 0, 0, 0, 0, 0, 1, 1, 0),
+                tuple("LEI-AABCW-1", "AABCW-1", "THE_ROOM", 1, 1, 0, 0, 1, 0, 1, 0, 0)
+                );
+    }
+
+    @Test
+    public void canRetrieveRollCountUnassigned() {
+        final var rollCountList = repository.getRollCount("LEI", "N", null, false, true);
         assertThat(rollCountList).hasSize(1);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -81,21 +132,21 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveRollcountMovements1() {
+    public void canRetrieveRollCountMovements1() {
         final var movementCount = repository.getMovementCount("LEI", LocalDate.of(2017, Month.JULY, 16));
         assertThat(movementCount.getIn()).isEqualTo(1);
         assertThat(movementCount.getOut()).isEqualTo(1);
     }
 
     @Test
-    public void canRetrieveRollcountMovements2() {
+    public void canRetrieveRollCountMovements2() {
         final var movementCount = repository.getMovementCount("LEI", LocalDate.of(2012, Month.JULY, 5));
         assertThat(movementCount.getIn()).isEqualTo(5);
         assertThat(movementCount.getOut()).isEqualTo(0);
     }
 
     @Test
-    public void canRetrieveRollcountMovements3() {
+    public void canRetrieveRollCountMovements3() {
         final var movementCount = repository.getMovementCount("LEI", LocalDate.of(2018, Month.FEBRUARY, 2));
         assertThat(movementCount.getIn()).isEqualTo(0);
         assertThat(movementCount.getOut()).isEqualTo(0);
@@ -130,14 +181,14 @@ public class MovementsRepositoryTest {
     }
 
     @Test
-    public void canRetrieveEnrouteOffenderMovements() {
+    public void canRetrieveEnRouteOffenderMovements() {
         final var movements = repository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(movements).extracting(OffenderMovement::getOffenderNo).containsOnly("A1183SH", "A1183AD");
     }
 
     @Test
-    public void canRetrieveEnrouteOffenderCount() {
+    public void canRetrieveEnRouteOffenderCount() {
         final var count = repository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(count).isEqualTo(2);
