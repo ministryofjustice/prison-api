@@ -45,6 +45,9 @@ public class RollCount {
     @NotBlank
     private String livingUnitDesc;
 
+    @Schema(requiredMode = REQUIRED, description = "Location Id of the parent location. This will be NULL for top level locations (e.g. Wings)")
+    private Long parentLocationId;
+
     @Schema(requiredMode = REQUIRED, description = "No of residential prisoners")
     @NotNull
     private Integer bedsInUse;

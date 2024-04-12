@@ -206,7 +206,8 @@ enum class MovementsRepositorySql(val sql: String) {
         SELECT
         AIL.INTERNAL_LOCATION_ID                             AS LIVING_UNIT_ID,
         AIL.DESCRIPTION                                      AS FULL_LOCATION_PATH,
-        COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) AS LIVING_UNIT_DESC,
+        COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE)  AS LIVING_UNIT_DESC,
+        AIL.PARENT_INTERNAL_LOCATION_ID                      AS PARENT_LOCATION_ID,
         VR.BEDS_IN_USE,
         VR.CURRENTLY_IN_CELL,
         VR.OUT_OF_LIVING_UNITS,
