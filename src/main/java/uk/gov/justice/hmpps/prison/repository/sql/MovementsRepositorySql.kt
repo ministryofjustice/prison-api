@@ -205,6 +205,7 @@ enum class MovementsRepositorySql(val sql: String) {
     """
         SELECT
         AIL.INTERNAL_LOCATION_ID                             AS LIVING_UNIT_ID,
+        AIL.DESCRIPTION                                      AS FULL_LOCATION_PATH,
         COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) AS LIVING_UNIT_DESC,
         VR.BEDS_IN_USE,
         VR.CURRENTLY_IN_CELL,
@@ -241,8 +242,8 @@ enum class MovementsRepositorySql(val sql: String) {
         AND AIL.UNIT_TYPE IS NOT NULL
         AND AIL.AGY_LOC_ID = :agencyId
         AND AIL.ACTIVE_FLAG = 'Y'
-        AND ((AIL.PARENT_INTERNAL_LOCATION_ID IS NULL AND :livingUnitId IS NULL) OR AIL.PARENT_INTERNAL_LOCATION_ID = :livingUnitId)
-        ORDER BY LIVING_UNIT_DESC
+        %s
+        ORDER BY AIL.DESCRIPTION, LIVING_UNIT_DESC
     """,
   ),
 
