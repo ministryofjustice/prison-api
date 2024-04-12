@@ -576,16 +576,6 @@ enum class BookingRepositorySql(val sql: String) {
     """,
   ),
 
-  UPDATE_APPOINTMENT_COMMENT(
-    """
-      UPDATE OFFENDER_IND_SCHEDULES
-         SET COMMENT_TEXT = :comment
-       WHERE EVENT_ID = :eventId
-             AND EVENT_CLASS = 'INT_MOV'
-             AND EVENT_TYPE = 'APP'
-    """,
-  ),
-
   FIND_BOOKING_IDS_BY_OFFENDER_NO(
     """
         SELECT O.OFFENDER_ID_DISPLAY OFFENDER_NO, B.OFFENDER_BOOK_ID BOOKING_ID, B.BOOKING_SEQ
