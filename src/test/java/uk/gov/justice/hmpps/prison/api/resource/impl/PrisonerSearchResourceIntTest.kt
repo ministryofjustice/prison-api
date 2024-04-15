@@ -123,7 +123,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19")
               assertThat(releaseDate).isEqualTo("2018-04-19")
             }
-            assertThat(mostSeriousOffenceDescription).isNull()
+            assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
             assertThat(status).isEqualTo("ACTIVE IN")
@@ -158,7 +158,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               .containsExactly(
                 tuple("CRO", "CRO112233", "A1234AC", LocalDate.parse("2017-07-13"), "INST"),
               )
-            assertThat(mostSeriousOffenceDescription).isNull()
+            assertThat(mostSeriousOffence).isNull()
             assertThat(aliases).isEmpty()
           }
         }
@@ -224,7 +224,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .expectBody<PrisonerSearchDetails>()
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(mostSeriousOffenceDescription).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+            assertThat(mostSeriousOffence).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
           }
         }
     }
