@@ -30,7 +30,7 @@ class PrisonerSearchService(private val inmateService: InmateService) {
           inOutStatus = it.inOutStatus,
           identifiers = it.identifiers,
           sentenceDetail = it.sentenceDetail,
-          mostSeriousOffenceDescription = it.offenceHistory?.firstOrNull { it.mostSerious }?.offenceDescription,
+          mostSeriousOffence = it.offenceHistory?.firstOrNull { it.mostSerious }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
           status = it.status,

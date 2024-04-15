@@ -69,7 +69,7 @@ data class PrisonerSearchDetails(
   val sentenceDetail: SentenceCalcDates? = null,
 
   @Schema(description = "Most serious offence")
-  val mostSeriousOffenceDescription: String? = null,
+  val mostSeriousOffence: String? = null,
 
   @Schema(description = "Currently serving an indeterminate sentence?")
   val indeterminateSentence: Boolean? = null,
