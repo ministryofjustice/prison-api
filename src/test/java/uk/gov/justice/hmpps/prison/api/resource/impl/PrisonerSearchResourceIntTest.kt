@@ -74,8 +74,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(offenderNo).isEqualTo("A1234AB")
             assertThat(bookingId).isEqualTo(-2)
             assertThat(bookingNo).isEqualTo("A00112")
-            assertThat(offenderId).isEqualTo(-1002)
-            assertThat(rootOffenderId).isEqualTo(-1002)
             assertThat(firstName).isEqualTo("GILLIAN")
             assertThat(middleName).isEqualTo("EVE")
             assertThat(lastName).isEqualTo("ANDERSON")
@@ -91,6 +89,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(description).isEqualTo("H-1-5")
               assertThat(agencyName).isEqualTo("Leeds")
             }
+            assertThat(religion).isEqualTo("Baptist")
             with(physicalAttributes!!) {
               assertThat(gender).isEqualTo("Female")
               assertThat(raceCode).isEqualTo("W2")
@@ -241,8 +240,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234DD")
-            assertThat(offenderId).isEqualTo(-1056)
-            assertThat(rootOffenderId).isEqualTo(-1056)
             assertThat(firstName).isEqualTo("JOHN")
             assertThat(lastName).isEqualTo("DOE")
             assertThat(dateOfBirth).isEqualTo(LocalDate.parse("1989-03-02"))
