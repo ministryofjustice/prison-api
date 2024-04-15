@@ -130,9 +130,9 @@ public class AppointmentsService {
             .orElseThrow(() -> new RuntimeException("Location not found"));
 
         final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
-                var appointment = new OffenderIndividualSchedule();
+                final var appointment = new OffenderIndividualSchedule();
 
-                OffenderBooking booking = offenderBookingRepository.findById(a.getBookingId())
+                final var booking = offenderBookingRepository.findById(a.getBookingId())
                     .orElseThrow(() -> new RuntimeException("Booking not found"));
                 appointment.setOffenderBooking(booking);
                 appointment.setEventClass(EventClass.INT_MOV);
