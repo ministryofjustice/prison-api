@@ -33,7 +33,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedu
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
-import java.util.*
+import java.util.Optional
 
 class AppointmentsResourceTest : ResourceTest() {
   @SpyBean

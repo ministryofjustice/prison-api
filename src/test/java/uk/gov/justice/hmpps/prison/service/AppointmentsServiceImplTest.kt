@@ -52,7 +52,7 @@ import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
 import java.time.LocalDate
 import java.time.LocalDateTime
-import java.util.*
+import java.util.Optional
 import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Function
 
