@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
 import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
@@ -77,7 +78,9 @@ class AppointmentsResourceIntTest : ResourceTest() {
         .bodyValue(defaultAppointment)
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody().jsonPath("userMessage").isEqualTo("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.")
+        .expectBody()
+        .jsonPath("userMessage")
+        .isEqualTo("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.")
     }
 
     @Test
@@ -142,6 +145,50 @@ class AppointmentsResourceIntTest : ResourceTest() {
       assertThat(appointment32[0].startTime).isEqualTo(futureDate(1, 35))
       assertThat(appointment32[0].endTime).isEqualTo(futureDate(1, 55))
       assertThat(appointment32[0].eventLocation).isEqualTo("Chapel")
+
+      val getAppointment31 = webTestClient.get().uri("/api/appointments/${appointment31[0].eventId}")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(ScheduledEvent::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(getAppointment31.bookingId).isEqualTo(-31)
+      assertThat(getAppointment31.eventId).isEqualTo(appointment31[0].eventId)
+      assertThat(getAppointment31.eventStatus).isEqualTo("SCH")
+      assertThat(getAppointment31.eventType).isEqualTo("APP")
+      assertThat(getAppointment31.eventSubType).isEqualTo("ACTI")
+      assertThat(getAppointment31.eventDate).isEqualTo(futureDateTime.substring(0, 10))
+      assertThat(getAppointment31.startTime).isEqualTo(futureDate(1, 30))
+      assertThat(getAppointment31.endTime).isEqualTo(futureDate(1, 45))
+      assertThat(getAppointment31.eventLocation).isEqualTo("Chapel")
+      assertThat(getAppointment31.eventLocationId).isEqualTo(-25)
+      assertThat(getAppointment31.agencyId).isEqualTo("LEI")
+      assertThat(getAppointment31.eventSourceDesc).isEqualTo("A default comment")
+      assertThat(getAppointment31.createUserId).isEqualTo("ITAG_USER")
+
+      val getAppointment32 = webTestClient.get().uri("/api/appointments/${appointment32[0].eventId}")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(ScheduledEvent::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(getAppointment32.bookingId).isEqualTo(-32)
+      assertThat(getAppointment32.eventId).isEqualTo(appointment32[0].eventId)
+      assertThat(getAppointment32.eventStatus).isEqualTo("SCH")
+      assertThat(getAppointment32.eventType).isEqualTo("APP")
+      assertThat(getAppointment32.eventSubType).isEqualTo("ACTI")
+      assertThat(getAppointment32.eventDate).isEqualTo(futureDateTime.substring(0, 10))
+      assertThat(getAppointment32.startTime).isEqualTo(futureDate(1, 35))
+      assertThat(getAppointment32.endTime).isEqualTo(futureDate(1, 55))
+      assertThat(getAppointment32.eventLocation).isEqualTo("Chapel")
+      assertThat(getAppointment32.eventLocationId).isEqualTo(-25)
+      assertThat(getAppointment32.agencyId).isEqualTo("LEI")
+      assertThat(getAppointment32.eventSourceDesc).isEqualTo("Another comment")
+      assertThat(getAppointment32.createUserId).isEqualTo("ITAG_USER")
 
       // tidy up
       for (appointment in appointments)

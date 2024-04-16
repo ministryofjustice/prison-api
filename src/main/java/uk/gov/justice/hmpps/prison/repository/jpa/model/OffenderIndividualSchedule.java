@@ -134,4 +134,6 @@ public class OffenderIndividualSchedule extends AuditableEntity {
     public LocalDateTime getEventDateTime() {
         return eventDate.atTime(startTime.toLocalTime());
     }
+
+    public String getCreateUserId() { return super.getCreateUserId(); }
 }

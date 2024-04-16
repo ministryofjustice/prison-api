@@ -13,7 +13,6 @@ import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
-import org.springframework.jdbc.core.namedparam.SqlParameterSource;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
@@ -29,8 +28,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalancesDto;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetailsDto;
-import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
-import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
@@ -660,14 +657,5 @@ public class BookingRepository extends RepositoryBase {
                 sql,
                 createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
                 SENTENCE_CALC_SUMMARY_ROW_MAPPER);
-    }
-
-    public List<Long> findBookingsIdsInAgency(final List<Long> bookingIds, final String agencyId) {
-        if (bookingIds.isEmpty()) return Collections.emptyList();
-
-        return jdbcTemplate.query(
-                BookingRepositorySql.FIND_BOOKING_IDS_IN_AGENCY.getSql(),
-                createParams("bookingIds", bookingIds, "agencyId", agencyId),
-                (rs, rowNum) -> rs.getLong(1));
     }
 }

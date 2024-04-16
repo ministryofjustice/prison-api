@@ -5,9 +5,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.context.annotation.Import;
-import org.springframework.jdbc.core.namedparam.NamedParameterJdbcTemplate;
+import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
@@ -17,18 +15,6 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
-import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
@@ -37,7 +23,6 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
-import java.time.temporal.ChronoUnit;
 import java.util.Arrays;
 import java.util.Collections;
 
@@ -46,61 +31,16 @@ import static org.assertj.core.api.Assertions.fail;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
 
 @ActiveProfiles("test")
-//@Transactional(propagation = Propagation.NOT_SUPPORTED)
-@DataJpaTest
-// @JdbcTest
+@Transactional(propagation = Propagation.NOT_SUPPORTED)
+@JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
-//@ContextConfiguration(classes = PersistenceConfigs.class)
-@Import({BookingRepository.class, AgencyLocationRepository.class,
-    AgencyInternalLocationRepository.class, OffenderBookingRepository.class})
+@ContextConfiguration(classes = PersistenceConfigs.class)
 public class BookingRepositoryTest {
-
-//    @Autowired
-//    private lateinit var builder: NomisDataBuilder
 
     @Autowired
     private BookingRepository repository;
     @Autowired
     private ScheduleRepository scheduleRepository;
-    @Autowired
-    private OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
-    @Autowired
-    private AgencyLocationRepository agencyLocationRepository;
-    @Autowired
-    private AgencyInternalLocationRepository agencyInternalLocationRepository;
-    @Autowired
-    private ReferenceCodeRepository<EventStatus> eventStatusRepository;
-    @Autowired
-    private OffenderBookingRepository offenderBookingRepository;
-
-    @Autowired
-    NamedParameterJdbcTemplate template;
-
-    private Long createAppointment(String agencyId, long locationId, long bookingId, String appointmentType, LocalDateTime startTime, LocalDateTime endTime) {
-        EventStatus eventStatus = eventStatusRepository.findById(EventStatus.SCHEDULED_APPROVED)
-            .orElseThrow(() -> new RuntimeException("Event status not recognised."));
-        final AgencyLocation prison = agencyLocationRepository.findById(agencyId)
-            .orElseThrow(() -> new RuntimeException("Prison not found"));
-        final AgencyInternalLocation location = agencyInternalLocationRepository.findById(locationId)
-            .orElseThrow(() -> new RuntimeException("Location not found"));
-        final OffenderBooking booking = offenderBookingRepository.findById(bookingId)
-            .orElseThrow(() -> new RuntimeException("Booking not found"));
-        var appointment = new OffenderIndividualSchedule();
-
-        appointment.setOffenderBooking(booking);
-        appointment.setEventClass(EventClass.INT_MOV);
-        appointment.setEventType("APP");
-        appointment.setEventStatus(eventStatus);
-        appointment.setEventSubType(appointmentType);
-        appointment.setEventDate(startTime.toLocalDate());
-        appointment.setStartTime(startTime);
-        appointment.setEndTime(endTime);
-        appointment.setInternalLocation(location);
-        appointment.setFromLocation(prison);
-
-        var savedAppointment = offenderIndividualScheduleRepository.saveAndFlush(appointment);
-        return savedAppointment.getId();
-    }
 
     @BeforeEach
     public void init() {
@@ -404,60 +344,6 @@ public class BookingRepositoryTest {
                 LocalDateTime.now());
 
         assertThat(resultsPast).isEmpty();
-    }
-
-    @Test
-    public void findNoBookingIdsInAgency() {
-        assertThat(repository.findBookingsIdsInAgency(Collections.emptyList(), "LEI")).isEmpty();
-    }
-
-    @Test
-    public void findBookingIdsInLEI() {
-        assertThat(repository.findBookingsIdsInAgency(Arrays.asList(-1L, -2L, -13L, -14L), "LEI")).containsExactlyInAnyOrder(-1L, -2L);
-    }
-
-    @Test
-    public void findBookingIdsInOUT() {
-        assertThat(repository.findBookingsIdsInAgency(Arrays.asList(-1L, -2L, -13L, -14L), "OUT")).containsExactlyInAnyOrder(-13L, -14L);
-    }
-
-    @Test
-    public void getBookingAppointmentByEventId_noAppointment() {
-        assertThat(repository.getBookingAppointmentByEventId(-999)).isEmpty();
-    }
-
-    @Test
-    public void getBookingAppointmentByEventId() {
-        final var startTime = LocalDateTime.now().plusDays(2).truncatedTo(ChronoUnit.SECONDS);  // Drop nanos.
-        final var endTime = startTime.plusMinutes(30);
-        final var bookingId = -30L;
-        final var locationId = -28L;// LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
-
-        final var id = createAppointment("LEI", locationId, bookingId, "VLB", startTime, endTime);
-
-        // Could commit and start a new transaction here, but I don't think it is necessary.
-
-        assertThat(repository.getBookingAppointmentByEventId(id))
-                .hasValueSatisfying(se -> assertThat(se)
-                        .extracting("bookingId", "eventId", "startTime", "endTime", "eventLocationId", "createUserId")
-                        .containsExactly(bookingId, id, startTime, endTime, locationId, "SA"));
-    }
-
-    @Test
-    public void deleteBookingAppointment() {
-        // Do this test in a single transaction. Good enough for JDBC.
-        final var startTime = LocalDateTime.now().plusDays(2);
-        final var endTime = startTime.plusMinutes(30);
-        final var bookingId = -30L;
-        final var locationId = -28L;// LEI-LEI_VIS. This should really be a location with location usage 'VIDE' but I don't think it matters for this test.
-
-        final var id = createAppointment("LEI", locationId, bookingId, "VLB", startTime, endTime);
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isNotEmpty();
-
-        repository.deleteBookingAppointment(id);
-
-        assertThat(repository.getBookingAppointmentByEventId(id)).isEmpty();
     }
 
     @Test

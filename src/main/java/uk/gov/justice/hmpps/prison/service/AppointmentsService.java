@@ -21,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCrea
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
-import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
@@ -61,7 +60,6 @@ public class AppointmentsService {
     private static final int MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000;
     private static final int APPOINTMENT_TIME_LIMIT_IN_DAYS = 365;
 
-    private final BookingRepository bookingRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final AuthenticationFacade authenticationFacade;
     private final LocationService locationService;
@@ -73,9 +71,7 @@ public class AppointmentsService {
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
 
-
     public AppointmentsService(
-        final BookingRepository bookingRepository,
         final OffenderBookingRepository offenderBookingRepository,
         final AuthenticationFacade authenticationFacade,
         final LocationService locationService,
@@ -87,7 +83,6 @@ public class AppointmentsService {
         final AgencyInternalLocationRepository agencyInternalLocationRepository,
         final ReferenceCodeRepository<EventStatus> eventStatusRepository
     ) {
-        this.bookingRepository = bookingRepository;
         this.offenderBookingRepository = offenderBookingRepository;
         this.authenticationFacade = authenticationFacade;
         this.locationService = locationService;
@@ -113,7 +108,6 @@ public class AppointmentsService {
             .getAgencyId();
 
         assertValidAppointmentType(defaults.getAppointmentType());
-        assertAllBookingIdsInCaseload(appointments.getAppointments(), agencyId);
 
         final var flattenedDetails = appointments.withDefaults();
 
@@ -130,10 +124,14 @@ public class AppointmentsService {
             .orElseThrow(() -> new RuntimeException("Location not found"));
 
         final var createdAppointments = appointmentsWithRepeats.stream().map(a -> {
-                final var appointment = new OffenderIndividualSchedule();
-
                 final var booking = offenderBookingRepository.findById(a.getBookingId())
-                    .orElseThrow(() -> new RuntimeException("Booking not found"));
+                    .orElseThrow(() ->
+                        new HttpClientErrorException(HttpStatus.BAD_REQUEST, "A BookingId does not exist in your caseload")
+                    );
+                if (!agencyId.equals(booking.getLocation().getId())) {
+                    throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "A BookingId does not exist in your caseload");
+                }
+                final var appointment = new OffenderIndividualSchedule();
                 appointment.setOffenderBooking(booking);
                 appointment.setEventClass(EventClass.INT_MOV);
                 appointment.setEventType("APP");
@@ -175,10 +173,10 @@ public class AppointmentsService {
 
         final var agencyId = validateLocationAndGetAgency(username, appointmentSpecification);
 
-        var appointment = new OffenderIndividualSchedule();
-
         OffenderBooking booking = offenderBookingRepository.findById(bookingId)
             .orElseThrow(() -> new RuntimeException("Booking not found"));
+
+        var appointment = new OffenderIndividualSchedule();
         appointment.setOffenderBooking(booking);
         appointment.setEventClass(EventClass.INT_MOV);
         appointment.setEventType("APP");
@@ -196,7 +194,7 @@ public class AppointmentsService {
         var savedAppointment = offenderIndividualScheduleRepository.saveAndFlush(appointment);
 
         final var createdAppointment = getScheduledEventOrThrowEntityNotFound(savedAppointment.getId());
-        trackSingleAppointmentCreation(createdAppointment);
+        trackSingleAppointmentCreation(savedAppointment);
         return createdAppointment;
     }
 
@@ -207,19 +205,20 @@ public class AppointmentsService {
 
     @Transactional
     public void deleteBookingAppointments(List<Long> appointmentIds) {
-        appointmentIds.forEach(appointmentId -> bookingRepository
-            .getBookingAppointmentByEventId(appointmentId)
-            .ifPresent(scheduledEvent -> {
-                bookingRepository.deleteBookingAppointment(appointmentId);
-                trackAppointmentDeletion(scheduledEvent);
-            }));
+        appointmentIds.forEach(appointmentId ->
+            offenderIndividualScheduleRepository.findById(appointmentId)
+                .ifPresent(appointment -> {
+                    offenderIndividualScheduleRepository.deleteById(appointmentId);
+                    trackAppointmentDeletion(appointment);
+                }));
     }
 
 
     @Transactional
     public void deleteBookingAppointment(final long eventId) {
-        final ScheduledEvent appointmentForDeletion = getScheduledEventOrThrowEntityNotFound(eventId);
-        bookingRepository.deleteBookingAppointment(eventId);
+        final var appointmentForDeletion = offenderIndividualScheduleRepository.findById(eventId)
+            .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
+        offenderIndividualScheduleRepository.deleteById(eventId);
         trackAppointmentDeletion(appointmentForDeletion);
     }
 
@@ -235,9 +234,9 @@ public class AppointmentsService {
     }
 
     private ScheduledEvent getScheduledEventOrThrowEntityNotFound(Long eventId) {
-        return bookingRepository
-            .getBookingAppointmentByEventId(eventId)
-            .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId));
+        return new ScheduledEvent(offenderIndividualScheduleRepository.findById(eventId)
+            .orElseThrow(() -> EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId))
+        );
     }
 
     private void validateStartTime(final NewAppointment newAppointment) {
@@ -324,14 +323,6 @@ public class AppointmentsService {
         }
     }
 
-    private void assertAllBookingIdsInCaseload(final List<AppointmentDetails> appointments, final String agencyId) {
-        final var bookingIds = appointments.stream().map(AppointmentDetails::getBookingId).collect(toList());
-        final var bookingIdsInAgency = bookingRepository.findBookingsIdsInAgency(bookingIds, agencyId);
-        if (bookingIdsInAgency.size() < bookingIds.size()) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "A BookingId does not exist in your caseload");
-        }
-    }
-
     private void assertAdditionalAppointmentConstraints(final List<AppointmentDetails> appointments) {
         appointments.forEach(AppointmentsService::assertStartTimePrecedesEndTime);
     }
@@ -403,7 +394,6 @@ public class AppointmentsService {
             .collect(toList());
     }
 
-
     private void trackAppointmentsCreated(final Integer appointmentsCreatedCount,
                                           final AppointmentDefaults defaults) {
         if (appointmentsCreatedCount == null || appointmentsCreatedCount < 1) return;
@@ -421,21 +411,20 @@ public class AppointmentsService {
         telemetryClient.trackEvent("AppointmentsCreated", logMap, null);
     }
 
-
-    private void trackSingleAppointmentCreation(final ScheduledEvent appointment) {
+    private void trackSingleAppointmentCreation(final OffenderIndividualSchedule appointment) {
         telemetryClient.trackEvent("AppointmentCreated", appointmentEvent(appointment), null);
     }
 
-    private void trackAppointmentDeletion(final ScheduledEvent appointment) {
+    private void trackAppointmentDeletion(final OffenderIndividualSchedule appointment) {
         telemetryClient.trackEvent("AppointmentDeleted", appointmentEvent(appointment), null);
     }
 
-    private Map<String, String> appointmentEvent(final ScheduledEvent appointment) {
+    private Map<String, String> appointmentEvent(final OffenderIndividualSchedule appointment) {
         final Map<String, String> logMap = new HashMap<>();
-        logMap.put("eventId", appointment.getEventId().toString());
+        logMap.put("eventId", appointment.getId().toString());
         logMap.put("user", authenticationFacade.getCurrentUsername());
         logMap.put("type", appointment.getEventSubType());
-        logMap.put("agency", appointment.getAgencyId());
+        logMap.put("agency", appointment.getFromLocation().getId());
 
         if (appointment.getStartTime() != null) {
             logMap.put("start", appointment.getStartTime().toString());
@@ -444,8 +433,8 @@ public class AppointmentsService {
         if (appointment.getEndTime() != null) {
             logMap.put("end", appointment.getEndTime().toString());
         }
-        if (appointment.getEventLocationId() != null) {
-            logMap.put("location", appointment.getEventLocationId().toString());
+        if (appointment.getInternalLocation().getLocationId() != null) {
+            logMap.put("location", appointment.getInternalLocation().getLocationId().toString());
         }
         return logMap;
     }

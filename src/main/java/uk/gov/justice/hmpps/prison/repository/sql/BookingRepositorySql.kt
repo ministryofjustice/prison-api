@@ -387,6 +387,7 @@ enum class BookingRepositorySql(val sql: String) {
   GET_BOOKING_APPOINTMENTS(
     """
         SELECT OIS.OFFENDER_BOOK_ID BOOKING_ID,
+        OIS.EVENT_ID,
         OIS.EVENT_CLASS,
         OIS.EVENT_STATUS,
         OIS.EVENT_TYPE,
@@ -640,15 +641,6 @@ enum class BookingRepositorySql(val sql: String) {
         INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = OB.LIVING_UNIT_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
-    """,
-  ),
-
-  FIND_BOOKING_IDS_IN_AGENCY(
-    """
-        SELECT OB.OFFENDER_BOOK_ID booking_id
-        FROM OFFENDER_BOOKINGS OB
-        WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
-        AND OB.AGY_LOC_ID = :agencyId
     """,
   ),
 

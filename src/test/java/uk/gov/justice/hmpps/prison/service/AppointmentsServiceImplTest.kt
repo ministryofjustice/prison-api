@@ -53,6 +53,7 @@ import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.*
+import java.util.concurrent.atomic.AtomicReference
 import java.util.function.Function
 
 class AppointmentsServiceImplTest {
@@ -88,7 +89,7 @@ class AppointmentsServiceImplTest {
 
   private lateinit var appointmentsService: AppointmentsService
 
-  private val prison = AgencyLocation()
+  private val prison = AgencyLocation().apply { description = "description" }
 
   @BeforeEach
   fun initMocks() {
@@ -110,7 +111,6 @@ class AppointmentsServiceImplTest {
     }
 
     appointmentsService = AppointmentsService(
-      bookingRepository,
       offenderBookingRepository,
       AuthenticationFacade(),
       locationService,
@@ -693,18 +693,34 @@ class AppointmentsServiceImplTest {
       val agencyId = "LEI"
       val principal = "ME"
       val createdEventId = 999L
+      val startTime = LocalDateTime.now().plusDays(1)
+      val endTime = LocalDateTime.now().plusDays(2)
+
       val expectedEvent = ScheduledEvent
         .builder()
         .bookingId(bookingId)
         .eventId(createdEventId)
         .eventLocationId(locationId)
+        .eventLocation("description")
+        .eventSource("APP")
+        .eventSourceCode("APP")
+        .eventSourceDesc("comment")
+        .eventClass("INT_MOV")
+        .eventStatus("SCH")
+        .eventType("APP")
+        .eventTypeDesc("Appointment")
+        .eventSubType("MEDE")
+        .eventDate(LocalDate.now().plusDays(1))
+        .startTime(startTime)
+        .endTime(endTime)
+        .agencyId("LEI")
         .build()
       val location = Location.builder().locationId(locationId).agencyId(agencyId).build()
 
       val newAppointment = NewAppointment.builder()
         .appointmentType(appointmentType)
-        .startTime(LocalDateTime.now().plusDays(1))
-        .endTime(LocalDateTime.now().plusDays(2))
+        .startTime(startTime)
+        .endTime(endTime)
         .comment("comment")
         .locationId(locationId).build()
 
@@ -712,15 +728,35 @@ class AppointmentsServiceImplTest {
       whenever(locationService.getUserLocations(principal, true)).thenReturn(listOf(location))
 
       whenever(
-        referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.INTERNAL_SCHEDULE_REASON.domain, newAppointment.appointmentType, false),
+        referenceDomainService.getReferenceCodeByDomainAndCode(
+          ReferenceDomain.INTERNAL_SCHEDULE_REASON.domain,
+          newAppointment.appointmentType,
+          false,
+        ),
       )
         .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()))
-      whenever(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking()))
-      whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
-        Optional.of(AgencyInternalLocation()),
+      whenever(offenderBookingRepository.findById(bookingId)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            setBookingId(bookingId)
+          },
+        ),
+      )
+      whenever(agencyInternalLocationRepository.findById(locationId)).thenReturn(
+        Optional.of(AgencyInternalLocation().apply { setLocationId(locationId) }),
       )
 
-      whenever(bookingRepository.getBookingAppointmentByEventId(NEW_EVENT_ID)).thenReturn(Optional.of(expectedEvent))
+      val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
+      whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
+        invocation.getArgument<OffenderIndividualSchedule>(0).apply {
+          id = createdEventId
+          savedAppointment.set(this)
+        }
+      }
+      whenever(offenderIndividualScheduleRepository.findById(createdEventId)).thenAnswer {
+        return@thenAnswer Optional.of(savedAppointment.get())
+      }
+
       val actualEvent = appointmentsService.createBookingAppointment(bookingId, principal, newAppointment)
 
       assertThat(actualEvent).isEqualTo(expectedEvent)
@@ -847,12 +883,6 @@ class AppointmentsServiceImplTest {
       val bookingId = 100L
       val agencyId = "LEI"
       val principal = "ME"
-      val expectedEvent = ScheduledEvent
-        .builder()
-        .bookingId(bookingId)
-        .eventId(NEW_EVENT_ID)
-        .eventLocationId(locationId)
-        .build()
 
       val location = Location.builder().locationId(locationId).agencyId(agencyId).build()
 
@@ -871,12 +901,21 @@ class AppointmentsServiceImplTest {
       )
         .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()))
 
-      whenever(bookingRepository.getBookingAppointmentByEventId(NEW_EVENT_ID))
-        .thenReturn(Optional.of(expectedEvent))
       whenever(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking()))
       whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
         Optional.of(AgencyInternalLocation()),
       )
+
+      val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
+      whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
+        invocation.getArgument<OffenderIndividualSchedule>(0).apply {
+          id = NEW_EVENT_ID
+          savedAppointment.set(this)
+        }
+      }
+      whenever(offenderIndividualScheduleRepository.findById(NEW_EVENT_ID)).thenAnswer {
+        return@thenAnswer Optional.of(savedAppointment.get())
+      }
 
       appointmentsService.createBookingAppointment(bookingId, principal, newAppointment)
 
@@ -1039,7 +1078,7 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteSingleAppointment {
     @Test
     fun deleteBookingAppointment_notFound() {
-      whenever(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
 
       assertThatThrownBy { appointmentsService.deleteBookingAppointment(1L) }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -1048,22 +1087,24 @@ class AppointmentsServiceImplTest {
 
     @Test
     fun deleteBookingAppointment() {
-      val scheduledEvent = ScheduledEvent
-        .builder()
-        .eventId(1L)
-        .eventType("APP")
-        .eventSubType("VLB")
-        .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
-        .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-        .eventLocationId(2L)
-        .agencyId("WWI")
-        .build()
-      whenever(bookingRepository.getBookingAppointmentByEventId(1L))
-        .thenReturn(Optional.of(scheduledEvent))
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+        Optional.of(
+          OffenderIndividualSchedule().apply {
+            id = 1L
+            eventType = "APP"
+            eventSubType = "VLB"
+            startTime = LocalDateTime.of(2020, 1, 1, 1, 1)
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 31)
+            internalLocation = AgencyInternalLocation().apply { locationId = 2L }
+            fromLocation = AgencyLocation().apply { id = "WWI" }
+          },
+        ),
+      )
 
       appointmentsService.deleteBookingAppointment(1L)
 
-      verify(bookingRepository).deleteBookingAppointment(1L)
+      verify(offenderIndividualScheduleRepository).deleteById(1L)
+
       verify(telemetryClient).trackEvent(
         "AppointmentDeleted",
         mapOf(
@@ -1085,28 +1126,24 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteMultipleAppointments {
     @Test
     fun attemptToDeleteAppointmentsThatExist() {
-      whenever(bookingRepository.getBookingAppointmentByEventId(1L))
-        .thenReturn(
-          Optional.of(
-            ScheduledEvent.builder()
-              .eventId(1L)
-              .eventSubType("APP")
-              .startTime(LocalDateTime.parse("2020-01-01T01:01"))
-              .endTime(LocalDateTime.parse("2020-01-01T01:31"))
-              .eventLocationId(2L)
-              .agencyId("LEI")
-              .createUserId("username")
-              .build(),
-          ),
-        )
-
-      whenever(bookingRepository.getBookingAppointmentByEventId(2L))
-        .thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+        Optional.of(
+          OffenderIndividualSchedule().apply {
+            id = 1L
+            eventSubType = "APP"
+            startTime = LocalDateTime.of(2020, 1, 1, 1, 1)
+            endTime = LocalDateTime.of(2020, 1, 1, 1, 31)
+            internalLocation = AgencyInternalLocation().apply { locationId = 2L }
+            fromLocation = AgencyLocation().apply { id = "LEI" }
+          },
+        ),
+      )
+      whenever(offenderIndividualScheduleRepository.findById(2L)).thenReturn(Optional.empty())
 
       appointmentsService.deleteBookingAppointments(listOf(1L, 2L))
 
-      verify(bookingRepository, times(1)).deleteBookingAppointment(ArgumentMatchers.anyLong())
-      verify(bookingRepository).deleteBookingAppointment(1L)
+      verify(offenderIndividualScheduleRepository, times(1)).deleteById(1L)
+      verify(offenderIndividualScheduleRepository, never()).deleteById(2L)
 
       verify(telemetryClient).trackEvent(
         "AppointmentDeleted",
@@ -1126,9 +1163,14 @@ class AppointmentsServiceImplTest {
 
   private fun stubValidBookingIds(agencyId: String, vararg bookingIds: Long) {
     val ids = bookingIds.toList()
-    whenever(bookingRepository.findBookingsIdsInAgency(ids, agencyId)).thenReturn(ids)
     ids.forEach {
-      whenever(offenderBookingRepository.findById(it)).thenReturn(Optional.of(OffenderBooking()))
+      whenever(offenderBookingRepository.findById(it)).thenReturn(
+        Optional.of(
+          OffenderBooking().apply {
+            location = AgencyLocation().apply { id = agencyId }
+          },
+        ),
+      )
     }
   }
 
