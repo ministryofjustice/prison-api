@@ -17,12 +17,6 @@ data class PrisonerSearchDetails(
   @Schema(description = "Booking Number of the active booking")
   val bookingNo: String? = null,
 
-  @Schema(description = "Internal Offender ID")
-  val offenderId: Long,
-
-  @Schema(description = "Internal Root Offender ID")
-  val rootOffenderId: Long,
-
   @Schema(description = "First Name")
   val firstName: String,
 
@@ -43,6 +37,9 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "Cell or location of the prisoner")
   val assignedLivingUnit: AssignedLivingUnit? = null,
+
+  @Schema(description = "Religion of the prisoner")
+  var religion: String? = null,
 
   @Schema(description = "A set of physical attributes")
   val physicalAttributes: PhysicalAttributes? = null,
@@ -72,7 +69,7 @@ data class PrisonerSearchDetails(
   val sentenceDetail: SentenceCalcDates? = null,
 
   @Schema(description = "Most serious offence")
-  val mostSeriousOffenceDescription: String? = null,
+  val mostSeriousOffence: String? = null,
 
   @Schema(description = "Currently serving an indeterminate sentence?")
   val indeterminateSentence: Boolean? = null,

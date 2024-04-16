@@ -74,8 +74,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(offenderNo).isEqualTo("A1234AB")
             assertThat(bookingId).isEqualTo(-2)
             assertThat(bookingNo).isEqualTo("A00112")
-            assertThat(offenderId).isEqualTo(-1002)
-            assertThat(rootOffenderId).isEqualTo(-1002)
             assertThat(firstName).isEqualTo("GILLIAN")
             assertThat(middleName).isEqualTo("EVE")
             assertThat(lastName).isEqualTo("ANDERSON")
@@ -91,6 +89,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(description).isEqualTo("H-1-5")
               assertThat(agencyName).isEqualTo("Leeds")
             }
+            assertThat(religion).isEqualTo("Baptist")
             with(physicalAttributes!!) {
               assertThat(gender).isEqualTo("Female")
               assertThat(raceCode).isEqualTo("W2")
@@ -124,7 +123,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19")
               assertThat(releaseDate).isEqualTo("2018-04-19")
             }
-            assertThat(mostSeriousOffenceDescription).isNull()
+            assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
             assertThat(status).isEqualTo("ACTIVE IN")
@@ -159,7 +158,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               .containsExactly(
                 tuple("CRO", "CRO112233", "A1234AC", LocalDate.parse("2017-07-13"), "INST"),
               )
-            assertThat(mostSeriousOffenceDescription).isNull()
+            assertThat(mostSeriousOffence).isNull()
             assertThat(aliases).isEmpty()
           }
         }
@@ -225,7 +224,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .expectBody<PrisonerSearchDetails>()
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(mostSeriousOffenceDescription).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+            assertThat(mostSeriousOffence).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
           }
         }
     }
@@ -241,8 +240,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234DD")
-            assertThat(offenderId).isEqualTo(-1056)
-            assertThat(rootOffenderId).isEqualTo(-1056)
             assertThat(firstName).isEqualTo("JOHN")
             assertThat(lastName).isEqualTo("DOE")
             assertThat(dateOfBirth).isEqualTo(LocalDate.parse("1989-03-02"))
