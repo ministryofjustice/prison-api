@@ -9,6 +9,7 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
+import uk.gov.justice.hmpps.prison.repository.SentenceCalculationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
@@ -27,6 +28,7 @@ public class OffenderDatesService {
 
     private static final String ZERO_LENGTH = "00/00/00";
     private static final String DEFAULT_REASON = "UPDATE";
+    private final SentenceCalculationRepository sentenceCalculationRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final TelemetryClient telemetryClient;
@@ -114,6 +116,16 @@ public class OffenderDatesService {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
         final var sentenceCalculation = offenderBooking.getLatestCalculation().orElseThrow(EntityNotFoundException.withId(bookingId));
 
+        return getOffenderCalculatedKeyDates(sentenceCalculation);
+    }
+
+    public OffenderCalculatedKeyDates getOffenderKeyDatesByOffenderSentCalcId(Long offenderSentCalcId) {
+        final var sentenceCalculation = sentenceCalculationRepository.findById(offenderSentCalcId).orElseThrow(EntityNotFoundException.withId(offenderSentCalcId));
+
+        return getOffenderCalculatedKeyDates(sentenceCalculation);
+    }
+
+    private OffenderCalculatedKeyDates getOffenderCalculatedKeyDates(SentenceCalculation sentenceCalculation) {
         return OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(sentenceCalculation.getHomeDetentionCurfewEligibilityDate())
             .earlyTermDate(sentenceCalculation.getEarlyTermDate())
