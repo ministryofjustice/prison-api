@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.core.DataClassRowMapper;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.stereotype.Repository;
@@ -33,7 +32,6 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -98,17 +96,32 @@ public class MovementsRepository extends RepositoryBase {
         return movements.stream().map(OffenderMovementDto::toOffenderMovement).collect(Collectors.toList());
     }
 
+    private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly) {
+        var sql = "";
+        if (wingOnly) {
+            sql += " AND AIL.PARENT_INTERNAL_LOCATION_ID IS NULL";
+        } else {
+            if (!showCells) {
+               sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
+            }
+            if (parentLocationId != null) {
+                sql += " AND AIL.PARENT_INTERNAL_LOCATION_ID = :livingUnitId";
+            }
+        }
+        return sql;
+    }
 
-    public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag) {
-        final var sql = MovementsRepositorySql.GET_ROLL_COUNT.getSql();
-        final var rollcounts = jdbcTemplate.query(sql, createParams(
+    public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag, Long parentLocationId, boolean showCells, boolean wingOnly) {
+        final var sql = format(MovementsRepositorySql.GET_ROLL_COUNT.getSql(), getFilterCriteria(parentLocationId, showCells, wingOnly));
+
+        final var rollCounts = jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
                 "certifiedFlag", certifiedFlag,
-                "livingUnitId", null,
+                "livingUnitId", parentLocationId,
                 "deactivateReasonCodes", DEACTIVATE_REASON_CODES,
                 "currentDateTime", new Date()),
             ROLLCOUNT_MAPPER);
-        return rollcounts.stream().map(RollCountDto::toRollCount).collect(Collectors.toList());
+        return rollCounts.stream().map(m -> m.toRollCount(agencyId)).collect(Collectors.toList());
     }
 
 

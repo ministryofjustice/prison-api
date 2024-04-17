@@ -122,8 +122,8 @@ public class MovementsService {
             .collect(toList());
     }
 
-    public List<RollCount> getRollCount(final String agencyId, final boolean unassigned) {
-        return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y");
+    public List<RollCount> getRollCount(final String agencyId, final boolean unassigned, Long parentLocationId, boolean showCells, boolean wingOnly) {
+        return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y", parentLocationId, showCells, wingOnly);
     }
 
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {

@@ -146,7 +146,7 @@ public class LocationProcessor {
 
     /**
      * @param locationDescription string to convert
-     * @return new location with correct titlecase
+     * @return new location with correct title-case
      */
     public static String formatLocation(final String locationDescription) {
         return StringWithAbbreviationsProcessor.format(locationDescription);

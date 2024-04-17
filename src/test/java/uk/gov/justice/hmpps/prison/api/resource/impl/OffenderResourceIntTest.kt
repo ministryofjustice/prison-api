@@ -645,7 +645,7 @@ class OffenderResourceIntTest : ResourceTest() {
       response,
       """
         {
-          "locationDescription": "Outside - released from SHREWSBURY",
+          "locationDescription": "Outside - released from Shrewsbury",
           "latestLocationId": "SYI"
         }
       """.trimIndent(),
