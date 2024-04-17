@@ -10,6 +10,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
+import uk.gov.justice.hmpps.prison.repository.SentenceCalculationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
@@ -41,6 +42,8 @@ public class OffenderDatesServiceTest {
     @Mock
     private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
+    private SentenceCalculationRepository sentenceCalculationRepository;
+    @Mock
     private TelemetryClient telemetryClient;
 
     private final Clock clock = Clock.fixed(Instant.now(), ZoneId.systemDefault());
@@ -49,7 +52,7 @@ public class OffenderDatesServiceTest {
 
     @BeforeEach
     public void setUp() {
-        service = new OffenderDatesService(offenderBookingRepository, staffUserAccountRepository, telemetryClient, clock);
+        service = new OffenderDatesService(sentenceCalculationRepository, offenderBookingRepository, staffUserAccountRepository, telemetryClient, clock);
     }
 
     @Test
@@ -201,6 +204,49 @@ public class OffenderDatesServiceTest {
     }
 
     @Test
+    void getOffenderKeyDates_all_data_by_offender_sent_calc_id() {
+        // Given
+        final var offenderSentCalcId = 1L;
+
+        final var sentenceCalculation =
+                SentenceCalculation.builder()
+                    .id(1L)
+                    .hdcedCalculatedDate(LocalDate.of(2021, 11, 1))
+                    .etdCalculatedDate(LocalDate.of(2021, 11, 2))
+                    .mtdCalculatedDate(LocalDate.of(2021, 11, 3))
+                    .ltdCalculatedDate(LocalDate.of(2021, 11, 4))
+                    .dprrdCalculatedDate(LocalDate.of(2021, 11, 5))
+                    .ardCalculatedDate(LocalDate.of(2021, 11, 6))
+                    .crdCalculatedDate(LocalDate.of(2021, 11, 7))
+                    .pedCalculatedDate(LocalDate.of(2021, 11, 8))
+                    .npdCalculatedDate(LocalDate.of(2021, 11, 9))
+                    .ledCalculatedDate(LocalDate.of(2021, 11, 10))
+                    .prrdCalculatedDate(LocalDate.of(2021, 11, 11))
+                    .sedCalculatedDate(LocalDate.of(2021, 11, 12))
+                    .tusedCalculatedDate(LocalDate.of(2021, 11, 13))
+                    .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
+                    .effectiveSentenceLength("11/00/11")
+                    .ersedOverridedDate(LocalDate.of(2021, 11, 15))
+                    .hdcadOverridedDate(LocalDate.of(2021, 11, 16))
+                    .tariffOverridedDate(LocalDate.of(2021, 11, 17))
+                    .tersedOverridedDate(LocalDate.of(2021, 11, 18))
+                    .apdOverridedDate(LocalDate.of(2021, 11, 19))
+                    .rotlOverridedDate(LocalDate.of(2021, 11, 20))
+                    .judiciallyImposedSentenceLength("11/00/00")
+                    .comments("Comments")
+                    .reasonCode("NEW")
+                    .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+                    .build();
+        when(sentenceCalculationRepository.findById(offenderSentCalcId)).thenReturn(Optional.of(sentenceCalculation));
+
+        // When
+        final var result = service.getOffenderKeyDatesByOffenderSentCalcId(offenderSentCalcId);
+
+        // Then
+        assertOffenderCalculatedKeyDates(result);
+    }
+
+    @Test
     void getOffenderKeyDates_all_data_available() {
         // Given
         final var bookingId = 1L;
@@ -244,34 +290,7 @@ public class OffenderDatesServiceTest {
         final var result = service.getOffenderKeyDates(bookingId);
 
         // Then
-        assertEquals(result, OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
-            .homeDetentionCurfewEligibilityDate(LocalDate.of(2021, 11, 1))
-            .earlyTermDate(LocalDate.of(2021, 11, 2))
-            .midTermDate(LocalDate.of(2021, 11, 3))
-            .lateTermDate(LocalDate.of(2021, 11, 4))
-            .dtoPostRecallReleaseDate(LocalDate.of(2021, 11, 5))
-            .automaticReleaseDate(LocalDate.of(2021, 11, 6))
-            .conditionalReleaseDate(LocalDate.of(2021, 11, 7))
-            .paroleEligibilityDate(LocalDate.of(2021, 11, 8))
-            .nonParoleDate(LocalDate.of(2021, 11, 9))
-            .licenceExpiryDate(LocalDate.of(2021, 11, 10))
-            .postRecallReleaseDate(LocalDate.of(2021, 11, 11))
-            .sentenceExpiryDate(LocalDate.of(2021, 11, 12))
-            .topupSupervisionExpiryDate(LocalDate.of(2021, 11, 13))
-            .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
-            .sentenceLength("11/00/11")
-            .earlyRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 15))
-            .homeDetentionCurfewApprovedDate(LocalDate.of(2021, 11, 16))
-            .tariffDate(LocalDate.of(2021, 11, 17))
-            .tariffExpiredRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 18))
-            .approvedParoleDate(LocalDate.of(2021, 11, 19))
-            .releaseOnTemporaryLicenceDate(LocalDate.of(2021, 11, 20))
-            .judiciallyImposedSentenceLength("11/00/00")
-            .comment("Comments")
-            .reasonCode("NEW")
-            .calculatedAt(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
-            .build());
-
+        assertOffenderCalculatedKeyDates(result);
     }
 
     @Test
@@ -329,6 +348,37 @@ public class OffenderDatesServiceTest {
 
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(expected);
         assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+    }
+
+    private static void assertOffenderCalculatedKeyDates(OffenderCalculatedKeyDates result) {
+        // Then
+        assertEquals(result, OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
+            .homeDetentionCurfewEligibilityDate(LocalDate.of(2021, 11, 1))
+            .earlyTermDate(LocalDate.of(2021, 11, 2))
+            .midTermDate(LocalDate.of(2021, 11, 3))
+            .lateTermDate(LocalDate.of(2021, 11, 4))
+            .dtoPostRecallReleaseDate(LocalDate.of(2021, 11, 5))
+            .automaticReleaseDate(LocalDate.of(2021, 11, 6))
+            .conditionalReleaseDate(LocalDate.of(2021, 11, 7))
+            .paroleEligibilityDate(LocalDate.of(2021, 11, 8))
+            .nonParoleDate(LocalDate.of(2021, 11, 9))
+            .licenceExpiryDate(LocalDate.of(2021, 11, 10))
+            .postRecallReleaseDate(LocalDate.of(2021, 11, 11))
+            .sentenceExpiryDate(LocalDate.of(2021, 11, 12))
+            .topupSupervisionExpiryDate(LocalDate.of(2021, 11, 13))
+            .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
+            .sentenceLength("11/00/11")
+            .earlyRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 15))
+            .homeDetentionCurfewApprovedDate(LocalDate.of(2021, 11, 16))
+            .tariffDate(LocalDate.of(2021, 11, 17))
+            .tariffExpiredRemovalSchemeEligibilityDate(LocalDate.of(2021, 11, 18))
+            .approvedParoleDate(LocalDate.of(2021, 11, 19))
+            .releaseOnTemporaryLicenceDate(LocalDate.of(2021, 11, 20))
+            .judiciallyImposedSentenceLength("11/00/00")
+            .comment("Comments")
+            .reasonCode("NEW")
+            .calculatedAt(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+            .build());
     }
 
 

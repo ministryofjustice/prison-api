@@ -8,17 +8,20 @@ import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.service.OffenderDatesServiceTest;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
 
 public class OffenderDatesResourceTest extends ResourceTest {
@@ -183,6 +186,47 @@ public class OffenderDatesResourceTest extends ResourceTest {
         assertThat(calculationSummary.getAgencyDescription()).isEqualTo("LEEDS");
         assertThat(calculationSummary.getCommentText()).isEqualTo("Some Comment Text");
         assertThat(calculationSummary.getCalculationReason()).isEqualTo("New Sentence");
+    }
+
+    @Test
+    public void testGetOffenderKeyDatesForOffenderSentCalcId() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<OffenderCalculatedKeyDates>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/sentence-calculation/{offenderSentCalcId}",
+            GET,
+            request,
+            type,
+            Map.of("offenderSentCalcId", "-16"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+        var nomisCalculations = response.getBody();
+        assertEquals("NEW",nomisCalculations.getReasonCode());
+        assertEquals(null,nomisCalculations.getComment());
+        assertEquals(null,nomisCalculations.getParoleEligibilityDate());
+        assertEquals(null,nomisCalculations.getApprovedParoleDate());
+        assertEquals(null,nomisCalculations.getConditionalReleaseDate());
+        assertEquals(null,nomisCalculations.getReleaseOnTemporaryLicenceDate());
+        assertEquals(null,nomisCalculations.getAutomaticReleaseDate());
+        assertEquals(null,nomisCalculations.getLateTermDate());
+        assertEquals(null,nomisCalculations.getPostRecallReleaseDate());
+        assertEquals(null,nomisCalculations.getTariffDate());
+        assertEquals(null,nomisCalculations.getEffectiveSentenceEndDate());
+        assertEquals(null,nomisCalculations.getDtoPostRecallReleaseDate());
+        assertEquals(null,nomisCalculations.getEarlyRemovalSchemeEligibilityDate());
+        assertEquals(null,nomisCalculations.getTariffExpiredRemovalSchemeEligibilityDate());
+        assertEquals(null,nomisCalculations.getTopupSupervisionExpiryDate());
+        assertEquals(null,nomisCalculations.getNonParoleDate());
+        assertEquals(LocalDate.of(2022, 10, 20),nomisCalculations.getSentenceExpiryDate());
+        assertEquals(LocalDate.of(2021, 9, 24),nomisCalculations.getLicenceExpiryDate());
+        assertEquals(LocalDate.of(2021, 3, 25),nomisCalculations.getMidTermDate());
+        assertEquals(LocalDate.of(2021, 2, 28),nomisCalculations.getEarlyTermDate());
+        assertEquals(LocalDate.of(2021, 1, 2),nomisCalculations.getHomeDetentionCurfewApprovedDate());
+        assertEquals(LocalDateTime.of(2017, 9, 2, 0,0),nomisCalculations.getCalculatedAt());
+        assertEquals(LocalDate.of(2020, 12, 30),nomisCalculations.getHomeDetentionCurfewEligibilityDate());
     }
 
 }
