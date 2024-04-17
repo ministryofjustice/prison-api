@@ -205,16 +205,16 @@ public class InmateDetail {
         updateReligion();
     }
 
-    private void updateReligion() {
-        if (profileInformation == null) {
-            return;
-        }
-        religion = profileInformation
+    public InmateDetail updateReligion() {
+        if (profileInformation != null) {
+            religion = profileInformation
                 .stream()
                 .filter(pi -> "RELF".equals(pi.getType()))
                 .findFirst()
                 .map(ProfileInformation::getResultValue)
                 .orElse(null);
+        }
+        return this;
     }
 
     public InmateDetail splitStatusReason() {

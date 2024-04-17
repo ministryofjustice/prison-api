@@ -309,7 +309,7 @@ public class InmateService {
         }
     }
 
-    private List<Assessment> getAllAssessmentsOrdered(final Long bookingId) {
+    public List<Assessment> getAllAssessmentsOrdered(final Long bookingId) {
         final var assessmentsDto = repository.findAssessments(Collections.singletonList(bookingId), null, Collections.emptySet());
 
         return assessmentsDto.stream().map(this::createAssessment).toList();
@@ -400,6 +400,10 @@ public class InmateService {
             .stream()
             .filter(i -> identifierType == null || identifierType.equalsIgnoreCase(i.getType()))
             .toList();
+    }
+
+    public List<Alias> getAliases(final Long bookingId) {
+        return repository.findInmateAliasesByBooking(bookingId, "createDate", Order.ASC, 0, 100).getItems().stream().toList();
     }
 
     @Transactional // route to primary in live so that we can get the latest data after a trigger

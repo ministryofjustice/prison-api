@@ -34,13 +34,14 @@ import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.PrisonToPrisonMoveSchedulingService
+import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
 
-internal class TransferIntoPrisonServiceTest {
+class TransferIntoPrisonServiceTest {
   private val externalMovementService: ExternalMovementService = mock()
   private val bedAssignmentMovementService: BedAssignmentMovementService = mock()
   private val trustAccountService: TrustAccountService = mock()
@@ -52,7 +53,8 @@ internal class TransferIntoPrisonServiceTest {
   private val agencyInternalLocationRepository: AgencyInternalLocationRepository = mock()
   private val agencyLocationRepository: AgencyLocationRepository = mock()
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
-  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone())
+  private val offenderChargeTransformer: OffenderChargeTransformer = mock()
+  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone(), offenderChargeTransformer)
 
   private val fromPrison = AgencyLocation().apply {
     description = "HMPS Brixton"
@@ -160,6 +162,7 @@ internal class TransferIntoPrisonServiceTest {
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
         }
+        bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
@@ -313,6 +316,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -336,6 +340,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -361,6 +366,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -386,6 +392,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -454,6 +461,7 @@ internal class TransferIntoPrisonServiceTest {
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
         }
+        bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
@@ -533,6 +541,7 @@ internal class TransferIntoPrisonServiceTest {
             birthDate = LocalDate.now().minusYears(30)
             gender = Gender("M", "MALE")
           }
+          bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
 
         whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
@@ -604,6 +613,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -627,6 +637,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -652,6 +663,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -675,6 +687,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -706,6 +719,7 @@ internal class TransferIntoPrisonServiceTest {
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
         }
+        bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
@@ -867,6 +881,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -890,6 +905,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -915,6 +931,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -951,6 +968,7 @@ internal class TransferIntoPrisonServiceTest {
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
         }
+        bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
@@ -1030,6 +1048,7 @@ internal class TransferIntoPrisonServiceTest {
             birthDate = LocalDate.now().minusYears(30)
             gender = Gender("M", "MALE")
           }
+          bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
 
         whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
@@ -1101,6 +1120,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1124,6 +1144,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1149,6 +1170,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1172,6 +1194,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1203,6 +1226,7 @@ internal class TransferIntoPrisonServiceTest {
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
         }
+        bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
       whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
         Optional.of(
@@ -1364,6 +1388,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1387,6 +1412,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )
@@ -1412,6 +1438,7 @@ internal class TransferIntoPrisonServiceTest {
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
             }
+            bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
         ),
       )

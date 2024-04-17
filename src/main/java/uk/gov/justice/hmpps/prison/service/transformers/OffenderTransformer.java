@@ -6,10 +6,12 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.api.model.PhysicalAttributes;
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
+import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
@@ -28,6 +30,7 @@ import static uk.gov.justice.hmpps.prison.util.DateTimeConverter.getAge;
 public class OffenderTransformer {
 
     private final Clock clock;
+    private final OffenderChargeTransformer offenderChargeTransformer;
 
     public InmateDetail transformWithoutBooking(final Offender offender) {
         return buildOffender(offender).build();
@@ -35,6 +38,8 @@ public class OffenderTransformer {
 
     public InmateDetail transform(final OffenderBooking latestBooking) {
         final var offenderBuilder = buildOffender(latestBooking.getOffender());
+        final var offenceHistory = latestBooking.getCharges().stream().map(offenderChargeTransformer::convert).filter(OffenceHistoryDetail::convicted).toList();
+        final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
         return offenderBuilder
             .activeFlag(latestBooking.isActive())
@@ -54,7 +59,7 @@ public class OffenderTransformer {
             .activeAlertCount(latestBooking.getActiveAlertCount())
             .inactiveAlertCount(latestBooking.getAlerts().size() - latestBooking.getActiveAlertCount())
             .assignedLivingUnitId(latestBooking.getAssignedLivingUnit() != null ? latestBooking.getAssignedLivingUnit().getLocationId() : null)
-            .sentenceTerms(latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList()))
+            .sentenceTerms(sentenceTerms)
             .sentenceDetail(latestBooking.getSentenceCalcDates())
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
                 .filter(pd -> pd.getCode() != null)
@@ -63,9 +68,18 @@ public class OffenderTransformer {
                     .question(pd.getId().getType().getDescription())
                     .resultValue(pd.getCode().getDescription())
                     .build()).toList())
+            .legalStatus(latestBooking.getLegalStatus())
+            .imprisonmentStatus(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus().getStatus()).orElse(null))
+            .imprisonmentStatusDescription(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus().getDescription()).orElse(null))
+            .offenceHistory(offenceHistory)
+            .recall(RecallCalc.calculate(latestBooking.getBookingId(), latestBooking.getLegalStatus(), offenceHistory, sentenceTerms))
+            .receptionDate(latestBooking.getBookingBeginDate().toLocalDate())
+            .locationDescription(LocationProcessor.formatLocation(latestBooking.getLocation().getDescription()))
+            .latestLocationId(latestBooking.getLocation().getId())
             .build()
             .deriveStatus()
-            .splitStatusReason();
+            .splitStatusReason()
+            .updateReligion();
     }
 
     private InmateDetail.InmateDetailBuilder buildOffender(final Offender offender) {
