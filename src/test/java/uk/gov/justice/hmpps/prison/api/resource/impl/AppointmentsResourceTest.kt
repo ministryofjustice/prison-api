@@ -5,13 +5,10 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.ArgumentMatchers.anyString
-import org.mockito.ArgumentMatchers.isNull
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
-import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpEntity
@@ -27,7 +24,13 @@ import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCreate
-import uk.gov.justice.hmpps.prison.repository.BookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
+import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Optional
@@ -37,7 +40,15 @@ class AppointmentsResourceTest : ResourceTest() {
   private lateinit var proxyUserAspect: ProxyUserAspect
 
   @MockBean
-  private lateinit var bookingRepository: BookingRepository
+  private lateinit var offenderIndividualScheduleRepository: OffenderIndividualScheduleRepository
+
+  private fun appointmentWithId(createdId1: Long): OffenderIndividualSchedule {
+    val a1 = OffenderIndividualSchedule()
+    a1.id = createdId1
+    a1.eventType = "APP"
+    a1.eventClass = EventClass.INT_MOV
+    return a1
+  }
 
   @Nested
   @DisplayName("POST /api/appointments")
@@ -45,9 +56,6 @@ class AppointmentsResourceTest : ResourceTest() {
     @Test
     @Throws(Throwable::class)
     fun triggerProxyUserAspect() {
-      `when`(bookingRepository.checkBookingExists(anyLong())).thenReturn(true)
-      `when`(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(listOf(1L, 2L))
-      `when`(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(3L)
       makeCreateAppointmentsRequest(createAppointmentBody())
       verify(proxyUserAspect).controllerCall(any())
     }
@@ -56,9 +64,9 @@ class AppointmentsResourceTest : ResourceTest() {
     fun createAnAppointment() {
       val firstEventId = 11
       val secondEventId = 12
-      `when`(bookingRepository.checkBookingExists(anyLong())).thenReturn(true)
-      `when`(bookingRepository.findBookingsIdsInAgency(any(), anyString())).thenReturn(listOf(1L, 2L))
-      `when`(bookingRepository.createAppointment(any(), any(), anyString())).thenReturn(firstEventId.toLong(), secondEventId.toLong())
+      whenever(offenderIndividualScheduleRepository.save(org.mockito.kotlin.any()))
+        .thenReturn(appointmentWithId(11))
+        .thenReturn(appointmentWithId(12))
       val appointments = createAppointmentBody()
 
       val response = makeCreateAppointmentsRequest(appointments)
@@ -73,7 +81,7 @@ class AppointmentsResourceTest : ResourceTest() {
           )
         }
 
-      verify(bookingRepository, times(2)).createAppointment(any(), any(), anyString())
+      verify(offenderIndividualScheduleRepository, times(2)).save(any())
     }
 
     private fun makeCreateAppointmentsRequest(body: AppointmentsToCreate) =
@@ -113,16 +121,20 @@ class AppointmentsResourceTest : ResourceTest() {
 
   @Test
   fun deleteAnAppointment() {
-    val scheduledEvent = ScheduledEvent
-      .builder()
-      .eventId(1L)
-      .eventType("APP")
-      .eventSubType("VLB")
-      .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
-      .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-      .eventLocationId(2L)
-      .build()
-    `when`(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent))
+    whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+      Optional.of(
+        OffenderIndividualSchedule().apply {
+          id = 1L
+          eventType = "APP"
+          eventSubType = "VLB"
+          startTime = LocalDateTime.of(2020, 1, 1, 1, 1)
+          endTime = LocalDateTime.of(2020, 1, 1, 1, 31)
+          internalLocation = AgencyInternalLocation().apply { locationId = 2L }
+          fromLocation = AgencyLocation().apply { id = "WWI" }
+        },
+      ),
+    )
+
     val response = testRestTemplate.exchange(
       "/api/appointments/1",
       DELETE,
@@ -130,7 +142,7 @@ class AppointmentsResourceTest : ResourceTest() {
       Void::class.java,
     )
     assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    verify(bookingRepository).getBookingAppointmentByEventId(1L)
+    verify(offenderIndividualScheduleRepository).findById(1L)
   }
 
   @Nested
@@ -138,7 +150,8 @@ class AppointmentsResourceTest : ResourceTest() {
   inner class DeleteAppointment {
     @Test
     fun deleteAnAppointment_notFound() {
-      `when`(bookingRepository.getBookingAppointmentByEventId(1L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
+
       val response = testRestTemplate.exchange(
         "/api/appointments/1",
         DELETE,
@@ -146,7 +159,7 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-      verify(bookingRepository).getBookingAppointmentByEventId(1L)
+      verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
     @Test
@@ -158,7 +171,7 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-      verifyNoInteractions(bookingRepository)
+      verifyNoInteractions(offenderIndividualScheduleRepository)
     }
   }
 
@@ -167,17 +180,23 @@ class AppointmentsResourceTest : ResourceTest() {
   inner class GetAppointment {
     @Test
     fun getAnAppointment() {
-      val scheduledEvent = ScheduledEvent
-        .builder()
-        .eventId(1L)
-        .eventType("APP")
-        .eventSubType("VLB")
-        .startTime(LocalDateTime.of(2020, 1, 1, 1, 1))
-        .endTime(LocalDateTime.of(2020, 1, 1, 1, 31))
-        .eventLocationId(2L)
-        .createUserId("user")
-        .build()
-      `when`(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.of(scheduledEvent))
+      val appointment = OffenderIndividualSchedule().apply {
+        id = 1L
+        offenderBooking = OffenderBooking().apply { bookingId = 1L }
+        eventClass = EventClass.INT_MOV
+        eventType = "APP"
+        eventSubType = "VLB"
+        eventStatus = EventStatus("SCH", "desc")
+        startTime = LocalDateTime.of(2020, 1, 1, 1, 1)
+        endTime = LocalDateTime.of(2020, 1, 1, 1, 31)
+        internalLocation = AgencyInternalLocation().apply { locationId = 2L }
+        fromLocation = AgencyLocation().apply {
+          id = "WWI"
+          description = "desc"
+        }
+      }
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.of(appointment))
+
       val response = testRestTemplate.exchange(
         "/api/appointments/1",
         GET,
@@ -185,13 +204,14 @@ class AppointmentsResourceTest : ResourceTest() {
         ScheduledEvent::class.java,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-      assertThat(response.body).isEqualTo(scheduledEvent)
-      verify(bookingRepository).getBookingAppointmentByEventId(1L)
+      assertThat(response.body).isEqualTo(ScheduledEvent(appointment))
+      verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
     @Test
     fun getAnAppointment_notFound() {
-      `when`(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
+
       val response = testRestTemplate.exchange(
         "/api/appointments/1",
         GET,
@@ -199,12 +219,11 @@ class AppointmentsResourceTest : ResourceTest() {
         String::class.java,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-      verify(bookingRepository).getBookingAppointmentByEventId(1L)
+      verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
     @Test
     fun getAnAppointment_notAuthorised() {
-      `when`(bookingRepository.getBookingAppointmentByEventId(anyLong())).thenReturn(Optional.empty())
       val response = testRestTemplate.exchange(
         "/api/appointments/1",
         GET,
@@ -212,9 +231,10 @@ class AppointmentsResourceTest : ResourceTest() {
         String::class.java,
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-      verifyNoInteractions(bookingRepository)
+      verifyNoInteractions(offenderIndividualScheduleRepository)
     }
   }
+
   private fun headers(token: String, contentType: MediaType): HttpHeaders {
     val headers = HttpHeaders()
     headers.contentType = contentType
@@ -224,7 +244,9 @@ class AppointmentsResourceTest : ResourceTest() {
 
   @Test
   fun updateAppointmentComment() {
-    `when`(bookingRepository.updateBookingAppointmentComment(anyLong(), anyString())).thenReturn(true)
+    val appointment = appointmentWithId(1)
+    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
     val response = testRestTemplate
       .exchange(
         "/api/appointments/1/comment",
@@ -239,12 +261,14 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
     assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    verify(bookingRepository).updateBookingAppointmentComment(1L, "Comment")
+    assertThat(appointment.comment).isEqualTo("Comment")
   }
 
   @Test
   fun updateAppointmentComment_emptyComment() {
-    `when`(bookingRepository.updateBookingAppointmentComment(anyLong(), isNull())).thenReturn(true)
+    val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
     val response = testRestTemplate
       .exchange(
         "/api/appointments/1/comment",
@@ -256,12 +280,14 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
     assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    verify(bookingRepository).updateBookingAppointmentComment(1L, null)
+    assertThat(appointment.comment).isNull()
   }
 
   @Test
   fun updateAppointmentComment_noComment() {
-    `when`(bookingRepository.updateBookingAppointmentComment(anyLong(), isNull())).thenReturn(true)
+    val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
     val response = testRestTemplate
       .exchange(
         "/api/appointments/1/comment",
@@ -270,12 +296,13 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
     assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    verify(bookingRepository).updateBookingAppointmentComment(1L, null)
+    assertThat(appointment.comment).isNull()
   }
 
   @Test
   fun updateAppointmentComment_notFound() {
-    `when`(bookingRepository.updateBookingAppointmentComment(anyLong(), anyString())).thenReturn(false)
+    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.empty())
+
     val response = testRestTemplate
       .exchange(
         "/api/appointments/1/comment",
@@ -290,7 +317,6 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
     assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-    verify(bookingRepository).updateBookingAppointmentComment(1L, "Comment")
   }
 
   @Test
@@ -309,6 +335,6 @@ class AppointmentsResourceTest : ResourceTest() {
         Void::class.java,
       )
     assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    verifyNoInteractions(bookingRepository)
+    verifyNoInteractions(offenderIndividualScheduleRepository)
   }
 }
