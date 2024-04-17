@@ -86,4 +86,9 @@ public class OffenceHistoryDetail {
 
     public OffenceHistoryDetail() {
     }
+
+    public Boolean convicted() {
+        return (this.primaryResultConviction!= null && this.primaryResultConviction)
+            || (this.secondaryResultConviction != null && this.secondaryResultConviction);
+    }
 }
