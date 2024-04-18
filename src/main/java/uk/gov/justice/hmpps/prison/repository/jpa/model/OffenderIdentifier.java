@@ -16,6 +16,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 
 @Data
 @Builder
@@ -61,6 +62,9 @@ public class OffenderIdentifier extends AuditableEntity {
 
     @Column(name = "CASELOAD_TYPE")
     private String caseloadType;
+
+    @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
+    private LocalDateTime createDateTime;
 
     public boolean isPnc() {
         return "PNC".equalsIgnoreCase(identifierType);

@@ -5,6 +5,10 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.ADM
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TAP
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN
 import java.time.LocalDateTime
 
 class OffenderBookingTest {
@@ -510,6 +514,150 @@ class OffenderBookingTest {
         assertThat(prisonPeriod[1].entryDate).isNotNull
         assertThat(prisonPeriod[1].releaseDate).isNotNull
       }
+    }
+  }
+
+  @Nested
+  internal inner class Location {
+    private val outside = AgencyLocation.builder().id("OUT").description("OUTSIDE").build()
+    private val moorland = AgencyLocation.builder().id("MDI").description("MOORLAND (HMP & YOI)").build()
+    private val brixton = AgencyLocation.builder().id("BXI").description("BRIXTON (HMP)").build()
+    private val transfer = AgencyLocation.builder().id("TRN").description("TRANSFER").build()
+    private val cellInMoorland = AgencyInternalLocation.builder().location(moorland).build()
+
+    @Test
+    fun `IN should be agency description`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("IN")
+        .statusReason("ADM-INT")
+        .location(moorland)
+        .assignedLivingUnit(cellInMoorland)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.IN)
+              .movementType(MovementType.of(ADM))
+              .toAgency(moorland)
+              .build(),
+          ),
+        )
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
+    }
+
+    @Test
+    fun `OUT and released should be Outside - released from`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("OUT")
+        .statusReason("REL-CR")
+        .location(outside)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(moorland)
+              .build(),
+          ),
+        )
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Outside - released from Moorland (HMP & YOI)")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
+    }
+
+    @Test
+    fun `OUT and last movement not from an agency should be outside`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("OUT")
+        .statusReason("REL-CR")
+        .location(outside)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(null)
+              .build(),
+          ),
+        )
+        .assignedLivingUnit(AgencyInternalLocation.builder().description("Outside").build())
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Outside")
+      assertThat(booking.latestLocationId).isEqualTo("OUT")
+    }
+
+    @Test
+    fun `OUT on a TAP should be agency description`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("OUT")
+        .statusReason("TAP-ELR")
+        .location(moorland)
+        .assignedLivingUnit(cellInMoorland)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(TAP))
+              .fromAgency(moorland)
+              .build(),
+          ),
+        )
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
+    }
+
+    @Test
+    fun `TRN should be transfer`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("TRN")
+        .statusReason("TRN-NOTR")
+        .location(transfer)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(TRN))
+              .fromAgency(moorland)
+              .toAgency(brixton)
+              .build(),
+          ),
+        )
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Transfer")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
+    }
+
+    @Test
+    fun `TRN but status doesn't match last movement should be outside, movement type description`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("TRN")
+        .statusReason("REL-NG")
+        .location(transfer)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType("TRN", "Transfers"))
+              .fromAgency(moorland)
+              .toAgency(brixton)
+              .build(),
+          ),
+        )
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Outside - Transfers")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
     }
   }
 }

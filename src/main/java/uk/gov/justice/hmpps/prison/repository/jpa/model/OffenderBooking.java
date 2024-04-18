@@ -28,6 +28,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString.Exclude;
 import lombok.With;
+import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.annotations.BatchSize;
 import org.hibernate.annotations.ListIndexBase;
@@ -44,6 +45,7 @@ import uk.gov.justice.hmpps.prison.api.support.SentenceAdjustmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord.BookingAndSequence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
+import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
 
 import java.time.LocalDate;
@@ -58,6 +60,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer.filterSentenceTerms;
 
 @Getter
@@ -479,7 +482,7 @@ public class OffenderBooking extends AuditableEntity {
 
 
     public Optional<LocalDate> getConfirmedReleaseDate() {
-        return Optional.ofNullable(releaseDetail != null ? releaseDetail.getReleaseDate() != null ? releaseDetail.getReleaseDate() : releaseDetail.getAutoReleaseDate() : null);
+        return Optional.ofNullable(releaseDetail != null ? releaseDetail.getReleaseDate() : null);
     }
 
     public Optional<LocalDate> getSentenceStartDate() {
@@ -738,6 +741,54 @@ public class OffenderBooking extends AuditableEntity {
                 .build()
             )
             .toList();
+    }
+
+    public String getLocationDescription() {
+        String locationDescription = location.getDescription();
+        if (assignedLivingUnit != null && assignedLivingUnit.getLocation() != null) {
+            locationDescription = assignedLivingUnit.getLocation().getDescription();
+        }
+        locationDescription = LocationProcessor.formatLocation(locationDescription);
+        if (!"IN".equals(getInOutStatus())) {
+            var lastMovement = getLastMovement().orElse(null);
+            var lastMovementTypeCode = getLastMovementTypeCode();
+            if (lastMovement != null && lastMovement.getFromAgency() != null) {
+                if (REL.getCode().equals(lastMovementTypeCode)) {
+                    if (REL.getCode().equals(lastMovement.getMovementType().getCode())) {
+                        locationDescription = "Outside - released from " + LocationProcessor.formatLocation(lastMovement.getFromAgency().getDescription());
+                    } else {
+                        locationDescription = "Outside - " + lastMovement.getMovementType().getDescription();
+                    }
+                }
+            } else {
+                locationDescription = "Outside";
+            }
+        }
+        return locationDescription;
+    }
+
+    public String getLatestLocationId() {
+        String latestLocationId = location.getId();
+        if (assignedLivingUnit != null && assignedLivingUnit.getLocation() != null) {
+            latestLocationId = assignedLivingUnit.getLocation().getId();
+        }
+        if (!"IN".equals(getInOutStatus())) {
+            var lastMovement = getLastMovement().orElse(null);
+            if (lastMovement != null && lastMovement.getFromAgency() != null) {
+                latestLocationId = lastMovement.getFromAgency().getId();
+            }
+        }
+        return latestLocationId;
+    }
+
+    private String getLastMovementTypeCode() {
+        final var splitStatusReason = StringUtils.split(statusReason, "-");
+        if (splitStatusReason != null) {
+            if (splitStatusReason.length >= 1) {
+                return splitStatusReason[0];
+            }
+        }
+        return null;
     }
 
     public static Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {
