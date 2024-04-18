@@ -387,7 +387,6 @@ enum class BookingRepositorySql(val sql: String) {
   GET_BOOKING_APPOINTMENTS(
     """
         SELECT OIS.OFFENDER_BOOK_ID BOOKING_ID,
-        OIS.EVENT_ID,
         OIS.EVENT_CLASS,
         OIS.EVENT_STATUS,
         OIS.EVENT_TYPE,
@@ -568,12 +567,31 @@ enum class BookingRepositorySql(val sql: String) {
     """,
   ),
 
+  INSERT_APPOINTMENT(
+    """
+        INSERT INTO OFFENDER_IND_SCHEDULES (EVENT_ID, OFFENDER_BOOK_ID, EVENT_DATE, START_TIME, END_TIME, COMMENT_TEXT,
+                EVENT_CLASS, EVENT_TYPE, EVENT_SUB_TYPE, EVENT_STATUS, AGY_LOC_ID, TO_INTERNAL_LOCATION_ID)
+        VALUES (EVENT_ID.NEXTVAL, :bookingId, :eventDate, :startTime, :endTime, :comment,
+                'INT_MOV', 'APP', :eventSubType, 'SCH', :agencyId, :locationId)
+    """,
+  ),
+
   DELETE_APPOINTMENT(
     """
         DELETE FROM OFFENDER_IND_SCHEDULES
          WHERE EVENT_ID = :eventId
                AND EVENT_CLASS = 'INT_MOV'
                AND EVENT_TYPE = 'APP'
+    """,
+  ),
+
+  UPDATE_APPOINTMENT_COMMENT(
+    """
+      UPDATE OFFENDER_IND_SCHEDULES
+         SET COMMENT_TEXT = :comment
+       WHERE EVENT_ID = :eventId
+             AND EVENT_CLASS = 'INT_MOV'
+             AND EVENT_TYPE = 'APP'
     """,
   ),
 
@@ -641,6 +659,15 @@ enum class BookingRepositorySql(val sql: String) {
         INNER JOIN AGENCY_LOCATIONS AL ON AL.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = OB.LIVING_UNIT_ID
                 WHERE O.OFFENDER_ID_DISPLAY = :offenderNo
+    """,
+  ),
+
+  FIND_BOOKING_IDS_IN_AGENCY(
+    """
+        SELECT OB.OFFENDER_BOOK_ID booking_id
+        FROM OFFENDER_BOOKINGS OB
+        WHERE OB.OFFENDER_BOOK_ID IN (:bookingIds)
+        AND OB.AGY_LOC_ID = :agencyId
     """,
   ),
 

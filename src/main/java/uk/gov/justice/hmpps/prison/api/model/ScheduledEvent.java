@@ -2,16 +2,14 @@ package uk.gov.justice.hmpps.prison.api.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
 import lombok.Builder;
 import lombok.Data;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Objects;
 
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -105,11 +103,7 @@ public class ScheduledEvent {
     @Schema(description = "Staff member who created the appointment")
     private String createUserId;
 
-    public ScheduledEvent(@NotNull Long bookingId, @NotBlank String eventClass, Long eventId, @NotBlank String eventStatus,
-                          @NotBlank String eventType, @NotBlank String eventTypeDesc, @NotBlank String eventSubType,
-                          @NotBlank String eventSubTypeDesc, @NotNull LocalDate eventDate, LocalDateTime startTime, LocalDateTime endTime,
-                          String eventLocation, Long eventLocationId, String agencyId, @NotBlank String eventSource, String eventSourceCode, String eventSourceDesc,
-                          String eventOutcome, String performance, String outcomeComment, Boolean paid, BigDecimal payRate, String locationCode, String createUserId) {
+    public ScheduledEvent(@NotNull Long bookingId, @NotBlank String eventClass, Long eventId, @NotBlank String eventStatus, @NotBlank String eventType, @NotBlank String eventTypeDesc, @NotBlank String eventSubType, @NotBlank String eventSubTypeDesc, @NotNull LocalDate eventDate, LocalDateTime startTime, LocalDateTime endTime, String eventLocation, Long eventLocationId, String agencyId, @NotBlank String eventSource, String eventSourceCode, String eventSourceDesc, String eventOutcome, String performance, String outcomeComment, Boolean paid, BigDecimal payRate, String locationCode, String createUserId) {
         this.bookingId = bookingId;
         this.eventClass = eventClass;
         this.eventId = eventId;
@@ -137,40 +131,5 @@ public class ScheduledEvent {
     }
 
     public ScheduledEvent() {
-    }
-
-    public ScheduledEvent(OffenderIndividualSchedule ois) {
-        this(
-            ois.getOffenderBooking().getBookingId(),
-            ois.getEventClass().name(),
-            ois.getId(),
-            ois.getEventStatus().getCode(),
-            ois.getEventType(),
-            "Appointment", // not used
-            ois.getEventSubType(),
-            null, // not used
-            ois.getEventDate(),
-            ois.getStartTime(),
-            ois.getEndTime(),
-            Objects.requireNonNullElse(
-                ois.getInternalLocation().getUserDescription(),
-                Objects.requireNonNullElse(
-                    ois.getInternalLocation().getDescription(),
-                    ois.getFromLocation().getDescription()
-                )
-            ),
-            ois.getInternalLocation().getLocationId(),
-            ois.getFromLocation().getId(),
-            "APP",
-            "APP",
-            ois.getComment(),
-            null,
-            null,
-            null,
-            null,
-            null,
-            null,
-            ois.getCreateUserId()
-        );
     }
 }
