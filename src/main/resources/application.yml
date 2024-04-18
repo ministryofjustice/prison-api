@@ -11,6 +11,9 @@ spring:
   application:
     name: prison-api
 
+  cache:
+    type: jcache
+
   profiles:
     group:
       nomis:
