@@ -120,7 +120,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(automaticReleaseOverrideDate).isEqualTo("2018-04-21")
               assertThat(nonDtoReleaseDate).isEqualTo("2018-04-21")
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
-              assertThat(confirmedReleaseDate).isEqualTo("2018-04-19")
+              assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
             }
             assertThat(mostSeriousOffence).isNull()
@@ -158,6 +158,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               .containsExactly(
                 tuple("CRO", "CRO112233", "A1234AC", LocalDate.parse("2017-07-13"), "INST"),
               )
+            assertThat(identifiers?.first()?.whenCreated?.toLocalDate()).isEqualTo(LocalDate.now())
             assertThat(mostSeriousOffence).isNull()
             assertThat(aliases).isEmpty()
           }

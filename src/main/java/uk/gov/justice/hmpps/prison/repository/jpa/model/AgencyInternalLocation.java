@@ -83,6 +83,10 @@ public class AgencyInternalLocation {
     @Column(name = "AGY_LOC_ID")
     private String agencyId;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AGY_LOC_ID", nullable = false, updatable = false, insertable = false)
+    private AgencyLocation location;
+
     @Column(name = "DESCRIPTION")
     private String description;
 
