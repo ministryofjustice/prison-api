@@ -14,14 +14,8 @@ configurations {
   }
 }
 
-dependencyCheck {
-  suppressionFiles.add("dependency-check-suppress-h2.xml")
-}
-
 // Temporarily kept at 4.6 as 4.7 not compatible with spring data jpa
 val jsqlParserVersion by extra("4.6")
-
-ext["rest-assured.version"] = "5.3.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -70,10 +64,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.1.9")
-  testImplementation("net.serenity-bdd:serenity-junit:4.1.9")
-  testImplementation("net.serenity-bdd:serenity-spring:4.1.9")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.9")
+  testImplementation("net.serenity-bdd:serenity-core:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-junit:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-spring:4.1.4")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.4")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.5.3")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
