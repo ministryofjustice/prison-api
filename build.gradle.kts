@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.5"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "5.15.6"
   kotlin("plugin.spring") version "1.9.23"
   kotlin("plugin.jpa") version "1.9.23"
   kotlin("plugin.lombok") version "1.9.23"
@@ -14,14 +14,8 @@ configurations {
   }
 }
 
-dependencyCheck {
-  suppressionFiles.add("dependency-check-suppress-h2.xml")
-}
-
 // Temporarily kept at 4.6 as 4.7 not compatible with spring data jpa
 val jsqlParserVersion by extra("4.6")
-
-ext["rest-assured.version"] = "5.3.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -42,12 +36,12 @@ dependencies {
   implementation("com.zaxxer:HikariCP:5.1.0")
 
   implementation("io.swagger:swagger-annotations:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.4.0")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.5.0")
 
   implementation("org.apache.commons:commons-lang3:3.14.0")
-  implementation("commons-io:commons-io:2.15.1")
+  implementation("commons-io:commons-io:2.16.1")
   implementation("com.google.guava:guava:33.1.0-jre")
-  implementation("org.apache.commons:commons-text:1.11.0")
+  implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.22.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
@@ -75,10 +69,10 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:4.1.4")
   testImplementation("net.serenity-bdd:serenity-cucumber:4.1.4")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.4.2")
+  testImplementation("org.wiremock:wiremock:3.5.3")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.21") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.21")
