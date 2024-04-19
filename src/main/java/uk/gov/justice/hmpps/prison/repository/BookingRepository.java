@@ -13,8 +13,11 @@ import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
+import org.springframework.jdbc.core.namedparam.SqlParameterSource;
+import org.springframework.jdbc.support.GeneratedKeyHolder;
 import org.springframework.stereotype.Repository;
 import org.springframework.util.CollectionUtils;
+import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalculation;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSummary;
@@ -28,6 +31,8 @@ import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalancesDto;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetailsDto;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
+import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDetails;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
@@ -553,6 +558,24 @@ public class BookingRepository extends RepositoryBase {
         }
     }
 
+    public Long createBookingAppointment(final Long bookingId, final NewAppointment newAppointment, final String agencyId) {
+        final var sql = BookingRepositorySql.INSERT_APPOINTMENT.getSql();
+        final var generatedKeyHolder = new GeneratedKeyHolder();
+        final var startTime = newAppointment.getStartTime();
+        jdbcTemplate.update(
+                sql,
+                createParams("bookingId", bookingId,
+                        "eventSubType", newAppointment.getAppointmentType(),
+                        "eventDate", DateTimeConverter.toDate(startTime.toLocalDate()),
+                        "startTime", DateTimeConverter.fromLocalDateTime(startTime),
+                        "endTime", DateTimeConverter.fromLocalDateTime(newAppointment.getEndTime()),
+                        "comment", newAppointment.getComment(),
+                        "locationId", newAppointment.getLocationId(),
+                        "agencyId", agencyId),
+                generatedKeyHolder,
+                new String[]{"EVENT_ID"});
+        return generatedKeyHolder.getKey().longValue();
+    }
 
     public void deleteBookingAppointment(final long eventId) {
         // Not deleting a row because it doesn't exist isn't an error.
@@ -560,6 +583,23 @@ public class BookingRepository extends RepositoryBase {
                 BookingRepositorySql.DELETE_APPOINTMENT.getSql(),
                 createParams("eventId", eventId)
         );
+    }
+
+    /**
+     * Update the comment field of an OFFENDER_IND_SCHEDULES record if it's event class is 'INT_MOV' and
+     * its event type is 'APP'
+     * @param eventId The unique identifier for the appointment
+     * @param comment The value to which the appointment should be set. Can be null.
+     * @return true if the appointment was updated. false if the appointment does not exist.
+     */
+    public boolean updateBookingAppointmentComment(final long eventId, final String comment) {
+        return jdbcTemplate.update(
+            BookingRepositorySql.UPDATE_APPOINTMENT_COMMENT.getSql(),
+            createParams(
+                "eventId", eventId,
+                "comment", comment
+            )
+        ) == 1;
     }
 
     public List<OffenderSentenceDetailDto> getOffenderSentenceSummary(final String query, final Set<String> allowedCaseloadsOnly, final boolean filterByCaseload, final boolean viewInactiveBookings) {
@@ -657,5 +697,36 @@ public class BookingRepository extends RepositoryBase {
                 sql,
                 createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
                 SENTENCE_CALC_SUMMARY_ROW_MAPPER);
+    }
+
+    public long createAppointment(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
+        final var generatedKeyHolder = new GeneratedKeyHolder();
+        jdbcTemplate.update(
+            BookingRepositorySql.INSERT_APPOINTMENT.getSql(),
+            toSqlParameterSource(details, defaults, agencyId),
+            generatedKeyHolder,
+            new String[]{"EVENT_ID"});
+        return generatedKeyHolder.getKey().longValue();
+    }
+
+    private SqlParameterSource toSqlParameterSource(final AppointmentDetails details, final AppointmentDefaults defaults, final String agencyId) {
+        return createParams(
+                "bookingId", details.getBookingId(),
+                "eventSubType", defaults.getAppointmentType(),
+                "eventDate", DateTimeConverter.toDate(details.getStartTime().toLocalDate()),
+                "startTime", DateTimeConverter.fromLocalDateTime(details.getStartTime()),
+                "endTime", DateTimeConverter.fromLocalDateTime(details.getEndTime()),
+                "locationId", defaults.getLocationId(),
+                "agencyId", agencyId,
+                "comment", details.getComment());
+    }
+
+    public List<Long> findBookingsIdsInAgency(final List<Long> bookingIds, final String agencyId) {
+        if (bookingIds.isEmpty()) return Collections.emptyList();
+
+        return jdbcTemplate.query(
+                BookingRepositorySql.FIND_BOOKING_IDS_IN_AGENCY.getSql(),
+                createParams("bookingIds", bookingIds, "agencyId", agencyId),
+                (rs, rowNum) -> rs.getLong(1));
     }
 }
