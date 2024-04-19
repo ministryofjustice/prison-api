@@ -14,12 +14,14 @@ import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 import static java.util.stream.Collectors.toList;
@@ -62,11 +64,11 @@ public class OffenderTransformer {
             .sentenceTerms(sentenceTerms)
             .sentenceDetail(latestBooking.getSentenceCalcDates())
             .profileInformation(latestBooking.getActiveProfileDetails().stream()
-                .filter(pd -> pd.getCode() != null)
+                .sorted(Comparator.comparing(OffenderProfileDetail::getListSequence))
                 .map(pd -> ProfileInformation.builder()
                     .type(pd.getId().getType().getType())
                     .question(pd.getId().getType().getDescription())
-                    .resultValue(pd.getCode().getDescription())
+                    .resultValue(pd.getCode() != null ? pd.getCode().getDescription() : pd.getProfileCode())
                     .build()).toList())
             .legalStatus(latestBooking.getLegalStatus())
             .imprisonmentStatus(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus().getStatus()).orElse(null))
