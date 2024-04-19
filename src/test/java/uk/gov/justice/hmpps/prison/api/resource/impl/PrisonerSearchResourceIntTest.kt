@@ -79,9 +79,9 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(lastName).isEqualTo("ANDERSON")
             assertThat(dateOfBirth).isEqualTo("1998-08-28")
             assertThat(agencyId).isEqualTo("LEI")
-            assertThat(alerts).extracting(Alert::getAlertType, Alert::getAlertCode).containsExactlyInAnyOrder(
-              tuple("H", "HA"),
-              tuple("X", "XTACT"),
+            assertThat(alerts).extracting(Alert::getAlertId, Alert::getAlertType, Alert::getAlertCode).containsExactlyInAnyOrder(
+              tuple(1L, "H", "HA"),
+              tuple(2L, "X", "XTACT"),
             )
             with(assignedLivingUnit!!) {
               assertThat(agencyId).isEqualTo("LEI")
@@ -101,10 +101,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(physicalCharacteristics).extracting("type", "characteristic", "detail").containsExactly(
               tuple("FACE", "Shape of Face", "Round"),
             )
-            assertThat(profileInformation).containsExactlyInAnyOrder(
+            assertThat(profileInformation).containsExactly(
               ProfileInformation("RELF", "Religion", "Baptist"),
               ProfileInformation("SMOKE", "Is the Offender a smoker?", "No"),
               ProfileInformation("NAT", "Nationality?", "Israeli"),
+              ProfileInformation("CHILD", "Number of Children?", "3"),
             )
             assertThat(physicalMarks).isEmpty()
             assertThat(csra).isNull()
@@ -157,6 +158,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(identifiers).extracting("type", "value", "offenderNo", "issuedDate", "caseloadType")
               .containsExactly(
                 tuple("CRO", "CRO112233", "A1234AC", LocalDate.parse("2017-07-13"), "INST"),
+                tuple("PNC", "24/1234567L", "A1234AC", LocalDate.parse("2024-01-01"), "INST"),
               )
             assertThat(identifiers?.first()?.whenCreated?.toLocalDate()).isEqualTo(LocalDate.now())
             assertThat(mostSeriousOffence).isNull()
