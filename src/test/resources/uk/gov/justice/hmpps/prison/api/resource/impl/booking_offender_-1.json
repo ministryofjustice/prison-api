@@ -78,6 +78,11 @@
       "type":"NAT",
       "question":"Nationality?",
       "resultValue":"Israeli"
+    },
+    {
+      "type":"CHILD",
+      "question":"Number of Children?",
+      "resultValue":"3"
     }
   ],
   "physicalMarks":[],
