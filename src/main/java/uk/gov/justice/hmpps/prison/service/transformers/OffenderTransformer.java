@@ -91,9 +91,9 @@ public class OffenderTransformer {
             .filter(OffenderCharge::isActive)
             .filter(oc -> oc.getOffence().isActive())
             .filter(oc -> oc.getOffenderCourtCase().isActive())
+            .sorted(Comparator.comparing(OffenderCharge::getId))
             .map(offenderChargeTransformer::convert)
             .filter(OffenceHistoryDetail::convicted)
-            .sorted(Comparator.comparing(OffenceHistoryDetail::getOffenceDate))
             .toList();
     }
 
