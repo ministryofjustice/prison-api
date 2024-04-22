@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service.transformers;
 import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.jetbrains.annotations.NotNull;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.api.model.ProfileInformation;
 import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -40,7 +42,7 @@ public class OffenderTransformer {
 
     public InmateDetail transform(final OffenderBooking latestBooking) {
         final var offenderBuilder = buildOffender(latestBooking.getOffender());
-        final var offenceHistory = latestBooking.getCharges().stream().map(offenderChargeTransformer::convert).filter(OffenceHistoryDetail::convicted).toList();
+        final var offenceHistory = getActiveConvictedOffences(latestBooking);
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
         return offenderBuilder
@@ -82,6 +84,17 @@ public class OffenderTransformer {
             .deriveStatus()
             .splitStatusReason()
             .updateReligion();
+    }
+
+    private @NotNull List<OffenceHistoryDetail> getActiveConvictedOffences(OffenderBooking latestBooking) {
+        return latestBooking.getCharges().stream()
+            .filter(OffenderCharge::isActive)
+            .filter(oc -> oc.getOffence().isActive())
+            .filter(oc -> oc.getOffenderCourtCase().isActive())
+            .map(offenderChargeTransformer::convert)
+            .filter(OffenceHistoryDetail::convicted)
+            .sorted(Comparator.comparing(OffenceHistoryDetail::getOffenceDate))
+            .toList();
     }
 
     private InmateDetail.InmateDetailBuilder buildOffender(final Offender offender) {
