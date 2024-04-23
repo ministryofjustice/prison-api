@@ -4,6 +4,8 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
@@ -18,13 +20,17 @@ class PrisonerSearchService(
 ) {
 
   @Transactional
-  fun getPrisonerDetails(offenderNo: String): PrisonerSearchDetails =
-    getInmateDetail(offenderNo)
+  fun getPrisonerDetails(offenderNo: String): PrisonerSearchDetails {
+    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).toNullable()
+    val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).toNullable()
+    if (offender == null) throw EntityNotFoundException.withId(offenderNo)
+    return getInmateDetail(offender, booking)
       .let {
         PrisonerSearchDetails(
           offenderNo = it.offenderNo,
           bookingId = it.bookingId,
           bookingNo = it.bookingNo,
+          title = offender.title?.description,
           firstName = it.firstName,
           middleName = it.middleName,
           lastName = it.lastName,
@@ -41,7 +47,7 @@ class PrisonerSearchService(
           categoryCode = it.categoryCode,
           inOutStatus = it.inOutStatus,
           identifiers = it.identifiers?.sortedBy { it.whenCreated },
-          sentenceDetail = it.sentenceDetail,
+          sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded ?: 0 },
           mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.firstOrNull { it.mostSerious }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
@@ -57,12 +63,10 @@ class PrisonerSearchService(
           latestLocationId = it.latestLocationId,
         )
       }
+  }
 
-  private fun getInmateDetail(offenderNo: String): InmateDetail {
-    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).toNullable()
-    val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).toNullable()
-    if (offender == null) throw EntityNotFoundException.withId(offenderNo)
-    return booking
+  private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail =
+    booking
       ?.let { offenderTransformer.transform(it) }
       ?.apply {
         // TODO These need to be modelled in JPA and set by the OffenderTransformer
@@ -76,7 +80,6 @@ class PrisonerSearchService(
         }
       }
       ?: let { offenderTransformer.transformWithoutBooking(offender) }
-  }
 }
 
 private fun <T> Optional<T>.toNullable(): T? = orElse(null)

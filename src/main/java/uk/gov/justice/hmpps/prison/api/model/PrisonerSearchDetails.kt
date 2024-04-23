@@ -17,6 +17,9 @@ data class PrisonerSearchDetails(
   @Schema(description = "Booking Number of the active booking")
   val bookingNo: String? = null,
 
+  @Schema(description = "Title")
+  val title: String? = null,
+
   @Schema(description = "First Name")
   val firstName: String,
 
