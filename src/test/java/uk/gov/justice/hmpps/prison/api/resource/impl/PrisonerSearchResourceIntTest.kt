@@ -74,6 +74,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(offenderNo).isEqualTo("A1234AB")
             assertThat(bookingId).isEqualTo(-2)
             assertThat(bookingNo).isEqualTo("A00112")
+            assertThat(title).isEqualTo("Mrs")
             assertThat(firstName).isEqualTo("GILLIAN")
             assertThat(middleName).isEqualTo("EVE")
             assertThat(lastName).isEqualTo("ANDERSON")
@@ -123,6 +124,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
+              assertThat(additionalDaysAwarded).isEqualTo(0)
             }
             assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
