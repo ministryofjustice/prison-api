@@ -66,7 +66,10 @@ public class OffenceHistoryDetail {
     @Schema(description = "Court case id", example = "100")
     private Long caseId;
 
-    public OffenceHistoryDetail(@NotNull Long bookingId, @NotNull LocalDate offenceDate, LocalDate offenceRangeDate, @NotBlank String offenceDescription, @NotBlank String offenceCode, @NotBlank String statuteCode, Boolean mostSerious, String primaryResultCode, String secondaryResultCode, String primaryResultDescription, String secondaryResultDescription, Boolean primaryResultConviction, Boolean secondaryResultConviction, LocalDate courtDate, Long caseId) {
+    @Schema(description = "Offence Severity Ranking", example = "100")
+    private Integer offenceSeverityRanking;
+
+    public OffenceHistoryDetail(@NotNull Long bookingId, @NotNull LocalDate offenceDate, LocalDate offenceRangeDate, @NotBlank String offenceDescription, @NotBlank String offenceCode, @NotBlank String statuteCode, Boolean mostSerious, String primaryResultCode, String secondaryResultCode, String primaryResultDescription, String secondaryResultDescription, Boolean primaryResultConviction, Boolean secondaryResultConviction, LocalDate courtDate, Long caseId, Integer offenceSeverityRanking) {
         this.bookingId = bookingId;
         this.offenceDate = offenceDate;
         this.offenceRangeDate = offenceRangeDate;
@@ -82,6 +85,7 @@ public class OffenceHistoryDetail {
         this.secondaryResultConviction = secondaryResultConviction;
         this.courtDate = courtDate;
         this.caseId = caseId;
+        this.offenceSeverityRanking = offenceSeverityRanking;
     }
 
     public OffenceHistoryDetail() {

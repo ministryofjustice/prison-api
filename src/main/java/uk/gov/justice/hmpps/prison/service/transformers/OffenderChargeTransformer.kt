@@ -26,6 +26,7 @@ class OffenderChargeTransformer : Converter<OffenderCharge, OffenceHistoryDetail
       .primaryResultConviction(offenderCharge.resultCodeOne?.isConvictionFlag)
       .secondaryResultConviction(offenderCharge.resultCodeTwo?.isConvictionFlag)
       .courtDate(latestCourtEvent?.eventDate)
+      .offenceSeverityRanking(offenderCharge.offence.severityRanking?.toInt() ?: Int.MAX_VALUE)
       .build()
   }
 }
