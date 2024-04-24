@@ -58,3 +58,9 @@ generic-service:
     SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
     SMOKE_TEST_AWARE: true
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+
+generic-prometheus-alerts:
+  applicationAlertsEnabled: true
+  ingressAlertsEnabled: true
+  businessHoursOnly: true
+  alertSeverity: syscon-nonprod
