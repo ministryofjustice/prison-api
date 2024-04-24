@@ -48,7 +48,7 @@ class PrisonerSearchService(
           inOutStatus = it.inOutStatus,
           identifiers = it.identifiers?.sortedBy { it.whenCreated },
           sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded ?: 0 },
-          mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.firstOrNull { it.mostSerious }?.offenceDescription,
+          mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.filter { it.mostSerious }?.minByOrNull { it.offenceSeverityRanking }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
           status = it.status,

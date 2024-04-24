@@ -235,6 +235,38 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should handle unknown imprisonment status`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1184MA")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(legalStatus).isNull()
+            assertThat(imprisonmentStatus).isNull()
+            assertThat(imprisonmentStatusDescription).isNull()
+          }
+        }
+    }
+
+    @Test
+    fun `should return highest severity offence if multiple flagged as most serious`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A5577RS")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(mostSeriousOffence).isEqualTo("Attempted Murder")
+          }
+        }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234DD")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
