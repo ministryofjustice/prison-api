@@ -55,3 +55,10 @@ generic-service:
     JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+
+
+generic-prometheus-alerts:
+  applicationAlertsEnabled: true
+  ingressAlertsEnabled: true
+  businessHoursOnly: true
+  alertSeverity: syscon-nonprod
