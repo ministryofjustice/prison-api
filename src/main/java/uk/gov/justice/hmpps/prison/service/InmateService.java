@@ -143,16 +143,22 @@ public class InmateService {
         log.info("getBasicInmateDetailsForOffenders, {} offenders, {} caseloads, canViewAllOffenders {}", offenders.size(), caseloads.size(), canViewAllOffenders);
 
         final var results = new ArrayList<InmateBasicDetails>();
+
         Lists.partition(Lists.newArrayList(offenders), maxBatchSize).forEach(offenderList ->
             results.addAll(
                 repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
                     .stream()
-                    .map(offender ->
-                        offender.toBuilder()
-                            .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                            .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
-                            .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                            .build()
+                    .map(offender -> {
+                            var middleName = "";
+                            if (offender.getMiddleName() != null) {
+                                middleName = WordUtils.capitalizeFully(offender.getMiddleName()).trim();
+                            }
+                            return offender.toBuilder()
+                                .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
+                                .middleName(middleName)
+                                .lastName(WordUtils.capitalizeFully(offender.getLastName()))
+                                .build();
+                        }
                     ).toList()
             ));
 
