@@ -8,7 +8,7 @@ enum class PrisonerRepositorySql(val sql: String) {
         O.TITLE TITLE,
         O.SUFFIX SUFFIX,
         O.FIRST_NAME FIRST_NAME,
-        CONCAT (O.MIDDLE_NAME, CASE WHEN MIDDLE_NAME_2 IS NOT NULL THEN CONCAT (' ', O.MIDDLE_NAME_2) ELSE '' END) MIDDLE_NAMES,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAMES,
         O.LAST_NAME LAST_NAME,
         O.BIRTH_DATE DATE_OF_BIRTH,
         RCE.DESCRIPTION ETHNICITY,

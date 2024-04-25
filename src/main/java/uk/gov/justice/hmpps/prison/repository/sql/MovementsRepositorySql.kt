@@ -133,7 +133,7 @@ enum class MovementsRepositorySql(val sql: String) {
         O.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         OB.OFFENDER_BOOK_ID AS BOOKING_ID,
         O.FIRST_NAME FIRST_NAME,
-        CONCAT (O.MIDDLE_NAME, CASE WHEN MIDDLE_NAME_2 IS NOT NULL THEN CONCAT (' ', O.MIDDLE_NAME_2) ELSE '' END) MIDDLE_NAMES,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2))))  MIDDLE_NAMES,
         O.LAST_NAME LAST_NAME,
         O.BIRTH_DATE DATE_OF_BIRTH,
         OEM.FROM_AGY_LOC_ID            AS FROM_AGENCY,
@@ -173,7 +173,7 @@ enum class MovementsRepositorySql(val sql: String) {
         SELECT  /*+ index(OEM, OFFENDER_EXT_MOVEMENTS_X01) */
         O.OFFENDER_ID_DISPLAY  AS OFFENDER_NO,
         O.FIRST_NAME AS FIRST_NAME,
-        CONCAT (O.MIDDLE_NAME, CASE WHEN MIDDLE_NAME_2 IS NOT NULL THEN CONCAT (' ', O.MIDDLE_NAME_2) ELSE '' END) AS MIDDLE_NAMES,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) AS MIDDLE_NAMES,
         O.LAST_NAME AS LAST_NAME,
         O.BIRTH_DATE AS DATE_OF_BIRTH,
         OB.OFFENDER_BOOK_ID AS BOOKING_ID,

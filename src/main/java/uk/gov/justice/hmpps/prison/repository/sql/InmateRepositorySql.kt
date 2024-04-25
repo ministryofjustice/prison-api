@@ -9,7 +9,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.ROOT_OFFENDER_ID,
         O.OFFENDER_ID_DISPLAY OFFENDER_NO,
         O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAME,
         O.LAST_NAME,
         B.AGY_LOC_ID AGENCY_ID,
         B.LIVING_UNIT_ID ASSIGNED_LIVING_UNIT_ID,
@@ -42,7 +42,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.ROOT_OFFENDER_ID,
         O.OFFENDER_ID_DISPLAY OFFENDER_NO,
         O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAME,
         O.LAST_NAME,
         B.AGY_LOC_ID AGENCY_ID,
         B.LIVING_UNIT_ID ASSIGNED_LIVING_UNIT_ID,
@@ -76,7 +76,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.ROOT_OFFENDER_ID,
         O.OFFENDER_ID_DISPLAY,
         O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAME,
         O.LAST_NAME,
         O.BIRTH_DATE,
         B.AGY_LOC_ID,
@@ -97,7 +97,7 @@ enum class InmateRepositorySql(val sql: String) {
         I.DESCRIPTION        as ASSIGNED_LIVING_UNIT_DESC,
         O.OFFENDER_ID_DISPLAY as OFFENDER_NO,
         O.FIRST_NAME,
-        CONCAT(O.middle_name, CASE WHEN middle_name_2 IS NOT NULL THEN concat(' ', O.middle_name_2) ELSE '' END) MIDDLE_NAME,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAME,
         O.LAST_NAME,
         O.BIRTH_DATE as DATE_OF_BIRTH
         FROM OFFENDER_BOOKINGS OB
@@ -790,10 +790,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.TITLE                           TITLE,
         O.SUFFIX                          SUFFIX,
         O.FIRST_NAME                      FIRST_NAME,
-        CONCAT(O.MIDDLE_NAME,
-                CASE WHEN O.MIDDLE_NAME_2 IS NOT NULL
-                        THEN CONCAT(' ', O.MIDDLE_NAME_2)
-        ELSE '' END)                    MIDDLE_NAMES,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAMES,
         O.LAST_NAME                       LAST_NAME,
         O.BIRTH_DATE                      DATE_OF_BIRTH,
         RCE.DESCRIPTION                   ETHNICITY,
@@ -859,10 +856,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.TITLE                           TITLE,
         O.SUFFIX                          SUFFIX,
         O.FIRST_NAME                      FIRST_NAME,
-        CONCAT(O.MIDDLE_NAME,
-                CASE WHEN O.MIDDLE_NAME_2 IS NOT NULL
-                        THEN CONCAT(' ', O.MIDDLE_NAME_2)
-        ELSE '' END)                    MIDDLE_NAMES,
+        trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2)))) MIDDLE_NAMES,
         O.LAST_NAME                       LAST_NAME,
         O.BIRTH_DATE                      DATE_OF_BIRTH,
         RCE.DESCRIPTION                   ETHNICITY,
