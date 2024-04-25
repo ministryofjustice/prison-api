@@ -22,6 +22,8 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
 import java.math.BigDecimal;
@@ -79,7 +81,8 @@ public class OffenderCharge extends AuditableEntity {
     private OffenderBooking offenderBooking;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "CASE_ID", nullable = false)
+    @JoinColumn(name = "CASE_ID")
+    @NotFound(action = NotFoundAction.IGNORE)
     private OffenderCourtCase offenderCourtCase;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)

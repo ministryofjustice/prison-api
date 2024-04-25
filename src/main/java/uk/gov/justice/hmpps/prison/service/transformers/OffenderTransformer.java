@@ -89,7 +89,7 @@ public class OffenderTransformer {
     private @NotNull List<OffenceHistoryDetail> getActiveConvictedOffences(OffenderBooking latestBooking) {
         return latestBooking.getCharges().stream()
             .filter(OffenderCharge::isActive)
-            .filter(oc -> oc.getOffenderCourtCase().isActive())
+            .filter(oc -> oc.getOffenderCourtCase() != null && oc.getOffenderCourtCase().isActive())
             // According to SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING this is to "Avoid dups from merges (from NART team)"
             .filter(oc -> !"MERGE".equals(oc.getAuditModuleName()) || !"SYS".equals(oc.getCreateUserId()))
             .sorted(Comparator.comparing(OffenderCharge::getId))
