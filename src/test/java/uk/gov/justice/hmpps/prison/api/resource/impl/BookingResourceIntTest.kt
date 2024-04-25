@@ -1131,6 +1131,17 @@ class BookingResourceIntTest : ResourceTest() {
         .jsonPath("[0].secondaryResultConviction").isEqualTo(false)
         .jsonPath("[0].courtDate").isEqualTo("2017-02-22")
     }
+
+    @Test
+    fun `does not return any charges created by a MERGE`() {
+      webTestClient.get().uri("/api/bookings/offenderNo/A5577RS/offenceHistory?convictionsOnly=true")
+        .headers(setAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        // The charge for M2 should not be included because it was created by a MERGE, but M3 should
+        .jsonPath("[*].offenceCode").value<List<String>> { assertThat(it).containsOnly("M3", "M4") }
+    }
   }
 
   @Test
