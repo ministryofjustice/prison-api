@@ -148,17 +148,12 @@ public class InmateService {
             results.addAll(
                 repository.getBasicInmateDetailsForOffenders(new HashSet<>(offenderList), canViewAllOffenders, caseloads, active)
                     .stream()
-                    .map(offender -> {
-                            var middleName = "";
-                            if (offender.getMiddleName() != null) {
-                                middleName = WordUtils.capitalizeFully(offender.getMiddleName()).trim();
-                            }
-                            return offender.toBuilder()
+                    .map(offender ->
+                            offender.toBuilder()
                                 .firstName(WordUtils.capitalizeFully(offender.getFirstName()))
-                                .middleName(middleName)
+                                .middleName(WordUtils.capitalizeFully(offender.getMiddleName()))
                                 .lastName(WordUtils.capitalizeFully(offender.getLastName()))
-                                .build();
-                        }
+                                .build()
                     ).toList()
             ));
 
