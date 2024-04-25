@@ -52,3 +52,9 @@ generic-service:
       SPRING_REPLICA_DATASOURCE_PASSWORD: "SPRING_REPLICA_DATASOURCE_PASSWORD"
       SPRING_REPLICA_DATASOURCE_URL: "SPRING_REPLICA_DATASOURCE_URL"
       SPRING_REPLICA_DATASOURCE_USERNAME: "SPRING_REPLICA_DATASOURCE_USERNAME"
+
+generic-prometheus-alerts:
+  targetApplication: prison-api
+  alertSeverity: syscon
+  applicationAlertsEnabled: false
+  ingressAlertsEnabled: false

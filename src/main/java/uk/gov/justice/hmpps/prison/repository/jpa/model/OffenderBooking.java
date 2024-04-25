@@ -613,7 +613,7 @@ public class OffenderBooking extends AuditableEntity {
 
     public LegalStatus getLegalStatus() {
         return getActiveImprisonmentStatus().map(
-            is -> is.getImprisonmentStatus().getLegalStatus()
+            is -> is.getImprisonmentStatus() != null ? is.getImprisonmentStatus().getLegalStatus() : null
         ).orElse(null);
     }
 

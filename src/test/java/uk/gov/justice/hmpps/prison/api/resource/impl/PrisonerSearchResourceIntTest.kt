@@ -74,6 +74,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(offenderNo).isEqualTo("A1234AB")
             assertThat(bookingId).isEqualTo(-2)
             assertThat(bookingNo).isEqualTo("A00112")
+            assertThat(title).isEqualTo("Mrs")
             assertThat(firstName).isEqualTo("GILLIAN")
             assertThat(middleName).isEqualTo("EVE")
             assertThat(lastName).isEqualTo("ANDERSON")
@@ -123,6 +124,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
+              assertThat(additionalDaysAwarded).isEqualTo(0)
             }
             assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
@@ -228,6 +230,38 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(mostSeriousOffence).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+          }
+        }
+    }
+
+    @Test
+    fun `should handle unknown imprisonment status`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1184MA")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(legalStatus).isNull()
+            assertThat(imprisonmentStatus).isNull()
+            assertThat(imprisonmentStatusDescription).isNull()
+          }
+        }
+    }
+
+    @Test
+    fun `should return highest severity offence if multiple flagged as most serious`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A5577RS")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(mostSeriousOffence).isEqualTo("Attempted Murder")
           }
         }
     }

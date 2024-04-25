@@ -1,8 +1,19 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.Id;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.JoinColumns;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
+import jakarta.persistence.OneToMany;
+import jakarta.persistence.SequenceGenerator;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -13,17 +24,6 @@ import lombok.ToString;
 import lombok.With;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinColumns;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToMany;
-import jakarta.persistence.SequenceGenerator;
-import jakarta.persistence.Table;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -139,6 +139,12 @@ public class OffenderCharge extends AuditableEntity {
     @OneToMany(mappedBy = "offenderCharge", fetch = FetchType.LAZY)
     @Default
     private List<OffenderSentenceCharge> offenderSentenceCharges = new ArrayList<>();
+
+    @Column(name = "AUDIT_MODULE_NAME")
+    private String auditModuleName;
+
+    @Column(name = "CREATE_USER_ID")
+    private String createUserId;
 
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
