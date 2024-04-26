@@ -261,6 +261,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .expectBody<PrisonerSearchDetails>()
         .consumeWith { response ->
           with(response.responseBody!!) {
+            // Note that this ignores charge M2=Common Assault with the highest severity - because it has AUDIT_MODULE_NAME = 'MERGE'
             assertThat(mostSeriousOffence).isEqualTo("Attempted Murder")
           }
         }

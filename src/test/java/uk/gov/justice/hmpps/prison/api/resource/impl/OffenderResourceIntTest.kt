@@ -20,12 +20,14 @@ import org.springframework.data.domain.Pageable.unpaged
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
+import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.BAD_REQUEST
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
@@ -393,6 +395,26 @@ class OffenderResourceIntTest : ResourceTest() {
         "A1234AI",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail_aliases.json")
+    }
+
+    @Test
+    fun testFullOffenderInformation_WithMergeOffenderCharge() {
+      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val httpEntity = createHttpEntity(token, null)
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{offenderNo}",
+        GET,
+        httpEntity,
+        object : ParameterizedTypeReference<InmateDetail?>() {},
+        "A5577RS",
+      )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      assertThat((response.body as InmateDetail).offenceHistory).extracting("offenceCode", "mostSerious")
+        // The charge for M2 should not be included because it is created by a merge, but M3 should
+        .containsExactlyInAnyOrder(
+          Tuple.tuple("M3", true),
+          Tuple.tuple("M4", true),
+        )
     }
   }
 
