@@ -4,11 +4,9 @@ import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
 import org.springframework.data.repository.findByIdOrNull
-import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
-import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
@@ -20,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCrea
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass
@@ -38,7 +37,6 @@ import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
-import java.util.function.Consumer
 import java.util.stream.Collectors
 
 @Service
@@ -64,16 +62,14 @@ class AppointmentsService(
 
     val defaults = appointments.appointmentDefaults
 
-    val agencyId = findLocationInUserLocations(defaults.locationId)
-      .orElseThrow {
-        HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Location does not exist or is not in your caseload.",
-        )
-      }
+    val appointmentLocation = agencyInternalLocationRepository.findByIdOrNull(defaults.locationId)
+      ?: throw EntityNotFoundException.withId(defaults.locationId)
+
+    val agencyId = findLocationInUserLocations(appointmentLocation)
+      .orElseThrow(BadRequestException.withMessage("Location does not exist or is not in your caseload."))
       .agencyId
 
-    assertValidAppointmentType(defaults.appointmentType)
+    assertValidAppointmentType(defaults.appointmentType) // GETS event type
 
     val flattenedDetails = appointments.withDefaults()
 
@@ -83,25 +79,16 @@ class AppointmentsService(
     assertThatAppointmentsFallWithin(appointmentsWithRepeats, appointmentTimeLimit())
 
     val eventStatus = eventStatusRepository.findByIdOrNull(EventStatus.SCHEDULED_APPROVED)
-      ?: throw RuntimeException("Event status not recognised.")
+      ?: throw RuntimeException("Internal error: Event status not recognised.")
     val prison = agencyLocationRepository.findByIdOrNull(agencyId)
-      ?: throw RuntimeException("Prison not found")
-    val location = agencyInternalLocationRepository.findByIdOrNull(defaults.locationId)
-      ?: throw RuntimeException("Location not found")
+      ?: throw RuntimeException("Internal error: Prison not found")
 
     val createdAppointments =
       appointmentsWithRepeats.stream().map<CreatedAppointmentDetails> { a: AppointmentDetails ->
         val booking = offenderBookingRepository.findByIdOrNull(a.bookingId)
-          ?: throw HttpClientErrorException(
-            HttpStatus.BAD_REQUEST,
-            "A BookingId does not exist in your caseload",
-          )
-        if (agencyId != booking.location.id) {
-          throw HttpClientErrorException(
-            HttpStatus.BAD_REQUEST,
-            "A BookingId does not exist in your caseload",
-          )
-        }
+          ?.takeIf { booking -> agencyId == booking.location.id }
+          ?: throw BadRequestException.withMessage("A BookingId does not exist in your caseload")
+
         val appointment = OffenderIndividualSchedule()
         appointment.offenderBooking = booking
         appointment.eventClass = EventClass.INT_MOV
@@ -111,7 +98,7 @@ class AppointmentsService(
         appointment.eventDate = a.startTime.toLocalDate()
         appointment.startTime = a.startTime
         appointment.endTime = a.endTime
-        appointment.internalLocation = location
+        appointment.internalLocation = appointmentLocation
         appointment.fromLocation = prison
         appointment.comment = a.comment
 
@@ -139,15 +126,21 @@ class AppointmentsService(
   ): ScheduledEvent {
     validateStartTime(appointmentSpecification)
     validateEndTime(appointmentSpecification)
-    validateEventType(appointmentSpecification)
+    validateEventType(appointmentSpecification) // GETS event type
 
     val eventStatus = eventStatusRepository.findByIdOrNull(EventStatus.SCHEDULED_APPROVED)
-      ?: throw RuntimeException("Event status not recognised.")
+      ?: throw RuntimeException("Internal error: Event status not recognised.")
 
-    val agencyId = validateLocationAndGetAgency(username, appointmentSpecification)
+    val validLocation = agencyInternalLocationRepository.findByIdOrNull(appointmentSpecification.locationId)
+      ?.takeIf {
+        authenticationFacade.isOverrideRole("GLOBAL_APPOINTMENT") ||
+          locationService.getUserLocations(username, true).stream()
+            .anyMatch { loc: Location -> loc.agencyId == it.agencyId }
+      }
+      ?: throw BadRequestException.withMessage("Location does not exist or is not in your caseload.")
 
     val booking = offenderBookingRepository.findByIdOrNull(bookingId)
-      ?: throw RuntimeException("Booking not found")
+      ?: throw RuntimeException("Internal error: Booking not found")
 
     val appointment = OffenderIndividualSchedule()
     appointment.offenderBooking = booking
@@ -158,10 +151,9 @@ class AppointmentsService(
     appointment.eventDate = appointmentSpecification.startTime.toLocalDate()
     appointment.startTime = appointmentSpecification.startTime
     appointment.endTime = appointmentSpecification.endTime
-    appointment.internalLocation = agencyInternalLocationRepository.findByIdOrNull(appointmentSpecification.locationId)
-      ?: throw RuntimeException("Location not found")
-    appointment.fromLocation = agencyLocationRepository.findByIdOrNull(agencyId)
-      ?: throw RuntimeException("Prison not found")
+    appointment.internalLocation = validLocation
+    appointment.fromLocation = agencyLocationRepository.findByIdOrNull(validLocation.agencyId)
+      ?: throw RuntimeException("Internal error: Prison not found")
     appointment.comment = appointmentSpecification.comment
 
     val savedAppointment = offenderIndividualScheduleRepository.saveAndFlush(appointment)
@@ -169,11 +161,6 @@ class AppointmentsService(
     val createdAppointment = getScheduledEventOrThrowEntityNotFound(savedAppointment.id)
     trackSingleAppointmentCreation(savedAppointment)
     return createdAppointment
-  }
-
-  @Transactional(readOnly = true)
-  fun getBookingAppointment(appointmentId: Long): ScheduledEvent {
-    return getScheduledEventOrThrowEntityNotFound(appointmentId)
   }
 
   @Transactional
@@ -197,21 +184,6 @@ class AppointmentsService(
     trackAppointmentDeletion(appointmentForDeletion)
   }
 
-  @Transactional
-  fun updateComment(appointmentId: Long, comment: String?) {
-    val appointment = offenderIndividualScheduleRepository.findByIdOrNull(appointmentId)
-      ?: throw EntityNotFoundException.withMessage(
-        "An appointment with id %s does not exist.",
-        appointmentId,
-      )
-    if (EventClass.INT_MOV != appointment.eventClass ||
-      "APP" != appointment.eventType
-    ) {
-      throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId)
-    }
-    appointment.comment = comment
-  }
-
   private fun getScheduledEventOrThrowEntityNotFound(eventId: Long): ScheduledEvent = ScheduledEvent(
     offenderIndividualScheduleRepository.findByIdOrNull(eventId)
       ?: throw EntityNotFoundException.withMessage(
@@ -222,7 +194,7 @@ class AppointmentsService(
 
   private fun validateStartTime(newAppointment: NewAppointment) {
     if (newAppointment.startTime.isBefore(LocalDateTime.now())) {
-      throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment time is in the past.")
+      throw BadRequestException.withMessage("Appointment time is in the past.")
     }
   }
 
@@ -230,7 +202,7 @@ class AppointmentsService(
     if (newAppointment.endTime != null &&
       newAppointment.endTime.isBefore(newAppointment.startTime)
     ) {
-      throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.")
+      throw BadRequestException.withMessage("Appointment end time is before the start time.")
     }
   }
 
@@ -246,32 +218,13 @@ class AppointmentsService(
     }
 
     if (result.isEmpty) {
-      throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Event type not recognised.")
+      throw BadRequestException.withMessage("Event type not recognised.")
     }
-  }
-
-  private fun validateLocationAndGetAgency(username: String, newAppointment: NewAppointment): String {
-    try {
-      val appointmentLocation = locationService.getLocation(newAppointment.locationId)
-      val skipLocationAgencyCheck = authenticationFacade.isOverrideRole("GLOBAL_APPOINTMENT")
-
-      if (skipLocationAgencyCheck) return appointmentLocation.agencyId
-
-      val userLocations = locationService.getUserLocations(username, true)
-      val isValidLocation = userLocations.stream()
-        .anyMatch { loc: Location -> loc.agencyId == appointmentLocation.agencyId }
-
-      if (isValidLocation) return appointmentLocation.agencyId
-    } catch (ignored: EntityNotFoundException) {
-    }
-
-    throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Location does not exist or is not in your caseload.")
   }
 
   private fun assertThatRequestHasPermission(appointments: AppointmentsToCreate) {
     if (appointments.moreThanOneOffender() && !AuthenticationFacade.hasRoles("BULK_APPOINTMENTS")) {
-      throw HttpClientErrorException(
-        HttpStatus.BAD_REQUEST,
+      throw BadRequestException.withMessage(
         "You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.",
       )
     }
@@ -285,19 +238,13 @@ class AppointmentsService(
 
   private fun assertThatAppointmentFallsWithin(appointment: AppointmentDetails, limit: LocalDateTime) {
     if (appointment.startTime.isAfter(limit)) {
-      throw HttpClientErrorException(
-        HttpStatus.BAD_REQUEST,
-        "An appointment startTime is later than the limit of $limit",
-      )
+      throw BadRequestException.withMessage("An appointment startTime is later than the limit of $limit")
     }
     if (appointment.endTime == null) {
       return
     }
     if (appointment.endTime.isAfter(limit)) {
-      throw HttpClientErrorException(
-        HttpStatus.BAD_REQUEST,
-        "An appointment endTime is later than the limit of $limit",
-      )
+      throw BadRequestException.withMessage("An appointment endTime is later than the limit of $limit")
     }
   }
 
@@ -306,24 +253,18 @@ class AppointmentsService(
       ?.size
       ?.takeIf { it > MAXIMUM_NUMBER_OF_APPOINTMENTS }
       ?.run {
-        throw HttpClientErrorException(
-          HttpStatus.BAD_REQUEST,
-          "Request to create $this appointments exceeds limit of $MAXIMUM_NUMBER_OF_APPOINTMENTS",
-        )
+        throw BadRequestException.withMessage("Request to create $this appointments exceeds limit of $MAXIMUM_NUMBER_OF_APPOINTMENTS")
       }
   }
 
   private fun assertAdditionalAppointmentConstraints(appointments: List<AppointmentDetails>) {
-    appointments.forEach(Consumer { appointment: AppointmentDetails -> assertStartTimePrecedesEndTime(appointment) })
+    appointments.forEach { appointment: AppointmentDetails -> assertStartTimePrecedesEndTime(appointment) }
   }
 
   private fun assertValidAppointmentType(appointmentType: String) {
-    findEventType(appointmentType).orElseThrow {
-      HttpClientErrorException(
-        HttpStatus.BAD_REQUEST,
-        "Event type not recognised.",
-      )
-    }
+    findEventType(appointmentType).orElseThrow(
+      BadRequestException.withMessage("Event type not recognised."),
+    )
   }
 
   private fun findEventType(appointmentType: String): Optional<ReferenceCode> {
@@ -334,8 +275,7 @@ class AppointmentsService(
     )
   }
 
-  private fun findLocationInUserLocations(locationId: Long): Optional<Location> {
-    val appointmentLocation = locationService.getLocation(locationId)
+  private fun findLocationInUserLocations(appointmentLocation: AgencyInternalLocation): Optional<Location> {
     val userLocations = locationService.getUserLocations(authenticationFacade.currentUsername, true)
 
     for (location in userLocations) {
@@ -459,7 +399,7 @@ class AppointmentsService(
       if (appointment.endTime != null &&
         appointment.endTime.isBefore(appointment.startTime)
       ) {
-        throw HttpClientErrorException(HttpStatus.BAD_REQUEST, "Appointment end time is before the start time.")
+        throw BadRequestException.withMessage("Appointment end time is before the start time.")
       }
     }
 
@@ -470,7 +410,7 @@ class AppointmentsService(
     }
 
     fun withRepeats(repeat: Repeat?, details: AppointmentDetails): List<AppointmentDetails> {
-      if (repeat == null || repeat.count < 2) return java.util.List.of(details)
+      if (repeat == null || repeat.count < 2) return listOf(details)
 
       val appointmentDuration = Optional
         .ofNullable(details.endTime)
