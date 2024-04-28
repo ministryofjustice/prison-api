@@ -163,6 +163,11 @@ class AppointmentsService(
     return createdAppointment
   }
 
+  @Transactional(readOnly = true)
+  fun getBookingAppointment(appointmentId: Long): ScheduledEvent {
+    return getScheduledEventOrThrowEntityNotFound(appointmentId)
+  }
+
   @Transactional
   fun deleteBookingAppointments(appointmentIds: List<Long>) {
     appointmentIds.forEach { appointmentId: Long ->
@@ -182,6 +187,21 @@ class AppointmentsService(
       )
     offenderIndividualScheduleRepository.deleteById(eventId)
     trackAppointmentDeletion(appointmentForDeletion)
+  }
+
+  @Transactional
+  fun updateComment(appointmentId: Long, comment: String?) {
+    val appointment = offenderIndividualScheduleRepository.findByIdOrNull(appointmentId)
+      ?: throw EntityNotFoundException.withMessage(
+        "An appointment with id %s does not exist.",
+        appointmentId,
+      )
+    if (EventClass.INT_MOV != appointment.eventClass ||
+      "APP" != appointment.eventType
+    ) {
+      throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId)
+    }
+    appointment.comment = comment
   }
 
   private fun getScheduledEventOrThrowEntityNotFound(eventId: Long): ScheduledEvent = ScheduledEvent(
