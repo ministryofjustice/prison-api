@@ -594,10 +594,7 @@ enum class BookingRepositorySql(val sql: String) {
         UPPER(O.TITLE)                    TITLE,
         UPPER(O.SUFFIX)                   SUFFIX,
         UPPER(O.FIRST_NAME)               FIRST_NAME,
-        UPPER(CONCAT(O.MIDDLE_NAME,
-                CASE WHEN MIDDLE_NAME_2 IS NOT NULL
-                        THEN CONCAT(' ', O.MIDDLE_NAME_2)
-                ELSE '' END))                   MIDDLE_NAMES,
+        UPPER( trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2))))) MIDDLE_NAMES,
         UPPER(O.LAST_NAME)                LAST_NAME,
         O.BIRTH_DATE                      DATE_OF_BIRTH,
         OB.OFFENDER_BOOK_ID               BOOKING_ID,
@@ -624,10 +621,7 @@ enum class BookingRepositorySql(val sql: String) {
         UPPER(O.TITLE)                    TITLE,
         UPPER(O.SUFFIX)                   SUFFIX,
         UPPER(O.FIRST_NAME)               FIRST_NAME,
-        UPPER(CONCAT(O.MIDDLE_NAME,
-                CASE WHEN MIDDLE_NAME_2 IS NOT NULL
-                        THEN CONCAT(' ', O.MIDDLE_NAME_2)
-                ELSE '' END))                   MIDDLE_NAMES,
+        UPPER(trim(concat(trim(O.middle_name), concat(' ', trim(O.middle_name_2))))) MIDDLE_NAMES,
         UPPER(O.LAST_NAME)                LAST_NAME,
         O.BIRTH_DATE                      DATE_OF_BIRTH,
         OB.OFFENDER_BOOK_ID               BOOKING_ID,

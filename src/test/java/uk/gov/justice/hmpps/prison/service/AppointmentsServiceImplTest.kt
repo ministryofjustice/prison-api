@@ -748,6 +748,9 @@ class AppointmentsServiceImplTest {
           },
         ),
       )
+      whenever(agencyInternalLocationRepository.findById(locationId)).thenReturn(
+        Optional.of(AgencyInternalLocation().apply { setLocationId(locationId) }),
+      )
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
       whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
@@ -912,6 +915,9 @@ class AppointmentsServiceImplTest {
         .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()))
 
       whenever(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking()))
+      whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
+        Optional.of(AgencyInternalLocation()),
+      )
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
       whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
@@ -1197,6 +1203,7 @@ class AppointmentsServiceImplTest {
       .thenReturn(
         listOf(LOCATION_A, LOCATION_B),
       )
+    whenever(locationService.getLocation(location.locationId)).thenReturn(location)
     whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
       Optional.of(
         AgencyInternalLocation().apply {
