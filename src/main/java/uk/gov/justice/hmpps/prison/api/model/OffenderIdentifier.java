@@ -3,10 +3,12 @@ package uk.gov.justice.hmpps.prison.api.model;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode;
+import jakarta.validation.constraints.NotBlank;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
-import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 
@@ -17,6 +19,8 @@ import java.time.LocalDateTime;
 @Schema(description = "Offender Identifier")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
+@AllArgsConstructor
+@NoArgsConstructor
 @Data
 public class OffenderIdentifier {
     @NotBlank
@@ -45,17 +49,6 @@ public class OffenderIdentifier {
     @Schema(description = "Creation date and time", example = "2018-01-21 15:00:00")
     private LocalDateTime whenCreated;
 
-    public OffenderIdentifier(@NotBlank String type, @NotBlank String value, String offenderNo, Long bookingId, String issuedAuthorityText, LocalDate issuedDate, String caseloadType, LocalDateTime whenCreated) {
-        this.type = type;
-        this.value = value;
-        this.offenderNo = offenderNo;
-        this.bookingId = bookingId;
-        this.issuedAuthorityText = issuedAuthorityText;
-        this.issuedDate = issuedDate;
-        this.caseloadType = caseloadType;
-        this.whenCreated = whenCreated;
-    }
-
-    public OffenderIdentifier() {
-    }
+    @Schema(description = "Offender ID", example = "234547")
+    private Long offenderId;
 }

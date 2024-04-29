@@ -58,4 +58,8 @@ public class Alias {
     @NotNull
     @Schema(description = "Date of creation", example = "2019-02-15", requiredMode = RequiredMode.NOT_REQUIRED)
     private LocalDate createDate;
+
+    @NotNull
+    @Schema(description = "Offender ID", example = "543548")
+    private Long offenderId;
 }

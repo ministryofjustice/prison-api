@@ -11,6 +11,9 @@ data class PrisonerSearchDetails(
   @Schema(description = "Prisoner Number a.k.a NOMS number, offender number", example = "A1234AA")
   val offenderNo: String,
 
+  @Schema(description = "Offender Id", example = "678673")
+  val offenderId: Long? = null,
+
   @Schema(description = "Booking Id of the active booking", example = "432132")
   val bookingId: Long? = null,
 
@@ -67,6 +70,9 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "Prisoner Identifiers")
   val identifiers: List<OffenderIdentifier>? = null,
+
+  @Schema(description = "Prisoner Identifiers including those from aliases")
+  val allIdentifiers: List<OffenderIdentifier>? = null,
 
   @Schema(description = "Sentence Detail")
   val sentenceDetail: SentenceCalcDates? = null,
