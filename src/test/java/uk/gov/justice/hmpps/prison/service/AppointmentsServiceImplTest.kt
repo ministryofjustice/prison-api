@@ -22,7 +22,6 @@ import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
@@ -290,7 +289,7 @@ class AppointmentsServiceImplTest {
             .build(),
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Request to create 1001 appointments exceeds limit of 1000")
 
       verifyNoMoreInteractions(telemetryClient)
@@ -314,7 +313,7 @@ class AppointmentsServiceImplTest {
             .build(),
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Location does not exist or is not in your caseload.")
 
       verifyNoMoreInteractions(telemetryClient)
@@ -340,7 +339,7 @@ class AppointmentsServiceImplTest {
             .build(),
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Event type not recognised.")
 
       verifyNoMoreInteractions(telemetryClient)
@@ -390,7 +389,7 @@ class AppointmentsServiceImplTest {
             .build(),
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("A BookingId does not exist in your caseload")
 
       verifyNoMoreInteractions(telemetryClient)
@@ -458,7 +457,7 @@ class AppointmentsServiceImplTest {
         .build()
 
       assertThatThrownBy { appointmentsService.createAppointments(appointmentsToCreate) }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("An appointment startTime is later than the limit of ")
     }
 
@@ -490,7 +489,7 @@ class AppointmentsServiceImplTest {
         .build()
 
       assertThatThrownBy { appointmentsService.createAppointments(appointmentsToCreate) }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("An appointment endTime is later than the limit of ")
     }
 
@@ -515,7 +514,7 @@ class AppointmentsServiceImplTest {
         .build()
 
       assertThatThrownBy { appointmentsService.createAppointments(appointmentsToCreate) }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Appointment end time is before the start time.")
     }
 
@@ -576,7 +575,7 @@ class AppointmentsServiceImplTest {
         .build()
 
       assertThatThrownBy { appointmentsService.createAppointments(appointmentsToCreate) }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.")
     }
 
@@ -724,7 +723,14 @@ class AppointmentsServiceImplTest {
         .comment("comment")
         .locationId(locationId).build()
 
-      whenever(locationService.getLocation(newAppointment.locationId)).thenReturn(location)
+      whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.locationId = location.locationId
+            this.agencyId = location.agencyId
+          },
+        ),
+      )
       whenever(locationService.getUserLocations(principal, true)).thenReturn(listOf(location))
 
       whenever(
@@ -741,9 +747,6 @@ class AppointmentsServiceImplTest {
             setBookingId(bookingId)
           },
         ),
-      )
-      whenever(agencyInternalLocationRepository.findById(locationId)).thenReturn(
-        Optional.of(AgencyInternalLocation().apply { setLocationId(locationId) }),
       )
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
@@ -773,8 +776,8 @@ class AppointmentsServiceImplTest {
       try {
         appointmentsService.createBookingAppointment(bookingId, principal, newAppointment)
         fail("Should have thrown exception")
-      } catch (e: HttpClientErrorException) {
-        assertThat(e.statusText).isEqualTo("Appointment time is in the past.")
+      } catch (e: BadRequestException) {
+        assertThat(e.message).isEqualTo("Appointment time is in the past.")
       }
     }
 
@@ -789,8 +792,8 @@ class AppointmentsServiceImplTest {
       try {
         appointmentsService.createBookingAppointment(bookingId, principal, newAppointment)
         fail("Should have thrown exception")
-      } catch (e: HttpClientErrorException) {
-        assertThat(e.statusText).isEqualTo("Appointment end time is before the start time.")
+      } catch (e: BadRequestException) {
+        assertThat(e.message).isEqualTo("Appointment end time is before the start time.")
       }
     }
 
@@ -831,7 +834,7 @@ class AppointmentsServiceImplTest {
           newAppointment,
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Location does not exist or is not in your caseload.")
     }
 
@@ -872,7 +875,7 @@ class AppointmentsServiceImplTest {
           newAppointment,
         )
       }
-        .isInstanceOf(HttpClientErrorException::class.java)
+        .isInstanceOf(BadRequestException::class.java)
         .hasMessageContaining("Event type not recognised.")
     }
 
@@ -895,16 +898,20 @@ class AppointmentsServiceImplTest {
 
       ensureRoles("GLOBAL_APPOINTMENT")
 
-      whenever(locationService.getLocation(newAppointment.locationId)).thenReturn(location)
+      whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
+        Optional.of(
+          AgencyInternalLocation().apply {
+            this.locationId = location.locationId
+            this.agencyId = location.agencyId
+          },
+        ),
+      )
       whenever(
         referenceDomainService.getReferenceCodeByDomainAndCode(ReferenceDomain.INTERNAL_SCHEDULE_REASON.domain, newAppointment.appointmentType, false),
       )
         .thenReturn(Optional.of(ReferenceCode.builder().code(appointmentType).build()))
 
       whenever(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking()))
-      whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
-        Optional.of(AgencyInternalLocation()),
-      )
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
       whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
@@ -1192,7 +1199,12 @@ class AppointmentsServiceImplTest {
       )
     whenever(locationService.getLocation(location.locationId)).thenReturn(location)
     whenever(agencyInternalLocationRepository.findById(location.locationId)).thenReturn(
-      Optional.of(AgencyInternalLocation()),
+      Optional.of(
+        AgencyInternalLocation().apply {
+          locationId = location.locationId
+          agencyId = location.agencyId
+        },
+      ),
     )
   }
 
