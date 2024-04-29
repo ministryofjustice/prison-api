@@ -6,10 +6,12 @@ import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
+import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as OffenderIdentifierModel
 
 @Component
 class PrisonerSearchService(
@@ -47,8 +49,8 @@ class PrisonerSearchService(
           csra = it.csra,
           categoryCode = it.categoryCode,
           inOutStatus = it.inOutStatus,
-          identifiers = it.identifiers?.filter { id -> id.offenderId == it.offenderId }?.sortedBy { it.whenCreated },
-          allIdentifiers = it.identifiers?.sortedBy { it.whenCreated },
+          identifiers = it.identifiers?.sortedBy { it.whenCreated },
+          allIdentifiers = offender.allIdentifiers?.map { oi -> oi.toModel(it.offenderNo) }?.sortedBy { it.whenCreated },
           sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded ?: 0 },
           mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.filter { it.mostSerious }?.minByOrNull { it.offenceSeverityRanking }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
@@ -82,6 +84,19 @@ class PrisonerSearchService(
         }
       }
       ?: let { offenderTransformer.transformWithoutBooking(offender) }
+
+  private fun OffenderIdentifier.toModel(offenderNo: String) =
+    OffenderIdentifierModel(
+      this.identifierType,
+      this.identifier,
+      offenderNo,
+      null,
+      this.issuedAuthorityText,
+      this.issuedDate,
+      this.caseloadType,
+      this.createDateTime,
+      this.offender.id,
+    )
 }
 
 private fun <T> Optional<T>.toNullable(): T? = orElse(null)

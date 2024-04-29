@@ -109,7 +109,7 @@ public class OffenderTransformer {
             .dateOfBirth(offender.getBirthDate())
             .age(getAge(offender.getBirthDate(), LocalDate.now(clock)))
             .profileInformation(null)
-            .identifiers(offender.getAllIdentifiers().stream().map(oi -> OffenderIdentifier.builder()
+            .identifiers(offender.getLatestIdentifiers().stream().map(oi -> OffenderIdentifier.builder()
                 .offenderNo(offender.getNomsId())
                 .caseloadType(oi.getCaseloadType())
                 .type(oi.getIdentifierType())
