@@ -65,6 +65,7 @@ class PrisonerSearchService(
           receptionDate = it.receptionDate,
           locationDescription = it.locationDescription,
           latestLocationId = it.latestLocationId,
+          addresses = offender.addresses.filter { it.noFixedAddressFlag == "N" }.map(AddressTransformer::translate),
         )
       }
   }
