@@ -22,7 +22,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.32")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:0.2.4")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -30,7 +30,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  implementation("commons-codec:commons-codec:1.16.1")
+  implementation("commons-codec:commons-codec:1.17.0")
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.1.0")
@@ -69,7 +69,7 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:4.1.4")
   testImplementation("net.serenity-bdd:serenity-cucumber:4.1.4")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.5.3")
+  testImplementation("org.wiremock:wiremock:3.5.4")
   testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
   testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
