@@ -8,10 +8,12 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Alert
+import uk.gov.justice.hmpps.prison.api.model.Email
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation
+import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
 import java.time.LocalDate
 
@@ -321,6 +323,28 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                 tuple("0114 2345346", "BUS", null),
               )
             }
+          }
+        }
+    }
+
+    @Test
+    fun `should return offender phones and emails`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(phones).containsExactlyInAnyOrder(
+              Telephone(-16L, "0114 878787", "HOME", "345"),
+              Telephone(-17L, "07878 787878", "MOB", null),
+            )
+            assertThat(emailAddresses).containsExactlyInAnyOrder(
+              Email("prisoner@home.com"),
+              Email("prisoner@backup.com"),
+            )
           }
         }
     }

@@ -6,6 +6,7 @@ import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Address;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.InternetAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonInternetAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Phone;
 
@@ -73,7 +74,7 @@ public class AddressTransformer {
             .build();
     }
 
-    public static Email translate(final PersonInternetAddress email) {
+    public static Email translate(final InternetAddress email) {
         return Email.builder().email(email.getInternetAddress()).build();
     }
 }

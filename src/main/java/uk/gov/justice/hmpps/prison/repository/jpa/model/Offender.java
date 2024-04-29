@@ -26,9 +26,9 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.springframework.data.annotation.CreatedDate;
-import uk.gov.justice.hmpps.prison.api.model.SignificantMovement;
 import uk.gov.justice.hmpps.prison.api.model.PrisonPeriod;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
+import uk.gov.justice.hmpps.prison.api.model.SignificantMovement;
 import uk.gov.justice.hmpps.prison.api.model.TransferDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
@@ -170,6 +170,16 @@ public class Offender extends AuditableEntity {
     @Default
     @Exclude
     private List<OffenderAddress> addresses = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    @Exclude
+    private List<OffenderPhone> phones = new ArrayList<>();
+
+    @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    @Exclude
+    private List<OffenderInternetAddress> emailAddresses = new ArrayList<>();
 
     public Optional<OffenderIdentifier> getLatestIdentifierOfType(final String type) {
         final var offenderIdentifiers = mapOfIdentifiers().get(type);
