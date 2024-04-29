@@ -121,4 +121,10 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "Prisoner Addresses")
   val addresses: List<AddressDto>? = null,
+
+  @Schema(description = "Prisoner Phone Numbers")
+  val phones: List<Telephone>? = null,
+
+  @Schema(description = "Prisoner Email Addresses")
+  val emailAddresses: List<Email>? = null,
 )

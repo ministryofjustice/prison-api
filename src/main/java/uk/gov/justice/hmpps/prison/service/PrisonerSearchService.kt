@@ -66,6 +66,8 @@ class PrisonerSearchService(
           locationDescription = it.locationDescription,
           latestLocationId = it.latestLocationId,
           addresses = offender.addresses.filter { it.noFixedAddressFlag == "N" }.map(AddressTransformer::translate),
+          phones = offender.phones.map(AddressTransformer::translate),
+          emailAddresses = offender.emailAddresses.map(AddressTransformer::translate),
         )
       }
   }
