@@ -116,6 +116,8 @@ public class OffenderTransformer {
                 .value(oi.getIdentifier())
                 .issuedDate(oi.getIssuedDate())
                 .whenCreated(oi.getCreateDateTime())
+                .issuedAuthorityText(oi.getIssuedAuthorityText())
+                .offenderId(oi.getOffender().getId())
                 .build()).toList())
             .physicalAttributes(PhysicalAttributes.builder()
                 .sexCode(offender.getGender().getCode())

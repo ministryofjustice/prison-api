@@ -166,6 +166,7 @@ public class InmateRepository extends RepositoryBase {
         .put("ETHNICITY", new FieldMapper("ethnicity"))
         .put("ALIAS_TYPE", new FieldMapper("nameType"))
         .put("CREATE_DATE", new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
+        .put("OFFENDER_ID", new FieldMapper("offenderId"))
         .build();
 
     private static final Set<String> UNSENTENCED_OR_UNCLASSIFIED_CATEGORY_CODES = Set.of("U", "X", "Z");

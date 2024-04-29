@@ -11,6 +11,7 @@ data class OffenderIdentifierDto(
   val issuedDate: LocalDate?,
   val caseloadType: String?,
   val whenCreated: LocalDateTime,
+  val offenderId: Long,
 ) {
   fun toOffenderIdentifier() = OffenderIdentifier(
     this.type,
@@ -21,5 +22,6 @@ data class OffenderIdentifierDto(
     this.issuedDate,
     this.caseloadType,
     this.whenCreated,
+    this.offenderId,
   )
 }

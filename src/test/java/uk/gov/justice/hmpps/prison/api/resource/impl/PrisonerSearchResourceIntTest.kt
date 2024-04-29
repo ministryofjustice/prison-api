@@ -170,6 +170,36 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return all identifiers and associated offender IDs`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AL")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(offenderId).isEqualTo(-1012)
+            assertThat(allIdentifiers).extracting("type", "value", "offenderNo", "issuedDate", "caseloadType", "offenderId")
+              .containsExactlyInAnyOrder(
+                tuple("NINO", "DR784343E", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1012L),
+                tuple("PNC", "2024/1234588L", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1012L),
+                tuple("CRO", "SF99/12388M", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1013L),
+                tuple("PNC", "24/1234588L", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1013L),
+              )
+            assertThat(aliases).extracting("firstName", "lastName", "offenderId")
+              .containsExactly(
+                tuple(
+                  "DANNY",
+                  "SMILEY",
+                  -1013L,
+                ),
+              )
+          }
+        }
+    }
+
+    @Test
     fun `should return physical marks`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234AA")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))

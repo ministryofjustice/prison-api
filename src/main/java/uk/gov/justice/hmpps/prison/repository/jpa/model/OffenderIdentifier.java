@@ -63,6 +63,9 @@ public class OffenderIdentifier extends AuditableEntity {
     @Column(name = "CASELOAD_TYPE")
     private String caseloadType;
 
+    @Column(name = "ISSUED_AUTHORITY_TEXT")
+    private String issuedAuthorityText;
+
     @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
     private LocalDateTime createDateTime;
 

@@ -113,6 +113,13 @@ public class Offender extends AuditableEntity {
     @Exclude
     private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "rootOffenderId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    @Exclude
+    @Getter(AccessLevel.PROTECTED) // should be private but need to go via the getter to trigger hibernate load
+    @Setter(AccessLevel.NONE)
+    private List<OffenderIdentifier> allIdentifiersInternal = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
@@ -423,6 +430,10 @@ public class Offender extends AuditableEntity {
 
     public List<OffenderBooking> getAllBookings() {
         return rootOffender.getBookings();
+    }
+
+    public List<OffenderIdentifier> getAllIdentifiers() {
+        return rootOffender.getAllIdentifiersInternal();
     }
 
     @Override
