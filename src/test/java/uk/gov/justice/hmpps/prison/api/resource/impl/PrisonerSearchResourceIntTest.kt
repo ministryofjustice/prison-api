@@ -298,6 +298,34 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return addresses`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(addresses).extracting("addressId", "addressType", "flat", "premise", "street", "locality", "town", "postalCode", "county", "startDate", "primary")
+              .containsExactlyInAnyOrder(
+                tuple(-11L, "Business Address", "Flat 1", "Brook Hamlets", "Mayfield Drive", "Nether Edge", "Sheffield", "B5", "South Yorkshire", LocalDate.parse("2015-10-01"), false),
+                tuple(-12L, "Home Address", null, "9", "Abbydale Road", null, "Sheffield", null, "South Yorkshire", LocalDate.parse("2014-07-01"), false),
+              )
+            addresses?.first { it.addressId == -11L }?.phones.also {
+              assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(tuple("0114 2345345", "HOME", "345"))
+            }
+            addresses?.first { it.addressId == -12L }?.phones.also {
+              assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(
+                tuple("0114 2345345", "HOME", "345"),
+                tuple("0114 2345346", "BUS", null),
+              )
+            }
+          }
+        }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234DD")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
