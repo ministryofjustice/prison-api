@@ -28,6 +28,7 @@ class PrisonerSearchService(
       .let {
         PrisonerSearchDetails(
           offenderNo = it.offenderNo,
+          offenderId = it.offenderId,
           bookingId = it.bookingId,
           bookingNo = it.bookingNo,
           title = offender.title?.description,
@@ -46,7 +47,8 @@ class PrisonerSearchService(
           csra = it.csra,
           categoryCode = it.categoryCode,
           inOutStatus = it.inOutStatus,
-          identifiers = it.identifiers?.sortedBy { it.whenCreated },
+          identifiers = it.identifiers?.filter { id -> id.offenderId == it.offenderId }?.sortedBy { it.whenCreated },
+          allIdentifiers = it.identifiers?.sortedBy { it.whenCreated },
           sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded ?: 0 },
           mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.filter { it.mostSerious }?.minByOrNull { it.offenceSeverityRanking }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },

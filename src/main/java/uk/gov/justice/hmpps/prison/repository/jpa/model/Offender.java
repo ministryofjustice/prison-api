@@ -113,6 +113,11 @@ public class Offender extends AuditableEntity {
     @Exclude
     private List<OffenderIdentifier> identifiers = new ArrayList<>();
 
+    @OneToMany(mappedBy = "rootOffenderId", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @Default
+    @Exclude
+    private List<OffenderIdentifier> allIdentifiers = new ArrayList<>();
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEX + "'", referencedColumnName = "domain")),
