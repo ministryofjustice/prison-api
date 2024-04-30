@@ -60,7 +60,7 @@ public class PrisonerTransferServiceTest {
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
 
         assertThat(offenderBookings.get(0).get("IN_OUT_STATUS").toString()).isEqualTo("IN");
-        assertThat(offenderBookings.get(0).get("AGENCY_IML_ID")).isEqualTo(null);
+        assertThat(offenderBookings.get(0).get("AGENCY_IML_ID")).isNull();
         List<Map<String, Object>> externalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=2");
         assertThat(externalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("N");
 
@@ -92,7 +92,7 @@ public class PrisonerTransferServiceTest {
         List<Map<String, Object>> offenderBookings = jdbcTemplate.queryForList("select * from OFFENDER_BOOKINGS where OFFENDER_BOOK_ID=1176156");
 
         assertThat(offenderBookings.get(0).get("IN_OUT_STATUS").toString()).isEqualTo("IN");
-        assertThat(offenderBookings.get(0).get("AGENCY_IML_ID")).isEqualTo(null);
+        assertThat(offenderBookings.get(0).get("AGENCY_IML_ID")).isNull();
         List<Map<String, Object>> externalMovements = jdbcTemplate.queryForList("select * from OFFENDER_EXTERNAL_MOVEMENTS where OFFENDER_BOOK_ID=1176156 and MOVEMENT_SEQ=2");
         assertThat(externalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("N");
 
@@ -100,8 +100,8 @@ public class PrisonerTransferServiceTest {
         assertThat(nextExternalMovements.get(0).get("ACTIVE_FLAG").toString()).isEqualTo("Y");
         assertThat(nextExternalMovements.get(0).get("TO_AGY_LOC_ID").toString()).isEqualTo("BXI");
         assertThat(nextExternalMovements.get(0).get("FROM_AGY_LOC_ID").toString()).isEqualTo("ABDRCT");
-        assertThat(nextExternalMovements.get(0).get("PARENT_EVENT_ID")).isEqualTo(null);
-        assertThat(nextExternalMovements.get(0).get("EVENT_ID")).isEqualTo(null);
+        assertThat(nextExternalMovements.get(0).get("PARENT_EVENT_ID")).isNull();
+        assertThat(nextExternalMovements.get(0).get("EVENT_ID")).isNull();
     }
 
 
