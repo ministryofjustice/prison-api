@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.model
 
-import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
@@ -10,4 +9,4 @@ data class LatestTusedData(
   val latestOverrideTused: LocalDate?,
   val comment: String?,
   val offenderNo: String?,
-  )
+)
