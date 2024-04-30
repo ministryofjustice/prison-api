@@ -40,6 +40,6 @@ public class StringWithAbbreviationsProcessorTest {
 
     @Test
     public void formatNull() {
-        assertThat(StringWithAbbreviationsProcessor.format(null)).isEqualTo(null);
+        assertThat(StringWithAbbreviationsProcessor.format(null)).isNull();
     }
 }

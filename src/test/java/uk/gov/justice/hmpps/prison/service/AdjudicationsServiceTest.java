@@ -1934,7 +1934,7 @@ public class AdjudicationsServiceTest {
             assertThat(sanctionCapture.getValue().getOicIncidentId()).isEqualTo(2L);
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
+            assertThat(result.get(0).getCompensationAmount()).isNull();
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
@@ -2096,7 +2096,7 @@ public class AdjudicationsServiceTest {
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
             assertThat(result.get(0).getSanctionSeq()).isEqualTo(6L);
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
+            assertThat(result.get(0).getCompensationAmount()).isNull();
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());
@@ -2527,7 +2527,7 @@ public class AdjudicationsServiceTest {
 
             assertThat(result.get(0).getSanctionType()).isEqualTo(OicSanctionCode.ADA.name());
             assertThat(result.get(0).getSanctionSeq()).isEqualTo(6L);
-            assertThat(result.get(0).getCompensationAmount()).isEqualTo(null);
+            assertThat(result.get(0).getCompensationAmount()).isNull();
             assertThat(result.get(0).getSanctionDays()).isEqualTo(30L);
             assertThat(result.get(0).getComment()).isEqualTo("comment");
             assertThat(result.get(0).getEffectiveDate()).isEqualTo(today.atStartOfDay());

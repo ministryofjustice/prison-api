@@ -30,7 +30,6 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
@@ -112,7 +111,7 @@ public class OffenderDatesServiceTest {
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(
             expected
         );
-        assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+        assertThat(offenderBooking.getLatestCalculation()).isEqualTo(Optional.of(expected));
         verify(telemetryClient).trackEvent("OffenderKeyDatesUpdated",
             ImmutableMap.of(
                 "bookingId", bookingId.toString(),
@@ -143,8 +142,8 @@ public class OffenderDatesServiceTest {
         // Then
         final var defaultedCalculationDate = LocalDateTime.now(clock);
         final var latestCalculation = offenderBooking.getLatestCalculation().get();
-        assertEquals(defaultedCalculationDate, latestCalculation.getCalculationDate());
-        assertEquals(defaultedCalculationDate, latestCalculation.getRecordedDateTime());
+        assertThat(latestCalculation.getCalculationDate()).isEqualTo(defaultedCalculationDate);
+        assertThat(latestCalculation.getRecordedDateTime()).isEqualTo(defaultedCalculationDate);
     }
 
     @Test
@@ -350,12 +349,12 @@ public class OffenderDatesServiceTest {
             .build();
 
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(expected);
-        assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+        assertThat(offenderBooking.getLatestCalculation()).isEqualTo(Optional.of(expected));
     }
 
     private static void assertOffenderCalculatedKeyDates(OffenderCalculatedKeyDates result) {
         // Then
-        assertEquals(result, OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
+        assertThat(result).isEqualTo(OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(LocalDate.of(2021, 11, 1))
             .earlyTermDate(LocalDate.of(2021, 11, 2))
             .midTermDate(LocalDate.of(2021, 11, 3))
@@ -389,15 +388,15 @@ public class OffenderDatesServiceTest {
         LatestTusedData latestTusedData = new LatestTusedData(LocalDate.of(2023, 1, 3), null, null, "A1234AA");
         when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.of(latestTusedData));
         LatestTusedData returned = service.getLatestTusedDataFromNomsId("A1234AA");
-        assertEquals("A1234AA", returned.getOffenderNo());
-        assertEquals(LocalDate.of(2023, 1, 3), returned.getLatestTused());
+        assertThat(returned.getOffenderNo()).isEqualTo("A1234AA");
+        assertThat(returned.getLatestTused()).isEqualTo(LocalDate.of(2023, 1, 3));
     }
 
     @Test
     void findLatestTusedDataThrowsExpectedException() {
         when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.empty());
         Throwable exception = assertThrows(EntityNotFoundException.class, () -> service.getLatestTusedDataFromNomsId("A1234AA"));
-        assertEquals("Resource with id [A1234AA] not found.", exception.getMessage());
+        assertThat(exception.getMessage()).isEqualTo("Resource with id [A1234AA] not found.");
     }
 
     public static OffenderKeyDates createOffenderKeyDates() {
