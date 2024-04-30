@@ -13,6 +13,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 
@@ -71,4 +72,12 @@ public interface OffenderBookingRepository extends
     @Override
     @EntityGraph(type = EntityGraphType.FETCH, value = "booking-with-summary")
     Page<OffenderBooking> findAll(@NotNull Specification<OffenderBooking> filter, @NotNull Pageable pageable);
+
+    @Query("""
+    SELECT new uk.gov.justice.hmpps.prison.api.model.LatestTusedData(sc.tusedCalculatedDate, sc.tusedOverridedDate, sc.comments, o.nomsId)
+    from SentenceCalculation sc
+    inner join sc.offenderBooking.offender o where o.nomsId = :nomsId and coalesce(sc.tusedOverridedDate, sc.tusedCalculatedDate) is not null
+    order by sc.calculationDate desc limit 1
+    """)
+    Optional<LatestTusedData> findLatestTusedDataFromNomsId(@NotNull String nomsId);
 }

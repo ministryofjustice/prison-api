@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -229,4 +230,75 @@ public class OffenderDatesResourceTest extends ResourceTest {
         assertEquals(LocalDate.of(2020, 12, 30),nomisCalculations.getHomeDetentionCurfewEligibilityDate());
     }
 
+    @Test
+    public void testGetLatestTusedForPrisoner() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AF"));
+
+        // Then
+        LatestTusedData latestTusedData = response.getBody();
+        assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AF");
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
+    }
+
+    @Test
+    public void testGetLatestTusedForPrisonerWithOverridenTused() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AG"));
+
+        // Then
+        LatestTusedData latestTusedData = response.getBody();
+        assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AG");
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
+        assertThat(latestTusedData.getLatestOverrideTused()).isEqualTo(LocalDate.of(2021,3,31));
+    }
+    @Test
+    public void testGetLatestTusedForPrisonerThatDoesntExist() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "doesntExist"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void testGetLatestTusedForPrisonerWithNoTused() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AA"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

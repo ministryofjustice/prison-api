@@ -6,6 +6,7 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -153,5 +154,9 @@ public class OffenderDatesService {
             .reasonCode(sentenceCalculation.getReasonCode())
             .calculatedAt(sentenceCalculation.getCalculationDate())
             .build();
+    }
+
+    public LatestTusedData getLatestTusedDataFromNomsId(String nomsId) {
+        return offenderBookingRepository.findLatestTusedDataFromNomsId(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 }
