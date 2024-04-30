@@ -51,7 +51,7 @@ class PrisonerSearchService(
           inOutStatus = it.inOutStatus,
           identifiers = it.identifiers?.sortedBy { it.whenCreated },
           allIdentifiers = offender.allIdentifiers?.map { oi -> oi.toModel(it.offenderNo) }?.sortedBy { it.whenCreated },
-          sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded ?: 0 },
+          sentenceDetail = it.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded },
           mostSeriousOffence = it.offenceHistory?.filter { off -> off.bookingId == it.bookingId }?.filter { it.mostSerious }?.minByOrNull { it.offenceSeverityRanking }?.offenceDescription,
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
