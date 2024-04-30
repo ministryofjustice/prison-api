@@ -107,13 +107,13 @@ public class OffenderDatesResource {
             .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId));
     }
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "TUSED dates found for offender", content = {@Content(mediaType = "application/json",  schema = @Schema(implementation = LatestTusedData.class))}),
+        @ApiResponse(responseCode = "200", description = "TUSED data found for offender", content = {@Content(mediaType = "application/json",  schema = @Schema(implementation = LatestTusedData.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to access latest TUSED information for offender", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Get the latest Tused date for an offender if it exists.", description = "Requires RELEASE_DATES_CALCULATOR")
+    @Operation(summary = "Get the latest TUSED data for an offender. If the offender has had a previous TUSED recorded on a previous booking this will return the latest one", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/latest-tused/{nomsId}")
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
