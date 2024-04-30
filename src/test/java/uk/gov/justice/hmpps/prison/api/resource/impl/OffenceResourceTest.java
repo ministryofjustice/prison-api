@@ -203,21 +203,21 @@ public class OffenceResourceTest extends ResourceTest {
             );
             linkOffencesToSchedules(mappingDtos);
 
-            assertTrue(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
-            assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
-            assertTrue(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
-            assertTrue(doesMappingExist(Schedule.PCSC_SDS, "COML025"));
-            assertTrue(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001"));
-            assertTrue(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355"));
+            assertThat(doesMappingExist(Schedule.SCHEDULE_15, "COML025")).isTrue();
+            assertThat(doesMappingExist(Schedule.SCHEDULE_13, "STAT001")).isTrue();
+            assertThat(doesMappingExist(Schedule.SCHEDULE_13, "RC86355")).isTrue();
+            assertThat(doesMappingExist(Schedule.PCSC_SDS, "COML025")).isTrue();
+            assertThat(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001")).isTrue();
+            assertThat(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355")).isTrue();
 
             unlinkOffencesFromSchedules(mappingDtos);
 
-            assertFalse(doesMappingExist(Schedule.SCHEDULE_15, "COML025"));
-            assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "STAT001"));
-            assertFalse(doesMappingExist(Schedule.SCHEDULE_13, "RC86355"));
-            assertFalse(doesMappingExist(Schedule.PCSC_SDS, "COML025"));
-            assertFalse(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001"));
-            assertFalse(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355"));
+            assertThat(doesMappingExist(Schedule.SCHEDULE_15, "COML025")).isFalse();
+            assertThat(doesMappingExist(Schedule.SCHEDULE_13, "STAT001")).isFalse();
+            assertThat(doesMappingExist(Schedule.SCHEDULE_13, "RC86355")).isFalse();
+            assertThat(doesMappingExist(Schedule.PCSC_SDS, "COML025")).isFalse();
+            assertThat(doesMappingExist(Schedule.PCSC_SDS_PLUS, "STAT001")).isFalse();
+            assertThat(doesMappingExist(Schedule.PCSC_SEC_250, "RC86355")).isFalse();
         }
 
         private boolean doesMappingExist(Schedule schedule, String offenceCode) {
@@ -246,7 +246,7 @@ public class OffenceResourceTest extends ResourceTest {
 
             Offence offence = offenceRepository.findById(new PK("COML026", "COML")).get();
             assertThat(offence.getCode()).isEqualTo("COML026");
-            assertTrue(offence.isActive());
+            assertThat(offence.isActive()).isTrue();
         }
 
         @Sql(scripts = {"/sql/create_active_and_inactive_offence.sql"},
@@ -263,7 +263,7 @@ public class OffenceResourceTest extends ResourceTest {
 
             Offence offence = offenceRepository.findById(new PK("COML025", "COML")).get();
             assertThat(offence.getCode()).isEqualTo("COML025");
-            assertFalse(offence.isActive());
+            assertThat(offence.isActive()).isFalse();
         }
     }
 

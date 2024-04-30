@@ -18,6 +18,7 @@ import java.util.List;
 import java.util.Optional;
 
 import static java.util.Collections.emptyList;
+import static org.assertj.core.api.Assertions.assertThat;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.when;
 import static uk.gov.justice.hmpps.prison.api.support.BookingAdjustmentType.ADDITIONAL_DAYS_AWARDED;
@@ -91,7 +92,7 @@ public class AdjustmentServiceTest {
             ))
             .build();
 
-        assertEquals(expected, bookingAndSentenceAdjustments);
+        assertThat(bookingAndSentenceAdjustments).isEqualTo(expected);
     }
 
     @Test
@@ -110,6 +111,6 @@ public class AdjustmentServiceTest {
             .bookingAdjustments(emptyList())
             .build();
 
-        assertEquals(expected, bookingAndSentenceAdjustments);
+        assertThat(bookingAndSentenceAdjustments).isEqualTo(expected);
     }
 }

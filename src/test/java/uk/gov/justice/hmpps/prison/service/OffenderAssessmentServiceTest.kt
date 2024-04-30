@@ -461,14 +461,14 @@ class OffenderAssessmentServiceTest {
       ),
     )
     val csraClassificationCode = service.getCurrentCsraClassification("N1234AA")
-    assertThat(csraClassificationCode).isEqualTo(null)
+    assertThat(csraClassificationCode).isNull()
   }
 
   @Test
   fun currentCsraClassification_returnsNullIfNoAssessments() {
     whenever(repository.findByOffenderBookingOffenderNomsIdInAndAssessmentTypeCellSharingAlertFlagOrderByAssessmentDateDescAssessmentSeqDesc(listOf("N1234AA"))).thenReturn(listOf())
     val csraClassificationCode = service.getCurrentCsraClassification("N1234AA")
-    assertThat(csraClassificationCode).isEqualTo(null)
+    assertThat(csraClassificationCode).isNull()
   }
 
   @Test

@@ -205,29 +205,29 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         var nomisCalculations = response.getBody();
-        assertEquals("NEW",nomisCalculations.getReasonCode());
-        assertEquals(null,nomisCalculations.getComment());
-        assertEquals(null,nomisCalculations.getParoleEligibilityDate());
-        assertEquals(null,nomisCalculations.getApprovedParoleDate());
-        assertEquals(null,nomisCalculations.getConditionalReleaseDate());
-        assertEquals(null,nomisCalculations.getReleaseOnTemporaryLicenceDate());
-        assertEquals(null,nomisCalculations.getAutomaticReleaseDate());
-        assertEquals(null,nomisCalculations.getLateTermDate());
-        assertEquals(null,nomisCalculations.getPostRecallReleaseDate());
-        assertEquals(null,nomisCalculations.getTariffDate());
-        assertEquals(null,nomisCalculations.getEffectiveSentenceEndDate());
-        assertEquals(null,nomisCalculations.getDtoPostRecallReleaseDate());
-        assertEquals(null,nomisCalculations.getEarlyRemovalSchemeEligibilityDate());
-        assertEquals(null,nomisCalculations.getTariffExpiredRemovalSchemeEligibilityDate());
-        assertEquals(null,nomisCalculations.getTopupSupervisionExpiryDate());
-        assertEquals(null,nomisCalculations.getNonParoleDate());
-        assertEquals(LocalDate.of(2022, 10, 20),nomisCalculations.getSentenceExpiryDate());
-        assertEquals(LocalDate.of(2021, 9, 24),nomisCalculations.getLicenceExpiryDate());
-        assertEquals(LocalDate.of(2021, 3, 25),nomisCalculations.getMidTermDate());
-        assertEquals(LocalDate.of(2021, 2, 28),nomisCalculations.getEarlyTermDate());
-        assertEquals(LocalDate.of(2021, 1, 2),nomisCalculations.getHomeDetentionCurfewApprovedDate());
-        assertEquals(LocalDateTime.of(2017, 9, 2, 0,0),nomisCalculations.getCalculatedAt());
-        assertEquals(LocalDate.of(2020, 12, 30),nomisCalculations.getHomeDetentionCurfewEligibilityDate());
+        assertThat(nomisCalculations.getReasonCode()).isEqualTo("NEW");
+        assertThat(nomisCalculations.getComment()).isNull();
+        assertThat(nomisCalculations.getParoleEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getApprovedParoleDate()).isNull();
+        assertThat(nomisCalculations.getConditionalReleaseDate()).isNull();
+        assertThat(nomisCalculations.getReleaseOnTemporaryLicenceDate()).isNull();
+        assertThat(nomisCalculations.getAutomaticReleaseDate()).isNull();
+        assertThat(nomisCalculations.getLateTermDate()).isNull();
+        assertThat(nomisCalculations.getPostRecallReleaseDate()).isNull();
+        assertThat(nomisCalculations.getTariffDate()).isNull();
+        assertThat(nomisCalculations.getEffectiveSentenceEndDate()).isNull();
+        assertThat(nomisCalculations.getDtoPostRecallReleaseDate()).isNull();
+        assertThat(nomisCalculations.getEarlyRemovalSchemeEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getTariffExpiredRemovalSchemeEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getTopupSupervisionExpiryDate()).isNull();
+        assertThat(nomisCalculations.getNonParoleDate()).isNull();
+        assertThat(nomisCalculations.getSentenceExpiryDate()).isEqualTo(LocalDate.of(2022, 10, 20));
+        assertThat(nomisCalculations.getLicenceExpiryDate()).isEqualTo(LocalDate.of(2021, 9, 24));
+        assertThat(nomisCalculations.getMidTermDate()).isEqualTo(LocalDate.of(2021, 3, 25));
+        assertThat(nomisCalculations.getEarlyTermDate()).isEqualTo(LocalDate.of(2021, 2, 28));
+        assertThat(nomisCalculations.getHomeDetentionCurfewApprovedDate()).isEqualTo(LocalDate.of(2021, 1, 2));
+        assertThat(nomisCalculations.getCalculatedAt()).isEqualTo(LocalDateTime.of(2017, 9, 2, 0, 0));
+        assertThat(nomisCalculations.getHomeDetentionCurfewEligibilityDate()).isEqualTo(LocalDate.of(2020, 12, 30));
     }
 
     @Test
