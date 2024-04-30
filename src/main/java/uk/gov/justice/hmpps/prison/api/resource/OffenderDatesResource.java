@@ -20,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
@@ -104,5 +105,19 @@ public class OffenderDatesResource {
     public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId));
+    }
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "TUSED dates found for offender", content = {@Content(mediaType = "application/json",  schema = @Schema(implementation = LatestTusedData.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to access latest TUSED information for offender", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @Operation(summary = "Get the latest Tused date for an offender if it exists.", description = "Requires RELEASE_DATES_CALCULATOR")
+    @GetMapping("/latest-tused/{nomsId}")
+    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @ProxyUser
+    public LatestTusedData getOffenderLatestTused(@PathVariable("nomsId") @Parameter(description = "The nomis id of the offender", required = true) final String nomsId) {
+        return offenderDatesService.getLatestTusedDataFromNomsId(nomsId);
     }
 }
