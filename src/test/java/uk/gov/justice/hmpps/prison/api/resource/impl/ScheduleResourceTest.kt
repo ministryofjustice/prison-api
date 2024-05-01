@@ -488,6 +488,66 @@ class ScheduleResourceTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/schedules/{agencyId}/count-activities")
   inner class CountActivities {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .headers(setAuthorisation("RO_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has does not have correct caseload`() {
+      webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if agency does not exist`() {
+      webTestClient.post().uri("/api/schedules/ZZZ/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns success when user has booking in caseload`() {
+      webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
+        .headers(setAuthorisation(listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .bodyValue(mapOf("-6" to "5"))
+        .exchange()
+        .expectStatus().isOk
+    }
+
     @Test
     fun testCountActivitiesMissingTimeslot() {
       val token = authTokenHelper.getToken(NORMAL_USER)
@@ -525,19 +585,6 @@ class ScheduleResourceTest : ResourceTest() {
       )
       assertThat(response.body!!.userMessage).contains("Required request parameter 'toDate'")
       assertThat(response.statusCode.value()).isEqualTo(400)
-    }
-
-    @Test
-    fun testCountActivitiesNoPermissions() {
-      val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
-      val response = testRestTemplate.exchange(
-        "/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-12",
-        HttpMethod.POST,
-        createHttpEntity(token, "{}"),
-        ErrorResponse::class.java,
-      )
-      assertThat(response.body!!.userMessage).contains("Resource with id [LEI] not found")
-      assertThat(response.statusCode.value()).isEqualTo(404)
     }
 
     @Test
