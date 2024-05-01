@@ -627,8 +627,11 @@ public class BookingService {
 
     public List<OffenceHistoryDetail> getActiveOffencesForBookings(final Set<Long> bookingIds) {
         List<OffenderCharge> offenderCharges = offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds,"A","A");
-           // findActiveOffencesByBookingIds(bookingIds);
-        return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
+        return offenderCharges.stream()
+            // Rule copied from SentenceRepositorySql with comment "Avoid dups from merges (from NART team)"
+            .filter(oc -> !"SYS".equals(oc.getCreateUserId()) || !"MERGE".equals(oc.getAuditModuleName()))
+            .map(offenderChargeTransformer::convert)
+            .collect(toList());
     }
 
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
