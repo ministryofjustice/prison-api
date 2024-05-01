@@ -225,6 +225,10 @@ public class AgencyService {
                 logClientUnauthorisedAccess(agencyId);
                 throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }
+            if (accessDeniedError) {
+                throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
+            }
+            logUserUnauthorisedAccess(agencyId, agencyIds);
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
@@ -246,7 +250,9 @@ public class AgencyService {
     private void logUserUnauthorisedAccess(final String agencyId, final Set<String> agencyIds) {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("agencyId", agencyId);
+        logMap.put("clientId", authenticationFacade.getClientId());
         logMap.put("currentUser", authenticationFacade.getCurrentUsername());
+        logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         telemetryClient.trackEvent("UserUnauthorisedAgencyAccess", logMap, null);
     }
