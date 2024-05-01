@@ -242,99 +242,103 @@ class AppointmentsResourceTest : ResourceTest() {
     return headers
   }
 
-  @Test
-  fun updateAppointmentComment() {
-    val appointment = appointmentWithId(1)
-    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+  @Nested
+  @DisplayName("POST /{appointmentId}/comment")
+  inner class UpdateComment {
+    @Test
+    fun updateAppointmentComment() {
+      val appointment = appointmentWithId(1)
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
 
-    val response = testRestTemplate
-      .exchange(
-        "/api/appointments/1/comment",
-        PUT,
-        HttpEntity(
-          "Comment",
-          headers(
-            validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
-            MediaType.TEXT_PLAIN,
+      val response = testRestTemplate
+        .exchange(
+          "/api/appointments/1/comment",
+          PUT,
+          HttpEntity(
+            "Comment",
+            headers(
+              validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
+              MediaType.TEXT_PLAIN,
+            ),
           ),
-        ),
-        Void::class.java,
-      )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    assertThat(appointment.comment).isEqualTo("Comment")
-  }
+          Void::class.java,
+        )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      assertThat(appointment.comment).isEqualTo("Comment")
+    }
 
-  @Test
-  fun updateAppointmentComment_emptyComment() {
-    val appointment = appointmentWithId(1).apply { comment = "existing comment" }
-    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+    @Test
+    fun updateAppointmentComment_emptyComment() {
+      val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
 
-    val response = testRestTemplate
-      .exchange(
-        "/api/appointments/1/comment",
-        PUT,
-        HttpEntity(
-          "",
-          headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN),
-        ),
-        Void::class.java,
-      )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    assertThat(appointment.comment).isNull()
-  }
-
-  @Test
-  fun updateAppointmentComment_noComment() {
-    val appointment = appointmentWithId(1).apply { comment = "existing comment" }
-    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
-
-    val response = testRestTemplate
-      .exchange(
-        "/api/appointments/1/comment",
-        PUT,
-        HttpEntity<Any>(headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN)),
-        Void::class.java,
-      )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
-    assertThat(appointment.comment).isNull()
-  }
-
-  @Test
-  fun updateAppointmentComment_notFound() {
-    whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.empty())
-
-    val response = testRestTemplate
-      .exchange(
-        "/api/appointments/1/comment",
-        PUT,
-        HttpEntity(
-          "Comment",
-          headers(
-            validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
-            MediaType.TEXT_PLAIN,
+      val response = testRestTemplate
+        .exchange(
+          "/api/appointments/1/comment",
+          PUT,
+          HttpEntity(
+            "",
+            headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN),
           ),
-        ),
-        Void::class.java,
-      )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
-  }
+          Void::class.java,
+        )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      assertThat(appointment.comment).isNull()
+    }
 
-  @Test
-  fun updateAppointmentComment_unauthorised() {
-    val response = testRestTemplate
-      .exchange(
-        "/api/appointments/1/comment",
-        PUT,
-        HttpEntity(
-          "Comment",
-          headers(
-            validToken(listOf()),
-            MediaType.TEXT_PLAIN,
+    @Test
+    fun updateAppointmentComment_noComment() {
+      val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
+      val response = testRestTemplate
+        .exchange(
+          "/api/appointments/1/comment",
+          PUT,
+          HttpEntity<Any>(headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN)),
+          Void::class.java,
+        )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      assertThat(appointment.comment).isNull()
+    }
+
+    @Test
+    fun updateAppointmentComment_notFound() {
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.empty())
+
+      val response = testRestTemplate
+        .exchange(
+          "/api/appointments/1/comment",
+          PUT,
+          HttpEntity(
+            "Comment",
+            headers(
+              validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
+              MediaType.TEXT_PLAIN,
+            ),
           ),
-        ),
-        Void::class.java,
-      )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    verifyNoInteractions(offenderIndividualScheduleRepository)
+          Void::class.java,
+        )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+    }
+
+    @Test
+    fun updateAppointmentComment_unauthorised() {
+      val response = testRestTemplate
+        .exchange(
+          "/api/appointments/1/comment",
+          PUT,
+          HttpEntity(
+            "Comment",
+            headers(
+              validToken(listOf()),
+              MediaType.TEXT_PLAIN,
+            ),
+          ),
+          Void::class.java,
+        )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
   }
 }
