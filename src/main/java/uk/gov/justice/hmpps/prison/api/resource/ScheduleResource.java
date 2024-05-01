@@ -150,7 +150,7 @@ public class ScheduleResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get all Prisoner activities for given date.", description = "Get count of suspended prisoner activities for given date range")
-    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
+    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"}, accessDeniedError = true)
     @PostMapping("/{agencyId}/count-activities")
     @SlowReportQuery
     public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
