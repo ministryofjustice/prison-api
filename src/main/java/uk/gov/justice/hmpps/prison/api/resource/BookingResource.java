@@ -311,7 +311,10 @@ public class BookingResource {
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     @PostMapping("/{bookingId}/alert")
     @ProxyUser
-    public ResponseEntity<AlertCreated> postAlert(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId, @Valid @RequestBody @Parameter(description = "Alert details", required = true) final CreateAlert alert) {
+    public ResponseEntity<AlertCreated> postAlert(
+        @PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId,
+        @Valid @RequestBody @Parameter(description = "Alert details", required = true) final CreateAlert alert
+    ) {
         final var alertId = inmateAlertService.createNewAlert(bookingId, alert);
         return ResponseEntity.status(HttpStatus.CREATED).body(new AlertCreated(alertId));
     }
@@ -363,7 +366,10 @@ public class BookingResource {
     @Operation(summary = "Offender alert detail.", description = "Offender alert detail.")
     @GetMapping("/{bookingId}/alerts/{alertId}")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Alert getOffenderAlert(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId, @PathVariable("alertId") @Parameter(description = "The Alert Id", required = true) final Long alertId) {
+    public Alert getOffenderAlert(
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable("alertId") @Parameter(description = "The Alert Id", required = true) final Long alertId
+    ) {
         return inmateAlertService.getInmateAlert(bookingId, alertId);
     }
 

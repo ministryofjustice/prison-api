@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
+import org.hibernate.exception.LockTimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,6 +36,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
@@ -93,6 +95,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransform
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 
 import java.math.BigDecimal;
+import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -1418,7 +1421,7 @@ public class BookingServiceTest {
         void bookingNotFound_throws() {
             when(offenderBookingRepository.findById(BAD_BOOKING_ID)).thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, aCellSwapLocation()))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(BAD_BOOKING_ID, aCellSwapLocation(), false))
                 .isInstanceOf(EntityNotFoundException.class)
                 .hasMessageContaining(valueOf(BAD_BOOKING_ID));
         }
@@ -1428,7 +1431,7 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING")))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID, "WING"), false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(NEW_LIVING_UNIT_DESC)
                 .hasMessageContaining("WING");
@@ -1439,10 +1442,24 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
-            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID)))
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID), false))
                 .isInstanceOf(IllegalArgumentException.class)
                 .hasMessageContaining(SOME_AGENCY_ID)
                 .hasMessageContaining(DIFFERENT_AGENCY_ID);
+        }
+
+        @Test
+        void lockTimeout_throws() {
+            when(offenderBookingRepository.findWithLockTimeoutByBookingId(SOME_BOOKING_ID))
+                .thenThrow(new LockTimeoutException("test", new SQLException()));
+
+            assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID), true))
+                .isInstanceOf(DatabaseRowLockedException.class)
+                .hasMessage("Resource locked, possibly in use in P-Nomis.")
+                .hasFieldOrPropertyWithValue(
+                    "developerMessage",
+                    "Failed to get OFFENDER_BOOKINGS lock for bookingId=" + SOME_BOOKING_ID + " after 10000 milliseconds"
+                );
         }
 
         @Test
@@ -1450,7 +1467,19 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID));
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID), false);
+
+            ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
+            verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
+            assertThat(updatedOffenderBooking.getValue().getAssignedLivingUnit().getLocationId()).isEqualTo(NEW_LIVING_UNIT_ID);
+        }
+
+        @Test
+        void ok_withTimeout() {
+            when(offenderBookingRepository.findWithLockTimeoutByBookingId(SOME_BOOKING_ID))
+                .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
+
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, SOME_AGENCY_ID), true);
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
@@ -1462,7 +1491,7 @@ public class BookingServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                 .thenReturn(anOffenderBooking(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID));
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE));
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, LOCATION_CODE), false);
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());
@@ -1476,7 +1505,7 @@ public class BookingServiceTest {
 
             final var cellSwapLocation = aCellSwapLocation();
 
-            bookingService.updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation);
+            bookingService.updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation, false);
 
             ArgumentCaptor<OffenderBooking> updatedOffenderBooking = ArgumentCaptor.forClass(OffenderBooking.class);
             verify(offenderBookingRepository).save(updatedOffenderBooking.capture());

@@ -43,19 +43,19 @@ public class MovementUpdateService {
     }
 
     @Transactional
-    public CellMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime) {
+    public CellMoveResult moveToCellOrReception(final Long bookingId, final String internalLocationDescription, final String reasonCode, final LocalDateTime dateTime, final boolean lockTimeout) {
         validateInternalMove(reasonCode, dateTime);
 
         final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
         final var offenderBooking = getActiveOffenderBooking(bookingId);
         final var internalLocation = getActiveInternalLocation(internalLocationDescription);
 
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
+        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId())) {
             return transformToCellSwapResult(offenderBooking);
+        }
 
-        if (internalLocation.isActiveCellWithSpace() || internalLocation.isActiveReceptionWithSpace() )
-        {
-            return saveAndReturnInternalMoveResult(bookingId, reasonCode, movementDateTime, internalLocation);
+        if (internalLocation.isActiveCellWithSpace() || internalLocation.isActiveReceptionWithSpace()) {
+            return saveAndReturnInternalMoveResult(bookingId, reasonCode, movementDateTime, internalLocation, lockTimeout);
         }
         throw new IllegalArgumentException(String.format("Location %s is either not a cell or reception, active or is at maximum capacity", internalLocation.getDescription()));
 
@@ -75,14 +75,16 @@ public class MovementUpdateService {
         if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
             return transformToCellSwapResult(offenderBooking);
 
-        return saveAndReturnInternalMoveResult(bookingId, reason, movementDateTime, internalLocation);
+        return saveAndReturnInternalMoveResult(bookingId, reason, movementDateTime, internalLocation, false);
     }
 
-    private CellMoveResult saveAndReturnInternalMoveResult(final long bookingId, final String reasonCode,
-                                                           final LocalDateTime movementDateTime,
-                                                           final AgencyInternalLocation location) {
-
-        bookingService.updateLivingUnit(bookingId, location);
+    private CellMoveResult saveAndReturnInternalMoveResult(
+        final long bookingId, final String reasonCode,
+        final LocalDateTime movementDateTime,
+        final AgencyInternalLocation location,
+        final boolean lockTimeout
+    ) {
+        bookingService.updateLivingUnit(bookingId, location, lockTimeout);
 
         final var bookingAndSequence =
                 bedAssignmentHistoryService.add(bookingId, location.getLocationId(), reasonCode, movementDateTime);
