@@ -19,6 +19,7 @@ class PrisonerSearchService(
   private val offenderRepository: OffenderRepository,
   private val offenderTransformer: OffenderTransformer,
   private val inmateService: InmateService,
+  private val bookingService: BookingService,
 ) {
 
   @Transactional
@@ -68,6 +69,7 @@ class PrisonerSearchService(
           addresses = offender.addresses.filter { it.noFixedAddressFlag == "N" }.map(AddressTransformer::translate),
           phones = offender.phones.map(AddressTransformer::translate),
           emailAddresses = offender.emailAddresses.map(AddressTransformer::translate),
+          allOffences = offender.allBookings.map { it.bookingId }.toSet().let { bookingService.getActiveOffencesForBookings(it) }.filter { it.convicted() },
         )
       }
   }

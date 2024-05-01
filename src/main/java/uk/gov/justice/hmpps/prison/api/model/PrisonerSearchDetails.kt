@@ -127,4 +127,7 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "Prisoner Email Addresses")
   val emailAddresses: List<Email>? = null,
+
+  @Schema(description = "All convicted offences for all bookings")
+  val allOffences: List<OffenceHistoryDetail>? = null,
 )
