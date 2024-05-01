@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
+import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -100,7 +101,13 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
     ) appointmentId: @NotNull Long,
   ): ScheduledEvent = appointmentsService.getBookingAppointment(appointmentId)
 
-  @Operation(summary = "Change an appointment's comment.", description = "Requires role GLOBAL_APPOINTMENT")
+  @Operation(
+    summary = "Change an appointment's comment.",
+    description = """
+        Requires role GLOBAL_APPOINTMENT. Deprecated - consuming text/plain requires a mod security exclusion, so
+        a v2 version has been created that takes application/json instead.
+       """,
+  )
   @ApiResponses(
     ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
     ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
@@ -109,6 +116,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
   @PutMapping(path = ["/{appointmentId}/comment"], consumes = [MediaType.TEXT_PLAIN_VALUE])
   @ResponseStatus(HttpStatus.NO_CONTENT)
+  @Deprecated("Use the v2 version below that takes json instead.")
   fun updateAppointmentComment(
     @PathVariable("appointmentId") @Parameter(
       description = "The appointment's unique identifier.",
@@ -121,4 +129,31 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   ) {
     appointmentsService.updateComment(appointmentId, comment)
   }
+
+  @Operation(summary = "Change an appointment's comment.", description = "Requires role GLOBAL_APPOINTMENT")
+  @ApiResponses(
+    ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
+    ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+    ApiResponse(responseCode = "404", description = "The appointment was not found."),
+  )
+  @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
+  @PutMapping(path = ["/{appointmentId}/comment/v2"])
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  fun updateAppointmentCommentV2(
+    @PathVariable("appointmentId") @Parameter(
+      description = "The appointment's unique identifier.",
+      required = true,
+    ) appointmentId: @NotNull Long,
+    @RequestBody(required = false) @Parameter(
+      description = "The comment. May be empty or null",
+      allowEmptyValue = true,
+    ) updateComment: UpdateComment?,
+  ) {
+    appointmentsService.updateComment(appointmentId, updateComment?.getCommentOrNull())
+  }
+}
+
+@Schema(description = "The text of the comment to update")
+class UpdateComment(val comment: String?) {
+  fun getCommentOrNull(): String? = if (comment.isNullOrBlank()) null else comment
 }

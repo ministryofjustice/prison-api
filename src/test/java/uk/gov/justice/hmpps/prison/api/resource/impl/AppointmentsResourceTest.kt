@@ -11,13 +11,11 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
-import org.springframework.http.HttpMethod.DELETE
-import org.springframework.http.HttpMethod.GET
-import org.springframework.http.HttpMethod.PUT
-import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.aop.ProxyUserAspect
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -87,8 +85,8 @@ class AppointmentsResourceTest : ResourceTest() {
     private fun makeCreateAppointmentsRequest(body: AppointmentsToCreate) =
       webTestClient.post().uri("/api/appointments")
         .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
         .body(BodyInserters.fromValue(body))
         .exchange()
 
@@ -135,13 +133,12 @@ class AppointmentsResourceTest : ResourceTest() {
       ),
     )
 
-    val response = testRestTemplate.exchange(
-      "/api/appointments/1",
-      DELETE,
-      createHttpEntity(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), null),
-      Void::class.java,
-    )
-    assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+    webTestClient.delete().uri("/api/appointments/1")
+      .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .accept(APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isNoContent
     verify(offenderIndividualScheduleRepository).findById(1L)
   }
 
@@ -152,25 +149,33 @@ class AppointmentsResourceTest : ResourceTest() {
     fun deleteAnAppointment_notFound() {
       whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
 
-      val response = testRestTemplate.exchange(
-        "/api/appointments/1",
-        DELETE,
-        createHttpEntity(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), null),
-        Void::class.java,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      webTestClient.delete().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
       verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
     @Test
-    fun deleteAnAppointment_notAuthorised() {
-      val response = testRestTemplate.exchange(
-        "/api/appointments/1",
-        DELETE,
-        createHttpEntity(validToken(listOf()), null),
-        Void::class.java,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+    fun `delete an appointment not authorised`() {
+      webTestClient.delete().uri("/api/appointments/1")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `delete an appointment forbidden`() {
+      webTestClient.delete().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_BOB")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
       verifyNoInteractions(offenderIndividualScheduleRepository)
     }
   }
@@ -197,14 +202,13 @@ class AppointmentsResourceTest : ResourceTest() {
       }
       whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.of(appointment))
 
-      val response = testRestTemplate.exchange(
-        "/api/appointments/1",
-        GET,
-        createHttpEntity(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), null),
-        ScheduledEvent::class.java,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-      assertThat(response.body).isEqualTo(ScheduledEvent(appointment))
+      webTestClient.get().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody(ScheduledEvent::class.java).isEqualTo(ScheduledEvent(appointment))
       verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
@@ -212,25 +216,34 @@ class AppointmentsResourceTest : ResourceTest() {
     fun getAnAppointment_notFound() {
       whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
 
-      val response = testRestTemplate.exchange(
-        "/api/appointments/1",
-        GET,
-        createHttpEntity(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), null),
-        String::class.java,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      webTestClient.get().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+
       verify(offenderIndividualScheduleRepository).findById(1L)
     }
 
     @Test
-    fun getAnAppointment_notAuthorised() {
-      val response = testRestTemplate.exchange(
-        "/api/appointments/1",
-        GET,
-        createHttpEntity(validToken(listOf()), null),
-        String::class.java,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+    fun `get an appointment forbidden`() {
+      webTestClient.get().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_BOB")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `get an appointment not authorised`() {
+      webTestClient.get().uri("/api/appointments/1")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
       verifyNoInteractions(offenderIndividualScheduleRepository)
     }
   }
@@ -243,27 +256,20 @@ class AppointmentsResourceTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /{appointmentId}/comment")
+  @DisplayName("PUT /{appointmentId}/comment")
   inner class UpdateComment {
     @Test
     fun updateAppointmentComment() {
       val appointment = appointmentWithId(1)
       whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
 
-      val response = testRestTemplate
-        .exchange(
-          "/api/appointments/1/comment",
-          PUT,
-          HttpEntity(
-            "Comment",
-            headers(
-              validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
-              MediaType.TEXT_PLAIN,
-            ),
-          ),
-          Void::class.java,
-        )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .bodyValue("Comment")
+        .exchange()
+        .expectStatus().isNoContent
+
       assertThat(appointment.comment).isEqualTo("Comment")
     }
 
@@ -272,17 +278,14 @@ class AppointmentsResourceTest : ResourceTest() {
       val appointment = appointmentWithId(1).apply { comment = "existing comment" }
       whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
 
-      val response = testRestTemplate
-        .exchange(
-          "/api/appointments/1/comment",
-          PUT,
-          HttpEntity(
-            "",
-            headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN),
-          ),
-          Void::class.java,
-        )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .bodyValue("")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
       assertThat(appointment.comment).isNull()
     }
 
@@ -291,14 +294,13 @@ class AppointmentsResourceTest : ResourceTest() {
       val appointment = appointmentWithId(1).apply { comment = "existing comment" }
       whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
 
-      val response = testRestTemplate
-        .exchange(
-          "/api/appointments/1/comment",
-          PUT,
-          HttpEntity<Any>(headers(validToken(listOf("ROLE_GLOBAL_APPOINTMENT")), MediaType.TEXT_PLAIN)),
-          Void::class.java,
-        )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NO_CONTENT)
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
       assertThat(appointment.comment).isNull()
     }
 
@@ -306,38 +308,125 @@ class AppointmentsResourceTest : ResourceTest() {
     fun updateAppointmentComment_notFound() {
       whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.empty())
 
-      val response = testRestTemplate
-        .exchange(
-          "/api/appointments/1/comment",
-          PUT,
-          HttpEntity(
-            "Comment",
-            headers(
-              validToken(listOf("ROLE_GLOBAL_APPOINTMENT")),
-              MediaType.TEXT_PLAIN,
-            ),
-          ),
-          Void::class.java,
-        )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .bodyValue("Comment")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
     }
 
     @Test
-    fun updateAppointmentComment_unauthorised() {
-      val response = testRestTemplate
-        .exchange(
-          "/api/appointments/1/comment",
-          PUT,
-          HttpEntity(
-            "Comment",
-            headers(
-              validToken(listOf()),
-              MediaType.TEXT_PLAIN,
-            ),
-          ),
-          Void::class.java,
-        )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
+    fun `update appointment comment forbidden`() {
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_BOB")))
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .bodyValue("")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `update appointment comment not authorised`() {
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .bodyValue("")
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+  }
+
+  @Nested
+  @DisplayName("PUT /{appointmentId}/comment/v2")
+  inner class UpdateCommentV2 {
+    @Test
+    fun updateAppointmentComment() {
+      val appointment = appointmentWithId(1)
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(appointment.comment).isEqualTo("Comment")
+    }
+
+    @Test
+    fun updateAppointmentComment_emptyComment() {
+      val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "" } """)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(appointment.comment).isNull()
+    }
+
+    @Test
+    fun updateAppointmentComment_noComment() {
+      val appointment = appointmentWithId(1).apply { comment = "existing comment" }
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(appointment.comment).isNull()
+    }
+
+    @Test
+    fun updateAppointmentComment_notFound() {
+      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.empty())
+
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `update appointment comment forbidden`() {
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .headers(setAuthorisation(listOf("ROLE_BOB")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+
+      verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `update appointment comment not authorised`() {
+      webTestClient.put().uri("/api/appointments/1/comment/v2")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+
       verifyNoInteractions(offenderIndividualScheduleRepository)
     }
   }
