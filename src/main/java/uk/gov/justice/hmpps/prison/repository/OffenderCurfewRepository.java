@@ -37,7 +37,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
         this.conditionalSqlService = conditionalSqlService;
     }
 
-    private final static int lockWaitTime = 25; // Client has a 30 second timeout, so we need to be less than that
+    private final static int lockWaitTime = 10;
 
     private static class AlmostStandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         AlmostStandardBeanPropertyRowMapper(Class<T> clazz) {

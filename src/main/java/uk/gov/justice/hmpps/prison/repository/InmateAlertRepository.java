@@ -128,7 +128,7 @@ public class InmateAlertRepository extends RepositoryBase {
                 alertMapper);
     }
 
-    private final static int lockWaitTime = 25;
+    private final static int lockWaitTime = 10;
 
     public void lockAlert(final Long bookingId, final Long alertSeq) {
         final var sql = InmateAlertRepositorySql.LOCK_ALERT.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
