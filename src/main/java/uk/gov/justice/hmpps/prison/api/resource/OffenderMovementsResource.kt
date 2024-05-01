@@ -64,6 +64,6 @@ class OffenderMovementsResource(
     dateTime: LocalDateTime?,
   ): CellMoveResult {
     val booking = bookingService.getLatestBookingByOffenderNo(offenderNo)
-    return movementUpdateService.moveToCellOrReception(booking.bookingId, internalLocationDescription, reasonCode, dateTime)
+    return movementUpdateService.moveToCellOrReception(booking.bookingId, internalLocationDescription, reasonCode, dateTime, false)
   }
 }

@@ -6,6 +6,7 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
+import org.hibernate.exception.LockTimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
@@ -55,6 +56,7 @@ import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.Visitor;
 import uk.gov.justice.hmpps.prison.api.model.VisitorRestriction;
 import uk.gov.justice.hmpps.prison.api.support.Order;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq;
 import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
@@ -768,11 +770,22 @@ public class BookingService {
     }
 
     @Transactional
-    public void updateLivingUnit(final Long bookingId, final AgencyInternalLocation location) {
-        final var offenderBooking = offenderBookingRepository.findById(bookingId)
-                .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
+    public void updateLivingUnit(final Long bookingId, final AgencyInternalLocation location, final boolean lockTimeout) {
+        final var offenderBooking = (lockTimeout ?
+            getBookingWithTimeout(bookingId) :
+            offenderBookingRepository.findById(bookingId)
+        )
+            .orElseThrow(EntityNotFoundException.withMessage(format("Offender booking with booking id %d not found", bookingId)));
 
         updateLivingUnit(offenderBooking, location);
+    }
+
+    private Optional<OffenderBooking> getBookingWithTimeout(Long bookingId) {
+        try {
+            return offenderBookingRepository.findWithLockTimeoutByBookingId(bookingId);
+        } catch (LockTimeoutException e) {
+            throw DatabaseRowLockedException.withMessage("Failed to get OFFENDER_BOOKINGS lock for bookingId=" + bookingId + " after " + OffenderBookingRepository.lockWaitTimeMillis + " milliseconds");
+        }
     }
 
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {

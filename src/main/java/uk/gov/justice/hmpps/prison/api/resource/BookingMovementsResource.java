@@ -114,7 +114,9 @@ public class BookingMovementsResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Move Offender to another cell or reception")
     @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ProxyUser
     @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"}, accessDeniedError = true)
@@ -123,7 +125,8 @@ public class BookingMovementsResource {
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
         @PathVariable("internalLocationDescription") @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription,
         @RequestParam("reasonCode") @Parameter(description = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode,
-        @RequestParam(value = "dateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime
+        @RequestParam(value = "dateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
         log.debug("Received moveToCell request for booking id {}, cell location {}, reasonCode {}, date/time {}",
             bookingId,
@@ -131,7 +134,7 @@ public class BookingMovementsResource {
             reasonCode,
             dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
-        return movementUpdateService.moveToCellOrReception(bookingId, internalLocationDescription, reasonCode, dateTime);
+        return movementUpdateService.moveToCellOrReception(bookingId, internalLocationDescription, reasonCode, dateTime, lockTimeout);
     }
 
     @ApiResponses({

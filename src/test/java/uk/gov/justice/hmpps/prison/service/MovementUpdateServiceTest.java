@@ -69,7 +69,7 @@ class MovementUpdateServiceTest {
 
         @Test
         void reasonCodeEmpty_throwsIllegalArgument() {
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, "", SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, "", SOME_TIME, false))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("Reason code");
         }
@@ -77,7 +77,7 @@ class MovementUpdateServiceTest {
         @Test
         void dateTimeInFuture_throwsIllegalArgument() {
             final var theFuture = LocalDateTime.now(Clock.offset(clock, Duration.ofDays(1L)));
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, theFuture))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, theFuture, false))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining("date")
                     .hasMessageContaining("future");
@@ -89,7 +89,7 @@ class MovementUpdateServiceTest {
             when(referenceDomainService.getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), badReasonCode, false))
                     .thenThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", CELL_MOVE_REASON, badReasonCode));
 
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, badReasonCode, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, badReasonCode, SOME_TIME, false))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessageContaining(CELL_MOVE_REASON.name())
                     .hasMessageContaining(badReasonCode);
@@ -103,7 +103,7 @@ class MovementUpdateServiceTest {
             when(offenderBookingRepository.findById(anyLong()))
                     .thenReturn(Optional.empty());
 
-            assertThatThrownBy(() -> service.moveToCellOrReception(badBookingId, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(badBookingId, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false))
                     .isInstanceOf(EntityNotFoundException.class)
                     .hasMessageContaining(format(" %d ", badBookingId))
                     .hasMessageContaining("Booking id")
@@ -117,7 +117,7 @@ class MovementUpdateServiceTest {
             when(offenderBookingRepository.findById(SOME_BOOKING_ID))
                     .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, false));
 
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false))
                     .hasMessage(format("Offender booking with id %s is not active.", SOME_BOOKING_ID));
         }
 
@@ -128,7 +128,7 @@ class MovementUpdateServiceTest {
             when(offenderBookingRepository.findById(anyLong()))
                     .thenThrow(new RuntimeException("Fake runtime exception"));
 
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false))
                     .isInstanceOf(RuntimeException.class)
                     .hasMessage("Fake runtime exception");
         }
@@ -152,7 +152,7 @@ class MovementUpdateServiceTest {
                                     .active(true)
                                     .build()));
 
-            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME))
+            assertThatThrownBy(() -> service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false))
                     .isInstanceOf(IllegalArgumentException.class)
                     .hasMessage("Location MDI-1-3 is either not a cell or reception, active or is at maximum capacity");
         }
@@ -165,23 +165,23 @@ class MovementUpdateServiceTest {
         void updatesBooking() {
             mockSuccess();
 
-            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
+            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
-            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC).get());
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, NEW_LIVING_UNIT_DESC).get(), false);
         }
         @Test
         void updatesBookingReception() {
             mockSuccessForReception();
 
-            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_RECEPTION_DESC, SOME_REASON_CODE, SOME_TIME);
+            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_RECEPTION_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
-            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, NEW_RECEPTION_DESC).get());
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, receptionLocation(NEW_LIVING_UNIT_ID, NEW_RECEPTION_DESC).get(), false);
         }
         @Test
         void writesToBedAssignmentHistories() {
             mockSuccess();
 
-            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
+            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
         }
@@ -190,7 +190,7 @@ class MovementUpdateServiceTest {
         void missingDateTime_defaultsToNow() {
             mockSuccess();
 
-            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, null);
+            service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, null, false);
 
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, NEW_LIVING_UNIT_ID, SOME_REASON_CODE, LocalDateTime.now(clock));
         }
@@ -199,7 +199,7 @@ class MovementUpdateServiceTest {
         void returnsUpdatedOffenderBooking() {
             mockSuccess();
 
-            final var offenderBooking = service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
+            final var offenderBooking = service.moveToCellOrReception(SOME_BOOKING_ID, NEW_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
             assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(NEW_LIVING_UNIT_ID);
         }
@@ -208,9 +208,9 @@ class MovementUpdateServiceTest {
         void cellNotChanged_doesntTriggerUpdates() {
             mockCellNotChanged();
 
-            service.moveToCellOrReception(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
+            service.moveToCellOrReception(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
-            verify(bookingService, never()).updateLivingUnit(any(), any());
+            verify(bookingService, never()).updateLivingUnit(any(), any(), eq(false));
             verify(bedAssignmentHistoryService, never()).add(SOME_BOOKING_ID, OLD_LIVING_UNIT_ID, SOME_REASON_CODE, SOME_TIME);
         }
 
@@ -218,7 +218,7 @@ class MovementUpdateServiceTest {
         void cellNotChanged_returnsExistingBooking() {
             mockCellNotChanged();
 
-            final var offenderSummary = service.moveToCellOrReception(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME);
+            final var offenderSummary = service.moveToCellOrReception(SOME_BOOKING_ID, OLD_LIVING_UNIT_DESC, SOME_REASON_CODE, SOME_TIME, false);
 
             assertThat(offenderSummary.getAssignedLivingUnitId()).isEqualTo(OLD_LIVING_UNIT_ID);
             verify(offenderBookingRepository, times(1)).findById(SOME_BOOKING_ID);
@@ -275,7 +275,7 @@ class MovementUpdateServiceTest {
 
             assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(CELL_SWAP_LOCATION_ID);
 
-            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation);
+            verify(bookingService).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation, false);
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, "ADM", SOME_TIME);
         }
 
@@ -288,7 +288,6 @@ class MovementUpdateServiceTest {
 
             verify(bedAssignmentHistoryService).add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, SOME_TIME);
         }
-
 
         @Test
         void missingReasonCode_defaultsToADM() {
@@ -321,7 +320,6 @@ class MovementUpdateServiceTest {
             verify(referenceDomainService).getReferenceCodeByDomainAndCode(CELL_MOVE_REASON.getDomain(), "ADM", false);
         }
 
-
         @Test
         void noUpdateNeeded_returnsOriginalOffender() {
             final var offenderInCellSwap = OffenderBooking.builder()
@@ -338,7 +336,7 @@ class MovementUpdateServiceTest {
 
             assertThat(offenderBooking.getAssignedLivingUnitId()).isEqualTo(CELL_SWAP_LOCATION_ID);
 
-            verify(bookingService, never()).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation());
+            verify(bookingService, never()).updateLivingUnit(SOME_BOOKING_ID, cellSwapLocation(), false);
         }
 
         @Test
@@ -430,4 +428,4 @@ class MovementUpdateServiceTest {
                 .build()
         );
     }
-   }
+}

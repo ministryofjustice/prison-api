@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import jakarta.validation.constraints.NotNull;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
@@ -10,6 +11,7 @@ import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
 import org.springframework.data.jpa.repository.JpaSpecificationExecutor;
 import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.stereotype.Repository;
@@ -66,6 +68,13 @@ public interface OffenderBookingRepository extends
     );
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
+
+    String lockWaitTimeMillis = "10000";
+
+    @NotNull
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = lockWaitTimeMillis)})
+    Optional<OffenderBooking> findWithLockTimeoutByBookingId(@NotNull Long bookingId);
 
     @NotNull
     @Override
