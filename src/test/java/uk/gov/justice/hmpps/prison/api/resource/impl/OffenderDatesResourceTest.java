@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -204,29 +205,100 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         var nomisCalculations = response.getBody();
-        assertEquals("NEW",nomisCalculations.getReasonCode());
-        assertEquals(null,nomisCalculations.getComment());
-        assertEquals(null,nomisCalculations.getParoleEligibilityDate());
-        assertEquals(null,nomisCalculations.getApprovedParoleDate());
-        assertEquals(null,nomisCalculations.getConditionalReleaseDate());
-        assertEquals(null,nomisCalculations.getReleaseOnTemporaryLicenceDate());
-        assertEquals(null,nomisCalculations.getAutomaticReleaseDate());
-        assertEquals(null,nomisCalculations.getLateTermDate());
-        assertEquals(null,nomisCalculations.getPostRecallReleaseDate());
-        assertEquals(null,nomisCalculations.getTariffDate());
-        assertEquals(null,nomisCalculations.getEffectiveSentenceEndDate());
-        assertEquals(null,nomisCalculations.getDtoPostRecallReleaseDate());
-        assertEquals(null,nomisCalculations.getEarlyRemovalSchemeEligibilityDate());
-        assertEquals(null,nomisCalculations.getTariffExpiredRemovalSchemeEligibilityDate());
-        assertEquals(null,nomisCalculations.getTopupSupervisionExpiryDate());
-        assertEquals(null,nomisCalculations.getNonParoleDate());
-        assertEquals(LocalDate.of(2022, 10, 20),nomisCalculations.getSentenceExpiryDate());
-        assertEquals(LocalDate.of(2021, 9, 24),nomisCalculations.getLicenceExpiryDate());
-        assertEquals(LocalDate.of(2021, 3, 25),nomisCalculations.getMidTermDate());
-        assertEquals(LocalDate.of(2021, 2, 28),nomisCalculations.getEarlyTermDate());
-        assertEquals(LocalDate.of(2021, 1, 2),nomisCalculations.getHomeDetentionCurfewApprovedDate());
-        assertEquals(LocalDateTime.of(2017, 9, 2, 0,0),nomisCalculations.getCalculatedAt());
-        assertEquals(LocalDate.of(2020, 12, 30),nomisCalculations.getHomeDetentionCurfewEligibilityDate());
+        assertThat(nomisCalculations.getReasonCode()).isEqualTo("NEW");
+        assertThat(nomisCalculations.getComment()).isNull();
+        assertThat(nomisCalculations.getParoleEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getApprovedParoleDate()).isNull();
+        assertThat(nomisCalculations.getConditionalReleaseDate()).isNull();
+        assertThat(nomisCalculations.getReleaseOnTemporaryLicenceDate()).isNull();
+        assertThat(nomisCalculations.getAutomaticReleaseDate()).isNull();
+        assertThat(nomisCalculations.getLateTermDate()).isNull();
+        assertThat(nomisCalculations.getPostRecallReleaseDate()).isNull();
+        assertThat(nomisCalculations.getTariffDate()).isNull();
+        assertThat(nomisCalculations.getEffectiveSentenceEndDate()).isNull();
+        assertThat(nomisCalculations.getDtoPostRecallReleaseDate()).isNull();
+        assertThat(nomisCalculations.getEarlyRemovalSchemeEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getTariffExpiredRemovalSchemeEligibilityDate()).isNull();
+        assertThat(nomisCalculations.getTopupSupervisionExpiryDate()).isNull();
+        assertThat(nomisCalculations.getNonParoleDate()).isNull();
+        assertThat(nomisCalculations.getSentenceExpiryDate()).isEqualTo(LocalDate.of(2022, 10, 20));
+        assertThat(nomisCalculations.getLicenceExpiryDate()).isEqualTo(LocalDate.of(2021, 9, 24));
+        assertThat(nomisCalculations.getMidTermDate()).isEqualTo(LocalDate.of(2021, 3, 25));
+        assertThat(nomisCalculations.getEarlyTermDate()).isEqualTo(LocalDate.of(2021, 2, 28));
+        assertThat(nomisCalculations.getHomeDetentionCurfewApprovedDate()).isEqualTo(LocalDate.of(2021, 1, 2));
+        assertThat(nomisCalculations.getCalculatedAt()).isEqualTo(LocalDateTime.of(2017, 9, 2, 0, 0));
+        assertThat(nomisCalculations.getHomeDetentionCurfewEligibilityDate()).isEqualTo(LocalDate.of(2020, 12, 30));
     }
 
+    @Test
+    public void testGetLatestTusedForPrisoner() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AF"));
+
+        // Then
+        LatestTusedData latestTusedData = response.getBody();
+        assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AF");
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
+    }
+
+    @Test
+    public void testGetLatestTusedForPrisonerWithOverridenTused() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AG"));
+
+        // Then
+        LatestTusedData latestTusedData = response.getBody();
+        assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AG");
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
+        assertThat(latestTusedData.getLatestOverrideTused()).isEqualTo(LocalDate.of(2021,3,31));
+    }
+    @Test
+    public void testGetLatestTusedForPrisonerThatDoesntExist() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "doesntExist"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
+
+    @Test
+    public void testGetLatestTusedForPrisonerWithNoTused() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1234AA"));
+
+        // Then
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+    }
 }

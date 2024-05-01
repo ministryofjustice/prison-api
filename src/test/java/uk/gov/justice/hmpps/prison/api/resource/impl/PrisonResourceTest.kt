@@ -3,8 +3,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
-import org.junit.jupiter.api.Assertions.assertFalse
-import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -62,7 +60,7 @@ class PrisonResourceTest : ResourceTest() {
 
     assertThat(firstPageResponse.pageable.pageNumber).isEqualTo(0)
     assertThat(firstPageResponse.totalPages).isEqualTo(2)
-    assertFalse(firstPageResponse.isLast)
+    assertThat(firstPageResponse.isLast).isFalse()
     assertThat(firstPageResponse.content).contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
 
     val secondPageResponse = webTestClient.get()
@@ -82,7 +80,7 @@ class PrisonResourceTest : ResourceTest() {
 
     assertThat(secondPageResponse.pageable.pageNumber).isEqualTo(1)
     assertThat(secondPageResponse.totalPages).isEqualTo(2)
-    assertTrue(secondPageResponse.isLast)
+    assertThat(secondPageResponse.isLast).isTrue()
     assertThat(secondPageResponse.content.size).isEqualTo(1)
   }
 

@@ -5,6 +5,7 @@ import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Alert
@@ -15,9 +16,13 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation
 import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
+import uk.gov.justice.hmpps.prison.service.InmateService
 import java.time.LocalDate
 
 class PrisonerSearchResourceIntTest : ResourceTest() {
+
+  @Autowired
+  private lateinit var inmateService: InmateService
 
   @Nested
   @DisplayName("GET /api/prisoner-search/offenders/{offenderNo}")
@@ -126,8 +131,8 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
-              assertThat(additionalDaysAwarded).isEqualTo(0)
             }
+            assertThat(sentenceDetail?.additionalDaysAwarded).isNull()
             assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
@@ -345,6 +350,23 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               Email("prisoner@home.com"),
               Email("prisoner@backup.com"),
             )
+          }
+        }
+    }
+
+    @Test
+    fun `should return alerts in the same order as the Inmate Service`() {
+      val inmateServiceAlerts = inmateService.findOffender("A1179MT", true, false).alerts
+
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1179MT")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(alerts).containsExactlyElementsOf(inmateServiceAlerts)
           }
         }
     }

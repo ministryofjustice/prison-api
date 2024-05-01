@@ -343,6 +343,7 @@ public class InmateService {
             activeAlertCount.incrementAndGet();
             alertTypes.add(a.getAlertType());
         });
+        items.sort(Comparator.comparing(Alert::getAlertId));
         inmate.setAlerts(items);
         inmate.setAlertsCodes(new ArrayList<>(alertTypes));
         inmate.setActiveAlertCount(activeAlertCount.longValue());

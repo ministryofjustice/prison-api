@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.OffenderKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
@@ -29,7 +30,8 @@ import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
-import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -109,7 +111,7 @@ public class OffenderDatesServiceTest {
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(
             expected
         );
-        assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+        assertThat(offenderBooking.getLatestCalculation()).isEqualTo(Optional.of(expected));
         verify(telemetryClient).trackEvent("OffenderKeyDatesUpdated",
             ImmutableMap.of(
                 "bookingId", bookingId.toString(),
@@ -140,8 +142,8 @@ public class OffenderDatesServiceTest {
         // Then
         final var defaultedCalculationDate = LocalDateTime.now(clock);
         final var latestCalculation = offenderBooking.getLatestCalculation().get();
-        assertEquals(defaultedCalculationDate, latestCalculation.getCalculationDate());
-        assertEquals(defaultedCalculationDate, latestCalculation.getRecordedDateTime());
+        assertThat(latestCalculation.getCalculationDate()).isEqualTo(defaultedCalculationDate);
+        assertThat(latestCalculation.getRecordedDateTime()).isEqualTo(defaultedCalculationDate);
     }
 
     @Test
@@ -209,34 +211,34 @@ public class OffenderDatesServiceTest {
         final var offenderSentCalcId = 1L;
 
         final var sentenceCalculation =
-                SentenceCalculation.builder()
-                    .id(1L)
-                    .hdcedCalculatedDate(LocalDate.of(2021, 11, 1))
-                    .etdCalculatedDate(LocalDate.of(2021, 11, 2))
-                    .mtdCalculatedDate(LocalDate.of(2021, 11, 3))
-                    .ltdCalculatedDate(LocalDate.of(2021, 11, 4))
-                    .dprrdCalculatedDate(LocalDate.of(2021, 11, 5))
-                    .ardCalculatedDate(LocalDate.of(2021, 11, 6))
-                    .crdCalculatedDate(LocalDate.of(2021, 11, 7))
-                    .pedCalculatedDate(LocalDate.of(2021, 11, 8))
-                    .npdCalculatedDate(LocalDate.of(2021, 11, 9))
-                    .ledCalculatedDate(LocalDate.of(2021, 11, 10))
-                    .prrdCalculatedDate(LocalDate.of(2021, 11, 11))
-                    .sedCalculatedDate(LocalDate.of(2021, 11, 12))
-                    .tusedCalculatedDate(LocalDate.of(2021, 11, 13))
-                    .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
-                    .effectiveSentenceLength("11/00/11")
-                    .ersedOverridedDate(LocalDate.of(2021, 11, 15))
-                    .hdcadOverridedDate(LocalDate.of(2021, 11, 16))
-                    .tariffOverridedDate(LocalDate.of(2021, 11, 17))
-                    .tersedOverridedDate(LocalDate.of(2021, 11, 18))
-                    .apdOverridedDate(LocalDate.of(2021, 11, 19))
-                    .rotlOverridedDate(LocalDate.of(2021, 11, 20))
-                    .judiciallyImposedSentenceLength("11/00/00")
-                    .comments("Comments")
-                    .reasonCode("NEW")
-                    .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
-                    .build();
+            SentenceCalculation.builder()
+                .id(1L)
+                .hdcedCalculatedDate(LocalDate.of(2021, 11, 1))
+                .etdCalculatedDate(LocalDate.of(2021, 11, 2))
+                .mtdCalculatedDate(LocalDate.of(2021, 11, 3))
+                .ltdCalculatedDate(LocalDate.of(2021, 11, 4))
+                .dprrdCalculatedDate(LocalDate.of(2021, 11, 5))
+                .ardCalculatedDate(LocalDate.of(2021, 11, 6))
+                .crdCalculatedDate(LocalDate.of(2021, 11, 7))
+                .pedCalculatedDate(LocalDate.of(2021, 11, 8))
+                .npdCalculatedDate(LocalDate.of(2021, 11, 9))
+                .ledCalculatedDate(LocalDate.of(2021, 11, 10))
+                .prrdCalculatedDate(LocalDate.of(2021, 11, 11))
+                .sedCalculatedDate(LocalDate.of(2021, 11, 12))
+                .tusedCalculatedDate(LocalDate.of(2021, 11, 13))
+                .effectiveSentenceEndDate(LocalDate.of(2021, 11, 14))
+                .effectiveSentenceLength("11/00/11")
+                .ersedOverridedDate(LocalDate.of(2021, 11, 15))
+                .hdcadOverridedDate(LocalDate.of(2021, 11, 16))
+                .tariffOverridedDate(LocalDate.of(2021, 11, 17))
+                .tersedOverridedDate(LocalDate.of(2021, 11, 18))
+                .apdOverridedDate(LocalDate.of(2021, 11, 19))
+                .rotlOverridedDate(LocalDate.of(2021, 11, 20))
+                .judiciallyImposedSentenceLength("11/00/00")
+                .comments("Comments")
+                .reasonCode("NEW")
+                .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+                .build();
         when(sentenceCalculationRepository.findById(offenderSentCalcId)).thenReturn(Optional.of(sentenceCalculation));
 
         // When
@@ -347,12 +349,12 @@ public class OffenderDatesServiceTest {
             .build();
 
         assertThat(offenderBooking.getSentenceCalculations()).containsOnly(expected);
-        assertEquals(Optional.of(expected), offenderBooking.getLatestCalculation());
+        assertThat(offenderBooking.getLatestCalculation()).isEqualTo(Optional.of(expected));
     }
 
     private static void assertOffenderCalculatedKeyDates(OffenderCalculatedKeyDates result) {
         // Then
-        assertEquals(result, OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
+        assertThat(result).isEqualTo(OffenderCalculatedKeyDates.offenderCalculatedKeyDates()
             .homeDetentionCurfewEligibilityDate(LocalDate.of(2021, 11, 1))
             .earlyTermDate(LocalDate.of(2021, 11, 2))
             .midTermDate(LocalDate.of(2021, 11, 3))
@@ -381,6 +383,21 @@ public class OffenderDatesServiceTest {
             .build());
     }
 
+    @Test
+    void findLatestTusedDataIsReturnedCorrectly() {
+        LatestTusedData latestTusedData = new LatestTusedData(LocalDate.of(2023, 1, 3), null, null, "A1234AA");
+        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.of(latestTusedData));
+        LatestTusedData returned = service.getLatestTusedDataFromNomsId("A1234AA");
+        assertThat(returned.getOffenderNo()).isEqualTo("A1234AA");
+        assertThat(returned.getLatestTused()).isEqualTo(LocalDate.of(2023, 1, 3));
+    }
+
+    @Test
+    void findLatestTusedDataThrowsExpectedException() {
+        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.empty());
+        Throwable exception = assertThrows(EntityNotFoundException.class, () -> service.getLatestTusedDataFromNomsId("A1234AA"));
+        assertThat(exception.getMessage()).isEqualTo("Resource with id [A1234AA] not found.");
+    }
 
     public static OffenderKeyDates createOffenderKeyDates() {
         return createOffenderKeyDates(
