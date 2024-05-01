@@ -318,7 +318,7 @@ public class BookingRepository extends RepositoryBase {
         return activities.stream().map(ScheduledEventDto::toScheduledEvent).collect(Collectors.toList());
     }
 
-    private final static int lockWaitTime = 25;
+    private final static int lockWaitTime = 10;
 
     public void lockAttendance(final Long bookingId, final Long activityId) {
         final var sql = BookingRepositorySql.LOCK_ATTENDANCE.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
