@@ -416,6 +416,14 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
+    fun `returns success if has override role ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `can return prisoner numbers`() {
       webTestClient.get()
         .uri("/api/prisoners/prisoner-numbers")
