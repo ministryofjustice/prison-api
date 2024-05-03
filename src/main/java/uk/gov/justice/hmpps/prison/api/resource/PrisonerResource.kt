@@ -211,11 +211,11 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     results.
     This is an internal endpoint used by Prisoner Search to ensure that NOMIS and OpenSearch are in sync.
     Other services should use Prisoner Search instead to get the list of prisoners.
-    Requires PRISONER_INDEX or GLOBAL_SEARCH role.
+    Requires PRISONER_INDEX or GLOBAL_SEARCH or ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO role.
     """,
   )
   @GetMapping("/prisoner-numbers")
-  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH','PRISONER_INDEX')")
+  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH','PRISONER_INDEX', 'ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO')")
   @SlowReportQuery
   fun getPrisonerNumbers(
     @RequestParam(value = "page", defaultValue = "0", required = false)
