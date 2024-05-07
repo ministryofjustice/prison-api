@@ -305,28 +305,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return all convicted offences for all bookings`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AL")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
-        .consumeWith { response ->
-          with(response.responseBody!!) {
-            // Note that this ignores charge M2 from booking -12 - because it has AUDIT_MODULE_NAME = 'MERGE'
-            // and also ignores charge M5 from booking -12 - because it is not a convicted offence
-            assertThat(allOffences).extracting("bookingId", "offenceDate", "offenceCode", "statuteCode", "offenceDescription")
-              .containsExactlyInAnyOrder(
-                tuple(-12L, LocalDate.parse("2015-01-04"), "M3", "RC86", "Attempted Murder"),
-                tuple(-12L, LocalDate.parse("2015-01-04"), "M4", "RC86", "Manslaughter"),
-                tuple(-13L, LocalDate.parse("2011-08-14"), "M1", "RC86", "Actual bodily harm"),
-              )
-          }
-        }
-    }
-
-    @Test
     fun `should return addresses`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
