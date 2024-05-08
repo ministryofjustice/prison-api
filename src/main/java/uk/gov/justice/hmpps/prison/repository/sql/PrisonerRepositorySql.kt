@@ -46,14 +46,11 @@ enum class PrisonerRepositorySql(val sql: String) {
     """,
   ),
 
-  // The join on offender_bookings means that we only include offenders with no bookings if they are the root offender - we don't need the aliases and prisoner search will not include them anyway
   LIST_ALL_OFFENDERS(
     """
-        SELECT OFFENDER_ID_DISPLAY AS OFFENDER_NUMBER, max(O.ROOT_OFFENDER_ID) AS mo 
-        FROM OFFENDERS O 
-        LEFT JOIN OFFENDER_BOOKINGS OB ON O.OFFENDER_ID = OB.OFFENDER_ID
-        WHERE ob.OFFENDER_BOOK_ID IS NOT NULL OR (ob.offender_book_id is NULL and o.root_OFFENDER_ID = o.OFFENDER_ID)
-        GROUP BY OFFENDER_ID_DISPLAY 
+        SELECT OFFENDER_ID_DISPLAY AS OFFENDER_NUMBER, O.ROOT_OFFENDER_ID AS mo 
+        FROM OFFENDERS O
+        WHERE O.OFFENDER_ID = O.ROOT_OFFENDER_ID
         ORDER BY mo ASC
     """,
   ),
