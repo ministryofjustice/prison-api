@@ -15,7 +15,6 @@ import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import org.springframework.http.MediaType.TEXT_PLAIN_VALUE
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.aop.ProxyUserAspect
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -265,8 +264,8 @@ class AppointmentsResourceTest : ResourceTest() {
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
-        .header("Content-Type", TEXT_PLAIN_VALUE)
-        .bodyValue("Comment")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
         .exchange()
         .expectStatus().isNoContent
 
@@ -280,8 +279,8 @@ class AppointmentsResourceTest : ResourceTest() {
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
-        .header("Content-Type", TEXT_PLAIN_VALUE)
-        .bodyValue("")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "" } """)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
@@ -296,7 +295,7 @@ class AppointmentsResourceTest : ResourceTest() {
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
-        .header("Content-Type", TEXT_PLAIN_VALUE)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
@@ -310,8 +309,8 @@ class AppointmentsResourceTest : ResourceTest() {
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
-        .header("Content-Type", TEXT_PLAIN_VALUE)
-        .bodyValue("Comment")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -321,8 +320,8 @@ class AppointmentsResourceTest : ResourceTest() {
     fun `update appointment comment forbidden`() {
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_BOB")))
-        .header("Content-Type", TEXT_PLAIN_VALUE)
-        .bodyValue("")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
@@ -333,8 +332,8 @@ class AppointmentsResourceTest : ResourceTest() {
     @Test
     fun `update appointment comment not authorised`() {
       webTestClient.put().uri("/api/appointments/1/comment")
-        .header("Content-Type", TEXT_PLAIN_VALUE)
-        .bodyValue("")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
