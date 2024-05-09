@@ -275,11 +275,19 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have agency in caseload`() {
+    fun `should return 403 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf("")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when user has no caseloads`() {
+      webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
+        .headers(setAuthorisation("RO_USER", listOf("")))
+        .exchange()
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -501,6 +509,22 @@ class MovementResourceTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return 403 when user does not have agency in caseload`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return 403 when user has no caseloads`() {
+      webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
+        .headers(setAuthorisation("RO_USER", listOf("")))
+        .exchange()
+        .expectStatus().isForbidden
     }
 
     @Test
