@@ -26,6 +26,9 @@ import java.time.LocalDate;
 @ToString
 @Data
 public class Alias {
+    @Schema(description = "Title of offender alias", example = "Mr")
+    private String title;
+
     @NotBlank
     @Schema(description = "First name of offender alias", example = "Mike", requiredMode = RequiredMode.NOT_REQUIRED)
     private String firstName;

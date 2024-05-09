@@ -233,9 +233,10 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .expectBody<PrisonerSearchDetails>()
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(aliases).extracting("firstName", "lastName", "dob", "gender", "ethnicity", "createDate")
+            assertThat(aliases).extracting("title", "firstName", "lastName", "dob", "gender", "ethnicity", "createDate")
               .containsExactlyInAnyOrder(
                 tuple(
+                  "Mr",
                   "CHESNEY",
                   "THOMSON",
                   LocalDate.parse("1980-01-02"),
@@ -244,6 +245,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                   LocalDate.parse("2015-01-01"),
                 ),
                 tuple(
+                  null,
                   "CHARLEY",
                   "THOMPSON",
                   LocalDate.parse("1998-11-01"),

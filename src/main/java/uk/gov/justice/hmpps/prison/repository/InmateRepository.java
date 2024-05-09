@@ -158,6 +158,7 @@ public class InmateRepository extends RepositoryBase {
     private static final RowMapper<ImprisonmentStatus> IMPRISONMENT_STATUS_MAPPER = new StandardBeanPropertyRowMapper<>(ImprisonmentStatus.class);
 
     private static final Map<String, FieldMapper> ALIAS_MAPPING = new ImmutableMap.Builder<String, FieldMapper>()
+        .put("TITLE", new FieldMapper("title"))
         .put("LAST_NAME", new FieldMapper("lastName"))
         .put("FIRST_NAME", new FieldMapper("firstName"))
         .put("MIDDLE_NAME", new FieldMapper("middleName"))
