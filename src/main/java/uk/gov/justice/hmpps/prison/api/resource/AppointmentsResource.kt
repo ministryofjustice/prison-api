@@ -121,28 +121,6 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   ) {
     appointmentsService.updateComment(appointmentId, updateComment?.getCommentOrNull())
   }
-
-  @Operation(summary = "Change an appointment's comment.", description = "Requires role GLOBAL_APPOINTMENT")
-  @ApiResponses(
-    ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
-    ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
-    ApiResponse(responseCode = "404", description = "The appointment was not found."),
-  )
-  @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
-  @PutMapping(path = ["/{appointmentId}/comment/v2"])
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  fun updateAppointmentCommentV2(
-    @PathVariable("appointmentId") @Parameter(
-      description = "The appointment's unique identifier.",
-      required = true,
-    ) appointmentId: @NotNull Long,
-    @RequestBody(required = false) @Parameter(
-      description = "The comment. May be empty or null",
-      allowEmptyValue = true,
-    ) updateComment: UpdateComment?,
-  ) {
-    appointmentsService.updateComment(appointmentId, updateComment?.getCommentOrNull())
-  }
 }
 
 @Schema(description = "The text of the comment to update")
