@@ -6,9 +6,9 @@ import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.hibernate.exception.LockTimeoutException;
 import org.jetbrains.annotations.NotNull;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
@@ -627,8 +627,11 @@ public class BookingService {
 
     public List<OffenceHistoryDetail> getActiveOffencesForBookings(final Set<Long> bookingIds) {
         List<OffenderCharge> offenderCharges = offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds,"A","A");
-           // findActiveOffencesByBookingIds(bookingIds);
-        return offenderCharges.stream().map(offenderChargeTransformer::convert).collect(toList());
+        return offenderCharges.stream()
+            // Rule copied from SentenceRepositorySql with comment "Avoid dups from merges (from NART team)"
+            .filter(oc -> !"SYS".equals(oc.getCreateUserId()) || !"MERGE".equals(oc.getAuditModuleName()))
+            .map(offenderChargeTransformer::convert)
+            .collect(toList());
     }
 
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {
@@ -783,7 +786,8 @@ public class BookingService {
     private Optional<OffenderBooking> getBookingWithTimeout(Long bookingId) {
         try {
             return offenderBookingRepository.findWithLockTimeoutByBookingId(bookingId);
-        } catch (LockTimeoutException e) {
+        } catch (CannotAcquireLockException e) {
+            log.error("Detected database lock", e);
             throw DatabaseRowLockedException.withMessage("Failed to get OFFENDER_BOOKINGS lock for bookingId=" + bookingId + " after " + OffenderBookingRepository.lockWaitTimeMillis + " milliseconds");
         }
     }

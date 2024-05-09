@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.microsoft.applicationinsights.TelemetryClient;
-import org.hibernate.exception.LockTimeoutException;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -9,6 +8,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.dao.CannotAcquireLockException;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -95,7 +95,6 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransform
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.Collections;
@@ -1451,7 +1450,7 @@ public class BookingServiceTest {
         @Test
         void lockTimeout_throws() {
             when(offenderBookingRepository.findWithLockTimeoutByBookingId(SOME_BOOKING_ID))
-                .thenThrow(new LockTimeoutException("test", new SQLException()));
+                .thenThrow(new CannotAcquireLockException("test"));
 
             assertThatThrownBy(() -> bookingService.updateLivingUnit(SOME_BOOKING_ID, aLocation(NEW_LIVING_UNIT_ID, DIFFERENT_AGENCY_ID), true))
                 .isInstanceOf(DatabaseRowLockedException.class)

@@ -40,7 +40,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.14.0")
   implementation("commons-io:commons-io:2.16.1")
-  implementation("com.google.guava:guava:33.1.0-jre")
+  implementation("com.google.guava:guava:33.2.0-jre")
   implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.22.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")

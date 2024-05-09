@@ -416,6 +416,14 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
+    fun `returns success if has override role ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO`() {
+      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `can return prisoner numbers`() {
       webTestClient.get()
         .uri("/api/prisoners/prisoner-numbers")
@@ -482,6 +490,25 @@ class PrisonerResourceTest : ResourceTest() {
             .hasSize(10)
             .contains("A1181FF")
             .doesNotContain("A1234AN", "A1234AO")
+        }
+    }
+
+    // This test might seem strange but it's based upon real bad data found in production NOMIS
+    @Test
+    fun `will not return prisoners with multiple prisoner numbers for same root offender`() {
+      webTestClient.get()
+        .uri("/api/prisoners/prisoner-numbers?size=1000")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("content").value<List<String>> {
+          assertThat(it)
+            // A1062AA / A1062AB aren't included because the root offender id doesn't exist
+            // A1064AB isn't included because the offender has no bookings and it's not the root offender
+            .doesNotContain("A1062AA", "A1062AB", "A1064AB")
+            // A1064AA is included because despite having no bookings it is the root offender
+            .contains("A1064AA")
         }
     }
   }
