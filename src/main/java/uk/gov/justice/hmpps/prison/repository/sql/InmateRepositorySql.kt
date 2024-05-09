@@ -764,7 +764,8 @@ enum class InmateRepositorySql(val sql: String) {
 
   FIND_INMATE_ALIASES_BY_BOOKING(
     """
-        SELECT O.LAST_NAME,
+        SELECT RCT.DESCRIPTION AS TITLE, 
+        O.LAST_NAME,
         O.FIRST_NAME,
         O.MIDDLE_NAME,
         O.BIRTH_DATE,
@@ -778,6 +779,8 @@ enum class InmateRepositorySql(val sql: String) {
                 AND O.OFFENDER_ID != OB.OFFENDER_ID
                 LEFT JOIN REFERENCE_CODES RCE ON O.RACE_CODE = RCE.CODE
                 AND RCE.DOMAIN = 'ETHNICITY'
+        LEFT JOIN REFERENCE_CODES RCT ON O.TITLE = RCT.CODE
+                AND RCT.DOMAIN = 'TITLE'
         LEFT JOIN REFERENCE_CODES RCS ON O.SEX_CODE = RCS.CODE
                 AND RCS.DOMAIN = 'SEX'
         LEFT JOIN REFERENCE_CODES RCNT ON O.ALIAS_NAME_TYPE = RCNT.CODE
