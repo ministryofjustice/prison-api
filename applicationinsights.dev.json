@@ -14,34 +14,30 @@
     "destination": "console"
   },
   "sampling": {
-    "percentage": 100
-  },
-  "preview": {
-    "sampling": {
-      "overrides": [
-        {
-          "telemetryType": "dependency",
-          "attributes": [
-            {
-              "key": "db.system",
-              "value": "oracle",
-              "matchType": "strict"
-            }
-          ],
-          "percentage": 100
-        },
-        {
-          "telemetryType": "request",
-          "attributes": [
-            {
-              "key": "http.url",
-              "value": "https?://[^/]+/health.*",
-              "matchType": "regexp"
-            }
-          ],
-          "percentage": 100
-        }
-      ]
-    }
+    "percentage": 100,
+    "overrides": [
+      {
+        "telemetryType": "dependency",
+        "attributes": [
+          {
+            "key": "db.system",
+            "value": "oracle",
+            "matchType": "strict"
+          }
+        ],
+        "percentage": 100
+      },
+      {
+        "telemetryType": "request",
+        "attributes": [
+          {
+            "key": "http.url",
+            "value": "https?://[^/]+/health.*",
+            "matchType": "regexp"
+          }
+        ],
+        "percentage": 100
+      }
+    ]
   }
 }
