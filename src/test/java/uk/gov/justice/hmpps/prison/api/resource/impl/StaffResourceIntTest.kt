@@ -289,6 +289,22 @@ class StaffResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("GET /api/staff/{staffId}/{agencyId}/roles")
   inner class StaffRoles {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/staff/-2/BXI/roles")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have override role`() {
+      webTestClient.get().uri("/api/staff/-2/BXI/roles")
+        .headers(setClientAuthorisation(listOf("")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
     @Test
     fun `Should find roles for staff member`() {
       webTestClient.get()
@@ -312,6 +328,24 @@ class StaffResourceIntTest : ResourceTest() {
         .expectBody()
         .json("""[{"role":"${table.role}","roleDescription":"${table.roleDescription}"}]""")
     }
+
+    @Test
+    fun `Should return success for user accessing inactive agency`() {
+      webTestClient.get()
+        .uri("/api/staff/-2/ZZGHI/roles")
+        .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf("")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `Should return success for client accessing inactive agency`() {
+      webTestClient.get()
+        .uri("/api/staff/-2/ZZGHI/roles")
+        .headers(setClientAuthorisation(listOf("ROLE_STAFF_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
   }
 
   @Nested
@@ -319,6 +353,23 @@ class StaffResourceIntTest : ResourceTest() {
   inner class HasRole {
     //  -2 is a KW at BXI
     // -10 is a KW at SYI
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/staff/-2/BXI/roles/KW")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 when client does not have override role`() {
+      webTestClient.get()
+        .uri("/api/staff/-10/SYI/roles/KW")
+        .headers(setClientAuthorisation(listOf("")))
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
     @Test
     fun `Should find role for staff member`() {
       assertThat(
@@ -406,6 +457,20 @@ class StaffResourceIntTest : ResourceTest() {
         webTestClient.get()
           .uri("/api/staff/-28/ZZGHI/roles/KW")
           .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf("")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody(String::class.java)
+          .returnResult()
+          .responseBody,
+      ).isEqualTo("false")
+    }
+
+    @Test
+    fun `Should be able to check role for staff member at inactive agency for client access`() {
+      assertThat(
+        webTestClient.get()
+          .uri("/api/staff/-28/ZZGHI/roles/KW")
+          .headers(setClientAuthorisation(listOf("ROLE_STAFF_SEARCH")))
           .exchange()
           .expectStatus().isOk
           .expectBody(String::class.java)

@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
+import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
@@ -170,10 +171,10 @@ public class AgencyService {
             .collect(toList());
     }
 
-    public void checkAgencyExists(final String agencyId) {
+    public void checkAgencyExists(final String agencyId, final StatusFilter filter) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if (agencyRepository.findAgency(agencyId, ACTIVE_ONLY, null).isEmpty()) {
+        if (agencyRepository.findAgency(agencyId, filter, null).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }
@@ -214,7 +215,7 @@ public class AgencyService {
      * @throws AccessDeniedException   if current user does not have access to this agency and accessDeniedError is true.
      */
     public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError, boolean allowInactive) {
-        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
+        checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
 
         final var agencyIds = getAgencyIds(allowInactive);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
