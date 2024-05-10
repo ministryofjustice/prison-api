@@ -177,3 +177,8 @@ VALUES (-1062, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST', 'M', sysdate, 'PRISONER-NUM
        (-1063, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-2', 'M', sysdate, 'PRISONER-NUMBERS', 'A1062AB', -10629999, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1064, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-3', 'M', sysdate, 'PRISONER-NUMBERS', 'A1064AA', -1064, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1065, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-4', 'M', sysdate, 'PRISONER-NUMBERS', 'A1064AB', -1064, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK');
+
+-- Used to  test /prisoner-search/offenders/{offenderNo} - models a scenario with addresses on the root offender but the active booking on an alias
+INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_PLACE, BIRTH_COUNTRY_CODE)
+VALUES (-1066, 'SEQ', 'ALIAS', 'BOOKING', 'ADDRESSES', 'M', sysdate, 'ADDRESSES', 'A1065AA', -1066, 'W1', 'CN', TO_DATE('2001-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
+       (-1067, 'SEQ', 'ALIAS', 'BOOKING', 'ADDRESSES-2', 'M', sysdate, 'ADDRESSES', 'A1065AA', -1066, 'W1', 'A', TO_DATE('2001-12-30', 'YYYY-MM-DD'), 'WALES', 'UK');
