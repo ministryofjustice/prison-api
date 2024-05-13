@@ -335,6 +335,22 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return addresses where the active booking is for an alias`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1065AA")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(offenderId).isEqualTo(-1067L)
+            assertThat(addresses).extracting("addressId").containsExactly(-23L)
+          }
+        }
+    }
+
+    @Test
     fun `should return offender phones and emails`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))

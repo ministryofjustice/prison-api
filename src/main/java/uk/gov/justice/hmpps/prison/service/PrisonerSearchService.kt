@@ -65,7 +65,7 @@ class PrisonerSearchService(
           receptionDate = it.receptionDate,
           locationDescription = it.locationDescription,
           latestLocationId = it.latestLocationId,
-          addresses = offender.addresses.filter { it.noFixedAddressFlag == "N" }.map(AddressTransformer::translate),
+          addresses = offender.rootOffender.addresses.filter { it.noFixedAddressFlag == "N" }.map(AddressTransformer::translate),
           phones = offender.phones.map(AddressTransformer::translate),
           emailAddresses = offender.emailAddresses.map(AddressTransformer::translate),
         )
