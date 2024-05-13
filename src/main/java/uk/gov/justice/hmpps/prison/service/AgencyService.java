@@ -215,13 +215,14 @@ public class AgencyService {
      * @throws AccessDeniedException   if current user does not have access to this agency and accessDeniedError is true.
      */
     public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError, boolean allowInactive) {
-        checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
+        Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         final var agencyIds = getAgencyIds(allowInactive);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
+            checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(agencyId);
                 throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
@@ -233,6 +234,7 @@ public class AgencyService {
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
+            checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }
