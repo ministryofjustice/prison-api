@@ -198,7 +198,6 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
-        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
@@ -244,7 +243,6 @@ public class BookingServiceTest {
         final var bookingId = 1L;
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", bookingId, 1)));
-        when(bookingRepository.checkBookingExists(bookingId)).thenReturn(true);
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
