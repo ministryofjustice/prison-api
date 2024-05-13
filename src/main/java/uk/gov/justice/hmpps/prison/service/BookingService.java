@@ -543,8 +543,12 @@ public class BookingService {
      */
     public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
 
-        checkBookingExists(bookingId);
-        if (hasAnySystemOverrideRole(rolesAllowed)) return;
+        Objects.requireNonNull(bookingId, "bookingId is a required parameter");
+
+        if (hasAnySystemOverrideRole(rolesAllowed)) {
+            checkBookingExists(bookingId);
+            return;
+        }
 
         final var agencyIds = agencyService.getAgencyIds(false);
         if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
@@ -552,6 +556,7 @@ public class BookingService {
         }
 
         if (agencyIds.isEmpty()) {
+            checkBookingExists(bookingId);
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(bookingId, rolesAllowed);
                 throw new AccessDeniedException(format("Client not authorised to access booking with id %d.", bookingId));
@@ -563,6 +568,7 @@ public class BookingService {
             throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
         }
         if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
+            checkBookingExists(bookingId);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
             }

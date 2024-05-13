@@ -10,6 +10,8 @@ import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
+import uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY
+import uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
@@ -87,7 +89,7 @@ class AuthorisationAspect(
     val overrideRoles = annotation.overrideRoles
     val accessDeniedError = annotation.accessDeniedError
     if (AuthenticationFacade.hasRoles(*overrideRoles)) {
-      agencyService.checkAgencyExists(agencyId)
+      agencyService.checkAgencyExists(agencyId, if (annotation.allowInactive) ALL else ACTIVE_ONLY)
     } else {
       agencyService.verifyAgencyAccess(agencyId, accessDeniedError, annotation.allowInactive)
     }

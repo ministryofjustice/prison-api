@@ -71,6 +71,7 @@ import java.util.stream.Collectors;
 import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
+import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
@@ -170,10 +171,10 @@ public class AgencyService {
             .collect(toList());
     }
 
-    public void checkAgencyExists(final String agencyId) {
+    public void checkAgencyExists(final String agencyId, final StatusFilter filter) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
-        if (agencyRepository.findAgency(agencyId, ACTIVE_ONLY, null).isEmpty()) {
+        if (agencyRepository.findAgency(agencyId, filter, null).isEmpty()) {
             throw EntityNotFoundException.withId(agencyId);
         }
     }
@@ -221,6 +222,7 @@ public class AgencyService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {
+            checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
             if (authenticationFacade.isClientOnly()) {
                 logClientUnauthorisedAccess(agencyId);
                 throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
@@ -232,6 +234,7 @@ public class AgencyService {
             throw EntityNotFoundException.withId(agencyId);
         }
         if (!agencyIds.contains(agencyId)) {
+            checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
             if (accessDeniedError) {
                 throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }

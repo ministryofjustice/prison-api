@@ -291,6 +291,14 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
+    fun `should return 404 when agency does not exist`() {
+      webTestClient.get().uri("/api/movements/doesnotExist/in/2019-01-10")
+        .headers(setAuthorisation(listOf("")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/in/2019-01-10")
         .headers(setAuthorisation(listOf("")))
@@ -509,6 +517,14 @@ class MovementResourceTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return 404 when agency does not exist`() {
+      webTestClient.get().uri("/api/movements/doesNotNExist/out/2012-07-16")
+        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isNotFound
     }
 
     @Test
