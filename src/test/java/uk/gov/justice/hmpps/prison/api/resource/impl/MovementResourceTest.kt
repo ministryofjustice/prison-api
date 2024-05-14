@@ -66,6 +66,35 @@ class MovementResourceTest : ResourceTest() {
       assertThatStatus(response, 200)
       assertThatJson(response.body!!).isEqualTo("movements_on_day.json".readFile())
     }
+
+    @Test
+    fun `Retrieve a list of recent movements`() {
+      val fromDateTime = "2017-02-20T13:56:00"
+      val movementDate = "2017-08-16"
+      // val response =
+      webTestClient.get()
+        .uri("/api/movements?fromDateTime={fromDateTime}&movementDate={movementDate}", fromDateTime, movementDate)
+        .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+    [
+      {
+        "offenderNo": "Z0021ZZ",
+        "createDateTime": "2017-02-21T00:00:00",
+        "fromAgency": "LEI",
+        "toAgency": "OUT",
+        "movementType": "REL",
+        "directionCode": "OUT",
+        "movementDate":"2017-08-16",
+        "movementTime":"00:00:00"
+      }
+    ]
+       """,
+        )
+    }
   }
 
   @Nested

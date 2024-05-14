@@ -6,7 +6,7 @@ Feature: Movement
     A batch system user can retrieve a list of offenders with recent movements
 
     Given a user has a token name of "GLOBAL_SEARCH"
-    When a request is made to retrieve recent movements
+    When a request is made to retrieve recent movements # api/movements?fromDateTime=%s&movementDate=%s
     Then a correct list of records are returned
 
   Scenario Outline: Retrieve a list of recent movements for offenders
@@ -36,13 +36,13 @@ Feature: Movement
     When a request is made to retrieve the establishment unassigned roll count for an agency
     Then a valid list of unassigned roll count records are returned
 
-   Scenario:  Get brief information for offenders 'out today'.
+  Scenario:  Get brief information for offenders 'out today'.
 
-     Given a user has authenticated with the API
-     When a request is made to retrieve the 'offenders out' for agency "LEI" for "2000-02-12"
-     Then the following rows should be returned:
-     | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
-     | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal Transfer   |
+    Given a user has authenticated with the API
+    When a request is made to retrieve the 'offenders out' for agency "LEI" for "2000-02-12"
+    Then the following rows should be returned:
+    | firstName | lastName  | offenderNo | dateOfBirth | timeOut   | reasonDescription |
+    | Nick      | Talbot    | Z0018ZZ    | 1970-01-01  | 12:00     | Normal Transfer   |
 
 
   Scenario Outline: Retrieve a list of en-route offenders
@@ -63,7 +63,7 @@ Feature: Movement
     | A6676RS    |       -29 | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         |  2017-10-12T10:45 | LANDING H/1 |
 
 
-Scenario: Get brief information about offenders 'in today' specifically dealing with temporary absences
+  Scenario: Get brief information about offenders 'in today' specifically dealing with temporary absences
     Given a user has authenticated with the API
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2018-01-01"
     Then information about 'offenders in' is returned as follows:
@@ -89,8 +89,8 @@ Scenario: Get brief information about offenders 'in today' specifically dealing 
 
   Scenario: Get a days movement count for a prison
 
-  Acceptance Criteria:
-  A logged in user can get the count of prisoners in and out on a specific day
+    Acceptance Criteria:
+    A logged in user can get the count of prisoners in and out on a specific day
 
     Given a user has authenticated with the API
     When a request is made to retrieve the movement counts for an "MDI" on "2000-08-16"
