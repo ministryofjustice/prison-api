@@ -118,9 +118,9 @@ public class MovementsRepositoryTest {
                 tuple("CELL", "A-1-8", "8", "8", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
                 tuple("CELL", "A-1-9", "9", "9", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
                 tuple("CELL", "A-1-10", "10", "10", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", "A-1-1001", "BROKEN", "BROKEN", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 1),
-                tuple("CELL", "A-1-1002", "REPURPOSED", "REPURPOSED", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
-                tuple("CELL", "AABCW-1", "THE_ROOM", "THE_ROOM", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
+                tuple("CELL", "A-1-1001", "BROKEN", "Broken", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 1),
+                tuple("CELL", "A-1-1002", "REPURPOSED", "Repurposed", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
+                tuple("CELL", "AABCW-1", "THE_ROOM", "The_room", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
             );
     }
 

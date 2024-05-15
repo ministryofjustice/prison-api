@@ -209,7 +209,7 @@ enum class MovementsRepositorySql(val sql: String) {
         AIL.INTERNAL_LOCATION_CODE                            AS LOCATION_CODE,
         AIL.DESCRIPTION                                       AS FULL_LOCATION_PATH,
         (CASE 
-	        WHEN AIL.INTERNAL_LOCATION_TYPE IN ('CELL', 'ROOM') THEN AIL.INTERNAL_LOCATION_CODE 
+	        WHEN AIL.INTERNAL_LOCATION_TYPE = 'CELL' THEN AIL.INTERNAL_LOCATION_CODE 
 	        ELSE COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) 
 	        END ) AS LIVING_UNIT_DESC,
         PLOC.INTERNAL_LOCATION_ID                             AS PARENT_LOCATION_ID,

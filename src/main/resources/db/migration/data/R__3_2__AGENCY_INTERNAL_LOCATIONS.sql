@@ -36,8 +36,8 @@ INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_C
 
 
 INSERT INTO AGENCY_INTERNAL_LOCATIONS (INTERNAL_LOCATION_ID, INTERNAL_LOCATION_CODE, INTERNAL_LOCATION_TYPE, AGY_LOC_ID, UNIT_TYPE, CERTIFIED_FLAG, CAPACITY, OPERATION_CAPACITY, DESCRIPTION, PARENT_INTERNAL_LOCATION_ID, USER_DESC, NO_OF_OCCUPANT)
- VALUES (-1,   'A',   'WING',  'LEI',   'NA', 'Y', 14, 13, 'LEI-A', null, 'Block A', 8),
-        (-2,   '1',   'LAND',  'LEI',   'NA', 'Y', 14, 13, 'LEI-A-1', -1, 'Landing A/1', 7),
+ VALUES (-1,   'A',   'WING',  'LEI',   'NA', 'Y', 14, 13, 'LEI-A', null, 'BLOCK A', 8),
+        (-2,   '1',   'LAND',  'LEI',   'NA', 'Y', 14, 13, 'LEI-A-1', -1, 'LANDING A/1', 7),
         (-3,   '1',   'CELL',  'LEI',   'NA', 'Y',  2,  2, 'LEI-A-1-1', -2, 'LEI-A-1-1', 1),
         (-4,   '2',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-A-1-2', -2, null, 1),
         (-5,   '3',   'CELL',  'LEI',   'NA', 'Y',  1,  1, 'LEI-A-1-3', -2, null, 1),

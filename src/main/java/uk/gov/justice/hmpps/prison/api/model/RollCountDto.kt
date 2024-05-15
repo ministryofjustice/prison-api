@@ -28,7 +28,7 @@ data class RollCountDto(
     this.locationType,
     this.locationCode,
     LocationProcessor.stripAgencyId(this.fullLocationPath, prisonId),
-    this.livingUnitDesc,
+    LocationProcessor.formatLocation(this.livingUnitDesc),
     this.parentLocationId,
     this.parentLocationType,
     this.parentLocationCode,

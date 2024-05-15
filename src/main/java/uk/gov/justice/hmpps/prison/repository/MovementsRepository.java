@@ -100,13 +100,13 @@ public class MovementsRepository extends RepositoryBase {
     private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly) {
         var sql = "";
         if (wingOnly) {
-            sql += " AND AIL.PARENT_INTERNAL_LOCATION_ID IS NULL";
+            sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
         } else {
             if (!showCells) {
                sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
             }
             if (parentLocationId != null) {
-                sql += " AND AIL.PARENT_INTERNAL_LOCATION_ID = :livingUnitId";
+                sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
             }
         }
         return sql;

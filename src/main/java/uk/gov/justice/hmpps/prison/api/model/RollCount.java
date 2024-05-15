@@ -103,6 +103,6 @@ public class RollCount implements SortAttribute {
     @org.jetbrains.annotations.NotNull
     @Override
     public String getKey() {
-        return getFullLocationPath();
+        return getLivingUnitDesc();
     }
 }
