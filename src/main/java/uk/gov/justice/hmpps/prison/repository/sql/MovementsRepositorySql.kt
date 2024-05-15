@@ -204,18 +204,27 @@ enum class MovementsRepositorySql(val sql: String) {
   GET_ROLL_COUNT(
     """
         SELECT
-        AIL.INTERNAL_LOCATION_ID                             AS LIVING_UNIT_ID,
-        AIL.DESCRIPTION                                      AS FULL_LOCATION_PATH,
-        COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE)  AS LIVING_UNIT_DESC,
-        AIL.PARENT_INTERNAL_LOCATION_ID                      AS PARENT_LOCATION_ID,
+        AIL.INTERNAL_LOCATION_ID                              AS LIVING_UNIT_ID,
+        AIL.INTERNAL_LOCATION_TYPE                            AS LOCATION_TYPE,
+        AIL.INTERNAL_LOCATION_CODE                            AS LOCATION_CODE,
+        AIL.DESCRIPTION                                       AS FULL_LOCATION_PATH,
+        (CASE 
+	        WHEN AIL.INTERNAL_LOCATION_TYPE IN ('CELL', 'ROOM') THEN AIL.INTERNAL_LOCATION_CODE 
+	        ELSE COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) 
+	        END ) AS LIVING_UNIT_DESC,
+        PLOC.INTERNAL_LOCATION_ID                             AS PARENT_LOCATION_ID,
+        PLOC.INTERNAL_LOCATION_TYPE                           AS PARENT_LOCATION_TYPE,
+        PLOC.INTERNAL_LOCATION_CODE                           AS PARENT_LOCATION_CODE,
+        PLOC.DESCRIPTION                                      AS PARENT_FULL_LOCATION_PATH,
+        COALESCE(PLOC.USER_DESC, PLOC.INTERNAL_LOCATION_CODE) AS PARENT_LOCAL_NAME,
         VR.BEDS_IN_USE,
         VR.CURRENTLY_IN_CELL,
         VR.OUT_OF_LIVING_UNITS,
         VR.CURRENTLY_OUT,
-        AIL.OPERATION_CAPACITY                               AS OPERATIONAL_CAPACITY,
-        AIL.OPERATION_CAPACITY - VR.BEDS_IN_USE              AS NET_VACANCIES,
-        AIL.CAPACITY                                         AS MAXIMUM_CAPACITY,
-        AIL.CAPACITY - VR.BEDS_IN_USE                        AS AVAILABLE_PHYSICAL,
+        AIL.OPERATION_CAPACITY                                AS OPERATIONAL_CAPACITY,
+        AIL.OPERATION_CAPACITY - VR.BEDS_IN_USE               AS NET_VACANCIES,
+        AIL.CAPACITY                                          AS MAXIMUM_CAPACITY,
+        AIL.CAPACITY - VR.BEDS_IN_USE                         AS AVAILABLE_PHYSICAL,
         (SELECT COUNT(*)
         FROM AGENCY_INTERNAL_LOCATIONS AIL2
         INNER JOIN LIVING_UNITS_MV LU2 ON AIL2.INTERNAL_LOCATION_ID = LU2.LIVING_UNIT_ID
@@ -239,7 +248,8 @@ enum class MovementsRepositorySql(val sql: String) {
                 GROUP BY LU.AGY_LOC_ID, LU.ROOT_LIVING_UNIT_ID
         ) VR
         INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = VR.ROOT_LIVING_UNIT_ID
-                WHERE AIL.CERTIFIED_FLAG = :certifiedFlag
+        LEFT JOIN AGENCY_INTERNAL_LOCATIONS PLOC ON PLOC.INTERNAL_LOCATION_ID = AIL.PARENT_INTERNAL_LOCATION_ID
+        WHERE AIL.CERTIFIED_FLAG = :certifiedFlag
         AND AIL.UNIT_TYPE IS NOT NULL
         AND AIL.AGY_LOC_ID = :agencyId
         AND AIL.ACTIVE_FLAG = 'Y'
