@@ -727,8 +727,8 @@ class MovementResourceTest : ResourceTest() {
         .expectBody()
         .json(
           """
-      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"Landing H/1"},
-       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"Landing H/1"}]
+      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"LANDING H/1"},
+       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"LANDING H/1"}]
         """,
         )
     }
@@ -769,8 +769,8 @@ class MovementResourceTest : ResourceTest() {
         .expectBody()
         .json(
           """
-      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"Landing H/1"},
-       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"Landing H/1"}]
+      [{"offenderNo":"Z0024ZZ","bookingId":-24,"dateOfBirth":"1958-01-01","firstName":"Lucius","lastName":"Fox","location":"LANDING H/1"},
+       {"offenderNo":"Z0025ZZ","bookingId":-25,"dateOfBirth":"1974-01-01","firstName":"Matthew","lastName":"Smith","location":"LANDING H/1"}]
          """,
         )
     }

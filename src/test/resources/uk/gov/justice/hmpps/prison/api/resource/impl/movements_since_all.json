@@ -42,7 +42,7 @@
     "toAgencyDescription": "LEEDS",
     "movementTime": "00:00:00",
     "movementDateTime": "2021-01-01T00:00:00",
-    "location": "Landing H/1"
+    "location": "LANDING H/1"
   },
   {
     "offenderNo": "Z0025ZZ",
@@ -56,6 +56,6 @@
     "fromCity": "Birmingham",
     "movementTime": "00:00:00",
     "movementDateTime": "2021-11-01T00:00:00",
-    "location": "Landing H/1"
+    "location": "LANDING H/1"
   }
 ]
