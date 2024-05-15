@@ -60,7 +60,7 @@ Feature: Movement
     When a request is made to retrieve the 'offenders in' for agency "LEI" on date "2017-10-12"
     Then information about 'offenders in' is returned as follows:
     | offenderNo | bookingId | dateOfBirth | firstName | middleName | lastName | fromAgencyDescription | toAgencyDescription | fromAgencyId | toAgencyId   |  movementTime | movementDateTime  | location    |
-    | A6676RS    |       -29 | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         |  2017-10-12T10:45 | Landing H/1 |
+    | A6676RS    |       -29 | 1945-01-10  | Neil      |            | Bradley  | Birmingham            | Leeds               | BMI          | LEI          | 10:45         |  2017-10-12T10:45 | LANDING H/1 |
 
 
 Scenario: Get brief information about offenders 'in today' specifically dealing with temporary absences

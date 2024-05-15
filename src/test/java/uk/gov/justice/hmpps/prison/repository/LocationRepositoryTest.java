@@ -60,7 +60,7 @@ public class LocationRepositoryTest {
     public void getLocationGroupData() {
         assertThat(repository.getLocationGroupData("LEI"))
                 .contains(
-                        Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("Block A").internalLocationCode("A").build(),
+                        Location.builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build(),
                         Location.builder().locationId(-13L).locationType("WING").description("LEI-H").internalLocationCode("H").build()
                 );
     }
@@ -70,9 +70,9 @@ public class LocationRepositoryTest {
         final List<Location> subLocationGroupData = repository.getSubLocationGroupData(Set.of(-1L, -13L));
         assertThat(subLocationGroupData)
                 .contains(
-                        Location.builder().locationId(-14L).locationType("LAND").description("LEI-H-1").parentLocationId(-13L).userDescription("Landing H/1").internalLocationCode("1").build(),
-                        Location.builder().locationId(-2L).locationType("LAND").description("LEI-A-1").parentLocationId(-1L).userDescription("Landing A/1").internalLocationCode("1").build(),
-                        Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId(-1L).userDescription("Landing A/2").internalLocationCode("2").build()
+                        Location.builder().locationId(-14L).locationType("LAND").description("LEI-H-1").parentLocationId(-13L).userDescription("LANDING H/1").internalLocationCode("1").build(),
+                        Location.builder().locationId(-2L).locationType("LAND").description("LEI-A-1").parentLocationId(-1L).userDescription("LANDING A/1").internalLocationCode("1").build(),
+                        Location.builder().locationId(-32L).locationType("LAND").description("LEI-A-2").parentLocationId(-1L).userDescription("LANDING A/2").internalLocationCode("2").build()
                 );
     }
 
