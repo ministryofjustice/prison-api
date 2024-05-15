@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.TransferEventDto;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.MovementsRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
+import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -121,7 +122,11 @@ public class MovementsRepository extends RepositoryBase {
                 "deactivateReasonCodes", DEACTIVATE_REASON_CODES,
                 "currentDateTime", new Date()),
             ROLLCOUNT_MAPPER);
-        return rollCounts.stream().map(m -> m.toRollCount(agencyId)).collect(Collectors.toList());
+
+        return rollCounts.stream()
+            .map(m -> m.toRollCount(agencyId))
+            .sorted(new NaturalOrderComparator())
+            .toList();
     }
 
 
