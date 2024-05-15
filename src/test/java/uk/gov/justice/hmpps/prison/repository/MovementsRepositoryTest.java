@@ -214,7 +214,7 @@ public class MovementsRepositoryTest {
                         .toAgencyId("LEI")
                         .movementDateTime(LocalDateTime.of(2017, 10, 12, 10, 45, 0))
                         .movementTime(LocalTime.of(10, 45, 0))
-                        .location("Landing H/1")
+                        .location("LANDING H/1")
                         .build()
         );
     }
@@ -273,8 +273,8 @@ public class MovementsRepositoryTest {
     public void canRetrieveOffendersCurrentlyOut() {
         final var offenders = repository.getOffendersCurrentlyOut(-13);
         assertThat(offenders).containsExactlyInAnyOrder(
-                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
-                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
+                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("LANDING H/1").build(),
+                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("LANDING H/1").build()
         );
     }
 
@@ -282,8 +282,8 @@ public class MovementsRepositoryTest {
     public void canRetrieveOffendersCurrentlyOutOfAgency() {
         final var offenders = repository.getOffendersCurrentlyOut("LEI");
         assertThat(offenders).containsExactlyInAnyOrder(
-                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("Landing H/1").build(),
-                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("Landing H/1").build()
+                OffenderOut.builder().offenderNo("Z0025ZZ").bookingId(-25L).dateOfBirth(LocalDate.of(1974, 1, 1)).firstName("MATTHEW").lastName("SMITH").location("LANDING H/1").build(),
+                OffenderOut.builder().offenderNo("Z0024ZZ").bookingId(-24L).dateOfBirth(LocalDate.of(1958, 1, 1)).firstName("LUCIUS").lastName("FOX").location("LANDING H/1").build()
         );
     }
 
