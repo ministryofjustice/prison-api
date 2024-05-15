@@ -18,13 +18,13 @@ class LocationResourceTest : ResourceTest() {
         .expectBody()
         .jsonPath("locationId").isEqualTo(ACTIVE_LOCATION_ID)
         .jsonPath("locationType").isEqualTo("WING")
-        .jsonPath("description").isEqualTo("Block A")
+        .jsonPath("description").isEqualTo("BLOCK A")
       getLocation(-2, "")
         .expectStatus().isOk
         .expectBody()
         .jsonPath("locationId").isEqualTo(-2)
         .jsonPath("locationType").isEqualTo("LAND")
-        .jsonPath("description").isEqualTo("Landing A/1")
+        .jsonPath("description").isEqualTo("LANDING A/1")
       getLocation(-3, "")
         .expectStatus().isOk
         .expectBody()
