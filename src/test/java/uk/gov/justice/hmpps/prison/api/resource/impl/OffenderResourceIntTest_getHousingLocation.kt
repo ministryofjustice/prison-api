@@ -90,7 +90,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .jsonPath("levels[*].level").isEqualTo(JSONArray().also { it.addAll(listOf(1, 2, 3)) })
       .jsonPath("levels[*].code").isEqualTo(JSONArray().also { it.addAll(listOf("A", "1", "10")) })
       .jsonPath("levels[*].type").isEqualTo(JSONArray().also { it.addAll(listOf("WING", "LAND", "CELL")) })
-      .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("Block A", "LANDING A/1", "Cell 10")) })
+      .jsonPath("levels[*].description").isEqualTo(JSONArray().also { it.addAll(listOf("BLOCK A", "LANDING A/1", "Cell 10")) })
       .jsonPath("lastPermanentLevels").doesNotExist()
 
     // tidy up
