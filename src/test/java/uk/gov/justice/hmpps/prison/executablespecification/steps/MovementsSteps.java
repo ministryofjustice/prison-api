@@ -99,7 +99,7 @@ public class MovementsSteps extends CommonSteps {
     @Step("Verify a list of unassigned rollcounts are returned")
     public void verifyListOfUnassignedRollCounts() {
         verifyNoError();
-        assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(1);
+        assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(2);
         assertThat(rollCounts).asList()
                 .extracting("livingUnitDesc")
                 .contains("Chapel");
