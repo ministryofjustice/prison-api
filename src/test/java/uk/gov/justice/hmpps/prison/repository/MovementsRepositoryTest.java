@@ -131,7 +131,7 @@ public class MovementsRepositoryTest {
         assertThat(rollCountList).asList()
                 .extracting("certified", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple(false, "CHAP", 0, 0, 0, 0, null, null, null, null, 0));
+                        tuple(false, "Chapel", 0, 0, 0, 0, null, null, null, null, 0));
     }
 
     @Test
