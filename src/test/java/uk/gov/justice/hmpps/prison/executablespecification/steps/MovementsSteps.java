@@ -29,7 +29,7 @@ import static org.assertj.core.api.Assertions.tuple;
  */
 public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "movements?fromDateTime=%s&movementDate=%s";
-    private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
+    private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}";
     private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
     private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
@@ -79,12 +79,7 @@ public class MovementsSteps extends CommonSteps {
 
     @Step("Retrieve all rollcount records")
     public void retrieveRollCounts(final String agencyId) {
-        doRollCountListApiCall(agencyId, false);
-    }
-
-    @Step("Retrieve all unassigned rollcount records")
-    public void retrieveUnassignedRollCounts(final String agencyId) {
-        doRollCountListApiCall(agencyId, true);
+        doRollCountListApiCall(agencyId);
     }
 
     @Step("Verify a list of rollcounts are returned")
@@ -95,16 +90,6 @@ public class MovementsSteps extends CommonSteps {
                 .extracting("livingUnitDesc")
                 .contains("Block A", "H");
     }
-
-    @Step("Verify a list of unassigned rollcounts are returned")
-    public void verifyListOfUnassignedRollCounts() {
-        verifyNoError();
-        assertThat(rollCounts).hasOnlyElementsOfType(RollCount.class).size().isEqualTo(2);
-        assertThat(rollCounts).asList()
-                .extracting("livingUnitDesc")
-                .contains("Chapel");
-    }
-
 
     public void retrieveMovementsByOffenders(final List<String> offenderNumbers, final Boolean includeMovementTypes) {
         init();
@@ -192,7 +177,7 @@ public class MovementsSteps extends CommonSteps {
         }
     }
 
-    private void doRollCountListApiCall(final String agencyId, final boolean unassigned) {
+    private void doRollCountListApiCall(final String agencyId) {
         init();
 
         try {
@@ -200,7 +185,7 @@ public class MovementsSteps extends CommonSteps {
                     API_REQUEST_ROLLCOUNT_URL,
                     HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<RollCount>>() {
-                    }, agencyId, unassigned);
+                    }, agencyId);
 
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
