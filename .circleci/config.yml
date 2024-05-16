@@ -181,7 +181,7 @@ workflows:
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
-          jira_update: true
+          jira_update: false
           jira_env_type: production
           pipeline_id: <<pipeline.id>>
           pipeline_number: <<pipeline.number>>
@@ -191,6 +191,20 @@ workflows:
             - prison-api-prod
           requires:
             - request-prod-approval
+
+      - hmpps/deploy_env:
+          name: deploy_prod_cp
+          env: "prod-cp"
+          jira_update: true
+          jira_env_type: production
+          pipeline_id: <<pipeline.id>>
+          pipeline_number: <<pipeline.number>>
+          context:
+            - hmpps-common-vars
+            - prison-api-prod-cp
+          requires:
+            - request-prod-approval
+
   security:
     triggers:
       - schedule:
