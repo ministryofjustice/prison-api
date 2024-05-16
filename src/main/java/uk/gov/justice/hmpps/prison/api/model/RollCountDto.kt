@@ -35,7 +35,7 @@ data class RollCountDto(
     parentLocationType,
     parentLocationCode,
     LocationProcessor.stripAgencyId(parentFullLocationPath, prisonId),
-    parentLocationId?.let {buildLocationDescription(parentLocationType!!, parentLocationCode!!, parentLocalName)},
+    parentLocationId?.let { buildLocationDescription(parentLocationType!!, parentLocationCode!!, parentLocalName) },
     bedsInUse,
     currentlyInCell,
     outOfLivingUnits,
