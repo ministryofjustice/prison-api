@@ -32,6 +32,9 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -48,6 +51,12 @@ class BookingResourceIntTest : ResourceTest() {
 
   @Autowired
   private lateinit var bookingRepository: BookingRepository
+
+  @Autowired
+  private lateinit var alertRepository: OffenderAlertRepository
+
+  @Autowired
+  private lateinit var offenderBookingRepository: OffenderBookingRepository
 
   @TestConfiguration
   internal class TestClock {
@@ -759,6 +768,84 @@ class BookingResourceIntTest : ResourceTest() {
       )
       assertThat(response.body!!.alertId).isGreaterThan(1)
       assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+    }
+
+    @Test
+    @DisplayName("creating an alert with expiry date today should be created inactive")
+    fun testCreateNewExpiredAlertInactive() {
+      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
+      val body = CreateAlert
+        .builder()
+        .alertType("L")
+        .alertCode("LFC21")
+        .expiryDate(LocalDate.now())
+        .comment("comments")
+        .alertDate(LocalDate.now().minusDays(1))
+        .build()
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/alert",
+        POST,
+        createHttpEntity(token, body),
+        object : ParameterizedTypeReference<AlertCreated?>() {},
+        -10L,
+      )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+      assertThat(response.body!!.alertId).isGreaterThan(1)
+
+      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
+      assertThat(alert.isActive).isFalse()
+    }
+
+    @Test
+    @DisplayName("creating an alert with expiry date in future should be created active")
+    fun testCreateNewExpiredAlertActive() {
+      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
+      val body = CreateAlert
+        .builder()
+        .alertType("L")
+        .alertCode("LFC25")
+        .expiryDate(LocalDate.now().plusDays(1))
+        .comment("comments")
+        .alertDate(LocalDate.now().minusDays(1))
+        .build()
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/alert",
+        POST,
+        createHttpEntity(token, body),
+        object : ParameterizedTypeReference<AlertCreated?>() {},
+        -10L,
+      )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+      assertThat(response.body!!.alertId).isGreaterThan(1)
+
+      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
+      assertThat(alert.isActive).isTrue()
+    }
+
+    @Test
+    @DisplayName("creating an alert with no date should be created active")
+    fun testCreateNewUnExpiredAlertActive() {
+      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
+      val body = CreateAlert
+        .builder()
+        .alertType("X")
+        .alertCode("XA")
+        .expiryDate(null)
+        .comment("comments")
+        .alertDate(LocalDate.now().minusDays(1))
+        .build()
+      val response = testRestTemplate.exchange(
+        "/api/bookings/{bookingId}/alert",
+        POST,
+        createHttpEntity(token, body),
+        object : ParameterizedTypeReference<AlertCreated?>() {},
+        -10L,
+      )
+      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
+      assertThat(response.body!!.alertId).isGreaterThan(1)
+
+      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
+      assertThat(alert.isActive).isTrue()
     }
   }
 
