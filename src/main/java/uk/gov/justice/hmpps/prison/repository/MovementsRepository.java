@@ -103,7 +103,7 @@ public class MovementsRepository extends RepositoryBase {
             sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
         } else {
             if (!showCells) {
-               sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
+               sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
             }
             if (parentLocationId != null) {
                 sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
@@ -112,12 +112,11 @@ public class MovementsRepository extends RepositoryBase {
         return sql;
     }
 
-    public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag, Long parentLocationId, boolean showCells, boolean wingOnly) {
+    public List<RollCount> getRollCount(final String agencyId, Long parentLocationId, boolean showCells, boolean wingOnly) {
         final var sql = format(MovementsRepositorySql.GET_ROLL_COUNT.getSql(), getFilterCriteria(parentLocationId, showCells, wingOnly));
 
         final var rollCounts = jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,
-                "certifiedFlag", certifiedFlag,
                 "livingUnitId", parentLocationId,
                 "deactivateReasonCodes", DEACTIVATE_REASON_CODES,
                 "currentDateTime", new Date()),
