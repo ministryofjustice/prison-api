@@ -158,10 +158,8 @@ public class OffenderDatesService {
     }
 
     public LatestTusedData getLatestTusedDataFromNomsId(String nomsId) {
-        Optional<OffenderBooking> offenderBooking = offenderBookingRepository.findLatestOffenderBookingByNomsId(nomsId);
-        if (offenderBooking.isPresent()) {
-            return offenderBookingRepository.findLatestTusedDataFromNomsId(nomsId, offenderBooking.get().getBookingId()).orElseThrow(EntityNotFoundException.withId(nomsId));
-        }
-        throw EntityNotFoundException.withId(nomsId);
+            return offenderBookingRepository.findLatestOffenderBookingByNomsId(nomsId)
+        .flatMap(ob -> offenderBookingRepository.findLatestTusedDataFromNomsId(nomsId, ob.getBookingId()))
+        .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 }
