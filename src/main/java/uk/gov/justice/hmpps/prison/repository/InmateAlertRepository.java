@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.sql.InmateAlertRepositorySql;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 import java.util.Objects;
@@ -206,12 +207,15 @@ public class InmateAlertRepository extends RepositoryBase {
         final var insertWorkFlowLog = InmateAlertRepositorySql.INSERT_WORK_FLOW_LOG.getSql();
         final var newAlertsSeqHolder = new GeneratedKeyHolder();
         final var generatedKeyHolder = new GeneratedKeyHolder();
+        final var status = Optional.ofNullable(alert.getExpiryDate())
+            .map(date -> date.isAfter(LocalDate.now()) ? "ACTIVE" : "INACTIVE")
+            .orElse("ACTIVE");
 
         jdbcTemplate.update(
                 createAlert,
                 createParams(
                         "bookingId", bookingId,
-                        "status", "ACTIVE",
+                        "status", status,
                         "caseLoadType", "INST",
                         "alertType", alert.getAlertType(),
                         "alertSubType", alert.getAlertCode(),
