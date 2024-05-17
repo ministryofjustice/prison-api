@@ -39,11 +39,20 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.retrieveRollCounts("LEI");
     }
 
+    @When("^a request is made to retrieve the establishment unassigned roll count for an agency$")
+    public void aRequestIsMadeToRetrieveUnassignedRollCount() {
+        movementsSteps.retrieveUnassignedRollCounts("LEI");
+    }
+
     @Then("^a valid list of roll count records are returned$")
     public void aListOfRollCountRecordsAreReturned() {
         movementsSteps.verifyListOfRollCounts();
     }
 
+    @Then("^a valid list of unassigned roll count records are returned$")
+    public void aListOfUnassignedRollCountRecordsAreReturned() {
+        movementsSteps.verifyListOfUnassignedRollCounts();
+    }
 
     @When("^a request is made to retrieve the movement counts for an \"([^\"]*)\" on \"([^\"]*)\"$")
     public void aRequestIsMadeToRetrieveTheMovementCountsForAnOn(final String agency, final String date) throws Throwable {
