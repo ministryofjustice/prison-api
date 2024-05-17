@@ -85,8 +85,8 @@ public interface OffenderBookingRepository extends
     @Query("""
     SELECT new uk.gov.justice.hmpps.prison.api.model.LatestTusedData(sc.tusedCalculatedDate, sc.tusedOverridedDate, sc.comments, o.nomsId)
     from SentenceCalculation sc
-    inner join sc.offenderBooking.offender o where o.nomsId = :nomsId and coalesce(sc.tusedOverridedDate, sc.tusedCalculatedDate) is not null
+    inner join sc.offenderBooking.offender o where o.nomsId = :nomsId and sc.offenderBooking.bookingId != :bookingId and coalesce(sc.tusedOverridedDate, sc.tusedCalculatedDate) is not null
     order by sc.calculationDate desc limit 1
     """)
-    Optional<LatestTusedData> findLatestTusedDataFromNomsId(@NotNull String nomsId);
+    Optional<LatestTusedData> findLatestTusedDataFromNomsId(@NotNull String nomsId, Long bookingId);
 }
