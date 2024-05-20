@@ -59,21 +59,21 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/offenders/A1234AA/adjudications")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/offenders/A1234AA/adjudications")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
     }
 
     @Test
@@ -94,7 +94,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
     }
 
     @Test
-    fun shouldReturn404WhenNoPrivileges() {
+    fun shouldReturn403WhenNoPrivileges() {
       // run with user that doesn't have access to the caseload
 
       val response = testRestTemplate.exchange(
@@ -104,7 +104,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         ErrorResponse::class.java,
       )
 
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test

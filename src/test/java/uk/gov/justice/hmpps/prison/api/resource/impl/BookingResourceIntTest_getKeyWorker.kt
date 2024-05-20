@@ -107,21 +107,21 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
     inner class UserAccess {
 
       @Test
-      fun `returns 404 when user does not have any caseloads`() {
+      fun `returns 403 when user does not have any caseloads`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
       }
 
       @Test
-      fun `returns 404 as ROLE_BANANAS is not override role`() {
+      fun `returns 403 as ROLE_BANANAS is not override role`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setAuthorisation("RO_USER", listOf("ROLE_BANANAS")))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
       }
 
       @Test
@@ -168,17 +168,6 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
       fun `returns 200 if key worker`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
           .headers(setAuthorisation("ITAG_USER", listOf(""))).exchange().expectStatus().isOk
-      }
-
-      @Test
-      fun `invalid user access produces telemetry event`() {
-        webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
-          .headers(setAuthorisation("WAI_USER", listOf()))
-          .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
-
-        verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
       }
     }
   }

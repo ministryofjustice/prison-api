@@ -108,42 +108,42 @@ class OffenderResourceIntTest_release : ResourceTest() {
       }
 
       @Test
-      fun `404 when the user is unknown`() {
+      fun `403 when the user is unknown`() {
         releaseOffender(
           offenderNo,
           releaseRequest(),
           username = "UNKNOWN",
         )
-          .isNotFound
+          .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Offender booking with id $bookingId not found.")
+          .isEqualTo("User not authorised to access booking with id $bookingId.")
       }
 
       @Test
-      fun `404 when there is no user`() {
+      fun `403 when there is no user`() {
         releaseOffender(
           offenderNo,
           releaseRequest(),
           username = "",
         )
-          .isNotFound
+          .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Offender booking with id $bookingId not found.")
+          .isEqualTo("User not authorised to access booking with id $bookingId.")
       }
 
       @Test
-      fun `404 when the user does not have access to the caseload`() {
+      fun `403 when the user does not have access to the caseload`() {
         releaseOffender(
           offenderNo,
           releaseRequest(),
           username = "IEP_USER",
         )
-          .isNotFound
+          .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Offender booking with id $bookingId not found.")
+          .isEqualTo("User not authorised to access booking with id $bookingId.")
       }
     }
 
@@ -180,16 +180,16 @@ class OffenderResourceIntTest_release : ResourceTest() {
       }
 
       @Test
-      fun `404 when offender is not active and user DOES NOT have INACTIVE_BOOKINGS role`() {
+      fun `403 when offender is not active and user DOES NOT have INACTIVE_BOOKINGS role`() {
         createBooking().also { testDataContext.release(offenderNo) }
 
         releaseOffender(
           offenderNo,
           releaseRequest(),
-        ).isNotFound
+        ).isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("Offender booking with id $bookingId not found.")
+          .isEqualTo("User not authorised to access booking with id $bookingId.")
       }
 
       @Test

@@ -73,7 +73,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
         "A1179MT",
       )
 
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test
@@ -287,11 +287,11 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/offenders/A1179MT/alerts/v2")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test
@@ -314,7 +314,7 @@ class OffenderResourceIntTest_getOffenderAlerts : ResourceTest() {
         "A1179MT",
       )
 
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test
