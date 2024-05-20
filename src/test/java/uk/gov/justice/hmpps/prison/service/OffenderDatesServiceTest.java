@@ -31,7 +31,6 @@ import java.util.UUID;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -387,8 +386,7 @@ public class OffenderDatesServiceTest {
     @Test
     void findLatestTusedDataIsReturnedCorrectly() {
         LatestTusedData latestTusedData = new LatestTusedData(LocalDate.of(2023, 1, 3), null, null, "A1234AA");
-        when(offenderBookingRepository.findLatestOffenderBookingByNomsId(anyString())).thenReturn(Optional.of(OffenderBooking.builder().bookingId(2L).build()));
-        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString(), anyLong())).thenReturn(Optional.of(latestTusedData));
+        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.of(latestTusedData));
         LatestTusedData returned = service.getLatestTusedDataFromNomsId("A1234AA");
         assertThat(returned.getOffenderNo()).isEqualTo("A1234AA");
         assertThat(returned.getLatestTused()).isEqualTo(LocalDate.of(2023, 1, 3));
@@ -396,15 +394,7 @@ public class OffenderDatesServiceTest {
 
     @Test
     void findLatestTusedDataThrowsExpectedException() {
-        when(offenderBookingRepository.findLatestOffenderBookingByNomsId(anyString())).thenReturn(Optional.of(OffenderBooking.builder().bookingId(2L).build()));
-        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString(), anyLong())).thenReturn(Optional.empty());
-        Throwable exception = assertThrows(EntityNotFoundException.class, () -> service.getLatestTusedDataFromNomsId("A1234AA"));
-        assertThat(exception.getMessage()).isEqualTo("Resource with id [A1234AA] not found.");
-    }
-
-    @Test
-    void findLatestTusedDataThrowsExpectedExceptionWhenBookingIsntPresent() {
-        when(offenderBookingRepository.findLatestOffenderBookingByNomsId(anyString())).thenReturn(Optional.empty());
+        when(offenderBookingRepository.findLatestTusedDataFromNomsId(anyString())).thenReturn(Optional.empty());
         Throwable exception = assertThrows(EntityNotFoundException.class, () -> service.getLatestTusedDataFromNomsId("A1234AA"));
         assertThat(exception.getMessage()).isEqualTo("Resource with id [A1234AA] not found.");
     }
