@@ -11,7 +11,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCalculatedKeyDates;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateOffenderDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.SentenceCalculationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
@@ -158,8 +157,6 @@ public class OffenderDatesService {
     }
 
     public LatestTusedData getLatestTusedDataFromNomsId(String nomsId) {
-            return offenderBookingRepository.findLatestOffenderBookingByNomsId(nomsId)
-        .flatMap(ob -> offenderBookingRepository.findLatestTusedDataFromNomsId(nomsId, ob.getBookingId()))
-        .orElseThrow(EntityNotFoundException.withId(nomsId));
+        return offenderBookingRepository.findLatestTusedDataFromNomsId(nomsId).orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 }
