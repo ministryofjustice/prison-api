@@ -1,10 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import org.junit.jupiter.api.AfterAll;
 import org.junit.jupiter.api.AfterEach;
-import org.junit.jupiter.api.BeforeAll;
 import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.TestInstance;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
@@ -25,10 +22,9 @@ import java.util.Map;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.springframework.http.HttpMethod.GET;
 
-@TestInstance(PER_CLASS)
 public class OffenderDatesResourceTest extends ResourceTest {
 
     private static final long BOOKING_ID = -2;
@@ -42,32 +38,6 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Inserting into the database broke other tests, such as OffendersResourceTest
         // because they depend on seed data from R__4_19__OFFENDER_SENT_CALCULATIONS.sql
         jdbcTemplate.update("DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_BOOK_ID = -2 AND COMMENT_TEXT LIKE '%Calculate Release Dates%'");
-    }
-
-    @BeforeAll
-    public void addAdditionalDataForTusedTests() {
-        // Adding data to test the TUSED retrieval use case
-        jdbcTemplate.update("""
-            INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, BOOKING_SEQ,
-                                           DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID,
-                                           ROOT_OFFENDER_ID, LIVING_UNIT_ID, BOOKING_STATUS)
-            VALUES (-60, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'A00200', -1006, 2, 'N', 'IN', 'N', 'N', 'LEI', -1006, -4, 'O'),
-                   (-61, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'A00201', -1007, 2, 'N', 'IN', 'N', 'N', 'LEI', -1007, -5, 'O');
-
-            INSERT INTO OFFENDER_SENT_CALCULATIONS(OFFENDER_SENT_CALCULATION_ID, OFFENDER_BOOK_ID, CALCULATION_DATE,
-                                                   CALC_REASON_CODE, CREATE_DATETIME, CREATE_USER_ID, TUSED_CALCULATED_DATE,
-                                                   TUSED_OVERRIDED_DATE)
-            VALUES (-23, -60, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-09-06', 'YYYY-MM-DD'), null),
-                   (-24, -61, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-08-06', 'YYYY-MM-DD'), TO_DATE('2018-10-06', 'YYYY-MM-DD'));
-            """);
-    }
-
-    @AfterAll
-    public void removeAdditionalDataForTusedTests() {
-        jdbcTemplate.update("""
-            DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_SENT_CALCULATION_ID IN (-23, -24);
-            DELETE FROM OFFENDER_BOOKINGS WHERE OFFENDER_BOOK_ID IN (-60, -61);
-            """);
     }
 
     @Test
@@ -276,7 +246,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         LatestTusedData latestTusedData = response.getBody();
         assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AF");
-        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2018,9,6));
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
     }
 
     @Test
@@ -295,8 +265,8 @@ public class OffenderDatesResourceTest extends ResourceTest {
         // Then
         LatestTusedData latestTusedData = response.getBody();
         assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AG");
-        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2018,8,6));
-        assertThat(latestTusedData.getLatestOverrideTused()).isEqualTo(LocalDate.of(2018,10,6));
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2021,3,30));
+        assertThat(latestTusedData.getLatestOverrideTused()).isEqualTo(LocalDate.of(2021,3,31));
     }
     @Test
     public void testGetLatestTusedForPrisonerThatDoesntExist() {
