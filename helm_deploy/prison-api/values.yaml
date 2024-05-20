@@ -31,6 +31,8 @@ generic-service:
       SecRuleRemoveById 942110
       # Found User-Agent associated with scripting/generic HTTP client
       SecRuleRemoveById 913101
+      SecRuleUpdateTargetById 921110 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 932150 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
       SecRuleUpdateTargetById 933210 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942100 "!ARGS:/.*description/"
