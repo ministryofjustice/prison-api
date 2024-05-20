@@ -97,19 +97,13 @@ public class MovementsRepository extends RepositoryBase {
         return movements.stream().map(OffenderMovementDto::toOffenderMovement).collect(Collectors.toList());
     }
 
-    private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly, boolean uncertifiedCellsOnly) {
+    private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly) {
         var sql = "";
         if (wingOnly) {
-            if (!uncertifiedCellsOnly) {
-                sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
-            }
-            sql += format(" AND AIL.CERTIFIED_FLAG = '%s'", uncertifiedCellsOnly ? "N" : "Y");
+            sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
         } else {
             if (!showCells) {
-                sql += format(" AND AIL.CERTIFIED_FLAG = '%s'", uncertifiedCellsOnly ? "N" : "Y");
-                if (!uncertifiedCellsOnly) {
-                    sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
-                }
+               sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
             }
             if (parentLocationId != null) {
                 sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
@@ -120,8 +114,8 @@ public class MovementsRepository extends RepositoryBase {
         return sql;
     }
 
-    public List<RollCount> getRollCount(final String agencyId, final boolean uncertifiedCellsOnly, Long parentLocationId, boolean showCells, boolean wingOnly) {
-        final var sql = format(MovementsRepositorySql.GET_ROLL_COUNT.getSql(), getFilterCriteria(parentLocationId, showCells, wingOnly, uncertifiedCellsOnly));
+    public List<RollCount> getRollCount(final String agencyId, Long parentLocationId, boolean showCells, boolean wingOnly) {
+        final var sql = format(MovementsRepositorySql.GET_ROLL_COUNT.getSql(), getFilterCriteria(parentLocationId, showCells, wingOnly));
 
         final var rollCounts = jdbcTemplate.query(sql, createParams(
                 "agencyId", agencyId,

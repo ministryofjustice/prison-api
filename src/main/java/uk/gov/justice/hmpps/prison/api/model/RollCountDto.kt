@@ -48,9 +48,9 @@ data class RollCountDto(
   )
 
   private fun buildLocationDescription(type: String, code: String, localName: String? = null): String? =
-    if (type == "CELL") {
-      code
-    } else {
+    if (type in listOf("WING", "LAND", "SPUR")) {
       LocationProcessor.formatLocation(localName ?: code)
+    } else {
+      code
     }
 }

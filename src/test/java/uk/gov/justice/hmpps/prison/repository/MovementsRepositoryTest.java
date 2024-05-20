@@ -64,7 +64,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, true);
+        final var rollCountList = repository.getRollCount("LEI", null, false, true);
         assertThat(rollCountList).hasSize(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -75,7 +75,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountIncludingLandings() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, false);
+        final var rollCountList = repository.getRollCount("LEI", null, false, false);
         assertThat(rollCountList).hasSize(4);
         assertThat(rollCountList).asList()
             .extracting("livingUnitId", "locationType", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -89,7 +89,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountShowingCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, true, false);
+        final var rollCountList = repository.getRollCount("LEI", null, true, false);
         assertThat(rollCountList).hasSize(27);
         assertThat(rollCountList).asList()
             .extracting("livingUnitId", "fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -103,7 +103,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountOfCellsOnALanding() {
-        final var rollCountList = repository.getRollCount("LEI", false, -2L, true, false);
+        final var rollCountList = repository.getRollCount("LEI", -2L, true, false);
         assertThat(rollCountList).hasSize(13);
         AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> contains = assertThat(rollCountList).asList()
             .extracting("locationType", "certified", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -122,16 +122,6 @@ public class MovementsRepositoryTest {
                 tuple("CELL", true, "A-1-1002", "REPURPOSED", "REPURPOSED", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
                 tuple("CELL", true, "AABCW-1", "THE_ROOM", "THE_ROOM", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
             );
-    }
-
-    @Test
-    public void canRetrieveRollCountUnassigned() {
-        final var rollCountList = repository.getRollCount("LEI", true, null, false, true);
-        assertThat(rollCountList).hasSize(1);
-        assertThat(rollCountList).asList()
-                .extracting("certified", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
-                .contains(
-                        tuple(false, "Chapel", 0, 0, 0, 0, null, null, null, null, 0));
     }
 
     @Test
