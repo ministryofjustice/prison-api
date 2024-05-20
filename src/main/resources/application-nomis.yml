@@ -19,7 +19,7 @@ spring:
     datasource:
       hikari:
         maximum-pool-size: 10
-        connectionTimeout: 2000
+        connectionTimeout: 5000
         validationTimeout: 500
 
   flyway:
