@@ -785,8 +785,8 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         httpEntity,
         String::class.java,
       )
-      assertThatStatus(response, NOT_FOUND.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("Offender booking with id -43 not found.")
+      assertThatStatus(response, FORBIDDEN.value())
+      assertThatJson(response.body!!).node("userMessage").asString().contains("User not authorised to access booking with id -43.")
     }
 
     @Test

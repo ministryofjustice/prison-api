@@ -198,7 +198,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
       "BEH",
       dateTime.plusMinutes(1).format(ISO_LOCAL_DATE_TIME),
     )
-    verifyErrorResponse(response, HttpStatus.NOT_FOUND, BOOKING_ID.toString())
+    verifyErrorResponse(response, HttpStatus.FORBIDDEN, BOOKING_ID.toString())
     verifyOffenderBookingLivingUnit(BOOKING_ID, INITIAL_CELL)
     verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL)
   }

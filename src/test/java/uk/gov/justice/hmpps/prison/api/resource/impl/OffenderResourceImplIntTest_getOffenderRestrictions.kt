@@ -79,13 +79,23 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
     }
 
     @Test
-    fun `returns 403 as ROLE_BANANAS is not override role`() {
+    fun `returns 403 as ROLE_BANANAS is not override role for client`() {
       webTestClient.get()
         .uri("/api/offenders/A1234AH/offender-restrictions")
         .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
         .exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -8.")
+    }
+
+    @Test
+    fun `returns 403 as ROLE_BANANAS is not override role for user`() {
+      webTestClient.get()
+        .uri("/api/offenders/A1234AH/offender-restrictions")
+        .headers(setAuthorisation("UNAUTHORISED_USER", listOf("ROLE_BANANAS")))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
     }
 
     @Test
@@ -107,33 +117,23 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 when user does not have any roles`() {
+    fun `returns 403 when user does not have any roles`() {
       webTestClient.get()
         .uri("/api/offenders/A1234AH/offender-restrictions")
         .headers(setAuthorisation("UNAUTHORISED_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -8 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
     }
 
     @Test
-    fun `returns 404 as ROLE_BANANAS is not override role`() {
-      webTestClient.get()
-        .uri("/api/offenders/A1234AH/offender-restrictions")
-        .headers(setAuthorisation("UNAUTHORISED_USER", listOf("ROLE_BANANAS")))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -8 not found.")
-    }
-
-    @Test
-    fun `returns 404 when user does not have offender in their caseload`() {
+    fun `returns 403 when user does not have offender in their caseload`() {
       webTestClient.get()
         .uri("/api/offenders/A1234AH/offender-restrictions")
         .headers(setAuthorisation("WAI_USER", listOf("")))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -8 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
     }
   }
 }
