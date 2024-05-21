@@ -31,8 +31,8 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
     .servers(
       listOf(
         Server().url("https://prison-api-dev.prison.service.justice.gov.uk").description("Development"),
-        Server().url("https://api-preprod.prison.service.justice.gov.uk").description("PreProd"),
-        Server().url("https://api.prison.service.justice.gov.uk").description("Prod"),
+        Server().url("https://prison-api-preprod.prison.service.justice.gov.uk").description("PreProd"),
+        Server().url("https://prison-api.prison.service.justice.gov.uk").description("Prod"),
         Server().url("http://localhost:8080").description("Local"),
       ),
     )
