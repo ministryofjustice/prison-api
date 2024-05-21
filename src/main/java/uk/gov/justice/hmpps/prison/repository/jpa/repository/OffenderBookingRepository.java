@@ -70,7 +70,7 @@ public interface OffenderBookingRepository extends
 
     Optional<OffenderBooking> findByBookingId(Long bookingId);
 
-    String lockWaitTimeMillis = "10000"; // move to application.yml ? (PR comment from Karen)
+    String lockWaitTimeMillis = "10000";
 
     @NotNull
     @Lock(LockModeType.PESSIMISTIC_WRITE)
