@@ -52,7 +52,3 @@ Feature: Booking Contacts
       | lastName  | firstName | middleName | contactType | contactTypeDescription | relationship | relationshipDescription | emergencyContact |
       | SMITH13   | JESSY     |            | S           | Social/Family          | SDAU         | Stepdaughter            |      true        |
       | ROBERTSON | ELLY      |            | S           | Social/Family          | FRI          | Friend                  |      false       |
-
-  Scenario: Offender does not exist or different caseload
-    When contact details with booking id -16 is requested
-    Then resource not found response is received from contact details API

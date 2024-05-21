@@ -36,11 +36,11 @@ class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-3/court-hearings")
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
-      .expectStatus().isNotFound
+      .expectStatus().isForbidden
   }
 
   @Test

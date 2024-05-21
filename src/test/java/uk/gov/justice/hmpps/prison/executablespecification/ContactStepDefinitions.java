@@ -26,11 +26,6 @@ public class ContactStepDefinitions extends AbstractStepDefinitions {
         contactSteps.getContacts(id);
     }
 
-    @Then("^resource not found response is received from contact details API$")
-    public void resourceNotFoundResponseIsReceivedFromSentenceDetailsAPI() throws Throwable {
-        contactSteps.verifyResourceNotFound();
-    }
-
     @Then("^the next of kin (\\w+) is \"([^\"]*)\"$")
     public void theNextOfKinFieldIs(final String field, final String value) throws Throwable {
         contactSteps.verifyNextOfKinField(field, value);

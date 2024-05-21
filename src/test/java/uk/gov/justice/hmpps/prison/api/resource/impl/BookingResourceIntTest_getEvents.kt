@@ -53,12 +53,12 @@ class BookingResourceIntTest_getEvents : ResourceTest() {
 
     @ParameterizedTest
     @MethodSource("secureEndpoints")
-    internal fun `returns 404 if not in user caseload`(uri: String) {
+    internal fun `returns 403 if not in user caseload`(uri: String) {
       webTestClient.get()
         .uri(uri, -1)
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @ParameterizedTest
