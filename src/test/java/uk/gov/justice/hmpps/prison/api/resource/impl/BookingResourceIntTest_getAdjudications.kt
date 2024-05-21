@@ -54,16 +54,16 @@ class BookingResourceIntTest_getAdjudications : ResourceTest() {
 
   @Test
   fun `returns 404 if no adjudication exists`() {
-    webTestClient.get().uri("/api/bookings/-16/adjudications")
+    webTestClient.get().uri("/api/bookings/-9999/adjudications")
       .headers(setAuthorisation(listOf())).exchange().expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -16 not found.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -9999 not found.")
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-2/adjudications")
-      .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+      .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
   }
 
   @Test

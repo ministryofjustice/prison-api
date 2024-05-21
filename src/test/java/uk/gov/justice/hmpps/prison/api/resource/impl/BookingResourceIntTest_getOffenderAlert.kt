@@ -20,30 +20,30 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when user does not have any caseloads`() {
+    fun `should return 403 when user does not have any caseloads`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -4 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
     }
 
     @Test
-    fun `returns 404 as ROLE_BANANAS is not override role`() {
+    fun `returns 403 as ROLE_BANANAS is not override role`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_BANANAS")))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -4 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
     }
 
     @Test
-    fun `returns 404 as ROLE_SYSTEM_USER is not override role`() {
+    fun `returns 403 as ROLE_SYSTEM_USER is not override role`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
         .headers(setAuthorisation("RO_USER", listOf("ROLE_SYSTEM_USER")))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -4 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
     }
 
     @Test
@@ -63,12 +63,12 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -4 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
     }
 
     @Test

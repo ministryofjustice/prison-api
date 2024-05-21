@@ -41,12 +41,12 @@ class BookingResourceIntTest_getOffenderContacts : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-1/contacts")
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
-      .expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+      .expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
   }
 
   @Test

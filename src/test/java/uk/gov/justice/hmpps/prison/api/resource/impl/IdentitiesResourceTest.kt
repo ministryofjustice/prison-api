@@ -43,12 +43,12 @@ class IdentitiesResourceTest : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 if not in user caseload`() {
+  fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-4/identifiers")
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
-      .expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -4 not found.")
+      .expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
   }
 
   @Test
