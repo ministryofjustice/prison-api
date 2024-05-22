@@ -8,6 +8,7 @@ spring:
   datasource:
     hikari:
       maximum-pool-size: 10
+      max-lifetime: 600000
       connectionTimeout: 2500
       validationTimeout: 500
 
@@ -19,6 +20,7 @@ spring:
     datasource:
       hikari:
         maximum-pool-size: 10
+        max-lifetime: 600000
         connectionTimeout: 2500
         validationTimeout: 500
 
