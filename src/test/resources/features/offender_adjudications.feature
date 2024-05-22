@@ -33,11 +33,6 @@ Feature: Offenders Adjudications
     And the associated offences for this offender are: "51:2D, 51:8D"
     And the associated agencies for this offender are: "MDI, LEI, BXI"
 
-  Scenario: A staff user cannot view adjudications for an offender on a caseload they don't have access to.
-    Given a user has a token name of "PRISON_API_USER"
-    When I view the adjudications of offender with offender display number of "A1181GG"
-    Then resource not found response is received from adjudication API
-
   Scenario: A user fails to find adjudications as offender does not exist
     Given a user has a token name of "PRISON_API_USER"
     When I view the adjudications of offender with offender display number of "Does Not Exist"

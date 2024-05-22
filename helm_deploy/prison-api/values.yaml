@@ -32,16 +32,20 @@ generic-service:
       # Found User-Agent associated with scripting/generic HTTP client
       SecRuleRemoveById 913101
       SecRuleUpdateTargetById 921110 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 932100 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
+      SecRuleUpdateTargetById 933210 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 933210 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942100 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942330 "!ARGS:/keywords/"
+      SecRuleUpdateTargetById 942100 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 942130 "!ARGS:/text/"
       SecRuleUpdateTargetById 942130 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 942130 "!ARGS:/statement/"
       SecRuleUpdateTargetById 942130 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942150 "!ARGS:/outcomeComment/"
+      SecRuleUpdateTargetById 942230 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 942230 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942410 "!ARGS:/outcomeComment/"
       # Disable rule 932110 as it only applies to Windows host servers

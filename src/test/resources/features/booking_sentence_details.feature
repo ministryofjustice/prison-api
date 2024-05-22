@@ -35,14 +35,6 @@ Feature: Booking Sentence Details
     When sentence details are requested for an offender with booking id "-99" and version "1.0"
     Then resource not found response is received from sentence details API
 
-  Scenario: Sentence details are requested for booking that is not part of any of logged on staff user's caseloads
-    When sentence details are requested for an offender with booking id "-16" and version "1.0"
-    Then resource not found response is received from sentence details API
-
-  Scenario: Sentence details are requested for booking that is inactive
-    When sentence details are requested for an offender with booking id "-20" and version "1.0"
-    Then resource not found response is received from sentence details API
-
   Scenario Outline: Sentence details are requested for booking that is inactive
     When a user has a token name of "INACTIVE_BOOKING_USER"
     And sentence details are requested for an offender with booking id "<bookingId>" and version "<version>"

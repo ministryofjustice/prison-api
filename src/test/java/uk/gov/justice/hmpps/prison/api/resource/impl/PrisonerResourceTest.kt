@@ -286,7 +286,7 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testReturn404WhenDoesNotHavePrivs() {
+    fun testReturn403WhenDoesNotHavePrivs() {
       val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
       val response = testRestTemplate.exchange(
         "/api/prisoners/A1234AA/full-status",
@@ -294,7 +294,7 @@ class PrisonerResourceTest : ResourceTest() {
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatStatus(response, NOT_FOUND)
+      assertThatStatus(response, FORBIDDEN)
     }
   }
 

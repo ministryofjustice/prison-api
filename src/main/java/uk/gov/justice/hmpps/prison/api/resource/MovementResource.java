@@ -80,8 +80,8 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Current establishment rollcount numbers.", description = "Current establishment rollcount numbers.")
-    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
+    @Operation(summary = "Current establishment rollcount numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
+    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"}, accessDeniedError = true)
     @GetMapping("/rollcount/{agencyId}")
     @SlowReportQuery
     public List<RollCount> getRollCount(
@@ -98,7 +98,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Rollcount movement numbers.", description = "Rollcount movement numbers.")
+    @Operation(summary = "Rollcount movement numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/rollcount/{agencyId}/movements")
     @SlowReportQuery
@@ -127,7 +127,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offenders who entered a prison during a time period.", description = "Offenders who entered a prison during a time period.")
+    @Operation(summary = "Offenders who entered a prison during a time period.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/in")
     @SlowReportQuery
@@ -165,7 +165,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Enroute prisoner movement details.", description = "Enroute to reception")
+    @Operation(summary = "Enroute prisoner movement details.", description = "Enroute to reception. Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/enroute")
     public List<OffenderMovement> getEnrouteOffenderMovements(
@@ -178,7 +178,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Enroute prisoner movement count.", description = "Enroute to reception count")
+    @Operation(summary = "Enroute prisoner movement count.", description = "Enroute to reception count. Requires role ESTABLISHMENT_ROLL.")
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/rollcount/{agencyId}/enroute")
     public int getEnrouteOffenderMovementCount(
@@ -192,7 +192,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation
+    @Operation(summary = "Count for prisoners out today.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"}, accessDeniedError = true)
     @GetMapping("/{agencyId}/out/{isoDate}")
     public List<OffenderOutTodayDto> getOffendersOutToday(
@@ -208,7 +208,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation
+    @Operation(summary = "Count for prisoners in reception.", description = "Requires agency in caseload.")
     @VerifyAgencyAccess
     @GetMapping("/rollcount/{agencyId}/in-reception")
     public List<OffenderInReception> getOffendersInReception(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {

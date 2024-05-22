@@ -115,7 +115,7 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
   }
 
   @Test
-  fun shouldReturn404WhenNoPrivileges() {
+  fun shouldReturn403WhenNoPrivileges() {
     // run with user that doesn't have access to the caseload
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf(), mapOf())
     val response = testRestTemplate.exchange(
@@ -126,9 +126,8 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
     )
     assertThat(response.body).isEqualTo(
       builder()
-        .status(404)
-        .userMessage("Resource with id [A1234AA] not found.")
-        .developerMessage("Resource with id [A1234AA] not found.")
+        .status(403)
+        .userMessage("User not authorised to access booking with id -1.")
         .build(),
     )
     verifyNoInteractions(offenderBookingRepository)
