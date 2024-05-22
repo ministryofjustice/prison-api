@@ -99,22 +99,12 @@ public class MovementsRepository extends RepositoryBase {
 
     private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly, boolean uncertifiedCellsOnly) {
         var sql = "";
-        if (wingOnly) {
-            if (!uncertifiedCellsOnly) {
-                sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
-            }
-            sql += format(" AND AIL.CERTIFIED_FLAG = '%s'", uncertifiedCellsOnly ? "N" : "Y");
+        if (showCells && parentLocationId != null) {
+            sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
         } else {
-            if (!showCells) {
-                sql += format(" AND AIL.CERTIFIED_FLAG = '%s'", uncertifiedCellsOnly ? "N" : "Y");
-                if (!uncertifiedCellsOnly) {
-                    sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
-                }
-            }
-            if (parentLocationId != null) {
-                sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
-            } else {
-                sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR', 'CELL', 'ROOM')";
+            sql += format(" AND AIL.CERTIFIED_FLAG = '%s", uncertifiedCellsOnly ? "N" : "Y");
+            if (wingOnly) {
+                sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
             }
         }
         return sql;
