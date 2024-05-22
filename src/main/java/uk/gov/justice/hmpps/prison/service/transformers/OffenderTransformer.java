@@ -44,7 +44,7 @@ public class OffenderTransformer {
 
     public InmateDetail transform(final OffenderBooking latestBooking) {
         final var offenderBuilder = buildOffender(latestBooking.getOffender());
-        final var allConvictedOffences = getAllConvictedOffences(latestBooking.getRootOffender().getId());
+        final var allConvictedOffences = getAllConvictedOffences(latestBooking.getOffender().getRootOffenderId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
         return offenderBuilder
