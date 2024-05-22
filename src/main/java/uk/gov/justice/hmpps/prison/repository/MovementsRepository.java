@@ -99,14 +99,14 @@ public class MovementsRepository extends RepositoryBase {
 
     private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly, boolean uncertifiedCellsOnly) {
         var sql = "";
-        if (showCells && parentLocationId != null) {
+        if (parentLocationId != null) {
             sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
         } else {
             sql += format(" AND AIL.CERTIFIED_FLAG = '%s", uncertifiedCellsOnly ? "N" : "Y");
             if (wingOnly) {
                 sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
             } else if (!showCells) {
-                sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
+                sql += " AND AIL.INTERNAL_LOCATION_TYPE IN ('WING', 'LAND', 'SPUR')";
             }
         }
         return sql;
