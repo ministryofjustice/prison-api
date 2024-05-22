@@ -105,6 +105,8 @@ public class MovementsRepository extends RepositoryBase {
             sql += format(" AND AIL.CERTIFIED_FLAG = '%s", uncertifiedCellsOnly ? "N" : "Y");
             if (wingOnly) {
                 sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
+            } else if (!showCells) {
+                sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
             }
         }
         return sql;
