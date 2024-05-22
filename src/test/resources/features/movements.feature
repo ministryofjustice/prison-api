@@ -27,6 +27,14 @@ Feature: Movement
     When a request is made to retrieve the establishment roll count for an agency
     Then a valid list of roll count records are returned
 
+  Scenario: Get the establishment unassigned roll count for a prison
+
+    Acceptance Criteria:
+    A logged in user can retrieve a prison's establishment unassigned roll count
+
+    Given a user has authenticated with the API
+    When a request is made to retrieve the establishment unassigned roll count for an agency
+    Then a valid list of unassigned roll count records are returned
 
    Scenario:  Get brief information for offenders 'out today'.
 
