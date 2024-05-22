@@ -2,20 +2,36 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestInstance
+import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.MethodSource
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpStatus.OK
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.web.util.UriComponentsBuilder
+import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.api.model.Movement
+import uk.gov.justice.hmpps.prison.api.model.MovementCount
+import uk.gov.justice.hmpps.prison.api.model.OffenderIn
+import uk.gov.justice.hmpps.prison.api.model.OffenderInReception
+import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
+import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto
+import uk.gov.justice.hmpps.prison.api.model.RollCount
+import uk.gov.justice.hmpps.prison.api.model.TransferSummary
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
+import java.time.LocalTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 import java.util.Map.entry
@@ -66,6 +82,35 @@ class MovementResourceTest : ResourceTest() {
       assertThatStatus(response, 200)
       assertThatJson(response.body!!).isEqualTo("movements_on_day.json".readFile())
     }
+
+    @Test
+    fun `Retrieve a list of recent movements`() {
+      val fromDateTime = "2017-02-20T13:56:00"
+      val movementDate = "2017-08-16"
+      // val response =
+      webTestClient.get()
+        .uri("/api/movements?fromDateTime={fromDateTime}&movementDate={movementDate}", fromDateTime, movementDate)
+        .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+    [
+      {
+        "offenderNo": "Z0021ZZ",
+        "createDateTime": "2017-02-21T00:00:00",
+        "fromAgency": "LEI",
+        "toAgency": "OUT",
+        "movementType": "REL",
+        "directionCode": "OUT",
+        "movementDate":"2017-08-16",
+        "movementTime":"00:00:00"
+      }
+    ]
+       """,
+        )
+    }
   }
 
   @Nested
@@ -83,6 +128,61 @@ class MovementResourceTest : ResourceTest() {
       )
       assertThatStatus(response, 200)
       assertThatJson(response.body!!).isEqualTo("movements_all_bookings.json".readFile())
+    }
+
+    @Test
+    fun `Retrieve a list of recent movements for offenders`() {
+      val response = webTestClient.post()
+        .uri("/api/movements/offenders?movementTypes=TRN&movementTypes=REL")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A6676RS", "Z0021ZZ"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(Movement::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "movementType",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "movementReason",
+        "movementTime",
+      )
+        .containsExactlyInAnyOrder(
+          Tuple("TRN", "Birmingham", "Moorland", "Normal Transfer", LocalTime.parse("12:00")),
+          Tuple("REL", "Leeds", "Outside", "Abscond End of Custody Licence", LocalTime.parse("00:00")),
+        )
+    }
+
+    @Test
+    fun `Get brief information about most recent movements, specifically dealing with temporary absences`() {
+      val response = webTestClient.post()
+        .uri("/api/movements/offenders")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(listOf("A1181FF", "A6676RS"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(Movement::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "movementType",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "movementReason",
+        "movementTime",
+        "fromCity",
+        "toCity",
+      )
+        .containsExactly(
+          Tuple("A1181FF", "TAP", "", "Leeds", "Funerals And Deaths", LocalTime.parse("00:00"), "Wadhurst", ""),
+          Tuple("A6676RS", "TAP", "Leeds", "", "Funerals And Deaths", LocalTime.parse("00:00"), "", "Wadhurst"),
+        )
     }
   }
 
@@ -110,6 +210,34 @@ class MovementResourceTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Get the establishment roll count for a prison`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/rollcount/LEI?unassigned=false")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(RollCount::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting("livingUnitDesc").contains("Block A", "H")
+    }
+
+    @Test
+    fun `Get the establishment unassigned roll count for a prison`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/rollcount/LEI?unassigned=true")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(RollCount::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting("livingUnitDesc").containsExactly("Chapel")
     }
   }
 
@@ -152,6 +280,21 @@ class MovementResourceTest : ResourceTest() {
       )
       assertThatStatus(response, 200)
       assertThatJson(response.body!!).isEqualTo("{\"in\":0,\"out\":0}")
+    }
+
+    @Test
+    fun `Get a days movement count for a prison`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/rollcount/MDI/movements?movementDate=2000-08-16")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(MovementCount::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting("in", "out").containsExactly(Tuple(2, 2))
     }
   }
 
@@ -234,6 +377,31 @@ class MovementResourceTest : ResourceTest() {
     """,
       )
     }
+
+    @Test
+    fun `Retrieve a list of en-route offenders`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/LEI/enroute?movementDate=2017-10-12")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderMovement::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "movementTime",
+        "movementReasonDescription",
+        "lastName",
+      )
+        .containsExactlyInAnyOrder(
+          Tuple("A1183AD", "Birmingham", "Leeds", LocalTime.parse("15:00"), "Normal Transfer", "DENTON"),
+          Tuple("A1183SH", "Birmingham", "Leeds", LocalTime.parse("13:00"), "Normal Transfer", "HEMP"),
+        )
+    }
   }
 
   @Nested
@@ -305,6 +473,199 @@ class MovementResourceTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
     }
+
+    @Test
+    fun `Get brief information for offenders 'in today'`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/LEI/in/2017-10-12")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderIn::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "bookingId",
+        "dateOfBirth",
+        "firstName",
+        "middleName",
+        "lastName",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "fromAgencyId",
+        "toAgencyId",
+        "movementTime",
+        "movementDateTime",
+        "location",
+      )
+        .containsExactly(
+          Tuple(
+            "A6676RS",
+            -29L,
+            LocalDate.parse("1945-01-10"),
+            "Neil",
+            "",
+            "Bradley",
+            "Birmingham",
+            "Leeds",
+            "BMI",
+            "LEI",
+            LocalTime.parse("10:45"),
+            LocalDateTime.parse("2017-10-12T10:45"),
+            "LANDING H/1",
+          ),
+        )
+    }
+
+    @Test
+    fun `Get brief information about offenders 'in today' specifically dealing with temporary absences`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/LEI/in/2018-01-01")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderIn::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "bookingId",
+        "dateOfBirth",
+        "firstName",
+        "middleName",
+        "lastName",
+        "toAgencyDescription",
+        "toAgencyId",
+        "movementTime",
+        "movementDateTime",
+        "location",
+        "fromCity",
+      )
+        .containsExactly(
+          Tuple(
+            "A1181FF",
+            -47L,
+            LocalDate.parse("1980-01-02"),
+            "Janis",
+            "",
+            "Drp",
+            "Leeds",
+            "LEI",
+            LocalTime.parse("00:00"),
+            LocalDateTime.parse("2018-01-01T00:00"),
+            "",
+            "Wadhurst",
+          ),
+        )
+    }
+
+    @Test
+    fun `Get information around an offender arriving and leaving multiple times on the same day 1`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/MDI/in/2000-08-16")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderIn::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "bookingId",
+        "dateOfBirth",
+        "firstName",
+        "middleName",
+        "lastName",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "fromAgencyId",
+        "toAgencyId",
+        "movementTime",
+        "movementDateTime",
+        "location",
+      )
+        .containsExactly(
+          Tuple(
+            "A1181FF",
+            -47L,
+            LocalDate.parse("1980-01-02"),
+            "Janis",
+            "",
+            "Drp",
+            "Outside",
+            "Moorland",
+            "OUT",
+            "MDI",
+            LocalTime.parse("00:00"),
+            LocalDateTime.parse("2000-08-16T00:00"),
+            "",
+          ),
+          Tuple(
+            "A1181FF",
+            -47L,
+            LocalDate.parse("1980-01-02"),
+            "Janis",
+            "",
+            "Drp",
+            "Court 1",
+            "Moorland",
+            "COURT1",
+            "MDI",
+            LocalTime.parse("00:00"),
+            LocalDateTime.parse("2000-08-16T00:00"),
+            "",
+          ),
+        )
+    }
+
+    @Test
+    fun `Get information around an offender arriving and leaving multiple times on the same day 3`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/LEI/in/2000-08-16")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderIn::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "offenderNo",
+        "bookingId",
+        "dateOfBirth",
+        "firstName",
+        "middleName",
+        "lastName",
+        "fromAgencyDescription",
+        "toAgencyDescription",
+        "fromAgencyId",
+        "toAgencyId",
+        "movementTime",
+        "movementDateTime",
+        "location",
+      )
+        .containsExactly(
+          Tuple(
+            "A1181FF",
+            -47L,
+            LocalDate.parse("1980-01-02"),
+            "Janis",
+            "",
+            "Drp",
+            "Moorland",
+            "Leeds",
+            "MDI",
+            "LEI",
+            LocalTime.parse("00:00"),
+            LocalDateTime.parse("2000-08-16T00:00"),
+            "",
+          ),
+        )
+    }
   }
 
   @Nested
@@ -331,6 +692,22 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation(listOf("")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `Get offender in reception`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/rollcount/MDI/in-reception")
+        .headers(setAuthorisation(listOf("")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderInReception::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting("bookingId", "offenderNo", "dateOfBirth", "firstName", "lastName")
+        .containsExactly(Tuple(-46L, "A1181DD", LocalDate.parse("1980-01-02"), "Amy", "Dude"))
     }
   }
 
@@ -584,6 +961,62 @@ class MovementResourceTest : ResourceTest() {
       assertThatStatus(noCourtMovementsOnDayResponse, OK.value())
       assertThat(noCourtMovementsOnDayResponse.body).isEqualTo("[]")
     }
+
+    @Test
+    fun `Get brief information for offenders 'out today'`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/LEI/out/2000-02-12")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderOutTodayDto::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "firstName",
+        "lastName",
+        "offenderNo",
+        "dateOfBirth",
+        "timeOut",
+        "reasonDescription",
+      )
+        .containsExactly(
+          Tuple(
+            "Nick",
+            "Talbot",
+            "Z0018ZZ",
+            LocalDate.parse("1970-01-01"),
+            LocalTime.parse("12:00"),
+            "Normal Transfer",
+          ),
+        )
+    }
+
+    @Test
+    fun `Get information around an offender arriving and leaving multiple times on the same day 2`() {
+      val response = webTestClient.get()
+        .uri("/api/movements/MDI/out/2000-08-16")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList(OffenderOutTodayDto::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response).extracting(
+        "firstName",
+        "lastName",
+        "offenderNo",
+        "dateOfBirth",
+        "timeOut",
+        "reasonDescription",
+      )
+        .containsExactlyInAnyOrder(
+          Tuple("Janis", "Drp", "A1181FF", LocalDate.parse("1980-01-02"), LocalTime.parse("00:00"), "Normal Transfer"),
+          Tuple("Janis", "Drp", "A1181FF", LocalDate.parse("1980-01-02"), LocalTime.parse("00:00"), "Normal Transfer"),
+        )
+    }
   }
 
   @Nested
@@ -631,6 +1064,7 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
+  @TestInstance(PER_CLASS) // allows for a simple private MethodSource function
   @DisplayName("GET /api/movements/transfers")
   inner class ScheduledMovements {
     @Test
@@ -655,6 +1089,63 @@ class MovementResourceTest : ResourceTest() {
       assertThatStatus(response, OK.value())
       assertThat(getBodyAsJsonContent<Any>(response)).isStrictlyEqualToJson("get_transfer_events.json")
     }
+
+    @ParameterizedTest
+    @MethodSource("getAgenciesAndTimes")
+    fun `Get the details of the external movements between two times for a list of agencies`(row: MovementParameters) {
+      val a1Param = if (row.agency1.isBlank()) "" else "&agencyId=${row.agency1}"
+      val a2Param = if (row.agency2.isBlank()) "" else "&agencyId=${row.agency2}"
+      val uri =
+        "/api/movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}$a1Param$a2Param&courtEvents=true&releaseEvents=true&transferEvents=true&movements=true"
+      val response = webTestClient.get()
+        .uri(uri, row.fromTime, row.toTime)
+        .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        //  .expectBody().json("""{ "stuff": 0}""")
+        .expectBody(TransferSummary::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response.courtEvents).hasSize(row.courtCount)
+      assertThat(response.releaseEvents).hasSize(row.releaseCount)
+      assertThat(response.transferEvents).hasSize(row.transferCount)
+      assertThat(response.movements).hasSize(row.movementCount)
+    }
+
+    @ParameterizedTest
+    @MethodSource("getAgenciesAndTimesValidation")
+    fun `Get the details of the external movements between two times for a list of agencies - validation`(row: MovementParameters) {
+      val a1Param = if (row.agency1.isBlank()) "" else "&agencyId=${row.agency1}"
+      val a2Param = if (row.agency2.isBlank()) "" else "&agencyId=${row.agency2}"
+      val uri =
+        "/api/movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}$a1Param$a2Param&courtEvents=true&releaseEvents=true&transferEvents=true&movements=true"
+      val response = webTestClient.get()
+        .uri(uri, row.fromTime, row.toTime)
+        .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody(ErrorResponse::class.java)
+        .returnResult()
+        .responseBody!!
+
+      assertThat(response.userMessage).isNotBlank()
+    }
+
+    private fun getAgenciesAndTimes() =
+      listOf(
+        MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
+        MovementParameters("MDI", "LEI", "2019-05-01T00:00:00", "2019-05-01T00:00:00", 0, 0, 0, 1),
+        MovementParameters("LEI", "MDI", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 3, 1, 1, 1),
+        MovementParameters("INVAL", "INVAL", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 0, 0, 0, 0),
+      )
+
+    private fun getAgenciesAndTimesValidation() =
+      listOf(
+        MovementParameters("LEI", "MDI", "2019-05-01T17:00:00", "2019-05-01T11:00:00", 0, 0, 0, 0),
+        MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
+        MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
+      )
 
     private fun getScheduledMovements(
       courtEvents: Boolean,
@@ -777,4 +1268,15 @@ class MovementResourceTest : ResourceTest() {
   }
 
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
+
+  data class MovementParameters(
+    val agency1: String,
+    val agency2: String,
+    val fromTime: String,
+    val toTime: String,
+    val movementCount: Int,
+    val courtCount: Int,
+    val transferCount: Int,
+    val releaseCount: Int,
+  )
 }

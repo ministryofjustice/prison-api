@@ -33,12 +33,12 @@ class AdjustmentResourceTest : ResourceTest() {
   }
 
   @Test
-  fun `returns 404 when user does not have offender in caseload`() {
+  fun `returns 403 when user does not have offender in caseload`() {
     webTestClient.get().uri("/api/adjustments/$BOOKING_ID/sentence-and-booking")
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
-      .expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+      .expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -6.")
   }
 
   @Test

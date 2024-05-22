@@ -6,10 +6,6 @@ Feature: Booking Activities
   Background:
     Given a user has authenticated with the API and has the pay role
 
-  Scenario: Retrieve scheduled activities for an existing offender that is not in a caseload accessible to authenticated user
-    When scheduled activities are requested for an offender with booking id "-16"
-    Then resource not found response is received from booking activities API
-
   Scenario: Retrieve scheduled activities for an offender that does not exist
     When scheduled activities are requested for an offender with booking id "-99"
     Then resource not found response is received from booking activities API

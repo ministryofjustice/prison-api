@@ -6,10 +6,6 @@ import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -67,22 +63,21 @@ class OffenderSentenceResourceTest_hdc : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-35/home-detention-curfews/latest")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -35 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -35.")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-35/home-detention-curfews/latest")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -35 not found.")
-      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -35.")
     }
 
     @Test

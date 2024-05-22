@@ -64,7 +64,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, true);
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, false, true);
         assertThat(rollCountList).hasSize(2);
         assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -75,7 +75,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountIncludingLandings() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, false);
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, false, false);
         assertThat(rollCountList).hasSize(4);
         assertThat(rollCountList).asList()
             .extracting("livingUnitId", "locationType", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -89,7 +89,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountShowingCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, true, false);
+        final var rollCountList = repository.getRollCount("LEI", "Y", null, true, false);
         assertThat(rollCountList).hasSize(27);
         assertThat(rollCountList).asList()
             .extracting("livingUnitId", "fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
@@ -103,35 +103,35 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountOfCellsOnALanding() {
-        final var rollCountList = repository.getRollCount("LEI", false, -2L, true, false);
+        final var rollCountList = repository.getRollCount("LEI", "Y", -2L, true, false);
         assertThat(rollCountList).hasSize(13);
         AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> contains = assertThat(rollCountList).asList()
-            .extracting("locationType", "certified", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+            .extracting("locationType", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
             .contains(
-                tuple("CELL", true, "A-1-1", "1", "1", -2L, 3, 3, 0, 0, 2, -1, 2, -1, 0),
-                tuple("CELL", true, "A-1-2", "2", "2", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-3", "3", "3", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-4", "4", "4", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-5", "5", "5", -2L, 1, 0, 1, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-6", "6", "6", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-7", "7", "7", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-8", "8", "8", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
-                tuple("CELL", true, "A-1-9", "9", "9", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
-                tuple("CELL", true, "A-1-10", "10", "10", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
-                tuple("CELL", true, "A-1-1001", "BROKEN", "BROKEN", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 1),
-                tuple("CELL", true, "A-1-1002", "REPURPOSED", "REPURPOSED", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
-                tuple("CELL", true, "AABCW-1", "THE_ROOM", "THE_ROOM", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
+                tuple("CELL", "A-1-1", "1", "1", -2L, 3, 3, 0, 0, 2, -1, 2, -1, 0),
+                tuple("CELL", "A-1-2", "2", "2", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-3", "3", "3", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-4", "4", "4", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-5", "5", "5", -2L, 1, 0, 1, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-6", "6", "6", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-7", "7", "7", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-8", "8", "8", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
+                tuple("CELL", "A-1-9", "9", "9", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 0),
+                tuple("CELL", "A-1-10", "10", "10", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0),
+                tuple("CELL", "A-1-1001", "BROKEN", "Broken", -2L, 0, 0, 0, 0, 1, 1, 1, 1, 1),
+                tuple("CELL", "A-1-1002", "REPURPOSED", "Repurposed", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
+                tuple("CELL", "AABCW-1", "THE_ROOM", "The_room", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
             );
     }
 
     @Test
     public void canRetrieveRollCountUnassigned() {
-        final var rollCountList = repository.getRollCount("LEI", true, null, false, true);
+        final var rollCountList = repository.getRollCount("LEI", "N", null, false, true);
         assertThat(rollCountList).hasSize(1);
         assertThat(rollCountList).asList()
-                .extracting("certified", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
+                .extracting("livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
-                        tuple(false, "Chapel", 0, 0, 0, 0, null, null, null, null, 0));
+                        tuple("Chapel", 0, 0, 0, 0, null, null, null, null, 0));
     }
 
     @Test

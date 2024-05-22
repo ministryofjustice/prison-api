@@ -49,7 +49,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
   }
 
   @Test
-  internal fun `404 response when offender not in prison`() {
+  internal fun `403 response when offender not in prison`() {
     val offenderNo =
       OffenderBuilder().withBooking(OffenderBookingBuilder(released = true)).save(testDataContext).offenderNo
 
@@ -63,7 +63,7 @@ class OffenderResourceIntTest_getHousingLocation : ResourceTest() {
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
-      .expectStatus().isNotFound
+      .expectStatus().isForbidden
 
     // tidy up
     offenderDeletionRepository.deleteAllOffenderDataIncludingBaseRecord(offenderNo)

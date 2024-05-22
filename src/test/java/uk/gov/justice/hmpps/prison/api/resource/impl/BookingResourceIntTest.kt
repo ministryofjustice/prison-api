@@ -4,10 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
@@ -355,7 +351,7 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 400 when user does not have offender in caseload`() {
+    fun `returns 403 when user does not have offender in caseload`() {
       bookingRepository.getBookingAppointments(-2, tomorrow, tomorrow, "startTime", Order.ASC)
 
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
@@ -363,12 +359,12 @@ class BookingResourceIntTest : ResourceTest() {
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
     }
 
     @Test
-    fun `returns 400 when user does not have offender in casedload`() {
+    fun `returns 403 when user does not have offender in casedload`() {
       bookingRepository.getBookingAppointments(-2, tomorrow, tomorrow, "startTime", Order.ASC)
 
       webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
@@ -376,8 +372,8 @@ class BookingResourceIntTest : ResourceTest() {
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(appointment)
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
     }
 
     @Test
@@ -1025,11 +1021,11 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-1/mainOffence")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
     }
 
     @Test
@@ -1442,21 +1438,21 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -6.")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-6/assessments")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -6.")
     }
 
     @Test
@@ -1523,22 +1519,21 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/activities")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/activities")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
-      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
     }
 
     @Test
@@ -1603,22 +1598,21 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-3/balances")
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/balances")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
-      verify(telemetryClient).trackEvent(eq("UserUnauthorisedBookingAccess"), any(), isNull())
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
     }
 
     @Test
@@ -1872,12 +1866,12 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-6/military-records")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -6 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -6.")
     }
 
     @Test
@@ -2147,14 +2141,14 @@ class BookingResourceIntTest : ResourceTest() {
   inner class GetBookingSentenceDetail {
     @Test
     fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `should return 403 if does not have override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -2162,7 +2156,7 @@ class BookingResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
         .exchange()
         .expectStatus().isOk
@@ -2170,10 +2164,22 @@ class BookingResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceDetail")
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-16/sentenceDetail")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if Sentence details are requested for booking that is inactive`() {
+      webTestClient.get().uri("/api/bookings/-20/sentenceDetail")
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
   }
 
@@ -2273,7 +2279,7 @@ class BookingResourceIntTest : ResourceTest() {
         String::class.java,
         -1L,
       )
-      assertThatStatus(response, 404)
+      assertThatStatus(response, 403)
     }
   }
 
@@ -2355,7 +2361,7 @@ class BookingResourceIntTest : ResourceTest() {
         String::class.java,
         -1L,
       )
-      assertThatStatus(response, 404)
+      assertThatStatus(response, 403)
     }
   }
 
@@ -2396,12 +2402,12 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 when user does not have booking in caseload`() {
+    fun `returns 403 when user does not have booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-1/fixed-term-recall")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
     }
 
     @Test
@@ -2496,12 +2502,12 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 when user does not have booking in caseload`() {
+    fun `returns 403 when user does not have booking in caseload`() {
       webTestClient.get().uri("/api/bookings/-1/aliases")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -1 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
     }
 
     @Test

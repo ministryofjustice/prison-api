@@ -208,13 +208,15 @@ enum class MovementsRepositorySql(val sql: String) {
         AIL.INTERNAL_LOCATION_TYPE                            AS LOCATION_TYPE,
         AIL.INTERNAL_LOCATION_CODE                            AS LOCATION_CODE,
         AIL.DESCRIPTION                                       AS FULL_LOCATION_PATH,
-        AIL.USER_DESC                                         AS LOCAL_NAME,
-        AIL.CERTIFIED_FLAG                                    AS CERTIFIED,
+        (CASE 
+	        WHEN AIL.INTERNAL_LOCATION_TYPE = 'CELL' THEN AIL.INTERNAL_LOCATION_CODE 
+	        ELSE COALESCE(AIL.USER_DESC, AIL.INTERNAL_LOCATION_CODE) 
+	        END ) AS LIVING_UNIT_DESC,
         PLOC.INTERNAL_LOCATION_ID                             AS PARENT_LOCATION_ID,
         PLOC.INTERNAL_LOCATION_TYPE                           AS PARENT_LOCATION_TYPE,
         PLOC.INTERNAL_LOCATION_CODE                           AS PARENT_LOCATION_CODE,
         PLOC.DESCRIPTION                                      AS PARENT_FULL_LOCATION_PATH,
-        PLOC.USER_DESC                                        AS PARENT_LOCAL_NAME,
+        COALESCE(PLOC.USER_DESC, PLOC.INTERNAL_LOCATION_CODE) AS PARENT_LOCAL_NAME,
         VR.BEDS_IN_USE,
         VR.CURRENTLY_IN_CELL,
         VR.OUT_OF_LIVING_UNITS,
@@ -247,10 +249,12 @@ enum class MovementsRepositorySql(val sql: String) {
         ) VR
         INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON AIL.INTERNAL_LOCATION_ID = VR.ROOT_LIVING_UNIT_ID
         LEFT JOIN AGENCY_INTERNAL_LOCATIONS PLOC ON PLOC.INTERNAL_LOCATION_ID = AIL.PARENT_INTERNAL_LOCATION_ID
-        WHERE AIL.UNIT_TYPE IS NOT NULL
+        WHERE AIL.CERTIFIED_FLAG = :certifiedFlag
+        AND AIL.UNIT_TYPE IS NOT NULL
         AND AIL.AGY_LOC_ID = :agencyId
         AND AIL.ACTIVE_FLAG = 'Y'
         %s
+        ORDER BY AIL.DESCRIPTION, LIVING_UNIT_DESC
     """,
   ),
 

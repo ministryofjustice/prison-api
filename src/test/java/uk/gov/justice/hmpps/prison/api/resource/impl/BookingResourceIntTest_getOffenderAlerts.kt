@@ -74,12 +74,12 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/bookings/-3/alerts/v2")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -3 not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
     }
 
     @Test
@@ -92,7 +92,7 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
         object : ParameterizedTypeReference<String?>() {},
         mapOf("bookingId" to -56),
       )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
+      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
 
     @Test
