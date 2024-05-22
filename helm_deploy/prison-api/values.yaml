@@ -33,6 +33,7 @@ generic-service:
       SecRuleRemoveById 913101
       SecRuleUpdateTargetById 921110 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932100 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 932115 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
       SecRuleUpdateTargetById 933210 "!ARGS:/.*comment/"
