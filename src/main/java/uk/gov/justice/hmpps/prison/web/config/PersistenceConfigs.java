@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.web.config;
 
 import com.zaxxer.hikari.HikariConfig;
 import com.zaxxer.hikari.HikariDataSource;
+import lombok.extern.log4j.Log4j2;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.boot.autoconfigure.EnableAutoConfiguration;
@@ -24,6 +25,7 @@ import java.util.Map;
 @EnableTransactionManagement
 @EnableAutoConfiguration(exclude = { DataSourceAutoConfiguration.class })
 @ComponentScan(basePackages = {"uk.gov.justice.hmpps.prison.repository", "uk.gov.justice.hmpps.prison.util"})
+@Log4j2
 public class PersistenceConfigs {
 
     private static final String PRIMARY_DATASOURCE_PREFIX = "spring.datasource";
@@ -82,7 +84,13 @@ public class PersistenceConfigs {
 
         final var maxPoolSize = environment.getProperty(String.format("%s.hikari.maximum-pool-size", dataSourcePrefix));
         if (StringUtils.isNotBlank(maxPoolSize)) {
+            log.info("Setting maximum pool size to be {}", maxPoolSize);
             hikariConfig.setMaximumPoolSize(Integer.parseInt(maxPoolSize));
+        }
+        final var maxLifetime = environment.getProperty(String.format("%s.hikari.max-lifetime", dataSourcePrefix));
+        if (StringUtils.isNotBlank(maxLifetime)) {
+            log.info("Setting max lifetime to be {}", maxLifetime);
+            hikariConfig.setMaxLifetime(Integer.parseInt(maxLifetime));
         }
         final var connectionTimeout = environment.getProperty(String.format("%s.hikari.connectionTimeout", dataSourcePrefix));
         if (StringUtils.isNotBlank(connectionTimeout)) {
