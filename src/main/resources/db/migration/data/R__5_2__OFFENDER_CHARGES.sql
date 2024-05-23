@@ -45,3 +45,16 @@ VALUES (-13, -33, 'RC86', 'M3', 'A', 1005, 'Y', -20, TO_DATE('2015-01-04', 'YYYY
 
 INSERT INTO OFFENDER_CHARGES (OFFENDER_CHARGE_ID, OFFENDER_BOOK_ID, STATUTE_CODE, OFFENCE_CODE, CHARGE_STATUS, RESULT_CODE_2, MOST_SERIOUS_FLAG, CASE_ID, OFFENCE_DATE, OFFENCE_RANGE_DATE, CREATE_USER_ID, AUDIT_MODULE_NAME)
 VALUES (-14, -33, 'RC86', 'M2', 'A', 1005, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', 'MERGE');
+
+-- Used for PrisonerSearchResourceIntTest.should return all convicted offences
+INSERT INTO OFFENDER_CHARGES (OFFENDER_CHARGE_ID, OFFENDER_BOOK_ID, STATUTE_CODE, OFFENCE_CODE, CHARGE_STATUS, RESULT_CODE_2, MOST_SERIOUS_FLAG, CASE_ID, OFFENCE_DATE, OFFENCE_RANGE_DATE, CREATE_USER_ID, AUDIT_MODULE_NAME) VALUES
+    -- root offender booking, convicted
+    (-15, -12, 'RC86', 'M1', 'A', 1004, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', null),
+    -- alias offender booking, convicted
+    (-16, -13, 'RC86', 'M2', 'I', 1004, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', null),
+    -- duplicate caused by a MERGE
+    (-17, -13, 'RC86', 'M2', 'I', 1004, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', 'MERGE'),
+    -- root offender booking, not convicted
+    (-18, -12, 'RC86', 'M3', 'A', 2004, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', null),
+    -- alias offender booking, no result
+    (-19, -13, 'RC86', 'M4', 'A', null, 'Y', -20, TO_DATE('2015-01-04', 'YYYY-MM-DD'), TO_DATE('2015-01-25', 'YYYY-MM-DD'), 'SYS', null);
