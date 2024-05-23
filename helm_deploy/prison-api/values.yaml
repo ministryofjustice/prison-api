@@ -35,6 +35,8 @@ generic-service:
       SecRuleRemoveById 932110
       # Remote Command Execution: Windows Command Injection - only for windows servers
       SecRuleRemoveById 932115
+      # Remote Command Execution: Windows FOR/IF Command Found - only for windows servers
+      SecRuleRemoveById 932140
       SecRuleUpdateTargetById 921110 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 921110 "!ARGS:/text/"
       SecRuleUpdateTargetById 921120 "!ARGS:/.*comment/"
@@ -61,6 +63,8 @@ generic-service:
       SecRuleUpdateTargetById 942230 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 942230 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942230 "!ARGS:/text/"
+      SecRuleUpdateTargetById 942190 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 942190 "!ARGS:/text/"
       SecRuleUpdateTargetById 942410 "!ARGS:/outcomeComment/"
       # Disable rule 942360 (SQL Injection) for create and update alert - /api/bookings/:bookingId/alert and /api/bookings/:bookingId/alert/:alertId
       SecRule REQUEST_URI "@rx ^\/api\/bookings\/[\w|\d]*\/(alert$|alert\/[\w|\d|-]+)" "id:800001,phase:1,pass,t:none,nolog,ctl:ruleRemoveById=942360"
