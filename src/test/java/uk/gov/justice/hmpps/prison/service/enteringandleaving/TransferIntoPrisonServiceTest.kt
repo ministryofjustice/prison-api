@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.any
+import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
@@ -29,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService
@@ -54,7 +56,8 @@ class TransferIntoPrisonServiceTest {
   private val agencyLocationRepository: AgencyLocationRepository = mock()
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
   private val offenderChargeTransformer: OffenderChargeTransformer = mock()
-  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone(), offenderChargeTransformer)
+  private val offenderChargeRepository: OffenderChargeRepository = mock()
+  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone(), offenderChargeTransformer, offenderChargeRepository)
 
   private val fromPrison = AgencyLocation().apply {
     description = "HMPS Brixton"
@@ -787,6 +790,8 @@ class TransferIntoPrisonServiceTest {
             },
           ),
         )
+
+        whenever(offenderChargeRepository.findChargesByRootOffenderId(anyOrNull())).thenReturn(listOf())
       }
 
       @Test

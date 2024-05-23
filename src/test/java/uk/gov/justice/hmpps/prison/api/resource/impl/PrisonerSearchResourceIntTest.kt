@@ -274,6 +274,27 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return all convicted offences`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AL")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(allConvictedOffences)
+              .extracting("bookingId", "offenceCode")
+              // ignores charges with no convicted result, ignores MERGE duplicates, includes charges that are inactive
+              .containsExactlyInAnyOrder(
+                tuple(-12L, "M1"),
+                tuple(-13L, "M2"),
+              )
+          }
+        }
+    }
+
+    @Test
     fun `should handle unknown imprisonment status`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1184MA")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
