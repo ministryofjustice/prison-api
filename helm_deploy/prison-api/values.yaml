@@ -41,6 +41,8 @@ generic-service:
       SecRuleUpdateTargetById 921120 "!ARGS:/text/"
       SecRuleUpdateTargetById 932100 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932100 "!ARGS:/text/"
+      SecRuleUpdateTargetById 932105 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 932105 "!ARGS:/text/"
       SecRuleUpdateTargetById 932150 "!ARGS:/.*comment/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
       SecRuleUpdateTargetById 932150 "!ARGS:/text/"
