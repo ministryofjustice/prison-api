@@ -627,6 +627,15 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
   }
 
   @Test
+  fun getEvents_ValidationFailure() {
+    webTestClient.get()
+      .uri("/api/v1/offenders/events?prison_id=MDI&offender_id=A1492AE&event_type=e&from_datetime=2019-07-07 07:15:20.090")
+      .headers(setAuthorisation(listOf("ROLE_NOMIS_API_V1")))
+      .exchange()
+      .expectStatus().isBadRequest
+  }
+
+  @Test
   fun getLiveRoll() {
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), null)
 

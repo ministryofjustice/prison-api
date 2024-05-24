@@ -48,9 +48,11 @@ import uk.gov.justice.hmpps.prison.api.model.v1.UnavailabilityReason;
 import uk.gov.justice.hmpps.prison.api.model.v1.VisitSlots;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
+import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.v1.NomisApiV1Service;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.SortedMap;
 
@@ -168,14 +170,31 @@ public class NomisApiV1Resource {
               <li>SENTENCE_INFORMATION_CHANGED</li>
               <li>BALANCE_UPDATE</li>
             </ul>
+            This endpoint requires a from_datetime to be specified.  If a date over a week ago is requested then limit
+            must be specified.  This is to stop too much data being requested.  Multiple calls can then be made to
+            retrieve all the data, by specifying a more recent from_datetime after each call. For example the first
+            request could specify data from 2022-05-18 with limit of 1000.  The next request could then look at the last
+            event in the response and specify that as the from_datetime with limit of 1000 again etc. until all data is
+            retrieved.
             Requires NOMIS_API_V1 or UNILINK role.
             """
     )
     @GetMapping("/offenders/events")
     @Tag(name = "unilink")
     @SlowReportQuery
-    public Events getOffenderEvents(@Size(max = 3) @RequestParam("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI") final String prisonId, @RequestParam(value = "offender_id", required = false) @Parameter(name = "offender_id", description = "Offender Noms Id", example = "A1417AE") final String offenderIdentifier, @RequestParam(value = "event_type", required = false) @Parameter(name = "event_type", description = "Event Type", example = "ALERT") final String eventType, @RequestParam("from_datetime") @Parameter(name = "from_datetime", description = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String fromDateTime, @RequestParam(value = "limit", required = false) @Parameter(name = "limit", description = "Number of events to return", example = "100") final Long limit) {
-        final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderIdentifier), eventType, optionalStrToLocalDateTime(fromDateTime), limit);
+    public Events getOffenderEvents(@Size(max = 3) @RequestParam("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI") final String prisonId,
+                                    @RequestParam(value = "offender_id", required = false) @Parameter(name = "offender_id", description = "Offender Noms Id", example = "A1417AE") final String offenderIdentifier,
+                                    @RequestParam(value = "event_type", required = false) @Parameter(name = "event_type", description = "Event Type", example = "ALERT") final String eventType,
+                                    @RequestParam("from_datetime") @Parameter(name = "from_datetime", description = "From Date Time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123", example = "2017-10-07T12:23:45.678") final String fromDateTime,
+                                    @RequestParam(value = "limit", required = false) @Parameter(name = "limit", description = "Number of events to return.  If from_datetime is over a week ago then limit has to be specified and be less than or equal to 1000", example = "100") final Long limit) {
+        LocalDateTime from = optionalStrToLocalDateTime(fromDateTime);
+        // Ensure that only sensible amounts of data is requested. This stops denial of service attacks due to sheer
+        // amount of data being requested.
+        if (from.isBefore(LocalDateTime.now().minusDays(7)) && (limit == null || limit > 1000)) {
+            throw new BadRequestException(String.format("If from date is over a week ago then limit must be specified and be less than or equal to 1000. Parameters were %s and %s", from, limit));
+        }
+
+        final var events = service.getEvents(prisonId, new OffenderIdentifier(offenderIdentifier), eventType, from, limit);
         return new Events(events);
     }
 
