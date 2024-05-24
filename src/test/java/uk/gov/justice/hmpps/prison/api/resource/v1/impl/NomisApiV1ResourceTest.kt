@@ -1,8 +1,11 @@
+@file:Suppress("ClassName")
+
 package uk.gov.justice.hmpps.prison.api.resource.v1.impl
 
 import com.google.common.collect.ImmutableSortedMap
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
@@ -38,9 +41,11 @@ import uk.gov.justice.hmpps.prison.api.model.v1.VisitSlots
 import uk.gov.justice.hmpps.prison.api.resource.NomisApiV1Resource
 import uk.gov.justice.hmpps.prison.repository.v1.model.TransferSP
 import uk.gov.justice.hmpps.prison.repository.v1.model.TransferSP.TransactionSP
+import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.v1.NomisApiV1Service
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.format.DateTimeFormatter.ofPattern
 import org.mockito.ArgumentMatchers.any as anyClass
 
 class NomisApiV1ResourceTest {
@@ -98,7 +103,7 @@ class NomisApiV1ResourceTest {
 
   @Test
   fun createTransaction_disabled() {
-    Assertions.assertThatThrownBy { nomisApiV1Resource.createTransaction("client", "previous", "nomis", null, true) }
+    assertThatThrownBy { nomisApiV1Resource.createTransaction("client", "previous", "nomis", null, true) }
       .isInstanceOf(RuntimeException::class.java)
       .hasMessage("SDI-147: Create transaction currently disabled during unilink testing")
   }
@@ -151,20 +156,67 @@ class NomisApiV1ResourceTest {
     assertThat(transfer).isEqualTo(holds)
   }
 
-  @Test
-  fun events() {
-    val events = listOf(Event("EVENT", 3L, "noms", "prison", LocalDateTime.now(), "entry"))
-    whenever(
-      service.getEvents(
-        anyString(),
-        any(),
-        anyString(),
-        any(),
-        anyLong(),
-      ),
-    ).thenReturn(events)
-    val transfer = nomisApiV1Resource.getOffenderEvents("client", null, "nomis", "2020-05-08", 50L)
-    assertThat(transfer).isEqualTo(Events(events))
+  @Nested
+  inner class getOffenderEvents {
+    @Test
+    fun events() {
+      val events = listOf(Event("EVENT", 3L, "noms", "prison", LocalDateTime.now(), "entry"))
+      whenever(
+        service.getEvents(
+          anyString(),
+          any(),
+          anyString(),
+          any(),
+          anyLong(),
+        ),
+      ).thenReturn(events)
+      val transfer = nomisApiV1Resource.getOffenderEvents("client", null, "nomis", "2020-05-08", 50L)
+      assertThat(transfer).isEqualTo(Events(events))
+    }
+
+    @Test
+    fun `events validation no limit specified`() {
+      assertThatThrownBy {
+        nomisApiV1Resource.getOffenderEvents("client", null, "nomis", "2020-05-08", null)
+      }.isInstanceOf(BadRequestException::class.java)
+    }
+
+    @Test
+    fun `events validation limit too big`() {
+      assertThatThrownBy {
+        nomisApiV1Resource.getOffenderEvents("client", null, "nomis", "2020-05-08", 1001)
+      }.isInstanceOf(BadRequestException::class.java)
+    }
+
+    @Test
+    fun `events validation within time frame`() {
+      val events = listOf(Event("EVENT", 3L, "noms", "prison", LocalDateTime.now(), "entry"))
+      whenever(service.getEvents(anyString(), any(), anyString(), any(), isNull())).thenReturn(events)
+      val transfer = nomisApiV1Resource.getOffenderEvents(
+        "client",
+        null,
+        "nomis",
+        LocalDateTime.now().minusDays(7).plusHours(2).format(ofPattern("yyyy-MM-dd'T'HH:mm:ss")),
+        null,
+      )
+      assertThat(transfer).isEqualTo(Events(events))
+    }
+
+    @Test
+    fun `events validation limit specified`() {
+      val events = listOf(Event("EVENT", 3L, "noms", "prison", LocalDateTime.now(), "entry"))
+      whenever(
+        service.getEvents(
+          anyString(),
+          any(),
+          anyString(),
+          any(),
+          anyLong(),
+        ),
+      ).thenReturn(events)
+      val transfer = nomisApiV1Resource.getOffenderEvents("client", null, "nomis", "2020-05-08", 1000L)
+      assertThat(transfer).isEqualTo(Events(events))
+    }
   }
 
   @Test
