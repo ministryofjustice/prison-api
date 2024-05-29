@@ -14,9 +14,6 @@ configurations {
   }
 }
 
-// Temporarily kept at 4.6 as 4.7 not compatible with spring data jpa
-val jsqlParserVersion by extra("4.6")
-
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.32")
@@ -31,7 +28,7 @@ dependencies {
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   implementation("commons-codec:commons-codec:1.17.0")
-  implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
+  implementation("com.github.jsqlparser:jsqlparser:4.9")
   implementation("org.ehcache:ehcache:3.10.8")
   implementation("com.zaxxer:HikariCP:5.1.0")
 
