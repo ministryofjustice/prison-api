@@ -10,5 +10,7 @@ import java.util.List;
 @Repository
 public interface OffenderIdentifierRepository extends CrudRepository<OffenderIdentifier, OffenderIdentifierPK> {
 
+    List<OffenderIdentifier> findOffenderIdentifiersByOffender_NomsId(final String NomsId);
+
     List<OffenderIdentifier> findByIdentifierTypeAndIdentifier(final String type, final String id);
 }

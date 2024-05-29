@@ -46,9 +46,12 @@ public class OffenderIdentifier {
     @Schema(description = "Related caseload type", example = "GENERAL")
     private String caseloadType;
 
-    @Schema(description = "Creation date and time", example = "2018-01-21 15:00:00")
+    @Schema(description = "Creation date and time", example = "2018-01-21T15:00:00")
     private LocalDateTime whenCreated;
 
     @Schema(description = "Offender ID", example = "234547")
     private Long offenderId;
+
+    @Schema(description = "Root Offender ID", example = "654321")
+    private Long rootOffenderId;
 }

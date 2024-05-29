@@ -100,6 +100,7 @@ class PrisonerSearchService(
       this.caseloadType,
       this.createDateTime,
       this.offender.id,
+      this.rootOffenderId,
     )
 }
 

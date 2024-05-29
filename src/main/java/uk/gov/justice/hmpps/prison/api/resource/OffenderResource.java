@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
+import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -86,6 +87,7 @@ import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderBeliefService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
+import uk.gov.justice.hmpps.prison.service.OffenderIdentifierService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
@@ -129,6 +131,7 @@ public class OffenderResource {
     private final ReleasePrisonerService releasePrisonerService;
     private final DischargeToHospitalService dischargeToHospitalService;
     private final OffenderBeliefService offenderBeliefService;
+    private final OffenderIdentifierService offenderIdentifierService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -152,21 +155,21 @@ public class OffenderResource {
         summary = "Summary of the different periods this prisoner has been in prison.",
         description = """
             This is a summary of the different periods this prisoner has been in prison grouped by booking.
-            
+                        
             It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included).
-            
+                        
             The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates.
-            
+                        
             Transfers are also listed separately.
-            
-            
+                        
+                        
             **Example response:**
             #### Booking 47828A
             Has 2 periods of temporary absence. In the second absence they return to a different prison. They are eventually released.
-            
+                        
             #### Booking 47829A
             The person is still is prison but has been transferred to a 2nd prison.
-            
+                        
             There are a number of transfers during this booking.
             ```
             {
@@ -276,7 +279,7 @@ public class OffenderResource {
               ]
             }
             ```
-            
+                        
             """)
     @GetMapping("/{offenderNo}/prison-timeline")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
@@ -377,6 +380,7 @@ public class OffenderResource {
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
         return prisonerTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
     }
+
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -560,7 +564,7 @@ public class OffenderResource {
     public List<Alert> getAlertsForLatestBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
-        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId","bookingId","alertType","alertCode","comment","dateCreated","dateExpires","active"})) final String sort,
+        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId", "bookingId", "alertType", "alertCode", "comment", "dateCreated", "dateExpires", "active"})) final String sort,
         @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
     ) {
         return alertService.getAlertsForLatestBookingForOffender(
@@ -581,7 +585,7 @@ public class OffenderResource {
     public List<Alert> getAlertsForAllBookingByOffenderNo(
         @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
-        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId","bookingId","alertType","alertCode","comment","dateCreated","dateExpires","active"})) final String sort,
+        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId", "bookingId", "alertType", "alertCode", "comment", "dateCreated", "dateExpires", "active"})) final String sort,
         @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
     ) {
         return alertService.getAlertsForAllBookingsForOffender(
@@ -723,7 +727,7 @@ public class OffenderResource {
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @Parameter(name = "account_code", description = "Account code", example = "spends", schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) @RequestParam(value = "account_code", required = false) final String accountCode,
+        @Parameter(name = "account_code", description = "Account code", example = "spends", schema = @Schema(implementation = String.class, allowableValues = {"spends", "cash", "savings"})) @RequestParam(value = "account_code", required = false) final String accountCode,
         @Parameter(name = "from_date", description = "Start date for transactions, format yyyy-MM-dd", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) final LocalDate fromDate,
         @Parameter(name = "to_date", description = "To date for transactions, format yyyy-MM-dd", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) final LocalDate toDate,
         @Parameter(name = "transaction_type", description = "Transaction type", example = "A_EARN") @RequestParam(value = "transaction_type", required = false) final String transactionType
@@ -755,37 +759,36 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender Contacts", description = "Active Contacts including restrictions, using latest offender booking  and including inactive contacts by default")
     @VerifyOffenderAccess(overrideRoles = {"OFFENDER_CONTACTS", "VIEW_CONTACTS"})
     @GetMapping("/{offenderNo}/contacts")
     public OffenderContacts getOffenderContacts(
-            @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-            @Parameter(name = "approvedVisitorsOnly", description = "return only contacts approved for visits") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors,
-            @Parameter(name = "activeOnly", description = "return only active contacts, nb visitors can be inactive contacts") @RequestParam(value = "activeOnly", required = false, defaultValue = "false") final boolean activeOnly
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @Parameter(name = "approvedVisitorsOnly", description = "return only contacts approved for visits") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors,
+        @Parameter(name = "activeOnly", description = "return only active contacts, nb visitors can be inactive contacts") @RequestParam(value = "activeOnly", required = false, defaultValue = "false") final boolean activeOnly
     ) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getOffenderContacts(booking.getBookingId(), approvedVisitors, activeOnly);
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking",
         description = "Get offender visit restrictions by offender No. <p>Requires a relationship (via caseload) with the offender or VISIT_SCHEDULER role.</p>")
     @VerifyOffenderAccess(overrideRoles = {"VISIT_SCHEDULER"})
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
-            @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-            @Parameter(name = "activeRestrictionsOnly", description = "return only restriction that are active (derived from startDate and expiryDate)") @RequestParam(value = "activeRestrictionsOnly", required = false, defaultValue = "true") final boolean activeRestrictionsOnly)
-    {
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @Parameter(name = "activeRestrictionsOnly", description = "return only restriction that are active (derived from startDate and expiryDate)") @RequestParam(value = "activeRestrictionsOnly", required = false, defaultValue = "true") final boolean activeRestrictionsOnly) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return bookingService.getOffenderRestrictions(booking.getBookingId(),activeRestrictionsOnly );
+        return bookingService.getOffenderRestrictions(booking.getBookingId(), activeRestrictionsOnly);
     }
 
     @ApiResponses({
@@ -866,7 +869,7 @@ public class OffenderResource {
         @RequestParam(value = "fromDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate fromDate,
         @RequestParam(value = "toDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate toDate,
         @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot
-        ) {
+    ) {
         return adjudicationService.findOffenderAdjudicationHearings(agencyId, fromDate, toDate, offenderNos, timeSlot);
     }
 
@@ -882,5 +885,20 @@ public class OffenderResource {
     public List<Belief> getOffenderBeliefHistory(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
                                                  @RequestParam(value = "bookingId", required = false) final String bookingId) {
         return offenderBeliefService.getOffenderBeliefHistory(prisonerNumber, bookingId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to view identifiers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'GLOBAL_SEARCH')")
+    @Operation(summary = "Get all identifiers for the prisoner (with or without alias identifiers)")
+    @GetMapping("/{offenderNo}/offender-identifiers")
+    public List<OffenderIdentifier> getAllOffenderIdentifiers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+                                                              @RequestParam(value = "includeAliases", required = false) final boolean includeAliases) {
+
+        return offenderIdentifierService.getOffenderIdentifiers(prisonerNumber, includeAliases);
     }
 }
