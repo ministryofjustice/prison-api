@@ -17,7 +17,7 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
   private fun transformOffenderIdentifier(identifier: OffenderIdentifier): Identifier {
     return Identifier(
       identifier.identifierType, identifier.identifier, identifier.offender.nomsId,
-      identifier.offender.allBookings.maxBy { o -> o.bookingId }.bookingId, identifier.issuedAuthorityText,
+      null, identifier.issuedAuthorityText,
       identifier.issuedDate, identifier.caseloadType, identifier.createDateTime, identifier.offender.id,
       identifier.rootOffenderId,
     )

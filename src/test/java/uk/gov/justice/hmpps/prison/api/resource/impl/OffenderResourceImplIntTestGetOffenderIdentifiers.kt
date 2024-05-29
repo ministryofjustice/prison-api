@@ -19,35 +19,35 @@ class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
   private fun stubRepositoryCall() {
     whenever(offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(ArgumentMatchers.anyString())).thenReturn(
       listOf(
-        OffenderIdentifier().also {
-          it.identifierType = "TYPE"
-          it.identifier = "IDENTIFIER"
-          it.issuedAuthorityText = "Comment"
-          it.issuedDate = LocalDate.parse("2024-01-01")
-          it.caseloadType = "GENERAL"
-          it.createDateTime = LocalDateTime.parse("2023-01-01T00:00:00")
-          it.rootOffenderId = 123
-          it.offender = Offender().also { offender ->
-            offender.id = 123
-            offender.rootOffender = Offender().also { rootOffender -> rootOffender.id = 123 }
-            offender.addBooking(OffenderBooking().also { booking -> booking.bookingId = 1001 })
-            offender.nomsId = "A1234BC"
+        OffenderIdentifier().apply {
+          identifierType = "TYPE"
+          identifier = "IDENTIFIER"
+          issuedAuthorityText = "Comment"
+          issuedDate = LocalDate.parse("2024-01-01")
+          caseloadType = "GENERAL"
+          createDateTime = LocalDateTime.parse("2023-01-01T00:00:00")
+          rootOffenderId = 123
+          offender = Offender().apply {
+            id = 123
+            rootOffender = Offender().apply { id = 123 }
+            addBooking(OffenderBooking().apply { bookingId = 1001 })
+            nomsId = "A1234BC"
           }
         },
 
-        OffenderIdentifier().also {
-          it.identifierType = "TYPE_ALIAS"
-          it.identifier = "IDENTIFIER_ALIAS"
-          it.issuedAuthorityText = "Comment"
-          it.issuedDate = LocalDate.parse("2024-01-01")
-          it.caseloadType = "GENERAL"
-          it.createDateTime = LocalDateTime.parse("2023-01-01T00:00:00")
-          it.rootOffenderId = 123
-          it.offender = Offender().also { offender ->
-            offender.id = 321
-            offender.rootOffender = Offender().also { rootOffender -> rootOffender.id = 123 }
-            offender.addBooking(OffenderBooking().also { booking -> booking.bookingId = 1001 })
-            offender.nomsId = "A1234BC"
+        OffenderIdentifier().apply {
+          identifierType = "TYPE_ALIAS"
+          identifier = "IDENTIFIER_ALIAS"
+          issuedAuthorityText = "Comment"
+          issuedDate = LocalDate.parse("2024-01-01")
+          caseloadType = "GENERAL"
+          createDateTime = LocalDateTime.parse("2023-01-01T00:00:00")
+          rootOffenderId = 123
+          offender = Offender().apply {
+            id = 321
+            rootOffender = Offender().apply { id = 123 }
+            addBooking(OffenderBooking().apply { bookingId = 1001 })
+            nomsId = "A1234BC"
           }
         },
       ),
@@ -90,7 +90,6 @@ class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
       .jsonPath("[0].type").isEqualTo("TYPE")
       .jsonPath("[0].value").isEqualTo("IDENTIFIER")
       .jsonPath("[0].offenderNo").isEqualTo("A1234BC")
-      .jsonPath("[0].bookingId").isEqualTo("1001")
       .jsonPath("[0].issuedAuthorityText").isEqualTo("Comment")
       .jsonPath("[0].issuedDate").isEqualTo("2024-01-01")
       .jsonPath("[0].caseloadType").isEqualTo("GENERAL")

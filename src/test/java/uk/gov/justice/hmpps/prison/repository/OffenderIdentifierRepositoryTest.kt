@@ -27,7 +27,6 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 @Slf4j
 @DisplayName("OffenderIdentifierRepository")
 class OffenderIdentifierRepositoryTest {
-  // A1234AC
   @Autowired
   private lateinit var repository: OffenderIdentifierRepository
 
