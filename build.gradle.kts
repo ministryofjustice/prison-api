@@ -47,8 +47,9 @@ dependencies {
 
   compileOnly("org.projectlombok:lombok:1.18.32")
 
+  // we run on oracle in all environments, but allow instance to be started using hsqldb too
   runtimeOnly("org.hsqldb:hsqldb:2.7.2")
-  runtimeOnly("org.flywaydb:flyway-core")
+  runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
