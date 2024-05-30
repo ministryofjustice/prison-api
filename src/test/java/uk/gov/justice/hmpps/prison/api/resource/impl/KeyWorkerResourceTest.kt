@@ -34,19 +34,19 @@ class KeyWorkerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
     }
 
     @Test
@@ -89,20 +89,20 @@ class KeyWorkerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if user has no caseloads`() {
+    fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
         // RO_USER has no caseloads
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
     }
 
     @Test

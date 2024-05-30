@@ -8,7 +8,7 @@ import kotlin.annotation.AnnotationTarget.PROPERTY_SETTER
 @Target(FUNCTION, PROPERTY_GETTER, PROPERTY_SETTER)
 @Retention(RUNTIME)
 annotation class VerifyAgencyAccess(
-  val accessDeniedError: Boolean = false,
+  val accessDeniedError: Boolean = true,
   val overrideRoles: Array<String> = [],
   // allow if current caseload is an inactive prison
   val allowInactive: Boolean = false,

@@ -722,11 +722,11 @@ class MovementResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 when does not have agency in caseload`() {
+    fun `should return 403 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
         .headers(setAuthorisation(listOf("")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test

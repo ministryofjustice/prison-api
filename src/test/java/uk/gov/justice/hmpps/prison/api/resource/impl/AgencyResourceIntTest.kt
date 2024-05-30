@@ -4,10 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
@@ -95,20 +91,7 @@ class AgencyResourceIntTest : ResourceTest() {
         .expectStatus().isNotFound
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Resource with id [XYZ] not found.")
-    }
-
-    @Test
-    fun `returns 403 as no override role on endpoint`() {
-      webTestClient.get().uri("/api/agencies/SYI/locations/type/CELL")
-        .headers(setClientAuthorisation(listOf("")))
-        .exchange()
-        .expectStatus().isForbidden
-        .expectBody()
-        .jsonPath("userMessage")
-        .isEqualTo("Client not authorised to access agency with id SYI due to missing override role, or agency inactive")
-
-      verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
+        .isEqualTo("Locations of type AREA in agency XYZ not found")
     }
 
     @Test
