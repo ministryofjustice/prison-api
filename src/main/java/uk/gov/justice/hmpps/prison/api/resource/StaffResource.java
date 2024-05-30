@@ -117,7 +117,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of job roles for specified staff and agency Id", description = "Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = true)
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles")
     public List<StaffRole> getAllRolesForAgency(
         @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true) final String agencyId,
@@ -131,7 +131,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM. Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = true)
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
     public boolean hasStaffRole(
         @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true, example = "MDI") @NotNull final String agencyId,
