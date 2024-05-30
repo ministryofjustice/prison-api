@@ -10,6 +10,3 @@
 # Suppression for h2 2.1.214 password on command line vulnerability
 #   can be suppressed as we only run h2 locally and not on build environments
 CVE-2022-45868
-# Suppression for logback-classic and logback-core as we don't let third parties control our appenders.
-# See https://logback.qos.ch/news.html#1.3.12 for further information.
-CVE-2023-6378
