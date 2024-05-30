@@ -23,7 +23,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffJobRoleReposit
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
 import java.time.LocalDate;
@@ -90,7 +89,6 @@ public class StaffService {
         }
     }
 
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"})
     public Page<StaffLocationRole> getStaffByAgencyPositionRole(final GetStaffRoleRequest request, final PageRequest pageRequest) {
         Validate.notNull(request, "Staff role request details are required.");
         Validate.notNull(pageRequest, "Page request details are required.");

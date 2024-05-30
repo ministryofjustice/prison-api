@@ -127,11 +127,11 @@ class PrisonResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `should return 404 if does not have prison in caseload`() {
+    fun `should return 403 if does not have prison in caseload`() {
       webTestClient.get().uri("/api/prison/LEI/booking/latest/paged/calculable-sentence-envelope")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test

@@ -52,7 +52,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.support.AlphaNumericComparator;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
@@ -271,7 +270,6 @@ public class AgencyService {
         return LocationProcessor.processLocations(rawLocations);
     }
 
-    @VerifyAgencyAccess
     public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
         final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, type, true);
 

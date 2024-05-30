@@ -23,7 +23,6 @@ import uk.gov.justice.hmpps.prison.api.model.StaffLocationRole;
 import uk.gov.justice.hmpps.prison.api.model.StaffRole;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
-import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyStaffAccess;
@@ -86,7 +85,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get staff members within agency who are currently assigned the specified role.", description = "Get staff members within agency who are currently assigned the specified role. Security note: the agency must be in the current user's caseload.")
-    @ProgrammaticAuthorisation("Uses VerifyAgencyAccess in service")
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"})
     @GetMapping("/roles/{agencyId}/role/{role}")
     @SlowReportQuery
     public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(
@@ -118,7 +117,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of job roles for specified staff and agency Id", description = "Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = true)
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles")
     public List<StaffRole> getAllRolesForAgency(
         @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true) final String agencyId,
@@ -132,7 +131,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM. Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, accessDeniedError = true, allowInactive = true)
+    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
     public boolean hasStaffRole(
         @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true, example = "MDI") @NotNull final String agencyId,

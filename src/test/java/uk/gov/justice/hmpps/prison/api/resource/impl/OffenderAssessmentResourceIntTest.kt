@@ -202,30 +202,27 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `returns 404 if user has no caseloads`() {
+      fun `returns 403 if user has no caseloads`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+          .expectStatus().isForbidden
       }
 
       @Test
-      fun `returns 404 if not in user caseload`() {
+      fun `returns 403 if not in user caseload`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("WAI_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+          .expectStatus().isForbidden
       }
 
       @Test
-      fun `returns 404 if booking not found`() {
+      fun `returns 403 if booking not found`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("WAI_USER", listOf()))
           .exchange()
-          .expectStatus().isNotFound
-          .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+          .expectStatus().isForbidden
       }
 
       @Test

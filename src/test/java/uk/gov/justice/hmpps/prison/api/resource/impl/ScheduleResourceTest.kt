@@ -472,7 +472,7 @@ class ScheduleResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testThatGetScheduledActivitiesById_ReturnsNotFound_WhenUserNotInAgency() {
+    fun testThatGetScheduledActivitiesById_ReturnsForbidden_WhenUserNotInAgency() {
       val token = authTokenHelper.getToken(AuthToken.NO_CASELOAD_USER)
       val eventIds = listOf(-1L, 91234L)
       val response = testRestTemplate.exchange(
@@ -481,7 +481,7 @@ class ScheduleResourceTest : ResourceTest() {
         createHttpEntity(token, eventIds),
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThat(response.statusCode.value()).isEqualTo(404)
+      assertThat(response.statusCode.value()).isEqualTo(403)
     }
   }
 

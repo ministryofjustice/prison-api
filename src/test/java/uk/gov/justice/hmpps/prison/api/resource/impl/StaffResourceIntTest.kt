@@ -139,13 +139,13 @@ class StaffResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return not found if not part of user caseload`() {
+    fun `should return forbidden if not part of user caseload`() {
       webTestClient.get()
         .uri("/api/staff/roles/BMI/role/KW")
         .headers(setAuthorisation("ITAG_USER", listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isForbidden
     }
 
     @Test

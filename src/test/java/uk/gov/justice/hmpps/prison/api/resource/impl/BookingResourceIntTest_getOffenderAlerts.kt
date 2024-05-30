@@ -454,14 +454,13 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if not in user caseload`() {
+    fun `returns 403 if not in user caseload`() {
       webTestClient.post().uri("/api/bookings/offenderNo/LEI/alerts")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("""["A1234AA","A1234AF"]""")
         .exchange()
-        .expectStatus().isNotFound
-        .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [LEI] not found.")
+        .expectStatus().isForbidden
     }
 
     @Test
