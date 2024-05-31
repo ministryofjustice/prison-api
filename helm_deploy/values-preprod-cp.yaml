@@ -20,6 +20,79 @@ generic-service:
     tlsSecretName: prison-api-cert
     modsecurity_enabled: true
 
+  allowlist:
+    groups:
+      - internal
+    # prum values copied from prisoner search
+    prum-test-platform-1: "18.134.149.68/32"
+    prum-test-platform-2: "18.133.201.123/32"
+    prum-test-platform-3: "52.56.76.34/32"
+
+    # copied from unilink client in HMPPS Auth
+    unilink-preprod-1: "18.130.83.42/32"
+    unilink-preprod-2: "51.104.212.188/32"
+    unilink-preprod-3: "51.132.159.34/32"
+    unilink-preprod-4: "51.132.208.80/32"
+    unilink-preprod-5: "52.56.132.127/32"
+    unilink-preprod-6: "51.132.208.67/32"
+    unilink-preprod-7: "51.132.208.122/32"
+    unilink-preprod-8: "51.132.208.113/32"
+    unilink-preprod-9: "20.50.98.17/32"
+    unilink-preprod-10: "20.50.97.130/32"
+    unilink-preprod-11: "20.49.147.12/32"
+    unilink-preprod-12: "20.49.147.10/32"
+    unilink-preprod-13: "20.26.218.189/32"
+    unilink-preprod-14: "51.11.58.30/32"
+
+    # copied from curious-sync-client / meganexus client
+    curious-preprod-1: "20.49.246.49"
+
+    # azure logic apps in microsoft azure for in-cell-client / kainos
+    kainos-azure-logic-apps-1: "51.140.74.14"
+    kainos-azure-logic-apps-2: "51.140.73.85"
+    kainos-azure-logic-apps-3: "51.140.78.44"
+    kainos-azure-logic-apps-4: "51.140.137.190"
+    kainos-azure-logic-apps-5: "51.140.153.135"
+    kainos-azure-logic-apps-6: "51.140.28.225"
+    kainos-azure-logic-apps-7: "51.140.142.28"
+    kainos-azure-logic-apps-8: "51.140.158.24"
+    kainos-azure-logic-apps-9: "20.108.102.142"
+    kainos-azure-logic-apps-10: "20.108.102.123"
+    kainos-azure-logic-apps-11: "20.90.204.228"
+    kainos-azure-logic-apps-12: "20.90.204.188"
+    kainos-azure-logic-apps-13: "20.108.146.132"
+    kainos-azure-logic-apps-14: "20.90.223.4"
+    kainos-azure-logic-apps-15: "20.26.15.70"
+    kainos-azure-logic-apps-16: "20.26.13.151"
+    kainos-azure-logic-apps-17: "4.159.24.241"
+    kainos-azure-logic-apps-18: "4.250.55.134"
+    kainos-azure-logic-apps-19: "4.159.24.255"
+    kainos-azure-logic-apps-20: "4.250.55.217"
+    kainos-azure-logic-apps-21: "172.165.88.82"
+    kainos-azure-logic-apps-22: "4.250.82.111"
+    kainos-azure-logic-apps-23: "4.158.106.101"
+    kainos-azure-logic-apps-24: "4.158.105.106"
+    kainos-azure-logic-apps-25: "4.250.51.127"
+    kainos-azure-logic-apps-26: "4.250.49.230"
+    kainos-azure-logic-apps-27: "4.159.26.128"
+    kainos-azure-logic-apps-28: "172.166.86.30"
+    kainos-azure-logic-apps-29: "4.159.26.151"
+    kainos-azure-logic-apps-30: "4.159.26.77"
+    kainos-azure-logic-apps-31: "4.159.59.140"
+    kainos-azure-logic-apps-32: "4.159.59.13"
+
+    # oasys-api-client - looks to be on mod platform so included those IPs
+    mod-platform-1: "18.133.150.172/32"
+    mod-platform-2: "18.130.43.174/32"
+    mod-platform-3: "13.41.38.176/32"
+    mod-platform-4: "3.11.197.133/32"
+    mod-platform-5: "3.8.81.175/32"
+
+    # deliusnewtech_aws client - copied from hmpps-workload/helm_deploy/values-preprod.yaml
+    delius-pre-prod-1: "52.56.240.62/32"
+    delius-pre-prod-2: "18.130.110.168/32"
+    delius-pre-prod-3: "35.178.44.184/32"
+
   env:
     JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
