@@ -3,7 +3,7 @@
 generic-service:
   nameOverride: prison-api
   productId: DPS060
-  replicaCount: 5 # One per node
+  replicaCount: 8
 
   image:
     repository: quay.io/hmpps/prison-api
