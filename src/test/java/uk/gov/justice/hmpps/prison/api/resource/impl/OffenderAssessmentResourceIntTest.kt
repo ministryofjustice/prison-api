@@ -153,6 +153,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 200 when lockTimeout is set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING&lockTimeout=true")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun testSetPendingInactiveValidationError() {
       webTestClient.put().uri("/api/offender-assessments/category/-34/inactive?status=OTHER")
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
