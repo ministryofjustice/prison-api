@@ -12,7 +12,6 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.util.CollectionUtils;
 import org.springframework.util.ObjectUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -92,13 +91,11 @@ public class OffenderAssessmentResource {
     @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsAssessmentCode(
         @PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode,
-        @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList,
+        @RequestBody @NotEmpty(message = "List of Offender Ids must be provided.") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList,
         @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,
         @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly
     ) {
-        validateOffenderList(offenderList);
-
         return applyDefaultsAndGetAssessmentsByCode(assessmentCode, offenderList, latestOnly, activeOnly, mostRecentOnly);
     }
 
@@ -116,8 +113,9 @@ public class OffenderAssessmentResource {
     @ProgrammaticAuthorisation("Data is limited to the users caseload")
     @PostMapping("/csra/list")
     @SlowReportQuery
-    public List<Assessment> postOffenderAssessmentsCsraList(@RequestBody @NotEmpty @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList) {
-        validateOffenderList(offenderList);
+    public List<Assessment> postOffenderAssessmentsCsraList(
+        @RequestBody @NotEmpty(message = "List of Offender Ids must be provided.") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList
+    ) {
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, true, true, true, true);
     }
 
@@ -137,10 +135,11 @@ public class OffenderAssessmentResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieves details of a single CSRA assessment.", description = "Requires offender in the caseload, or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
     public AssessmentDetail getOffenderCsraAssessment(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId, @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
+        @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId,
+        @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
     ) {
         return offenderAssessmentService.getOffenderAssessment(bookingId, assessmentSeq);
     }
@@ -152,11 +151,14 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/assessments")
     @SlowReportQuery
-    public List<Assessment> getAssessments(@RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) final List<String> offenderList, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly, @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly, @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
+    public List<Assessment> getAssessments(
+        @RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) @NotEmpty(message = "List of Offender Ids must be provided.") final List<String> offenderList,
+        @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
+        @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,
+        @RequestParam(value = "mostRecentOnly", required = false) @Parameter(description = "Returns only the last assessment per sentence if true, otherwise all assessments for the booking are included") final Boolean mostRecentOnly) {
         final var latest = latestOnly == null || latestOnly;
         final var active = activeOnly == null || activeOnly;
         final var mostRecent = mostRecentOnly == null ? latest : mostRecentOnly; // backwards compatibility
-        validateOffenderList(offenderList);
         return inmateService.getInmatesAssessmentsByCode(offenderList, null, latest, active, false, mostRecent);
     }
 
@@ -191,7 +193,10 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/category")
     @SlowReportQuery
-    public List<OffenderCategorise> getOffenderCategorisationsSystem(@RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds, @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly) {
+    public List<OffenderCategorise> getOffenderCategorisationsSystem(
+        @RequestBody @Parameter(description = "The required booking Ids (mandatory)", required = true) final Set<Long> bookingIds,
+        @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Only get the latest category for each booking") final Boolean latestOnly
+    ) {
         final var latest = latestOnly == null || latestOnly;
         return inmateService.getOffenderCategorisationsSystem(bookingIds, latest);
     }
@@ -218,8 +223,11 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @PutMapping("/category/categorise")
     @ProxyUser
-    public ResponseEntity<Void> updateCategorisation(@Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail) {
-        inmateService.updateCategorisation(detail.getBookingId(), detail);
+    public ResponseEntity<Void> updateCategorisation(
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail
+    ) {
+        inmateService.updateCategorisation(detail.getBookingId(), detail, lockTimeout);
         return ResponseEntity.ok().build();
     }
 
@@ -230,8 +238,11 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/approve")
     @ProxyUser
-    public ResponseEntity<Void> approveCategorisation(@Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail) {
-        inmateService.approveCategorisation(detail.getBookingId(), detail);
+    public ResponseEntity<Void> approveCategorisation(
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail
+    ) {
+        inmateService.approveCategorisation(detail.getBookingId(), detail, lockTimeout);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -242,8 +253,11 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/reject")
     @ProxyUser
-    public ResponseEntity<Void> rejectCategorisation(@Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail) {
-        inmateService.rejectCategorisation(detail.getBookingId(), detail);
+    public ResponseEntity<Void> rejectCategorisation(
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail
+    ) {
+        inmateService.rejectCategorisation(detail.getBookingId(), detail, lockTimeout);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -259,7 +273,8 @@ public class OffenderAssessmentResource {
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestParam(value = "status", required = false, defaultValue = "ACTIVE") @Parameter(description = "Indicates which categorisation statuses to set." +
             "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
-            "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", schema = @Schema(implementation = String.class, allowableValues = {"ACTIVE", "PENDING"})) final String status
+            "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", schema = @Schema(implementation = String.class, allowableValues = {"ACTIVE", "PENDING"})) final String status,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
         final AssessmentStatusType enumType;
         try {
@@ -268,7 +283,7 @@ public class OffenderAssessmentResource {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Assessment status type is invalid: " + status);
         }
 
-        inmateService.setCategorisationInactive(bookingId, enumType);
+        inmateService.setCategorisationInactive(bookingId, enumType, lockTimeout);
         return ResponseEntity.ok().build();
     }
 
@@ -282,15 +297,10 @@ public class OffenderAssessmentResource {
     @ProxyUser
     public ResponseEntity<Void> updateCategorisationNextReviewDate(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
-        inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate);
+        inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate, lockTimeout);
         return ResponseEntity.ok().build();
-    }
-
-    private void validateOffenderList(final List<?> offenderList) {
-        if (CollectionUtils.isEmpty(offenderList)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "List of Offender Ids must be provided.");
-        }
     }
 }

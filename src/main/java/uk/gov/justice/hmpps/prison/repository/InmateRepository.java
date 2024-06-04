@@ -6,6 +6,7 @@ import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
+import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SingleColumnRowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
@@ -44,6 +45,7 @@ import uk.gov.justice.hmpps.prison.api.support.AssessmentStatusType;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.PageAwareRowMapper;
@@ -174,14 +176,15 @@ public class InmateRepository extends RepositoryBase {
 
     private final Map<String, FieldMapper> PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP;
     private final Clock clock;
+    private final ConditionalSqlService conditionalSqlService;
 
-    InmateRepository(final Clock clock) {
+    InmateRepository(final Clock clock, final ConditionalSqlService conditionalSqlService) {
         final Map<String, FieldMapper> map = new HashMap<>(PRISONER_DETAIL_MAPPER.getFieldMap());
         map.put("OFFENDER_ID", new FieldMapper("OFFENDER_ID"));
         PRISONER_DETAIL_WITH_OFFENDER_ID_FIELD_MAP = map;
         this.clock = clock;
+        this.conditionalSqlService = conditionalSqlService;
     }
-
 
     public Page<OffenderBooking> findInmatesByLocation(final Long locationId,
                                                        final String caseLoadId,
@@ -659,7 +662,6 @@ public class InmateRepository extends RepositoryBase {
         return offender;
     }
 
-
     public Optional<InmateDetail> getBasicInmateDetail(final Long bookingId) {
         final var builder = queryBuilderFactory.getQueryBuilder(InmateRepositorySql.FIND_BASIC_INMATE_DETAIL.getSql(), inmateDetailsMapping);
         final var sql = builder.build();
@@ -677,7 +679,6 @@ public class InmateRepository extends RepositoryBase {
 
         return Optional.ofNullable(inmate);
     }
-
 
     public Page<Alias> findInmateAliasesByBooking(final Long bookingId, final String orderByFields, final Order order, final long offset, final long limit) {
         final var initialSql = InmateRepositorySql.FIND_INMATE_ALIASES_BY_BOOKING.getSql();
@@ -699,7 +700,6 @@ public class InmateRepository extends RepositoryBase {
         results.forEach(alias -> alias.setAge(getAge(alias.getDob(), LocalDate.now(clock))));
         return new Page<>(results, paRowMapper.getTotalRecords(), offset, limit);
     }
-
 
     public Map<String, Long> insertCategory(final CategorisationDetail detail, final String agencyId, final Long assessStaffId, final String userId) {
 
@@ -724,8 +724,10 @@ public class InmateRepository extends RepositoryBase {
         return Map.of("sequenceNumber", (long) newSeq, "bookingId", detail.getBookingId());
     }
 
-
-    public void updateCategory(final CategorisationUpdateDetail detail) {
+    public void updateCategory(final CategorisationUpdateDetail detail, final Boolean lockTimeout) {
+        if (lockTimeout) {
+            lockAssessmentsTable(detail.getBookingId(), detail.getAssessmentSeq());
+        }
 
         final int result = jdbcTemplate.update(
             InmateRepositorySql.UPDATE_CATEGORY.getSql(),
@@ -745,9 +747,11 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
-
-    public void approveCategory(final CategoryApprovalDetail detail) {
+    public void approveCategory(final CategoryApprovalDetail detail, final Boolean lockTimeout) {
         final var assessmentId = getCategoryAssessmentTypeId();
+        if (lockTimeout) {
+            lockAssessmentsTable(detail.getBookingId(), detail.getAssessmentSeq());
+        }
 
         // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
@@ -811,9 +815,12 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
-
-    public void rejectCategory(final CategoryRejectionDetail detail) {
+    public void rejectCategory(final CategoryRejectionDetail detail, final Boolean lockTimeout) {
         final var assessmentId = getCategoryAssessmentTypeId();
+        if (lockTimeout) {
+            lockAssessmentsTable(detail.getBookingId(), detail.getAssessmentSeq());
+        }
+
         final var result = jdbcTemplate.update(
             InmateRepositorySql.REJECT_CATEGORY.getSql(),
             createParams("bookingId", detail.getBookingId(),
@@ -832,8 +839,7 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
-
-    public int setCategorisationInactive(final long bookingId, final AssessmentStatusType status) {
+    public int setCategorisationInactive(final long bookingId, final AssessmentStatusType status, final Boolean lockTimeout) {
         final var assessmentId = getCategoryAssessmentTypeId();
         final var mapper = SingleColumnRowMapper.newInstance(Integer.class);
         // get all active categorisation sequences
@@ -846,6 +852,11 @@ public class InmateRepository extends RepositoryBase {
         if (CollectionUtils.isEmpty(sequences)) {
             log.warn(String.format("No active category assessments found for booking id %d", bookingId));
             return 0;
+        }
+        if (lockTimeout) {
+            for (final var sequence : sequences) {
+                lockAssessmentsTable(bookingId, sequence);
+            }
         }
         final var updateResult = jdbcTemplate.update(
             InmateRepositorySql.CATEGORY_SET_STATUS.getSql(),
@@ -860,13 +871,15 @@ public class InmateRepository extends RepositoryBase {
         return updateResult;
     }
 
-
-    public void updateActiveCategoryNextReviewDate(final long bookingId, final LocalDate date) {
+    public void updateActiveCategoryNextReviewDate(final long bookingId, final LocalDate date, final Boolean lockTimeout) {
         log.debug("Updating categorisation next Review date for booking id {} with value {}", bookingId, date);
         final var assessmentId = getCategoryAssessmentTypeId();
+        if (lockTimeout) {
+            lockAssessmentsTable(bookingId, getOffenderAssessmentSeq(bookingId));
+        }
 
         final var result = jdbcTemplate.update(
-            InmateRepositorySql.UPDATE_CATEORY_NEXT_REVIEW_DATE.getSql(),
+            InmateRepositorySql.UPDATE_CATEGORY_NEXT_REVIEW_DATE.getSql(),
             createParams("bookingId", bookingId,
                 "assessmentTypeId", assessmentId,
                 "nextReviewDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(date))
@@ -880,6 +893,23 @@ public class InmateRepository extends RepositoryBase {
         }
     }
 
+    private void lockAssessmentsTable(Long bookingId, Integer assessmentSeq) {
+        try {
+            jdbcTemplate.query(
+                InmateRepositorySql.CATEGORY_LOCK.getSql() + conditionalSqlService.getWaitClause(),
+                createParams("bookingId", bookingId, "assessmentSeq", assessmentSeq),
+                rs -> {
+                }
+            );
+        } catch (UncategorizedSQLException e) {
+            log.error("Error getting OFFENDER_ASSESSMENTS lock for booking id {}", bookingId, e);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_ASSESSMENTS lock for booking id " + bookingId + " after " + conditionalSqlService.getLockWaitTime() + " seconds");
+            } else {
+                throw e;
+            }
+        }
+    }
 
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean accessToAllData, final Set<String> caseloads, boolean active) {
         final var baseSql = InmateRepositorySql.FIND_BASIC_INMATE_DETAIL_BY_OFFENDER_NO.getSql();
@@ -1032,5 +1062,4 @@ public class InmateRepository extends RepositoryBase {
             }
         }
     }
-
 }
