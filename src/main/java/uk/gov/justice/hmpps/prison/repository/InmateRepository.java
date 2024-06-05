@@ -749,9 +749,6 @@ public class InmateRepository extends RepositoryBase {
 
     public void approveCategory(final CategoryApprovalDetail detail, final Boolean lockTimeout) {
         final var assessmentId = getCategoryAssessmentTypeId();
-        if (lockTimeout) {
-            lockAssessmentsTable(detail.getBookingId(), detail.getAssessmentSeq());
-        }
 
         // get all active or pending categorisation sequences ordered desc
         final var sequences = jdbcTemplate.query(
@@ -772,6 +769,9 @@ public class InmateRepository extends RepositoryBase {
                 detail.getBookingId(),
                 maxSequence,
                 detail.getAssessmentSeq()));
+        }
+        if (lockTimeout) {
+            lockAssessmentsTable(detail.getBookingId(), maxSequence);
         }
 
         final var approvalResult = jdbcTemplate.update(
