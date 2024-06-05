@@ -46,6 +46,8 @@ generic-service:
 
     # copied from curious-sync-client / meganexus client
     curious-preprod-1: "20.49.246.49/32"
+    # meganexus office address
+    curious-preprod-2: "202.189.235.70/32"
 
     # azure logic apps in microsoft azure for in-cell-client / kainos
     kainos-azure-logic-apps-1: "51.140.74.14/32"
