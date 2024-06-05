@@ -188,7 +188,7 @@ public class OffenderAssessmentResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
+        @ApiResponse(responseCode = "200", description = "The list of offenders with categorisation details is returned if categorisation record exists")})
     @Operation(summary = "Returns Categorisation details for supplied Offenders - POST version to allow large offender lists.", description = "Requires VIEW_PRISONER_DATA role")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/category")
@@ -217,14 +217,15 @@ public class OffenderAssessmentResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update a pending offender categorisation.", description = "This is intended for use by the categoriser to correct any problems with a pending (in-progress) categorisation." +
         " Fields left as null will be left unchanged. Requires client role MAINTAIN_ASSESSMENTS or user role ROLE_CREATE_CATEGORISATION or ROLE_CREATE_RECATEGORISATION.")
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','CREATE_CATEGORISATION','CREATE_RECATEGORISATION')")
     @PutMapping("/category/categorise")
     @ProxyUser
     public ResponseEntity<Void> updateCategorisation(
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
         @Valid @RequestBody @Parameter(description = "Categorisation details", required = true) final CategorisationUpdateDetail detail
     ) {
         inmateService.updateCategorisation(detail.getBookingId(), detail, lockTimeout);
@@ -233,13 +234,14 @@ public class OffenderAssessmentResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
-        @ApiResponse(responseCode = "400", description = "Validation error - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "400", description = "Validation error - e.g. category does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Approve a pending offender categorisation.", description = "Update categorisation record with approval. Requires client role MAINTAIN_ASSESSMENTS or user role APPROVE_CATEGORISATION.")
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/approve")
     @ProxyUser
     public ResponseEntity<Void> approveCategorisation(
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
         @Valid @RequestBody @Parameter(description = "Approval details", required = true) final CategoryApprovalDetail detail
     ) {
         inmateService.approveCategorisation(detail.getBookingId(), detail, lockTimeout);
@@ -248,13 +250,14 @@ public class OffenderAssessmentResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Created"),
-        @ApiResponse(responseCode = "400", description = "Validation error - e.g. comment too long or committee code does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "400", description = "Validation error - e.g. comment too long or committee code does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reject a pending offender categorisation.", description = "Update categorisation record with rejection. Requires client role MAINTAIN_ASSESSMENTS or user role APPROVE_CATEGORISATION.")
     @PreAuthorize("hasAnyRole('MAINTAIN_ASSESSMENTS','APPROVE_CATEGORISATION')")
     @PutMapping("/category/reject")
     @ProxyUser
     public ResponseEntity<Void> rejectCategorisation(
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
         @Valid @RequestBody @Parameter(description = "Rejection details", required = true) final CategoryRejectionDetail detail
     ) {
         inmateService.rejectCategorisation(detail.getBookingId(), detail, lockTimeout);
@@ -264,7 +267,8 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. invalid status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update categorisations.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update categorisations.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Set all active or pending (status A or P) categorisations inactive", description = "This endpoint should only be used with edge case categorisations. Requires client role MAINTAIN_ASSESSMENTS.")
     @PreAuthorize("hasRole('MAINTAIN_ASSESSMENTS')")
     @PutMapping("/category/{bookingId}/inactive")
@@ -274,7 +278,7 @@ public class OffenderAssessmentResource {
         @RequestParam(value = "status", required = false, defaultValue = "ACTIVE") @Parameter(description = "Indicates which categorisation statuses to set." +
             "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
             "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", schema = @Schema(implementation = String.class, allowableValues = {"ACTIVE", "PENDING"})) final String status,
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
         final AssessmentStatusType enumType;
         try {
@@ -290,7 +294,8 @@ public class OffenderAssessmentResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "404", description = "Active categorisation not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update the categorisation.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update the categorisation.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update the next review date on the latest active categorisation", description = "Update categorisation record with new next review date. Requires client role MAINTAIN_ASSESSMENTS.")
     @PreAuthorize("hasRole('MAINTAIN_ASSESSMENTS')")
     @PutMapping("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
@@ -298,7 +303,7 @@ public class OffenderAssessmentResource {
     public ResponseEntity<Void> updateCategorisationNextReviewDate(
         @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate,
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
+        @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate, lockTimeout);
         return ResponseEntity.ok().build();

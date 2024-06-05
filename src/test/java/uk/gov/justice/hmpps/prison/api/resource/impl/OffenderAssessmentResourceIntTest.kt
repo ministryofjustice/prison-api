@@ -63,7 +63,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
-      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05?lockTimeout=false")
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
@@ -138,7 +138,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS and sets pending inactive`() {
-      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING&lockTimeout=false")
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
@@ -1299,7 +1299,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       try {
         val response = testRestTemplate.exchange(
-          "/api/offender-assessments/category/categorise",
+          "/api/offender-assessments/category/categorise?lockTimeout=false",
           PUT,
           httpEntity,
           object : ParameterizedTypeReference<String>() {},
@@ -1642,7 +1642,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       try {
         val response = testRestTemplate.exchange(
-          "/api/offender-assessments/category/approve",
+          "/api/offender-assessments/category/approve?lockTimeout=false",
           PUT,
           requestBody,
           object : ParameterizedTypeReference<String>() {},
@@ -1950,7 +1950,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .build(),
       )
       val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/reject",
+        "/api/offender-assessments/category/reject?lockTimeout=false",
         PUT,
         httpEntity,
         object : ParameterizedTypeReference<String>() {},
