@@ -129,10 +129,8 @@ public class InmateAlertRepository extends RepositoryBase {
                 alertMapper);
     }
 
-    private final static int lockWaitTime = 10;
-
     public void lockAlert(final Long bookingId, final Long alertSeq) {
-        final var sql = InmateAlertRepositorySql.LOCK_ALERT.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
+        final var sql = InmateAlertRepositorySql.LOCK_ALERT.getSql() + conditionalSqlService.getWaitClause();
         try {
             jdbcTemplate.queryForObject(
                 sql,
@@ -146,7 +144,7 @@ public class InmateAlertRepository extends RepositoryBase {
         } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
             if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get OFFENDER_ALERTS lock for (bookingId=" + bookingId + ", alertSeq=" + alertSeq + ") after " + lockWaitTime + " seconds");
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_ALERTS lock for (bookingId=" + bookingId + ", alertSeq=" + alertSeq + ") after " + conditionalSqlService.getLockWaitTime() + " seconds");
             } else {
                 throw e;
             }

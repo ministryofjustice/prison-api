@@ -63,7 +63,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS`() {
-      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05")
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05?lockTimeout=false")
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
@@ -90,6 +90,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `returns 200 when when lockTimeout set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-1/nextReviewDate/2018-06-05?lockTimeout=true")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
     }
   }
 
@@ -130,7 +138,15 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 200 when client has override role ROLE_MAINTAIN_ASSESSMENTS and sets pending inactive`() {
-      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING")
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING&lockTimeout=false")
+        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
+    fun `returns 200 when lockTimeout is set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/-31/inactive?status=PENDING&lockTimeout=true")
         .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ASSESSMENTS")))
         .exchange()
         .expectStatus().isOk
@@ -658,7 +674,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
-        .jsonPath("userMessage").isEqualTo("List of Offender Ids must be provided.")
+        .jsonPath("userMessage").isEqualTo("postOffenderAssessmentsAssessmentCode.offenderList: List of Offender Ids must be provided.")
     }
 
     @Test
@@ -1048,7 +1064,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         val results = jdbcTemplate.queryForList(
           "SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -35 ORDER BY ASSESSMENT_SEQ DESC",
         )
-        assertThat(results).asList()
+        assertThat(results)
           .extracting(
             extractString("CALC_SUP_LEVEL_TYPE"),
             extractString("ASSESS_COMMENT_TEXT"),
@@ -1283,7 +1299,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       try {
         val response = testRestTemplate.exchange(
-          "/api/offender-assessments/category/categorise",
+          "/api/offender-assessments/category/categorise?lockTimeout=false",
           PUT,
           httpEntity,
           object : ParameterizedTypeReference<String>() {},
@@ -1292,7 +1308,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         val results = jdbcTemplate.queryForList(
           "SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3",
         )
-        assertThat(results).asList()
+        assertThat(results)
           .extracting(
             Extractors.extractInteger("ASSESSMENT_SEQ"),
             extractString("CALC_SUP_LEVEL_TYPE"),
@@ -1319,6 +1335,24 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         )
         assertThat(response2.statusCode.value()).isEqualTo(OK.value())
       }
+    }
+
+    @Test
+    fun `returns success when lockTimeout set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/categorise?lockTimeout=true")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf("CREATE_RECATEGORISATION")))
+        .bodyValue(
+          """
+            {
+              "bookingId" : -38,
+              "assessmentSeq": 3,
+              "comment": "test comment"
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isOk
     }
 
     @Test
@@ -1608,14 +1642,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       )
       try {
         val response = testRestTemplate.exchange(
-          "/api/offender-assessments/category/approve",
+          "/api/offender-assessments/category/approve?lockTimeout=false",
           PUT,
           requestBody,
           object : ParameterizedTypeReference<String>() {},
         )
         assertThatStatus(response, CREATED.value())
         val results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1")
-        assertThat(results).asList()
+        assertThat(results)
           .extracting(
             Extractors.extractInteger("ASSESSMENT_SEQ"),
             extractString("ASSESS_STATUS"),
@@ -1634,6 +1668,29 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         // Restore db change as cannot rollback server transaction in client!
         resetApprovedCategorisation()
       }
+    }
+
+    @Test
+    fun `should return success when lockTimeout set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/approve?lockTimeout=true")
+        .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "bookingId" : -34,
+              "assessmentSeq": 1,
+              "category": "D",
+              "approvedCategoryComment": "approved",
+              "evaluationDate": "2019-03-21",
+              "reviewCommitteeCode": "GOV"
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isCreated
+
+      resetApprovedCategorisation()
     }
 
     @Test
@@ -1893,14 +1950,14 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .build(),
       )
       val response = testRestTemplate.exchange(
-        "/api/offender-assessments/category/reject",
+        "/api/offender-assessments/category/reject?lockTimeout=false",
         PUT,
         httpEntity,
         object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, CREATED.value())
       val results = jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -38 AND ASSESSMENT_SEQ = 3")
-      assertThat(results).asList()
+      assertThat(results)
         .extracting(
           Extractors.extractInteger("ASSESSMENT_SEQ"),
           extractString("EVALUATION_RESULT_CODE"),
@@ -1909,6 +1966,26 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         )
         .containsExactly(Tuple.tuple(3, "REJ", "MED", "committeeCommentText"))
       assertThat(results[0]["EVALUATION_DATE"] as Date).isCloseTo("2020-06-15", 1000L)
+    }
+
+    @Test
+    fun `should return success when lockTimeout set`() {
+      webTestClient.put().uri("/api/offender-assessments/category/reject?lockTimeout=true")
+        .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          """
+            {
+              "bookingId" : -38,
+              "assessmentSeq": 3,
+              "committeeCommentText": "committeeCommentText",
+              "evaluationDate": "2020-06-15",
+              "reviewCommitteeCode": "MED"
+            }
+            """,
+        )
+        .exchange()
+        .expectStatus().isCreated
     }
 
     @Test
