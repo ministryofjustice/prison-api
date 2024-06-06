@@ -101,8 +101,8 @@ class PrisonRollCountSummary(
 
     return locations.filter { it.parentLocationId == locationId }
       .filter { includeLeaf || it.hasChildren(allLocations = locations) }.map {
-      it.toDto(locations, includeLeaf)
-    }
+        it.toDto(locations, includeLeaf)
+      }
   }
 
   fun isNotACellAndCertified() = isCertified() && locationType in listOf("WING", "BLK", "LAND", "SPUR", "TIER")

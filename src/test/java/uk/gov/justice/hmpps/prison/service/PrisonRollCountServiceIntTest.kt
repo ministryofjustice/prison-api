@@ -27,7 +27,7 @@ class PrisonRollCountServiceIntTest {
       assertThat(result.locations).hasSize(2)
       val subLocations = result.locations[0].subLocations!!
       assertThat(subLocations).hasSize(1)
-      assertThat(subLocations[0].subLocations ).isEmpty()
+      assertThat(subLocations[0].subLocations).isEmpty()
 
       assertThat(result.numUnlockRollToday).isEqualTo(24)
       assertThat(result.numCurrentPopulation).isEqualTo(24)

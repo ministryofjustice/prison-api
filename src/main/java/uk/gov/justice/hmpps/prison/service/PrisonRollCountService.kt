@@ -33,8 +33,8 @@ class PrisonRollCountService(
     val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
     val nonCertifiedTopLevelLocations = rollCount.filter { !it.hasParent() && !it.isCertified() }
 
-    val unassignedIn = nonCertifiedTopLevelLocations.sumOf { it.currentlyInCell?:0 } + nonCertifiedTopLevelLocations.sumOf { it.outOfLivingUnits?:0}
-    val currentRoll = certifiedTopLevelLocations.sumOf { it.currentlyInCell?:0 } + certifiedTopLevelLocations.sumOf { it.outOfLivingUnits?:0} + unassignedIn
+    val unassignedIn = nonCertifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + nonCertifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 }
+    val currentRoll = certifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + certifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 } + unassignedIn
 
     val now = LocalDate.now()
     val enRouteCount = movementsRepository.getEnrouteMovementsOffenderCount(prisonId, now)
@@ -49,7 +49,7 @@ class PrisonRollCountService(
       numInReception = unassignedIn,
       numArrivedToday = movementCount.getIn(),
       numStillToArrive = enRouteCount,
-      numNoCellAllocated = cSwap?.currentOccupancy ?:0,
+      numNoCellAllocated = cSwap?.currentOccupancy ?: 0,
       totals = LocationRollCount(
         bedsInUse = residentialLocations.sumOf { it.rollCount.bedsInUse },
         currentlyInCell = residentialLocations.sumOf { it.rollCount.currentlyInCell },
@@ -58,7 +58,7 @@ class PrisonRollCountService(
         netVacancies = residentialLocations.sumOf { it.rollCount.netVacancies },
         outOfOrder = residentialLocations.sumOf { it.rollCount.outOfOrder },
       ),
-      locations = residentialLocations
+      locations = residentialLocations,
     )
   }
 
@@ -73,31 +73,38 @@ class PrisonRollCountService(
 data class PrisonRollCount(
   @Schema(description = "Prison Id", required = true)
   val prisonId: String,
+  @Schema(description = "Unlock roll today", required = true)
   val numUnlockRollToday: Int,
+  @Schema(description = "Current population", required = true)
   val numCurrentPopulation: Int,
+  @Schema(description = "Arrived today", required = true)
   val numArrivedToday: Int,
+  @Schema(description = "In reception", required = true)
   val numInReception: Int,
+  @Schema(description = "Still to arrive", required = true)
   val numStillToArrive: Int,
+  @Schema(description = "Out today", required = true)
   val numOutToday: Int,
+  @Schema(description = "No cell allocated", required = true)
   val numNoCellAllocated: Int,
 
+  @Schema(description = "Totals", required = true)
   val totals: LocationRollCount,
 
-  @Schema(description = "Locations", required = true)
+  @Schema(description = "Residential location roll count summary", required = true)
   val locations: List<ResidentialLocation>,
- ) {
+) {
 
   fun findSubLocations(parentLocationId: String): List<ResidentialLocation> {
     val subLocations = mutableListOf<ResidentialLocation>()
 
     fun traverse(locations: List<ResidentialLocation>, parentLocationId: String) {
-
-        for (childLocation in locations) {
-          if (childLocation.locationId == parentLocationId) {
-            subLocations.add(childLocation)
-          }
-          traverse(childLocation.subLocations, parentLocationId)
+      for (childLocation in locations) {
+        if (childLocation.locationId == parentLocationId) {
+          subLocations.add(childLocation)
         }
+        traverse(childLocation.subLocations, parentLocationId)
+      }
     }
 
     traverse(locations, parentLocationId)
@@ -108,22 +115,37 @@ data class PrisonRollCount(
 @Schema(description = "Residential Roll Count Summary")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ResidentialLocation(
-  @Schema(description = "Prison Id", required = true)
+  @Schema(description = "Location Id", required = true, example = "121212")
   val locationId: String,
+  @Schema(description = "Type of location", required = true, example = "CELL")
   val locationType: String,
+  @Schema(description = "Code of this location", required = true, example = "002")
   val locationCode: String,
+  @Schema(description = "Path of this location from top level", required = true, example = "A-1-002")
   val fullLocationPath: String,
+  @Schema(description = "Certified location", required = true, example = "true")
   val certified: Boolean,
+  @Schema(description = "Local name of the location", required = false, example = "Wing A")
   val localName: String? = null,
+  @Schema(description = "Summary of cell roll count for this level (aggregated)", required = true)
   val rollCount: LocationRollCount,
+  @Schema(description = "List of residential locations for this summary, including wings and sub-locations such as landings and cells", required = true)
   val subLocations: List<ResidentialLocation>,
 )
 
+@Schema(description = "Summary of cell usage for this level")
+@JsonInclude(JsonInclude.Include.NON_NULL)
 data class LocationRollCount(
+  @Schema(description = "Beds in use", required = true)
   val bedsInUse: Int = 0,
+  @Schema(description = "Currently in cell", required = true)
   val currentlyInCell: Int = 0,
+  @Schema(description = "Currently out", required = true)
   val currentlyOut: Int = 0,
+  @Schema(description = "Working capacity", required = true)
   val workingCapacity: Int = 0,
+  @Schema(description = "Net vacancies", required = true)
   val netVacancies: Int = 0,
+  @Schema(description = "Out of order", required = true)
   val outOfOrder: Int = 0,
 )
