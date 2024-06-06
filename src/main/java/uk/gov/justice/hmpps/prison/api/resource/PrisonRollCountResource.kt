@@ -100,7 +100,7 @@ class PrisonRollCountResource(
     @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
     @PathVariable
     prisonId: String,
-    @Schema(name = "Location ID of parent of the cells", required = true, example = "1212312")
+    @Schema(description = "Location ID of parent of the cells", required = true, example = "1212312")
     @PathVariable
     locationId: String,
   ): PrisonRollCount =
