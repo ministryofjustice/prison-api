@@ -39,6 +39,11 @@ class AuthorisationAspect(
     // no code needed - pointcut definition
   }
 
+  @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(prisonId,..)")
+  fun verifyPrisonIdAccessPointcut(prisonId: String) {
+    // no code needed - pointcut definition
+  }
+
   @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(agencyId,..)")
   fun verifyAgencyAccessPointcut(agencyId: String) {
     // no code needed - pointcut definition
@@ -98,6 +103,11 @@ class AuthorisationAspect(
   @Before(value = "verifyAgencyRequestAccessPointcut(request)", argNames = "jp,request")
   fun verifyAgencyRequestAccess(jp: JoinPoint, request: AgencyRequest) {
     verifyAgencyAccess(jp, request.agencyId)
+  }
+
+  @Before(value = "verifyPrisonIdAccessPointcut(prisonId)", argNames = "jp,prisonId")
+  fun verifyPrisonIdAccess(jp: JoinPoint, prisonId: String) {
+    verifyAgencyAccess(jp, prisonId)
   }
 
   @Before(value = "verifyStaffAccessPointcut(staffId)", argNames = "jp,staffId")
