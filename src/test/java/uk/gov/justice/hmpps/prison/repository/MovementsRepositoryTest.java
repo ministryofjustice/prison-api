@@ -45,7 +45,7 @@ public class MovementsRepositoryTest {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.JULY, 16), Collections.emptyList());
         assertThat(recentMovements).hasSize(1); // TAP is excluded
-        assertThat(recentMovements)
+        assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0024ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 24, 0, 0), "OUT", "LEI", "ADM", "IN"));
     }
@@ -55,7 +55,7 @@ public class MovementsRepositoryTest {
         final var threshold = LocalDateTime.of(2017, Month.JANUARY, 1, 0, 0, 0);
         final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16), Collections.emptyList());
         assertThat(recentMovements).hasSize(2);
-        assertThat(recentMovements)
+        assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(
                         tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0), "LEI", "OUT", "REL", "OUT"),
@@ -64,9 +64,9 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, true);
+        final var rollCountList = repository.getRollCount("LEI", null, false, true);
         assertThat(rollCountList).hasSize(2);
-        assertThat(rollCountList)
+        assertThat(rollCountList).asList()
                 .extracting("livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
                 .contains(
                         tuple("Block A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
@@ -75,9 +75,9 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountIncludingLandings() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, false, false);
+        final var rollCountList = repository.getRollCount("LEI", null, false, false);
         assertThat(rollCountList).hasSize(4);
-        assertThat(rollCountList)
+        assertThat(rollCountList).asList()
             .extracting("livingUnitId", "locationType", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
             .contains(
                 tuple(-1L,  "WING", "A",   "A", "Block A",     null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
@@ -89,9 +89,9 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountShowingCells() {
-        final var rollCountList = repository.getRollCount("LEI", false, null, true, false);
+        final var rollCountList = repository.getRollCount("LEI", null, true, false);
         assertThat(rollCountList).hasSize(27);
-        assertThat(rollCountList)
+        assertThat(rollCountList).asList()
             .extracting("livingUnitId", "fullLocationPath", "locationCode", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
             .contains(
                 tuple(-1L,  "A",   "A", "Block A",     12, 11, 1, 0, 13, 1, 14, 2, 3),
@@ -103,9 +103,9 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveRollCountOfCellsOnALanding() {
-        final var rollCountList = repository.getRollCount("LEI", false, -2L, true, false);
+        final var rollCountList = repository.getRollCount("LEI", -2L, true, false);
         assertThat(rollCountList).hasSize(13);
-        AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> contains = assertThat(rollCountList)
+        AbstractListAssert<?, List<? extends Tuple>, Tuple, ObjectAssert<Tuple>> contains = assertThat(rollCountList).asList()
             .extracting("locationType", "certified", "fullLocationPath", "locationCode", "livingUnitDesc", "parentLocationId", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
             .contains(
                 tuple("CELL", true, "A-1-1", "1", "1", -2L, 3, 3, 0, 0, 2, -1, 2, -1, 0),
@@ -122,16 +122,6 @@ public class MovementsRepositoryTest {
                 tuple("CELL", true, "A-1-1002", "REPURPOSED", "REPURPOSED", -2L, 0, 0, 0, 0, 0, 0, 1, 1, 0),
                 tuple("CELL", true, "AABCW-1", "THE_ROOM", "THE_ROOM", -2L, 1, 1, 0, 0, 1, 0, 1, 0, 0)
             );
-    }
-
-    @Test
-    public void canRetrieveRollCountUnassigned() {
-        final var rollCountList = repository.getRollCount("LEI", true, null, false, true);
-        assertThat(rollCountList).hasSize(1);
-        assertThat(rollCountList)
-                .extracting("certified", "livingUnitDesc", "bedsInUse", "currentlyInCell", "outOfLivingUnits", "currentlyOut", "operationalCapacity", "netVacancies", "maximumCapacity", "availablePhysical", "outOfOrder")
-                .contains(
-                        tuple(false, "Chapel", 0, 0, 0, 0, null, null, null, null, 0));
     }
 
     @Test
@@ -292,7 +282,7 @@ public class MovementsRepositoryTest {
         final var threshold = LocalDateTime.of(2000, Month.JANUARY, 1, 0, 0, 0);
         final var recentMovements = repository.getRecentMovementsByDate(threshold, LocalDate.of(2017, Month.AUGUST, 16), List.of("TRN"));
         assertThat(recentMovements).hasSize(1);
-        assertThat(recentMovements)
+        assertThat(recentMovements).asList()
                 .extracting("offenderNo", "createDateTime", "fromAgency", "toAgency", "movementType", "directionCode")
                 .contains(tuple("Z0019ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 19, 0, 0), "LEI", "BMI", "TRN", "OUT"));
     }
@@ -306,7 +296,7 @@ public class MovementsRepositoryTest {
 
         final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
 
-        assertThat(movements)
+        assertThat(movements).asList()
                 .extracting("offenderNo", "fromAgency", "toAgency")
                 .contains(tuple("Z0018ZZ", "LEI", "BMI"))
                 .contains(tuple("A9876EC", "BMI", "MDI"))
@@ -322,7 +312,7 @@ public class MovementsRepositoryTest {
         // Agencies not present in seeded data
         final var agencies = List.of("XXX", "YYY");
         final var movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime);
-        assertThat(movements).isEmpty();
+        assertThat(movements).asList().isEmpty();
     }
 
     @Test
@@ -335,7 +325,7 @@ public class MovementsRepositoryTest {
         final var courtEvents = repository.getCourtEvents(agencies, fromTime, toTime);
 
         assertThat(courtEvents).isNotEmpty();
-        assertThat(courtEvents)
+        assertThat(courtEvents).asList()
                 .extracting("offenderNo", "fromAgency", "toAgency", "eventClass", "eventType", "eventStatus", "directionCode")
                 .contains(tuple("A1234AG", "LEI", "LEI", "EXT_MOV", "CRT", "COMP", "IN"));
     }
@@ -350,7 +340,7 @@ public class MovementsRepositoryTest {
         final var releaseEvents = repository.getOffenderReleases(agencies, fromTime, toTime);
 
         assertThat(releaseEvents).isNotEmpty();
-        assertThat(releaseEvents)
+        assertThat(releaseEvents).asList()
                 .extracting("eventClass", "eventStatus", "movementTypeCode", "movementTypeDescription", "offenderNo", "movementReasonCode")
                 .contains(tuple("EXT_MOV", "SCH", "REL", "Release", "Z0024ZZ", "DD"));
     }
