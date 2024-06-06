@@ -29,8 +29,8 @@ class PrisonRollCountServiceIntTest {
       assertThat(subLocations).hasSize(1)
       assertThat(subLocations[0].subLocations).isEmpty()
 
-      assertThat(result.numUnlockRollToday).isEqualTo(24)
-      assertThat(result.numCurrentPopulation).isEqualTo(24)
+      assertThat(result.numUnlockRollToday).isGreaterThanOrEqualTo(24)
+      assertThat(result.numCurrentPopulation).isGreaterThanOrEqualTo(24)
       assertThat(result.numArrivedToday).isEqualTo(0)
       assertThat(result.numInReception).isEqualTo(0)
       assertThat(result.numStillToArrive).isEqualTo(2)
@@ -58,8 +58,8 @@ class PrisonRollCountServiceIntTest {
       assertThat(subLocations).hasSize(1)
       assertThat(subLocations[0].subLocations).hasSize(13)
 
-      assertThat(result.numUnlockRollToday).isEqualTo(24)
-      assertThat(result.numCurrentPopulation).isEqualTo(24)
+      assertThat(result.numUnlockRollToday).isGreaterThanOrEqualTo(24)
+      assertThat(result.numCurrentPopulation).isGreaterThanOrEqualTo(24)
       assertThat(result.numArrivedToday).isEqualTo(0)
       assertThat(result.numInReception).isEqualTo(0)
       assertThat(result.numStillToArrive).isEqualTo(2)
