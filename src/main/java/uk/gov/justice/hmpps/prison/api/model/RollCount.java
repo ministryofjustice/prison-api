@@ -45,11 +45,8 @@ public class RollCount implements SortAttribute {
     @NotBlank
     private String fullLocationPath;
 
-    @Schema(requiredMode = REQUIRED, description = "Certified location", example = "true")
+    @Schema(requiredMode = REQUIRED, description = "Wing, House block name or landing code, blank for cell")
     @NotBlank
-    private boolean certified;
-
-    @Schema(requiredMode = REQUIRED, description = "Wing, House block name or landing code, blank for cell/room")
     private String livingUnitDesc;
 
     @Schema(requiredMode = REQUIRED, description = "Location Id of the parent location. This will be NULL for top level locations (e.g. Wings)")
