@@ -119,7 +119,7 @@ public class LocationProcessor {
     }
 
     public static List<LocationSummary> processLocationSummaries(final List<LocationSummary> locations) {
-        return locations.stream().map(loc -> processLocationSummary(loc)).toList();
+        return locations.stream().map(LocationProcessor::processLocationSummary).toList();
     }
 
     public static LocationSummary processLocationSummary(final LocationSummary locationSummary) {
