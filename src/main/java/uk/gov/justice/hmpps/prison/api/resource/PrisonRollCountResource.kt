@@ -35,7 +35,7 @@ class PrisonRollCountResource(
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Returns roll count for a prison",
+        description = "Returns cell list of roll-counts for a specific prison and sub-location",
       ),
       ApiResponse(
         responseCode = "401",
