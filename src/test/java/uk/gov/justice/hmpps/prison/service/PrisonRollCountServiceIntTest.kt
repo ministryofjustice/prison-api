@@ -5,6 +5,7 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
+import org.springframework.test.annotation.DirtiesContext
 import org.springframework.test.context.ActiveProfiles
 
 @ActiveProfiles("test")
@@ -29,19 +30,19 @@ class PrisonRollCountServiceIntTest {
       assertThat(subLocations).hasSize(1)
       assertThat(subLocations[0].subLocations).isEmpty()
 
-      assertThat(result.numUnlockRollToday).isGreaterThanOrEqualTo(23)
-      assertThat(result.numCurrentPopulation).isGreaterThanOrEqualTo(23)
-      assertThat(result.numArrivedToday).isGreaterThanOrEqualTo(0)
+      assertThat(result.numUnlockRollToday).isEqualTo(25)
+      assertThat(result.numCurrentPopulation).isEqualTo(23)
+      assertThat(result.numArrivedToday).isEqualTo(0)
       assertThat(result.numInReception).isEqualTo(0)
       assertThat(result.numStillToArrive).isEqualTo(2)
-      assertThat(result.numOutToday).isGreaterThanOrEqualTo(0)
+      assertThat(result.numOutToday).isGreaterThanOrEqualTo(2)
       assertThat(result.numNoCellAllocated).isEqualTo(0)
 
-      assertThat(result.totals.bedsInUse).isEqualTo(26)
-      assertThat(result.totals.currentlyInCell).isEqualTo(23)
+      assertThat(result.totals.bedsInUse).isEqualTo(25)
+      assertThat(result.totals.currentlyInCell).isEqualTo(22)
       assertThat(result.totals.currentlyOut).isEqualTo(2)
       assertThat(result.totals.workingCapacity).isEqualTo(33)
-      assertThat(result.totals.netVacancies).isEqualTo(7)
+      assertThat(result.totals.netVacancies).isEqualTo(8)
       assertThat(result.totals.outOfOrder).isEqualTo(3)
     }
 
@@ -58,19 +59,19 @@ class PrisonRollCountServiceIntTest {
       assertThat(subLocations).hasSize(1)
       assertThat(subLocations[0].subLocations).hasSize(13)
 
-      assertThat(result.numUnlockRollToday).isGreaterThanOrEqualTo(23)
-      assertThat(result.numCurrentPopulation).isGreaterThanOrEqualTo(23)
-      assertThat(result.numArrivedToday).isGreaterThanOrEqualTo(0)
+      assertThat(result.numUnlockRollToday).isEqualTo(25)
+      assertThat(result.numCurrentPopulation).isEqualTo(23)
+      assertThat(result.numArrivedToday).isEqualTo(0)
       assertThat(result.numInReception).isEqualTo(0)
       assertThat(result.numStillToArrive).isEqualTo(2)
-      assertThat(result.numOutToday).isGreaterThanOrEqualTo(0)
+      assertThat(result.numOutToday).isGreaterThanOrEqualTo(2)
       assertThat(result.numNoCellAllocated).isEqualTo(0)
 
-      assertThat(result.totals.bedsInUse).isEqualTo(26)
-      assertThat(result.totals.currentlyInCell).isEqualTo(23)
+      assertThat(result.totals.bedsInUse).isEqualTo(25)
+      assertThat(result.totals.currentlyInCell).isEqualTo(22)
       assertThat(result.totals.currentlyOut).isEqualTo(2)
       assertThat(result.totals.workingCapacity).isEqualTo(33)
-      assertThat(result.totals.netVacancies).isEqualTo(7)
+      assertThat(result.totals.netVacancies).isEqualTo(8)
       assertThat(result.totals.outOfOrder).isEqualTo(3)
     }
   }
