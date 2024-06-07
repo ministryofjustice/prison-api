@@ -20,25 +20,22 @@ import uk.gov.justice.hmpps.prison.service.PrisonRollCount
 import uk.gov.justice.hmpps.prison.service.PrisonRollCountService
 
 @RestController
-@Tag(
-  name = "Establishment Roll Count",
-  description = "Returns roll count information for a prison",
-)
+@Tag(name = "prison")
 @Validated
-@RequestMapping(value = ["/api/establishment/roll-count"], produces = ["application/json"])
+@RequestMapping(value = ["/api/prison/roll-count/{prisonId}"], produces = ["application/json"])
 class PrisonRollCountResource(
   private val prisonRollCountService: PrisonRollCountService,
 ) {
 
-  @GetMapping("/{prisonId}")
+  @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-    summary = "Establishment roll count for a prison",
+    summary = "Roll count for a specific prison",
     description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.",
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Returns establishment roll count for a prison",
+        description = "Returns roll count for a prison",
       ),
       ApiResponse(
         responseCode = "401",
@@ -50,16 +47,11 @@ class PrisonRollCountResource(
         description = "Missing required role. Requires the ESTABLISHMENT_ROLL role",
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
-      ApiResponse(
-        responseCode = "404",
-        description = "Prison Id not found",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
     ],
   )
   @SlowReportQuery
   @VerifyAgencyAccess(overrideRoles = ["ESTABLISHMENT_ROLL"])
-  fun getEstablishmentRollCount(
+  fun getPrisonRollCount(
     @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
     @PathVariable
     prisonId: String,
@@ -67,10 +59,10 @@ class PrisonRollCountResource(
   ): PrisonRollCount =
     prisonRollCountService.getPrisonRollCount(prisonId, includeCells)
 
-  @GetMapping("/{prisonId}/cells-only/{locationId}")
+  @GetMapping("/cells-only/{locationId}")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-    summary = "Cells roll count for a prison",
+    summary = "Provides the list of cells with roll counts under a specified location provided",
     description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.",
     responses = [
       ApiResponse(
@@ -85,11 +77,6 @@ class PrisonRollCountResource(
       ApiResponse(
         responseCode = "403",
         description = "Missing required role. Requires the ESTABLISHMENT_ROLL role",
-        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-      ),
-      ApiResponse(
-        responseCode = "404",
-        description = "Prison Id not found",
         content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
       ),
     ],

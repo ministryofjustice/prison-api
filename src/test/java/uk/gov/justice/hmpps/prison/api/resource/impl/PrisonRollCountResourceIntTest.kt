@@ -4,21 +4,21 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
-@DisplayName("GET /api/establishment/roll-count")
+@DisplayName("GET /api/prison/roll-count")
 class PrisonRollCountResourceIntTest : ResourceTest() {
 
   @Nested
   inner class Authorisation {
     @Test
     fun `returns 401 without an auth token`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `should return 403 if does not authorised role and override role`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -26,7 +26,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return 403 if has incorrect role`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setClientAuthorisation(listOf("DUMMY")))
         .exchange()
         .expectStatus().isForbidden
@@ -34,7 +34,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return 200 if has authorised role and override role`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
@@ -42,7 +42,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return 403 if does not have prison in caseload`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setAuthorisation("WAI_USER", listOf("PRISON")))
         .exchange()
         .expectStatus().isForbidden
@@ -50,7 +50,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return 200 if has prison in caseload`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setAuthorisation(listOf("PRISON")))
         .exchange()
         .expectStatus().isOk
@@ -61,7 +61,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
   inner class HappyPath {
     @Test
     fun `should return correct data for Leeds`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI")
+      webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
@@ -165,7 +165,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return correct cell data for Leeds on a landing`() {
-      webTestClient.get().uri("/api/establishment/roll-count/LEI/cells-only/-2")
+      webTestClient.get().uri("/api/prison/roll-count/LEI/cells-only/-2")
         .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
         .exchange()
         .expectStatus().isOk
