@@ -13,13 +13,13 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.verify
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
@@ -30,7 +30,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.time.temporal.ChronoUnit
 
-@WithMockUser
+@WithMockAuthUser
 class OffenderResourceIntTest_recall : ResourceTest() {
 
   @MockBean

@@ -9,10 +9,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.TestInstance
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
 import uk.gov.justice.hmpps.prison.dsl.OffenderId
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import java.time.LocalDateTime
 
 private const val REMAND_REASON = "N"
@@ -24,7 +24,7 @@ private const val RECALL_REASON = "24"
 private const val COURT_APPEARANCE_REASON = "CRT"
 private const val TRANSFER_REASON = "NOTR"
 
-@WithMockUser
+@WithMockAuthUser
 class OffenderResourceTimelineIntTest : ResourceTest() {
   @Autowired
   private lateinit var builder: NomisDataBuilder

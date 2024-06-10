@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.context.annotation.Import
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
@@ -29,15 +28,16 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContaine
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.LocalDate
-import java.util.*
+import java.util.Optional
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AuthenticationFacade::class, AuditorAwareImpl::class)
-@WithMockUser
+@WithMockAuthUser
 class OffenderBookingRepositoryTest {
   @Autowired
   private lateinit var repository: OffenderBookingRepository

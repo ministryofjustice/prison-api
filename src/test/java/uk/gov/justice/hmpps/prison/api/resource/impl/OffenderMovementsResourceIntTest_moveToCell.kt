@@ -14,12 +14,12 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
 import uk.gov.justice.hmpps.prison.util.JwtParameters
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import java.time.Clock
 import java.time.Duration
 import java.time.Instant
@@ -234,7 +234,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   }
 
   @Test
-  @WithMockUser(
+  @WithMockAuthUser(
     username = "ITAG_USER",
     authorities = ["SCOPE_write"],
   ) // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.

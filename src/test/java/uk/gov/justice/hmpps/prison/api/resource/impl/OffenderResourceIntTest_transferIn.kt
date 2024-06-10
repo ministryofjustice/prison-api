@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
@@ -31,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -47,7 +47,7 @@ import java.time.format.DateTimeFormatter
 /**
  * KOTLIN
  */
-@WithMockUser
+@WithMockAuthUser
 class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction

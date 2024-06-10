@@ -6,11 +6,11 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory.BedAssignmentHistoryPK
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -19,7 +19,7 @@ import java.time.LocalDateTime
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AuthenticationFacade::class, AuditorAwareImpl::class)
-@WithMockUser
+@WithMockAuthUser
 class BedAssignmentHistoriesRepositoryTest {
   @Autowired
   private lateinit var repository: BedAssignmentHistoriesRepository
