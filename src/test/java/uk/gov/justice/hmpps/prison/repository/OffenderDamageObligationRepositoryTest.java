@@ -13,7 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.prison.util.WithMockNomisUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.math.BigDecimal;
@@ -27,7 +27,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
-@WithMockAuthUser
+@WithMockNomisUser
 public class OffenderDamageObligationRepositoryTest {
 
     @Autowired

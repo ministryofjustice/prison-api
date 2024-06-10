@@ -30,37 +30,68 @@ annotation class WithMockAuthUser(
   val clientId: String = "prison-api-user",
 )
 
-internal class WithMockUserSecurityContextFactory() : WithSecurityContextFactory<WithMockAuthUser> {
-  private var securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
+@Target(
+  AnnotationTarget.FUNCTION,
+  AnnotationTarget.PROPERTY_GETTER,
+  AnnotationTarget.PROPERTY_SETTER,
+  AnnotationTarget.CLASS,
+)
+@Retention(AnnotationRetention.RUNTIME)
+@Inherited
+@WithSecurityContext(factory = WithMockNomisUserSecurityContextFactory::class)
+annotation class WithMockNomisUser(
+  val value: String = "user",
+  val username: String = "",
+  val authorities: Array<String> = [],
+  val roles: Array<String> = ["USER"],
+  val clientId: String = "prison-api-user",
+)
 
-  override fun createSecurityContext(withUser: WithMockAuthUser): SecurityContext {
-    val username = withUser.username.ifEmpty { withUser.value }
-    Assert.notNull(username) { "$withUser cannot have null username on both username and value properties" }
-
-    val grantedAuthorities = if (withUser.authorities.isEmpty()) {
-      withUser.roles.map { SimpleGrantedAuthority(if (it.startsWith("ROLE_")) it else "ROLE_$it") }
-    } else {
-      if (!(withUser.roles.size == 1 && "USER" == withUser.roles[0])) {
-        throw IllegalStateException(
-          "You cannot define roles attribute ${listOf(*withUser.roles)} with authorities attribute ${listOf(*withUser.authorities)}",
-        )
-      }
-      withUser.authorities.map { SimpleGrantedAuthority(it) }
-    }
-
-    val authentication: Authentication = AuthAwareAuthenticationToken(
-      jwt = Jwt.withTokenValue(
-        JwtAuthenticationHelper().createJwt(
-          username = username,
-          roles = grantedAuthorities.map { it.authority },
-          clientId = withUser.clientId,
-        ),
-      ).header("head", "value").claim("claim", "value").build(),
+internal class WithMockNomisUserSecurityContextFactory() : WithSecurityContextFactory<WithMockNomisUser> {
+  override fun createSecurityContext(withUser: WithMockNomisUser): SecurityContext = createSecurityContextForUser(
+    WithMockAuthUser(
+      value = withUser.value,
+      username = withUser.username,
+      authorities = withUser.authorities,
+      roles = withUser.roles,
       clientId = withUser.clientId,
-      userName = username,
-      authorities = grantedAuthorities,
-      authSource = withUser.authSource,
-    )
-    return securityContextHolderStrategy.createEmptyContext().apply { this.authentication = authentication }
+      authSource = AuthSource.NOMIS,
+    ),
+  )
+}
+
+internal class WithMockUserSecurityContextFactory() : WithSecurityContextFactory<WithMockAuthUser> {
+  override fun createSecurityContext(withUser: WithMockAuthUser): SecurityContext =
+    createSecurityContextForUser(withUser)
+}
+
+private fun createSecurityContextForUser(withUser: WithMockAuthUser): SecurityContext {
+  val username = withUser.username.ifEmpty { withUser.value }
+  Assert.notNull(username) { "$withUser cannot have null username on both username and value properties" }
+
+  val grantedAuthorities = if (withUser.authorities.isEmpty()) {
+    withUser.roles.map { SimpleGrantedAuthority(if (it.startsWith("ROLE_")) it else "ROLE_$it") }
+  } else {
+    if (!(withUser.roles.size == 1 && "USER" == withUser.roles[0])) {
+      throw IllegalStateException(
+        "You cannot define roles attribute ${listOf(*withUser.roles)} with authorities attribute ${listOf(*withUser.authorities)}",
+      )
+    }
+    withUser.authorities.map { SimpleGrantedAuthority(it) }
   }
+
+  val authentication: Authentication = AuthAwareAuthenticationToken(
+    jwt = Jwt.withTokenValue(
+      JwtAuthenticationHelper().createJwt(
+        username = username,
+        roles = grantedAuthorities.map { it.authority },
+        clientId = withUser.clientId,
+      ),
+    ).header("head", "value").claim("claim", "value").build(),
+    clientId = withUser.clientId,
+    userName = username,
+    authorities = grantedAuthorities,
+    authSource = withUser.authSource,
+  )
+  return SecurityContextHolder.getContextHolderStrategy().createEmptyContext().apply { this.authentication = authentication }
 }
