@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
@@ -16,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ActivityMovementService
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBookingBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 import uk.gov.justice.hmpps.prison.util.builders.OffenderProgramProfileBuilder
@@ -26,7 +26,7 @@ import java.time.format.DateTimeFormatter
 /**
  * KOTLIN
  */
-@WithMockUser
+@WithMockAuthUser
 class ActivityMovementServiceIntTest : ResourceTest() {
   @Autowired
   private lateinit var transferService: ActivityMovementService

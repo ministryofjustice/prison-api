@@ -8,7 +8,6 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity
@@ -18,8 +17,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ServiceAgencySwitchesRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 
-@WithMockUser
+@WithMockAuthUser
 class ServiceAgencySwitchResourceIntTest : ResourceTest() {
 
   @Autowired
