@@ -3,6 +3,8 @@ package uk.gov.justice.hmpps.prison.service
 import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.validation.Valid
 import lombok.extern.slf4j.Slf4j
+import org.slf4j.LoggerFactory
+import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
@@ -18,6 +20,7 @@ import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentsToCrea
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.Repeat
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
@@ -171,37 +174,54 @@ class AppointmentsService(
   @Transactional
   fun deleteBookingAppointments(appointmentIds: List<Long>) {
     appointmentIds.forEach { appointmentId: Long ->
-      offenderIndividualScheduleRepository.findByIdOrNull(appointmentId)?.let { appointment ->
-        offenderIndividualScheduleRepository.deleteById(appointmentId)
-        trackAppointmentDeletion(appointment)
+      try {
+        offenderIndividualScheduleRepository.findWithLockById(appointmentId).ifPresent { appointment ->
+          offenderIndividualScheduleRepository.deleteById(appointmentId)
+          trackAppointmentDeletion(appointment)
+        }
+      } catch (e: CannotAcquireLockException) {
+        throw processLockError(e, appointmentId)
       }
     }
   }
 
   @Transactional
   fun deleteBookingAppointment(eventId: Long) {
-    val appointmentForDeletion = offenderIndividualScheduleRepository.findByIdOrNull(eventId)
-      ?: throw EntityNotFoundException.withMessage(
-        "Booking Appointment for eventId %d not found.",
-        eventId,
-      )
-    offenderIndividualScheduleRepository.deleteById(eventId)
-    trackAppointmentDeletion(appointmentForDeletion)
+    try {
+      val appointmentForDeletion = offenderIndividualScheduleRepository.findWithLockById(eventId)
+        .orElseThrow(
+          EntityNotFoundException.withMessage("Booking Appointment for eventId %d not found.", eventId),
+        )
+      offenderIndividualScheduleRepository.deleteById(eventId)
+      trackAppointmentDeletion(appointmentForDeletion)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, eventId)
+    }
   }
 
   @Transactional
   fun updateComment(appointmentId: Long, comment: String?) {
-    val appointment = offenderIndividualScheduleRepository.findByIdOrNull(appointmentId)
-      ?: throw EntityNotFoundException.withMessage(
-        "An appointment with id %s does not exist.",
-        appointmentId,
-      )
-    if (EventClass.INT_MOV != appointment.eventClass ||
-      "APP" != appointment.eventType
-    ) {
-      throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId)
+    try {
+      val appointment = offenderIndividualScheduleRepository.findWithLockById(appointmentId)
+        .orElseThrow(
+          EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId),
+        )
+      if (EventClass.INT_MOV != appointment.eventClass || "APP" != appointment.eventType) {
+        throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId)
+      }
+      appointment.comment = comment
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, appointmentId)
     }
-    appointment.comment = comment
+  }
+
+  private fun processLockError(e: CannotAcquireLockException, appointmentId: Long): Exception {
+    log.error("Error getting lock", e)
+    return if (true == e.cause?.message?.contains("ORA-30006")) {
+      DatabaseRowLockedException("Failed to get OFFENDER_IND_SCHEDULES lock for eventId=$appointmentId")
+    } else {
+      e
+    }
   }
 
   private fun getScheduledEventOrThrowEntityNotFound(eventId: Long): ScheduledEvent = ScheduledEvent(
@@ -407,6 +427,8 @@ class AppointmentsService(
   }
 
   companion object {
+    private val log = LoggerFactory.getLogger(this::class.java)
+
     // Maximum of 1000 values in an Oracle 'IN' clause is current hard limit. (See #validateBookingIds below).
     private const val MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000
     private const val APPOINTMENT_TIME_LIMIT_IN_DAYS = 365

@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.hibernate.exception.LockTimeoutException
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -11,8 +12,7 @@ import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.boot.test.mock.mockito.SpyBean
-import org.springframework.http.HttpHeaders
-import org.springframework.http.MediaType
+import org.springframework.dao.CannotAcquireLockException
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.web.reactive.function.BodyInserters
@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
+import java.sql.SQLException
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
 import java.util.Optional
@@ -70,7 +71,8 @@ class AppointmentsResourceTest : ResourceTest() {
       response.expectStatus().isOk
       response.expectBody()
         .jsonPath("length()").isEqualTo(2)
-        .jsonPath("[*].appointmentEventId").value<List<Int>> { assertThat(it).containsExactlyInAnyOrder(firstEventId, secondEventId) }
+        .jsonPath("[*].appointmentEventId")
+        .value<List<Int>> { assertThat(it).containsExactlyInAnyOrder(firstEventId, secondEventId) }
         .jsonPath("[*].bookingId").value<List<Int>> {
           assertThat(it).containsExactlyInAnyOrder(
             appointments.appointments[0].bookingId.toInt(),
@@ -118,7 +120,7 @@ class AppointmentsResourceTest : ResourceTest() {
 
   @Test
   fun deleteAnAppointment() {
-    whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+    whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(
       Optional.of(
         OffenderIndividualSchedule().apply {
           id = 1L
@@ -138,7 +140,7 @@ class AppointmentsResourceTest : ResourceTest() {
       .accept(APPLICATION_JSON)
       .exchange()
       .expectStatus().isNoContent
-    verify(offenderIndividualScheduleRepository).findById(1L)
+    verify(offenderIndividualScheduleRepository).findWithLockById(1L)
   }
 
   @Nested
@@ -146,7 +148,7 @@ class AppointmentsResourceTest : ResourceTest() {
   inner class DeleteAppointment {
     @Test
     fun deleteAnAppointment_notFound() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(Optional.empty())
 
       webTestClient.delete().uri("/api/appointments/1")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
@@ -154,7 +156,7 @@ class AppointmentsResourceTest : ResourceTest() {
         .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
-      verify(offenderIndividualScheduleRepository).findById(1L)
+      verify(offenderIndividualScheduleRepository).findWithLockById(1L)
     }
 
     @Test
@@ -176,6 +178,19 @@ class AppointmentsResourceTest : ResourceTest() {
         .exchange()
         .expectStatus().isForbidden
       verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `delete an appointment locked`() {
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L))
+        .thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
+
+      webTestClient.delete().uri("/api/appointments/1")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isEqualTo(423)
     }
   }
 
@@ -247,20 +262,13 @@ class AppointmentsResourceTest : ResourceTest() {
     }
   }
 
-  private fun headers(token: String, contentType: MediaType): HttpHeaders {
-    val headers = HttpHeaders()
-    headers.contentType = contentType
-    headers.setBearerAuth(token)
-    return headers
-  }
-
   @Nested
   @DisplayName("PUT /{appointmentId}/comment")
   inner class UpdateComment {
     @Test
     fun updateAppointmentComment() {
       val appointment = appointmentWithId(1)
-      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1)).thenReturn(Optional.of(appointment))
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
@@ -275,7 +283,7 @@ class AppointmentsResourceTest : ResourceTest() {
     @Test
     fun updateAppointmentComment_emptyComment() {
       val appointment = appointmentWithId(1).apply { comment = "existing comment" }
-      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1)).thenReturn(Optional.of(appointment))
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
@@ -291,7 +299,7 @@ class AppointmentsResourceTest : ResourceTest() {
     @Test
     fun updateAppointmentComment_noComment() {
       val appointment = appointmentWithId(1).apply { comment = "existing comment" }
-      whenever(offenderIndividualScheduleRepository.findById(1)).thenReturn(Optional.of(appointment))
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1)).thenReturn(Optional.of(appointment))
 
       webTestClient.put().uri("/api/appointments/1/comment")
         .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
@@ -339,6 +347,20 @@ class AppointmentsResourceTest : ResourceTest() {
         .expectStatus().isUnauthorized
 
       verifyNoInteractions(offenderIndividualScheduleRepository)
+    }
+
+    @Test
+    fun `update appointment comment locked`() {
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L))
+        .thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
+
+      webTestClient.put().uri("/api/appointments/1/comment")
+        .headers(setAuthorisation(listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "comment": "Comment" } """)
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isEqualTo(423)
     }
   }
 }

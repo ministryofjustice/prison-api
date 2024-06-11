@@ -1085,7 +1085,7 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteSingleAppointment {
     @Test
     fun deleteBookingAppointment_notFound() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(Optional.empty())
 
       assertThatThrownBy { appointmentsService.deleteBookingAppointment(1L) }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -1094,7 +1094,7 @@ class AppointmentsServiceImplTest {
 
     @Test
     fun deleteBookingAppointment() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(
         Optional.of(
           OffenderIndividualSchedule().apply {
             id = 1L
@@ -1133,7 +1133,7 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteMultipleAppointments {
     @Test
     fun attemptToDeleteAppointmentsThatExist() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(
         Optional.of(
           OffenderIndividualSchedule().apply {
             id = 1L
@@ -1145,7 +1145,7 @@ class AppointmentsServiceImplTest {
           },
         ),
       )
-      whenever(offenderIndividualScheduleRepository.findById(2L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findWithLockById(2L)).thenReturn(Optional.empty())
 
       appointmentsService.deleteBookingAppointments(listOf(1L, 2L))
 
