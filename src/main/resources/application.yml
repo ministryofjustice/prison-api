@@ -32,6 +32,10 @@ spring:
           batch_size: 25
           fetch_size: 25
           batch_fetch_style: PADDED
+      jakarta:
+        persistence:
+          lock:
+            timeout: 10000
 
   jackson:
     date-format: "yyyy-MM-dd HH:mm:ss"
