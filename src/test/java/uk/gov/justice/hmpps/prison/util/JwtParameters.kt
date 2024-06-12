@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.util
 
-import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import java.time.Duration
 
 class JwtParameters internal constructor(
@@ -11,7 +10,6 @@ class JwtParameters internal constructor(
   internal val expiryTime: Duration,
   internal val clientId: String,
   internal val internalUser: Boolean,
-  internal val authSource: AuthSource?,
 ) {
   class JwtParametersBuilder {
     private var username: String? = null
@@ -21,7 +19,6 @@ class JwtParameters internal constructor(
     private var expiryTime = Duration.ofDays(1)
     private var clientId = "prison-api-client"
     private var internalUser = true
-    private var authSource: AuthSource? = null
 
     fun username(username: String): JwtParametersBuilder {
       this.username = username
@@ -58,15 +55,10 @@ class JwtParameters internal constructor(
       return this
     }
 
-    fun authSource(authSource: AuthSource?): JwtParametersBuilder {
-      this.authSource = authSource
-      return this
-    }
-
-    fun build(): JwtParameters = JwtParameters(username, scope, grantType, roles, expiryTime, clientId, internalUser, authSource)
+    fun build(): JwtParameters = JwtParameters(username, scope, grantType, roles, expiryTime, clientId, internalUser)
 
     override fun toString(): String =
-      "JwtParameters.JwtParametersBuilder(username=$username, scope=$scope, grantType=$grantType, roles=$roles, expiryTime=$expiryTime, clientId=$clientId, internalUser=$internalUser, authSource=$authSource)"
+      "JwtParameters.JwtParametersBuilder(username=$username, scope=$scope, grantType=$grantType, roles=$roles, expiryTime=$expiryTime, clientId=$clientId, internalUser=$internalUser)"
   }
 
   companion object {

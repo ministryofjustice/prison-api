@@ -13,7 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransferCancellationReason;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.WithMockNomisUser;
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;
@@ -28,7 +28,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividua
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
-@WithMockNomisUser
+@WithMockAuthUser
 public class OffenderIndividualScheduleRepositoryTest {
 
     private static final LocalDate EVENT_DATE = LocalDate.now();

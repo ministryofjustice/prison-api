@@ -14,7 +14,6 @@ import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.reactive.server.WebTestClient;
-import uk.gov.justice.hmpps.kotlin.auth.AuthSource;
 import uk.gov.justice.hmpps.prison.PrisonApiServer;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
@@ -111,7 +110,14 @@ public abstract class ResourceTest {
     }
 
     protected String validToken() {
-        return validToken(Collections.emptyList());
+        return jwtAuthenticationHelper.createJwt(
+                JwtParameters.builder()
+                        .username("ITAG_USER")
+                        .scope(List.of("read", "write"))
+                        .roles(List.of())
+                        .expiryTime(Duration.ofDays(365 * 10))
+                        .build()
+        );
     }
 
     protected String validToken(final List<String> roles) {
@@ -120,7 +126,6 @@ public abstract class ResourceTest {
                         .username("ITAG_USER")
                         .scope(List.of("read", "write"))
                         .roles(roles)
-                        .authSource(AuthSource.NOMIS)
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
@@ -132,7 +137,6 @@ public abstract class ResourceTest {
                         .username("ITAG_USER")
                         .scope(List.of("read"))
                         .roles(List.of())
-                        .authSource(AuthSource.NOMIS)
                         .expiryTime(Duration.ofDays(365 * 10))
                         .build()
         );
@@ -144,7 +148,6 @@ public abstract class ResourceTest {
                 .clientId("api-client-id")
                 .scope(List.of("read", "write"))
                 .roles(roles)
-                .authSource(AuthSource.NONE)
                 .expiryTime(Duration.ofDays(365 * 10))
                 .build()
         );

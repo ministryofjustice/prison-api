@@ -18,7 +18,7 @@ import org.springframework.test.context.transaction.TestTransaction;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForTemporaryAbsenceArrival;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
-import uk.gov.justice.hmpps.prison.util.WithMockNomisUser;
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 
 import java.util.List;
 import java.util.Map;
@@ -27,7 +27,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @RunWith(SpringRunner.class)
 @SpringBootTest
-@WithMockNomisUser("ITAG_USER_ADM")
+@WithMockAuthUser("ITAG_USER_ADM")
 @ContextConfiguration(classes = TestClock.class)
 @ActiveProfiles("test")
 @Transactional
