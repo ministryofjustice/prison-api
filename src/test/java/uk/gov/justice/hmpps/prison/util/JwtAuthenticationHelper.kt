@@ -6,7 +6,6 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.context.annotation.Primary
 import org.springframework.security.oauth2.jwt.JwtDecoder
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder
-import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import java.security.KeyPair
 import java.security.KeyPairGenerator
 import java.security.interfaces.RSAPublicKey
@@ -33,7 +32,6 @@ class JwtAuthenticationHelper {
       expiryTime = expiryTime,
       clientId = clientId,
       internalUser = internalUser,
-      authSource = authSource,
     )
   }
 
@@ -45,7 +43,6 @@ class JwtAuthenticationHelper {
     expiryTime: Duration = Duration.ofDays(1),
     clientId: String = "prison-api-client",
     internalUser: Boolean = true,
-    authSource: AuthSource? = AuthSource.NONE,
   ): String {
     val claims = mutableMapOf<String, Any?>(
       "client_id" to clientId,
@@ -59,7 +56,6 @@ class JwtAuthenticationHelper {
       }
       scope?.let { this["scope"] = scope }
       grantType?.let { this["grant_type"] = grantType }
-      authSource?.let { this["auth_source"] = authSource.source }
     }
     return Jwts.builder()
       .id(UUID.randomUUID().toString())
