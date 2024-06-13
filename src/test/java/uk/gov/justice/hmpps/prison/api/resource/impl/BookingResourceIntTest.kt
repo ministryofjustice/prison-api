@@ -351,6 +351,36 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `maps create user id for external users with email addresses to database username`() {
+      val scheduledEvent = webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+        .headers(setAuthorisation("joe.fred@bloggs.co.uk", listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(appointment)
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(ScheduledEvent::class.java).returnResult().responseBody!!
+
+      assertThat(scheduledEvent.createUserId).isEqualTo("sa")
+
+      bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
+    }
+
+    @Test
+    fun `leaves create user id alone if username not email address`() {
+      val scheduledEvent = webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+        .headers(setAuthorisation("notanemailaddress", listOf("ROLE_GLOBAL_APPOINTMENT")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(appointment)
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(ScheduledEvent::class.java).returnResult().responseBody!!
+
+      assertThat(scheduledEvent.createUserId).isEqualTo("notanemailaddress")
+
+      bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
+    }
+
+    @Test
     fun `returns 403 when user does not have offender in caseload`() {
       bookingRepository.getBookingAppointments(-2, tomorrow, tomorrow, "startTime", Order.ASC)
 
