@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource;
 import org.springframework.jdbc.core.namedparam.NamedParameterJdbcOperations;
 import org.springframework.jdbc.support.GeneratedKeyHolder;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -19,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.sql.Timestamp;
@@ -39,6 +39,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
+@WithMockAuthUser("ITAG_USER")
 public class OffenderCurfewRepositoryTest {
     private static final String STATUS_TRACKING_CODE_REFUSED = "REFUSED";
     private static final String STATUS_TRACKING_CODE_MANUAL_FAIL = "MAN_CK_FAIL";
@@ -79,12 +80,6 @@ public class OffenderCurfewRepositoryTest {
 
     @Autowired
     private NamedParameterJdbcOperations jdbcTemplate;
-
-    @BeforeEach
-    public void init() {
-        SecurityContextHolder.getContext()
-                .setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
-    }
 
     @Test
     public void shouldReturnAllOffenderCurfewForAgencyLEI() {

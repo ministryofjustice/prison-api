@@ -5,7 +5,6 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest;
-import org.springframework.security.authentication.TestingAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
@@ -17,6 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerDetailSearchCriteria;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService;
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import static org.assertj.core.api.Assertions.assertThat;
@@ -29,16 +29,12 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @JdbcTest
 @AutoConfigureTestDatabase(replace = NONE)
 @ContextConfiguration(classes = PersistenceConfigs.class)
+@WithMockAuthUser("ITAG_USER")
 public class PrisonerRepositoryTest {
     @Autowired
     private PrisonerRepository repository;
 
     private final PageRequest defaultPageRequest = new PageRequest(GlobalSearchService.DEFAULT_GLOBAL_SEARCH_OFFENDER_SORT);
-
-    @BeforeEach
-    public void init() {
-        SecurityContextHolder.getContext().setAuthentication(new TestingAuthenticationToken("itag_user", "password"));
-    }
 
     @Test
     public void testfindOffendersWithValidPNCNumberOnly() {

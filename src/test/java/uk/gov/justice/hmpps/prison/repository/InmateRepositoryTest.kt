@@ -4,14 +4,11 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple.tuple
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.transaction.annotation.Propagation
@@ -35,6 +32,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto
 import uk.gov.justice.hmpps.prison.util.Extractors.extractInteger
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -47,17 +45,13 @@ import java.util.Date
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = [PersistenceConfigs::class])
+@WithMockAuthUser("ITAG_USER")
 class InmateRepositoryTest {
   @Autowired
   private lateinit var repository: InmateRepository
 
   @Autowired
   private lateinit var jdbcTemplate: JdbcTemplate
-
-  @BeforeEach
-  fun init() {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("itag_user", "password")
-  }
 
   @Test
   fun testSearchForOffenderBookings() {
