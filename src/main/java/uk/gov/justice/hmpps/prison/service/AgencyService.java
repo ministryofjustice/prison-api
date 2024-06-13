@@ -217,7 +217,7 @@ public class AgencyService {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         final var agencyIds = getAgencyIds(allowInactive);
-        if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
+        if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty()) {

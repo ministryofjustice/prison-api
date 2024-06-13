@@ -551,7 +551,7 @@ public class BookingService {
         }
 
         final var agencyIds = agencyService.getAgencyIds(false);
-        if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
+        if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
 

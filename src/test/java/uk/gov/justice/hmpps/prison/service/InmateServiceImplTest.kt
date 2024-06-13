@@ -359,7 +359,7 @@ class InmateServiceImplTest {
       .thenReturn(UserDetail.builder().staffId(444L).username("ME").build())
     whenever(repository.insertCategory(catDetail, "CDI", 444L, "ME"))
       .thenReturn(mapOf("sequenceNumber" to 2L, "bookingId" to -5L))
-    whenever(authenticationFacade.getCurrentPrincipal()).thenReturn("ME")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
     val responseMap = serviceToTest.createCategorisation(1234L, catDetail)
     assertThat(responseMap)
       .contains(Assertions.entry("bookingId", -5L), Assertions.entry("sequenceNumber", 2L))
@@ -375,7 +375,7 @@ class InmateServiceImplTest {
       .thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build())
     whenever(userService.getUserByUsername("ME"))
       .thenReturn(UserDetail.builder().staffId(444L).username("ME").build())
-    whenever(authenticationFacade.getCurrentPrincipal()).thenReturn("ME")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
     serviceToTest.createCategorisation(1234L, catDetail)
     Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME")
   }
@@ -384,7 +384,7 @@ class InmateServiceImplTest {
   fun testMappingForOffenderDetailsAreCorrect() {
     val offenderNumbers = setOf("A123")
     val caseLoadsIds = setOf("1")
-    whenever(authenticationFacade.getCurrentPrincipal()).thenReturn("ME")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
     whenever(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds)
     whenever(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds, true))
       .thenReturn(
@@ -409,7 +409,7 @@ class InmateServiceImplTest {
 
   @Test
   fun testThatAnExceptionIsThrown_whenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
-    whenever(authenticationFacade.getCurrentPrincipal()).thenReturn("ME")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
     whenever(
       authenticationFacade.isOverrideRole(anyVararg()),
     ).thenReturn(false)
@@ -431,7 +431,7 @@ class InmateServiceImplTest {
   @Test
   fun testThatGetBasicInmateDetailsForOffenders_isCalledWithCorrectParameters() {
     val caseLoad = setOf("LEI")
-    whenever(authenticationFacade.getCurrentPrincipal()).thenReturn("ME")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
     whenever(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoad)
     serviceToTest.getBasicInmateDetailsForOffenders(setOf("A123"), true)
     Mockito.verify(repository).getBasicInmateDetailsForOffenders(setOf("A123"), false, caseLoad, true)
