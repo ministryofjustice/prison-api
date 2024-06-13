@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 
@@ -25,7 +24,6 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
   AuditorAwareImpl::class,
   PersistenceConfigs::class,
 )
-@WithMockAuthUser
 @Slf4j
 @DisplayName("OffenderBeliefRepository")
 class OffenderBeliefRepositoryTest {

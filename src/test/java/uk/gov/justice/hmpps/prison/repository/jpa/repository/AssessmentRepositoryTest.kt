@@ -9,14 +9,12 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AssessmentEntry
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AuthenticationFacade::class, AuditorAwareImpl::class)
-@WithMockAuthUser
 class AssessmentRepositoryTest {
   @Autowired
   private lateinit var repository: AssessmentRepository

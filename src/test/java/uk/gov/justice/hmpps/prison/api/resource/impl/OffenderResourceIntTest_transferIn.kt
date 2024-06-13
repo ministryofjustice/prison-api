@@ -30,7 +30,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.util.builders.createScheduledTemporaryAbsence
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
@@ -47,7 +46,6 @@ import java.time.format.DateTimeFormatter
 /**
  * KOTLIN
  */
-@WithMockAuthUser
 class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction

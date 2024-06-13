@@ -17,9 +17,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepos
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ServiceAgencySwitchesRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 
-@WithMockAuthUser
 class ServiceAgencySwitchResourceIntTest : ResourceTest() {
 
   @Autowired

@@ -22,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
 import uk.gov.justice.hmpps.prison.util.JwtParameters.Companion.builder
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import java.time.Clock
 import java.time.Duration
 import java.time.LocalDate
@@ -140,7 +139,6 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   }
 
   @Test
-  @WithMockAuthUser(username = "ITAG_USER", authorities = ["SCOPE_write"]) // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
   fun transactionRolledBack() {
     val dateTime = now().minusHours(1)
 

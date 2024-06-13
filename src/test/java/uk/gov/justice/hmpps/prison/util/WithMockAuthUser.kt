@@ -30,7 +30,7 @@ annotation class WithMockAuthUser(
   val clientId: String = "prison-api-user",
 )
 
-internal class WithMockUserSecurityContextFactory() : WithSecurityContextFactory<WithMockAuthUser> {
+internal class WithMockUserSecurityContextFactory : WithSecurityContextFactory<WithMockAuthUser> {
   private var securityContextHolderStrategy = SecurityContextHolder.getContextHolderStrategy()
 
   override fun createSecurityContext(withUser: WithMockAuthUser): SecurityContext {

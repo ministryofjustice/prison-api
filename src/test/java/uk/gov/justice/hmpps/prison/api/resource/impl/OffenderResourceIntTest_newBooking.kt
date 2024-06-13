@@ -23,14 +23,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.util.builders.getBedAssignments
 import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@WithMockAuthUser
 class OffenderResourceIntTest_newBooking : ResourceTest() {
 
   @MockBean
