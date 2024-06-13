@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
@@ -38,7 +37,6 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class, PersistenceConfigs.class})
-@WithMockAuthUser
 @Slf4j
 @DisplayName("OffenderAlertRepository with OffenderAlertFilter")
 public class OffenderAlertRepositoryTest {

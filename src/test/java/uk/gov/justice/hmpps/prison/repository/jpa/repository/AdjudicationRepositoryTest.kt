@@ -13,7 +13,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationIncidentType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.LocalDateTime
 
@@ -24,7 +23,6 @@ import java.time.LocalDateTime
   AuthenticationFacade::class,
   AuditorAwareImpl::class,
 )
-@WithMockAuthUser
 class AdjudicationRepositoryTest {
   @Autowired
   private lateinit var repository: AdjudicationRepository

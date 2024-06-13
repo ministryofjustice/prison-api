@@ -10,7 +10,6 @@ import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication.NewAdjudicationBuilder;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication.UpdateAdjudicationBuilder;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 
 import java.time.LocalDateTime;
 import java.util.stream.IntStream;
@@ -27,7 +26,6 @@ public class AdjudicationsServiceIntTest {
     public class CreateAdjudication {
 
         @Test
-        @WithMockAuthUser(username = "ITAG_USER")
         public void maximumTextSizeExceeded() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4001Chars())
@@ -39,7 +37,6 @@ public class AdjudicationsServiceIntTest {
         }
 
         @Test
-        @WithMockAuthUser(username = "ITAG_USER")
         public void maximumTextSizeExceededDueToUtf8() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4000CharsAndUtf8Chars())
@@ -66,7 +63,6 @@ public class AdjudicationsServiceIntTest {
         private final Long EXAMPLE_ADJUDICATION_NUMBER = 123L;
 
         @Test
-        @WithMockAuthUser(username = "ITAG_USER")
         public void maximumTextSizeExceeded() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4001Chars())
@@ -78,7 +74,6 @@ public class AdjudicationsServiceIntTest {
         }
 
         @Test
-        @WithMockAuthUser(username = "ITAG_USER")
         public void maximumTextSizeExceededDueToUtf8() {
             final var adjudicationWithLargeStatementSize = defaultAdjudicationBuilder()
                 .statement(generateMessageWith4000CharsAndUtf8Chars())

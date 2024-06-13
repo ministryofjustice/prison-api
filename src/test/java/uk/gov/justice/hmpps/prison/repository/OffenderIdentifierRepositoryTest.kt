@@ -11,7 +11,6 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 
@@ -23,7 +22,6 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
   AuditorAwareImpl::class,
   PersistenceConfigs::class,
 )
-@WithMockAuthUser
 @Slf4j
 @DisplayName("OffenderIdentifierRepository")
 class OffenderIdentifierRepositoryTest {

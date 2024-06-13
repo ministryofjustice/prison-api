@@ -12,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CourseActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;
@@ -26,7 +25,6 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class})
-@WithMockAuthUser
 public class OffenderProgramProfileRepositoryTest {
 
     @Autowired

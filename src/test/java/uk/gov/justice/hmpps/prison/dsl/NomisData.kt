@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.dsl
 
-import org.springframework.security.authentication.UsernamePasswordAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
-import org.springframework.security.core.userdetails.User
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
+import uk.gov.justice.hmpps.prison.util.WithMockUserSecurityContextFactory
 import uk.gov.justice.hmpps.prison.util.builders.randomName
 import java.time.LocalDate
 import java.util.UUID
@@ -16,14 +16,7 @@ class NomisDataBuilder(
 ) {
   fun build(dsl: NomisData.() -> Unit) {
     SecurityContextHolder.setContext(
-      SecurityContextHolder.createEmptyContext().apply {
-        val principal = User("ITAG_USER", "", true, true, true, true, emptyList())
-        this.authentication = UsernamePasswordAuthenticationToken.authenticated(
-          principal,
-          principal.password,
-          principal.authorities,
-        )
-      },
+      WithMockUserSecurityContextFactory().createSecurityContext(WithMockAuthUser("ITAG_USER")),
     )
     NomisData(offenderBuilderFactory, teamBuilderFactory).apply(dsl)
   }

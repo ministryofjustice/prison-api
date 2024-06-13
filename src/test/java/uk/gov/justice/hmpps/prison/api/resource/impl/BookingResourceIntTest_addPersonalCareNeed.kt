@@ -10,10 +10,8 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderHealthProblemRepository
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import java.time.LocalDate.parse
 
-@WithMockAuthUser
 class BookingResourceIntTest_addPersonalCareNeed : ResourceTest() {
 
   @Autowired

@@ -7,9 +7,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 
-@WithMockAuthUser
 class AgencyResource_prisonContactsIntTest : ResourceTest() {
 
   @Nested
