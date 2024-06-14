@@ -118,7 +118,7 @@ class AuthorisationAspect(
     val annotation = method.getAnnotation(VerifyStaffAccess::class.java)
     val overrideRoles = annotation.overrideRoles
     if (!AuthenticationFacade.hasRoles(*overrideRoles)) {
-      val currentUsername: String = authenticationFacade.getCurrentUsername()
+      val currentUsername: String = authenticationFacade.getCurrentPrincipal()
         ?: throw AccessDeniedException("No current username for staffId=$staffId")
       staffUserAccountRepository.findByUsername(currentUsername)
         .ifPresentOrElse(

@@ -643,7 +643,7 @@ public class OffenderResource {
     @ProxyUser
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
         try {
-            return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentUsername());
+            return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentPrincipal());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }
@@ -666,7 +666,7 @@ public class OffenderResource {
         @RequestBody @Parameter(required = true) final UpdateCaseNote body
     ) {
         try {
-            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentUsername(), body.getText());
+            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentPrincipal(), body.getText());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }

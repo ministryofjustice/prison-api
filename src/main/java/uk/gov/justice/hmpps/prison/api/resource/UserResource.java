@@ -71,7 +71,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Returns information about the current user only")
     @GetMapping("/me")
     public UserDetail getMyUserInformation() {
-        return userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        return userService.getUserByUsername(authenticationFacade.getCurrentPrincipal());
     }
 
     @ApiResponses({
@@ -84,7 +84,7 @@ public class UserResource {
     @GetMapping("/me/caseLoads")
     @SlowReportQuery
     public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @Parameter(description = "If set to true then all caseloads are returned") final boolean allCaseloads) {
-        return userService.getCaseLoads(authenticationFacade.getCurrentUsername(), allCaseloads);
+        return userService.getCaseLoads(authenticationFacade.getCurrentPrincipal(), allCaseloads);
     }
 
     @ApiResponses({
@@ -97,7 +97,7 @@ public class UserResource {
     @GetMapping("/me/caseNoteTypes")
     public List<ReferenceCode> getMyCaseNoteTypes() {
         final var currentCaseLoad =
-            caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
+            caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentPrincipal());
 
         final var caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
         return caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
@@ -114,7 +114,7 @@ public class UserResource {
     @SlowReportQuery
     public List<Location> getMyLocations(
         @RequestParam(value = "include-non-residential-locations", required = false, defaultValue = "false") @Parameter(description = "Indicates non residential locations should be included") final boolean includeNonRes) {
-        return locationService.getUserLocations(authenticationFacade.getCurrentUsername(), includeNonRes);
+        return locationService.getUserLocations(authenticationFacade.getCurrentPrincipal(), includeNonRes);
     }
 
     @ApiResponses({
@@ -126,7 +126,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Returns information about the current user only")
     @GetMapping("/me/roles")
     public List<UserRole> getMyRoles(@RequestParam(value = "allRoles", required = false, defaultValue = "false") @Parameter(description = "If set to true then all roles are returned rather than just API roles") final boolean allRoles) {
-        return userService.getRolesByUsername(authenticationFacade.getCurrentUsername(), allRoles);
+        return userService.getRolesByUsername(authenticationFacade.getCurrentPrincipal(), allRoles);
     }
 
     @ApiResponses({
@@ -138,7 +138,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Access is checked in the service")
     @ProxyUser
     public void updateMyActiveCaseLoad(@RequestBody @Parameter(required = true) final CaseLoad caseLoad) {
-        userService.setActiveCaseLoad(authenticationFacade.getCurrentUsername(), caseLoad.getCaseLoadId());
+        userService.setActiveCaseLoad(authenticationFacade.getCurrentPrincipal(), caseLoad.getCaseLoadId());
     }
 
     @ApiResponses({

@@ -76,7 +76,7 @@ public class SchedulesService {
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         final var inmates = inmateService.findInmatesByLocation(
-                authenticationFacade.getCurrentUsername(),
+                authenticationFacade.getCurrentPrincipal(),
                 agencyId,
                 locationIds);
 

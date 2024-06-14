@@ -316,7 +316,7 @@ class AppointmentsService(
   }
 
   private fun findLocationInUserLocations(appointmentLocation: AgencyInternalLocation): Optional<Location> {
-    val userLocations = locationService.getUserLocations(authenticationFacade.currentUsername, true)
+    val userLocations = locationService.getUserLocations(authenticationFacade.currentPrincipal, true)
 
     for (location in userLocations) {
       if (location.agencyId == appointmentLocation.agencyId) {
@@ -389,7 +389,7 @@ class AppointmentsService(
     logMap["type"] = defaults.appointmentType
     logMap["defaultStart"] = defaults.startTime.toString()
     logMap["location"] = defaults.locationId.toString()
-    logMap["user"] = authenticationFacade.currentUsername
+    logMap["user"] = authenticationFacade.currentPrincipal
     if (defaults.endTime != null) {
       logMap["defaultEnd"] = defaults.endTime.toString()
     }
@@ -409,7 +409,7 @@ class AppointmentsService(
   private fun appointmentEvent(appointment: OffenderIndividualSchedule): Map<String, String> {
     val logMap: MutableMap<String, String> = HashMap()
     logMap["eventId"] = appointment.id.toString()
-    logMap["user"] = authenticationFacade.currentUsername
+    logMap["user"] = authenticationFacade.currentPrincipal
     logMap["type"] = appointment.eventSubType
     logMap["agency"] = appointment.fromLocation.id
 

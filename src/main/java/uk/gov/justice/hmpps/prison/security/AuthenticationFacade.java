@@ -25,7 +25,7 @@ public class AuthenticationFacade {
         return SecurityContextHolder.getContext().getAuthentication();
     }
 
-    public String getCurrentUsername() {
+    public String getCurrentPrincipal() {
         final String username;
 
         final var userPrincipal = getUserPrincipal();

@@ -30,7 +30,7 @@ public class ProxyUserAspect {
     @Around("proxyUserPointcut()")
     public Object controllerCall(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        var proxyUser = authenticationFacade.getCurrentUsername();
+        var proxyUser = authenticationFacade.getCurrentPrincipal();
         try {
             if (proxyUser != null) {
                 log.info("Proxying User: {} for {}->{}", proxyUser,

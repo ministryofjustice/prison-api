@@ -911,7 +911,7 @@ public class BookingResource {
     public ScheduledEvent postBookingsBookingIdAppointments(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestBody @Parameter(required = true) final NewAppointment newAppointment) {
-        return appointmentsService.createBookingAppointment(bookingId, authenticationFacade.getCurrentUsername(), newAppointment);
+        return appointmentsService.createBookingAppointment(bookingId, authenticationFacade.getCurrentPrincipal(), newAppointment);
     }
 
     @ApiResponses({
