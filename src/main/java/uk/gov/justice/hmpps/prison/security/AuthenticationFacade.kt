@@ -9,9 +9,18 @@ import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 
 @Component
 class AuthenticationFacade {
+  /**
+   * This will return null if the token hasn't come from auth.  This is fine for application code, but tests need to
+   * then use @WithMockAuthUser rather than using a TestingAuthenticationToken or @WithMockUser annotation.
+   */
   val authentication: AuthAwareAuthenticationToken?
     get() = SecurityContextHolder.getContext().authentication as? AuthAwareAuthenticationToken
 
+  /**
+   * This is nullable since this can be called from an unprotected endpoint, but in the majority of cases it should
+   * be not null.  This gets the current username from the authentication, falling back to the clientId if there
+   * isn't a username passed in.
+   */
   val currentPrincipal: String?
     get() = authentication?.principal
 
@@ -24,6 +33,12 @@ class AuthenticationFacade {
   val clientId: String?
     get() = authentication?.clientId
 
+  /**
+   * We are gradually moving away from user tokens and instead using client credentials more often.  This will be NONE
+   * if client credentials are used, even if a NOMIS username is passed in.  This means that this method isn't an
+   * adequate test to see if the user is a NOMIS user. The only test at present is to look the user up in the database
+   * too see if they exist.
+   */
   val authenticationSource: AuthSource
     get() = authentication?.authSource ?: AuthSource.NONE
 
