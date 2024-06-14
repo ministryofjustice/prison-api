@@ -13,11 +13,9 @@ generic-service:
   allowlist:
     groups:
       - internal
-
-    # prum values copied from prisoner search
-    prum-prod-platform-1: "18.170.20.75/32"
-    prum-prod-platform-2: "35.177.223.199/32"
-    prum-prod-platform-3: "18.170.155.82/32"
+      - prum-prod
+      - mod-platform-live # oasys-api-client
+      - delius-prod
 
     # copied from unilink client in HMPPS Auth
     unilink-prod-1: "18.130.83.42/32"
@@ -74,18 +72,6 @@ generic-service:
     kainos-azure-logic-apps-30: "4.159.26.77/32"
     kainos-azure-logic-apps-31: "4.159.59.140/32"
     kainos-azure-logic-apps-32: "4.159.59.13/32"
-
-    # oasys-api-client - looks to be on mod platform so included those IPs
-    mod-platform-1: "18.133.150.172/32"
-    mod-platform-2: "18.130.43.174/32"
-    mod-platform-3: "13.41.38.176/32"
-    mod-platform-4: "3.11.197.133/32"
-    mod-platform-5: "3.8.81.175/32"
-
-    # deliusnewtech_aws client - copied from hmpps-workload/helm_deploy/values-prod.yaml
-    delius-prod-1: "52.56.115.146/32"
-    delius-prod-2: "35.178.104.253/32"
-    delius-prod-3: "35.177.47.45/32"
 
   env:
     JAVA_OPTS: "-Xmx1024m"
