@@ -16,7 +16,7 @@ class AuditorAwareImpl(
   @Value("\${spring.datasource.username}") private val datasourceUsername: String,
 ) : AuditorAware<String> {
   override fun getCurrentAuditor(): Optional<String> = Optional.ofNullable(
-    with(authenticationFacade.getCurrentUsername()) {
+    with(authenticationFacade.getCurrentPrincipal()) {
       // don't write email addresses to the audit fields, only usernames
       // this will still mean some external users get written, but will mainly be nomis users
       if (this?.contains("@") == true) datasourceUsername else this

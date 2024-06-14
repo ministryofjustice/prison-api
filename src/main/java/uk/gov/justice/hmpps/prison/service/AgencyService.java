@@ -197,7 +197,7 @@ public class AgencyService {
      * @return set of agency location ids accessible to current authenticated user.
      */
     public Set<String> getAgencyIds(boolean allowInactive) {
-        return findAgenciesByUsername(authenticationFacade.getCurrentUsername(), allowInactive)
+        return findAgenciesByUsername(authenticationFacade.getCurrentPrincipal(), allowInactive)
             .stream()
             .map(Agency::getAgencyId)
             .collect(Collectors.toSet());
@@ -253,7 +253,7 @@ public class AgencyService {
         final Map<String, String> logMap = new HashMap<>();
         logMap.put("agencyId", agencyId);
         logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("currentUser", authenticationFacade.getCurrentUsername());
+        logMap.put("currentUser", authenticationFacade.getCurrentPrincipal());
         logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         telemetryClient.trackEvent("UserUnauthorisedAgencyAccess", logMap, null);

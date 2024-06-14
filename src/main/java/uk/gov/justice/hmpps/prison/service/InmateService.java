@@ -166,7 +166,7 @@ public class InmateService {
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
-        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false);
         if (CollectionUtils.isEmpty(caseloads)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has no active caseloads.");
         }
@@ -516,7 +516,7 @@ public class InmateService {
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
-        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentPrincipal());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
         final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 

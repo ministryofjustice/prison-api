@@ -11,9 +11,9 @@ abstract class StaffAwareMovementService(
   private val authenticationFacade: AuthenticationFacade,
 ) {
   internal fun getLoggedInStaff(): Result<StaffUserAccount> {
-    return staffUserAccountRepository.findByIdOrNull(authenticationFacade.currentUsername)
+    return staffUserAccountRepository.findByIdOrNull(authenticationFacade.currentPrincipal)
       ?.let { Result.success(it) } ?: Result.failure(
-      EntityNotFoundException.withId(authenticationFacade.currentUsername),
+      EntityNotFoundException.withId(authenticationFacade.currentPrincipal),
     )
   }
 }

@@ -92,7 +92,7 @@ public class OffenderSentenceResource {
     @GetMapping("/home-detention-curfew-candidates")
     @SlowReportQuery
     public List<OffenderSentenceCalc<BaseSentenceCalcDates>> getOffenderSentencesHomeDetentionCurfewCandidates() {
-        return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentUsername());
+        return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentPrincipal());
     }
 
     @ApiResponses({

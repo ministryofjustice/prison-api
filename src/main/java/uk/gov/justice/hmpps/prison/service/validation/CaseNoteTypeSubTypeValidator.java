@@ -37,7 +37,7 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
         if (value == null) return true;
 
         // This should be ok as it is cached:
-        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentUsername());
+        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentPrincipal());
         final var caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
 
         final var allTypes = ALLOWED_INACTIVE_CASE_NOTE_TYPES.contains(value.getType()) ?

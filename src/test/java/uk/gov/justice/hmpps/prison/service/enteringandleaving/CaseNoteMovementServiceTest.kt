@@ -38,7 +38,7 @@ internal class CaseNoteMovementServiceTest {
 
   @BeforeEach
   internal fun setUp() {
-    whenever(authenticationFacade.currentUsername).thenReturn("TEST_USER")
+    whenever(authenticationFacade.currentPrincipal).thenReturn("TEST_USER")
     whenever(staffUserAccountRepository.findById("TEST_USER")).thenReturn(
       Optional.of(
         StaffUserAccount().apply {
