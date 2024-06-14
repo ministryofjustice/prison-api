@@ -389,7 +389,7 @@ class AppointmentsService(
     logMap["type"] = defaults.appointmentType
     logMap["defaultStart"] = defaults.startTime.toString()
     logMap["location"] = defaults.locationId.toString()
-    logMap["user"] = authenticationFacade.currentPrincipal
+    logMap["user"] = authenticationFacade.currentPrincipal!!
     if (defaults.endTime != null) {
       logMap["defaultEnd"] = defaults.endTime.toString()
     }
@@ -409,7 +409,7 @@ class AppointmentsService(
   private fun appointmentEvent(appointment: OffenderIndividualSchedule): Map<String, String> {
     val logMap: MutableMap<String, String> = HashMap()
     logMap["eventId"] = appointment.id.toString()
-    logMap["user"] = authenticationFacade.currentPrincipal
+    logMap["user"] = authenticationFacade.currentPrincipal!!
     logMap["type"] = appointment.eventSubType
     logMap["agency"] = appointment.fromLocation.id
 

@@ -13,11 +13,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+
+import static org.assertj.core.api.Assertions.assertThat;
 
 @ActiveProfiles("test")
 @SpringBootTest
 @Transactional
-@WithAnonymousUser
+@WithMockAuthUser("anonymous")
 public class AgencyLocationRepositoryTxTest {
 
     public static final String TEST_AGY_ID = "TEST";
@@ -42,28 +45,27 @@ public class AgencyLocationRepositoryTxTest {
         TestTransaction.flagForCommit();
         TestTransaction.end();
 
-        Assertions.assertThat(persistedEntity.getId()).isNotNull();
+        assertThat(persistedEntity.getId()).isNotNull();
 
         TestTransaction.start();
 
         final var retrievedAgency = repository.findById(TEST_AGY_ID).orElseThrow();
-        Assertions.assertThat(retrievedAgency).isEqualTo(persistedEntity);
+        assertThat(retrievedAgency).isEqualTo(persistedEntity);
 
         // Check that the user name and timestamp is set
         final var createUserId = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createUserId");
-        Assertions.assertThat(createUserId).isEqualTo("anonymous");
+        assertThat(createUserId).isEqualTo("anonymous");
 
         final var createDatetime = ReflectionTestUtils.getField(retrievedAgency, AgencyLocation.class, "createDatetime");
-        Assertions.assertThat(createDatetime).isNotNull();
+        assertThat(createDatetime).isNotNull();
 
-
-        //Clean up
+        // Clean up
         repository.delete(retrievedAgency);
 
         TestTransaction.flagForCommit();
         TestTransaction.end();
         TestTransaction.start();
 
-        Assertions.assertThat(repository.findById(TEST_AGY_ID)).isEmpty();
+        assertThat(repository.findById(TEST_AGY_ID)).isEmpty();
     }
 }
