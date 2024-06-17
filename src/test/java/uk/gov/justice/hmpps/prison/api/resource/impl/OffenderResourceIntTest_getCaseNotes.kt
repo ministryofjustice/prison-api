@@ -5,10 +5,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 
 @DisplayName("GET /api/offenders/{offenderNo}/case-notes/{caseNoteId}")
 class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
@@ -30,7 +26,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -3.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -3.")
       }
 
       @Test
@@ -39,7 +35,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -3.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -3.")
       }
 
       @Test
@@ -74,16 +70,6 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .expectStatus().isNotFound
           .expectBody().jsonPath("userMessage").isEqualTo("Resource with id [-999] not found.")
       }
-
-      @Test
-      fun `invalid client access produces telemetry event`() {
-        webTestClient.get().uri("/api/offenders/A1234AC/case-notes/-11")
-          .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-          .exchange()
-          .expectStatus().isForbidden
-
-        verify(telemetryClient).trackEvent(eq("ClientUnauthorisedBookingAccess"), any(), isNull())
-      }
     }
 
     @Nested
@@ -94,7 +80,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setAuthorisation("RO_USER", listOf()))
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -3.")
       }
 
       @Test
@@ -103,7 +89,7 @@ class OffenderResourceIntTest_getCaseNotes : ResourceTest() {
           .headers(setAuthorisation("RO_USER", listOf("ROLE_BANANAS")))
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -3.")
       }
 
       @Test

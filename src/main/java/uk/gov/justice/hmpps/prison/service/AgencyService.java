@@ -210,10 +210,10 @@ public class AgencyService {
      *
      * @param agencyId the agency.
      * @param allowInactive whether to allow inactive prisons in caseload
-     * @throws EntityNotFoundException if current user does not have access to this agency and accessDeniedError is false.
-     * @throws AccessDeniedException   if current user does not have access to this agency and accessDeniedError is true.
+     * @throws EntityNotFoundException if agency does not exist.
+     * @throws AccessDeniedException   if current user does not have access to this agency.
      */
-    public void verifyAgencyAccess(final String agencyId, boolean accessDeniedError, boolean allowInactive) {
+    public void verifyAgencyAccess(final String agencyId, boolean allowInactive) {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         final var agencyIds = getAgencyIds(allowInactive);
@@ -223,22 +223,14 @@ public class AgencyService {
         if (agencyIds.isEmpty()) {
             checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
             if (authenticationFacade.isClientOnly()) {
-                logClientUnauthorisedAccess(agencyId);
                 throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
             }
-            if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
-            }
-            logUserUnauthorisedAccess(agencyId, agencyIds);
-            throw EntityNotFoundException.withId(agencyId);
+            throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
+
         }
         if (!agencyIds.contains(agencyId)) {
             checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
-            if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
-            }
-            logUserUnauthorisedAccess(agencyId, agencyIds);
-            throw EntityNotFoundException.withId(agencyId);
+            throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
         }
     }
 

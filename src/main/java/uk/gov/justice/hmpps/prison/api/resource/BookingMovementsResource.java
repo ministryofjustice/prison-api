@@ -119,7 +119,7 @@ public class BookingMovementsResource {
     @Operation(summary = "Move Offender to another cell or reception")
     @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ProxyUser
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @HasWriteScope
     public CellMoveResult moveToCell(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
@@ -149,7 +149,7 @@ public class BookingMovementsResource {
     )
     @ProxyUser
     @Deprecated
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @HasWriteScope
     public CellMoveResult moveToCellSwap(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,

@@ -48,7 +48,7 @@ class IdentitiesResourceTest : ResourceTest() {
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
       .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -4.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -4.")
   }
 
   @Test

@@ -21,7 +21,7 @@ class BookingResourceIntTest_getOffenderContacts : ResourceTest() {
       .headers(setClientAuthorisation(listOf()))
       .exchange()
       .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
   }
 
   @Test
@@ -46,7 +46,7 @@ class BookingResourceIntTest_getOffenderContacts : ResourceTest() {
       .headers(setAuthorisation("WAI_USER", listOf()))
       .exchange()
       .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
   }
 
   @Test

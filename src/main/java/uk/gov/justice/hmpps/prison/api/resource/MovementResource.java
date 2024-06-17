@@ -81,7 +81,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Current establishment rollcount numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"}, accessDeniedError = true)
+    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/rollcount/{agencyId}")
     @SlowReportQuery
     public List<RollCount> getRollCount(
@@ -114,7 +114,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Information on offenders in today.", description = "Information on offenders in on given date.")
-    @VerifyAgencyAccess(accessDeniedError = true)
+    @VerifyAgencyAccess
     @GetMapping("/{agencyId}/in/{isoDate}")
     public List<OffenderIn> getMovementsIn(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
@@ -193,7 +193,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Count for prisoners out today.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"}, accessDeniedError = true)
+    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/out/{isoDate}")
     public List<OffenderOutTodayDto> getOffendersOutToday(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
