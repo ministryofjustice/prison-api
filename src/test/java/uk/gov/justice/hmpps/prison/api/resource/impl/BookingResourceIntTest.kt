@@ -360,7 +360,7 @@ class BookingResourceIntTest : ResourceTest() {
         .expectStatus().isCreated
         .expectBody(ScheduledEvent::class.java).returnResult().responseBody!!
 
-      assertThat(scheduledEvent.createUserId).isEqualTo("sa")
+      assertThat(scheduledEvent.createUserId).isEqualTo("SA")
 
       bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
     }
