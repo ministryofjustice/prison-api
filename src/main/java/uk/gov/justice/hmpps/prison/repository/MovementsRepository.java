@@ -129,7 +129,7 @@ public class MovementsRepository extends RepositoryBase {
     }
 
 
-    public int getEnrouteMovementsOffenderCount(final String agencyId, final LocalDate date) {
+    public int getEnRouteMovementsOffenderCount(final String agencyId, final LocalDate date) {
 
         Integer enrouteMovementsOffenderCount = jdbcTemplate.queryForObject(
             MovementsRepositorySql.GET_ENROUTE_OFFENDER_COUNT.getSql(),

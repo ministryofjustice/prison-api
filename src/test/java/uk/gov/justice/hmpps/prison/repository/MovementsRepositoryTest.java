@@ -117,7 +117,7 @@ public class MovementsRepositoryTest {
 
     @Test
     public void canRetrieveEnRouteOffenderCount() {
-        final var count = repository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
+        final var count = repository.getEnRouteMovementsOffenderCount("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(count).isEqualTo(2);
     }

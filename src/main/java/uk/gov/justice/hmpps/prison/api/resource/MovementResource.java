@@ -194,7 +194,6 @@ public class MovementResource {
     @Operation(summary = "Count for prisoners in reception.", description = "Requires agency in caseload.")
     @VerifyAgencyAccess
     @GetMapping("/rollcount/{agencyId}/in-reception")
-    @Deprecated(forRemoval = true)
     public List<OffenderInReception> getOffendersInReception(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersInReception(agencyId);
     }

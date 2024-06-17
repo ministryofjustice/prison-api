@@ -171,12 +171,12 @@ public class MovementsServiceImplTest {
 
     @Test
     public void testGetEnRouteOffenderMovements_Count() {
-        when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
+        when(movementsRepository.getEnRouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
 
         final var count = movementsService.getEnRouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
         assertThat(count).isEqualTo(5);
 
-        verify(movementsRepository).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
+        verify(movementsRepository).getEnRouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
     }
 
     @Test
