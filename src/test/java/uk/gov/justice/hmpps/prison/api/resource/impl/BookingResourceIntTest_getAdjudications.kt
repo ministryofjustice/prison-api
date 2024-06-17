@@ -63,7 +63,7 @@ class BookingResourceIntTest_getAdjudications : ResourceTest() {
   fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/bookings/-2/adjudications")
       .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
   }
 
   @Test

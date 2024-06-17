@@ -66,11 +66,10 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyBookingAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    val accessDeniedError = annotation.accessDeniedError
     if (AuthenticationFacade.hasRoles(*overrideRoles)) {
       bookingService.checkBookingExists(bookingId)
     } else {
-      bookingService.verifyBookingAccess(bookingId, accessDeniedError, *overrideRoles)
+      bookingService.verifyBookingAccess(bookingId, *overrideRoles)
     }
   }
 
@@ -81,8 +80,7 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyOffenderAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    val accessDeniedError = annotation.accessDeniedError
-    bookingService.getOffenderIdentifiers(offenderNo, accessDeniedError, *overrideRoles)
+    bookingService.getOffenderIdentifiers(offenderNo, *overrideRoles)
   }
 
   @Before(value = "verifyAgencyAccessPointcut(agencyId)", argNames = "jp,agencyId")
@@ -92,11 +90,10 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyAgencyAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    val accessDeniedError = annotation.accessDeniedError
     if (AuthenticationFacade.hasRoles(*overrideRoles)) {
       agencyService.checkAgencyExists(agencyId, if (annotation.allowInactive) ALL else ACTIVE_ONLY)
     } else {
-      agencyService.verifyAgencyAccess(agencyId, accessDeniedError, annotation.allowInactive)
+      agencyService.verifyAgencyAccess(agencyId, annotation.allowInactive)
     }
   }
 

@@ -487,10 +487,10 @@ public class BookingService {
         return visit;
     }
 
-    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final boolean accessDeniedError, final String... rolesAllowed) {
+    public OffenderBookingIdSeq getOffenderIdentifiers(final String offenderNo, final String... rolesAllowed) {
         final var offenderIdentifier = bookingRepository.getLatestBookingIdentifierForOffender(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
 
-        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), accessDeniedError, rolesAllowed));
+        offenderIdentifier.getBookingAndSeq().ifPresent(b -> verifyBookingAccess(b.getBookingId(), rolesAllowed));
         return offenderIdentifier;
     }
 
@@ -536,12 +536,11 @@ public class BookingService {
      * exception is thrown.
      *
      * @param bookingId offender booking id.
-     * @param accessDeniedError true if the method should throw a 403, instead of a 404, if access to the booking is disallowed.
      * @param rolesAllowed Any system override role that allows access to the booking.
-     * @throws EntityNotFoundException if current user does not have access to specified booking and accessDeniedError is false.
-     * @throws AccessDeniedException if current user does not have access to specified booking and accessDeniedError is true.
+     * @throws EntityNotFoundException if specified booking does not exist.
+     * @throws AccessDeniedException if current user does not have access to specified booking.
      */
-    public void verifyBookingAccess(final Long bookingId, boolean accessDeniedError, final String... rolesAllowed) {
+    public void verifyBookingAccess(final Long bookingId, final String... rolesAllowed) {
 
         Objects.requireNonNull(bookingId, "bookingId is a required parameter");
 
@@ -555,47 +554,10 @@ public class BookingService {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
 
-        if (agencyIds.isEmpty()) {
+        if (agencyIds.isEmpty() || !bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
             checkBookingExists(bookingId);
-            if (authenticationFacade.isClientOnly()) {
-                logClientUnauthorisedAccess(bookingId, rolesAllowed);
-                throw new AccessDeniedException(format("Client not authorised to access booking with id %d.", bookingId));
-            }
-            if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
-            }
-            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
-            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
+            throw new AccessDeniedException(format("Unauthorised access to booking with id %d.", bookingId));
         }
-        if (!bookingRepository.verifyBookingAccess(bookingId, agencyIds)) {
-            checkBookingExists(bookingId);
-            if (accessDeniedError) {
-                throw new AccessDeniedException(format("User not authorised to access booking with id %d.", bookingId));
-            }
-            logUserUnauthorisedAccess(bookingId, agencyIds, rolesAllowed);
-            throw EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId);
-        }
-    }
-
-    private void logClientUnauthorisedAccess(final Long bookingId, final String... rolesAllowed) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("bookingId", bookingId.toString());
-        logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
-        telemetryClient.trackEvent("ClientUnauthorisedBookingAccess", logMap, null);
-    }
-
-    private void logUserUnauthorisedAccess(final Long bookingId, final Set<String> agencyIds, final String... rolesAllowed) {
-        String bookingAgencyId = bookingRepository.getBookingAgency(bookingId).orElse(null);
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("bookingId", bookingId.toString());
-        logMap.put("bookingCaseload", bookingAgencyId);
-        logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("currentUser", authenticationFacade.getCurrentPrincipal());
-        logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
-        logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
-        telemetryClient.trackEvent("UserUnauthorisedBookingAccess", logMap, null);
     }
 
     public void checkBookingExists(final Long bookingId) {

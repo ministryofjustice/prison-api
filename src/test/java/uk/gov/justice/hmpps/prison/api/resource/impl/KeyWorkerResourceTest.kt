@@ -4,10 +4,6 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
 import org.springframework.web.reactive.function.BodyInserters
 
@@ -15,7 +11,7 @@ class KeyWorkerResourceTest : ResourceTest() {
 
   @Nested
   @DisplayName("GET /api/key-worker/{agencyId}/available")
-  inner class AvailabileKeyWorkers {
+  inner class AvailableKeyWorkers {
     @Test
     fun `should return 401 when user does not even have token`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
@@ -30,7 +26,6 @@ class KeyWorkerResourceTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
         .expectStatus().isForbidden
-      verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
 
     @Test
@@ -85,7 +80,6 @@ class KeyWorkerResourceTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("")))
         .exchange()
         .expectStatus().isForbidden
-      verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
     }
 
     @Test

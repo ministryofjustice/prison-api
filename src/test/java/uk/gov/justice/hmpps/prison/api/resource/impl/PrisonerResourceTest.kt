@@ -368,7 +368,7 @@ class PrisonerResourceTest : ResourceTest() {
         .exchange()
         .expectStatus().isForbidden
         .expectBody()
-        .jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -1.")
+        .jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
     }
   }
 

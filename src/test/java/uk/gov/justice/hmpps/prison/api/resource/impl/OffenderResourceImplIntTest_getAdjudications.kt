@@ -64,7 +64,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
     }
 
     @Test
@@ -73,7 +73,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
     }
 
     @Test

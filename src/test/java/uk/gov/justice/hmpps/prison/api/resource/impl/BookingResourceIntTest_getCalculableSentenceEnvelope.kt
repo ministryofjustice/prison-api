@@ -62,8 +62,8 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
     webTestClient.get().uri("/api/bookings/latest/calculable-sentence-envelope?offenderNo=A1234AB")
       .headers(setAuthorisation("WAI_USER", listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER")))
       .exchange()
-      .expectStatus().isNotFound
-      .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -2 not found.")
+      .expectStatus().isForbidden
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
   }
 
   @Test

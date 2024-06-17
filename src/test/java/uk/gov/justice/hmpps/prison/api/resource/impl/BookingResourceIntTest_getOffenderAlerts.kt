@@ -79,7 +79,7 @@ class BookingResourceIntTest_getOffenderAlerts : ResourceTest() {
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -3.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -3.")
     }
 
     @Test

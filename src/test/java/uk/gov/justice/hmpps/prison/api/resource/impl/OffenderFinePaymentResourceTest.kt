@@ -24,7 +24,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
       .headers(setAuthorisation("RO_USER", listOf())).exchange()
       .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
   }
 
   @Test
@@ -32,7 +32,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
       .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
       .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -1.")
+      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
   }
 
   @Test

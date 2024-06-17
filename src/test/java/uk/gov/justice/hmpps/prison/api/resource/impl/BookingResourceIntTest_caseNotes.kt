@@ -43,7 +43,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -16.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -16.")
     }
 
     @Test

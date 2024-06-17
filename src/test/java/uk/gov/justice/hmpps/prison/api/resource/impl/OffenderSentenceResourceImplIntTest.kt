@@ -246,7 +246,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       webTestClient.get().uri("/api/offender-sentences/booking/-5/sentenceTerms")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -5.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -5.")
     }
 
     @Test
