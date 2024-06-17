@@ -19,7 +19,7 @@ class AuditorAwareImpl(
     with(authenticationFacade.currentPrincipal) {
       // don't write email addresses to the audit fields, only usernames
       // this will still mean some external users get written, but will mainly be nomis users
-      if (this?.contains("@") == true) datasourceUsername else this
+      if (this?.contains("@") == true) datasourceUsername.uppercase() else this
     },
   )
 }
