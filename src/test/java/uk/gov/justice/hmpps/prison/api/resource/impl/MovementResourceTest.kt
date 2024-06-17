@@ -24,7 +24,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIn
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto
-import uk.gov.justice.hmpps.prison.api.model.RollCount
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
@@ -183,61 +182,6 @@ class MovementResourceTest : ResourceTest() {
           Tuple("A1181FF", "TAP", "", "Leeds", "Funerals And Deaths", LocalTime.parse("00:00"), "Wadhurst", ""),
           Tuple("A6676RS", "TAP", "Leeds", "", "Funerals And Deaths", LocalTime.parse("00:00"), "", "Wadhurst"),
         )
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /api/movements/rollcount/{agencyId}")
-  inner class GetRollcount {
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("/api/movements/rollcount/BMI")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("/api/movements/rollcount/BMI")
-        .headers(setClientAuthorisation(listOf("")))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has ESTABLISHMENT_ROLL override role`() {
-      webTestClient.get().uri("/api/movements/rollcount/BMI")
-        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `Get the establishment roll count for a prison`() {
-      val response = webTestClient.get()
-        .uri("/api/movements/rollcount/LEI?unassigned=false")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBodyList(RollCount::class.java)
-        .returnResult()
-        .responseBody!!
-
-      assertThat(response).extracting("livingUnitDesc").contains("Block A", "H")
-    }
-
-    @Test
-    fun `Get the establishment unassigned roll count for a prison`() {
-      val response = webTestClient.get()
-        .uri("/api/movements/rollcount/LEI?unassigned=true")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBodyList(RollCount::class.java)
-        .returnResult()
-        .responseBody!!
-
-      assertThat(response).extracting("livingUnitDesc").containsExactly("Chapel")
     }
   }
 

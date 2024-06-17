@@ -140,7 +140,7 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testGetEnrouteOffenderMovements() {
+    public void testGetEnRouteOffenderMovements() {
         final List<OffenderMovement> oms = ImmutableList.of(OffenderMovement.builder()
             .offenderNo(TEST_OFFENDER_NO)
             .bookingId(123L).firstName("JAMES")
@@ -151,7 +151,7 @@ public class MovementsServiceImplTest {
 
         when(movementsRepository.getEnrouteMovementsOffenderMovementList("LEI", LocalDate.of(2015, 9, 12))).thenReturn(oms);
 
-        final var enrouteOffenderMovements = movementsService.getEnrouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
+        final var enrouteOffenderMovements = movementsService.getEnRouteOffenderMovements("LEI", LocalDate.of(2015, 9, 12));
         assertThat(enrouteOffenderMovements).extracting("fromAgencyDescription").contains("Leeds");
         assertThat(enrouteOffenderMovements).extracting("toAgencyDescription").contains("Moorlands");
         assertThat(enrouteOffenderMovements).extracting("lastName").contains("SMITH");
@@ -164,16 +164,16 @@ public class MovementsServiceImplTest {
     @Test
     public void testGetEnrouteOffender_NoDateFilter() {
         /* call service with no specified date */
-        movementsService.getEnrouteOffenderMovements("LEI", null);
+        movementsService.getEnRouteOffenderMovements("LEI", null);
 
         verify(movementsRepository).getEnrouteMovementsOffenderMovementList("LEI", null);
     }
 
     @Test
-    public void testGetEnrouteOffenderMovements_Count() {
+    public void testGetEnRouteOffenderMovements_Count() {
         when(movementsRepository.getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
 
-        final var count = movementsService.getEnrouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
+        final var count = movementsService.getEnRouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
         assertThat(count).isEqualTo(5);
 
         verify(movementsRepository).getEnrouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));

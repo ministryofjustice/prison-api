@@ -20,19 +20,16 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutDto;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEventDto;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
-import uk.gov.justice.hmpps.prison.api.model.RollCountDto;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferEventDto;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.MovementsRepositorySql;
 import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
-import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Date;
 import java.util.List;
+import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -42,10 +39,8 @@ import static java.util.stream.Collectors.groupingBy;
 @Repository
 public class MovementsRepository extends RepositoryBase {
 
-    private static final Set<String> DEACTIVATE_REASON_CODES = Set.of("A", "C", "E", "I");
     private final RowMapper<MovementDto> MOVEMENT_MAPPER = new DataClassByColumnRowMapper<>(MovementDto.class);
     private final RowMapper<OffenderMovementDto> OFFENDER_MOVEMENT_MAPPER = new DataClassByColumnRowMapper<>(OffenderMovementDto.class);
-    private final RowMapper<RollCountDto> ROLLCOUNT_MAPPER = new DataClassByColumnRowMapper<>(RollCountDto.class);
     private final RowMapper<OffenderInDto> OFFENDER_IN_MAPPER = new DataClassByColumnRowMapper<>(OffenderInDto.class);
     private final RowMapper<OffenderOutDto> OFFENDER_OUT_MAPPER = new DataClassByColumnRowMapper<>(OffenderOutDto.class);
     private final RowMapper<OffenderInReceptionDto> OFFENDER_IN_RECEPTION_MAPPER = new DataClassByColumnRowMapper<>(OffenderInReceptionDto.class);
@@ -97,39 +92,6 @@ public class MovementsRepository extends RepositoryBase {
         return movements.stream().map(OffenderMovementDto::toOffenderMovement).collect(Collectors.toList());
     }
 
-    private String getFilterCriteria(Long parentLocationId, boolean showCells, boolean wingOnly) {
-        var sql = "";
-        if (wingOnly) {
-            sql += " AND PLOC.INTERNAL_LOCATION_ID IS NULL";
-        } else {
-            if (!showCells) {
-               sql += " AND AIL.INTERNAL_LOCATION_TYPE != 'CELL'";
-            }
-            if (parentLocationId != null) {
-                sql += " AND PLOC.INTERNAL_LOCATION_ID = :livingUnitId";
-            }
-        }
-        return sql;
-    }
-
-    public List<RollCount> getRollCount(final String agencyId, final String certifiedFlag, Long parentLocationId, boolean showCells, boolean wingOnly) {
-        final var sql = format(MovementsRepositorySql.GET_ROLL_COUNT.getSql(), getFilterCriteria(parentLocationId, showCells, wingOnly));
-
-        final var rollCounts = jdbcTemplate.query(sql, createParams(
-                "agencyId", agencyId,
-                "certifiedFlag", certifiedFlag,
-                "livingUnitId", parentLocationId,
-                "deactivateReasonCodes", DEACTIVATE_REASON_CODES,
-                "currentDateTime", new Date()),
-            ROLLCOUNT_MAPPER);
-
-        return rollCounts.stream()
-            .map(m -> m.toRollCount(agencyId))
-            .sorted(new NaturalOrderComparator())
-            .toList();
-    }
-
-
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
 
         final var movements = jdbcTemplate.query(
@@ -138,8 +100,8 @@ public class MovementsRepository extends RepositoryBase {
 
         final var movementsGroupedByDirection = movements.stream()
             .filter(movement ->
-                (movement.getDirectionCode().equals("IN") && movement.getToAgency().equals(agencyId)) ||
-                    (movement.getDirectionCode().equals("OUT") && movement.getFromAgency().equals(agencyId)))
+                (Objects.equals(movement.getDirectionCode(), "IN") && Objects.equals(movement.getToAgency(), agencyId)) ||
+                    (Objects.equals(movement.getDirectionCode(), "OUT") && Objects.equals(movement.getFromAgency(), agencyId)))
             .map(MovementDto::toMovement)
             .collect(groupingBy(Movement::getDirectionCode));
 
@@ -169,12 +131,13 @@ public class MovementsRepository extends RepositoryBase {
 
     public int getEnrouteMovementsOffenderCount(final String agencyId, final LocalDate date) {
 
-        return jdbcTemplate.queryForObject(
+        Integer enrouteMovementsOffenderCount = jdbcTemplate.queryForObject(
             MovementsRepositorySql.GET_ENROUTE_OFFENDER_COUNT.getSql(),
             createParams(
                 "agencyId", agencyId,
                 "movementDate", DateTimeConverter.toDate(date)),
             Integer.class);
+        return enrouteMovementsOffenderCount != null ? enrouteMovementsOffenderCount : 0;
     }
 
 
