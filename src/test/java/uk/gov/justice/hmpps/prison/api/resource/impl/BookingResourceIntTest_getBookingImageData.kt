@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.returnResult
 
-@DisplayName("GET /api/bookings/{booingId}/image/data")
+@DisplayName("GET /api/bookings/{bookingId}/image/data")
 class BookingResourceIntTest_getBookingImageData : ResourceTest() {
 
   @Test

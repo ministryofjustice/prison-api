@@ -318,10 +318,8 @@ public class BookingRepository extends RepositoryBase {
         return activities.stream().map(ScheduledEventDto::toScheduledEvent).collect(Collectors.toList());
     }
 
-    private final static int lockWaitTime = 10;
-
     public void lockAttendance(final Long bookingId, final Long activityId) {
-        final var sql = BookingRepositorySql.LOCK_ATTENDANCE.getSql() + conditionalSqlService.getWaitClause(lockWaitTime);
+        final var sql = BookingRepositorySql.LOCK_ATTENDANCE.getSql() + conditionalSqlService.getWaitClause();
         try {
             jdbcTemplate.queryForObject(
                 sql,
@@ -334,7 +332,7 @@ public class BookingRepository extends RepositoryBase {
         } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
             if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get OFFENDER_COURSE_ATTENDANCES lock for (bookingId=" + bookingId + ", eventId=" + activityId + ") after " + lockWaitTime + " seconds");
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_COURSE_ATTENDANCES lock for (bookingId=" + bookingId + ", eventId=" + activityId + ") after " + conditionalSqlService.getLockWaitTime() + " seconds");
             } else {
                 throw e;
             }

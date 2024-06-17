@@ -37,8 +37,6 @@ public class OffenderCurfewRepository extends RepositoryBase {
         this.conditionalSqlService = conditionalSqlService;
     }
 
-    private final static int lockWaitTime = 10;
-
     private static class AlmostStandardBeanPropertyRowMapper<T> extends BeanPropertyRowMapper<T> {
         AlmostStandardBeanPropertyRowMapper(Class<T> clazz) {
             super(clazz);
@@ -138,7 +136,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
                         "statusCode", statusTrackingCode),
                 Long.class
         );
-        return hdsStatusTrackingIds.isEmpty() ? OptionalLong.empty() : OptionalLong.of(hdsStatusTrackingIds.get(0));
+        return hdsStatusTrackingIds.isEmpty() ? OptionalLong.empty() : OptionalLong.of(hdsStatusTrackingIds.getFirst());
     }
 
 
@@ -198,7 +196,7 @@ public class OffenderCurfewRepository extends RepositoryBase {
                         "bookingId", bookingId,
                         "statusTrackingCodes", statusTrackingCodesToMatch),
                 HOME_DETENTION_CURFEW_ROW_MAPPER);
-        return results.isEmpty() ? Optional.empty() : Optional.of(results.get(0));
+        return results.isEmpty() ? Optional.empty() : Optional.of(results.getFirst());
     }
 
 
@@ -221,37 +219,34 @@ public class OffenderCurfewRepository extends RepositoryBase {
 
     private void getCurfewLock(long curfewId) {
         getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK,
-            createParams("curfewId", curfewId, "waitSeconds", lockWaitTime),
+            createParams("curfewId", curfewId),
             "OFFENDER_CURFEWS");
     }
 
     private void getTrackingsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
         getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_TRACKINGS_LOCK,
-            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch),
             "HDC_STATUS_TRACKINGS");
     }
 
     private void getReasonsLock(long curfewId, Set<String> statusTrackingCodesToMatch) {
         getLock(OffenderCurfewRepositorySql.GET_HDC_STATUS_REASONS_LOCK,
-            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch, "waitSeconds", lockWaitTime),
+            createParams("curfewId", curfewId, "codes", statusTrackingCodesToMatch),
             "HDC_STATUS_REASONS");
     }
 
     private void getLock(OffenderCurfewRepositorySql lockSql, MapSqlParameterSource map, String tableName) {
         try {
-            jdbcTemplate.query(lockSql.getSql() + getWaitClause(), map, rs -> {
+            jdbcTemplate.query(lockSql.getSql() + conditionalSqlService.getWaitClause(), map, rs -> {
             });
         } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
             if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get " + tableName + " lock for curfew id " + map.getValue("curfewId") + " after " + lockWaitTime + " seconds");
+                throw new DatabaseRowLockedException("Failed to get " + tableName + " lock for curfew id " + map.getValue("curfewId") + " after " + conditionalSqlService.getLockWaitTime() + " seconds");
             } else {
                 throw e;
             }
         }
     }
 
-    private String getWaitClause() {
-        return conditionalSqlService.getWaitClause(lockWaitTime);
-    }
 }

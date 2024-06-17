@@ -11,7 +11,6 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
-import org.springframework.security.test.context.support.WithMockUser;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertType;
@@ -38,7 +37,6 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({AuthenticationFacade.class, AuditorAwareImpl.class, PersistenceConfigs.class})
-@WithMockUser
 @Slf4j
 @DisplayName("OffenderAlertRepository with OffenderAlertFilter")
 public class OffenderAlertRepositoryTest {

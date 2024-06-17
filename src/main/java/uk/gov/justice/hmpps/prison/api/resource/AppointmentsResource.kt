@@ -49,6 +49,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
     ApiResponse(responseCode = "204", description = "The appointment has been deleted"),
     ApiResponse(responseCode = "404", description = "The appointment was not found"),
     ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+    ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis)"),
   )
   @Operation(summary = "Delete an appointment.", description = "Requires role GLOBAL_APPOINTMENT and write scope")
   @ResponseStatus(HttpStatus.NO_CONTENT)
@@ -67,6 +68,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
+    ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis)"),
   )
   @Operation(
     summary = "Delete multiple appointments.",
@@ -105,6 +107,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
     ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
     ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
     ApiResponse(responseCode = "404", description = "The appointment was not found."),
+    ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis)"),
   )
   @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
   @PutMapping(path = ["/{appointmentId}/comment"])

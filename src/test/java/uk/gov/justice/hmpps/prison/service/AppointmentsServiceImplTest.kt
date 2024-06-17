@@ -20,7 +20,6 @@ import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.security.authentication.TestingAuthenticationToken
 import org.springframework.security.core.context.SecurityContextHolder
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
@@ -49,6 +48,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
+import uk.gov.justice.hmpps.prison.util.WithMockUserSecurityContextFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -92,7 +93,6 @@ class AppointmentsServiceImplTest {
 
   @BeforeEach
   fun initMocks() {
-    SecurityContextHolder.createEmptyContext()
     ensureRoles(BULK_APPOINTMENTS_ROLE)
     MockitoAnnotations.openMocks(this)
 
@@ -1085,7 +1085,7 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteSingleAppointment {
     @Test
     fun deleteBookingAppointment_notFound() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(Optional.empty())
 
       assertThatThrownBy { appointmentsService.deleteBookingAppointment(1L) }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -1094,7 +1094,7 @@ class AppointmentsServiceImplTest {
 
     @Test
     fun deleteBookingAppointment() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(
         Optional.of(
           OffenderIndividualSchedule().apply {
             id = 1L
@@ -1133,7 +1133,7 @@ class AppointmentsServiceImplTest {
   internal inner class DeleteMultipleAppointments {
     @Test
     fun attemptToDeleteAppointmentsThatExist() {
-      whenever(offenderIndividualScheduleRepository.findById(1L)).thenReturn(
+      whenever(offenderIndividualScheduleRepository.findWithLockById(1L)).thenReturn(
         Optional.of(
           OffenderIndividualSchedule().apply {
             id = 1L
@@ -1145,7 +1145,7 @@ class AppointmentsServiceImplTest {
           },
         ),
       )
-      whenever(offenderIndividualScheduleRepository.findById(2L)).thenReturn(Optional.empty())
+      whenever(offenderIndividualScheduleRepository.findWithLockById(2L)).thenReturn(Optional.empty())
 
       appointmentsService.deleteBookingAppointments(listOf(1L, 2L))
 
@@ -1209,7 +1209,9 @@ class AppointmentsServiceImplTest {
   }
 
   private fun ensureRoles(vararg roles: String) {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken(USERNAME, null, *roles)
+    SecurityContextHolder.setContext(
+      WithMockUserSecurityContextFactory().createSecurityContext(WithMockAuthUser(USERNAME, roles = arrayOf(*roles))),
+    )
   }
 
   companion object {

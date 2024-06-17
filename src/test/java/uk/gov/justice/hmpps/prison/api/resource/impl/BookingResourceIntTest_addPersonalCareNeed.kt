@@ -8,12 +8,10 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderHealthProblemRepository
 import java.time.LocalDate.parse
 
-@WithMockUser
 class BookingResourceIntTest_addPersonalCareNeed : ResourceTest() {
 
   @Autowired

@@ -15,7 +15,9 @@ import java.util.UUID
 
 @Configuration
 class JwtAuthenticationHelper {
-  private val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
+  companion object {
+    val keyPair: KeyPair = KeyPairGenerator.getInstance("RSA").apply { initialize(2048) }.generateKeyPair()
+  }
 
   @Bean
   @Primary

@@ -551,7 +551,7 @@ public class BookingService {
         }
 
         final var agencyIds = agencyService.getAgencyIds(false);
-        if (AuthenticationFacade.hasRoles("INACTIVE_BOOKINGS")) {
+        if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
 
@@ -591,7 +591,7 @@ public class BookingService {
         logMap.put("bookingId", bookingId.toString());
         logMap.put("bookingCaseload", bookingAgencyId);
         logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("currentUser", authenticationFacade.getCurrentUsername());
+        logMap.put("currentUser", authenticationFacade.getCurrentPrincipal());
         logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
         logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
         logMap.put("rolesAllowed", StringUtils.join(rolesAllowed,","));
@@ -714,7 +714,7 @@ public class BookingService {
     }
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
-        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false),
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false),
             !hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES));
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
@@ -921,7 +921,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        return hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -1009,7 +1009,7 @@ public class BookingService {
     }
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
-        final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentUsername());
+        final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentPrincipal());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
             throw new HttpClientErrorException(BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
         }
@@ -1092,7 +1092,7 @@ public class BookingService {
             .prisonId(prisonId)
             .bookingSequence(1)
             .active(true)
-            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentUsername(), true, "INST").stream().map(Caseload::getId).toList())
+            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentPrincipal(), true, "INST").stream().map(Caseload::getId).toList())
             .build();
 
         final var paging = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapBookingSortOrderProperties(pageable.getSort()));

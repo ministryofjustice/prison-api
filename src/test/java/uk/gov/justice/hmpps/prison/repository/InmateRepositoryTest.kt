@@ -4,14 +4,11 @@ import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.assertj.core.groups.Tuple.tuple
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.jdbc.JdbcTest
 import org.springframework.jdbc.core.JdbcTemplate
-import org.springframework.security.authentication.TestingAuthenticationToken
-import org.springframework.security.core.context.SecurityContextHolder
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.transaction.annotation.Propagation
@@ -35,6 +32,7 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto
 import uk.gov.justice.hmpps.prison.util.Extractors.extractInteger
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 import java.sql.Timestamp
 import java.time.LocalDate
@@ -47,17 +45,13 @@ import java.util.Date
 @JdbcTest
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @ContextConfiguration(classes = [PersistenceConfigs::class])
+@WithMockAuthUser("ITAG_USER")
 class InmateRepositoryTest {
   @Autowired
   private lateinit var repository: InmateRepository
 
   @Autowired
   private lateinit var jdbcTemplate: JdbcTemplate
-
-  @BeforeEach
-  fun init() {
-    SecurityContextHolder.getContext().authentication = TestingAuthenticationToken("itag_user", "password")
-  }
 
   @Test
   fun testSearchForOffenderBookings() {
@@ -1182,7 +1176,7 @@ class InmateRepositoryTest {
       .comment("updated cat")
       .nextReviewDate(LocalDate.of(2019, 12, 1))
       .build()
-    repository.updateCategory(catDetail)
+    repository.updateCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4")
     assertThat(results)
@@ -1205,7 +1199,7 @@ class InmateRepositoryTest {
       .bookingId(-37L)
       .assessmentSeq(3)
       .build()
-    repository.updateCategory(catDetail)
+    repository.updateCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -37 AND ASSESSMENT_SEQ = 3")
     assertThat(results)
@@ -1231,7 +1225,7 @@ class InmateRepositoryTest {
       .approvedPlacementAgencyId("BXI")
       .approvedPlacementText("approvedPlacementText")
       .build()
-    repository.approveCategory(catDetail)
+    repository.approveCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)")
     assertThat(results)
@@ -1273,7 +1267,7 @@ class InmateRepositoryTest {
       .build()
 
     // 4 categorisation records with status Inactive, Active, Inactive, Pending
-    repository.approveCategory(catDetail)
+    repository.approveCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 order by ASSESSMENT_SEQ")
 
@@ -1303,7 +1297,7 @@ class InmateRepositoryTest {
       .build()
 
     // 1 pending cateorisation record
-    repository.approveCategory(catDetail)
+    repository.approveCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -36 order by ASSESSMENT_SEQ")
 
@@ -1322,7 +1316,7 @@ class InmateRepositoryTest {
       .evaluationDate(LocalDate.of(2019, 2, 27))
       .reviewCommitteeCode("REVIEW")
       .build()
-    repository.approveCategory(catDetail)
+    repository.approveCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)")
     assertThat(results)
@@ -1356,7 +1350,7 @@ class InmateRepositoryTest {
       .committeeCommentText("committeeCommentText")
       .nextReviewDate(LocalDate.of(2019, 7, 24))
       .build()
-    repository.approveCategory(catDetail)
+    repository.approveCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -1 AND ASSESSMENT_SEQ in (6, 8)")
     assertThat(results)
@@ -1392,7 +1386,7 @@ class InmateRepositoryTest {
       .reviewCommitteeCode("REVIEW")
       .committeeCommentText("committeeCommentText")
       .build()
-    repository.rejectCategory(catDetail)
+    repository.rejectCategory(catDetail, true)
     val results =
       jdbcTemplate.queryForList("SELECT * FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -32 AND ASSESSMENT_SEQ = 4")
     assertThat(results)
@@ -1413,7 +1407,7 @@ class InmateRepositoryTest {
       .bookingId(-32L)
       .assessmentSeq(99)
       .build()
-    assertThatThrownBy { repository.rejectCategory(catDetail) }.isInstanceOf(
+    assertThatThrownBy { repository.rejectCategory(catDetail, true) }.isInstanceOf(
       HttpClientErrorException::class.java,
     )
   }
@@ -1423,7 +1417,7 @@ class InmateRepositoryTest {
   fun testUpdateCategoryNextReviewDateForUnknownOffender() {
     val newNextReviewDate = LocalDate.of(2019, 2, 27)
     try {
-      repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate)
+      repository.updateActiveCategoryNextReviewDate(-15655L, newNextReviewDate, true)
       Assertions.fail<Any>("Should have thrown an EntityNotFoundException")
     } catch (e: EntityNotFoundException) {
       assertThat(e.message)

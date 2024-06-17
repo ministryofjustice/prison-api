@@ -39,6 +39,11 @@ class AuthorisationAspect(
     // no code needed - pointcut definition
   }
 
+  @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(prisonId,..)")
+  fun verifyPrisonIdAccessPointcut(prisonId: String) {
+    // no code needed - pointcut definition
+  }
+
   @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess) && execution(* *(String,..)) && args(agencyId,..)")
   fun verifyAgencyAccessPointcut(agencyId: String) {
     // no code needed - pointcut definition
@@ -100,6 +105,11 @@ class AuthorisationAspect(
     verifyAgencyAccess(jp, request.agencyId)
   }
 
+  @Before(value = "verifyPrisonIdAccessPointcut(prisonId)", argNames = "jp,prisonId")
+  fun verifyPrisonIdAccess(jp: JoinPoint, prisonId: String) {
+    verifyAgencyAccess(jp, prisonId)
+  }
+
   @Before(value = "verifyStaffAccessPointcut(staffId)", argNames = "jp,staffId")
   fun verifyStaffAccess(jp: JoinPoint, staffId: Long) {
     log.debug("Verifying staffId access for staffId [{}]", staffId)
@@ -108,7 +118,7 @@ class AuthorisationAspect(
     val annotation = method.getAnnotation(VerifyStaffAccess::class.java)
     val overrideRoles = annotation.overrideRoles
     if (!AuthenticationFacade.hasRoles(*overrideRoles)) {
-      val currentUsername: String = authenticationFacade.getCurrentUsername()
+      val currentUsername: String = authenticationFacade.currentPrincipal
         ?: throw AccessDeniedException("No current username for staffId=$staffId")
       staffUserAccountRepository.findByUsername(currentUsername)
         .ifPresentOrElse(

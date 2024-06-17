@@ -14,7 +14,6 @@ import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
@@ -30,7 +29,6 @@ import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
-@WithMockUser
 class OffenderResourceIntTest_newBooking : ResourceTest() {
 
   @MockBean

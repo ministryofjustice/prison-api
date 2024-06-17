@@ -197,7 +197,7 @@ public class InmateAlertService {
 
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
-        final var username = authenticationFacade.getCurrentUsername();
+        final var username = authenticationFacade.getCurrentPrincipal();
         final var alertId = inmateAlertRepository.createNewAlert(bookingId, alert);
 
         log.info("Created new alert {}", alert);
@@ -238,7 +238,7 @@ public class InmateAlertService {
     }
 
     private Alert updateAlertComment(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
-        final var username = authenticationFacade.getCurrentUsername();
+        final var username = authenticationFacade.getCurrentPrincipal();
 
         var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, AlertChanges.builder().comment(alertChanges.getComment()).build())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
@@ -255,7 +255,7 @@ public class InmateAlertService {
     }
 
     private Alert expireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
-        final var username = authenticationFacade.getCurrentUsername();
+        final var username = authenticationFacade.getCurrentPrincipal();
 
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
@@ -274,7 +274,7 @@ public class InmateAlertService {
     }
 
     private Alert unexpireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
-        final var username = authenticationFacade.getCurrentUsername();
+        final var username = authenticationFacade.getCurrentPrincipal();
 
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");

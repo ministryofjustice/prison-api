@@ -13,7 +13,6 @@ import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Import
 import org.springframework.dao.DataAccessException
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
@@ -24,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.Clock
 import java.time.Instant
@@ -35,7 +35,7 @@ import java.time.ZoneId
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(AuthenticationFacade::class, AuditorAwareImpl::class)
-@WithMockUser
+@WithMockAuthUser
 @ContextConfiguration(classes = [CourtEventRepositoryTest.TestClock::class])
 class CourtEventRepositoryTest {
   @TestConfiguration

@@ -48,7 +48,7 @@ public class UserMdcFilter implements Filter {
     public void doFilter(final ServletRequest request, final ServletResponse response, final FilterChain chain)
             throws IOException, ServletException {
 
-        final var currentUsername = userSecurityUtils.getCurrentUsername();
+        final var currentUsername = userSecurityUtils.getCurrentPrincipal();
 
         try {
             if (currentUsername != null) {

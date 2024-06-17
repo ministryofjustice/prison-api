@@ -37,7 +37,7 @@ class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacad
     // just check that the current user exists in the database
     pooledConnection.prepareStatement("SELECT username FROM staff_user_accounts WHERE username = ?")
       .use { statement ->
-        val currentUsername = authenticationFacade.currentUsername
+        val currentUsername = authenticationFacade.currentPrincipal
         statement.setString(1, currentUsername)
 
         try {

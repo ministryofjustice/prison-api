@@ -3,8 +3,6 @@ package uk.gov.justice.hmpps.prison.validation;
 
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
-import org.junit.jupiter.params.ParameterizedTest;
-import org.junit.jupiter.params.provider.ValueSource;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
@@ -56,7 +54,7 @@ public class CaseNoteTypeSubTypeValidatorTest {
 
         assertThat(result).isTrue();
 
-        verify(authenticationFacade, never()).getCurrentUsername();
+        verify(authenticationFacade, never()).getCurrentPrincipal();
         verify(caseLoadService, never()).getWorkingCaseLoadForUser(any());
         verify(caseNoteService, never()).getCaseNoteTypesWithSubTypesByCaseLoadType(any());
         verify(context, never()).disableDefaultConstraintViolation();

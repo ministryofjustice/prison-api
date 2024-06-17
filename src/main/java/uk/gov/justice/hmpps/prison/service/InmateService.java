@@ -166,7 +166,7 @@ public class InmateService {
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
-        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentUsername(), false);
+        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false);
         if (CollectionUtils.isEmpty(caseloads)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has no active caseloads.");
         }
@@ -326,7 +326,7 @@ public class InmateService {
         final var mapOfAssessments = assessments.stream().collect(Collectors.groupingBy(Assessment::getAssessmentCode));
         final List<Assessment> assessmentsFiltered = new ArrayList<>();
         // get latest assessment for each code
-        mapOfAssessments.forEach((assessmentCode, assessment) -> assessmentsFiltered.add(assessment.get(0)));
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessmentsFiltered.add(assessment.getFirst()));
         return assessmentsFiltered;
     }
 
@@ -363,7 +363,7 @@ public class InmateService {
         final var mapOfAssessments = assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
         final List<Assessment> assessments = new ArrayList<>();
         // get latest assessment for each code
-        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.get(0))));
+        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.getFirst())));
         return assessments;
     }
 
@@ -429,13 +429,13 @@ public class InmateService {
 
                     if (mostRecentOnly) {
                         if(!csra){
-                            results.add(createAssessment(assessmentForBooking.get(0)));
+                            results.add(createAssessment(assessmentForBooking.getFirst()));
                         }else {
                             final var firstAssessment = createAssessment(
                                 assessmentForBooking
                                     .stream().filter(assessmentDto -> isCalculatedCsra(assessmentDto) || isReviewedCsra(assessmentDto))
                                     .findFirst()
-                                    .orElse(assessmentForBooking.get(0))
+                                    .orElse(assessmentForBooking.getFirst())
                             );
                             if (validCsra(firstAssessment)) {
                                 results.add(firstAssessment);
@@ -464,15 +464,11 @@ public class InmateService {
     }
 
     public List<OffenderCategorise> getOffenderCategorisationsSystem(final Set<Long> bookingIds, final boolean latestOnly) {
-        return doGetOffenderCategorisations(null, bookingIds, latestOnly);
-    }
-
-    private List<OffenderCategorise> doGetOffenderCategorisations(final String agencyId, final Set<Long> bookingIds, final boolean latestOnly) {
         final List<OffenderCategorise> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(bookingIds)) {
             final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
             batch.forEach(offenderBatch -> {
-                final var categorisations = repository.getOffenderCategorisations(offenderBatch, agencyId, latestOnly);
+                final var categorisations = repository.getOffenderCategorisations(offenderBatch, null, latestOnly);
                 results.addAll(categorisations);
             });
         }
@@ -516,11 +512,11 @@ public class InmateService {
         };
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
-        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentUsername());
+        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentPrincipal());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
         final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
@@ -529,39 +525,39 @@ public class InmateService {
         return responseKeyMap;
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
-    public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail) {
+    public void updateCategorisation(final Long bookingId, final CategorisationUpdateDetail detail, final Boolean lockTimeout) {
         validate(detail);
-        repository.updateCategory(detail);
+        repository.updateCategory(detail, lockTimeout);
 
         // Log event
         telemetryClient.trackEvent("CategorisationUpdated", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
-    public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail) {
+    public void approveCategorisation(final Long bookingId, final CategoryApprovalDetail detail, final Boolean lockTimeout) {
         validate(detail);
-        repository.approveCategory(detail);
+        repository.approveCategory(detail, lockTimeout);
 
         // Log event
         telemetryClient.trackEvent("CategorisationApproved", ImmutableMap.of("bookingId", bookingId.toString(), "category", detail.getCategory()), null);
     }
 
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"}, accessDeniedError = true)
+    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_ASSESSMENTS"})
     @Transactional
-    public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail) {
+    public void rejectCategorisation(final Long bookingId, final CategoryRejectionDetail detail, final Boolean lockTimeout) {
         validate(detail);
-        repository.rejectCategory(detail);
+        repository.rejectCategory(detail, lockTimeout);
 
         // Log event
         telemetryClient.trackEvent("CategorisationRejected", ImmutableMap.of("bookingId", bookingId.toString(), "seq", detail.getAssessmentSeq().toString()), null);
     }
 
     @Transactional
-    public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status) {
-        final var count = repository.setCategorisationInactive(bookingId, status);
+    public void setCategorisationInactive(final Long bookingId, final AssessmentStatusType status, final Boolean lockTimeout) {
+        final var count = repository.setCategorisationInactive(bookingId, status, lockTimeout);
 
         // Log event
         telemetryClient.trackEvent("CategorisationSetInactive", ImmutableMap.of(
@@ -571,8 +567,8 @@ public class InmateService {
     }
 
     @Transactional
-    public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate) {
-        repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate);
+    public void updateCategorisationNextReviewDate(final Long bookingId, final LocalDate nextReviewDate, final Boolean lockTimeout) {
+        repository.updateActiveCategoryNextReviewDate(bookingId, nextReviewDate, lockTimeout);
 
         // Log event
         telemetryClient.trackEvent("CategorisationNextReviewDateUpdated", ImmutableMap.of("bookingId", bookingId.toString()), null);

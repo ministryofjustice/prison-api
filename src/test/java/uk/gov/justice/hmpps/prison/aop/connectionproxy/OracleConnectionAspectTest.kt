@@ -259,7 +259,7 @@ class OracleConnectionAspectTest {
   @Throws(SQLException::class)
   private fun configureMocks(authSource: AuthSource, proxyUser: String) {
     whenever(authenticationFacade.authenticationSource).thenReturn(authSource)
-    whenever(authenticationFacade.currentUsername).thenReturn(proxyUser)
+    whenever(authenticationFacade.currentPrincipal).thenReturn(proxyUser)
     whenever(pooledConnection.unwrap(Connection::class.java)).thenReturn(oracleConnection)
     whenever(oracleConnection.prepareStatement(anyString())).thenReturn(oraclePreparedStatement)
     whenever(pooledConnection.prepareStatement(anyString())).thenReturn(pooledPreparedStatement)

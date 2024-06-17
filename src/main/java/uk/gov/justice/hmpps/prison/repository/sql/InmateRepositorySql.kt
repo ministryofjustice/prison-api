@@ -736,7 +736,7 @@ enum class InmateRepositorySql(val sql: String) {
     """,
   ),
 
-  UPDATE_CATEORY_NEXT_REVIEW_DATE(
+  UPDATE_CATEGORY_NEXT_REVIEW_DATE(
     """
         update OFFENDER_ASSESSMENTS
                 set
@@ -745,6 +745,15 @@ enum class InmateRepositorySql(val sql: String) {
         and ASSESSMENT_SEQ = (SELECT MAX (OA.ASSESSMENT_SEQ) FROM OFFENDER_ASSESSMENTS OA
                 WHERE OA.OFFENDER_BOOK_ID = :bookingId and OA.ASSESS_STATUS = 'A' and OA.ASSESSMENT_TYPE_ID=:assessmentTypeId)
 
+    """,
+  ),
+
+  CATEGORY_LOCK(
+    """
+        SELECT 1 FROM OFFENDER_ASSESSMENTS
+          where OFFENDER_BOOK_ID=:bookingId
+          and ASSESSMENT_SEQ = :assessmentSeq
+        FOR UPDATE
     """,
   ),
 

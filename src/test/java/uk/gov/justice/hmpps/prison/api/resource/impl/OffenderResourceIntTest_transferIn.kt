@@ -18,7 +18,6 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
@@ -47,7 +46,6 @@ import java.time.format.DateTimeFormatter
 /**
  * KOTLIN
  */
-@WithMockUser
 class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var dataLoaderTransaction: DataLoaderTransaction

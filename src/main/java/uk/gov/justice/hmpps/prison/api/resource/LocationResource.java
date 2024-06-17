@@ -72,7 +72,7 @@ public class LocationResource {
             @RequestHeader(value = "Sort-Fields", defaultValue = "lastName,firstName,bookingId", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,
             @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
-                .username(authenticationFacade.getCurrentUsername())
+                .username(authenticationFacade.getCurrentPrincipal())
                 .keywords(keywords)
                 .locationPrefix(locationPrefix)
                 .returnAlerts(returnAlerts)
@@ -143,7 +143,7 @@ public class LocationResource {
                                                                         @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var inmates = locationService.getInmatesFromLocation(
                 locationId,
-                authenticationFacade.getCurrentUsername(),
+                authenticationFacade.getCurrentPrincipal(),
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),

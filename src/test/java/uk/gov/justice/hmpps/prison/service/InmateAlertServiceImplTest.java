@@ -115,7 +115,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -144,7 +144,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -201,7 +201,7 @@ public class InmateAlertServiceImplTest {
                 .dateCreated(LocalDate.now())
                 .build();
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
@@ -249,7 +249,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
@@ -272,7 +272,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
@@ -294,7 +294,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
@@ -325,7 +325,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
@@ -370,7 +370,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -394,7 +394,7 @@ public class InmateAlertServiceImplTest {
     @Test
     public void testTelemetryEventHasBeenRaised_OnAlertExpire() {
 
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(true).build()));
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
@@ -439,7 +439,7 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testAlertCanNotBeMadeInactiveIfAlreadyInactive() {
-        when(authenticationFacade.getCurrentUsername()).thenReturn("ITAG_USER");
+        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(false).build()));
 
         assertThatThrownBy(() ->

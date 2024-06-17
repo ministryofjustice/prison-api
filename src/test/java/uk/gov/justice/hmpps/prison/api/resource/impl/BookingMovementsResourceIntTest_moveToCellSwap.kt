@@ -17,7 +17,6 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
-import org.springframework.security.test.context.support.WithMockUser
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -140,7 +139,6 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   }
 
   @Test
-  @WithMockUser(username = "ITAG_USER", authorities = ["SCOPE_write"]) // Required because stubbing the BedAssignmentHistoryService means we don't pick up the usual Authentication from Spring AOP.
   fun transactionRolledBack() {
     val dateTime = now().minusHours(1)
 

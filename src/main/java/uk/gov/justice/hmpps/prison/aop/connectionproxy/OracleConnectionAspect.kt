@@ -56,7 +56,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionForCurrentUsername(): OracleConnection {
-    val currentUsername = authenticationFacade.currentUsername
+    val currentUsername = authenticationFacade.currentPrincipal
     val info = Properties().apply {
       this[OracleConnection.PROXY_USER_NAME] = currentUsername
     }
