@@ -29,8 +29,7 @@ import static org.assertj.core.api.Assertions.tuple;
  */
 public class MovementsSteps extends CommonSteps {
     private static final String API_REQUEST_BASE_URL = API_PREFIX + "movements?fromDateTime=%s&movementDate=%s";
-    private static final String API_REQUEST_ROLLCOUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}?unassigned={unassigned}";
-    private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
+      private static final String API_REQUEST_MOVEMENT_COUNT_URL = API_PREFIX + "movements/rollcount/{agencyId}/movements?movementDate={date}";
     private static final String API_REQUEST_RECENT_MOVEMENTS = API_PREFIX + "movements/offenders";
     private static final String API_REQUEST_OUT_TODAY = API_PREFIX + "movements/{agencyId}/out/{isoDate}";
     private static final String API_REQUEST_MOVEMENT_ENROUTE_URL = API_PREFIX + "movements/{agencyId}/enroute?movementDate={date}";
@@ -75,16 +74,6 @@ public class MovementsSteps extends CommonSteps {
                 .contains(
                         tuple("Z0021ZZ", LocalDateTime.of(2017, Month.FEBRUARY, 21, 0, 0),
                                 "LEI", "OUT", "REL", "OUT"));
-    }
-
-    @Step("Retrieve all rollcount records")
-    public void retrieveRollCounts(final String agencyId) {
-        doRollCountListApiCall(agencyId, false);
-    }
-
-    @Step("Retrieve all unassigned rollcount records")
-    public void retrieveUnassignedRollCounts(final String agencyId) {
-        doRollCountListApiCall(agencyId, true);
     }
 
     @Step("Verify a list of rollcounts are returned")
@@ -185,26 +174,6 @@ public class MovementsSteps extends CommonSteps {
             assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
             movements = response.getBody();
-
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void doRollCountListApiCall(final String agencyId, final boolean unassigned) {
-        init();
-
-        try {
-            final var response = restTemplate.exchange(
-                    API_REQUEST_ROLLCOUNT_URL,
-                    HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<RollCount>>() {
-                    }, agencyId, unassigned);
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            rollCounts = response.getBody();
 
             buildResourceData(response);
         } catch (final PrisonApiClientException ex) {

@@ -34,16 +34,6 @@ public class MovementsStepDefinitions extends AbstractStepDefinitions {
         movementsSteps.verifyListOfRecords();
     }
 
-    @When("^a request is made to retrieve the establishment roll count for an agency$")
-    public void aRequestIsMadeToRetrieveRollCount() {
-        movementsSteps.retrieveRollCounts("LEI");
-    }
-
-    @When("^a request is made to retrieve the establishment unassigned roll count for an agency$")
-    public void aRequestIsMadeToRetrieveUnassignedRollCount() {
-        movementsSteps.retrieveUnassignedRollCounts("LEI");
-    }
-
     @Then("^a valid list of roll count records are returned$")
     public void aListOfRollCountRecordsAreReturned() {
         movementsSteps.verifyListOfRollCounts();
