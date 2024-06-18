@@ -31,7 +31,7 @@ class PrisonRollCountService(
 
     val residentialLocations = residentialLocationList.filter { !it.hasParent() }
       .map { it.toDto(locations = residentialLocationList, includeLeaf = includeCells) }
-      .sortedWith (NaturalOrderComparator())
+      .sortedWith(NaturalOrderComparator())
 
     val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
     val nonCertifiedTopLevelLocations = rollCount.filter { !it.hasParent() && !it.isCertified() }
