@@ -29,7 +29,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.util.Extractors
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
 import java.time.LocalDate
-import java.util.*
+import java.util.Date
 
 class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Autowired
@@ -198,7 +198,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage")
-          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role, or agency inactive")
+          .isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
       }
 
       @Test

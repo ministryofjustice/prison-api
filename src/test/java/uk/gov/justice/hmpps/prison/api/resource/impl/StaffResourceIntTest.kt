@@ -256,7 +256,7 @@ class StaffResourceIntTest : ResourceTest() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role, or agency inactive")
+        .isEqualTo("Unauthorised access to agency with id BMI due to missing override role, or agency inactive")
     }
 
     @Test
