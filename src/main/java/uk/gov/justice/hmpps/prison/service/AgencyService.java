@@ -60,9 +60,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 import java.time.LocalDate;
 import java.util.Collections;
 import java.util.Comparator;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -220,35 +218,10 @@ public class AgencyService {
         if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
-        if (agencyIds.isEmpty()) {
+        if (agencyIds.isEmpty() || !agencyIds.contains(agencyId)) {
             checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
-            if (authenticationFacade.isClientOnly()) {
-                throw new AccessDeniedException(format("Client not authorised to access agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
-            }
-            throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
-
+            throw new AccessDeniedException(format("Unauthorised access to agency with id %s due to missing override role%s", agencyId, allowInactive ? "" : ", or agency inactive"));
         }
-        if (!agencyIds.contains(agencyId)) {
-            checkAgencyExists(agencyId, allowInactive ? ALL: ACTIVE_ONLY);
-            throw new AccessDeniedException(format("User not authorised to access agency with id %s%s", agencyId, allowInactive ? "" : ", or agency inactive"));
-        }
-    }
-
-    private void logClientUnauthorisedAccess(final String agencyId) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("agencyId", agencyId);
-        logMap.put("currentClientRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        telemetryClient.trackEvent("ClientUnauthorisedAgencyAccess", logMap, null);
-    }
-
-    private void logUserUnauthorisedAccess(final String agencyId, final Set<String> agencyIds) {
-        final Map<String, String> logMap = new HashMap<>();
-        logMap.put("agencyId", agencyId);
-        logMap.put("clientId", authenticationFacade.getClientId());
-        logMap.put("currentUser", authenticationFacade.getCurrentPrincipal());
-        logMap.put("currentUserRoles", StringUtils.join(authenticationFacade.getCurrentRoles(), ","));
-        logMap.put("currentUserCaseloads", StringUtils.join(agencyIds, ","));
-        telemetryClient.trackEvent("UserUnauthorisedAgencyAccess", logMap, null);
     }
 
     public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {

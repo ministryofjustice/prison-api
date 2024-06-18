@@ -33,7 +33,7 @@ class KeyWorkerResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
 
     @Test
@@ -41,7 +41,7 @@ class KeyWorkerResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
 
     @Test
@@ -88,7 +88,7 @@ class KeyWorkerResourceTest : ResourceTest() {
         // RO_USER has no caseloads
         .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
 
     @Test
@@ -96,7 +96,7 @@ class KeyWorkerResourceTest : ResourceTest() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
         .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access agency with id LEI, or agency inactive")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
 
     @Test
