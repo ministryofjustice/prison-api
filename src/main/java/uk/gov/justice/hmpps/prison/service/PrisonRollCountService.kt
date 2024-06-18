@@ -42,7 +42,7 @@ class PrisonRollCountService(
     val now = LocalDate.now()
     val enRouteCount = movementsRepository.getEnrouteMovementsOffenderCount(prisonId, now)
     val movementCount = movementsRepository.getMovementCount(prisonId, now)
-    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).first()
+    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).firstOrNull()
 
     return PrisonRollCount(
       prisonId = prisonId,
