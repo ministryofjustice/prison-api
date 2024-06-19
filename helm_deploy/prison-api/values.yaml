@@ -40,6 +40,8 @@ generic-service:
       # attack-protocol is 921 range
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/.*comment/"
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/text/"
+      SecRuleUpdateTargetById 930110 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 930110 "!ARGS:/text/"
       # attack-rce is 932 range
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/.*comment/"
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/text/"
