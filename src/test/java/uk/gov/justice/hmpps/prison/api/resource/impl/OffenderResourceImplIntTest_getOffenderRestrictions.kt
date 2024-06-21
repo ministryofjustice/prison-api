@@ -75,7 +75,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -8.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
     }
 
     @Test
@@ -85,7 +85,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -8.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
     }
 
     @Test
@@ -95,7 +95,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
         .headers(setAuthorisation("UNAUTHORISED_USER", listOf("ROLE_BANANAS")))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
     }
 
     @Test
@@ -123,7 +123,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
         .headers(setAuthorisation("UNAUTHORISED_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
     }
 
     @Test
@@ -133,7 +133,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
         .headers(setAuthorisation("WAI_USER", listOf("")))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -8.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
     }
   }
 }

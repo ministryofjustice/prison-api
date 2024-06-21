@@ -832,7 +832,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
     }
 
     @Test
@@ -924,7 +924,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .bodyValue(caseNoteUpdate)
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -16.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -16.")
     }
 
     @Test
@@ -1110,7 +1110,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .bodyValue(caseNote)
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Client not authorised to access booking with id -2.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
     }
 
     @Test
@@ -1150,7 +1150,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -2.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
     }
 
     @Test
@@ -1495,7 +1495,7 @@ class OffenderResourceIntTest : ResourceTest() {
         )
         .exchange()
         .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -16.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -16.")
     }
 
     @Test

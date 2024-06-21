@@ -57,7 +57,7 @@ class SentenceEnvelopeService(
       )
 
     // ensure that the user has access to each of the bookings
-    bookingIds.forEach { bookingService.verifyBookingAccess(it.bookingId, false, "VIEW_PRISONER_DATA") }
+    bookingIds.forEach { bookingService.verifyBookingAccess(it.bookingId, "VIEW_PRISONER_DATA") }
 
     val activeBookings = offenderBookingRepository.findAllByBookingIdIn(bookingIds.map(OffenderBookingId::bookingId))
     return activeBookings.map { determineCalculableSentenceEnvelope(it) }

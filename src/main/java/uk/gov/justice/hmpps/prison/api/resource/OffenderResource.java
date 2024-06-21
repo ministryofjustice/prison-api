@@ -140,7 +140,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Full details about the current state of an offender")
     @GetMapping("/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true, false);
@@ -599,7 +599,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking", hidden = true)
     @GetMapping("/{offenderNo}/case-notes/v2")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"}, accessDeniedError = true)
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
     @SlowReportQuery
     public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
                                                @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
@@ -627,7 +627,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
     @Operation(summary = "Offender case note detail.", description = "Retrieve an single offender case note", hidden = true)
     @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"}, accessDeniedError = true)
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
@@ -653,10 +653,10 @@ public class OffenderResource {
         @ApiResponse(responseCode = "201", description = "Case Note amendment processed successfully. Updated case note is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. amendment text not provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to amend case note.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Resource not found - offender or case note does not exist or is not accessible to user.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Resource not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Amend offender case note.", description = "Requires offender to be in caseload", hidden = true)
-    @VerifyOffenderAccess(accessDeniedError = true)
+    @VerifyOffenderAccess
     @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
     @HasWriteScope
     @ProxyUser
@@ -694,7 +694,7 @@ public class OffenderResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "404", description = "Offender does not exists or is in a different caseload to the user", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Offender does not exist", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of damage obligations", description = "Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
@@ -722,7 +722,7 @@ public class OffenderResource {
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.",
         description = "Transactions are returned in order of entryDate descending and sequence ascending).<br/>" +
             "All transaction amounts are represented as pence values. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"}, accessDeniedError = true)
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/transaction-history")
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(

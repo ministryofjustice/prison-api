@@ -127,7 +127,7 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
     assertThat(response.body).isEqualTo(
       builder()
         .status(403)
-        .userMessage("User not authorised to access booking with id -1.")
+        .userMessage("Unauthorised access to booking with id -1.")
         .build(),
     )
     verifyNoInteractions(offenderBookingRepository)

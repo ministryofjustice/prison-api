@@ -117,7 +117,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("User not authorised to access booking with id $bookingId.")
+          .isEqualTo("Unauthorised access to booking with id $bookingId.")
       }
 
       @Test
@@ -130,7 +130,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("User not authorised to access booking with id $bookingId.")
+          .isEqualTo("Unauthorised access to booking with id $bookingId.")
       }
 
       @Test
@@ -143,7 +143,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("User not authorised to access booking with id $bookingId.")
+          .isEqualTo("Unauthorised access to booking with id $bookingId.")
       }
     }
 
@@ -189,7 +189,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
         ).isForbidden
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("User not authorised to access booking with id $bookingId.")
+          .isEqualTo("Unauthorised access to booking with id $bookingId.")
       }
 
       @Test

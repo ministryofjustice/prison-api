@@ -201,7 +201,7 @@ public class BookingServiceTest {
         when(agencyService.getAgencyIds(false)).thenReturn(agencyIds);
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
-        bookingService.getOffenderIdentifiers("off-1", false);
+        bookingService.getOffenderIdentifiers("off-1");
     }
 
     @Test
@@ -216,8 +216,8 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1", false))
-            .isInstanceOf(EntityNotFoundException.class);
+            bookingService.getOffenderIdentifiers("off-1"))
+            .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test
@@ -232,7 +232,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1", true))
+            bookingService.getOffenderIdentifiers("off-1"))
             .isInstanceOf(AccessDeniedException.class);
     }
 
@@ -247,7 +247,7 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(true);
 
 
-        bookingService.getOffenderIdentifiers("off-1", false);
+        bookingService.getOffenderIdentifiers("off-1");
     }
 
     @Test
@@ -257,7 +257,7 @@ public class BookingServiceTest {
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
         when(bookingRepository.checkBookingExists(-1L)).thenReturn(true);
 
-        bookingService.getOffenderIdentifiers("off-1", false, "SYSTEM_USER", "GLOBAL_SEARCH");
+        bookingService.getOffenderIdentifiers("off-1",  "SYSTEM_USER", "GLOBAL_SEARCH");
 
         verify(authenticationFacade).isOverrideRole(
             "SYSTEM_USER", "GLOBAL_SEARCH"
@@ -276,8 +276,8 @@ public class BookingServiceTest {
         when(bookingRepository.verifyBookingAccess(bookingId, agencyIds)).thenReturn(false);
 
         assertThatThrownBy(() ->
-            bookingService.getOffenderIdentifiers("off-1", false))
-            .isInstanceOf(EntityNotFoundException.class);
+            bookingService.getOffenderIdentifiers("off-1"))
+            .isInstanceOf(AccessDeniedException.class);
     }
 
     @Test

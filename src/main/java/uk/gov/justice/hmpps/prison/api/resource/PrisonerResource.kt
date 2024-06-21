@@ -145,7 +145,7 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     description = "List of offenders globally matching the offenderNo, Requires offender agency to be in user caseload or VIEW_PRISONER_DATA role. " +
       "Returns an empty array if no results are found or if does not have correct permissions",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"], accessDeniedError = true)
+  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
     @PathVariable("offenderNo")

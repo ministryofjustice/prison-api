@@ -29,7 +29,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.util.Extractors
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
 import java.time.LocalDate
-import java.util.*
+import java.util.Date
 
 class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Autowired
@@ -198,7 +198,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage")
-          .isEqualTo("Client not authorised to access agency with id LEI due to missing override role, or agency inactive")
+          .isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
       }
 
       @Test
@@ -446,7 +446,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/offender-assessments/csra/-43/assessment/2")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -43.")
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -43.")
     }
 
     @Test
@@ -799,7 +799,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         String::class.java,
       )
       assertThatStatus(response, FORBIDDEN.value())
-      assertThatJson(response.body!!).node("userMessage").asString().contains("User not authorised to access booking with id -43.")
+      assertThatJson(response.body!!).node("userMessage").asString().contains("Unauthorised access to booking with id -43.")
     }
 
     @Test
@@ -957,7 +957,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -35.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -35.")
       }
 
       @Test
@@ -976,7 +976,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -35.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -35.")
       }
 
       @Test
@@ -1205,7 +1205,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -38.")
       }
 
       @Test
@@ -1224,7 +1224,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -38.")
       }
 
       @Test
@@ -1551,7 +1551,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -34.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -34.")
       }
 
       @Test
@@ -1573,7 +1573,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -34.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -34.")
       }
 
       @Test
@@ -1870,7 +1870,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -38.")
       }
 
       @Test
@@ -1891,7 +1891,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           )
           .exchange()
           .expectStatus().isForbidden
-          .expectBody().jsonPath("userMessage").isEqualTo("User not authorised to access booking with id -38.")
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -38.")
       }
 
       @Test

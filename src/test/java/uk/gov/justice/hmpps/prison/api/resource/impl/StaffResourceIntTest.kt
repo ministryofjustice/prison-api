@@ -6,10 +6,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.kotlin.any
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
 
 class StaffResourceIntTest : ResourceTest() {
@@ -260,9 +256,7 @@ class StaffResourceIntTest : ResourceTest() {
         .expectStatus().isForbidden
         .expectBody()
         .jsonPath("userMessage")
-        .isEqualTo("Client not authorised to access agency with id BMI due to missing override role, or agency inactive")
-
-      verify(telemetryClient).trackEvent(eq("ClientUnauthorisedAgencyAccess"), any(), isNull())
+        .isEqualTo("Unauthorised access to agency with id BMI due to missing override role, or agency inactive")
     }
 
     @Test

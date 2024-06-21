@@ -9,6 +9,8 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.PrisonRollCountSummaryRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
+import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator
+import uk.gov.justice.hmpps.prison.util.SortAttribute
 import java.time.LocalDate
 
 @Service
@@ -29,6 +31,7 @@ class PrisonRollCountService(
 
     val residentialLocations = residentialLocationList.filter { !it.hasParent() }
       .map { it.toDto(locations = residentialLocationList, includeLeaf = includeCells) }
+      .sortedWith(NaturalOrderComparator())
 
     val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
     val nonCertifiedTopLevelLocations = rollCount.filter { !it.hasParent() && !it.isCertified() }
@@ -39,7 +42,7 @@ class PrisonRollCountService(
     val now = LocalDate.now()
     val enRouteCount = movementsRepository.getEnRouteMovementsOffenderCount(prisonId, now)
     val movementCount = movementsRepository.getMovementCount(prisonId, now)
-    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).first()
+    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).firstOrNull()
 
     return PrisonRollCount(
       prisonId = prisonId,
@@ -131,7 +134,11 @@ data class ResidentialLocation(
   val rollCount: LocationRollCount,
   @Schema(description = "List of residential locations for this summary, including wings and sub-locations such as landings and cells", required = true)
   val subLocations: List<ResidentialLocation>,
-)
+) : SortAttribute {
+
+  override val key: String
+    get() = localName?.capitalizeWords() ?: fullLocationPath
+}
 
 @Schema(description = "Summary of cell usage for this level")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -149,3 +156,10 @@ data class LocationRollCount(
   @Schema(description = "Out of order", required = true)
   val outOfOrder: Int = 0,
 )
+
+fun String.capitalizeWords(delimiter: String = " ") =
+  split(delimiter).joinToString(delimiter) { word ->
+
+    val smallCaseWord = word.lowercase()
+    smallCaseWord.replaceFirstChar(Char::titlecaseChar)
+  }
