@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.1"
   kotlin("plugin.spring") version "2.0.0"
   kotlin("plugin.jpa") version "2.0.0"
   kotlin("plugin.lombok") version "2.0.0"
@@ -19,7 +19,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.32")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.32")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.1")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -45,7 +45,7 @@ dependencies {
   compileOnly("org.projectlombok:lombok:1.18.32")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
-  runtimeOnly("org.hsqldb:hsqldb:2.7.2")
+  runtimeOnly("org.hsqldb:hsqldb:2.7.3")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
@@ -62,20 +62,20 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.2.7")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.1.14")
-  testImplementation("net.serenity-bdd:serenity-junit:4.1.14")
-  testImplementation("net.serenity-bdd:serenity-spring:4.1.14")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.14")
+  testImplementation("net.serenity-bdd:serenity-core:4.1.20")
+  testImplementation("net.serenity-bdd:serenity-junit:4.1.20")
+  testImplementation("net.serenity-bdd:serenity-spring:4.1.20")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.20")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.6.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.5")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.5")
+  testImplementation("org.wiremock:wiremock:3.7.0")
+  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
+  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.22")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.37.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.38.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.32")
 }
