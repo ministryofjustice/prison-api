@@ -60,6 +60,27 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
   @Nested
   inner class HappyPath {
     @Test
+    fun `should return correct summary data for Leeds`() {
+      webTestClient.get().uri("/api/prison/roll-count/LEI/summary")
+        .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().json(
+          """
+            {
+              "prisonId": "LEI",
+              "numUnlockRollToday": 24,
+              "numCurrentPopulation": 24,
+              "numArrivedToday": 0,
+              "numStillToArrive": 2,
+            } 
+          """.trimIndent(),
+
+          false,
+        )
+    }
+
+    @Test
     fun `should return correct data for Leeds`() {
       webTestClient.get().uri("/api/prison/roll-count/LEI")
         .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))

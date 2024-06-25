@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.core.SlowReportQuery
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
 import uk.gov.justice.hmpps.prison.service.PrisonRollCount
 import uk.gov.justice.hmpps.prison.service.PrisonRollCountService
+import uk.gov.justice.hmpps.prison.service.PrisonRollSummary
 
 @RestController
 @Tag(name = "prison")
@@ -58,6 +59,37 @@ class PrisonRollCountResource(
     @RequestParam(name = "include-cells", required = false, defaultValue = "false") includeCells: Boolean = false,
   ): PrisonRollCount =
     prisonRollCountService.getPrisonRollCount(prisonId, includeCells)
+
+  @GetMapping
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Roll count summary for a specific prison",
+    description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.",
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Returns roll count summary for a specific prison",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires the ESTABLISHMENT_ROLL role",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @SlowReportQuery
+  @VerifyAgencyAccess(overrideRoles = ["ESTABLISHMENT_ROLL"])
+  fun getPrisonRollCountSummary(
+    @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
+    @PathVariable
+    prisonId: String,
+  ): PrisonRollSummary =
+    prisonRollCountService.getPrisonRollSummary(prisonId)
 
   @GetMapping("/cells-only/{locationId}")
   @ResponseStatus(HttpStatus.OK)

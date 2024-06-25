@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.PrisonRollCountSummaryRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonRollCountSummary
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator
 import uk.gov.justice.hmpps.prison.util.SortAttribute
@@ -26,31 +27,24 @@ class PrisonRollCountService(
   }
   fun getPrisonRollCount(prisonId: String, includeCells: Boolean, locationId: String? = null): PrisonRollCount {
     val rollCount = prisonRollCountSummaryRepository.findAllByPrisonId(prisonId).sortedBy { it.fullLocationPath }
+    val (unassignedIn, rollSummary) = getPrisonRollSummaryInfo(prisonId, rollCount)
+
+    val now = LocalDate.now()
+    val enRouteCount = movementsRepository.getEnrouteMovementsOffenderCount(prisonId, now)
+    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).firstOrNull()
 
     val residentialLocationList = rollCount.filter { it.isNotACellAndCertified() || it.isCellOrRoom() }
-
     val residentialLocations = residentialLocationList.filter { !it.hasParent() }
       .map { it.toDto(locations = residentialLocationList, includeLeaf = includeCells) }
       .sortedWith(NaturalOrderComparator())
 
-    val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
-    val nonCertifiedTopLevelLocations = rollCount.filter { !it.hasParent() && !it.isCertified() }
-
-    val unassignedIn = nonCertifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + nonCertifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 }
-    val currentRoll = certifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + certifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 } + unassignedIn
-
-    val now = LocalDate.now()
-    val enRouteCount = movementsRepository.getEnrouteMovementsOffenderCount(prisonId, now)
-    val movementCount = movementsRepository.getMovementCount(prisonId, now)
-    val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).firstOrNull()
-
     return PrisonRollCount(
       prisonId = prisonId,
-      numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut(),
-      numCurrentPopulation = currentRoll,
-      numOutToday = movementCount.getOut(),
+      numUnlockRollToday = rollSummary.numUnlockRollToday,
+      numCurrentPopulation = rollSummary.numCurrentPopulation,
+      numOutToday = rollSummary.numOutToday,
+      numArrivedToday = rollSummary.numArrivedToday,
       numInReception = unassignedIn,
-      numArrivedToday = movementCount.getIn(),
       numStillToArrive = enRouteCount,
       numNoCellAllocated = cSwap?.currentOccupancy ?: 0,
       totals = LocationRollCount(
@@ -69,7 +63,51 @@ class PrisonRollCountService(
     val rollCount = getPrisonRollCount(prisonId = prisonId, includeCells = true)
     return rollCount.copy(locations = rollCount.findSubLocations(locationId))
   }
+
+  fun getPrisonRollSummary(prisonId: String) =
+    getPrisonRollSummaryInfo(prisonId, prisonRollCountSummaryRepository.findAllByPrisonIdAndParentLocationIdIsNull(prisonId)).rollSummary
+
+  private fun getPrisonRollSummaryInfo(prisonId: String, rollCount: List<PrisonRollCountSummary>): PrisonRollSummaryInfo {
+    val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
+    val nonCertifiedTopLevelLocations = rollCount.filter { !it.hasParent() && !it.isCertified() }
+
+    val unassignedIn = nonCertifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + nonCertifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 }
+    val currentRoll = certifiedTopLevelLocations.sumOf { it.currentlyInCell ?: 0 } + certifiedTopLevelLocations.sumOf { it.outOfLivingUnits ?: 0 } + unassignedIn
+
+    val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
+
+    return PrisonRollSummaryInfo(
+      unassignedIn = unassignedIn,
+      rollSummary = PrisonRollSummary(
+        prisonId = prisonId,
+        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut(),
+        numCurrentPopulation = currentRoll,
+        numOutToday = movementCount.getOut(),
+        numArrivedToday = movementCount.getIn(),
+      ),
+    )
+  }
 }
+
+data class PrisonRollSummaryInfo(
+  val unassignedIn: Int,
+  val rollSummary: PrisonRollSummary,
+)
+
+@Schema(description = "Prison Roll Summary")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PrisonRollSummary(
+  @Schema(description = "Prison Id", required = true)
+  val prisonId: String,
+  @Schema(description = "Unlock roll today", required = true)
+  val numUnlockRollToday: Int,
+  @Schema(description = "Arrived today", required = true)
+  val numArrivedToday: Int,
+  @Schema(description = "Out today", required = true)
+  val numOutToday: Int,
+  @Schema(description = "Current population", required = true)
+  val numCurrentPopulation: Int,
+)
 
 @Schema(description = "Establishment Roll Count")
 @JsonInclude(JsonInclude.Include.NON_NULL)
