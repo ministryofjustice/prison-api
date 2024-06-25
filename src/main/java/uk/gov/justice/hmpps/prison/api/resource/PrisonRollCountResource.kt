@@ -60,7 +60,7 @@ class PrisonRollCountResource(
   ): PrisonRollCount =
     prisonRollCountService.getPrisonRollCount(prisonId, includeCells)
 
-  @GetMapping
+  @GetMapping("/summary")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Roll count summary for a specific prison",
