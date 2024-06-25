@@ -72,7 +72,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
               "numUnlockRollToday": 24,
               "numCurrentPopulation": 24,
               "numArrivedToday": 0,
-              "numStillToArrive": 2,
+              "numOutToday": 0
             } 
           """.trimIndent(),
 
