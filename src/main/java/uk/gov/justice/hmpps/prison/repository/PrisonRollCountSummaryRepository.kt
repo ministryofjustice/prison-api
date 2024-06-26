@@ -18,4 +18,6 @@ interface PrisonRollCountSummaryRepository : JpaRepository<PrisonRollCountSummar
   ): List<PrisonRollCountSummary>
 
   fun findAllByPrisonId(prisonId: String): List<PrisonRollCountSummary>
+
+  fun findAllByPrisonIdAndParentLocationIdIsNull(prisonId: String): List<PrisonRollCountSummary>
 }

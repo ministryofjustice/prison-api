@@ -56,6 +56,36 @@ class PrisonRollCountRepositoryTest {
     }
 
     @Test
+    fun findRollSummaryCountForPrison() {
+      val rollCountSummary = repository.findAllByPrisonIdAndParentLocationIdIsNull("LEI")
+      assertThat(rollCountSummary).isNotEmpty
+      assertThat(rollCountSummary).hasSize(3)
+      assertThat(rollCountSummary)
+        .extracting(
+          "locationId",
+          "locationType",
+          "fullLocationPath",
+          "locationCode",
+          "localName",
+          "parentLocationId",
+          "bedsInUse",
+          "currentlyInCell",
+          "outOfLivingUnits",
+          "currentlyOut",
+          "operationalCapacity",
+          "netVacancies",
+          "maximumCapacity",
+          "availablePhysical",
+          "outOfOrder",
+        )
+        .contains(
+          Assertions.tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
+          Assertions.tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          Assertions.tuple(-25L, "AREA", "LEI-CHAP", "CHAP", "Chapel", null, 0, 0, 0, 0, null, null, null, null, 0),
+        )
+    }
+
+    @Test
     fun findRollSummaryForPrisonWingAndLandings() {
       val rollCountSummary = repository.findAllByPrisonIdAndLocationTypeInAndCertified("LEI", listOf("WING", "LAND"), "Y")
       assertThat(rollCountSummary).isNotEmpty
