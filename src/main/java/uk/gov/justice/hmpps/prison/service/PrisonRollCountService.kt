@@ -30,7 +30,7 @@ class PrisonRollCountService(
     val (unassignedIn, rollSummary) = getPrisonRollSummaryInfo(prisonId, rollCount)
 
     val now = LocalDate.now()
-    val enRouteCount = movementsRepository.getEnrouteMovementsOffenderCount(prisonId, now)
+    val enRouteCount = movementsRepository.getEnRouteMovementsOffenderCount(prisonId, now)
     val cSwap = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive(prisonId, "CSWAP", true).firstOrNull()
 
     val residentialLocationList = rollCount.filter { it.isNotACellAndCertified() || it.isCellOrRoom() }
