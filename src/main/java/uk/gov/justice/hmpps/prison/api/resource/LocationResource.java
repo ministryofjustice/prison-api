@@ -102,6 +102,7 @@ public class LocationResource {
     @Operation(summary = "Location detail.", description = "Location detail.")
     @GetMapping("/{locationId}")
     @ReferenceData(description = "Location properties only are returned, no prisoner data")
+    @Deprecated(forRemoval = true)
     public Location getLocation(
         @PathVariable("locationId")
         @Parameter(description = "The location id of location", required = true)
@@ -122,6 +123,7 @@ public class LocationResource {
     @Operation(summary = "Returns the location (internal) for a prison based on description")
     @GetMapping("/code/{code}")
     @ReferenceData(description = "Location properties only are returned, no prisoner data")
+    @Deprecated(forRemoval = true)
     public Location getLocationByCode(
         @PathVariable("code") @Parameter(example = "MDI-1", required = true) final String code) {
            return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
