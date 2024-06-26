@@ -173,7 +173,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   }
 
   // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
-  private fun requestMoveToCellSwap(bearerToken: String, bookingId: String, reasonCode: String?, dateTime: String): ResponseEntity<String> {
+  private fun requestMoveToCellSwap(bearerToken: String, bookingId: String, reasonCode: String?, dateTime: String): ResponseEntity<String?> {
     val body = if (reasonCode != null) mapOf("reasonCode" to reasonCode, "dateTime" to dateTime) else mapOf("dateTime" to dateTime)
 
     val entity = createHttpEntity(bearerToken, body)
@@ -200,7 +200,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
     )
   }
 
-  private fun verifySuccessResponse(response: ResponseEntity<String>, bookingId: Long = BOOKING_ID, internalLocationId: Long = NEW_CELL, internalLocationDesc: String = NEW_CELL_DESC) {
+  private fun verifySuccessResponse(response: ResponseEntity<String?>, bookingId: Long = BOOKING_ID, internalLocationId: Long = NEW_CELL, internalLocationDesc: String = NEW_CELL_DESC) {
     assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathNumberValue("$.bookingId").isEqualTo(bookingId.toInt())
     assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathNumberValue("$.assignedLivingUnitId").isEqualTo(internalLocationId.toInt())
@@ -209,7 +209,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
       .satisfies(ThrowingConsumer { number: Number -> assertThat(number.toInt()).isNotZero() })
   }
 
-  private fun verifyErrorResponse(response: ResponseEntity<String>, status: HttpStatus, vararg partialMessages: String) {
+  private fun verifyErrorResponse(response: ResponseEntity<String?>, status: HttpStatus, vararg partialMessages: String) {
     assertThat(response.statusCode).isEqualTo(status)
     assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathNumberValue("$.status").isEqualTo(status.value())
     if (partialMessages[0].isNotEmpty()) {
