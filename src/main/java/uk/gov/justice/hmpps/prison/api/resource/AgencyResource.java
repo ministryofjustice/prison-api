@@ -180,6 +180,7 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations")
     @SlowReportQuery
+    @Deprecated(forRemoval = true)
     public List<Location> getAgencyLocations(
         @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
         @RequestParam(value = "eventType", required = false) @Parameter(description = "Restricts list of locations returned to those that can be used for the specified event type.") final String eventType,
@@ -228,6 +229,7 @@ public class AgencyResource {
     @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/type/{type}")
+    @Deprecated(forRemoval = true)
     public List<Location> getAgencyLocationsByType(
         @PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId,
         @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type
@@ -255,6 +257,7 @@ public class AgencyResource {
     @Operation(summary = "List of all available Location Groups at agency.", description = "List of all available Location Groups at agency.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/groups")
+    @Deprecated(forRemoval = true)
     public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
     }

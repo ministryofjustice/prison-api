@@ -81,6 +81,7 @@ public class CellResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Get details of a location.")
     @GetMapping("/{locationId}/attributes")
+    @Deprecated(forRemoval = true)
     @ReferenceData(description = "Cell Attributes only")
     public OffenderCell getCellAttributes(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId) {
         return agencyService.getCellAttributes(locationId);
