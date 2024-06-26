@@ -1151,7 +1151,7 @@ class MovementResourceTest : ResourceTest() {
       courtEvents: Boolean,
       releaseEvents: Boolean,
       transferEvents: Boolean,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<String?> {
       val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
       val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
       return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
@@ -1163,7 +1163,7 @@ class MovementResourceTest : ResourceTest() {
       transferEvents: Boolean,
       fromDateTime: LocalDateTime,
       toDateTime: LocalDateTime,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<String?> {
       val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
       return testRestTemplate.exchange(
         UriComponentsBuilder
