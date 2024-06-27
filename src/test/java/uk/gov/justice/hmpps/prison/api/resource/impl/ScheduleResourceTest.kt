@@ -133,7 +133,7 @@ class ScheduleResourceTest : ResourceTest() {
     fun `returns 403 if does not have override role`() {
       webTestClient.post()
         .uri("/api/schedules/RNI/events-by-location-ids")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .bodyValue(locationIdsNoSchedules)
         .exchange()
         .expectStatus().isForbidden
@@ -495,7 +495,7 @@ class ScheduleResourceTest : ResourceTest() {
     @Test
     fun `returns 403 if user has no caseloads`() {
       webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
-        .headers(setAuthorisation("RO_USER", listOf("")))
+        .headers(setAuthorisation("RO_USER", listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(mapOf("-6" to "5"))
         .exchange()
@@ -505,7 +505,7 @@ class ScheduleResourceTest : ResourceTest() {
     @Test
     fun `returns 403 if user has does not have correct caseload`() {
       webTestClient.post().uri("/api/schedules/LEI/count-activities?timeSlots=AM&fromDate=2017-09-11&toDate=2017-09-28")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .bodyValue(mapOf("-6" to "5"))
         .exchange()

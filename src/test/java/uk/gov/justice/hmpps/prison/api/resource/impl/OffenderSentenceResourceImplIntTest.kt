@@ -99,7 +99,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun offenderSentence_unknownUser_noRoles_onlyAgency() {
       webTestClient.get()
         .uri("/api/offender-sentences?agencyId=LEI")
-        .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
+        .headers(setAuthorisation("UNKNOWN_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -110,7 +110,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun offenderSentence_unknownUser_noRoles_singleOffender() {
       webTestClient.get()
         .uri("/api/offender-sentences?offenderNo=A1234AH")
-        .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
+        .headers(setAuthorisation("UNKNOWN_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -152,7 +152,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun offenderSentence_noRoles_singleOffender() {
       webTestClient.get()
         .uri("/api/offender-sentences?offenderNo=A1234AH")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -449,7 +449,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun postOffenderSentence_unknownUser_noRoles_singleOffender() {
       webTestClient.post()
         .uri("/api/offender-sentences")
-        .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
+        .headers(setAuthorisation("UNKNOWN_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("""[ "A1234AH" ]""")
         .accept(APPLICATION_JSON)
@@ -477,7 +477,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun postOffenderSentence_noRoles_singleOffender() {
       webTestClient.post()
         .uri("/api/offender-sentences")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("""[ "A1234AH" ]""")
         .accept(APPLICATION_JSON)
@@ -645,7 +645,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
       // Note -11 = A1234AK; -5 = A1234AE, -16 not in caseload
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -11, -5, -16 ]")
         .accept(APPLICATION_JSON)
@@ -682,7 +682,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun postOffenderSentenceBookings_unknownUser_noRoles_singleOffender() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
-        .headers(setAuthorisation("UNKNOWN_USER", listOf("")))
+        .headers(setAuthorisation("UNKNOWN_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .accept(APPLICATION_JSON)
@@ -718,7 +718,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun postOffenderSentenceBookings_noRoles_singleOffender() {
       webTestClient.post()
         .uri("/api/offender-sentences/bookings")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue("[ -8 ]")
         .accept(APPLICATION_JSON)

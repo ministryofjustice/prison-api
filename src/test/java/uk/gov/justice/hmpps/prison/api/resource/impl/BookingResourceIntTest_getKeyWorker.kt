@@ -152,7 +152,7 @@ class BookingResourceIntTest_getKeyWorker : ResourceTest() {
       @Test
       fun `returns 200 if key worker`() {
         webTestClient.get().uri("/api/bookings/offenderNo/A1234AA/key-worker")
-          .headers(setAuthorisation("ITAG_USER", listOf(""))).exchange().expectStatus().isOk
+          .headers(setAuthorisation("ITAG_USER", listOf())).exchange().expectStatus().isOk
       }
     }
   }

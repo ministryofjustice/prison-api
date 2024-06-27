@@ -23,7 +23,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -31,7 +31,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("RO_USER", listOf())).exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
@@ -39,7 +39,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
@@ -56,7 +56,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns success if  in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/available")
-        .headers(setAuthorisation("ITAG_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("[*].staffId").value<List<Int>> { assertThat(it).containsExactlyInAnyOrder(-1, -4, -11, -12) }
@@ -77,7 +77,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `should return 403 as endpoint does not have override role`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -86,7 +86,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
         // RO_USER has no caseloads
-        .headers(setAuthorisation("RO_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("RO_USER", listOf())).exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
@@ -94,7 +94,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns 403 if not in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
-        .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("WAI_USER", listOf())).exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to agency with id LEI due to missing override role, or agency inactive")
     }
@@ -111,7 +111,7 @@ class KeyWorkerResourceTest : ResourceTest() {
     @Test
     fun `returns success if  in user caseload`() {
       webTestClient.get().uri("/api/key-worker/LEI/allocationHistory")
-        .headers(setAuthorisation("ITAG_USER", listOf(""))).exchange()
+        .headers(setAuthorisation("ITAG_USER", listOf())).exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("[*].offenderNo").value<List<Int>> { assertThat(it).hasSize(10) }
