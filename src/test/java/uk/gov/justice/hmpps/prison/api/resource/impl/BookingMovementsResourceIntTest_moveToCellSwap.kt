@@ -148,13 +148,13 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
     verifyLastBedAssignmentHistory()
   }
 
-  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
+  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "WAI_USER",
     scope = listOf("read", "write"),
     roles = listOf(),
   )
 
-  private fun noUserInContext(): String = jwtAuthenticationHelper.createJwt(
+  private fun noUserInContext(): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "a-system-client-id",
     scope = listOf("read", "write"),
     roles = listOf("MAINTAIN_CELL_MOVEMENTS"),

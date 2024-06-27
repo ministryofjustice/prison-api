@@ -2305,7 +2305,7 @@ class BookingResourceIntTest : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/visits/prisons",
         GET,
-        createHttpEntity(createJwt("NO_USER", emptyList()), null),
+        createHttpEntity(createJwtAccessToken("NO_USER", emptyList()), null),
         String::class.java,
         -1L,
       )
@@ -2387,7 +2387,7 @@ class BookingResourceIntTest : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/visits/summary",
         GET,
-        createHttpEntity(createJwt("NO_USER", emptyList()), null),
+        createHttpEntity(createJwtAccessToken("NO_USER", emptyList()), null),
         String::class.java,
         -1L,
       )

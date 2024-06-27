@@ -25,7 +25,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchS
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper;
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper;
 
 import static org.springframework.boot.test.context.SpringBootTest.WebEnvironment.RANDOM_PORT;
 
@@ -42,7 +42,7 @@ abstract class AbstractStepDefinitions {
     static class Config {
 
         @Bean
-        public AuthTokenHelper auth(final JwtAuthenticationHelper jwtAuthenticationHelper) {
+        public AuthTokenHelper auth(final JwtAuthorisationHelper jwtAuthenticationHelper) {
             return new AuthTokenHelper(jwtAuthenticationHelper);
         }
 

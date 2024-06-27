@@ -124,7 +124,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   fun `ensure unilink can access with client token`() {
     val dateTime = LocalDateTime.now().minusHours(1)
     val response = requestMoveToCell(
-      createJwt("unilink", listOf("ROLE_UNILINK")),
+      createJwtAccessToken("unilink", listOf("ROLE_UNILINK")),
       OFFENDER_NO,
       NEW_CELL_DESC,
       "BEH",
@@ -247,7 +247,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL)
   }
 
-  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
+  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "WAI_USER",
     scope = listOf("read", "write"),
     roles = listOf(),

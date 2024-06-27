@@ -202,7 +202,7 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
     }
 
     private String differentAgencyToken() {
-        return jwtAuthenticationHelper.createJwt("WAI_USER", List.of("read", "write"), null,null, Duration.ofDays(1), "prison-api-client", true);
+        return jwtAuthenticationHelper.createJwtAccessToken("prison-api-client", "WAI_USER", List.of("read", "write"));
     }
 
     private ResponseEntity<String> requestMoveToCell(final String bearerToken, final String bookingId, final String livingUnitId, final String reasonCode, final String dateTime) {

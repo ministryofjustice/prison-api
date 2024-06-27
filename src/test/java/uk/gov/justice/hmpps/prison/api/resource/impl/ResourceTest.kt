@@ -20,8 +20,8 @@ import uk.gov.justice.hmpps.prison.PrisonApiServer
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.util.Objects
 import java.util.function.Consumer
 
@@ -42,7 +42,7 @@ abstract class ResourceTest {
   protected lateinit var webTestClient: WebTestClient
 
   @Autowired
-  protected lateinit var jwtAuthenticationHelper: JwtAuthenticationHelper
+  protected lateinit var jwtAuthenticationHelper: JwtAuthorisationHelper
 
   @Autowired
   protected lateinit var authTokenHelper: AuthTokenHelper
@@ -84,7 +84,7 @@ abstract class ResourceTest {
     roles: List<String>,
     body: Any?,
   ): HttpEntity<*> {
-    val jwt = createJwt(user, roles)
+    val jwt = createJwtAccessToken(user, roles)
     return createHttpEntity(jwt, body)
   }
 
@@ -93,35 +93,35 @@ abstract class ResourceTest {
     roles: List<String>,
     additionalHeaders: Map<String?, String?>?,
   ): HttpEntity<*> {
-    val jwt = createJwt(user, roles)
+    val jwt = createJwtAccessToken(user, roles)
     return createHttpEntity(jwt, null, additionalHeaders ?: java.util.Map.of())
   }
 
-  protected fun createJwt(user: String?, roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+  protected fun createJwtAccessToken(user: String?, roles: List<String>): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = user,
     roles = roles,
     scope = listOf("read", "write"),
   )
 
-  protected fun validToken(): String = jwtAuthenticationHelper.createJwt(
+  protected fun validToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf(),
   )
 
-  protected fun validToken(roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+  protected fun validToken(roles: List<String>): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = roles,
   )
 
-  protected fun readOnlyToken(): String = jwtAuthenticationHelper.createJwt(
+  protected fun readOnlyToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read"),
     roles = listOf(),
   )
 
-  protected fun clientToken(roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+  protected fun clientToken(roles: List<String>): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "api-client-id",
     scope = listOf("read", "write"),
     roles = roles,
@@ -178,7 +178,7 @@ abstract class ResourceTest {
     Consumer { it.setBearerAuth(validToken(roles)) }
 
   protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> =
-    Consumer { it.setBearerAuth(createJwt(username, roles)) }
+    Consumer { it.setBearerAuth(createJwtAccessToken(username, roles)) }
 
   protected fun setClientAuthorisation(roles: List<String>): Consumer<HttpHeaders> =
     Consumer { it.setBearerAuth(clientToken(roles)) }

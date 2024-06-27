@@ -69,7 +69,7 @@ class FinanceControllerTest : ResourceTest() {
       .thenReturn(Optional.of(transaction1))
       .thenReturn(Optional.of(OffenderTransaction.builder().build()))
     val transaction = createTransferTransaction(124L)
-    val jwt = createJwt("ITAG_USER", listOf("ROLE_NOMIS_API_V1"))
+    val jwt = createJwtAccessToken("ITAG_USER", listOf("ROLE_NOMIS_API_V1"))
     val requestEntity = createHttpEntity(jwt, transaction, mapOf("X-Client-Name" to "clientName"))
     val responseEntity = testRestTemplate.exchange(
       "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",

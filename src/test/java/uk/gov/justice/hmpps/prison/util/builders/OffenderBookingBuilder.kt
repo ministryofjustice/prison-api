@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
@@ -59,7 +59,7 @@ class OffenderBookingBuilder(
 
   fun save(
     webTestClient: WebTestClient,
-    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    jwtAuthenticationHelper: JwtAuthorisationHelper,
     offenderNo: String,
     dataLoader: DataLoaderRepository,
   ): InmateDetail {
@@ -123,7 +123,7 @@ class OffenderBookingReleaseBuilder(
 ) : WebClientEntityBuilder() {
   fun release(
     webTestClient: WebTestClient,
-    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    jwtAuthenticationHelper: JwtAuthorisationHelper,
   ) {
     webTestClient.put()
       .uri("/api/offenders/{nomsId}/release", offenderNo)

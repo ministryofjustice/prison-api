@@ -1,11 +1,11 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps
 
 import org.springframework.stereotype.Component
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.util.EnumMap
 
 @Component
-class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelper) {
+class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelper) {
   private val tokens: EnumMap<AuthToken, String> = EnumMap(AuthToken::class.java)
   var token: String? = null
 
@@ -87,45 +87,45 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelp
   fun getToken(clientId: AuthToken): String =
     tokens[clientId] ?: throw RuntimeException("Token for $clientId not found")
 
-  private fun prisonApiUser(): String = jwtAuthenticationHelper.createJwt(username = "PRISON_API_USER")
+  private fun prisonApiUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "PRISON_API_USER")
 
-  private fun apiTestUser(): String = jwtAuthenticationHelper.createJwt(username = "API_TEST_USER")
+  private fun apiTestUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "API_TEST_USER")
 
-  private fun renegadeUser(): String = jwtAuthenticationHelper.createJwt(username = "RENEGADE")
+  private fun renegadeUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "RENEGADE")
 
-  private fun noCaseloadUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun noCaseloadUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "RO_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_LICENCE_RO"),
   )
 
-  private fun globalSearchUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun globalSearchUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "deliusnewtech",
     roles = listOf("ROLE_GLOBAL_SEARCH"),
   )
 
-  private fun viewPrisonerDataUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun viewPrisonerDataUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "aclient",
     roles = listOf("ROLE_VIEW_PRISONER_DATA"),
   )
 
-  private fun systemUserReadWrite(): String = jwtAuthenticationHelper.createJwt(
+  private fun systemUserReadWrite(): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "PRISON_API_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_SYSTEM_USER"),
   )
 
-  private fun localAdmin(): String = jwtAuthenticationHelper.createJwt(
+  private fun localAdmin(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER_ADM",
     roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_KW_MIGRATION", "ROLE_OAUTH_ADMIN"),
   )
 
-  private fun adminToken(): String = jwtAuthenticationHelper.createJwt(
+  private fun adminToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_GLOBAL_SEARCH", "ROLE_OMIC_ADMIN"),
   )
 
-  private fun superAdmin(): String = jwtAuthenticationHelper.createJwt(
+  private fun superAdmin(): String = jwtAuthenticationHelper.createJwtAccessToken(
     clientId = "PRISON_API_USER",
     scope = listOf("read", "write"),
     roles = listOf(
@@ -136,13 +136,13 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelp
     ),
   )
 
-  private fun inactiveBookingUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun inactiveBookingUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "RO_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_GLOBAL_SEARCH", "ROLE_INACTIVE_BOOKINGS", "ROLE_LICENCE_RO"),
   )
 
-  private fun categorisationCreate(): String = jwtAuthenticationHelper.createJwt(
+  private fun categorisationCreate(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf(
@@ -153,60 +153,60 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelp
     ),
   )
 
-  private fun categorisationApprove(): String = jwtAuthenticationHelper.createJwt(
+  private fun categorisationApprove(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_APPROVE_CATEGORISATION"),
   )
 
-  private fun laaUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun laaUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "LAA_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES"),
   )
 
-  private fun bulkAppointmentsUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun bulkAppointmentsUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "API_TEST_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_BULK_APPOINTMENTS"),
   )
 
-  private fun maintainIep(): String = jwtAuthenticationHelper.createJwt(
+  private fun maintainIep(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_MAINTAIN_IEP"),
   )
 
-  private fun normalUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun normalUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
   )
 
-  private fun payUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun payUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     roles = listOf("ROLE_PAY"),
     scope = listOf("read", "write"),
   )
 
-  private fun updateAlert(): String = jwtAuthenticationHelper.createJwt(
+  private fun updateAlert(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     roles = listOf("ROLE_UPDATE_ALERT"),
     scope = listOf("read", "write"),
   )
 
-  private fun courtHearingMaintainer(): String = jwtAuthenticationHelper.createJwt(
+  private fun courtHearingMaintainer(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "DOES_NOT_EXIST",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_COURT_HEARING_MAINTAINER"),
   )
 
-  private fun prisonMoveMaintiner(): String = jwtAuthenticationHelper.createJwt(
+  private fun prisonMoveMaintiner(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "DOES_NOT_EXIST",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_PRISON_MOVE_MAINTAINER"),
   )
 
-  private fun createBookingApiUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun createBookingApiUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf(
@@ -218,31 +218,31 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelp
     ),
   )
 
-  private fun createSmokeTestUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun createSmokeTestUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "SMOKE_TEST_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_SMOKE_TEST"),
   )
 
-  private fun createUnauthorisedUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun createUnauthorisedUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "UNAUTHORISED_USER",
   )
 
   private fun createRefDataMaintainerUser(allowWriteScope: Boolean): String =
-    jwtAuthenticationHelper.createJwt(
+    jwtAuthenticationHelper.createJwtAccessToken(
       username = "ITAG_USER",
       scope = if (allowWriteScope) listOf("read", "write") else listOf("read"),
       roles = listOf("ROLE_MAINTAIN_REF_DATA"),
     )
 
-  private fun createReleaseDatesCalculatorUser(): String = jwtAuthenticationHelper.createJwt(
+  private fun createReleaseDatesCalculatorUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
 // use ITAG_USER to avoid the pain of creating a new username in the test DB
     username = "ITAG_USER",
     scope = listOf("read", "write"),
     roles = listOf("ROLE_RELEASE_DATES_CALCULATOR"),
   )
 
-  fun someClientUser(vararg roles: String): String = jwtAuthenticationHelper.createJwt(
+  fun someClientUser(vararg roles: String): String = jwtAuthenticationHelper.createJwtAccessToken(
     username = "Another System",
     scope = listOf("read", "write"),
     roles = listOf(*roles),

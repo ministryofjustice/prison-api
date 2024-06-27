@@ -7,7 +7,7 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreate
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.LocalDate
 
 class OffenderBuilder(
@@ -43,7 +43,7 @@ class OffenderBuilder(
 
   private fun save(
     webTestClient: WebTestClient,
-    jwtAuthenticationHelper: JwtAuthenticationHelper,
+    jwtAuthenticationHelper: JwtAuthorisationHelper,
     dataLoader: DataLoaderRepository,
   ): InmateDetail {
     val request =

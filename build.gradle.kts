@@ -48,7 +48,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.3")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.2-beta")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.2-beta-2")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.4.0")
@@ -69,8 +69,6 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.1.20")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.7.0")
-  testImplementation("io.jsonwebtoken:jjwt-impl:0.12.6")
-  testImplementation("io.jsonwebtoken:jjwt-jackson:0.12.6")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
     exclude(group = "io.swagger.core.v3")
   }
