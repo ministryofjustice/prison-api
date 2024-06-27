@@ -74,7 +74,7 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     @Test
     fun `returns 404 if booking does not exist`() {
       webTestClient.get().uri("/api/bookings/-99/alerts/-1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99 not found.")
@@ -83,7 +83,7 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     @Test
     fun `returns 200 if in user caseload`() {
       webTestClient.get().uri("/api/bookings/-1/alerts/4")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
     }
@@ -91,7 +91,7 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     @Test
     fun `returns 200 and correct data if booking -1 in user caseloads`() {
       webTestClient.get().uri("/api/bookings/-4/alerts/1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -108,7 +108,7 @@ class BookingResourceIntTest_getOffenderAlert : ResourceTest() {
     @Test
     fun `returns 200 and correct data if booking -8 in user caseloads`() {
       webTestClient.get().uri("/api/bookings/-8/alerts/1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
