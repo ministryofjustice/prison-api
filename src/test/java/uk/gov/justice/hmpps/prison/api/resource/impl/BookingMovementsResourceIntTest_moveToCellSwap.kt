@@ -21,9 +21,7 @@ import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
-import uk.gov.justice.hmpps.prison.util.JwtParameters.Companion.builder
 import java.time.Clock
-import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -150,27 +148,17 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
     verifyLastBedAssignmentHistory()
   }
 
-  private fun differentAgencyToken(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("WAI_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
+    username = "WAI_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(),
+  )
 
-  private fun noUserInContext(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("a-system-client-id")
-        .scope(listOf("read", "write"))
-        .roles(listOf("MAINTAIN_CELL_MOVEMENTS"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun noUserInContext(): String = jwtAuthenticationHelper.createJwt(
+    clientId = "a-system-client-id",
+    scope = listOf("read", "write"),
+    roles = listOf("MAINTAIN_CELL_MOVEMENTS"),
+  )
 
   // Type on ParameterizedTypeReference required to work around https://bugs.openjdk.java.net/browse/JDK-8210197
   private fun requestMoveToCellSwap(bearerToken: String, bookingId: String, reasonCode: String?, dateTime: String): ResponseEntity<String?> {

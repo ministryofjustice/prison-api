@@ -23,18 +23,6 @@ class JwtAuthenticationHelper {
   @Primary
   fun jwtDecoder(): JwtDecoder = NimbusJwtDecoder.withPublicKey(keyPair.public as RSAPublicKey).build()
 
-  fun createJwt(parameters: JwtParameters): String = with(parameters) {
-    createJwt(
-      username = username,
-      scope = scope,
-      grantType = grantType,
-      roles = roles,
-      expiryTime = expiryTime,
-      clientId = clientId,
-      internalUser = internalUser,
-    )
-  }
-
   fun createJwt(
     username: String? = null,
     scope: List<String>? = null,

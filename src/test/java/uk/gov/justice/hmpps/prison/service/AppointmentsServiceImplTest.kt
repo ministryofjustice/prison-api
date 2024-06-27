@@ -48,8 +48,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
-import uk.gov.justice.hmpps.prison.util.WithMockUserSecurityContextFactory
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockUserSecurityContextFactory
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional

@@ -18,7 +18,6 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters
 import uk.gov.justice.hmpps.prison.util.findLogAppender
 
 @Import(JwtAuthenticationHelper::class, ClientTrackingInterceptor::class, ClientTrackingConfiguration::class)
@@ -41,7 +40,7 @@ class ClientTrackingConfigurationTest {
 
   @Test
   fun shouldAddAllFieldsToInsightTelemetry() {
-    val token = jwtAuthHelper.createJwt(JwtParameters.builder().username("bob").grantType("the-grant-type").build())
+    val token = jwtAuthHelper.createJwt(username = "bob", clientId = "prison-api-client", grantType = "the-grant-type")
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     tracer.spanBuilder("span").startSpan().run {
       makeCurrent().use { clientTrackingInterceptor.preHandle(req, res, "null") }
@@ -58,7 +57,7 @@ class ClientTrackingConfigurationTest {
 
   @Test
   fun shouldAddOnlyClientIdIfOthersNullToInsightTelemetry() {
-    val token = jwtAuthHelper.createJwt(JwtParameters.builder().build())
+    val token = jwtAuthHelper.createJwt(clientId = "prison-api-client")
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     val res = MockHttpServletResponse()
     tracer.spanBuilder("span").startSpan().run {

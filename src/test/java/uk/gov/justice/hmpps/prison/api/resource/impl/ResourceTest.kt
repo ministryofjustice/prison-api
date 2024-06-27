@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.microsoft.applicationinsights.TelemetryClient
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
@@ -9,7 +8,6 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.boot.test.json.JsonContent
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.boot.test.web.client.TestRestTemplate
 import org.springframework.core.ResolvableType
 import org.springframework.http.HttpEntity
@@ -23,9 +21,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters.Companion.builder
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
-import java.time.Duration
 import java.util.Objects
 import java.util.function.Consumer
 
@@ -44,9 +40,6 @@ abstract class ResourceTest {
 
   @Autowired
   protected lateinit var webTestClient: WebTestClient
-
-  @SpyBean
-  protected lateinit var telemetryClient: TelemetryClient
 
   @Autowired
   protected lateinit var jwtAuthenticationHelper: JwtAuthenticationHelper
@@ -104,60 +97,35 @@ abstract class ResourceTest {
     return createHttpEntity(jwt, null, additionalHeaders ?: java.util.Map.of())
   }
 
-  protected fun createJwt(user: String?, roles: List<String>): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username(user!!)
-        .roles(roles)
-        .scope(listOf("read", "write"))
-        .expiryTime(Duration.ofDays(1))
-        .build(),
-    )
-  }
+  protected fun createJwt(user: String?, roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+    username = user,
+    roles = roles,
+    scope = listOf("read", "write"),
+  )
 
-  protected fun validToken(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  protected fun validToken(): String = jwtAuthenticationHelper.createJwt(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(),
+  )
 
-  protected fun validToken(roles: List<String>): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(roles)
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  protected fun validToken(roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = roles,
+  )
 
-  protected fun readOnlyToken(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read"))
-        .roles(listOf())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  protected fun readOnlyToken(): String = jwtAuthenticationHelper.createJwt(
+    username = "ITAG_USER",
+    scope = listOf("read"),
+    roles = listOf(),
+  )
 
-  protected fun clientToken(roles: List<String>): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .clientId("api-client-id")
-        .scope(listOf("read", "write"))
-        .roles(roles)
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  protected fun clientToken(roles: List<String>): String = jwtAuthenticationHelper.createJwt(
+    clientId = "api-client-id",
+    scope = listOf("read", "write"),
+    roles = roles,
+  )
 
   protected fun <T> assertThatStatus(response: ResponseEntity<T>, status: Int) {
     assertThatStatus(response, HttpStatusCode.valueOf(status))
@@ -206,20 +174,12 @@ abstract class ResourceTest {
     )
   }
 
-  protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
-    return Consumer { httpHeaders: HttpHeaders -> httpHeaders.add("Authorization", "Bearer " + validToken(roles)) }
-  }
+  protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> =
+    Consumer { it.setBearerAuth(validToken(roles)) }
 
-  protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> {
-    return Consumer { httpHeaders: HttpHeaders ->
-      httpHeaders.add(
-        "Authorization",
-        "Bearer " + createJwt(username, roles),
-      )
-    }
-  }
+  protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> =
+    Consumer { it.setBearerAuth(createJwt(username, roles)) }
 
-  protected fun setClientAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
-    return Consumer { httpHeaders: HttpHeaders -> httpHeaders.add("Authorization", "Bearer " + clientToken(roles)) }
-  }
+  protected fun setClientAuthorisation(roles: List<String>): Consumer<HttpHeaders> =
+    Consumer { it.setBearerAuth(clientToken(roles)) }
 }

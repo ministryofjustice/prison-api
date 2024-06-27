@@ -18,9 +18,7 @@ import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
-import uk.gov.justice.hmpps.prison.util.JwtParameters
 import java.time.Clock
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -250,12 +248,9 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   }
 
   private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
-    JwtParameters.builder()
-      .username("WAI_USER")
-      .scope(listOf("read", "write"))
-      .roles(listOf())
-      .expiryTime(Duration.ofDays((365 * 10).toLong()))
-      .build(),
+    username = "WAI_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(),
   )
 
   private fun requestMoveToCell(

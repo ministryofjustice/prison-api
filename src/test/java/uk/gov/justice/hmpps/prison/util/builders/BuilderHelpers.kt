@@ -26,8 +26,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters
-import java.time.Duration
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -179,12 +177,9 @@ private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<Http
 }
 
 fun TestDataContext.validToken(roles: List<String>): String = this.jwtAuthenticationHelper.createJwt(
-  JwtParameters.builder()
-    .username("ITAG_USER")
-    .scope(listOf("read", "write"))
-    .roles(roles)
-    .expiryTime(Duration.ofDays((365 * 10).toLong()))
-    .build(),
+  username = "ITAG_USER",
+  scope = listOf("read", "write"),
+  roles = roles,
 )
 
 fun TestDataContext.createScheduledTemporaryAbsence(

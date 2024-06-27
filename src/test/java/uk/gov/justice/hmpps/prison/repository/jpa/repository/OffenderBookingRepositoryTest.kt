@@ -28,8 +28,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContaine
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 import java.time.LocalDate
 import java.util.Optional
 
