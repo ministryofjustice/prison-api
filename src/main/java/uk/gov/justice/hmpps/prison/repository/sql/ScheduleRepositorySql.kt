@@ -261,6 +261,7 @@ enum class ScheduleRepositorySql(val sql: String) {
         SELECT O.OFFENDER_ID_DISPLAY AS OFFENDER_NO,
         O.FIRST_NAME,
         O.LAST_NAME,
+        OIS.EVENT_ID,
         OIS.EVENT_SUB_TYPE AS EVENT,
         RC2.DESCRIPTION AS EVENT_DESCRIPTION,
         OIS.START_TIME,
