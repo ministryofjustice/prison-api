@@ -25,9 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPayStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters
-import java.time.Duration
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.function.Consumer
@@ -41,7 +39,7 @@ fun randomName(): String {
 
 data class TestDataContext(
   val webTestClient: WebTestClient,
-  val jwtAuthenticationHelper: JwtAuthenticationHelper,
+  val jwtAuthenticationHelper: JwtAuthorisationHelper,
   val dataLoader: DataLoaderRepository,
 )
 
@@ -178,13 +176,10 @@ private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<Http
   }
 }
 
-fun TestDataContext.validToken(roles: List<String>): String = this.jwtAuthenticationHelper.createJwt(
-  JwtParameters.builder()
-    .username("ITAG_USER")
-    .scope(listOf("read", "write"))
-    .roles(roles)
-    .expiryTime(Duration.ofDays((365 * 10).toLong()))
-    .build(),
+fun TestDataContext.validToken(roles: List<String>): String = this.jwtAuthenticationHelper.createJwtAccessToken(
+  username = "ITAG_USER",
+  scope = listOf("read", "write"),
+  roles = roles,
 )
 
 fun TestDataContext.createScheduledTemporaryAbsence(

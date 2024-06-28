@@ -13,7 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 
 import java.time.LocalDate;

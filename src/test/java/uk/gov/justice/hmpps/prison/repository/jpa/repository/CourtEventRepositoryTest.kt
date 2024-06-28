@@ -23,8 +23,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 import java.time.Clock
 import java.time.Instant
 import java.time.LocalDate

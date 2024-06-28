@@ -18,9 +18,7 @@ import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
-import uk.gov.justice.hmpps.prison.util.JwtParameters
 import java.time.Clock
-import java.time.Duration
 import java.time.Instant
 import java.time.LocalDateTime
 import java.time.ZoneId
@@ -126,7 +124,7 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
   fun `ensure unilink can access with client token`() {
     val dateTime = LocalDateTime.now().minusHours(1)
     val response = requestMoveToCell(
-      createJwt("unilink", listOf("ROLE_UNILINK")),
+      createJwtAccessToken("unilink", listOf("ROLE_UNILINK")),
       OFFENDER_NO,
       NEW_CELL_DESC,
       "BEH",
@@ -249,13 +247,10 @@ class OffenderMovementsResourceIntTest_moveToCell : ResourceTest() {
     verifyLastBedAssignmentHistory(BOOKING_ID, INITIAL_CELL)
   }
 
-  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwt(
-    JwtParameters.builder()
-      .username("WAI_USER")
-      .scope(listOf("read", "write"))
-      .roles(listOf())
-      .expiryTime(Duration.ofDays((365 * 10).toLong()))
-      .build(),
+  private fun differentAgencyToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "WAI_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(),
   )
 
   private fun requestMoveToCell(

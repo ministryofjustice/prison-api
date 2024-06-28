@@ -1,13 +1,11 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps
 
 import org.springframework.stereotype.Component
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters.Companion.builder
-import java.time.Duration
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.util.EnumMap
 
 @Component
-class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelper) {
+class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelper) {
   private val tokens: EnumMap<AuthToken, String> = EnumMap(AuthToken::class.java)
   var token: String? = null
 
@@ -86,324 +84,167 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthenticationHelp
     token = getToken(clientId)
   }
 
-  fun getToken(clientId: AuthToken): String = tokens[clientId] ?: throw RuntimeException("Token for $clientId not found")
+  fun getToken(clientId: AuthToken): String =
+    tokens[clientId] ?: throw RuntimeException("Token for $clientId not found")
 
-  private fun prisonApiUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("PRISON_API_USER")
-        .scope(listOf("read"))
-        .roles(emptyList())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun prisonApiUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "PRISON_API_USER")
 
-  private fun apiTestUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("API_TEST_USER")
-        .scope(listOf("read"))
-        .roles(emptyList())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun apiTestUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "API_TEST_USER")
 
-  private fun renegadeUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("RENEGADE")
-        .scope(listOf("read"))
-        .roles(emptyList())
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun renegadeUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "RENEGADE")
 
-  private fun noCaseloadUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("RO_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_LICENCE_RO"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun noCaseloadUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "RO_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_LICENCE_RO"),
+  )
 
-  private fun globalSearchUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .clientId("deliusnewtech")
-        .internalUser(false)
-        .scope(listOf("read"))
-        .roles(listOf("ROLE_GLOBAL_SEARCH"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun globalSearchUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    clientId = "deliusnewtech",
+    roles = listOf("ROLE_GLOBAL_SEARCH"),
+  )
 
-  private fun viewPrisonerDataUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .clientId("aclient")
-        .internalUser(false)
-        .scope(listOf("read"))
-        .roles(listOf("ROLE_VIEW_PRISONER_DATA"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun viewPrisonerDataUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    clientId = "aclient",
+    roles = listOf("ROLE_VIEW_PRISONER_DATA"),
+  )
 
-  private fun systemUserReadWrite(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .clientId("PRISON_API_USER")
-        .internalUser(false)
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_SYSTEM_USER"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun systemUserReadWrite(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    clientId = "PRISON_API_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_SYSTEM_USER"),
+  )
 
-  private fun localAdmin(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER_ADM")
-        .scope(listOf("read"))
-        .roles(listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_KW_MIGRATION", "ROLE_OAUTH_ADMIN"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun localAdmin(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER_ADM",
+    roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES", "ROLE_KW_MIGRATION", "ROLE_OAUTH_ADMIN"),
+  )
 
-  private fun adminToken(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read"))
-        .roles(listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_GLOBAL_SEARCH", "ROLE_OMIC_ADMIN"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun adminToken(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES_ADMIN", "ROLE_GLOBAL_SEARCH", "ROLE_OMIC_ADMIN"),
+  )
 
-  private fun superAdmin(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .clientId("PRISON_API_USER")
-        .scope(listOf("read", "write"))
-        .roles(
-          listOf(
-            "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
-            "ROLE_GLOBAL_SEARCH",
-            "ROLE_MAINTAIN_ACCESS_ROLES",
-            "ROLE_OMIC_ADMIN",
-          ),
-        )
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun superAdmin(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    clientId = "PRISON_API_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(
+      "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+      "ROLE_GLOBAL_SEARCH",
+      "ROLE_MAINTAIN_ACCESS_ROLES",
+      "ROLE_OMIC_ADMIN",
+    ),
+  )
 
-  private fun inactiveBookingUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("RO_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_GLOBAL_SEARCH", "ROLE_INACTIVE_BOOKINGS", "ROLE_LICENCE_RO"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun inactiveBookingUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "RO_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_GLOBAL_SEARCH", "ROLE_INACTIVE_BOOKINGS", "ROLE_LICENCE_RO"),
+  )
 
-  private fun categorisationCreate(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(
-          listOf(
-            "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
-            "ROLE_GLOBAL_SEARCH",
-            "ROLE_CREATE_CATEGORISATION",
-            "ROLE_OMIC_ADMIN",
-          ),
-        )
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun categorisationCreate(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(
+      "ROLE_MAINTAIN_ACCESS_ROLES_ADMIN",
+      "ROLE_GLOBAL_SEARCH",
+      "ROLE_CREATE_CATEGORISATION",
+      "ROLE_OMIC_ADMIN",
+    ),
+  )
 
-  private fun categorisationApprove(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_APPROVE_CATEGORISATION"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun categorisationApprove(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_APPROVE_CATEGORISATION"),
+  )
 
-  private fun laaUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("LAA_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_MAINTAIN_ACCESS_ROLES"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun laaUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "LAA_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_MAINTAIN_ACCESS_ROLES"),
+  )
 
-  private fun bulkAppointmentsUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("API_TEST_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_BULK_APPOINTMENTS"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun bulkAppointmentsUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "API_TEST_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_BULK_APPOINTMENTS"),
+  )
 
-  private fun maintainIep(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_MAINTAIN_IEP"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun maintainIep(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_MAINTAIN_IEP"),
+  )
 
-  private fun normalUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun normalUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+  )
 
-  private fun payUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .roles(listOf("ROLE_PAY"))
-        .scope(listOf("read", "write"))
-        .expiryTime(Duration.ofDays(1))
-        .build(),
-    )
-  }
+  private fun payUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    roles = listOf("ROLE_PAY"),
+    scope = listOf("read", "write"),
+  )
 
-  private fun updateAlert(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .roles(listOf("ROLE_UPDATE_ALERT"))
-        .scope(listOf("read", "write"))
-        .expiryTime(Duration.ofDays(1))
-        .build(),
-    )
-  }
+  private fun updateAlert(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    roles = listOf("ROLE_UPDATE_ALERT"),
+    scope = listOf("read", "write"),
+  )
 
-  private fun courtHearingMaintainer(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("DOES_NOT_EXIST")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_COURT_HEARING_MAINTAINER"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun courtHearingMaintainer(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "DOES_NOT_EXIST",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_COURT_HEARING_MAINTAINER"),
+  )
 
-  private fun prisonMoveMaintiner(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("DOES_NOT_EXIST")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_PRISON_MOVE_MAINTAINER"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun prisonMoveMaintiner(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "DOES_NOT_EXIST",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_PRISON_MOVE_MAINTAINER"),
+  )
 
-  private fun createBookingApiUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(listOf("read", "write"))
-        .roles(
-          listOf(
-            "ROLE_BOOKING_CREATE",
-            "ROLE_RELEASE_PRISONER",
-            "ROLE_TRANSFER_PRISONER",
-            "ROLE_INACTIVE_BOOKINGS",
-            "ROLE_VIEW_PRISONER_DATA",
-          ),
-        )
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun createBookingApiUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf(
+      "ROLE_BOOKING_CREATE",
+      "ROLE_RELEASE_PRISONER",
+      "ROLE_TRANSFER_PRISONER",
+      "ROLE_INACTIVE_BOOKINGS",
+      "ROLE_VIEW_PRISONER_DATA",
+    ),
+  )
 
-  private fun createSmokeTestUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("SMOKE_TEST_USER")
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_SMOKE_TEST"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun createSmokeTestUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "SMOKE_TEST_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_SMOKE_TEST"),
+  )
 
-  private fun createUnauthorisedUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("UNAUTHORISED_USER")
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun createUnauthorisedUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "UNAUTHORISED_USER",
+  )
 
-  private fun createRefDataMaintainerUser(allowWriteScope: Boolean): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER")
-        .scope(if (allowWriteScope) listOf("read", "write") else listOf("read"))
-        .roles(listOf("ROLE_MAINTAIN_REF_DATA"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
+  private fun createRefDataMaintainerUser(allowWriteScope: Boolean): String =
+    jwtAuthenticationHelper.createJwtAccessToken(
+      username = "ITAG_USER",
+      scope = if (allowWriteScope) listOf("read", "write") else listOf("read"),
+      roles = listOf("ROLE_MAINTAIN_REF_DATA"),
     )
-  }
 
-  private fun createReleaseDatesCalculatorUser(): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("ITAG_USER") // use ITAG_USER to avoid the pain of creating a new username in the test DB
-        .scope(listOf("read", "write"))
-        .roles(listOf("ROLE_RELEASE_DATES_CALCULATOR"))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  private fun createReleaseDatesCalculatorUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
+// use ITAG_USER to avoid the pain of creating a new username in the test DB
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = listOf("ROLE_RELEASE_DATES_CALCULATOR"),
+  )
 
-  fun someClientUser(vararg roles: String): String {
-    return jwtAuthenticationHelper.createJwt(
-      builder()
-        .username("Another System")
-        .scope(listOf("read", "write"))
-        .roles(listOf(*roles))
-        .expiryTime(Duration.ofDays((365 * 10).toLong()))
-        .build(),
-    )
-  }
+  fun someClientUser(vararg roles: String): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "Another System",
+    scope = listOf("read", "write"),
+    roles = listOf(*roles),
+  )
 }
