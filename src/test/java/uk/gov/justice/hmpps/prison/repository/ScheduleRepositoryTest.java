@@ -149,6 +149,7 @@ public class ScheduleRepositoryTest {
         final var date = LocalDate.parse("2017-05-12");
         final var results = repository.getAppointments("LEI", Collections.singletonList("A1234AB"), date);
         assertThat(results).hasSize(1);
+        assertThat(results.get(0).getEventId()).isEqualTo(-16);
         assertThat(results.get(0).getOffenderNo()).isEqualTo("A1234AB");
         assertThat(results.get(0).getStartTime()).isEqualTo(LocalDateTime.parse("2017-05-12T09:30"));
         assertThat(results.get(0).getEvent()).isEqualTo("IMM");
