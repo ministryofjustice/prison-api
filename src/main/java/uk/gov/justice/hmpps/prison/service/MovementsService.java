@@ -28,7 +28,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.OutOnTemporaryAbsenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.ReleaseEvent;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferEvent;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository;
@@ -72,7 +71,7 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
-    private final MovementTypeAndReasonRepository movementTypeAndReasonRespository;
+    private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     private final int maxBatchSize;
 
 
@@ -83,7 +82,7 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementType> movementTypeRepository,
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
-                            final MovementTypeAndReasonRepository movementTypeAndReasonRespository,
+                            final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
@@ -92,7 +91,7 @@ public class MovementsService {
         this.agencyLocationRepository = agencyLocationRepository;
         this.movementTypeRepository = movementTypeRepository;
         this.movementReasonRepository = movementReasonRepository;
-        this.movementTypeAndReasonRespository = movementTypeAndReasonRespository;
+        this.movementTypeAndReasonRepository = movementTypeAndReasonRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -105,7 +104,6 @@ public class MovementsService {
 
         return latestBooking.getOffender().getRootOffender().getPrisonerInPrisonSummary();
     }
-
 
     public List<Movement> getMovementsByOffenders(final List<String> offenderNumbers, final List<String> movementTypes, final boolean latestOnly, final boolean allBookings) {
         final var movements = Lists.partition(offenderNumbers, maxBatchSize)
@@ -120,10 +118,6 @@ public class MovementsService {
                 .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
                 .build())
             .collect(toList());
-    }
-
-    public List<RollCount> getRollCount(final String agencyId, final boolean unassigned, Long parentLocationId, boolean showCells, boolean wingOnly) {
-        return movementsRepository.getRollCount(agencyId, unassigned ? "N" : "Y", parentLocationId, showCells, wingOnly);
     }
 
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {
@@ -152,7 +146,7 @@ public class MovementsService {
             .build();
     }
 
-    public List<OffenderMovement> getEnrouteOffenderMovements(final String agencyId, final LocalDate date) {
+    public List<OffenderMovement> getEnRouteOffenderMovements(final String agencyId, final LocalDate date) {
 
         final var movements = movementsRepository.getEnrouteMovementsOffenderMovementList(agencyId, date);
 
@@ -164,9 +158,9 @@ public class MovementsService {
 
     }
 
-    public int getEnrouteOffenderCount(final String agencyId, final LocalDate date) {
+    public int getEnRouteOffenderCount(final String agencyId, final LocalDate date) {
         final var defaultedDate = date == null ? LocalDate.now() : date;
-        return movementsRepository.getEnrouteMovementsOffenderCount(agencyId, defaultedDate);
+        return movementsRepository.getEnRouteMovementsOffenderCount(agencyId, defaultedDate);
     }
 
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
@@ -347,7 +341,7 @@ public class MovementsService {
             .orElseThrow(EntityNotFoundException.withMessage("movementReason not found using: %s", createExternalMovement.getMovementReason()));
 
         final var movementReasons =
-            movementTypeAndReasonRespository.findMovementTypeAndReasonByTypeIs(createExternalMovement.getMovementType());
+            movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(createExternalMovement.getMovementType());
 
         if (movementReasons.stream().noneMatch(r -> r.getReasonCode().equals(createExternalMovement.getMovementReason())))
             throw new EntityNotFoundException("Invalid movement reason for supplied movement type");

@@ -33,7 +33,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
 import uk.gov.justice.hmpps.prison.api.model.OutOnTemporaryAbsenceSummary;
-import uk.gov.justice.hmpps.prison.api.model.RollCount;
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
@@ -80,29 +79,12 @@ public class MovementResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Current establishment rollcount numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
-    @GetMapping("/rollcount/{agencyId}")
-    @SlowReportQuery
-    public List<RollCount> getRollCount(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
-        @RequestParam(value = "unassigned", required = false, defaultValue = "false") @Parameter(description = "If false return data for prisoners in cell locations, if true return unassigned prisoners, i.e. those in non-cell locations.") final boolean unassigned,
-        @RequestParam(value = "parentLocationId", required = false) @Parameter(description = "When specified, it will also all locations directly below this location, this should be used, when displaying cell lists for a specified landing.") final Long parentLocationId,
-        @RequestParam(value = "showCells", required = false, defaultValue = "false") @Parameter(description = "Show cell roll count summary along with Wings and Landings") final boolean showCells,
-        @RequestParam(value = "wingOnly", required = false, defaultValue = "true") @Parameter(description = "Only show the wings and not the landings and cells (this is the default)") final boolean wingOnly) {
-        return movementsService.getRollCount(agencyId, unassigned, parentLocationId, showCells, wingOnly);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Rollcount movement numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
+    @Operation(summary = "Roll-count movement numbers.", description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/rollcount/{agencyId}/movements")
     @SlowReportQuery
-    public MovementCount getRollcountMovements(
+    @Deprecated(forRemoval = true)
+    public MovementCount getRollCountMovements(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "movementDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are counted, default today.") final LocalDate movementDate) {
         return movementsService.getMovementCount(agencyId, movementDate);
@@ -165,26 +147,27 @@ public class MovementResource {
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Enroute prisoner movement details.", description = "Enroute to reception. Requires role ESTABLISHMENT_ROLL or agency in caseload.")
+    @Operation(summary = "En-route prisoner movement details.", description = "En-route to reception. Requires role ESTABLISHMENT_ROLL or agency in caseload.")
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/enroute")
-    public List<OffenderMovement> getEnrouteOffenderMovements(
+    public List<OffenderMovement> getEnRouteOffenderMovements(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "movementDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Optional filter on date of movement") final LocalDate movementDate) {
-        return movementsService.getEnrouteOffenderMovements(agencyId, movementDate);
+        return movementsService.getEnRouteOffenderMovements(agencyId, movementDate);
     }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Enroute prisoner movement count.", description = "Enroute to reception count. Requires role ESTABLISHMENT_ROLL.")
+    @Operation(summary = "En-route prisoner movement count.", description = "En-route to reception count. Requires role ESTABLISHMENT_ROLL.")
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/rollcount/{agencyId}/enroute")
-    public int getEnrouteOffenderMovementCount(
+    @Deprecated(forRemoval = true)
+    public int getEnRouteOffenderMovementCount(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "movementDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Optional filter on date of movement. Defaults to today") final LocalDate movementDate) {
-        return movementsService.getEnrouteOffenderCount(agencyId, movementDate);
+        return movementsService.getEnRouteOffenderCount(agencyId, movementDate);
     }
 
     @ApiResponses({
