@@ -20,7 +20,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 

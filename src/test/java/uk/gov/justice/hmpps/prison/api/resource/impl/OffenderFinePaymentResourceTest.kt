@@ -30,7 +30,7 @@ class OffenderFinePaymentResourceTest : ResourceTest() {
   @Test
   fun `returns 403 if not in user caseload`() {
     webTestClient.get().uri("/api/offender-fine-payment/booking/-1")
-      .headers(setAuthorisation("WAI_USER", listOf(""))).exchange()
+      .headers(setAuthorisation("WAI_USER", listOf())).exchange()
       .expectStatus().isForbidden
       .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
   }

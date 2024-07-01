@@ -17,11 +17,10 @@ import org.springframework.mock.web.MockHttpServletResponse
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.context.junit.jupiter.SpringExtension
-import uk.gov.justice.hmpps.prison.util.JwtAuthenticationHelper
-import uk.gov.justice.hmpps.prison.util.JwtParameters
 import uk.gov.justice.hmpps.prison.util.findLogAppender
+import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 
-@Import(JwtAuthenticationHelper::class, ClientTrackingInterceptor::class, ClientTrackingConfiguration::class)
+@Import(JwtAuthorisationHelper::class, ClientTrackingInterceptor::class, ClientTrackingConfiguration::class)
 @ContextConfiguration(initializers = [ConfigDataApplicationContextInitializer::class])
 @ActiveProfiles("test")
 @ExtendWith(SpringExtension::class)
@@ -32,7 +31,7 @@ class ClientTrackingConfigurationTest {
 
   @Suppress("SpringJavaInjectionPointsAutowiringInspection")
   @Autowired
-  private lateinit var jwtAuthHelper: JwtAuthenticationHelper
+  private lateinit var jwtAuthHelper: JwtAuthorisationHelper
 
   private val req = MockHttpServletRequest()
   private val res = MockHttpServletResponse()
@@ -41,7 +40,7 @@ class ClientTrackingConfigurationTest {
 
   @Test
   fun shouldAddAllFieldsToInsightTelemetry() {
-    val token = jwtAuthHelper.createJwt(JwtParameters.builder().username("bob").grantType("the-grant-type").build())
+    val token = jwtAuthHelper.createJwtAccessToken(username = "bob", clientId = "prison-api-client", grantType = "the-grant-type")
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     tracer.spanBuilder("span").startSpan().run {
       makeCurrent().use { clientTrackingInterceptor.preHandle(req, res, "null") }
@@ -58,7 +57,7 @@ class ClientTrackingConfigurationTest {
 
   @Test
   fun shouldAddOnlyClientIdIfOthersNullToInsightTelemetry() {
-    val token = jwtAuthHelper.createJwt(JwtParameters.builder().build())
+    val token = jwtAuthHelper.createJwtAccessToken(clientId = "prison-api-client")
     req.addHeader(HttpHeaders.AUTHORIZATION, "Bearer $token")
     val res = MockHttpServletResponse()
     tracer.spanBuilder("span").startSpan().run {

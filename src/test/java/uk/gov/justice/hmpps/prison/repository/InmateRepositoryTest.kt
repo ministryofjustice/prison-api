@@ -32,8 +32,8 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto
 import uk.gov.justice.hmpps.prison.util.Extractors.extractInteger
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 import java.sql.Timestamp
 import java.time.LocalDate
 import java.time.Month

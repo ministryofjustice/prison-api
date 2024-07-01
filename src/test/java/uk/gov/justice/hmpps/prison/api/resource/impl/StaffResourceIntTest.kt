@@ -128,7 +128,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return not found if agency does not exist for user`() {
       webTestClient.get()
         .uri("/api/staff/roles/XYZ/role/KW")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -138,7 +138,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return forbidden if not part of user caseload`() {
       webTestClient.get()
         .uri("/api/staff/roles/BMI/role/KW")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
@@ -148,7 +148,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with count of 0 if no staff`() {
       webTestClient.get()
         .uri("/api/staff/roles/WAI/role/OS")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -160,7 +160,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with count of 1 if staff`() {
       webTestClient.get()
         .uri("/api/staff/roles/SYI/role/KW")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -173,7 +173,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with count of 4 if multiple staff`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -187,7 +187,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with 0 results when passing in nameFilter parameter only`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW?nameFilter=Ronald")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -199,7 +199,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with 2 results when passing in nameFilter with partial match`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW?nameFilter=USE")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -212,7 +212,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with 2 results when passing in nameFilter variable case parameter only`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW?nameFilter=User")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -225,7 +225,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with 0 results when passing in staffId parameter only`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW?staffId=-999 ")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -237,7 +237,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return success with 1 result when passing in matching staffId parameter only`() {
       webTestClient.get()
         .uri("/api/staff/roles/LEI/role/KW?staffId=-1")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -250,7 +250,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `should return 403 if does not have override role`() {
       webTestClient.get()
         .uri("/api/staff/roles/BMI/role/KW")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isForbidden
@@ -294,7 +294,7 @@ class StaffResourceIntTest : ResourceTest() {
     @Test
     fun `returns 403 when client does not have override role`() {
       webTestClient.get().uri("/api/staff/-2/BXI/roles")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -327,7 +327,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `Should return success for user accessing inactive agency`() {
       webTestClient.get()
         .uri("/api/staff/-2/ZZGHI/roles")
-        .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf("")))
+        .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf()))
         .exchange()
         .expectStatus().isOk
     }
@@ -359,7 +359,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `returns 403 when client does not have override role`() {
       webTestClient.get()
         .uri("/api/staff/-10/SYI/roles/KW")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -369,7 +369,7 @@ class StaffResourceIntTest : ResourceTest() {
       assertThat(
         webTestClient.get()
           .uri("/api/staff/-2/BXI/roles/KW")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isOk
           .expectBody(String::class.java)
@@ -398,7 +398,7 @@ class StaffResourceIntTest : ResourceTest() {
       assertThat(
         webTestClient.get()
           .uri("/api/staff/-2/LEI/roles/POM")
-          .headers(setAuthorisation("ITAG_USER", listOf("")))
+          .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
           .expectStatus().isOk
           .expectBody(String::class.java)
@@ -411,7 +411,7 @@ class StaffResourceIntTest : ResourceTest() {
     fun `No access to find role for staff member at different agency`() {
       webTestClient.get()
         .uri("/api/staff/-2/RNI/roles/KW")
-        .headers(setAuthorisation("PRISON_API_USER", listOf("")))
+        .headers(setAuthorisation("PRISON_API_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -450,7 +450,7 @@ class StaffResourceIntTest : ResourceTest() {
       assertThat(
         webTestClient.get()
           .uri("/api/staff/-28/ZZGHI/roles/KW")
-          .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf("")))
+          .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf()))
           .exchange()
           .expectStatus().isOk
           .expectBody(String::class.java)

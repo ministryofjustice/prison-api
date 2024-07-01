@@ -76,7 +76,7 @@ class AgencyResourceIntTest : ResourceTest() {
     @Test
     fun locationsByType_multipleResults_returnsAllLocations() {
       webTestClient.get().uri("/api/agencies/SYI/locations/type/CELL")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()

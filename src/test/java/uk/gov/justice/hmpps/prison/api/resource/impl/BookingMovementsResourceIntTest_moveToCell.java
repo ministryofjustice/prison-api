@@ -13,7 +13,6 @@ import org.springframework.test.context.ContextConfiguration;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
-import uk.gov.justice.hmpps.prison.util.JwtParameters;
 
 import java.time.Clock;
 import java.time.Duration;
@@ -203,14 +202,7 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
     }
 
     private String differentAgencyToken() {
-        return jwtAuthenticationHelper.createJwt(
-                JwtParameters.builder()
-                        .username("WAI_USER")
-                        .scope(List.of("read", "write"))
-                        .roles(List.of())
-                        .expiryTime(Duration.ofDays(365 * 10))
-                        .build()
-        );
+        return jwtAuthenticationHelper.createJwtAccessToken("prison-api-client", "WAI_USER", List.of("read", "write"));
     }
 
     private ResponseEntity<String> requestMoveToCell(final String bearerToken, final String bookingId, final String livingUnitId, final String reasonCode, final String dateTime) {

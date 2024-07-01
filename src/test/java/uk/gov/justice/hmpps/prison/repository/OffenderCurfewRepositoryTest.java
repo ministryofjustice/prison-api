@@ -18,7 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.service.support.OffenderCurfew;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.sql.Timestamp;

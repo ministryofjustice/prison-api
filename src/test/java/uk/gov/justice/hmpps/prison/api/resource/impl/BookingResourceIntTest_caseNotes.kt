@@ -62,7 +62,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count is requested for existing booking, using a fromDate later than toDate`() {
       webTestClient.get()
         .uri("/api/bookings/-1/caseNotes/CHAP/FAMMAR/count?fromDate=2017-09-18&toDate=2017-09-12")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("userMessage").isEqualTo("Invalid date range: toDate is before fromDate.")
@@ -72,7 +72,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count is 0 when no date params passed into request - uses last 3 months`() {
       webTestClient.get()
         .uri("/api/bookings/-1/caseNotes/CHAP/FAMMAR/count")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -83,7 +83,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count successfully received for same from and to date`() {
       webTestClient.get()
         .uri("/api/bookings/-1/caseNotes/CHAP/FAMMAR/count?fromDate=2000-01-01&toDate=2020-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -99,7 +99,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 0 received for same from and to date`() {
       webTestClient.get()
         .uri("/api/bookings/-2/caseNotes/CHAP/FAMMAR/count?fromDate=2000-01-01&toDate=2020-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -110,7 +110,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 8 received for same from and to date`() {
       webTestClient.get()
         .uri("/api/bookings/-3/caseNotes/OBSERVE/OBS_GEN/count?fromDate=2000-01-01&toDate=2020-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -121,7 +121,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 0 received for different from and to date`() {
       webTestClient.get()
         .uri("/api/bookings/-2/caseNotes/APP/OUTCOME/count?fromDate=2022-01-01&toDate=2023-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -132,7 +132,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 8 received for different from and to date`() {
       webTestClient.get()
         .uri("/api/bookings/-2/caseNotes/APP/OUTCOME/count?fromDate=2000-01-01&toDate=2020-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -143,7 +143,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count received when no to date passed into request`() {
       webTestClient.get()
         .uri("/api/bookings/-3/caseNotes/OBSERVE/OBS_GEN/count?fromDate=2017-08-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -154,7 +154,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count received when no from date passed into request`() {
       webTestClient.get()
         .uri("/api/bookings/-3/caseNotes/OBSERVE/OBS_GEN/count?toDate=2017-08-31")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -165,7 +165,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 4 received when from date includes case notes on that date`() {
       webTestClient.get()
         .uri("/api/bookings/-3/caseNotes/OBSERVE/OBS_GEN/count?fromDate=2017-07-10&toDate=2020-01-01")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -176,7 +176,7 @@ class BookingResourceIntTest_caseNotes : ResourceTest() {
     fun `Case note count of 4 received when to date includes case notes one day prior to that date`() {
       webTestClient.get()
         .uri("/api/bookings/-3/caseNotes/OBSERVE/OBS_GEN/count?fromDate=2000-01-02&toDate=2017-07-30")
-        .headers(setAuthorisation("ITAG_USER", listOf("")))
+        .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
         .expectBody()

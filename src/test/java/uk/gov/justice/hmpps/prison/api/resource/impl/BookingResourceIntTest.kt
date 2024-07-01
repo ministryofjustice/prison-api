@@ -1061,7 +1061,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns success for single offence`() {
       webTestClient.get().uri("/api/bookings/-1/mainOffence")
-        .headers(setAuthorisation(listOf(""))).exchange()
+        .headers(setAuthorisation(listOf())).exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("length()").isEqualTo(1)
@@ -1074,7 +1074,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns success for multiple offences`() {
       webTestClient.get().uri("/api/bookings/-7/mainOffence")
-        .headers(setAuthorisation(listOf(""))).exchange()
+        .headers(setAuthorisation(listOf())).exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("length()").isEqualTo(2)
@@ -1087,7 +1087,7 @@ class BookingResourceIntTest : ResourceTest() {
     @Test
     fun `returns success for no offences`() {
       webTestClient.get().uri("/api/bookings/-9/mainOffence")
-        .headers(setAuthorisation(listOf(""))).exchange()
+        .headers(setAuthorisation(listOf())).exchange()
         .expectStatus().isOk
         .expectBody().jsonPath("length()").isEqualTo(0)
     }
@@ -2305,7 +2305,7 @@ class BookingResourceIntTest : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/visits/prisons",
         GET,
-        createHttpEntity(createJwt("NO_USER", emptyList()), null),
+        createHttpEntity(createJwtAccessToken("NO_USER", emptyList()), null),
         String::class.java,
         -1L,
       )
@@ -2387,7 +2387,7 @@ class BookingResourceIntTest : ResourceTest() {
       val response = testRestTemplate.exchange(
         "/api/bookings/{bookingId}/visits/summary",
         GET,
-        createHttpEntity(createJwt("NO_USER", emptyList()), null),
+        createHttpEntity(createJwtAccessToken("NO_USER", emptyList()), null),
         String::class.java,
         -1L,
       )

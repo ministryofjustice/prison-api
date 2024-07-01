@@ -199,7 +199,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/rollcount/BMI/movements")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -256,7 +256,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("api/movements/LEI/enroute")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -389,7 +389,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -397,7 +397,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when user has no caseloads`() {
       webTestClient.get().uri("/api/movements/BMI/in/2019-01-10")
-        .headers(setAuthorisation("RO_USER", listOf("")))
+        .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -405,7 +405,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 404 when agency does not exist`() {
       webTestClient.get().uri("/api/movements/doesnotExist/in/2019-01-10")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isNotFound
     }
@@ -413,7 +413,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/in/2019-01-10")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isOk
     }
@@ -625,7 +625,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 404 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/rollcount/SFI/in-reception")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isNotFound
     }
@@ -633,7 +633,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/rollcount/LEI/in-reception")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isOk
     }
@@ -642,7 +642,7 @@ class MovementResourceTest : ResourceTest() {
     fun `Get offender in reception`() {
       val response = webTestClient.get()
         .uri("/api/movements/rollcount/MDI/in-reception")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
@@ -668,7 +668,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -676,7 +676,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/BMI/in?fromDateTime=2019-01-10T10:35:17")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -692,7 +692,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return success when user has agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/in?fromDateTime=2019-01-10T10:35:17")
-        .headers(setAuthorisation(listOf("")))
+        .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isOk
     }
@@ -778,7 +778,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when not does not have correct role`() {
       webTestClient.get().uri("/api/movements/upcomingCourtAppearances")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -827,7 +827,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
-        .headers(setClientAuthorisation(listOf("")))
+        .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -851,7 +851,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when user does not have agency in caseload`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -859,7 +859,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun `should return 403 when user has no caseloads`() {
       webTestClient.get().uri("/api/movements/LEI/out/2012-07-16")
-        .headers(setAuthorisation("RO_USER", listOf("")))
+        .headers(setAuthorisation("RO_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
     }
@@ -1095,7 +1095,7 @@ class MovementResourceTest : ResourceTest() {
       courtEvents: Boolean,
       releaseEvents: Boolean,
       transferEvents: Boolean,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<String?> {
       val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
       val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
       return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
@@ -1107,7 +1107,7 @@ class MovementResourceTest : ResourceTest() {
       transferEvents: Boolean,
       fromDateTime: LocalDateTime,
       toDateTime: LocalDateTime,
-    ): ResponseEntity<String> {
+    ): ResponseEntity<String?> {
       val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
       return testRestTemplate.exchange(
         UriComponentsBuilder

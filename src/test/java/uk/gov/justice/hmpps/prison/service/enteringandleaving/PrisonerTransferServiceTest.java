@@ -18,7 +18,7 @@ import org.springframework.test.context.transaction.TestTransaction;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.service.TestClock;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 
 import java.util.List;
 import java.util.Map;

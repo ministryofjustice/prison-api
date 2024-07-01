@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.util.WithMockAuthUser;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
 import java.time.LocalDate;

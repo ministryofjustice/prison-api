@@ -10,7 +10,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
   fun shouldReturnListOfActiveOffenderRestrictions() {
     webTestClient.get()
       .uri("/api/offenders/A1234AH/offender-restrictions")
-      .headers(setAuthorisation("ITAG_USER", listOf("")))
+      .headers(setAuthorisation("ITAG_USER", listOf()))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -34,7 +34,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
   fun shouldReturnListOfAllOffenderRestrictions() {
     webTestClient.get()
       .uri("/api/offenders/A1234AH/offender-restrictions?activeRestrictionsOnly=false")
-      .headers(setAuthorisation("ITAG_USER", listOf("")))
+      .headers(setAuthorisation("ITAG_USER", listOf()))
       .exchange()
       .expectStatus().isOk
       .expectBody()
@@ -50,7 +50,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
   fun shouldReturn404WhenOffenderDoesNotExist() {
     webTestClient.get()
       .uri("/api/offenders/AAA444/offender-restrictions")
-      .headers(setAuthorisation("ITAG_USER", listOf("")))
+      .headers(setAuthorisation("ITAG_USER", listOf()))
       .exchange()
       .expectStatus().isNotFound
       .expectBody()
@@ -130,7 +130,7 @@ class OffenderResourceImplIntTest_getOffenderRestrictions : ResourceTest() {
     fun `returns 403 when user does not have offender in their caseload`() {
       webTestClient.get()
         .uri("/api/offenders/A1234AH/offender-restrictions")
-        .headers(setAuthorisation("WAI_USER", listOf("")))
+        .headers(setAuthorisation("WAI_USER", listOf()))
         .exchange()
         .expectStatus().isForbidden
         .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -8.")
