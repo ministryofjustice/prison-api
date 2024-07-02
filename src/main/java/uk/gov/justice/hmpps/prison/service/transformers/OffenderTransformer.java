@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import org.apache.commons.lang3.RegExUtils;
 import org.apache.commons.lang3.StringUtils;
 import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
 import org.springframework.stereotype.Component;
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
@@ -16,11 +17,13 @@ import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
+import java.math.BigDecimal;
 import java.time.Clock;
 import java.time.LocalDate;
 import java.util.Collections;
@@ -39,11 +42,11 @@ public class OffenderTransformer {
     private final OffenderChargeRepository offenderChargeRepository;
 
     public InmateDetail transformWithoutBooking(final Offender offender) {
-        return buildOffender(offender).build();
+        return buildOffender(offender, null).build();
     }
 
     public InmateDetail transform(final OffenderBooking latestBooking) {
-        final var offenderBuilder = buildOffender(latestBooking.getOffender());
+        final var offenderBuilder = buildOffender(latestBooking.getOffender(), latestBooking.getLatestPhysicalAttributes());
         final var allConvictedOffences = getAllConvictedOffences(latestBooking.getOffender().getRootOffenderId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
@@ -98,7 +101,7 @@ public class OffenderTransformer {
             .toList();
     }
 
-    private InmateDetail.InmateDetailBuilder buildOffender(final Offender offender) {
+    private InmateDetail.InmateDetailBuilder buildOffender(final Offender offender, @Nullable OffenderPhysicalAttributes physicalAttributes) {
         return InmateDetail.builder()
             .offenderNo(offender.getNomsId())
             .offenderId(offender.getId())
@@ -124,6 +127,12 @@ public class OffenderTransformer {
                 .gender(offender.getGender().getDescription())
                 .raceCode(offender.getEthnicity() != null ? offender.getEthnicity().getCode() : null)
                 .ethnicity(offender.getEthnicity() != null ? offender.getEthnicity().getDescription() : null)
+                .heightCentimetres(physicalAttributes != null ? physicalAttributes.getHeightCentimetres() : null)
+                .heightMetres(physicalAttributes != null&& physicalAttributes.getHeightCentimetres() != null ? BigDecimal.valueOf(physicalAttributes.getHeightCentimetres()).movePointLeft(2) : null)
+                .heightFeet(physicalAttributes != null ? physicalAttributes.getHeightFeet() : null)
+                .heightInches(physicalAttributes != null ? physicalAttributes.getHeightInches() : null)
+                .weightKilograms(physicalAttributes != null ? physicalAttributes.getWeightKgs() : null)
+                .weightPounds(physicalAttributes != null ? physicalAttributes.getWeightPounds() : null)
                 .build());
     }
 
