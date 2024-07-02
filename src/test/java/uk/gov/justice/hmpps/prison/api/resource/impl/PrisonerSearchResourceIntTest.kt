@@ -411,6 +411,22 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return last modified physical attributes`() {
+      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AA")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(physicalAttributes?.heightCentimetres).isEqualTo(155)
+            assertThat(physicalAttributes?.weightKilograms).isEqualTo(77)
+          }
+        }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.get().uri("/api/prisoner-search/offenders/A1234DD")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))

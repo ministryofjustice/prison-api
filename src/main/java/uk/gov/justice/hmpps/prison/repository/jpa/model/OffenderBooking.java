@@ -308,6 +308,13 @@ public class OffenderBooking extends AuditableEntity {
     @PrimaryKeyJoinColumn
     private ReleaseDetail releaseDetail;
 
+    @OneToMany(mappedBy = "id.offenderBooking", cascade = CascadeType.ALL)
+    @OrderColumn(name = "ATTRIBUTE_SEQ")
+    @ListIndexBase(1)
+    @Default
+    @Exclude
+    private List<OffenderPhysicalAttributes> offenderPhysicalAttributes = new ArrayList<>();
+
     public void addSentenceCalculation(final SentenceCalculation sc) {
         sentenceCalculations.add(sc);
         sc.setOffenderBooking(this);
@@ -789,6 +796,16 @@ public class OffenderBooking extends AuditableEntity {
             }
         }
         return null;
+    }
+
+    public OffenderPhysicalAttributes getLatestPhysicalAttributes() {
+        return offenderPhysicalAttributes.stream().max(Comparator.comparing((pa) -> {
+            if (pa.getModifyDatetime() != null) {
+                return pa.getModifyDatetime();
+            } else {
+                return pa.getCreateDatetime();
+            }
+        })).orElse(null);
     }
 
     public static Integer getDaysForKeyDateAdjustmentsCode(final List<KeyDateAdjustment> adjustmentsList, final String code) {
