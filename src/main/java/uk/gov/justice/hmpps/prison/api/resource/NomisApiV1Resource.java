@@ -131,15 +131,10 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Invalid Noms ID", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Offender not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetch alerts by offender", description = """
-            Returns all active alerts for the specified offender or those that meet the optional criteria. Active alerts are listed first, followed by inactive alerts, both sorted by ascending order of alert date.<br/>
-            <ul>
-              <li>if alert_type is specified then only alerts of that type are returned</li>
-              <li>if modified_since is specified then only those alerts created or modified on or after the specified date time. The following formats are supported: 2018-01-10, 2018-01-10 03:34, 2018-01-10 03:34:12, 2018-01-10 03:34:12.123</li>
-              <li>If include_inactive=true is specified then inactive alerts are also returned.</li>
-            </ul>
-            Requires NOMIS_API_V1 or UNILINK role.
-            """
+    @Operation(
+        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
+        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts",
+        deprecated = true
     )
     @GetMapping("/offenders/{noms_id}/alerts")
     @Tag(name = "unilink")
