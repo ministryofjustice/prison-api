@@ -406,7 +406,7 @@ public class BookingResource {
 
     @Operation(
         summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/createPrisonerAlert",
+        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts_1",
         deprecated = true
     )
     @PostMapping("/offenderNo/alerts")
