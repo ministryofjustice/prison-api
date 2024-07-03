@@ -6,7 +6,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
+import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Alert
 import uk.gov.justice.hmpps.prison.api.model.Email
@@ -70,12 +71,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return all data`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AB")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AB")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234AB")
@@ -152,12 +148,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return more data not on previous test`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AC")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AC")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234AC")
@@ -178,12 +169,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return all identifiers and associated offender IDs`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AL")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AL")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderId).isEqualTo(-1012)
@@ -208,12 +194,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return physical marks`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AA")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AA")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(physicalMarks).containsExactly(
@@ -225,12 +206,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return aliases`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(aliases).extracting("title", "firstName", "lastName", "dob", "gender", "ethnicity", "createDate")
@@ -260,12 +236,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return most serious offence`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AA")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AA")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(mostSeriousOffence).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
@@ -275,12 +246,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return all convicted offences`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AL")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AL")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(allConvictedOffences)
@@ -296,12 +262,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should handle unknown imprisonment status`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1184MA")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1184MA")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(legalStatus).isNull()
@@ -313,12 +274,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return highest severity offence if multiple flagged as most serious`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A5577RS")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A5577RS")
         .consumeWith { response ->
           with(response.responseBody!!) {
             // Note that this ignores charge M2=Common Assault with the highest severity - because it has AUDIT_MODULE_NAME = 'MERGE'
@@ -329,12 +285,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return addresses`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(addresses).extracting("addressId", "addressType", "flat", "premise", "street", "locality", "town", "postalCode", "county", "startDate", "primary")
@@ -357,12 +308,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return addresses where the active booking is for an alias`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1065AA")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1065AA")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderId).isEqualTo(-1067L)
@@ -373,12 +319,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return offender phones and emails`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AI")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(phones).containsExactlyInAnyOrder(
@@ -397,12 +338,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     fun `should return alerts in the same order as the Inmate Service`() {
       val inmateServiceAlerts = inmateService.findOffender("A1179MT", true, false).alerts
 
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1179MT")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1179MT")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(alerts).containsExactlyElementsOf(inmateServiceAlerts)
@@ -412,12 +348,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return last modified physical attributes`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234AA")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234AA")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(physicalAttributes?.heightCentimetres).isEqualTo(155)
@@ -427,13 +358,38 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should calculate recall flag true if charges and court case are active`() {
+      webTestClient.getPrisonerSearchDetails("Z0020ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(true)
+          }
+        }
+    }
+
+    @Test
+    fun `should calculate recall flag false if charge is inactive`() {
+      webTestClient.getPrisonerSearchDetails("Z0021ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(false)
+          }
+        }
+    }
+
+    @Test
+    fun `should calculate recall flag false if court case is inactive`() {
+      webTestClient.getPrisonerSearchDetails("Z0022ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(false)
+          }
+        }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
-      webTestClient.get().uri("/api/prisoner-search/offenders/A1234DD")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+      webTestClient.getPrisonerSearchDetails("A1234DD")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234DD")
@@ -443,5 +399,13 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
           }
         }
     }
+
+    private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) =
+      get().uri("/api/prisoner-search/offenders/$offenderNo")
+        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+        .accept(APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<PrisonerSearchDetails>()
   }
 }

@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -48,6 +49,7 @@ public class OffenderTransformer {
     public InmateDetail transform(final OffenderBooking latestBooking) {
         final var offenderBuilder = buildOffender(latestBooking.getOffender(), latestBooking.getLatestPhysicalAttributes());
         final var allConvictedOffences = getAllConvictedOffences(latestBooking.getOffender().getRootOffenderId());
+        final var activeConvictedOffences = getActiveConvictedOffences(latestBooking.getOffender().getRootOffenderId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
         return offenderBuilder
@@ -81,7 +83,7 @@ public class OffenderTransformer {
             .imprisonmentStatus(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus() != null ? ims.getImprisonmentStatus().getStatus() : null).orElse(null))
             .imprisonmentStatusDescription(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus() != null ? ims.getImprisonmentStatus().getDescription() : null).orElse(null))
             .offenceHistory(allConvictedOffences)
-            .recall(RecallCalc.calculate(latestBooking.getBookingId(), latestBooking.getLegalStatus(), allConvictedOffences, sentenceTerms))
+            .recall(RecallCalc.calculate(latestBooking.getBookingId(), latestBooking.getLegalStatus(), activeConvictedOffences, sentenceTerms))
             .receptionDate(latestBooking.getBookingBeginDate().toLocalDate())
             .locationDescription(latestBooking.getLocationDescription())
             .latestLocationId(latestBooking.getLatestLocationId())
@@ -93,6 +95,18 @@ public class OffenderTransformer {
 
     private @NotNull List<OffenceHistoryDetail> getAllConvictedOffences(Long rootOffenderId) {
         return offenderChargeRepository.findChargesByRootOffenderId(rootOffenderId).stream()
+            // According to SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING this is to "Avoid dups from merges (from NART team)"
+            .filter(oc -> !"MERGE".equals(oc.getAuditModuleName()) || !"SYS".equals(oc.getCreateUserId()))
+            .sorted(Comparator.comparing(OffenderCharge::getId))
+            .map(offenderChargeTransformer::convert)
+            .filter(OffenceHistoryDetail::convicted)
+            .toList();
+    }
+
+    private @NotNull List<OffenceHistoryDetail> getActiveConvictedOffences(Long rootOffenderId) {
+        return offenderChargeRepository.findChargesByRootOffenderId(rootOffenderId).stream()
+            .filter(oc -> "A".equals(oc.getChargeStatus()))
+            .filter(oc -> "A".equals(oc.getOffenderCourtCase().getCaseStatus().map(ReferenceCode::getCode).orElse(null)))
             // According to SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING this is to "Avoid dups from merges (from NART team)"
             .filter(oc -> !"MERGE".equals(oc.getAuditModuleName()) || !"SYS".equals(oc.getCreateUserId()))
             .sorted(Comparator.comparing(OffenderCharge::getId))
