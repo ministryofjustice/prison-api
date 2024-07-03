@@ -307,7 +307,11 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Create an alert", description = "Requires role UPDATE_ALERT")
+    @Operation(
+        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
+        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/createPrisonerAlert",
+        deprecated = true
+    )
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     @PostMapping("/{bookingId}/alert")
     @ProxyUser
@@ -326,7 +330,11 @@ public class BookingResource {
         @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Update an alert", description = "Requires role UPDATE_ALERT")
+    @Operation(
+        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
+        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/alerts-controller/updateAlert",
+        deprecated = true
+    )
     @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
     @PutMapping("/{bookingId}/alert/{alertSeq}")
     @ProxyUser
@@ -396,7 +404,11 @@ public class BookingResource {
         return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
     }
 
-    @Operation(summary = "Get alerts for a list of offenders. Requires VIEW_PRISONER_DATA role")
+    @Operation(
+        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
+        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/createPrisonerAlert",
+        deprecated = true
+    )
     @PostMapping("/offenderNo/alerts")
     @SlowReportQuery
     @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")

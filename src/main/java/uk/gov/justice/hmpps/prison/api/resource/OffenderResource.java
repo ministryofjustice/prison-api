@@ -10,7 +10,6 @@ import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
-import kotlin.Deprecated;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
 import org.springdoc.core.annotations.ParameterObject;
