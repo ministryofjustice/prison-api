@@ -6,7 +6,7 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.http.MediaType
+import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Alert
@@ -358,6 +358,36 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should calculate recall flag true if charges and court case are active`() {
+      webTestClient.getPrisonerSearchDetails("Z0020ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(true)
+          }
+        }
+    }
+
+    @Test
+    fun `should calculate recall flag false if charge is inactive`() {
+      webTestClient.getPrisonerSearchDetails("Z0021ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(false)
+          }
+        }
+    }
+
+    @Test
+    fun `should calculate recall flag false if court case is inactive`() {
+      webTestClient.getPrisonerSearchDetails("Z0022ZZ")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(recall).isEqualTo(false)
+          }
+        }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.getPrisonerSearchDetails("A1234DD")
         .consumeWith { response ->
@@ -371,9 +401,9 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) =
-      webTestClient.get().uri("/api/prisoner-search/offenders/$offenderNo")
+      get().uri("/api/prisoner-search/offenders/$offenderNo")
         .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(org.springframework.http.MediaType.APPLICATION_JSON)
+        .accept(APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
         .expectBody<PrisonerSearchDetails>()
