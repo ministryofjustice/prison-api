@@ -78,7 +78,6 @@ class PrisonerSearchService(
       ?.let { offenderTransformer.transform(it) }
       ?.apply {
         // TODO These need to be modelled in JPA and set by the OffenderTransformer
-        physicalAttributes = inmateService.getPhysicalAttributes(bookingId)
         physicalCharacteristics = inmateService.getPhysicalCharacteristics(bookingId)
         physicalMarks = inmateService.getPhysicalMarks(bookingId)
         aliases = inmateService.getAliases(bookingId)
