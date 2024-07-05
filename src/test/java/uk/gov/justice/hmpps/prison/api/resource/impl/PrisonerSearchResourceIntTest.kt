@@ -251,9 +251,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
           with(response.responseBody!!) {
             assertThat(allConvictedOffences)
               .extracting("bookingId", "offenceCode")
-              // ignores charges with no convicted result, ignores MERGE duplicates, includes charges that are inactive
+              // ignores charges with no convicted result
               .containsExactlyInAnyOrder(
                 tuple(-12L, "M1"),
+                tuple(-13L, "M2"),
+                // Note that the duplicate for SYS/MERGE is included
                 tuple(-13L, "M2"),
               )
           }
@@ -277,8 +279,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       webTestClient.getPrisonerSearchDetails("A5577RS")
         .consumeWith { response ->
           with(response.responseBody!!) {
-            // Note that this ignores charge M2=Common Assault with the highest severity - because it has AUDIT_MODULE_NAME = 'MERGE'
-            assertThat(mostSeriousOffence).isEqualTo("Attempted Murder")
+            assertThat(mostSeriousOffence).isEqualTo("Common assault")
           }
         }
     }
