@@ -49,7 +49,7 @@ public class OffenderTransformer {
     public InmateDetail transform(final OffenderBooking latestBooking) {
         final var offenderBuilder = buildOffender(latestBooking.getOffender(), latestBooking.getLatestPhysicalAttributes());
         final var allConvictedOffences = getAllConvictedOffences(latestBooking.getOffender().getRootOffenderId());
-        final var activeConvictedOffences = getActiveConvictedOffences(latestBooking.getOffender().getRootOffenderId());
+        final var activeConvictedOffences = getActiveConvictedOffences(latestBooking.getBookingId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
 
         return offenderBuilder
@@ -95,20 +95,16 @@ public class OffenderTransformer {
 
     private @NotNull List<OffenceHistoryDetail> getAllConvictedOffences(Long rootOffenderId) {
         return offenderChargeRepository.findChargesByRootOffenderId(rootOffenderId).stream()
-            // According to SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING this is to "Avoid dups from merges (from NART team)"
-            .filter(oc -> !"MERGE".equals(oc.getAuditModuleName()) || !"SYS".equals(oc.getCreateUserId()))
             .sorted(Comparator.comparing(OffenderCharge::getId))
             .map(offenderChargeTransformer::convert)
             .filter(OffenceHistoryDetail::convicted)
             .toList();
     }
 
-    private @NotNull List<OffenceHistoryDetail> getActiveConvictedOffences(Long rootOffenderId) {
-        return offenderChargeRepository.findChargesByRootOffenderId(rootOffenderId).stream()
+    private @NotNull List<OffenceHistoryDetail> getActiveConvictedOffences(Long bookingId) {
+        return offenderChargeRepository.findByOffenderBooking_BookingId(bookingId).stream()
             .filter(oc -> "A".equals(oc.getChargeStatus()))
             .filter(oc -> "A".equals(oc.getOffenderCourtCase().getCaseStatus().map(ReferenceCode::getCode).orElse(null)))
-            // According to SentenceRepositorySql.GET_OFFENCES_FOR_BOOKING this is to "Avoid dups from merges (from NART team)"
-            .filter(oc -> !"MERGE".equals(oc.getAuditModuleName()) || !"SYS".equals(oc.getCreateUserId()))
             .sorted(Comparator.comparing(OffenderCharge::getId))
             .map(offenderChargeTransformer::convert)
             .filter(OffenceHistoryDetail::convicted)

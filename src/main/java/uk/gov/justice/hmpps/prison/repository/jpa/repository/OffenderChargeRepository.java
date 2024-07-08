@@ -13,6 +13,9 @@ public interface OffenderChargeRepository extends CrudRepository<OffenderCharge,
     @EntityGraph(type = EntityGraphType.FETCH, value = "charges-details")
     List<OffenderCharge> findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(Set<Long> bookingIds, String chargeStatus, String caseStatusCode);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "charges-details")
+    List<OffenderCharge> findByOffenderBooking_BookingId(Long bookingId);
+
     @Query("""
       SELECT oc from OffenderBooking ob
       join OffenderCharge oc on ob.bookingId = oc.offenderBooking.bookingId
