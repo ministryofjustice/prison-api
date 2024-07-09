@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.module.kotlin.jacksonObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
 import org.springframework.test.context.jdbc.Sql
@@ -19,9 +17,6 @@ import java.time.LocalDate
 
 @DisplayName("GET /api/prison/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
 class PrisonResourceTest : ResourceTest() {
-
-  @Autowired
-  val objectMapper = jacksonObjectMapper()
 
   @Sql(
     scripts = ["/sql/create_offender_details_used_for_calc.sql"],

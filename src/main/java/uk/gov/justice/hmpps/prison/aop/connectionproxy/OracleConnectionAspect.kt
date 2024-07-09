@@ -8,7 +8,7 @@ import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.util.MdcUtility.IP_ADDRESS
 import uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER
 import uk.gov.justice.hmpps.prison.util.MdcUtility.REQUEST_URI
@@ -23,7 +23,7 @@ import java.util.Properties
 @Component
 @Profile("connection-proxy")
 class OracleConnectionAspect(
-  private val authenticationFacade: AuthenticationFacade,
+  private val authenticationFacade: HmppsAuthenticationHolder,
   private val roleConfigurer: RoleConfigurer,
   private val nomisConfigurer: NomisConfigurer,
 ) : AbstractConnectionAspect() {
@@ -45,7 +45,7 @@ class OracleConnectionAspect(
   private fun Connection.openProxySessionConnection(): Connection {
     log.info("Configuring Oracle Proxy Session")
     assertNotSlow()
-    this.openProxySessionForCurrentUsername()
+    openProxySessionForCurrentUsername()
       .also { oracleConnection -> roleConfigurer.setRoleForConnection(oracleConnection) }
     return ProxySessionClosingConnection(this)
       .also { proxySessionConnection ->
@@ -56,7 +56,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionForCurrentUsername(): OracleConnection {
-    val currentUsername = authenticationFacade.currentPrincipal
+    val currentUsername = authenticationFacade.principal
     val info = Properties().apply {
       this[OracleConnection.PROXY_USER_NAME] = currentUsername
     }
@@ -101,7 +101,7 @@ class OracleConnectionAspect(
 
   private fun isSuppressXTags(): Boolean = "true" == MDC.get(SUPPRESS_XTAG_EVENTS)
 
-  private fun authSource(): AuthSource = authenticationFacade.authenticationSource
+  private fun authSource(): AuthSource = authenticationFacade.authSource
 
   private fun mdc(key: String): String? = MDC.get(key)
 }
