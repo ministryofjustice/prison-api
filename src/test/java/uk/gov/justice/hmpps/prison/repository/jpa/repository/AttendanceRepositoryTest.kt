@@ -10,14 +10,14 @@ import org.springframework.context.annotation.Import
 import org.springframework.data.domain.PageRequest
 import org.springframework.data.domain.Sort
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
-@Import(AuthenticationFacade::class, AuditorAwareImpl::class)
+@Import(HmppsAuthenticationHolder::class, AuditorAwareImpl::class)
 class AttendanceRepositoryTest {
   @Autowired
   private lateinit var repository: AttendanceRepository

@@ -8,11 +8,11 @@ import org.aspectj.lang.reflect.MethodSignature
 import org.slf4j.LoggerFactory
 import org.springframework.security.access.AccessDeniedException
 import org.springframework.stereotype.Component
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.service.support.AgencyRequest
 class AuthorisationAspect(
   private val bookingService: BookingService,
   private val agencyService: AgencyService,
-  private val authenticationFacade: AuthenticationFacade,
+  private val authenticationFacade: HmppsAuthenticationHolder,
   private val staffUserAccountRepository: StaffUserAccountRepository,
 ) {
   @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess) && execution(* *(String,..)) && args(offenderNo,..)")
@@ -66,7 +66,7 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyBookingAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    if (AuthenticationFacade.hasRoles(*overrideRoles)) {
+    if (HmppsAuthenticationHolder.hasRoles(*overrideRoles)) {
       bookingService.checkBookingExists(bookingId)
     } else {
       bookingService.verifyBookingAccess(bookingId, *overrideRoles)
@@ -90,7 +90,7 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyAgencyAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    if (AuthenticationFacade.hasRoles(*overrideRoles)) {
+    if (HmppsAuthenticationHolder.hasRoles(*overrideRoles)) {
       agencyService.checkAgencyExists(agencyId, if (annotation.allowInactive) ALL else ACTIVE_ONLY)
     } else {
       agencyService.verifyAgencyAccess(agencyId, annotation.allowInactive)
@@ -114,8 +114,8 @@ class AuthorisationAspect(
     val method = signature.method
     val annotation = method.getAnnotation(VerifyStaffAccess::class.java)
     val overrideRoles = annotation.overrideRoles
-    if (!AuthenticationFacade.hasRoles(*overrideRoles)) {
-      val currentUsername: String = authenticationFacade.currentPrincipal
+    if (!HmppsAuthenticationHolder.hasRoles(*overrideRoles)) {
+      val currentUsername: String = authenticationFacade.username
         ?: throw AccessDeniedException("No current username for staffId=$staffId")
       staffUserAccountRepository.findByUsername(currentUsername)
         .ifPresentOrElse(
