@@ -6,13 +6,13 @@ import org.slf4j.MDC
 import org.springframework.util.Assert
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER
 import java.sql.Connection
 import java.sql.SQLException
 
 @Aspect
-class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacade) : AbstractConnectionAspect() {
+class HsqlConnectionAspect(private val authenticationFacade: HmppsAuthenticationHolder) : AbstractConnectionAspect() {
 
   private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -37,7 +37,7 @@ class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacad
     // just check that the current user exists in the database
     pooledConnection.prepareStatement("SELECT username FROM staff_user_accounts WHERE username = ?")
       .use { statement ->
-        val currentUsername = authenticationFacade.currentPrincipal
+        val currentUsername = authenticationFacade.principal
         statement.setString(1, currentUsername)
 
         try {
@@ -55,5 +55,5 @@ class HsqlConnectionAspect(private val authenticationFacade: AuthenticationFacad
 
   private fun isProxyUser(): Boolean = !MDC.get(PROXY_USER).isNullOrBlank()
 
-  private fun authSource(): AuthSource = authenticationFacade.authenticationSource
+  private fun authSource(): AuthSource = authenticationFacade.authSource
 }
