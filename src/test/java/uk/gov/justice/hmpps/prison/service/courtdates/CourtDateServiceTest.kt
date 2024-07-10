@@ -35,7 +35,7 @@ class CourtDateServiceTest {
     fun `should get dates with empty data`() {
       whenever(courtEventChargeRepository.findByOffender(PRISONER_ID)).thenReturn(listOf())
 
-      val result = courtDateService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResultsFlat(PRISONER_ID)
 
       assertThat(result).isEmpty()
     }
@@ -89,7 +89,7 @@ class CourtDateServiceTest {
         ),
       )
 
-      val result = courtDateService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResultsFlat(PRISONER_ID)
 
       assertThat(result).isEqualTo(
         listOf(
@@ -198,7 +198,7 @@ class CourtDateServiceTest {
         ),
       )
 
-      val result = courtDateService.getCourtDateResults(PRISONER_ID)
+      val result = courtDateService.getCourtDateResultsFlat(PRISONER_ID)
 
       assertThat(result).isEqualTo(
         listOf(
