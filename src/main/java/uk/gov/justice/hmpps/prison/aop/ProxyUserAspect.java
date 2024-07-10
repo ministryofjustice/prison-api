@@ -7,7 +7,7 @@ import org.aspectj.lang.annotation.Aspect;
 import org.aspectj.lang.annotation.Pointcut;
 import org.slf4j.MDC;
 import org.springframework.stereotype.Component;
-import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 
@@ -16,9 +16,9 @@ import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 @Component
 public class ProxyUserAspect {
 
-    private final HmppsAuthenticationHolder authenticationFacade;
+    private final AuthenticationFacade authenticationFacade;
 
-    public ProxyUserAspect(final HmppsAuthenticationHolder authenticationFacade) {
+    public ProxyUserAspect(final AuthenticationFacade authenticationFacade) {
         this.authenticationFacade = authenticationFacade;
     }
 
@@ -30,18 +30,18 @@ public class ProxyUserAspect {
     @Around("proxyUserPointcut()")
     public Object controllerCall(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        var authentication = authenticationFacade.getAuthenticationOrNull();
+        var proxyUser = authenticationFacade.getCurrentPrincipal();
         try {
-            if (authentication != null) {
-                log.info("Proxying User: {} for {}->{}", authentication.getPrincipal(),
+            if (proxyUser != null) {
+                log.info("Proxying User: {} for {}->{}", proxyUser,
                         joinPoint.getSignature().getDeclaringTypeName(),
                         joinPoint.getSignature().getName());
 
-                MDC.put(PROXY_USER, authentication.getPrincipal());
+                MDC.put(PROXY_USER, proxyUser);
             }
             return joinPoint.proceed();
         } finally {
-            if (authentication != null) {
+            if (proxyUser != null) {
                 MDC.remove(PROXY_USER);
             }
         }

@@ -22,7 +22,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.slf4j.MDC
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource
-import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
+import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.util.MdcUtility
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource
 import java.sql.Connection
@@ -30,7 +30,7 @@ import java.sql.PreparedStatement
 import java.sql.SQLException
 
 class OracleConnectionAspectTest {
-  private val authenticationFacade = mock<HmppsAuthenticationHolder>()
+  private val authenticationFacade = mock<AuthenticationFacade>()
   private val roleConfigurer = mock<RoleConfigurer>()
   private val nomisConfigurer = mock<NomisConfigurer>()
   private val pooledConnection = mock<Connection>()
@@ -258,8 +258,8 @@ class OracleConnectionAspectTest {
 
   @Throws(SQLException::class)
   private fun configureMocks(authSource: AuthSource, proxyUser: String) {
-    whenever(authenticationFacade.authSource).thenReturn(authSource)
-    whenever(authenticationFacade.principal).thenReturn(proxyUser)
+    whenever(authenticationFacade.authenticationSource).thenReturn(authSource)
+    whenever(authenticationFacade.currentPrincipal).thenReturn(proxyUser)
     whenever(pooledConnection.unwrap(Connection::class.java)).thenReturn(oracleConnection)
     whenever(oracleConnection.prepareStatement(anyString())).thenReturn(oraclePreparedStatement)
     whenever(pooledConnection.prepareStatement(anyString())).thenReturn(pooledPreparedStatement)

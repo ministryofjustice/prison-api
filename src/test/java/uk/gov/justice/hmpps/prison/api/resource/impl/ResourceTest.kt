@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
@@ -47,9 +46,6 @@ abstract class ResourceTest {
 
   @Autowired
   protected lateinit var authTokenHelper: AuthTokenHelper
-
-  @Autowired
-  protected lateinit var objectMapper: ObjectMapper
 
   protected val testDataContext: TestDataContext
     get() = TestDataContext(webTestClient, jwtAuthenticationHelper, dataLoader)
