@@ -4,7 +4,7 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
-@Schema(description = "A charge linked to a court date")
+@Schema(description = "A charge and all its court date outcomes")
 @JsonInclude(
   JsonInclude.Include.NON_NULL,
 )
