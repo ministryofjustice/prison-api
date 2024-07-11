@@ -83,6 +83,9 @@ generic-service:
     kainos-azure-logic-apps-31: "4.159.59.140/32"
     kainos-azure-logic-apps-32: "4.159.59.13/32"
 
+    # in-cell-client kainos new logic app ip address
+    pfs-azure-logicapps: "20.68.51.129/32"
+
   env:
     JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
