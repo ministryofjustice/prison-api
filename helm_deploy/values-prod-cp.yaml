@@ -72,6 +72,15 @@ generic-service:
     kainos-azure-logic-apps-30: "4.159.26.77/32"
     kainos-azure-logic-apps-31: "4.159.59.140/32"
     kainos-azure-logic-apps-32: "4.159.59.13/32"
+    kainos-azure-logic-apps-33: "51.140.74.150/32"
+    kainos-azure-logic-apps-34: "51.140.80.51/32"
+    kainos-azure-logic-apps-35: "51.140.61.124/32"
+    kainos-azure-logic-apps-36: "51.105.77.96/27"
+    kainos-azure-logic-apps-37: "51.140.148.0/28"
+    kainos-azure-logic-apps-38: "20.90.129.0/27"
+    kainos-azure-logic-apps-39: "20.90.129.32/28"
+    kainos-azure-logic-apps-40: "20.90.125.211"
+    kainos-azure-logic-apps-41: "20.90.124.134"
 
     # in-cell-client kainos new logic app ip address
     pfs-azure-logicapps: "20.68.51.129/32"
