@@ -16,7 +16,7 @@
       "courtCaseId": -20,
       "courtCaseRef": "ABC123",
       "courtLocation": "Court 1",
-      "active": false
+      "active": true
     },
     "bookingId": -59,
     "bookNumber": "Z00059"
