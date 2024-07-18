@@ -54,5 +54,9 @@ data class CourtDateChargeAndOutcomes(
   @Schema(description = "The user readable ID for a booking")
   val bookNumber: String,
 
+  @Schema(description = "Is this charge active in NOMIS.")
+  val active: Boolean,
+
+  @Schema(description = "All the court date outcomes for this charge")
   val outcomes: List<CourtDateOutcome>,
 )
