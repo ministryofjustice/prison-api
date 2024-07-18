@@ -179,19 +179,6 @@ workflows:
           requires:
             - request-prod-approval
 
-      - hmpps/deploy_env:
-          name: deploy_prod_cp
-          env: "prod-cp"
-          jira_update: true
-          jira_env_type: production
-          pipeline_id: <<pipeline.id>>
-          pipeline_number: <<pipeline.number>>
-          context:
-            - hmpps-common-vars
-            - prison-api-prod-cp
-          requires:
-            - request-prod-approval
-
   security:
     triggers:
       - schedule:
