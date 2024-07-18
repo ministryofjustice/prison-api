@@ -38,6 +38,7 @@ class CourtDateService(
           charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence,
           charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.courtOrder?.courtDate,
           charge.resultCodeOne?.description,
+          charge.isActive,
         ),
         charge.offenderBooking.bookingId,
         charge.offenderBooking.bookNumber,
@@ -65,6 +66,7 @@ class CourtDateService(
         charge.resultCodeOne?.description,
         charge.offenderBooking.bookingId,
         charge.offenderBooking.bookNumber,
+        charge.isActive,
         emptyList(),
       )
     }, {

@@ -57,4 +57,7 @@ public class CourtDateCharge {
     @Schema(description = "The result description of the charge")
     private String resultDescription;
 
+    @Schema(description = "Is this charge active in NOMIS.")
+    private Boolean active;
+
 }

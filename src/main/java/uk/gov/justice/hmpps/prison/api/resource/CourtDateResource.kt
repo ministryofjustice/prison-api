@@ -67,7 +67,7 @@ class CourtDateResource(private val courtDateService: CourtDateService) {
       content = [
         Content(
           mediaType = "application/json",
-          schema = Schema(implementation = CourtDateResult::class),
+          schema = Schema(implementation = CourtDateChargeAndOutcomes::class),
         ),
       ],
     ),
