@@ -114,7 +114,8 @@ class CourtDateServiceTest {
               .withCourtLocation(null)
               .withSentenceSequence(null)
               .withSentenceDate(null)
-              .withResultDescription(null),
+              .withResultDescription(null)
+              .withActive(false),
           ),
           CourtDateResult(
             id = 2,
@@ -137,7 +138,8 @@ class CourtDateServiceTest {
               .withCourtLocation(null)
               .withSentenceSequence(null)
               .withSentenceDate(null)
-              .withResultDescription(null),
+              .withResultDescription(null)
+              .withActive(false),
           ),
         ),
       )
@@ -174,6 +176,7 @@ class CourtDateServiceTest {
                   .withBookingId(4)
                   .withBookNumber("ABC123"),
               )
+              .withChargeStatus("A")
               .withDateOfOffence(LocalDate.of(2021, 1, 1))
               .withEndDate(LocalDate.of(2021, 6, 1))
               .withPleaCode("G")
@@ -223,7 +226,8 @@ class CourtDateServiceTest {
               .withCourtLocation("Birmingham Crown Court")
               .withSentenceSequence(5)
               .withSentenceDate(LocalDate.of(2022, 1, 1))
-              .withResultDescription("Imprisonment"),
+              .withResultDescription("Imprisonment")
+              .withActive(true),
           ),
         ),
       )
