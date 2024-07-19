@@ -72,6 +72,18 @@ public class SchedulesService {
         this.maxBatchSize = maxBatchSize;
     }
 
+    public List<PrisonerSchedule> getLocationGroupEventsByLocationPaths(final String prisonId, final List<String> locationPaths, final LocalDate date,
+                                                                     final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
+
+        final var prisoners = inmateService.findPrisonersByLocationPaths(
+            authenticationFacade.getCurrentPrincipal(),
+            prisonId,
+            locationPaths);
+
+        return getPrisonerSchedules(date, timeSlot, sortFields, sortOrder, prisoners);
+    }
+
+    @Deprecated
     public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
@@ -80,17 +92,22 @@ public class SchedulesService {
                 agencyId,
                 locationIds);
 
-        if (inmates.isEmpty()) {
+        return getPrisonerSchedules(date, timeSlot, sortFields, sortOrder, inmates);
+    }
+
+
+    private List<PrisonerSchedule> getPrisonerSchedules(LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder, List<InmateDto> prisoners) {
+        if (prisoners.isEmpty()) {
             return Collections.emptyList();
         }
 
         final var day = date == null ? LocalDate.now() : date;
 
-        final var prisonerSchedules = prisonerSchedules(inmates, timeSlot, day);
+        final var prisonerSchedules = prisonerSchedules(prisoners, timeSlot, day);
 
         return prisonerSchedules.stream()
-                .sorted(getPrisonerScheduleComparator(sortFields, sortOrder))
-                .toList();
+            .sorted(getPrisonerScheduleComparator(sortFields, sortOrder))
+            .toList();
     }
 
     private Comparator<PrisonerSchedule> getPrisonerScheduleComparator(final String sortFields, final Order sortOrder) {
