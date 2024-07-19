@@ -64,6 +64,7 @@ public class ScheduleResource {
     @VerifyAgencyAccess
     @PostMapping("/{agencyId}/events-by-location-ids")
     @SlowReportQuery
+    @Deprecated
     public List<PrisonerSchedule> getEventsByLocationId(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
                                                         @NotEmpty @RequestBody @Parameter(description = "The required location ids", required = true) final List<Long> locationIds,
                                                         @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
@@ -71,6 +72,24 @@ public class ScheduleResource {
                                                         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
                                                         @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return schedulesService.getLocationGroupEventsByLocationId(agencyId, locationIds, date, timeSlot, sortFields, sortOrder);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time", description = "Get all events for given date for prisoners in listed cells. Note secondary sort is by start time")
+    @VerifyAgencyAccess
+    @PostMapping("/{prisonId}/events-by-location-path")
+    @SlowReportQuery
+    public List<PrisonerSchedule> getEventsByLocationPath(@PathVariable("prisonId") @Parameter(description = "The prison Id", required = true) final String prisonId,
+                                                        @NotEmpty @RequestBody @Parameter(description = "The required location paths NOT including the prison Id", required = true, example = "[ '1-1-001', '1-2-001']") final List<String> locationPaths,
+                                                        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
+                                                        @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
+                                                        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
+                                                        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+        return schedulesService.getLocationGroupEventsByLocationPaths(prisonId, locationPaths, date, timeSlot, sortFields, sortOrder);
     }
 
     @ApiResponses({

@@ -225,7 +225,12 @@ public class InmateRepository extends RepositoryBase {
         booking.deriveLegalDetails();
     }
 
+    public List<InmateDto> findPrisonersByLocationPath(final String prisonId, final List<String> locationPaths, final Set<String> caseLoadIds) {
+        return jdbcTemplate.query(InmateRepositorySql.FIND_PRISONER_IN_LOCATION_PATH_LIST.getSql(),
+            createParams("prisonId", prisonId, "locationPaths", locationPaths, "caseLoadIds", caseLoadIds), INMATE_MAPPER);
+    }
 
+    @Deprecated
     public List<InmateDto> findInmatesByLocation(final String agencyId, final List<Long> locations, final Set<String> caseLoadIds) {
         return jdbcTemplate.query(InmateRepositorySql.FIND_INMATES_OF_LOCATION_LIST.getSql(),
             createParams("agencyId", agencyId, "locations", locations, "caseLoadIds", caseLoadIds), INMATE_MAPPER);

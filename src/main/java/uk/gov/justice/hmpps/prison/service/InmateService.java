@@ -130,10 +130,17 @@ public class InmateService {
         this.offenderImageRepository = offenderImageRepository;
     }
 
+    @Deprecated
     public List<InmateDto> findInmatesByLocation(final String username, final String agencyId, final List<Long> locations) {
         final var caseLoadIds = getUserCaseloadIds(username);
 
         return repository.findInmatesByLocation(agencyId, locations, caseLoadIds);
+    }
+
+    public List<InmateDto> findPrisonersByLocationPaths(final String username, final String prisonId, final List<String> locations) {
+        final var caseLoadIds = getUserCaseloadIds(username);
+
+        return repository.findPrisonersByLocationPath(prisonId, locations.stream().map(pathHierarchy -> prisonId+"-"+pathHierarchy).toList(), caseLoadIds);
     }
 
     public List<InmateBasicDetails> getBasicInmateDetailsForOffenders(final Set<String> offenders, final boolean active) {
