@@ -22,7 +22,7 @@ class ScheduleByLocationResourceTest : ResourceTest() {
   )
 
   @Nested
-  @DisplayName("POST /api/schedules/{agencyId}/events-by-location-id")
+  @DisplayName("POST /api/schedules/{agencyId}/events-by-location-path")
   inner class EventsByLocationIds {
     @Test
     fun `returns 403 if does not have override role`() {

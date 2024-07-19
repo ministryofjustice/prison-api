@@ -267,7 +267,7 @@ enum class InmateRepositorySql(val sql: String) {
                 INNER JOIN AGENCY_INTERNAL_LOCATIONS AIL ON B.LIVING_UNIT_ID = AIL.INTERNAL_LOCATION_ID
                 WHERE B.ACTIVE_FLAG = 'Y'
         AND EXISTS (select 1 from CASELOAD_AGENCY_LOCATIONS C WHERE B.AGY_LOC_ID = C.AGY_LOC_ID AND C.CASELOAD_ID IN (:caseLoadIds))
-        AND AIL.DESCRIPTION in (:locations)
+        AND AIL.DESCRIPTION in (:locationPaths)
         AND B.AGY_LOC_ID = :prisonId
     """,
   ),
