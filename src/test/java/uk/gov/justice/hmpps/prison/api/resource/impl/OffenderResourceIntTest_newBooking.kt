@@ -16,7 +16,11 @@ import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.dsl.JAN
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
+import uk.gov.justice.hmpps.prison.dsl.TimePoints.midday
+import uk.gov.justice.hmpps.prison.dsl.TimePoints.midnight
+import uk.gov.justice.hmpps.prison.dsl.at
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -28,6 +32,10 @@ import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import uk.gov.justice.hmpps.prison.util.builders.getMovements
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+
+private const val REMAND_REASON = "N"
+private const val UNLAWFULLY_AT_LARGE = "UAL"
+private const val ESCAPED = "ESCP"
 
 class OffenderResourceIntTest_newBooking : ResourceTest() {
 
@@ -422,6 +430,110 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .expectBody()
           .jsonPath("userMessage")
           .isEqualTo("Movement cannot be before the previous active movement")
+      }
+
+      @Test
+      fun `400 when trying create a new booking for someone who has absconded`() {
+        lateinit var offenderNo: String
+        builder.build {
+          offenderNo = offender(lastName = "DUBOIS") {
+            booking(
+              prisonId = "MDI",
+              bookingInTime = 10 JAN 2024 at midday,
+              movementReasonCode = REMAND_REASON,
+            ) {
+              sendToCourt(
+                releaseTime = 11 JAN 2024 at midnight,
+              )
+              returnFromCourt(
+                prisonId = "MDI",
+                returnTime = 11 JAN 2024 at midday,
+              )
+              release(
+                releaseTime = 20 JAN 2024 at midnight,
+                movementReasonCode = UNLAWFULLY_AT_LARGE,
+              )
+            }
+          }.offenderNo
+        }
+
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            // language=JSON
+            """
+            {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "RECA", 
+               "imprisonmentStatus": "CUR_ORA"
+            }
+            """,
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("userMessage")
+          .isEqualTo("A new booking cannot be created for someone who has escaped")
+      }
+
+      @Test
+      fun `400 when trying create a new booking for someone who has escaped`() {
+        lateinit var offenderNo: String
+        builder.build {
+          offenderNo = offender(lastName = "DUBOIS") {
+            booking(
+              prisonId = "MDI",
+              bookingInTime = 10 JAN 2024 at midday,
+              movementReasonCode = REMAND_REASON,
+            ) {
+              release(
+                releaseTime = 11 JAN 2024 at midday,
+              )
+              recall(
+                prisonId = "MDI",
+                recallTime = 13 JAN 2024 at midday,
+              )
+              release(
+                releaseTime = 20 JAN 2024 at midnight,
+                movementReasonCode = ESCAPED,
+              )
+            }
+          }.offenderNo
+        }
+
+        webTestClient.post()
+          .uri("/api/offenders/{offenderNo}/booking", offenderNo)
+          .headers(
+            setAuthorisation(
+              listOf("ROLE_BOOKING_CREATE"),
+            ),
+          )
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .bodyValue(
+            // language=JSON
+            """
+            {
+               "prisonId": "MDI", 
+               "fromLocationId": "COURT1", 
+               "movementReasonCode": "RECA", 
+               "imprisonmentStatus": "CUR_ORA"
+            }
+            """,
+          )
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("userMessage")
+          .isEqualTo("A new booking cannot be created for someone who has escaped")
       }
     }
 

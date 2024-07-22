@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Convert;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -12,6 +13,8 @@ import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
+import org.hibernate.type.YesNoConverter;
+
 import java.io.Serializable;
 
 @Data
@@ -42,6 +45,10 @@ public class MovementTypeAndReason implements Serializable {
     private String reasonCode;
 
     private String description;
+
+    @Column(name = "esc_recap_flag")
+    @Convert(converter = YesNoConverter.class)
+    private boolean escaped = false;
 
     public static String getDescriptionOrNull(final MovementTypeAndReason referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;

@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -35,6 +36,7 @@ internal class ExternalMovementServiceTest {
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason> = mock()
   private val externalMovementRepository: ExternalMovementRepository = mock()
   private val movementTypeRepository: ReferenceCodeRepository<MovementType> = mock()
+  private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository = mock()
   private val entityManager: EntityManager = mock()
 
   private val fromPrison = AgencyLocation().apply {
@@ -136,6 +138,7 @@ internal class ExternalMovementServiceTest {
     externalMovementRepository = externalMovementRepository,
     movementTypeRepository = movementTypeRepository,
     entityManager = entityManager,
+    movementTypeAndReasonRepository = movementTypeAndReasonRepository,
   )
 
   @DisplayName("updateMovementsForTransferIn")

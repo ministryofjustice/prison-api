@@ -11,9 +11,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -26,6 +28,7 @@ class ExternalMovementService(
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason>,
   private val externalMovementRepository: ExternalMovementRepository,
   private val movementTypeRepository: ReferenceCodeRepository<MovementType>,
+  private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository,
   private val entityManager: EntityManager,
 ) {
   fun updateMovementsForTransferIn(
@@ -225,6 +228,14 @@ class ExternalMovementService(
       }
     } ?: success(now)
   }
+
+  fun wasLastMovementAnEscape(booking: OffenderBooking): Boolean =
+    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(booking.bookingId)
+      .map {
+        movementTypeAndReasonRepository.findByIdOrNull(MovementTypeAndReason.Pk("REL", it.movementReason.code))
+      }
+      .orElse(null)?.isEscaped
+      ?: false
 
   private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) =
     externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
