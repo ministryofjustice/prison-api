@@ -85,7 +85,9 @@ class BookingIntoPrisonService(
   }
 
   fun newBookingWithoutUpdateLock(offender: Offender, previousBooking: OffenderBooking?, requestForNewBooking: RequestForNewBooking): InmateDetail {
-    previousInactiveBooking(previousBooking).getOrThrow()
+    previousInactiveBooking(previousBooking).onFailure { throw it }
+    previousBooking.didNotPreviouslyEscapeOrAbscond().onFailure { throw it }
+
     val imprisonmentStatus: ImprisonmentStatus =
       imprisonmentStatus(requestForNewBooking.imprisonmentStatus).getOrThrow()
     val prison = prison(requestForNewBooking.prisonId).getOrThrow()
@@ -275,6 +277,18 @@ class BookingIntoPrisonService(
     this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
       EntityNotFoundException.withMessage("Profile Code for YOUTH and $code not found"),
     )
+
+  private fun OffenderBooking?.didNotPreviouslyEscapeOrAbscond(): Result<OffenderBooking?> {
+    if (this != null && externalMovementService.wasLastMovementAnEscape(this)) {
+      return failure(
+        ConflictingRequestException.withMessage(
+          "A new booking cannot be created for someone who has escaped",
+          CustomErrorCodes.PRISONER_ESCAPED_NEW_BOOKING_NOT_ALLOWED,
+        ),
+      )
+    }
+    return success(this)
+  }
 }
 
 private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
