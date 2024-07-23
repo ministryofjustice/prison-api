@@ -13,6 +13,7 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
@@ -433,7 +434,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
       }
 
       @Test
-      fun `400 when trying create a new booking for someone who has absconded`() {
+      fun `409 when trying create a new booking for someone who has absconded`() {
         lateinit var offenderNo: String
         builder.build {
           offenderNo = offender(lastName = "DUBOIS") {
@@ -478,14 +479,14 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
-          .expectStatus().isBadRequest
+          .expectStatus().isEqualTo(HttpStatus.CONFLICT)
           .expectBody()
           .jsonPath("userMessage")
           .isEqualTo("A new booking cannot be created for someone who has escaped")
       }
 
       @Test
-      fun `400 when trying create a new booking for someone who has escaped`() {
+      fun `409 when trying create a new booking for someone who has escaped`() {
         lateinit var offenderNo: String
         builder.build {
           offenderNo = offender(lastName = "DUBOIS") {
@@ -530,7 +531,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           )
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
-          .expectStatus().isBadRequest
+          .expectStatus().isEqualTo(HttpStatus.CONFLICT)
           .expectBody()
           .jsonPath("userMessage")
           .isEqualTo("A new booking cannot be created for someone who has escaped")

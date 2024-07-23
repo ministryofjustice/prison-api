@@ -280,7 +280,12 @@ class BookingIntoPrisonService(
 
   private fun OffenderBooking?.didNotPreviouslyEscapeOrAbscond(): Result<OffenderBooking?> {
     if (this != null && externalMovementService.wasLastMovementAnEscape(this)) {
-      return failure(BadRequestException("A new booking cannot be created for someone who has escaped"))
+      return failure(
+        ConflictingRequestException.withMessage(
+          "A new booking cannot be created for someone who has escaped",
+          CustomErrorCodes.PRISONER_ESCAPED_NEW_BOOKING_NOT_ALLOWED,
+        ),
+      )
     }
     return success(this)
   }
