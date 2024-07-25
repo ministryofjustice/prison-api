@@ -35,14 +35,20 @@ class NomisConfigurerTest {
           assertThat(it).isEqualTo(
             """
                 BEGIN
-                nomis_context.set_context('AUDIT_MODULE_NAME', 'PRISON_API');
-                nomis_context.set_context('AUDIT_USER_ID', 'some user');
-                nomis_context.set_client_nomis_context('some user', 'some IP', 'some app', 'some URI');
+                nomis_context.set_context('AUDIT_MODULE_NAME', ?);
+                nomis_context.set_context('AUDIT_USER_ID', ?);
+                nomis_context.set_client_nomis_context(?, ?, ?, ?);
                 END;
             """.trimIndent(),
           )
         },
       )
+      verify(preparedStatement).setString(1, "PRISON_API")
+      verify(preparedStatement).setString(2, "some user")
+      verify(preparedStatement).setString(3, "some user")
+      verify(preparedStatement).setString(4, "some IP")
+      verify(preparedStatement).setString(5, "some app")
+      verify(preparedStatement).setString(6, "some URI")
       verify(preparedStatement).execute()
     }
 
@@ -50,11 +56,7 @@ class NomisConfigurerTest {
     fun `should set MERGE context`() {
       nomisConfigurer.setNomisContext(connection, "some user", "some IP", "some URI", "some app", true)
 
-      verify(connection).prepareStatement(
-        check {
-          assertThat(it).contains("nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE');")
-        },
-      )
+      verify(preparedStatement).setString(1, "MERGE")
       verify(preparedStatement).execute()
     }
 
@@ -62,19 +64,12 @@ class NomisConfigurerTest {
     fun `should set blanks if not passed`() {
       nomisConfigurer.setNomisContext(connection)
 
-      verify(connection).prepareStatement(
-        check {
-          assertThat(it).isEqualTo(
-            """
-                BEGIN
-                nomis_context.set_context('AUDIT_MODULE_NAME', '');
-                nomis_context.set_context('AUDIT_USER_ID', '');
-                nomis_context.set_client_nomis_context('', '', '', '');
-                END;
-            """.trimIndent(),
-          )
-        },
-      )
+      verify(preparedStatement).setString(1, "")
+      verify(preparedStatement).setString(2, "")
+      verify(preparedStatement).setString(3, "")
+      verify(preparedStatement).setString(4, "")
+      verify(preparedStatement).setString(5, "")
+      verify(preparedStatement).setString(6, "")
       verify(preparedStatement).execute()
     }
   }

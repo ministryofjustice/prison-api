@@ -5,8 +5,9 @@ import org.springframework.context.annotation.Configuration
 import org.springframework.data.domain.AuditorAware
 import org.springframework.data.jpa.repository.config.EnableJpaAuditing
 import org.springframework.stereotype.Service
+import uk.gov.justice.hmpps.prison.aop.connectionproxy.isEmail
 import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
-import java.util.*
+import java.util.Optional
 
 @Configuration
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
@@ -19,7 +20,7 @@ class AuditorAwareImpl(
     with(authenticationFacade.currentPrincipal) {
       // don't write email addresses to the audit fields, only usernames
       // this will still mean some external users get written, but will mainly be nomis users
-      if (this?.contains("@") == true) datasourceUsername.uppercase() else this
+      if (isEmail()) datasourceUsername.uppercase() else this
     },
   )
 }

@@ -19,21 +19,33 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
     app: String? = null,
     suppressXtagEvents: Boolean? = null,
   ): Boolean {
-    val auditModuleName = suppressXtagEvents?.let { "'${if (suppressXtagEvents) MERGE else PRISON_API }'" } ?: "''"
-    fun String?.quotesOrEmpty() = this?.let { "'$this'" } ?: "''"
-    val userOrEmpty = user.quotesOrEmpty()
-    val ipOrEmpty = ipAddress.quotesOrEmpty()
-    val appOrEmpty = app.quotesOrEmpty()
-    val uriOrEmpty = requestUri.quotesOrEmpty()
+    val auditModuleName = suppressXtagEvents?.let { "${if (suppressXtagEvents) MERGE else PRISON_API}" } ?: ""
+    val userOrEmpty = user.orEmpty()
+    val userOrModule = if (user.isEmail()) auditModuleName else userOrEmpty
+    val ipOrEmpty = ipAddress.orEmpty()
+    val appOrEmpty = app.orEmpty()
+    val uriOrEmpty = requestUri.orEmpty()
     return """
       BEGIN
-      nomis_context.set_context('AUDIT_MODULE_NAME', $auditModuleName);
-      nomis_context.set_context('AUDIT_USER_ID', $userOrEmpty);
-      nomis_context.set_client_nomis_context($userOrEmpty, $ipOrEmpty, $appOrEmpty, $uriOrEmpty);
+      nomis_context.set_context('AUDIT_MODULE_NAME', ?);
+      nomis_context.set_context('AUDIT_USER_ID', ?);
+      nomis_context.set_client_nomis_context(?, ?, ?, ?);
       END;
     """
       .trimIndent()
-      .let { sql -> conn.run(sql) }
+      .let { sql ->
+        conn
+          .prepareStatement(sql)
+          .use { ps ->
+            ps.setString(1, auditModuleName)
+            ps.setString(2, userOrModule)
+            ps.setString(3, userOrEmpty)
+            ps.setString(4, ipOrEmpty)
+            ps.setString(5, appOrEmpty)
+            ps.setString(6, uriOrEmpty)
+            ps.execute()
+          }
+      }
   }
 
   @Throws(SQLException::class)
@@ -54,3 +66,5 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
     }
   }
 }
+
+fun String?.isEmail() = this?.contains("@") == true
