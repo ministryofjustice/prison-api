@@ -14,25 +14,31 @@ generic-service:
   ingress:
     host: prison-api-dev.prison.service.justice.gov.uk
 
-    allowlist:
-      groups:
-        - internal
-        - circleci
+  allowlist:
+    groups:
+      - internal
+      - circleci
 
-      # found in app insights logs for unilink client
-      unilink-cf-1: "78.33.10.48/28"
+    # found in app insights logs for unilink client
+    unilink-cf-1: "78.33.10.48/28"
 
-      # copied from curious-sync-client / meganexus client
-      curious-dev-1: "51.140.221.69/32"
-      curious-preprod-1: "20.49.246.49/32"
-      # meganexus office address
-      curious-preprod-2: "202.189.235.70/32"
+    # copied from curious-sync-client / meganexus client
+    curious-dev-1: "51.140.221.69/32"
+    curious-preprod-1: "20.49.246.49/32"
+    # meganexus office address
+    curious-preprod-2: "202.189.235.70/32"
 
-      # found in app insights logs for prum-client client
-      prum-dev: "18.135.61.191/32"
+    # found in app insights logs for prum-client client
+    prum-dev: "18.135.61.191/32"
 
-      # found in app insights logs for serco-book-a-secure-move client
-      serco-dev: "52.23.29.131/32"
+    # found in app insights logs for serco-book-a-secure-move client
+    serco-dev: "52.23.29.131/32"
+
+    # found in app insights logs and cross referenced with github
+    delius-test-1: "35.176.126.163/32"
+    delius-test-2: "35.178.162.73/32"
+    delius-test-3: "52.56.195.113/32"
+    delius-mis-dev-az3-nat-gateway: "35.178.35.115/32"
 
   env:
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-dev.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
