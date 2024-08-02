@@ -1,14 +1,8 @@
 ---
 # Per environment values which override defaults in prison-api/values.yaml
 generic-service:
-  service:
-    enabled: true
-
   ingress:
-    enabled: true
     host: prison-api.prison.service.justice.gov.uk
-    tlsSecretName: prison-api-cert
-    modsecurity_enabled: true
 
   allowlist:
     groups:
@@ -86,7 +80,6 @@ generic-service:
     pfs-azure-logicapps: "20.68.51.129/32"
 
   env:
-    JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
 
 generic-prometheus-alerts:
