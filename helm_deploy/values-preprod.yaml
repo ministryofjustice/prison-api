@@ -3,9 +3,6 @@
 generic-service:
   replicaCount: 2
 
-  service:
-    enabled: true
-
   resources:
     requests:
       cpu: 100m
@@ -15,10 +12,7 @@ generic-service:
       memory: 2048Mi
 
   ingress:
-    enabled: true
     host: prison-api-preprod.prison.service.justice.gov.uk
-    tlsSecretName: prison-api-cert
-    modsecurity_enabled: true
 
   allowlist:
     groups:
@@ -96,7 +90,6 @@ generic-service:
     pfs-azure-logicapps: "20.68.51.129/32"
 
   env:
-    JAVA_OPTS: "-Xmx1024m"
     SPRING_SECURITY_OAUTH2_RESOURCESERVER_JWT_JWK_SET_URI: "https://sign-in-preprod.hmpps.service.justice.gov.uk/auth/.well-known/jwks.json"
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
 
