@@ -21,7 +21,7 @@ class AgencyResourceIntTest : ResourceTest() {
   private lateinit var locationGroupService: LocationGroupService
 
   @Nested
-  @DisplayName("/api/agencies/{agencyId}/locations/groups")
+  @DisplayName("GET /api/agencies/{agencyId}/locations/groups")
   inner class LocationGroups {
     private val location1 = builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build()
 
@@ -53,7 +53,7 @@ class AgencyResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("/api/agencies/{agencyId}/locations/type/{type}")
+  @DisplayName("GET /api/agencies/{agencyId}/locations/type/{type}")
   inner class InternalLocations {
 
     @Test
@@ -107,7 +107,7 @@ class AgencyResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("/api/agencies/{agencyId}/eventLocationsBooked")
+  @DisplayName("GET /api/agencies/{agencyId}/eventLocationsBooked")
   inner class EventLocationsBooked {
 
     @Test
@@ -187,6 +187,116 @@ class AgencyResourceIntTest : ResourceTest() {
         .jsonPath("[0].locationId").isEqualTo(-25)
         .jsonPath("[0].description").isEqualTo("LEI-CHAP")
         .jsonPath("[0].userDescription").isEqualTo("Chapel")
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /api/agencies/type/{type}")
+  inner class GetAgencyByType {
+    @Nested
+    inner class Security {
+      @Test
+      fun `should return 401 when user does not even have token`() {
+        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `should return 200 so long as the client has a token`() {
+        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+      }
+
+      @Test
+      fun `should return 200 - role doesn't matter for insensitive data`() {
+        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+          .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isOk
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+
+      @Test
+      fun `can get a list of all prisons`() {
+        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='BMI')]").exists()
+          .jsonPath("$[?(@.agencyId=='BMI')].description").isEqualTo("Birmingham")
+          .jsonPath("$[?(@.agencyId=='BMI')].agencyType").isEqualTo("INST")
+          .jsonPath("$[?(@.agencyId=='BMI')].active").isEqualTo(true)
+          .jsonPath("$[?(@.agencyId=='BXI')]").exists()
+          .jsonPath("$[?(@.agencyId=='LEI')]").exists()
+          .jsonPath("$[?(@.agencyId=='MDI')]").exists()
+          .jsonPath("$[?(@.agencyId=='MUL')]").exists()
+          .jsonPath("$[?(@.agencyId=='RNI')]").exists()
+          .jsonPath("$[?(@.agencyId=='RSI')]").exists()
+          .jsonPath("$[?(@.agencyId=='SYI')]").exists()
+          .jsonPath("$[?(@.agencyId=='TRO')]").exists()
+          .jsonPath("$[?(@.agencyId=='WAI')]").exists()
+          .jsonPath("$[?(@.agencyType=='CRT')]").doesNotExist()
+      }
+
+      @Test
+      fun `can get a list of courts for a certain type`() {
+        webTestClient.get().uri("/api/agencies/type/{type}?courtType={courtType}", "CRT", "YC")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')]").exists()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].description").isEqualTo("Court 2")
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].agencyType").isEqualTo("CRT")
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].active").isEqualTo(true)
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
+          .jsonPath("$[?(@.courtType=='MC')]").doesNotExist()
+      }
+
+      @Test
+      fun `can get a list of courts for a certain type using the deprecated jurisdiction parameter`() {
+        webTestClient.get().uri("/api/agencies/type/{type}?jurisdictionCode={jurisdictionCode}", "CRT", "YC")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')]").exists()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
+          .jsonPath("$[?(@.courtType=='MC')]").doesNotExist()
+      }
+
+      @Test
+      fun `can request no formatting of description`() {
+        webTestClient.get().uri("/api/agencies/type/{type}?courtType={courtType}&skipFormatLocation=true", "CRT", "YC")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].description").isEqualTo("court 2")
+      }
+
+      @Test
+      fun `can get a list of courts for a list of types`() {
+        webTestClient.get().uri("/api/agencies/type/{type}?courtType=YC&courtType=MC", "CRT")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')]").exists()
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyId=='COURT1')]").exists()
+          .jsonPath("$[?(@.agencyId=='COURT1')].courtType").isEqualTo("MC")
+          .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
+      }
     }
   }
 }
