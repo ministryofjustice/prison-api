@@ -197,14 +197,14 @@ class AgencyResourceIntTest : ResourceTest() {
     inner class Security {
       @Test
       fun `should return 401 when user does not even have token`() {
-        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+        webTestClient.get().uri("/api/agencies/type/INST")
           .exchange()
           .expectStatus().isUnauthorized
       }
 
       @Test
       fun `should return 200 so long as the client has a token`() {
-        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+        webTestClient.get().uri("/api/agencies/type/INST")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
@@ -212,7 +212,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `should return 200 - role doesn't matter for insensitive data`() {
-        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+        webTestClient.get().uri("/api/agencies/type/INST")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .exchange()
           .expectStatus().isOk
@@ -224,7 +224,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `can get a list of all prisons`() {
-        webTestClient.get().uri("/api/agencies/type/{type}", "INST")
+        webTestClient.get().uri("/api/agencies/type/INST")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
@@ -247,7 +247,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `can get a list of courts for a certain type`() {
-        webTestClient.get().uri("/api/agencies/type/{type}?courtType={courtType}", "CRT", "YC")
+        webTestClient.get().uri("/api/agencies/type/CRT?courtType=YC")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
@@ -263,7 +263,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `can get a list of courts for a certain type using the deprecated jurisdiction parameter`() {
-        webTestClient.get().uri("/api/agencies/type/{type}?jurisdictionCode={jurisdictionCode}", "CRT", "YC")
+        webTestClient.get().uri("/api/agencies/type/CRT?jurisdictionCode=YC")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
@@ -276,7 +276,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `can request no formatting of description`() {
-        webTestClient.get().uri("/api/agencies/type/{type}?courtType={courtType}&skipFormatLocation=true", "CRT", "YC")
+        webTestClient.get().uri("/api/agencies/type/CRT?courtType=YC&skipFormatLocation=true")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
@@ -286,7 +286,7 @@ class AgencyResourceIntTest : ResourceTest() {
 
       @Test
       fun `can get a list of courts for a list of types`() {
-        webTestClient.get().uri("/api/agencies/type/{type}?courtType=YC&courtType=MC", "CRT")
+        webTestClient.get().uri("/api/agencies/type/CRT?courtType=YC&courtType=MC")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isOk
