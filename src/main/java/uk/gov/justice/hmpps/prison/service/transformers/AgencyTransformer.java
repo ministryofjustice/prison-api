@@ -8,10 +8,12 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.service.AddressTransformer;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
+import java.util.Optional;
 
 import static java.util.stream.Collectors.toList;
 
@@ -34,12 +36,21 @@ public class AgencyTransformer {
     private static AgencyBuilder transformToBuilder(final AgencyLocation agency, final boolean skipFormatLocation) {
         return Agency.builder()
             .agencyId(agency.getId())
-            .agencyType(agency.getType() != null ? agency.getType().getCode() : null)
+            .agencyType(codeOrNull(agency.getType()))
             .active(agency.isActive())
             .description(skipFormatLocation ? agency.getDescription() : LocationProcessor.formatLocation(agency.getDescription()))
-            .courtType(agency.getCourtType() != null ? agency.getCourtType().getCode() : null)
+            .courtType(codeOrNull(agency.getCourtType()))
+            .courtTypeDescription(descriptionOrNull(agency.getCourtType()))
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.getDeactivationDate());
+    }
+
+    static private String codeOrNull(final ReferenceCode referenceData) {
+        return Optional.ofNullable(referenceData).map(ReferenceCode::getCode).orElse(null);
+    }
+
+    static private String descriptionOrNull(final ReferenceCode referenceData) {
+        return Optional.ofNullable(referenceData).map(ReferenceCode::getDescription).orElse(null);
     }
 
     public static AgencyLocation build(final RequestToCreateAgency agency, final AgencyLocationType type, final CourtType courtType) {

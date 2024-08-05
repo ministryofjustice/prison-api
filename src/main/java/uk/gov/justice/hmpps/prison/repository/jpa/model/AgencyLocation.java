@@ -64,6 +64,12 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
         )
     }
 )
+@NamedEntityGraph(
+    name = "agency-location-with-court-types",
+    attributeNodes = {
+        @NamedAttributeNode(value = "courtType"),
+    }
+)
 public class AgencyLocation extends AuditableEntity {
 
     public static final String IN = "IN";
@@ -105,7 +111,7 @@ public class AgencyLocation extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + JURISDICTION + "'", referencedColumnName = "domain")),
-        @JoinColumnOrFormula(column = @JoinColumn(name = "JURISDICTION_CODE", referencedColumnName = "code", nullable = false))
+        @JoinColumnOrFormula(column = @JoinColumn(name = "JURISDICTION_CODE", referencedColumnName = "code"))
     })
     private CourtType courtType;
 
