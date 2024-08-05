@@ -32,8 +32,11 @@ public class Agency {
     @Default
     private boolean active = true;
 
-    @Schema(description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"})
+    @Schema(description = "Court Type.  Reference domain is JURISDICTION", example = "CC", allowableValues = {"CACD","CB","CC","CO","DCM","GCM","IMM","MC","OTHER","YC"}, nullable = true)
     private String courtType;
+
+    @Schema(description = "Court Type description.  Reference domain is JURISDICTION. Not always present for all end points", example = "Crown Court", nullable = true)
+    private String courtTypeDescription;
 
     @Schema(description = "Date agency became inactive", example = "2012-01-12")
     private LocalDate deactivationDate;
@@ -47,13 +50,14 @@ public class Agency {
     @Schema(description = "List of emails associated with agency")
     private List<Email> emails;
 
-    public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails) {
+    public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, String courtTypeDescription, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails) {
         this.agencyId = agencyId;
         this.description = description;
         this.longDescription = longDescription;
         this.agencyType = agencyType;
         this.active = active;
         this.courtType = courtType;
+        this.courtTypeDescription = courtTypeDescription;
         this.deactivationDate = deactivationDate;
         this.addresses = addresses;
         this.phones = phones;

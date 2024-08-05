@@ -233,6 +233,8 @@ class AgencyResourceIntTest : ResourceTest() {
           .jsonPath("$[?(@.agencyId=='BMI')].description").isEqualTo("Birmingham")
           .jsonPath("$[?(@.agencyId=='BMI')].agencyType").isEqualTo("INST")
           .jsonPath("$[?(@.agencyId=='BMI')].active").isEqualTo(true)
+          .jsonPath("$[?(@.agencyId=='BMI')].courtType").doesNotExist()
+          .jsonPath("$[?(@.agencyId=='BMI')].courtTypeDescription").doesNotExist()
           .jsonPath("$[?(@.agencyId=='BXI')]").exists()
           .jsonPath("$[?(@.agencyId=='LEI')]").exists()
           .jsonPath("$[?(@.agencyId=='MDI')]").exists()
@@ -257,6 +259,7 @@ class AgencyResourceIntTest : ResourceTest() {
           .jsonPath("$[?(@.agencyId=='ABDRCT')].agencyType").isEqualTo("CRT")
           .jsonPath("$[?(@.agencyId=='ABDRCT')].active").isEqualTo(true)
           .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtTypeDescription").isEqualTo("Youth Court")
           .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
           .jsonPath("$[?(@.courtType=='MC')]").doesNotExist()
       }
@@ -270,6 +273,7 @@ class AgencyResourceIntTest : ResourceTest() {
           .expectBody()
           .jsonPath("$[?(@.agencyId=='ABDRCT')]").exists()
           .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtTypeDescription").isEqualTo("Youth Court")
           .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
           .jsonPath("$[?(@.courtType=='MC')]").doesNotExist()
       }
@@ -293,8 +297,10 @@ class AgencyResourceIntTest : ResourceTest() {
           .expectBody()
           .jsonPath("$[?(@.agencyId=='ABDRCT')]").exists()
           .jsonPath("$[?(@.agencyId=='ABDRCT')].courtType").isEqualTo("YC")
+          .jsonPath("$[?(@.agencyId=='ABDRCT')].courtTypeDescription").isEqualTo("Youth Court")
           .jsonPath("$[?(@.agencyId=='COURT1')]").exists()
           .jsonPath("$[?(@.agencyId=='COURT1')].courtType").isEqualTo("MC")
+          .jsonPath("$[?(@.agencyId=='COURT1')].courtTypeDescription").isEqualTo("Magistrates Court")
           .jsonPath("$[?(@.agencyType=='INST')]").doesNotExist()
       }
     }

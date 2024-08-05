@@ -17,6 +17,7 @@ data class AgencyDto(
     this.agencyType,
     this.active,
     this.courtType,
+    null,
     this.deactivationDate,
     null,
     null,
