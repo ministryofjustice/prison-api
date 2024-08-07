@@ -1606,11 +1606,32 @@ public class BookingServiceTest {
     @Test
     public void givenCalculationsThenReturnAll() {
         var sentenceCalculationSummaries = offenderSentenceCalculationSummaries();
-        when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString())).thenReturn(sentenceCalculationSummaries);
+        when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString(), eq(true))).thenReturn(sentenceCalculationSummaries);
 
-        final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A");
+        final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A", null);
 
-        verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"));
+        verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"), eq(true));
+        assertThat(results).hasSize(sentenceCalculationSummaries.size());
+    }
+
+    @Test
+    public void givenCalculationsOnlyActiveThenReturnAll() {
+        var sentenceCalculationSummaries = offenderSentenceCalculationSummaries();
+        when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString(), eq(true))).thenReturn(sentenceCalculationSummaries);
+
+        final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A", true);
+
+        verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"), eq(true));
+        assertThat(results).hasSize(sentenceCalculationSummaries.size());
+    }
+    @Test
+    public void givenCalculationsAllThenReturnAll() {
+        var sentenceCalculationSummaries = offenderSentenceCalculationSummaries();
+        when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString(), eq(false))).thenReturn(sentenceCalculationSummaries);
+
+        final var results = bookingService.getOffenderSentenceCalculationsForPrisoner("ABZ123A", false);
+
+        verify(bookingRepository).getOffenderSentenceCalculationsForPrisoner(eq("ABZ123A"), eq(false));
         assertThat(results).hasSize(sentenceCalculationSummaries.size());
     }
 

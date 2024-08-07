@@ -660,8 +660,9 @@ public class BookingService {
         return bookingRepository.getOffenderSentenceCalculations(agencyIds);
     }
 
-    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId) {
-        return bookingRepository.getOffenderSentenceCalculationsForPrisoner(prisonerId);
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId, Boolean activeOnly) {
+        final var active = activeOnly == null || activeOnly;
+        return bookingRepository.getOffenderSentenceCalculationsForPrisoner(prisonerId, active);
     }
 
     public List<OffenderSentenceTerms> getOffenderSentenceTerms(final Long bookingId, final List<String> filterBySentenceTermCodes) {

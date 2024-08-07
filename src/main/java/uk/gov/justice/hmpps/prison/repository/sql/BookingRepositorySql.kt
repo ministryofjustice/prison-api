@@ -269,8 +269,6 @@ enum class BookingRepositorySql(val sql: String) {
         INNER JOIN AGENCY_LOCATIONS AGY ON OB.AGY_LOC_ID = AGY.AGY_LOC_ID
         WHERE O.OFFENDER_ID_DISPLAY = :offenderId
         AND OB.ACTIVE_FLAG = :activeFlag
-        AND OB.BOOKING_SEQ = :bookingSeq
-        ORDER BY OSC.OFFENDER_SENT_CALCULATION_ID DESC
     """,
   ),
   GET_OFFENDER_SENT_CALCULATIONS(
