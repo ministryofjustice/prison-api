@@ -13,11 +13,11 @@ import java.util.Optional
 @EnableJpaAuditing(auditorAwareRef = "auditorAware")
 @Service(value = "auditorAware")
 class AuditorAwareImpl(
-  private val authenticationFacade: HmppsAuthenticationHolder,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   @Value("\${spring.datasource.username}") private val datasourceUsername: String,
 ) : AuditorAware<String> {
   override fun getCurrentAuditor(): Optional<String> = Optional.ofNullable(
-    with(authenticationFacade.authenticationOrNull?.principal) {
+    with(hmppsAuthenticationHolder.authenticationOrNull?.principal) {
       // don't write email addresses to the audit fields, only usernames
       // this will still mean some external users get written, but will mainly be nomis users
       if (isEmail()) datasourceUsername.uppercase() else this

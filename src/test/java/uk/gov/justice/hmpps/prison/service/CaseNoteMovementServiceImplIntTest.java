@@ -8,6 +8,7 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
+import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser;
 
 import java.util.stream.IntStream;
 
@@ -16,6 +17,7 @@ import static org.mockito.Mockito.verify;
 
 @ActiveProfiles("test")
 @SpringBootTest
+@WithMockAuthUser("")
 public class CaseNoteMovementServiceImplIntTest {
     @MockBean
     private CaseNoteRepository repository;

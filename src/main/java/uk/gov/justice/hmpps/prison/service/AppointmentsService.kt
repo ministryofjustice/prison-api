@@ -33,7 +33,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
 import uk.gov.justice.hmpps.prison.service.support.StringWithAbbreviationsProcessor
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges
@@ -125,7 +124,7 @@ class AppointmentsService(
   @Transactional
   fun createBookingAppointment(
     bookingId: Long,
-    username: String,
+    username: String?,
     @Valid appointmentSpecification: NewAppointment,
   ): ScheduledEvent {
     validateStartTime(appointmentSpecification)
@@ -264,7 +263,7 @@ class AppointmentsService(
   }
 
   private fun assertThatRequestHasPermission(appointments: AppointmentsToCreate) {
-    if (appointments.moreThanOneOffender() && !AuthenticationFacade.hasRoles("BULK_APPOINTMENTS")) {
+    if (appointments.moreThanOneOffender() && !HmppsAuthenticationHolder.hasRoles("BULK_APPOINTMENTS")) {
       throw BadRequestException.withMessage(
         "You do not have the 'BULK_APPOINTMENTS' role. Creating appointments for more than one offender is not permitted without this role.",
       )
