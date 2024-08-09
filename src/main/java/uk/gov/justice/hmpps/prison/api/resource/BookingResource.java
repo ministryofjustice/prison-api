@@ -35,6 +35,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
@@ -82,7 +83,6 @@ import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -121,7 +121,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @AllArgsConstructor
 @Slf4j
 public class BookingResource {
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final BookingService bookingService;
     private final InmateService inmateService;
     private final HealthService healthService;
@@ -935,7 +935,7 @@ public class BookingResource {
     public ScheduledEvent postBookingsBookingIdAppointments(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestBody @Parameter(required = true) final NewAppointment newAppointment) {
-        return appointmentsService.createBookingAppointment(bookingId, authenticationFacade.getCurrentPrincipal(), newAppointment);
+        return appointmentsService.createBookingAppointment(bookingId, hmppsAuthenticationHolder.getUsername(), newAppointment);
     }
 
     @ApiResponses({
