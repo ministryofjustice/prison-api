@@ -10,6 +10,8 @@ server:
 spring:
   application:
     name: prison-api
+  main:
+    web-application-type: servlet
 
   cache:
     type: jcache

@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
 import org.aspectj.lang.annotation.Pointcut;
-import uk.gov.justice.hmpps.prison.util.MdcUtility;
 
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -19,21 +18,9 @@ public abstract class AbstractConnectionAspect {
 
     @Around("onNewConnectionPointcut()")
     public Object connectionAround(final ProceedingJoinPoint joinPoint) throws Throwable {
-
-        if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
-            log.trace("Enter: {}.{}()", joinPoint.getSignature().getDeclaringTypeName(), joinPoint.getSignature().getName());
-        }
         final var pooledConnection = (Connection) joinPoint.proceed();
         try {
-            final var connectionToReturn = configureNomisConnection(pooledConnection);
-
-            if (log.isTraceEnabled() && MdcUtility.isLoggingAllowed()) {
-                log.trace(
-                        "Exit: {}.{}()",
-                        joinPoint.getSignature().getDeclaringTypeName(),
-                        joinPoint.getSignature().getName());
-            }
-            return connectionToReturn;
+            return configureNomisConnection(pooledConnection);
 
         } catch (final Throwable e) {
             log.error(
