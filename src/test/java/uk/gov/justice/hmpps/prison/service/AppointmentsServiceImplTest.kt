@@ -21,6 +21,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import org.springframework.security.core.context.SecurityContextHolder
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
@@ -46,7 +47,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledAppointmentRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
 import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 import uk.gov.justice.hmpps.test.kotlin.auth.WithMockUserSecurityContextFactory
@@ -111,7 +111,7 @@ class AppointmentsServiceImplTest {
 
     appointmentsService = AppointmentsService(
       offenderBookingRepository,
-      AuthenticationFacade(),
+      HmppsAuthenticationHolder(),
       locationService,
       referenceDomainService,
       telemetryClient,

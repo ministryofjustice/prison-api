@@ -15,6 +15,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
@@ -46,7 +47,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
@@ -85,7 +85,7 @@ public class InmateService {
     private final UserService userService;
     private final InmateAlertService inmateAlertService;
     private final ReferenceDomainService referenceDomainService;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final int maxBatchSize;
     private final OffenderAssessmentService offenderAssessmentService;
     private final OffenderLanguageRepository offenderLanguageRepository;
@@ -103,7 +103,7 @@ public class InmateService {
                           final AgencyService agencyService,
                           final HealthService healthService,
                           final UserService userService,
-                          final AuthenticationFacade authenticationFacade,
+                          final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                           final TelemetryClient telemetryClient,
                           @Value("${batch.max.size:1000}") final int maxBatchSize,
                           final OffenderAssessmentService offenderAssessmentService,
@@ -120,7 +120,7 @@ public class InmateService {
         this.telemetryClient = telemetryClient;
         this.bookingService = bookingService;
         this.agencyService = agencyService;
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.maxBatchSize = maxBatchSize;
         this.userService = userService;
         this.offenderAssessmentService = offenderAssessmentService;
@@ -169,11 +169,11 @@ public class InmateService {
     }
 
     private boolean isViewAllOffenders() {
-        return authenticationFacade.isOverrideRole("GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
+        return hmppsAuthenticationHolder.isOverrideRole("GLOBAL_SEARCH", "VIEW_PRISONER_DATA");
     }
 
     private Set<String> loadCaseLoadsOrThrow() {
-        final var caseloads = caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false);
+        final var caseloads = caseLoadService.getCaseLoadIdsForUser(hmppsAuthenticationHolder.getUsername(), false);
         if (CollectionUtils.isEmpty(caseloads)) {
             throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "User has no active caseloads.");
         }
@@ -424,7 +424,7 @@ public class InmateService {
                                                         final boolean mostRecentOnly) {
         final List<Assessment> results = new ArrayList<>();
         if (!CollectionUtils.isEmpty(offenderNos)) {
-            final Set<String> caseLoadIds = authenticationFacade.isOverrideRole("VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
+            final Set<String> caseLoadIds = hmppsAuthenticationHolder.isOverrideRole("VIEW_ASSESSMENTS", "VIEW_PRISONER_DATA")
                 ? Collections.emptySet()
                 : loadCaseLoadsOrThrow();
 
@@ -523,7 +523,7 @@ public class InmateService {
     @Transactional
     public Map<String, Long> createCategorisation(final Long bookingId, final CategorisationDetail categorisationDetail) {
         validate(categorisationDetail);
-        final var userDetail = userService.getUserByUsername(authenticationFacade.getCurrentPrincipal());
+        final var userDetail = userService.getUserByUsername(hmppsAuthenticationHolder.getUsername());
         final var currentBooking = bookingService.getLatestBookingByBookingId(bookingId);
         final var responseKeyMap = repository.insertCategory(categorisationDetail, currentBooking.getAgencyLocationId(), userDetail.getStaffId(), userDetail.getUsername());
 
