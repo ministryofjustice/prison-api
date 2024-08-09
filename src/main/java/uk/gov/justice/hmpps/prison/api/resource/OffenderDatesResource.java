@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.LatestTusedData;
@@ -102,9 +103,10 @@ public class OffenderDatesResource {
     @GetMapping("/calculations/{nomsId}")
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId) {
+    public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId,
+            @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId));
+            .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId, latestOnly));
     }
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "TUSED data found for offender", content = {@Content(mediaType = "application/json",  schema = @Schema(implementation = LatestTusedData.class))}),

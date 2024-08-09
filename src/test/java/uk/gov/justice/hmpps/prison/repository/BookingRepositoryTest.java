@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository;
 
 import org.assertj.core.groups.Tuple;
-import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
@@ -342,7 +341,17 @@ public class BookingRepositoryTest {
 
     @Test
     public void getOffenderSentenceCalculationsForPrisoner() {
-        var sentenceCalculations = repository.getOffenderSentenceCalculationsForPrisoner("Z0024ZZ");
+        var sentenceCalculations = repository.getOffenderSentenceCalculationsForPrisoner("Z0024ZZ", true);
+        assertThat(sentenceCalculations).isNotNull();
+        assertThat(sentenceCalculations.size()).isEqualTo(1);
+        assertThat(sentenceCalculations.getFirst().getOffenderNo()).isEqualTo("Z0024ZZ");
+        assertThat(sentenceCalculations.getFirst().getAgencyLocationId()).isEqualTo("LEI");
+        assertThat(sentenceCalculations.getFirst().getCalculationReason()).isEqualTo("New Sentence");
+    }
+
+    @Test
+    public void getOffenderSentenceCalculationsForPrisoner_includingInactive() {
+        var sentenceCalculations = repository.getOffenderSentenceCalculationsForPrisoner("Z0024ZZ", false);
         assertThat(sentenceCalculations).isNotNull();
         assertThat(sentenceCalculations.size()).isEqualTo(1);
         assertThat(sentenceCalculations.getFirst().getOffenderNo()).isEqualTo("Z0024ZZ");
