@@ -39,7 +39,7 @@ dependencies {
   implementation("commons-io:commons-io:2.16.1")
   implementation("com.google.guava:guava:33.2.0-jre")
   implementation("org.apache.commons:commons-text:1.12.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.23.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.24.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   compileOnly("org.projectlombok:lombok:1.18.34")
@@ -74,7 +74,7 @@ dependencies {
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.22")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.40.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.38.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.34")
 }
