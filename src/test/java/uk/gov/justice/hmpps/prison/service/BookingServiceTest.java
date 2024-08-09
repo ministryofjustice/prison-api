@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -14,6 +13,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
@@ -89,7 +89,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFil
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
@@ -142,7 +141,7 @@ public class BookingServiceTest {
     @Mock
     private StaffUserAccountRepository staffUserAccountRepository;
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
     @Mock
     private OffenderBookingTransformer offenderBookingTransformer;
     @Mock
@@ -162,9 +161,6 @@ public class BookingServiceTest {
 
     private BookingService bookingService;
 
-    @Mock
-    private TelemetryClient telemetryClient;
-
     @BeforeEach
     public void init() {
         bookingService = new BookingService(
@@ -182,12 +178,11 @@ public class BookingServiceTest {
             offenderContactPersonsRepository,
             staffUserAccountRepository,
             offenderBookingTransformer,
-            authenticationFacade,
+            hmppsAuthenticationHolder,
             offenderSentenceRepository,
             offenderFinePaymentRepository,
             offenderRestrictionRepository,
             offenderChargeTransformer,
-            telemetryClient,
             10);
     }
 
@@ -252,14 +247,14 @@ public class BookingServiceTest {
 
     @Test
     public void verifyCanViewSensitiveBookingInfo_systemUser() {
-        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
+        when(hmppsAuthenticationHolder.isOverrideRole(any(String[].class))).thenReturn(true);
 
         when(bookingRepository.getLatestBookingIdentifierForOffender("off-1")).thenReturn(Optional.of(new OffenderBookingIdSeq("off-1", -1L, 1)));
         when(bookingRepository.checkBookingExists(-1L)).thenReturn(true);
 
         bookingService.getOffenderIdentifiers("off-1",  "SYSTEM_USER", "GLOBAL_SEARCH");
 
-        verify(authenticationFacade).isOverrideRole(
+        verify(hmppsAuthenticationHolder).isOverrideRole(
             "SYSTEM_USER", "GLOBAL_SEARCH"
         );
     }
@@ -1203,7 +1198,7 @@ public class BookingServiceTest {
 
     @Test
     public void getOffenderSentenceSummaries_forOveriddenRole() {
-        when(authenticationFacade.isOverrideRole(any(String[].class))).thenReturn(true);
+        when(hmppsAuthenticationHolder.isOverrideRole(any(String[].class))).thenReturn(true);
         when(caseloadToAgencyMappingService.agenciesForUsersWorkingCaseload(any())).thenReturn(List.of());
         assertThatThrownBy(() -> bookingService.getOffenderSentencesSummary(null, List.of()))
             .isInstanceOf(HttpClientErrorException.class).hasMessage("400 Request must be restricted to either a caseload, agency or list of offenders");

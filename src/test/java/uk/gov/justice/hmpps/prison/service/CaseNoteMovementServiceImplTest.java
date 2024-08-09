@@ -6,6 +6,7 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.ArgumentMatchers;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
@@ -20,7 +21,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 
@@ -58,7 +58,7 @@ public class CaseNoteMovementServiceImplTest {
     private BookingService bookingService;
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
 
     @Mock
     private MaximumTextSizeValidator maximumTextSizeValidator;
@@ -68,7 +68,7 @@ public class CaseNoteMovementServiceImplTest {
     @BeforeEach
     public void setUp() {
         caseNoteService = new CaseNoteService(repository, offenderCaseNoteRepository, new CaseNoteTransformer(staffUserAccountRepository, "yyyy/MM/dd HH:mm:ss"),
-            authenticationFacade, bookingService, 10, maximumTextSizeValidator, offenderBookingRepository, staffUserAccountRepository, caseNoteTypeReferenceCodeRepository, caseNoteSubTypeReferenceCodeRepository);
+            hmppsAuthenticationHolder, bookingService, 10, maximumTextSizeValidator, offenderBookingRepository, staffUserAccountRepository, caseNoteTypeReferenceCodeRepository, caseNoteSubTypeReferenceCodeRepository);
     }
 
     @Test
@@ -128,7 +128,7 @@ public class CaseNoteMovementServiceImplTest {
         final var otherStaff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
         when(staffUserAccountRepository.findById("staff2")).thenReturn(Optional.of(StaffUserAccount.builder().username("staff2").staff(otherStaff).build()));
 
-        when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
+        when(hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
         when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(false);
         when(maximumTextSizeValidator.getMaximumAnsiEncodingSize()).thenReturn(100);
 
@@ -157,7 +157,7 @@ public class CaseNoteMovementServiceImplTest {
 
         when(staffUserAccountRepository.findById("staff2")).thenReturn(Optional.of(StaffUserAccount.builder().username("staff2").staff(author).build()));
 
-        when(authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
+        when(hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
         when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
 
         caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");

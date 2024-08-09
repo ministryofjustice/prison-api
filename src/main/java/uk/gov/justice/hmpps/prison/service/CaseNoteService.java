@@ -16,6 +16,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
@@ -35,7 +36,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
@@ -67,7 +67,7 @@ public class CaseNoteService {
     private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final BookingService bookingService;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final int maxBatchSize;
     private final MaximumTextSizeValidator maximumTextSizeValidator;
     private final OffenderBookingRepository offenderBookingRepository;
@@ -78,7 +78,7 @@ public class CaseNoteService {
     public CaseNoteService(final CaseNoteRepository caseNoteRepository,
                            final OffenderCaseNoteRepository offenderCaseNoteRepository,
                            final CaseNoteTransformer transformer,
-                           final AuthenticationFacade authenticationFacade,
+                           final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
                            final MaximumTextSizeValidator maximumTextSizeValidator,
@@ -91,7 +91,7 @@ public class CaseNoteService {
         this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
         this.bookingService = bookingService;
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.maxBatchSize = maxBatchSize;
         this.maximumTextSizeValidator = maximumTextSizeValidator;
         this.offenderBookingRepository = offenderBookingRepository;
@@ -144,7 +144,7 @@ public class CaseNoteService {
 
         // Verify that user attempting to amend case note is same one who created it.
         final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
-        final var bypassCaseNoteAmendmentRestriction = authenticationFacade.isOverrideRole("CASE_NOTE_ADMIN");
+        final var bypassCaseNoteAmendmentRestriction = hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN");
 
         if (!bypassCaseNoteAmendmentRestriction && !caseNote.getAuthor().equals(userDetail.getStaff())) {
             throw new AccessDeniedException("User not authorised to amend case note.");

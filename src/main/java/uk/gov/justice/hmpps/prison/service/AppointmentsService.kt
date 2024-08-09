@@ -9,6 +9,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.validation.annotation.Validated
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
@@ -48,7 +49,7 @@ import java.util.stream.Collectors
 @Slf4j
 class AppointmentsService(
   private val offenderBookingRepository: OffenderBookingRepository,
-  private val authenticationFacade: AuthenticationFacade,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   private val locationService: LocationService,
   private val referenceDomainService: ReferenceDomainService,
   private val telemetryClient: TelemetryClient,
@@ -87,7 +88,7 @@ class AppointmentsService(
       ?: throw RuntimeException("Internal error: Prison not found")
 
     val createdAppointments =
-      appointmentsWithRepeats.stream().map<CreatedAppointmentDetails> { a: AppointmentDetails ->
+      appointmentsWithRepeats.stream().map { a: AppointmentDetails ->
         val booking = offenderBookingRepository.findByIdOrNull(a.bookingId)
           ?.takeIf { booking -> agencyId == booking.location.id }
           ?: throw BadRequestException.withMessage("A BookingId does not exist in your caseload")
@@ -114,7 +115,7 @@ class AppointmentsService(
           .appointmentType(defaults.appointmentType)
           .locationId(defaults.locationId)
           .build()
-      }.collect(Collectors.toList<CreatedAppointmentDetails>())
+      }.collect(Collectors.toList())
 
     trackAppointmentsCreated(createdAppointments.size, defaults)
 
@@ -136,7 +137,7 @@ class AppointmentsService(
 
     val validLocation = agencyInternalLocationRepository.findByIdOrNull(appointmentSpecification.locationId)
       ?.takeIf {
-        authenticationFacade.isOverrideRole("GLOBAL_APPOINTMENT") ||
+        hmppsAuthenticationHolder.isOverrideRole("GLOBAL_APPOINTMENT") ||
           locationService.getUserLocations(username, true).stream()
             .anyMatch { loc: Location -> loc.agencyId == it.agencyId }
       }
@@ -316,7 +317,7 @@ class AppointmentsService(
   }
 
   private fun findLocationInUserLocations(appointmentLocation: AgencyInternalLocation): Optional<Location> {
-    val userLocations = locationService.getUserLocations(authenticationFacade.currentPrincipal, true)
+    val userLocations = locationService.getUserLocations(hmppsAuthenticationHolder.username, true)
 
     for (location in userLocations) {
       if (location.agencyId == appointmentLocation.agencyId) {
@@ -389,7 +390,7 @@ class AppointmentsService(
     logMap["type"] = defaults.appointmentType
     logMap["defaultStart"] = defaults.startTime.toString()
     logMap["location"] = defaults.locationId.toString()
-    logMap["user"] = authenticationFacade.currentPrincipal!!
+    logMap["user"] = hmppsAuthenticationHolder.principal
     if (defaults.endTime != null) {
       logMap["defaultEnd"] = defaults.endTime.toString()
     }
@@ -409,7 +410,7 @@ class AppointmentsService(
   private fun appointmentEvent(appointment: OffenderIndividualSchedule): Map<String, String> {
     val logMap: MutableMap<String, String> = HashMap()
     logMap["eventId"] = appointment.id.toString()
-    logMap["user"] = authenticationFacade.currentPrincipal!!
+    logMap["user"] = hmppsAuthenticationHolder.principal
     logMap["type"] = appointment.eventSubType
     logMap["agency"] = appointment.fromLocation.id
 

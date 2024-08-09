@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
-import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.Valid;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
@@ -20,6 +19,7 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
@@ -156,9 +156,8 @@ public class BookingService {
     private final OffenderBookingTransformer offenderBookingTransformer;
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final OffenderChargeTransformer offenderChargeTransformer;
-    private final TelemetryClient telemetryClient;
     private final int maxBatchSize;
 
 
@@ -177,12 +176,11 @@ public class BookingService {
                           final OffenderContactPersonsRepository offenderContactPersonsRepository,
                           final StaffUserAccountRepository staffUserAccountRepository,
                           final OffenderBookingTransformer offenderBookingTransformer,
-                          final AuthenticationFacade authenticationFacade,
+                          final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
                           final OffenderChargeTransformer offenderChargeTransformer,
-                          final TelemetryClient telemetryClient,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -200,12 +198,11 @@ public class BookingService {
         this.offenderContactPersonsRepository = offenderContactPersonsRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
         this.offenderBookingTransformer = offenderBookingTransformer;
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
         this.offenderChargeTransformer = offenderChargeTransformer;
-        this.telemetryClient = telemetryClient;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -677,7 +674,7 @@ public class BookingService {
     }
 
     public List<OffenderSentenceDetail> getBookingSentencesSummary(final List<Long> bookingIds) {
-        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false),
+        final var offenderSentenceSummary = bookingSentenceSummaries(bookingIds, caseLoadService.getCaseLoadIdsForUser(hmppsAuthenticationHolder.getUsername(), false),
             !hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES));
         return getOffenderSentenceDetails(offenderSentenceSummary);
     }
@@ -884,7 +881,7 @@ public class BookingService {
     }
 
     private Set<String> getCaseLoadIdForUserIfRequired() {
-        return hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(authenticationFacade.getCurrentPrincipal(), false);
+        return hasAnySystemOverrideRole(RESTRICTED_ALLOWED_ROLES) ? Set.of() : caseLoadService.getCaseLoadIdsForUser(hmppsAuthenticationHolder.getUsername(), false);
     }
 
     private List<OffenderSentenceDetail> getOffenderSentenceDetails(final List<OffenderSentenceDetailDto> offenderSentenceSummary) {
@@ -972,7 +969,7 @@ public class BookingService {
     }
 
     private List<OffenderSentenceDetailDto> offenderSentenceSummaries(final String agencyId, final Set<String> caseloads, final boolean filterByCaseloads) {
-        final var query = buildAgencyQuery(agencyId, authenticationFacade.getCurrentPrincipal());
+        final var query = buildAgencyQuery(agencyId, hmppsAuthenticationHolder.getUsername());
         if (StringUtils.isEmpty(query) && caseloads.isEmpty()) {
             throw new HttpClientErrorException(BAD_REQUEST, "Request must be restricted to either a caseload, agency or list of offenders");
         }
@@ -1004,11 +1001,11 @@ public class BookingService {
     }
 
     private boolean hasAnySystemOverrideRole(final String[] overrideRoles) {
-        return authenticationFacade.isOverrideRole(overrideRoles);
+        return hmppsAuthenticationHolder.isOverrideRole(overrideRoles);
     }
 
     private boolean isViewInactiveBookings() {
-        return authenticationFacade.isOverrideRole("INACTIVE_BOOKINGS");
+        return hmppsAuthenticationHolder.isOverrideRole("INACTIVE_BOOKINGS");
     }
 
     private static String quotedAndPipeDelimited(final Stream<String> values) {
@@ -1046,7 +1043,7 @@ public class BookingService {
             throw new BadRequestException("At least one attribute of a prisonId, bookingId or offenderNo must be specified");
         }
 
-        final var viewAllPrisoners = authenticationFacade.isOverrideRole("VIEW_PRISONER_DATA");
+        final var viewAllPrisoners = hmppsAuthenticationHolder.isOverrideRole("VIEW_PRISONER_DATA");
 
         final var filter = OffenderBookingFilter
             .builder()
@@ -1055,7 +1052,7 @@ public class BookingService {
             .prisonId(prisonId)
             .bookingSequence(1)
             .active(true)
-            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(authenticationFacade.getCurrentPrincipal(), true, "INST").stream().map(Caseload::getId).toList())
+            .caseloadIds(viewAllPrisoners ? null : staffUserAccountRepository.getCaseloadsForUser(hmppsAuthenticationHolder.getUsername(), true, "INST").stream().map(Caseload::getId).toList())
             .build();
 
         final var paging = PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapBookingSortOrderProperties(pageable.getSort()));

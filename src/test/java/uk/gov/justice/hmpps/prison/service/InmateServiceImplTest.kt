@@ -15,6 +15,7 @@ import org.mockito.kotlin.anyVararg
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.web.client.HttpClientErrorException
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.api.model.AssignedLivingUnit
 import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail
 import uk.gov.justice.hmpps.prison.api.model.ImprisonmentStatus
@@ -39,7 +40,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService.CurrentCsraAssessment
 import uk.gov.justice.hmpps.prison.service.support.AssessmentDto
 import java.time.LocalDate
@@ -55,7 +55,7 @@ class InmateServiceImplTest {
   private val agencyService: AgencyService = mock()
   private val userService: UserService = mock()
   private val referenceDomainService: ReferenceDomainService = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
+  private val authenticationFacade: HmppsAuthenticationHolder = mock()
   private val telemetryClient: TelemetryClient = mock()
   private val offenderAssessmentService: OffenderAssessmentService = mock()
   private val offenderLanguageRepository: OffenderLanguageRepository = mock()
@@ -359,7 +359,7 @@ class InmateServiceImplTest {
       .thenReturn(UserDetail.builder().staffId(444L).username("ME").build())
     whenever(repository.insertCategory(catDetail, "CDI", 444L, "ME"))
       .thenReturn(mapOf("sequenceNumber" to 2L, "bookingId" to -5L))
-    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
+    whenever(authenticationFacade.username).thenReturn("ME")
     val responseMap = serviceToTest.createCategorisation(1234L, catDetail)
     assertThat(responseMap)
       .contains(Assertions.entry("bookingId", -5L), Assertions.entry("sequenceNumber", 2L))
@@ -375,7 +375,7 @@ class InmateServiceImplTest {
       .thenReturn(OffenderSummary.builder().agencyLocationId("CDI").bookingId(-5L).build())
     whenever(userService.getUserByUsername("ME"))
       .thenReturn(UserDetail.builder().staffId(444L).username("ME").build())
-    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
+    whenever(authenticationFacade.username).thenReturn("ME")
     serviceToTest.createCategorisation(1234L, catDetail)
     Mockito.verify(repository, Mockito.times(1)).insertCategory(catDetail, "CDI", 444L, "ME")
   }
@@ -384,7 +384,7 @@ class InmateServiceImplTest {
   fun testMappingForOffenderDetailsAreCorrect() {
     val offenderNumbers = setOf("A123")
     val caseLoadsIds = setOf("1")
-    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
+    whenever(authenticationFacade.username).thenReturn("ME")
     whenever(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoadsIds)
     whenever(repository.getBasicInmateDetailsForOffenders(offenderNumbers, false, caseLoadsIds, true))
       .thenReturn(
@@ -409,7 +409,7 @@ class InmateServiceImplTest {
 
   @Test
   fun testThatAnExceptionIsThrown_whenAStandardUserWithNoActiveCaseloadsRequestsInmateDetails() {
-    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
+    whenever(authenticationFacade.username).thenReturn("ME")
     whenever(
       authenticationFacade.isOverrideRole(anyVararg()),
     ).thenReturn(false)
@@ -431,7 +431,7 @@ class InmateServiceImplTest {
   @Test
   fun testThatGetBasicInmateDetailsForOffenders_isCalledWithCorrectParameters() {
     val caseLoad = setOf("LEI")
-    whenever(authenticationFacade.currentPrincipal).thenReturn("ME")
+    whenever(authenticationFacade.username).thenReturn("ME")
     whenever(caseLoadService.getCaseLoadIdsForUser("ME", false)).thenReturn(caseLoad)
     serviceToTest.getBasicInmateDetailsForOffenders(setOf("A123"), true)
     Mockito.verify(repository).getBasicInmateDetailsForOffenders(setOf("A123"), false, caseLoad, true)
