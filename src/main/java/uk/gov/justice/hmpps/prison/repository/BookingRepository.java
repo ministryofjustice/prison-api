@@ -653,6 +653,7 @@ public class BookingRepository extends RepositoryBase {
         final var additionSql = new StringBuilder();
         if (active) {
             additionSql.append("AND OB.BOOKING_SEQ = :bookingSeq ");
+            additionSql.append("AND OB.ACTIVE_FLAG = :activeFlag ");
         }
         additionSql.append("ORDER BY OSC.OFFENDER_SENT_CALCULATION_ID DESC");
         return jdbcTemplate
