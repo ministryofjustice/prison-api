@@ -1615,7 +1615,7 @@ public class BookingServiceTest {
     }
 
     @Test
-    public void givenCalculationsOnlyActiveThenReturnAll() {
+    public void givenCalculationsOnlyLatestThenReturnAll() {
         var sentenceCalculationSummaries = offenderSentenceCalculationSummaries();
         when(bookingRepository.getOffenderSentenceCalculationsForPrisoner(anyString(), eq(true))).thenReturn(sentenceCalculationSummaries);
 

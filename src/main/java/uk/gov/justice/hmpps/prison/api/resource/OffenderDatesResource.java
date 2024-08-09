@@ -104,9 +104,9 @@ public class OffenderDatesResource {
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId,
-            @Parameter(name = "activeOnly", description = "return only calculations from active bookings") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean activeOnly) {
+            @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
         return ResponseEntity.status(HttpStatus.OK)
-            .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId, activeOnly));
+            .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId, latestOnly));
     }
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "TUSED data found for offender", content = {@Content(mediaType = "application/json",  schema = @Schema(implementation = LatestTusedData.class))}),

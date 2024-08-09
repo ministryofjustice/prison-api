@@ -648,12 +648,11 @@ public class BookingRepository extends RepositoryBase {
     }
 
 
-    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId, final boolean active) {
+    public List<SentenceCalculationSummary> getOffenderSentenceCalculationsForPrisoner(final String prisonerId, final boolean latest) {
         final var initialSql = BookingRepositorySql.GET_OFFENDER_SENT_CALCULATIONS_FOR_PRISONER.getSql();
         final var additionSql = new StringBuilder();
-        if (active) {
+        if (latest) {
             additionSql.append("AND OB.BOOKING_SEQ = :bookingSeq ");
-            additionSql.append("AND OB.ACTIVE_FLAG = :activeFlag ");
         }
         additionSql.append("ORDER BY OSC.OFFENDER_SENT_CALCULATION_ID DESC");
         return jdbcTemplate
