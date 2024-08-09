@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.service.support.AgencyRequest
 class AuthorisationAspect(
   private val bookingService: BookingService,
   private val agencyService: AgencyService,
-  private val authenticationFacade: HmppsAuthenticationHolder,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   private val staffUserAccountRepository: StaffUserAccountRepository,
 ) {
   @Pointcut("@annotation(uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess) && execution(* *(String,..)) && args(offenderNo,..)")
@@ -115,7 +115,7 @@ class AuthorisationAspect(
     val annotation = method.getAnnotation(VerifyStaffAccess::class.java)
     val overrideRoles = annotation.overrideRoles
     if (!HmppsAuthenticationHolder.hasRoles(*overrideRoles)) {
-      val currentUsername: String = authenticationFacade.username
+      val currentUsername: String = hmppsAuthenticationHolder.username
         ?: throw AccessDeniedException("No current username for staffId=$staffId")
       staffUserAccountRepository.findByUsername(currentUsername)
         .ifPresentOrElse(
