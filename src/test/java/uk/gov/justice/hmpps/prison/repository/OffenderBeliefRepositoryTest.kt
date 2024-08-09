@@ -9,10 +9,10 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 
@@ -20,7 +20,7 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(
-  AuthenticationFacade::class,
+  HmppsAuthenticationHolder::class,
   AuditorAwareImpl::class,
   PersistenceConfigs::class,
 )

@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.domain.Sort.Order;
 import org.springframework.test.context.ActiveProfiles;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AlertType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
@@ -23,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
@@ -36,7 +36,7 @@ import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTest
 @DataJpaTest
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = NONE)
-@Import({AuthenticationFacade.class, AuditorAwareImpl.class, PersistenceConfigs.class})
+@Import({HmppsAuthenticationHolder.class, AuditorAwareImpl.class, PersistenceConfigs.class})
 @Slf4j
 @DisplayName("OffenderAlertRepository with OffenderAlertFilter")
 public class OffenderAlertRepositoryTest {

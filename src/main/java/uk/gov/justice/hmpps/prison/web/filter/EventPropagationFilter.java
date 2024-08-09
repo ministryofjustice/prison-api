@@ -22,7 +22,6 @@ public class EventPropagationFilter implements Filter {
 
     @Override
     public void init(final FilterConfig filterConfig) {
-
     }
 
     @Override
@@ -43,10 +42,5 @@ public class EventPropagationFilter implements Filter {
         } finally {
             MDC.remove(SUPPRESS_XTAG_EVENTS);
         }
-    }
-
-    @Override
-    public void destroy() {
-
     }
 }
