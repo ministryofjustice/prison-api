@@ -55,6 +55,9 @@ public class Alias {
     @Schema(description = "Ethnicity", example = "Mixed: White and Black African")
     private String ethnicity;
 
+    @Schema(description = "Ethnicity Code", example = "M2")
+    private String raceCode;
+
     @Schema(description = "Type of Alias", example = "Alias Name")
     private String nameType;
 
