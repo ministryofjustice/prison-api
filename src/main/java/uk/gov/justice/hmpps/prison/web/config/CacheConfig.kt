@@ -33,9 +33,6 @@ class CacheConfig : CachingConfigurer {
   @Value("\${cache.timeout.seconds.agency:3600}")
   private val agencyTimeoutSeconds = 0L
 
-  @Value("\${cache.timeout.seconds.activity:3600}")
-  private val activityTimeoutSeconds = 0L
-
   @Bean
   fun cacheConfiguration(): JCacheManagerCustomizer = JCacheManagerCustomizer { cm: CacheManager ->
     cm.createCache(
@@ -87,17 +84,6 @@ class CacheConfig : CachingConfigurer {
       1000,
       agencyTimeoutSeconds,
     )
-    cm.createCache(
-      GET_AGENCY_LOCATIONS_BOOKED,
-      String::class.java,
-      java.util.List::class.java,
-      500,
-      activityTimeoutSeconds,
-    )
-  }
-
-  companion object {
-    const val GET_AGENCY_LOCATIONS_BOOKED = "getAgencyLocationsBooked"
   }
 }
 
