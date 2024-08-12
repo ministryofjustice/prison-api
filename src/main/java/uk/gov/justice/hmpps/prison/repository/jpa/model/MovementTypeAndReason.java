@@ -48,6 +48,7 @@ public class MovementTypeAndReason implements Serializable {
 
     @Column(name = "esc_recap_flag")
     @Convert(converter = YesNoConverter.class)
+    @Builder.Default
     private boolean escaped = false;
 
     public static String getDescriptionOrNull(final MovementTypeAndReason referenceCode) {
