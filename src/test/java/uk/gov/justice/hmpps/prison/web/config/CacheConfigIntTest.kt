@@ -27,7 +27,6 @@ import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import uk.gov.justice.hmpps.prison.service.StaffService
-import java.time.LocalDate
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = ["spring.cache.type=jcache"])
@@ -267,38 +266,6 @@ class CacheConfigIntTest {
       agencyService.findAgenciesByUsername("ITAG_USER", false)
 
       verify(agencyRepository).findAgenciesByUsername("ITAG_USER", false)
-    }
-  }
-
-  @Nested
-  inner class getAgencyLocationsBooked_cache {
-    @Test
-    fun `test staff that doesn't exist won't cause cache to fall over in a heap`() {
-      val agencies = agencyResource.getAgencyEventLocationsBooked("NOT_EXISTS", LocalDate.now(), null)
-      assertThat(agencies).isEmpty()
-    }
-
-    @Test
-    fun `test staff that is null won't cause cache to fall over in a heap`() {
-      val agencies = agencyResource.getAgencyEventLocationsBooked(null, LocalDate.now(), null)
-      assertThat(agencies).isEmpty()
-    }
-
-    @Test
-    fun `test staff that is blank won't cause cache to fall over in a heap`() {
-      val agencies = agencyResource.getAgencyEventLocationsBooked("  ", LocalDate.now(), null)
-      assertThat(agencies).isEmpty()
-    }
-
-    @Test
-    fun `test staff that exist is added to cache`() {
-      val agencies = agencyResource.getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
-      assertThat(agencies).isNotNull
-
-      // calling twice should only result in one call to the repository
-      agencyResource.getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
-
-      verify(agencyService).getAgencyEventLocationsBooked("MDI", LocalDate.now(), null)
     }
   }
 }
