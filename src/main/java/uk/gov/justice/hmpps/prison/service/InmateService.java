@@ -258,10 +258,10 @@ public class InmateService {
                         .ifPresentOrElse(
                             lastMovement -> {
                                 inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
-                                inmate.setLastMovementTypeCode(lastMovement.getMovementType().getCode());
-                                inmate.setLastMovementReasonCode(lastMovement.getMovementReason().getCode());
-                                if (lastMovement.getToAgency() != null) inmate.setLastMovementToAgency(AgencyTransformer.transform(lastMovement.getToAgency(), true));
                                 inmate.setLastMovementComment(lastMovement.getCommentText());
+                                if (lastMovement.getToAgency() != null) {
+                                    inmate.setLastMovementToAgency(AgencyTransformer.transform(lastMovement.getToAgency(), true));
+                                }
                                 if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
                                     inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
                                 }
