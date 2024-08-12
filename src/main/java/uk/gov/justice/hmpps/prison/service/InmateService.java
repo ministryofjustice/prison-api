@@ -53,6 +53,7 @@ import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.InmatesHelper;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
+import uk.gov.justice.hmpps.prison.service.transformers.AgencyTransformer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -257,6 +258,10 @@ public class InmateService {
                         .ifPresentOrElse(
                             lastMovement -> {
                                 inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
+                                inmate.setLastMovementTypeCode(lastMovement.getMovementType().getCode());
+                                inmate.setLastMovementReasonCode(lastMovement.getMovementReason().getCode());
+                                if (lastMovement.getToAgency() != null) inmate.setLastMovementToAgency(AgencyTransformer.transform(lastMovement.getToAgency(), true));
+                                inmate.setLastMovementComment(lastMovement.getCommentText());
                                 if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
                                     inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
                                 }
