@@ -209,7 +209,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(aliases).extracting("title", "firstName", "lastName", "dob", "gender", "ethnicity", "createDate")
+            assertThat(aliases).extracting("title", "firstName", "lastName", "dob", "gender", "raceCode", "ethnicity", "createDate")
               .containsExactlyInAnyOrder(
                 tuple(
                   "Mr",
@@ -217,6 +217,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                   "THOMSON",
                   LocalDate.parse("1980-01-02"),
                   "Male",
+                  "M2",
                   "Mixed: White and Black African",
                   LocalDate.parse("2015-01-01"),
                 ),
@@ -226,6 +227,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                   "THOMPSON",
                   LocalDate.parse("1998-11-01"),
                   "Male",
+                  "W1",
                   "White: British",
                   LocalDate.parse("2015-02-01"),
                 ),

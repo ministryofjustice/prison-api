@@ -167,6 +167,7 @@ public class InmateRepository extends RepositoryBase {
         .put("BIRTH_DATE", new FieldMapper("dob", DateTimeConverter::toISO8601LocalDate))
         .put("SEX", new FieldMapper("gender"))
         .put("ETHNICITY", new FieldMapper("ethnicity"))
+        .put("RACE_CODE", new FieldMapper("raceCode"))
         .put("ALIAS_TYPE", new FieldMapper("nameType"))
         .put("CREATE_DATE", new FieldMapper("createDate", DateTimeConverter::toISO8601LocalDate))
         .put("OFFENDER_ID", new FieldMapper("offenderId"))

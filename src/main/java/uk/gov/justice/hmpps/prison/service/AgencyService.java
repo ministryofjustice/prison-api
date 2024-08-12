@@ -69,7 +69,6 @@ import static java.lang.String.format;
 import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
-import static uk.gov.justice.hmpps.prison.web.config.CacheConfig.GET_AGENCY_LOCATIONS_BOOKED;
 
 /**
  * Agency API service implementation.
@@ -260,7 +259,6 @@ public class AgencyService {
         return LocationProcessor.processLocations(rawLocations);
     }
 
-    @Cacheable(value = GET_AGENCY_LOCATIONS_BOOKED, key = "#agencyId + '-' + #bookedOnDay + '-' + #bookedOnPeriod")
     public List<LocationSummary> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {
         return getAgencyLocationsOnDayAndPeriod(agencyId, bookedOnDay, bookedOnPeriod);
     }
