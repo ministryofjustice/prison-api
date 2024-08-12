@@ -179,6 +179,12 @@ public class InmateDetail {
     @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")
     private String lastMovementReasonCode;
 
+    @Schema(description = "Last Movement to location, such as a court or prison", requiredMode = RequiredMode.NOT_REQUIRED)
+    private Agency lastMovementToAgency;
+
+    @Schema(description = "Last Movement comment", example = "Scheduled visit to dentist", requiredMode = RequiredMode.NOT_REQUIRED)
+    private String lastMovementComment;
+
     @Schema(description = "Legal Status. Note: Only returned when requesting extra details", example = "REMAND")
     private LegalStatus legalStatus;
 

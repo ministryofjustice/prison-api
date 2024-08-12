@@ -1017,6 +1017,18 @@ class OffendersResourceTransferImpTest : ResourceTest() {
 
         @Test
         internal fun `will complete scheduled appearance event`() {
+          // test offender is in the right state
+          getOffender(offenderNo)
+            .isOk
+            .expectBody()
+            .jsonPath("inOutStatus").isEqualTo("OUT")
+            .jsonPath("status").isEqualTo("ACTIVE OUT")
+            .jsonPath("agencyId").isEqualTo("LEI")
+            .jsonPath("lastMovementTypeCode").isEqualTo("CRT")
+            .jsonPath("lastMovementReasonCode").isEqualTo("19")
+            .jsonPath("lastMovementComment").isEqualTo("Court appearance")
+            .jsonPath("lastMovementToAgency.agencyId").isEqualTo("COURT1")
+
           assertThat(testDataContext.getCourtHearings(bookingId)).extracting("eventStatus.code")
             .containsExactly("COMP", "SCH")
           webTestClient.put()
@@ -1315,6 +1327,9 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             .jsonPath("status").isEqualTo("ACTIVE OUT")
             .jsonPath("agencyId").isEqualTo("LEI")
             .jsonPath("statusReason").isEqualTo("TAP-C3")
+            .jsonPath("lastMovementTypeCode").isEqualTo("TAP")
+            .jsonPath("lastMovementReasonCode").isEqualTo("C3")
+            .jsonPath("lastMovementComment").isEqualTo("day release")
         }
 
         @Nested

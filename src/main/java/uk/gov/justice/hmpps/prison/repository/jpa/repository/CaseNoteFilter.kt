@@ -5,6 +5,7 @@ import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
 import org.springframework.data.jpa.domain.Specification
+import org.springframework.lang.Nullable
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.QueryParamHelper
@@ -29,7 +30,11 @@ class CaseNoteFilter(
     typesSubTypes
   }
 
-  override fun toPredicate(root: Root<OffenderCaseNote>, query: CriteriaQuery<*>, cb: CriteriaBuilder): Predicate {
+  override fun toPredicate(
+    root: Root<OffenderCaseNote>,
+    @Nullable query: CriteriaQuery<*>?,
+    cb: CriteriaBuilder,
+  ): Predicate? {
     val predicateBuilder = mutableListOf(cb.equal(root.get<Any>("offenderBooking").get<Any>("bookingId"), bookingId))
     if (!prisonId.isNullOrBlank()) {
       predicateBuilder.add(cb.equal(root.get<Any>("agencyLocation").get<Any>("id"), prisonId))
