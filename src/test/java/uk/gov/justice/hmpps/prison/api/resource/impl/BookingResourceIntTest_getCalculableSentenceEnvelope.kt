@@ -2,11 +2,9 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import com.fasterxml.jackson.module.kotlin.readValue
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
@@ -14,9 +12,6 @@ import java.time.LocalDate
 
 @DisplayName("GET /api/bookings/latest/calculable-sentence-envelope")
 class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
-
-  @Autowired
-  lateinit var objectMapper: ObjectMapper
 
   @Test
   fun `returns 401 without an auth token`() {
