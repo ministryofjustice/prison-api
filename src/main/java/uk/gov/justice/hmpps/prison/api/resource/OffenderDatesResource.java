@@ -104,7 +104,7 @@ public class OffenderDatesResource {
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId,
-            @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "activeOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
+            @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId, latestOnly));
     }
