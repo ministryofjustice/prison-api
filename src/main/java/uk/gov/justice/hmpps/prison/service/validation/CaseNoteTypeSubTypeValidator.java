@@ -2,8 +2,8 @@ package uk.gov.justice.hmpps.prison.service.validation;
 
 import org.springframework.stereotype.Component;
 import org.springframework.util.Assert;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
@@ -13,15 +13,15 @@ import java.util.Set;
 
 @Component
 public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNoteTypeSubTypeValid, NewCaseNote> {
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
     private final Set<String> ALLOWED_INACTIVE_CASE_NOTE_TYPES = Set.of("MOVED_CELL");
 
-    public CaseNoteTypeSubTypeValidator(final AuthenticationFacade authenticationFacade,
+    public CaseNoteTypeSubTypeValidator(final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                                         final CaseLoadService caseLoadService,
                                         final CaseNoteService caseNoteService) {
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.caseLoadService = caseLoadService;
         this.caseNoteService = caseNoteService;
     }
@@ -37,7 +37,7 @@ public class CaseNoteTypeSubTypeValidator implements ConstraintValidator<CaseNot
         if (value == null) return true;
 
         // This should be ok as it is cached:
-        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentPrincipal());
+        final var caseLoad = caseLoadService.getWorkingCaseLoadForUser(hmppsAuthenticationHolder.getUsername());
         final var caseLoadType = caseLoad.isPresent() ? caseLoad.get().getType() : "BOTH";
 
         final var allTypes = ALLOWED_INACTIVE_CASE_NOTE_TYPES.contains(value.getType()) ?

@@ -5,9 +5,9 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValidator;
@@ -27,7 +27,7 @@ import static org.mockito.Mockito.when;
 public class CaseNoteTypeSubTypeValidatorTest {
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
 
     @Mock
     private CaseLoadService caseLoadService;
@@ -48,13 +48,13 @@ public class CaseNoteTypeSubTypeValidatorTest {
 
     @Test
     public void testDoesNothingOnNullValue() {
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
+        final var validator = new CaseNoteTypeSubTypeValidator(hmppsAuthenticationHolder, caseLoadService, caseNoteService);
 
         final var result = validator.isValid(null, context);
 
         assertThat(result).isTrue();
 
-        verify(authenticationFacade, never()).getCurrentPrincipal();
+        verify(hmppsAuthenticationHolder, never()).getUsername();
         verify(caseLoadService, never()).getWorkingCaseLoadForUser(any());
         verify(caseNoteService, never()).getCaseNoteTypesWithSubTypesByCaseLoadType(any());
         verify(context, never()).disableDefaultConstraintViolation();
@@ -68,7 +68,7 @@ public class CaseNoteTypeSubTypeValidatorTest {
         when(caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(any())).thenReturn(Collections.emptyList());
         when(context.buildConstraintViolationWithTemplate(any())).thenReturn(constraintViolationBuilder);
 
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
+        final var validator = new CaseNoteTypeSubTypeValidator(hmppsAuthenticationHolder, caseLoadService, caseNoteService);
 
         final var result = validator.isValid(NewCaseNote.builder().type(SOME_TYPE_CODE).subType(SOME_SUBTYPE_CODE).build(), context);
 
@@ -89,7 +89,7 @@ public class CaseNoteTypeSubTypeValidatorTest {
 
         when(context.buildConstraintViolationWithTemplate(any())).thenReturn(constraintViolationBuilder);
 
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
+        final var validator = new CaseNoteTypeSubTypeValidator(hmppsAuthenticationHolder, caseLoadService, caseNoteService);
 
         final var result = validator.isValid(NewCaseNote.builder().type(SOME_TYPE_CODE).subType(SOME_SUBTYPE_CODE).build(), context);
 
@@ -108,7 +108,7 @@ public class CaseNoteTypeSubTypeValidatorTest {
                 .build())
         );
 
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
+        final var validator = new CaseNoteTypeSubTypeValidator(hmppsAuthenticationHolder, caseLoadService, caseNoteService);
         final var result = validator.isValid(NewCaseNote.builder().type(SOME_TYPE_CODE).subType(SOME_SUBTYPE_CODE).build(), context);
 
         assertThat(result).isTrue();
@@ -122,7 +122,7 @@ public class CaseNoteTypeSubTypeValidatorTest {
     public void testInvalidMovedCellSubtype() {
         when(context.buildConstraintViolationWithTemplate(any())).thenReturn(constraintViolationBuilder);
 
-        final var validator = new CaseNoteTypeSubTypeValidator(authenticationFacade, caseLoadService, caseNoteService);
+        final var validator = new CaseNoteTypeSubTypeValidator(hmppsAuthenticationHolder, caseLoadService, caseNoteService);
         final var result = validator.isValid(NewCaseNote.builder().type("MOVED_CELL").subType(INCORRECT_MOVED_CELL_SUBTYPE).build(), context);
 
         assertThat(result).isFalse();
