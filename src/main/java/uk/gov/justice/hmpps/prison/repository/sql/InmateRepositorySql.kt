@@ -798,6 +798,7 @@ enum class InmateRepositorySql(val sql: String) {
         O.FIRST_NAME,
         O.MIDDLE_NAME,
         O.BIRTH_DATE,
+        O.RACE_CODE,
         RCE.DESCRIPTION AS ETHNICITY,
         RCS.DESCRIPTION AS SEX,
         RCNT.DESCRIPTION AS ALIAS_TYPE,
