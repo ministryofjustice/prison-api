@@ -4,6 +4,7 @@ import jakarta.persistence.EntityManager
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking
 import uk.gov.justice.hmpps.prison.api.model.RequestToRecall
@@ -36,7 +37,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsI
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByStatusAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOneByDescriptionAndAgencyIdOrNull
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.ConflictingRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -66,10 +66,10 @@ class BookingIntoPrisonService(
   private val trustAccountService: TrustAccountService,
   private val caseNoteMovementService: CaseNoteMovementService,
   staffUserAccountRepository: StaffUserAccountRepository,
-  authenticationFacade: AuthenticationFacade,
+  hmppsAuthenticationHolder: HmppsAuthenticationHolder,
 ) : StaffAwareMovementService(
   staffUserAccountRepository = staffUserAccountRepository,
-  authenticationFacade = authenticationFacade,
+  hmppsAuthenticationHolder = hmppsAuthenticationHolder,
 ) {
   fun newBooking(prisonerIdentifier: String, requestForNewBooking: RequestForNewBooking): InmateDetail {
     // grab a lock on the offender and their bookings to ensure that no-one else can add a booking to the offender

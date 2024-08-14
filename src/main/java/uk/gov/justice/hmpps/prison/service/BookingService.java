@@ -89,7 +89,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFil
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
@@ -547,7 +546,7 @@ public class BookingService {
         }
 
         final var agencyIds = agencyService.getAgencyIds(false);
-        if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
+        if (HmppsAuthenticationHolder.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
 

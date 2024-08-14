@@ -7,10 +7,10 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.ObjectUtils;
 import org.apache.commons.lang3.StringUtils;
-import org.springframework.cache.annotation.Cacheable;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
@@ -83,7 +83,7 @@ public class AgencyService {
         LocationSummary::getUserDescription,
         new AlphaNumericComparator());
 
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final AgencyRepository agencyRepository;
     private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final AgencyLocationRepository agencyLocationRepository;
@@ -98,7 +98,6 @@ public class AgencyService {
     private final ReferenceCodeRepository<City> cityReferenceCodeRepository;
     private final ReferenceCodeRepository<County> countyReferenceCodeRepository;
     private final ReferenceCodeRepository<Country> countryReferenceCodeRepository;
-    private final TelemetryClient telemetryClient;
 
     public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
         final var criteria = AgencyLocationFilter.builder()
@@ -194,7 +193,7 @@ public class AgencyService {
      * @return set of agency location ids accessible to current authenticated user.
      */
     public Set<String> getAgencyIds(boolean allowInactive) {
-        return findAgenciesByUsername(authenticationFacade.getCurrentPrincipal(), allowInactive)
+        return findAgenciesByUsername(hmppsAuthenticationHolder.getUsername(), allowInactive)
             .stream()
             .map(Agency::getAgencyId)
             .collect(Collectors.toSet());
