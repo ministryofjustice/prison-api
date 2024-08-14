@@ -17,6 +17,7 @@ import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.jpa.domain.Specification;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
@@ -33,7 +34,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -64,7 +64,7 @@ public class InmateAlertServiceImplTest {
     private OffenderAlertRepository offenderAlertRepository;
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
 
     @Mock
     private TelemetryClient telemetryClient;
@@ -80,7 +80,7 @@ public class InmateAlertServiceImplTest {
         service = new InmateAlertService(
             inmateAlertRepository,
             offenderAlertRepository,
-            authenticationFacade,
+            hmppsAuthenticationHolder,
             telemetryClient,
             referenceDomainService,
             MAX_MATCH_SIZE);
@@ -115,7 +115,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -144,7 +144,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -201,7 +201,7 @@ public class InmateAlertServiceImplTest {
                 .dateCreated(LocalDate.now())
                 .build();
 
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(alert));
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
@@ -249,7 +249,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
@@ -272,7 +272,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any())).thenReturn(Optional.of(Alert.builder().build()));
 
@@ -294,7 +294,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
@@ -325,7 +325,7 @@ public class InmateAlertServiceImplTest {
             .build();
 
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(alert));
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
 
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().alertCode("X").alertType("XX").build()));
@@ -370,7 +370,7 @@ public class InmateAlertServiceImplTest {
         when(referenceDomainService.getReferenceCodeByDomainAndCode(anyString(), anyString(), anyBoolean()))
                 .thenReturn(Optional.of(alertType));
 
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.createNewAlert(anyLong(), any())).thenReturn(1L);
 
         final var alertId = service.createNewAlert(-1L, CreateAlert
@@ -394,7 +394,7 @@ public class InmateAlertServiceImplTest {
     @Test
     public void testTelemetryEventHasBeenRaised_OnAlertExpire() {
 
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(true).build()));
         when(inmateAlertRepository.updateAlert(anyLong(), anyLong(), any()))
                 .thenReturn(Optional.of(Alert.builder().build()));
@@ -439,7 +439,7 @@ public class InmateAlertServiceImplTest {
 
     @Test
     public void testAlertCanNotBeMadeInactiveIfAlreadyInactive() {
-        when(authenticationFacade.getCurrentPrincipal()).thenReturn("ITAG_USER");
+        when(hmppsAuthenticationHolder.getPrincipal()).thenReturn("ITAG_USER");
         when(inmateAlertRepository.getAlert(anyLong(), anyLong())).thenReturn(Optional.of(Alert.builder().active(false).build()));
 
         assertThatThrownBy(() ->

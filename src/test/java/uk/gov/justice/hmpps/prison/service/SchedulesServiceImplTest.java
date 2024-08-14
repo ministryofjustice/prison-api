@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.support.Order;
@@ -13,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -55,7 +55,7 @@ class SchedulesServiceImplTest {
     private ScheduleRepository scheduleRepository;
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
 
     @Mock
     private ScheduledActivityRepository scheduledActivityRepository;
@@ -74,7 +74,7 @@ class SchedulesServiceImplTest {
                 bookingService,
                 referenceDomainService,
                 scheduleRepository,
-                authenticationFacade,
+                hmppsAuthenticationHolder,
                 scheduledActivityRepository,
                 MAX_BATCH_SIZE
         );
