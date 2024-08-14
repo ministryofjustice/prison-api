@@ -31,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
@@ -72,7 +73,6 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -119,7 +119,7 @@ public class OffenderResource {
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final PrisonerCreationService prisonerCreationService;
     private final PrisonerTransferService prisonerTransferService;
     private final OffenderDamageObligationService offenderDamageObligationService;
@@ -651,7 +651,7 @@ public class OffenderResource {
     @ProxyUser
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
         try {
-            return caseNoteService.createCaseNote(offenderNo, body, authenticationFacade.getCurrentPrincipal());
+            return caseNoteService.createCaseNote(offenderNo, body, hmppsAuthenticationHolder.getUsername());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }
@@ -674,7 +674,7 @@ public class OffenderResource {
         @RequestBody @Parameter(required = true) final UpdateCaseNote body
     ) {
         try {
-            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, authenticationFacade.getCurrentPrincipal(), body.getText());
+            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, hmppsAuthenticationHolder.getUsername(), body.getText());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }

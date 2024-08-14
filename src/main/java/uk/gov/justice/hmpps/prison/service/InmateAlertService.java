@@ -12,6 +12,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
 import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
@@ -20,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.InmateAlertRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer;
 
@@ -38,7 +38,7 @@ public class InmateAlertService {
 
     private final InmateAlertRepository inmateAlertRepository;
     private final OffenderAlertRepository offenderAlertRepository;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final TelemetryClient telemetryClient;
     private final ReferenceDomainService referenceDomainService;
     private final int maxBatchSize;
@@ -47,14 +47,14 @@ public class InmateAlertService {
     public InmateAlertService(
             final InmateAlertRepository inmateAlertRepository,
             final OffenderAlertRepository offenderAlertRepository,
-            final AuthenticationFacade authenticationFacade,
+            final HmppsAuthenticationHolder hmppsAuthenticationHolder,
             final TelemetryClient telemetryClient,
             final ReferenceDomainService referenceDomainService,
             @Value("${batch.max.size:1000}") final int maxBatchSize) {
 
         this.inmateAlertRepository = inmateAlertRepository;
         this.offenderAlertRepository = offenderAlertRepository;
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.telemetryClient = telemetryClient;
         this.referenceDomainService = referenceDomainService;
         this.maxBatchSize = maxBatchSize;
@@ -197,7 +197,7 @@ public class InmateAlertService {
 
         if (matches) throw new IllegalArgumentException("Alert already exists for this offender.");
 
-        final var username = authenticationFacade.getCurrentPrincipal();
+        final var principal = hmppsAuthenticationHolder.getPrincipal();
         final var alertId = inmateAlertRepository.createNewAlert(bookingId, alert);
 
         log.info("Created new alert {}", alert);
@@ -207,7 +207,7 @@ public class InmateAlertService {
                 "alertDate", alert.getAlertDate().toString(),
                 "alertCode", alert.getAlertCode(),
                 "alertType", alert.getAlertType(),
-                "created_by", username
+                "created_by", principal
         ));
         if (alert.getExpiryDate() != null) {
             createdAlert.put("expiryDate", alert.getExpiryDate().toString());
@@ -238,7 +238,7 @@ public class InmateAlertService {
     }
 
     private Alert updateAlertComment(final long bookingId, final long alertSeq, final AlertChanges alertChanges) {
-        final var username = authenticationFacade.getCurrentPrincipal();
+        final var principal = hmppsAuthenticationHolder.getPrincipal();
 
         var alert = inmateAlertRepository.updateAlert(bookingId, alertSeq, AlertChanges.builder().comment(alertChanges.getComment()).build())
                 .orElseThrow(EntityNotFoundException.withId(alertSeq));
@@ -248,14 +248,14 @@ public class InmateAlertService {
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
                 "comment", "Comment text updated",
-                "updated_by", username
+                "updated_by", principal
         ), null);
 
         return alert;
     }
 
     private Alert expireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
-        final var username = authenticationFacade.getCurrentPrincipal();
+        final var principal = hmppsAuthenticationHolder.getPrincipal();
 
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
@@ -268,13 +268,13 @@ public class InmateAlertService {
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
                 "expiryDate", alertChanges.getExpiryDate().toString(),
-                "updated_by", username
+                "updated_by", principal
         ), null);
         return alert;
     }
 
     private Alert unexpireAlert(final long bookingId, final long alertSeq, final AlertChanges alertChanges, final Alert existingAlert) {
-        final var username = authenticationFacade.getCurrentPrincipal();
+        final var principal = hmppsAuthenticationHolder.getPrincipal();
 
         if (!existingAlert.isActive())
             throw new IllegalArgumentException("Alert is already inactive.");
@@ -287,7 +287,7 @@ public class InmateAlertService {
                 "bookingId", String.valueOf(bookingId),
                 "alertSeq", String.valueOf(alertSeq),
                 "expiryDate", "Expiry date removed",
-                "updated_by", username
+                "updated_by", principal
         ), null);
         return alert;
     }

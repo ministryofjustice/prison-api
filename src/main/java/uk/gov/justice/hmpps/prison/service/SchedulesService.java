@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerPrisonSchedule;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
@@ -18,7 +19,6 @@ import uk.gov.justice.hmpps.prison.repository.ScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivitiesCount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerActivity;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ScheduledActivityRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.InmateDto;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
@@ -48,7 +48,7 @@ public class SchedulesService {
     private final BookingService bookingService;
     private final ReferenceDomainService referenceDomainService;
     private final ScheduleRepository scheduleRepository;
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final ScheduledActivityRepository scheduledActivityRepository;
 
     private final int maxBatchSize;
@@ -59,7 +59,7 @@ public class SchedulesService {
                             final BookingService bookingService,
                             final ReferenceDomainService referenceDomainService,
                             final ScheduleRepository scheduleRepository,
-                            final AuthenticationFacade authenticationFacade,
+                            final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                             final ScheduledActivityRepository scheduledActivityRepository,
                             @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.locationService = locationService;
@@ -67,7 +67,7 @@ public class SchedulesService {
         this.bookingService = bookingService;
         this.referenceDomainService = referenceDomainService;
         this.scheduleRepository = scheduleRepository;
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.scheduledActivityRepository = scheduledActivityRepository;
         this.maxBatchSize = maxBatchSize;
     }
@@ -76,7 +76,7 @@ public class SchedulesService {
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         final var prisoners = inmateService.findPrisonersByLocationPaths(
-            authenticationFacade.getCurrentPrincipal(),
+            hmppsAuthenticationHolder.getUsername(),
             prisonId,
             locationPaths);
 
@@ -88,7 +88,7 @@ public class SchedulesService {
                                                                      final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
 
         final var inmates = inmateService.findInmatesByLocation(
-                authenticationFacade.getCurrentPrincipal(),
+                hmppsAuthenticationHolder.getUsername(),
                 agencyId,
                 locationIds);
 
