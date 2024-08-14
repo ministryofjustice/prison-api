@@ -23,7 +23,7 @@ import java.util.Properties
 @Component
 @Profile("connection-proxy")
 class OracleConnectionAspect(
-  private val authenticationFacade: HmppsAuthenticationHolder,
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
   private val roleConfigurer: RoleConfigurer,
   private val nomisConfigurer: NomisConfigurer,
 ) : AbstractConnectionAspect() {
@@ -56,7 +56,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionForCurrentUsername(): OracleConnection {
-    val currentUsername = authenticationFacade.principal
+    val currentUsername = hmppsAuthenticationHolder.principal
     val info = Properties().apply {
       this[OracleConnection.PROXY_USER_NAME] = currentUsername
     }
@@ -101,7 +101,7 @@ class OracleConnectionAspect(
 
   private fun isSuppressXTags(): Boolean = "true" == MDC.get(SUPPRESS_XTAG_EVENTS)
 
-  private fun authSource(): AuthSource = authenticationFacade.authSource
+  private fun authSource(): AuthSource = hmppsAuthenticationHolder.authSource
 
   private fun mdc(key: String): String? = MDC.get(key)
 }

@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.aop;
 
+import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.aspectj.lang.ProceedingJoinPoint;
 import org.aspectj.lang.annotation.Around;
@@ -14,13 +15,10 @@ import static uk.gov.justice.hmpps.prison.util.MdcUtility.PROXY_USER;
 @Aspect
 @Slf4j
 @Component
+@AllArgsConstructor
 public class ProxyUserAspect {
 
-    private final HmppsAuthenticationHolder authenticationFacade;
-
-    public ProxyUserAspect(final HmppsAuthenticationHolder authenticationFacade) {
-        this.authenticationFacade = authenticationFacade;
-    }
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
 
     @Pointcut("within(uk.gov.justice.hmpps.prison.api.resource.*) && @annotation(uk.gov.justice.hmpps.prison.core.ProxyUser)")
     public void proxyUserPointcut() {
@@ -30,7 +28,7 @@ public class ProxyUserAspect {
     @Around("proxyUserPointcut()")
     public Object controllerCall(final ProceedingJoinPoint joinPoint) throws Throwable {
 
-        var authentication = authenticationFacade.getAuthenticationOrNull();
+        var authentication = hmppsAuthenticationHolder.getAuthenticationOrNull();
         try {
             if (authentication != null) {
                 log.info("Proxying User: {} for {}->{}", authentication.getPrincipal(),
