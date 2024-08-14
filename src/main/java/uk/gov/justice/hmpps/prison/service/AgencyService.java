@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.annotations.VisibleForTesting;
-import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -51,7 +50,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepL
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.support.AlphaNumericComparator;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
@@ -213,7 +211,7 @@ public class AgencyService {
         Objects.requireNonNull(agencyId, "agencyId is a required parameter");
 
         final var agencyIds = getAgencyIds(allowInactive);
-        if (AuthenticationFacade.Companion.hasRoles("INACTIVE_BOOKINGS")) {
+        if (HmppsAuthenticationHolder.Companion.hasRoles("INACTIVE_BOOKINGS")) {
             agencyIds.addAll(Set.of("OUT", "TRN"));
         }
         if (agencyIds.isEmpty() || !agencyIds.contains(agencyId)) {
