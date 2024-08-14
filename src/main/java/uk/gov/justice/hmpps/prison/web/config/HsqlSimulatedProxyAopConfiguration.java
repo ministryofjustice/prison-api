@@ -13,7 +13,7 @@ import uk.gov.justice.hmpps.prison.aop.connectionproxy.HsqlConnectionAspect;
 public class HsqlSimulatedProxyAopConfiguration {
 
     @Bean
-    public HsqlConnectionAspect hsqlProxyConnectionAspect(final HmppsAuthenticationHolder authenticationFacade) {
-        return new HsqlConnectionAspect(authenticationFacade);
+    public HsqlConnectionAspect hsqlProxyConnectionAspect(final HmppsAuthenticationHolder hmppsAuthenticationHolder) {
+        return new HsqlConnectionAspect(hmppsAuthenticationHolder);
     }
 }

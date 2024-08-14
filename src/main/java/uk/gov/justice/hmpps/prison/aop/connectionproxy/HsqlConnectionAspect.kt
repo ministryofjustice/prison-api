@@ -12,7 +12,7 @@ import java.sql.Connection
 import java.sql.SQLException
 
 @Aspect
-class HsqlConnectionAspect(private val authenticationFacade: HmppsAuthenticationHolder) : AbstractConnectionAspect() {
+class HsqlConnectionAspect(private val hmppsAuthenticationHolder: HmppsAuthenticationHolder) : AbstractConnectionAspect() {
 
   private val log = LoggerFactory.getLogger(this::class.java)
 
@@ -37,7 +37,7 @@ class HsqlConnectionAspect(private val authenticationFacade: HmppsAuthentication
     // just check that the current user exists in the database
     pooledConnection.prepareStatement("SELECT username FROM staff_user_accounts WHERE username = ?")
       .use { statement ->
-        val currentUsername = authenticationFacade.principal
+        val currentUsername = hmppsAuthenticationHolder.principal
         statement.setString(1, currentUsername)
 
         try {
@@ -55,5 +55,5 @@ class HsqlConnectionAspect(private val authenticationFacade: HmppsAuthentication
 
   private fun isProxyUser(): Boolean = !MDC.get(PROXY_USER).isNullOrBlank()
 
-  private fun authSource(): AuthSource = authenticationFacade.authSource
+  private fun authSource(): AuthSource = hmppsAuthenticationHolder.authSource
 }
