@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -17,13 +18,13 @@ import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.SearchOffenderService;
@@ -38,16 +39,11 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.nvl;
 @Tag(name = "locations")
 @Validated
 @RequestMapping(value = "${api.base.path}/locations", produces = "application/json")
+@AllArgsConstructor
 public class LocationResource {
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final LocationService locationService;
     private final SearchOffenderService searchOffenderService;
-
-    public LocationResource(final AuthenticationFacade authenticationFacade, final LocationService locationService, final SearchOffenderService searchOffenderService) {
-        this.authenticationFacade = authenticationFacade;
-        this.locationService = locationService;
-        this.searchOffenderService = searchOffenderService;
-    }
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -72,7 +68,7 @@ public class LocationResource {
             @RequestHeader(value = "Sort-Fields", defaultValue = "lastName,firstName,bookingId", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,
             @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var request = SearchOffenderRequest.builder()
-                .username(authenticationFacade.getCurrentPrincipal())
+                .username(hmppsAuthenticationHolder.getPrincipal())
                 .keywords(keywords)
                 .locationPrefix(locationPrefix)
                 .returnAlerts(returnAlerts)
@@ -145,7 +141,7 @@ public class LocationResource {
                                                                         @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         final var inmates = locationService.getInmatesFromLocation(
                 locationId,
-                authenticationFacade.getCurrentPrincipal(),
+                hmppsAuthenticationHolder.getUsername(),
                 sortFields,
                 sortOrder,
                 nvl(pageOffset, 0L),

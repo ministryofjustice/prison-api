@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -19,6 +20,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
 import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -30,7 +32,6 @@ import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.service.CaseLoadService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.LocationService;
@@ -43,24 +44,13 @@ import java.util.Set;
 @Tag(name = "users")
 @Validated
 @RequestMapping(value = "${api.base.path}/users", produces = "application/json")
+@AllArgsConstructor
 public class UserResource {
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final UserService userService;
     private final LocationService locationService;
     private final CaseLoadService caseLoadService;
     private final CaseNoteService caseNoteService;
-
-    public UserResource(final AuthenticationFacade authenticationFacade,
-                        final LocationService locationService,
-                        final UserService userService,
-                        final CaseLoadService caseLoadService,
-                        final CaseNoteService caseNoteService) {
-        this.authenticationFacade = authenticationFacade;
-        this.locationService = locationService;
-        this.userService = userService;
-        this.caseLoadService = caseLoadService;
-        this.caseNoteService = caseNoteService;
-    }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDetail.class))}),
@@ -71,7 +61,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Returns information about the current user only")
     @GetMapping("/me")
     public UserDetail getMyUserInformation() {
-        return userService.getUserByUsername(authenticationFacade.getCurrentPrincipal());
+        return userService.getUserByUsername(hmppsAuthenticationHolder.getUsername());
     }
 
     @ApiResponses({
@@ -84,7 +74,7 @@ public class UserResource {
     @GetMapping("/me/caseLoads")
     @SlowReportQuery
     public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @Parameter(description = "If set to true then all caseloads are returned") final boolean allCaseloads) {
-        return userService.getCaseLoads(authenticationFacade.getCurrentPrincipal(), allCaseloads);
+        return userService.getCaseLoads(hmppsAuthenticationHolder.getUsername(), allCaseloads);
     }
 
     @ApiResponses({
@@ -97,7 +87,7 @@ public class UserResource {
     @GetMapping("/me/caseNoteTypes")
     public List<ReferenceCode> getMyCaseNoteTypes() {
         final var currentCaseLoad =
-            caseLoadService.getWorkingCaseLoadForUser(authenticationFacade.getCurrentPrincipal());
+            caseLoadService.getWorkingCaseLoadForUser(hmppsAuthenticationHolder.getUsername());
 
         final var caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
         return caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
@@ -114,7 +104,7 @@ public class UserResource {
     @SlowReportQuery
     public List<Location> getMyLocations(
         @RequestParam(value = "include-non-residential-locations", required = false, defaultValue = "false") @Parameter(description = "Indicates non residential locations should be included") final boolean includeNonRes) {
-        return locationService.getUserLocations(authenticationFacade.getCurrentPrincipal(), includeNonRes);
+        return locationService.getUserLocations(hmppsAuthenticationHolder.getUsername(), includeNonRes);
     }
 
     @ApiResponses({
@@ -126,7 +116,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Returns information about the current user only")
     @GetMapping("/me/roles")
     public List<UserRole> getMyRoles(@RequestParam(value = "allRoles", required = false, defaultValue = "false") @Parameter(description = "If set to true then all roles are returned rather than just API roles") final boolean allRoles) {
-        return userService.getRolesByUsername(authenticationFacade.getCurrentPrincipal(), allRoles);
+        return userService.getRolesByUsername(hmppsAuthenticationHolder.getUsername(), allRoles);
     }
 
     @ApiResponses({
@@ -138,7 +128,7 @@ public class UserResource {
     @ProgrammaticAuthorisation("Access is checked in the service")
     @ProxyUser
     public void updateMyActiveCaseLoad(@RequestBody @Parameter(required = true) final CaseLoad caseLoad) {
-        userService.setActiveCaseLoad(authenticationFacade.getCurrentPrincipal(), caseLoad.getCaseLoadId());
+        userService.setActiveCaseLoad(hmppsAuthenticationHolder.getUsername(), caseLoad.getCaseLoadId());
     }
 
     @ApiResponses({
