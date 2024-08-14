@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType
@@ -13,7 +14,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
 
@@ -23,10 +23,10 @@ class CaseNoteMovementService(
   private val caseNoteTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteType>,
   private val caseNoteSubTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteSubType>,
   staffUserAccountRepository: StaffUserAccountRepository,
-  authenticationFacade: AuthenticationFacade,
+  hmppsAuthenticationHolder: HmppsAuthenticationHolder,
 ) : StaffAwareMovementService(
   staffUserAccountRepository = staffUserAccountRepository,
-  authenticationFacade = authenticationFacade,
+  hmppsAuthenticationHolder = hmppsAuthenticationHolder,
 ) {
   fun createGenerateAdmissionNote(booking: OffenderBooking, transferMovement: ExternalMovement) {
     createMovementCaseNote(

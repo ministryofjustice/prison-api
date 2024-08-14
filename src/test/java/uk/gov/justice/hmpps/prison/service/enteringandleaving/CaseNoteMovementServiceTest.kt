@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service.enteringandleaving
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -10,6 +11,7 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType
@@ -22,7 +24,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -33,12 +34,12 @@ internal class CaseNoteMovementServiceTest {
   private val caseNoteTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteType> = mock()
   private val caseNoteSubTypeReferenceCodeRepository: ReferenceCodeRepository<CaseNoteSubType> = mock()
   private val staffUserAccountRepository: StaffUserAccountRepository = mock()
-  private val authenticationFacade: AuthenticationFacade = mock()
+  private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
   private val loggedInStaff = Staff().apply { staffId = 1L }
 
   @BeforeEach
   internal fun setUp() {
-    whenever(authenticationFacade.currentPrincipal).thenReturn("TEST_USER")
+    whenever(hmppsAuthenticationHolder.username).thenReturn("TEST_USER")
     whenever(staffUserAccountRepository.findById("TEST_USER")).thenReturn(
       Optional.of(
         StaffUserAccount().apply {
@@ -55,7 +56,7 @@ internal class CaseNoteMovementServiceTest {
     caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository,
     caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository,
     staffUserAccountRepository = staffUserAccountRepository,
-    authenticationFacade = authenticationFacade,
+    hmppsAuthenticationHolder = hmppsAuthenticationHolder,
   )
 
   @Nested
@@ -141,6 +142,20 @@ internal class CaseNoteMovementServiceTest {
       assertThrows<EntityNotFoundException> {
         service.createGenerateAdmissionNote(booking, movement)
       }
+    }
+
+    @Test
+    internal fun `will throw exception if authentication doesn't contain a user`() {
+      whenever(hmppsAuthenticationHolder.username).thenReturn(null)
+      assertThatThrownBy { service.createGenerateAdmissionNote(booking, movement) }
+        .isInstanceOf(EntityNotFoundException::class.java).hasMessage("Resource with id [no username supplied] not found.")
+    }
+
+    @Test
+    internal fun `will throw exception if user not found`() {
+      whenever(staffUserAccountRepository.findById(any())).thenReturn(Optional.empty())
+      assertThatThrownBy { service.createGenerateAdmissionNote(booking, movement) }
+        .isInstanceOf(EntityNotFoundException::class.java).hasMessage("Resource with id [TEST_USER] not found.")
     }
   }
 

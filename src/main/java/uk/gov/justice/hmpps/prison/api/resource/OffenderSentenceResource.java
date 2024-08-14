@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -36,7 +37,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
@@ -49,15 +49,15 @@ import java.util.List;
 @Validated
 @RequestMapping(value = "${api.base.path}/offender-sentences", produces = "application/json")
 public class OffenderSentenceResource {
-    private final AuthenticationFacade authenticationFacade;
+    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final BookingService bookingService;
     private final OffenderCurfewService offenderCurfewService;
 
     public OffenderSentenceResource(
-            final AuthenticationFacade authenticationFacade,
+            final HmppsAuthenticationHolder hmppsAuthenticationHolder,
             final BookingService bookingService,
             final OffenderCurfewService offenderCurfewService) {
-        this.authenticationFacade = authenticationFacade;
+        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.bookingService = bookingService;
         this.offenderCurfewService = offenderCurfewService;
     }
@@ -92,7 +92,7 @@ public class OffenderSentenceResource {
     @GetMapping("/home-detention-curfew-candidates")
     @SlowReportQuery
     public List<OffenderSentenceCalc<BaseSentenceCalcDates>> getOffenderSentencesHomeDetentionCurfewCandidates() {
-        return offenderCurfewService.getHomeDetentionCurfewCandidates(authenticationFacade.getCurrentPrincipal());
+        return offenderCurfewService.getHomeDetentionCurfewCandidates(hmppsAuthenticationHolder.getUsername());
     }
 
     @ApiResponses({

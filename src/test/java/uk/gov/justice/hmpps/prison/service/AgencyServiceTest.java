@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
-import com.microsoft.applicationinsights.TelemetryClient;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
@@ -32,7 +32,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilte
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.security.AuthenticationFacade;
 
 import java.util.List;
 import java.util.Optional;
@@ -52,7 +51,7 @@ public class AgencyServiceTest {
     private AgencyService service;
 
     @Mock
-    private AuthenticationFacade authenticationFacade;
+    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
     @Mock
     private AgencyRepository agencyRepo;
     @Mock
@@ -79,13 +78,11 @@ public class AgencyServiceTest {
     private ReferenceCodeRepository<County> countyReferenceCodeRepository;
     @Mock
     private ReferenceCodeRepository<Country> countryReferenceCodeRepository;
-    @Mock
-    private TelemetryClient telemetryClient;
 
     @BeforeEach
     public void setUp() {
-        service = new AgencyService(authenticationFacade, agencyRepo, availablePrisonIepLevelRepository, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, courtTypeReferenceCodeRepository, agencyInternalLocationRepository,
-        addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository, telemetryClient);
+        service = new AgencyService(hmppsAuthenticationHolder, agencyRepo, availablePrisonIepLevelRepository, agencyLocationRepository, referenceDomainService, agencyLocationTypeReferenceCodeRepository, courtTypeReferenceCodeRepository, agencyInternalLocationRepository,
+        addressPhoneRepository, agencyAddressRepository, addressTypeReferenceCodeRepository, cityReferenceCodeRepository, countyReferenceCodeRepository, countryReferenceCodeRepository);
     }
 
     @Test
