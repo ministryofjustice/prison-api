@@ -1,7 +1,7 @@
 version: 2.1
 
 orbs:
-  hmpps: ministryofjustice/hmpps@9
+  hmpps: ministryofjustice/hmpps@10
 
 executor:
   &executor
