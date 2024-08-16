@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.2"
-  kotlin("plugin.spring") version "2.0.0"
-  kotlin("plugin.jpa") version "2.0.0"
-  kotlin("plugin.lombok") version "2.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
+  kotlin("plugin.spring") version "2.0.10"
+  kotlin("plugin.jpa") version "2.0.10"
+  kotlin("plugin.lombok") version "2.0.10"
 }
 
 configurations {
@@ -19,7 +19,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.34")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.3")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.4")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -35,7 +35,7 @@ dependencies {
   implementation("io.swagger:swagger-annotations:1.6.14")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
-  implementation("org.apache.commons:commons-lang3:3.15.0")
+  implementation("org.apache.commons:commons-lang3:3.16.0")
   implementation("commons-io:commons-io:2.16.1")
   implementation("com.google.guava:guava:33.2.0-jre")
   implementation("org.apache.commons:commons-text:1.12.0")
@@ -48,7 +48,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.3")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.3")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.4")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.0")
@@ -74,7 +74,7 @@ dependencies {
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.22")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.38.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.40.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.34")
 }
