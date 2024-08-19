@@ -18,8 +18,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
 import java.time.LocalDateTime
 import uk.gov.justice.hmpps.prison.api.model.Questionnaire as QuestionnaireDTO
-import uk.gov.justice.hmpps.prison.api.model.QuestionnaireQuestion as QuestionDTO
 import uk.gov.justice.hmpps.prison.api.model.QuestionnaireAnswer as AnswerDTO
+import uk.gov.justice.hmpps.prison.api.model.QuestionnaireQuestion as QuestionDTO
 
 @Entity
 @EntityOpen
@@ -92,36 +92,41 @@ data class Questionnaire(
       code = code,
       active = active,
       expiryDate = expiryDate,
-      prisonerRoles = offenderRoles.map { role -> QuestionnairePrisonerRole(
-        prisonerRole = role.id.offenderRole,
-        singleRole = role.singleRole,
-        active = role.active,
-        expiryDate = role.expiryDate,
-      ) },
+      prisonerRoles = offenderRoles.map { role ->
+        QuestionnairePrisonerRole(
+          prisonerRole = role.id.offenderRole,
+          singleRole = role.singleRole,
+          active = role.active,
+          expiryDate = role.expiryDate,
+        )
+      },
       questions = questions.sortedBy { it.listSequence }
         .map {
-        question -> QuestionDTO(
-          questionnaireQueId = question.id,
-          questionSeq = question.questionSequence,
-          questionDesc = question.questionText,
-          questionListSeq = question.listSequence,
-          multipleAnswerFlag = question.multipleAnswers,
-          questionActiveFlag = question.active,
-          questionExpiryDate = question.expiryDate,
-          answers = question.answers.sortedBy { it.listSequence }
-            .map { answer -> AnswerDTO(
-              questionnaireAnsId = answer.id,
-              answerSeq = answer.answerSequence,
-              answerDesc = answer.answerText,
-              answerListSeq = answer.listSequence,
-              dateRequiredFlag = answer.dateRequired,
-              commentRequiredFlag = answer.commentRequired,
-              nextQuestionnaireQueId = answer.nextQuestion?.id,
-              answerActiveFlag = answer.active,
-              answerExpiryDate = answer.expiryDate,
-            ) }
+            question ->
+          QuestionDTO(
+            questionnaireQueId = question.id,
+            questionSeq = question.questionSequence,
+            questionDesc = question.questionText,
+            questionListSeq = question.listSequence,
+            multipleAnswerFlag = question.multipleAnswers,
+            questionActiveFlag = question.active,
+            questionExpiryDate = question.expiryDate,
+            answers = question.answers.sortedBy { it.listSequence }
+              .map { answer ->
+                AnswerDTO(
+                  questionnaireAnsId = answer.id,
+                  answerSeq = answer.answerSequence,
+                  answerDesc = answer.answerText,
+                  answerListSeq = answer.listSequence,
+                  dateRequiredFlag = answer.dateRequired,
+                  commentRequiredFlag = answer.commentRequired,
+                  nextQuestionnaireQueId = answer.nextQuestion?.id,
+                  answerActiveFlag = answer.active,
+                  answerExpiryDate = answer.expiryDate,
+                )
+              },
           )
-      }
+        },
     )
   }
 }

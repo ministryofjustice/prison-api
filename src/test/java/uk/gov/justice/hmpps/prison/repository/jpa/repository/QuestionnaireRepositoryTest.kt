@@ -37,7 +37,6 @@ class QuestionnaireRepositoryTest {
       assertThat(assaultQuestions[0].answers).hasSize(2)
 
       assertThat(assault.offenderRoles).hasSize(2)
-
     }
   }
 }

@@ -5,10 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode
 import java.time.LocalDate
 
-
 @Schema(description = "Questionnaire Prisoner Role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class QuestionnairePrisonerRole (
+data class QuestionnairePrisonerRole(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Role type for this question set")
   val prisonerRole: String,
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "If a single party can have this role in the question set")

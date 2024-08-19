@@ -8,7 +8,6 @@ import jakarta.persistence.Convert
 import org.hibernate.type.YesNoConverter
 import java.time.LocalDate
 
-
 @Schema(description = "Questionnaire")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Questionnaire(
@@ -47,4 +46,4 @@ data class Questionnaire(
 
   @Column(name = "EXPIRY_DATE")
   var expiryDate: LocalDate? = null,
-  )
+)

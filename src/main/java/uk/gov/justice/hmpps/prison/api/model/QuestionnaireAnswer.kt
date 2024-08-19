@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Schema(description = "Questionnaire Answer")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -28,9 +27,9 @@ data class QuestionnaireAnswer(
   private val answerExpiryDate: LocalDate? = null,
 
   @Schema(
-      requiredMode = RequiredMode.REQUIRED,
-      description = "Should the answer include date information?",
-      example = "false",
+    requiredMode = RequiredMode.REQUIRED,
+    description = "Should the answer include date information?",
+    example = "false",
   )
   private val dateRequiredFlag: Boolean = false,
 
@@ -40,4 +39,4 @@ data class QuestionnaireAnswer(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Next questionnaire question ID")
   private val nextQuestionnaireQueId: Long? = null,
 
-  )
+)
