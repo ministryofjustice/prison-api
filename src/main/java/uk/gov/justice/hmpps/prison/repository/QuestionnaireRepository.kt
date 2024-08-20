@@ -8,5 +8,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Questionnaire
 @Repository
 interface QuestionnaireRepository : CrudRepository<Questionnaire, Long>, JpaSpecificationExecutor<Questionnaire> {
   fun findAllByCategory(category: String): List<Questionnaire>
-  fun findOneByCategoryAndCode(category: String, code: String): Questionnaire
+  fun findOneByCategoryAndCode(category: String, code: String): Questionnaire?
 }

@@ -11,11 +11,9 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
-import org.hibernate.annotations.Generated
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Entity
 @Table(name = "QUESTIONNAIRE_QUESTIONS")
@@ -48,20 +46,12 @@ data class QuestionnaireQuestion(
   @Column(name = "LIST_SEQ")
   val listSequence: Int,
 
+  @Column(name = "EXPIRY_DATE")
+  val expiryDate: LocalDate,
+
   @Column
   var auditModuleName: String? = null,
 ) {
-  @Column(name = "CREATE_USER_ID", insertable = false, updatable = false)
-  @Generated
-  lateinit var createUsername: String
-
-  @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
-  @Generated
-  lateinit var createDatetime: LocalDateTime
-
-  @Column(name = "EXPIRY_DATE")
-  @Generated
-  lateinit var expiryDate: LocalDate
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

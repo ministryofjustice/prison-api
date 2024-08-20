@@ -14,7 +14,7 @@ class IncidentReportConfigurationService(
     incidentType: String? = null,
   ): List<IncidentTypeConfiguration> {
     if (incidentType != null) {
-      val questionnaire = questionnaireRepository.findOneByCategoryAndCode("IR_TYPE", incidentType)
+      val questionnaire = questionnaireRepository.findOneByCategoryAndCode("IR_TYPE", incidentType) ?: throw EntityNotFoundException.withId(incidentType)
       return listOf(questionnaire.toIncidentTypeConfiguration())
     }
 

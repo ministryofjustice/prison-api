@@ -9,34 +9,34 @@ import java.time.LocalDate
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class IncidentTypeAnswer(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "ID for this Answer")
-  private val questionnaireAnsId: Long,
+  val questionnaireAnsId: Long,
 
-  @Schema(requiredMode = RequiredMode.REQUIRED, description = "", example = "1")
-  private val answerSeq: Int = 0,
+  @Schema(requiredMode = RequiredMode.REQUIRED, description = "Sequence for this answer", example = "1")
+  val answerSeq: Int = 0,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Answer Text", example = "YES")
-  private val answerDesc: String,
+  val answerDesc: String,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Answer Sequence", example = "1")
-  private val answerListSeq: Int = 0,
+  val answerListSeq: Int = 0,
 
-  @Schema(requiredMode = RequiredMode.REQUIRED, description = "", example = "true")
-  private val answerActiveFlag: Boolean = true,
+  @Schema(requiredMode = RequiredMode.REQUIRED, description = "Indicates this answer is active", example = "true")
+  val answerActiveFlag: Boolean = true,
 
-  @Schema(requiredMode = RequiredMode.REQUIRED, description = "", example = "2017-01-02T00:00:00")
-  private val answerExpiryDate: LocalDate? = null,
+  @Schema(requiredMode = RequiredMode.REQUIRED, description = "Date expired (not used)", example = "2017-01-02T00:00:00")
+  val answerExpiryDate: LocalDate? = null,
 
   @Schema(
     requiredMode = RequiredMode.REQUIRED,
     description = "Should the answer include date information?",
     example = "false",
   )
-  private val dateRequiredFlag: Boolean = false,
+  val dateRequiredFlag: Boolean = false,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Should the answer include comment?", example = "false")
-  private val commentRequiredFlag: Boolean = false,
+  val commentRequiredFlag: Boolean = false,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Next questionnaire question ID")
-  private val nextQuestionnaireQueId: Long? = null,
+  val nextQuestionnaireQueId: Long? = null,
 
 )

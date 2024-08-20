@@ -7,12 +7,10 @@ import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
-import org.hibernate.annotations.Generated
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.io.Serializable
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Embeddable
 data class QuestionnaireOffenderRoleId(
@@ -44,20 +42,12 @@ data class QuestionnaireOffenderRole(
   @Column(name = "LIST_SEQ")
   val listSequence: Int,
 
+  @Column(name = "EXPIRY_DATE")
+  val expiryDate: LocalDate,
+
   @Column
   var auditModuleName: String? = null,
 ) {
-  @Column(name = "CREATE_USER_ID", insertable = false, updatable = false)
-  @Generated
-  lateinit var createUsername: String
-
-  @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
-  @Generated
-  lateinit var createDatetime: LocalDateTime
-
-  @Column(name = "EXPIRY_DATE")
-  @Generated
-  lateinit var expiryDate: LocalDate
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

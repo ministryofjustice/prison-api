@@ -11,7 +11,6 @@ import jakarta.persistence.OneToMany
 import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
-import org.hibernate.annotations.Generated
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeAnswer
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.IncidentTypePrisonerRole
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeQuestion
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
-import java.time.LocalDateTime
 
 @Entity
 @EntityOpen
@@ -54,21 +52,13 @@ data class Questionnaire(
   @OneToMany(mappedBy = "id.questionnaireId", cascade = [CascadeType.ALL], orphanRemoval = true)
   val offenderRoles: MutableList<QuestionnaireOffenderRole> = mutableListOf(),
 
+  @Column(name = "EXPIRY_DATE")
+  val expiryDate: LocalDate,
+
   @Column
   var auditModuleName: String? = null,
 
 ) {
-  @Column(name = "CREATE_USER_ID", insertable = false, updatable = false)
-  @Generated
-  lateinit var createUsername: String
-
-  @Column(name = "CREATE_DATETIME", insertable = false, updatable = false)
-  @Generated
-  lateinit var createDatetime: LocalDateTime
-
-  @Column(name = "EXPIRY_DATE")
-  @Generated
-  lateinit var expiryDate: LocalDate
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -89,6 +79,7 @@ data class Questionnaire(
     return IncidentTypeConfiguration(
       questionnaireId = id,
       incidentType = code,
+      incidentTypeDescription = description,
       active = active,
       expiryDate = expiryDate,
       prisonerRoles = offenderRoles.map { role ->

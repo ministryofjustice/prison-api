@@ -15,5 +15,5 @@ data class IncidentTypePrisonerRole(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Indicates this role is active")
   val active: Boolean = true,
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Indicates the date the role was made inactive")
-  private val expiryDate: LocalDate? = null,
+  val expiryDate: LocalDate? = null,
 )
