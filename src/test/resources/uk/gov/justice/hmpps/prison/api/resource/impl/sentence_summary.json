@@ -103,7 +103,17 @@
         "sentenceEndDate": "2017-11-04",
         "fineAmount": 95.29,
         "lineSeq": 1,
-        "offences": [],
+        "offences": [
+          {
+            "offenderChargeId": -15,
+            "offenceStartDate": "2015-01-04",
+            "offenceEndDate": "2015-01-25",
+            "offenceStatute": "RC86",
+            "offenceCode": "M1",
+            "offenceDescription": "Actual bodily harm",
+            "indicators": []
+          }
+        ],
         "terms": []
       }
     ],
