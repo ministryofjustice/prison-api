@@ -13,13 +13,13 @@ import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.annotations.Generated
 import org.hibernate.type.YesNoConverter
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeAnswer
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypePrisonerRole
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeQuestion
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
 import java.time.LocalDateTime
-import uk.gov.justice.hmpps.prison.api.model.IncidentTypeAnswer
-import uk.gov.justice.hmpps.prison.api.model.IncidentTypeQuestion
 
 @Entity
 @EntityOpen
