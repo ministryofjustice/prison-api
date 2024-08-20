@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 @ActiveProfiles("test")
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @Import(HmppsAuthenticationHolder::class, AuditorAwareImpl::class)
-class QuestionnaireRepositoryTest {
+class IncidentTypeConfigurationRepositoryTest {
 
   @Autowired
   private lateinit var repository: QuestionnaireRepository

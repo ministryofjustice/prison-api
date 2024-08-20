@@ -13,13 +13,13 @@ import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.annotations.Generated
 import org.hibernate.type.YesNoConverter
-import uk.gov.justice.hmpps.prison.api.model.QuestionnairePrisonerRole
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypePrisonerRole
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
 import java.time.LocalDateTime
-import uk.gov.justice.hmpps.prison.api.model.Questionnaire as QuestionnaireDTO
-import uk.gov.justice.hmpps.prison.api.model.QuestionnaireAnswer as AnswerDTO
-import uk.gov.justice.hmpps.prison.api.model.QuestionnaireQuestion as QuestionDTO
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeAnswer
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeQuestion
 
 @Entity
 @EntityOpen
@@ -85,15 +85,14 @@ data class Questionnaire(
     return this::class.simpleName + "(id = $id, code = $code, description = $description)"
   }
 
-  fun toDto(): QuestionnaireDTO {
-    return QuestionnaireDTO(
-      questionnaireCategory = category,
+  fun toIncidentTypeConfiguration(): IncidentTypeConfiguration {
+    return IncidentTypeConfiguration(
       questionnaireId = id,
-      code = code,
+      incidentType = code,
       active = active,
       expiryDate = expiryDate,
       prisonerRoles = offenderRoles.map { role ->
-        QuestionnairePrisonerRole(
+        IncidentTypePrisonerRole(
           prisonerRole = role.id.offenderRole,
           singleRole = role.singleRole,
           active = role.active,
@@ -103,7 +102,7 @@ data class Questionnaire(
       questions = questions.sortedBy { it.listSequence }
         .map {
             question ->
-          QuestionDTO(
+          IncidentTypeQuestion(
             questionnaireQueId = question.id,
             questionSeq = question.questionSequence,
             questionDesc = question.questionText,
@@ -113,7 +112,7 @@ data class Questionnaire(
             questionExpiryDate = question.expiryDate,
             answers = question.answers.sortedBy { it.listSequence }
               .map { answer ->
-                AnswerDTO(
+                IncidentTypeAnswer(
                   questionnaireAnsId = answer.id,
                   answerSeq = answer.answerSequence,
                   answerDesc = answer.answerText,

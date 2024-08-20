@@ -13,27 +13,28 @@ import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.Questionnaire
+import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
+import uk.gov.justice.hmpps.prison.core.ReferenceData
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
-import uk.gov.justice.hmpps.prison.service.QuestionnaireService
+import uk.gov.justice.hmpps.prison.service.IncidentReportConfigurationService
 
 @RestController
-@Tag(name = "questionnaire")
+@Tag(name = "Incident Reports", description = "Configuration information for an incident report by type")
 @Validated
-@RequestMapping(value = ["/api/questionnaire"], produces = ["application/json"])
-class QuestionnaireResource(
-  private val questionnaireService: QuestionnaireService,
+@RequestMapping(value = ["/api/incidents/configuration"], produces = ["application/json"])
+class IncidentTypeConfigurationResource(
+  private val incidentReportConfigurationService: IncidentReportConfigurationService,
 ) {
 
   @GetMapping
   @ResponseStatus(HttpStatus.OK)
   @Operation(
-    summary = "Returns questionnaire data sets for incident reports",
+    summary = "Returns incident type configuration data sets for incident reports",
     description = "No additional role required",
     responses = [
       ApiResponse(
         responseCode = "200",
-        description = "Returns questionnaires",
+        description = "Returns incident type configuration",
       ),
       ApiResponse(
         responseCode = "401",
@@ -48,8 +49,10 @@ class QuestionnaireResource(
     ],
   )
   @SlowReportQuery
+  @ReferenceData(description = "NO role needed as only reading reference data")
   fun getQuestionnaires(
-    @RequestParam(name = "code", required = false) code: String? = null,
-  ): List<Questionnaire> =
-    questionnaireService.getQuestionnaires(questionnaireCode = code)
+    @Schema(description = "Return configuration for incident type only")
+    @RequestParam(name = "incident-type", required = false) incidentType: String? = null,
+  ): List<IncidentTypeConfiguration> =
+    incidentReportConfigurationService.getIncidentTypeConfiguration(incidentType = incidentType)
 }

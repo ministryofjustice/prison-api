@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode
 import java.time.LocalDate
 
-@Schema(description = "Questionnaire Question")
+@Schema(description = "Incident type question")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class QuestionnaireQuestion(
+data class IncidentTypeQuestion(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "")
   private val questionnaireQueId: Long,
 
@@ -30,5 +30,5 @@ data class QuestionnaireQuestion(
   private val multipleAnswerFlag: Boolean = false,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "")
-  private val answers: List<QuestionnaireAnswer>,
+  private val answers: List<IncidentTypeAnswer>,
 )

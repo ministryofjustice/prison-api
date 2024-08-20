@@ -5,9 +5,9 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.media.Schema.RequiredMode
 import java.time.LocalDate
 
-@Schema(description = "Questionnaire Answer")
+@Schema(description = "Incident Type Answer")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class QuestionnaireAnswer(
+data class IncidentTypeAnswer(
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "ID for this Answer")
   private val questionnaireAnsId: Long,
 
@@ -33,7 +33,7 @@ data class QuestionnaireAnswer(
   )
   private val dateRequiredFlag: Boolean = false,
 
-  @Schema(requiredMode = RequiredMode.REQUIRED, description = "Should the answer include Comment?", example = "false")
+  @Schema(requiredMode = RequiredMode.REQUIRED, description = "Should the answer include comment?", example = "false")
   private val commentRequiredFlag: Boolean = false,
 
   @Schema(requiredMode = RequiredMode.REQUIRED, description = "Next questionnaire question ID")
