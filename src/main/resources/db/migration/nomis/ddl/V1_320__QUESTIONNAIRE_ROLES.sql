@@ -3,7 +3,7 @@ create table QUESTIONNAIRE_ROLES
   QUESTIONNAIRE_ID              NUMBER(10)                             not null,
   PARTICIPATION_ROLE            VARCHAR2(12 char)                      not null,
   SINGLE_ROLE_FLAG              VARCHAR2(1 char)  default 'N'          not null,
-  LIST_SEQ                      NUMBER(6)                              not null,
+  LIST_SEQ                      NUMBER(6),
   ACTIVE_FLAG                   VARCHAR2(1 char)  default 'N'          not null,
   EXPIRY_DATE                   DATE,
   CREATE_DATETIME               TIMESTAMP(9)      default systimestamp not null,

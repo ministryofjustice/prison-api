@@ -53,7 +53,7 @@ data class Questionnaire(
   val offenderRoles: MutableList<QuestionnaireOffenderRole> = mutableListOf(),
 
   @Column(name = "EXPIRY_DATE")
-  val expiryDate: LocalDate,
+  val expiryDate: LocalDate? = null,
 
   @Column
   var auditModuleName: String? = null,

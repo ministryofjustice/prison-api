@@ -47,7 +47,7 @@ data class QuestionnaireQuestion(
   val listSequence: Int,
 
   @Column(name = "EXPIRY_DATE")
-  val expiryDate: LocalDate,
+  val expiryDate: LocalDate? = null,
 
   @Column
   var auditModuleName: String? = null,

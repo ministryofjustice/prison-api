@@ -40,10 +40,10 @@ data class QuestionnaireOffenderRole(
   val active: Boolean = true,
 
   @Column(name = "LIST_SEQ")
-  val listSequence: Int,
+  val listSequence: Int? = 99,
 
   @Column(name = "EXPIRY_DATE")
-  val expiryDate: LocalDate,
+  val expiryDate: LocalDate? = null,
 
   @Column
   var auditModuleName: String? = null,
