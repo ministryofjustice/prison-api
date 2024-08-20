@@ -291,10 +291,12 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(addresses).extracting("addressId", "addressType", "flat", "premise", "street", "locality", "town", "postalCode", "county", "startDate", "primary")
+            assertThat(addresses).extracting("addressId", "addressType", "flat", "premise", "street", "locality", "town", "postalCode", "county", "startDate", "primary", "noFixedAddress")
               .containsExactlyInAnyOrder(
-                tuple(-11L, "Business Address", "Flat 1", "Brook Hamlets", "Mayfield Drive", "Nether Edge", "Sheffield", "B5", "South Yorkshire", LocalDate.parse("2015-10-01"), false),
-                tuple(-12L, "Home Address", null, "9", "Abbydale Road", null, "Sheffield", null, "South Yorkshire", LocalDate.parse("2014-07-01"), false),
+                // test data has a -13L which is filtered out as it is a non-primary no fixed address record
+                tuple(-11L, "Business Address", "Flat 1", "Brook Hamlets", "Mayfield Drive", "Nether Edge", "Sheffield", "B5", "South Yorkshire", LocalDate.parse("2015-10-01"), false, false),
+                tuple(-12L, "Home Address", null, "9", "Abbydale Road", null, "Sheffield", null, "South Yorkshire", LocalDate.parse("2014-07-01"), false, false),
+                tuple(-10L, "Home Address", null, null, null, null, null, null, null, LocalDate.parse("2017-03-01"), true, true),
               )
             addresses?.first { it.addressId == -11L }?.phones.also {
               assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(tuple("0114 2345345", "HOME", "345"))
