@@ -252,13 +252,13 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(allConvictedOffences)
-              .extracting("bookingId", "offenceCode")
+              .extracting("bookingId", "offenceCode", "sentenceStartDate", "primarySentence")
               // ignores charges with no convicted result
               .containsExactlyInAnyOrder(
-                tuple(-12L, "M1"),
-                tuple(-13L, "M2"),
+                tuple(-12L, "M1", LocalDate.parse("2017-07-05"), true),
+                tuple(-13L, "M2", null, null),
                 // Note that the duplicate for SYS/MERGE is included
-                tuple(-13L, "M2"),
+                tuple(-13L, "M2", null, null),
               )
           }
         }

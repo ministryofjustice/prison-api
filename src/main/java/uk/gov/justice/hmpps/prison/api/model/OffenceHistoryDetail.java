@@ -69,7 +69,13 @@ public class OffenceHistoryDetail {
     @Schema(description = "Offence Severity Ranking", example = "100")
     private Integer offenceSeverityRanking;
 
-    public OffenceHistoryDetail(@NotNull Long bookingId, @NotNull LocalDate offenceDate, LocalDate offenceRangeDate, @NotBlank String offenceDescription, @NotBlank String offenceCode, @NotBlank String statuteCode, Boolean mostSerious, String primaryResultCode, String secondaryResultCode, String primaryResultDescription, String secondaryResultDescription, Boolean primaryResultConviction, Boolean secondaryResultConviction, LocalDate courtDate, Long caseId, Integer offenceSeverityRanking) {
+    @Schema(description = "Start date of sentence - null if there is no associated sentence", example = "2018-03-10")
+    private LocalDate sentenceStartDate;
+
+    @Schema(description = "Primary sentence - true if it is not a consecutive sentence, false if it is a consecutive sentence, null if no sentence found for the charge.")
+    private Boolean primarySentence;
+
+    public OffenceHistoryDetail(@NotNull Long bookingId, @NotNull LocalDate offenceDate, LocalDate offenceRangeDate, @NotBlank String offenceDescription, @NotBlank String offenceCode, @NotBlank String statuteCode, Boolean mostSerious, String primaryResultCode, String secondaryResultCode, String primaryResultDescription, String secondaryResultDescription, Boolean primaryResultConviction, Boolean secondaryResultConviction, LocalDate courtDate, Long caseId, Integer offenceSeverityRanking, LocalDate sentenceStartDate, Boolean primarySentence) {
         this.bookingId = bookingId;
         this.offenceDate = offenceDate;
         this.offenceRangeDate = offenceRangeDate;
@@ -86,6 +92,8 @@ public class OffenceHistoryDetail {
         this.courtDate = courtDate;
         this.caseId = caseId;
         this.offenceSeverityRanking = offenceSeverityRanking;
+        this.sentenceStartDate = sentenceStartDate;
+        this.primarySentence = primarySentence;
     }
 
     public OffenceHistoryDetail() {

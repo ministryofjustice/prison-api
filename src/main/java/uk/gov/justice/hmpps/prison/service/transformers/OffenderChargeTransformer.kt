@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
 class OffenderChargeTransformer : Converter<OffenderCharge, OffenceHistoryDetail> {
   override fun convert(offenderCharge: OffenderCharge): OffenceHistoryDetail {
     val latestCourtEvent = offenderCharge.offenderCourtCase.courtEvents.maxByOrNull { it.eventDate }
+    val sentence = offenderCharge.offenderSentenceCharges.firstOrNull()?.offenderSentence
 
     return OffenceHistoryDetail.builder()
       .bookingId(offenderCharge.offenderBooking.bookingId)
@@ -27,6 +28,8 @@ class OffenderChargeTransformer : Converter<OffenderCharge, OffenceHistoryDetail
       .secondaryResultConviction(offenderCharge.resultCodeTwo?.isConvictionFlag)
       .courtDate(latestCourtEvent?.eventDate)
       .offenceSeverityRanking(offenderCharge.offence.severityRanking?.toInt() ?: Int.MAX_VALUE)
+      .sentenceStartDate(sentence?.sentenceStartDate)
+      .primarySentence(if (sentence != null) sentence.consecutiveToSentenceSequence == null else null)
       .build()
   }
 }
