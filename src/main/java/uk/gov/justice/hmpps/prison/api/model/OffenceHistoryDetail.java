@@ -69,10 +69,10 @@ public class OffenceHistoryDetail {
     @Schema(description = "Offence Severity Ranking", example = "100")
     private Integer offenceSeverityRanking;
 
-    @Schema(description = "Start date of sentence - null if there is no associated sentence", example = "2018-03-10")
+    @Schema(description = "Start date of sentence - null if there is no associated sentence. This will not be populated if called from /offenderNo/{offenderNo}/offenceHistory, /offenders/{offenderNo} or /bookings/offenderNo/{offenderNo}", example = "2018-03-10")
     private LocalDate sentenceStartDate;
 
-    @Schema(description = "Primary sentence - true if it is not a consecutive sentence, false if it is a consecutive sentence, null if no sentence found for the charge.")
+    @Schema(description = "Primary sentence - true if it is not a consecutive sentence, false if it is a consecutive sentence, null if no sentence found for the charge. This will not be populated if called from /offenderNo/{offenderNo}/offenceHistory, /offenders/{offenderNo} or /bookings/offenderNo/{offenderNo}")
     private Boolean primarySentence;
 
     public OffenceHistoryDetail(@NotNull Long bookingId, @NotNull LocalDate offenceDate, LocalDate offenceRangeDate, @NotBlank String offenceDescription, @NotBlank String offenceCode, @NotBlank String statuteCode, Boolean mostSerious, String primaryResultCode, String secondaryResultCode, String primaryResultDescription, String secondaryResultDescription, Boolean primaryResultConviction, Boolean secondaryResultConviction, LocalDate courtDate, Long caseId, Integer offenceSeverityRanking, LocalDate sentenceStartDate, Boolean primarySentence) {
