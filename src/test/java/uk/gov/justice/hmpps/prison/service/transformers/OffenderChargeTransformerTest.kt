@@ -8,6 +8,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute
 import java.time.LocalDate
 
@@ -67,5 +69,58 @@ class OffenderChargeTransformerTest {
     assertThat(offenderHistoryDetails.secondaryResultConviction).isEqualTo(offenseResult2.isConvictionFlag)
     assertThat(offenderHistoryDetails.secondaryResultDescription).isEqualTo(offenseResult2.description)
     assertThat(offenderHistoryDetails.statuteCode).isEqualTo(statuteCode)
+  }
+
+  @Test
+  fun `should set sentence information to null if no associated sentences`() {
+    val offenderHistoryDetails = OffenderCharge.builder()
+      .offenderBooking(OffenderBooking.builder().bookingId(2L).build())
+      .offenderCourtCase(OffenderCourtCase.builder().id(1L).build())
+      .offence(Offence.builder().code("code").description("desc").statute(Statute.builder().code("st code").build()).build())
+      .build().let {
+        OffenderChargeTransformer().convert(it)
+      }
+    assertThat(offenderHistoryDetails.sentenceStartDate).isNull()
+    assertThat(offenderHistoryDetails.primarySentence as Boolean?).isNull()
+  }
+
+  @Test
+  fun `should set sentence information if there is an associated sentence`() {
+    val offenderHistoryDetails = OffenderCharge.builder()
+      .offenderBooking(OffenderBooking.builder().bookingId(2L).build())
+      .offenderCourtCase(OffenderCourtCase.builder().id(1L).build())
+      .offenderSentenceCharges(
+        listOf(
+          OffenderSentenceCharge.builder().offenderSentence(
+            OffenderSentence.builder().sentenceStartDate(LocalDate.parse("2022-01-02")).build(),
+          ).build(),
+        ),
+      )
+      .offence(Offence.builder().code("code").description("desc").statute(Statute.builder().code("st code").build()).build())
+      .build().let {
+        OffenderChargeTransformer().convert(it)
+      }
+    assertThat(offenderHistoryDetails.sentenceStartDate).isEqualTo(LocalDate.parse("2022-01-02"))
+    assertThat(offenderHistoryDetails.primarySentence as Boolean?).isTrue()
+  }
+
+  @Test
+  fun `should set primary sentence to false if there is an associated consecutive sentence`() {
+    val offenderHistoryDetails = OffenderCharge.builder()
+      .offenderBooking(OffenderBooking.builder().bookingId(2L).build())
+      .offenderCourtCase(OffenderCourtCase.builder().id(1L).build())
+      .offenderSentenceCharges(
+        listOf(
+          OffenderSentenceCharge.builder().offenderSentence(
+            OffenderSentence.builder().sentenceStartDate(LocalDate.parse("2022-01-02")).consecutiveToSentenceSequence(3).build(),
+          ).build(),
+        ),
+      )
+      .offence(Offence.builder().code("code").description("desc").statute(Statute.builder().code("st code").build()).build())
+      .build().let {
+        OffenderChargeTransformer().convert(it)
+      }
+    assertThat(offenderHistoryDetails.sentenceStartDate).isEqualTo(LocalDate.parse("2022-01-02"))
+    assertThat(offenderHistoryDetails.primarySentence as Boolean?).isFalse()
   }
 }

@@ -35,5 +35,7 @@ data class OffenceHistoryDetailDto(
     this.courtDate,
     this.caseId,
     null,
+    null,
+    null,
   )
 }
