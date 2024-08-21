@@ -29,7 +29,7 @@ class OffenderChargeTransformer : Converter<OffenderCharge, OffenceHistoryDetail
       .courtDate(latestCourtEvent?.eventDate)
       .offenceSeverityRanking(offenderCharge.offence.severityRanking?.toInt() ?: Int.MAX_VALUE)
       .sentenceStartDate(sentence?.sentenceStartDate)
-      .primarySentence(if (sentence != null) sentence.consecutiveToSentenceSequence == null else null)
+      .primarySentence(sentence?.let { sentence.consecutiveToSentenceSequence == null })
       .build()
   }
 }
