@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.3"
-  kotlin("plugin.spring") version "2.0.10"
-  kotlin("plugin.jpa") version "2.0.10"
-  kotlin("plugin.lombok") version "2.0.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.4"
+  kotlin("plugin.spring") version "2.0.20"
+  kotlin("plugin.jpa") version "2.0.20"
+  kotlin("plugin.lombok") version "2.0.20"
 }
 
 configurations {
@@ -19,7 +19,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.34")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.34")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.4")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.0.5")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -37,7 +37,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.16.0")
   implementation("commons-io:commons-io:2.16.1")
-  implementation("com.google.guava:guava:33.2.0-jre")
+  implementation("com.google.guava:guava:33.3.0-jre")
   implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.24.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -48,7 +48,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.3")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.4")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.0.5")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.0")
@@ -63,10 +63,10 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.4.1")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.1.20")
-  testImplementation("net.serenity-bdd:serenity-junit:4.1.20")
-  testImplementation("net.serenity-bdd:serenity-spring:4.1.20")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.1.20")
+  testImplementation("net.serenity-bdd:serenity-core:4.2.0")
+  testImplementation("net.serenity-bdd:serenity-junit:4.2.0")
+  testImplementation("net.serenity-bdd:serenity-spring:4.2.0")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.0")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.9.1")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
