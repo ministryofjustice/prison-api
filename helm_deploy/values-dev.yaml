@@ -48,7 +48,5 @@ generic-service:
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
 
 generic-prometheus-alerts:
-  applicationAlertsEnabled: true
-  ingressAlertsEnabled: true
   businessHoursOnly: true
   alertSeverity: syscon-nonprod

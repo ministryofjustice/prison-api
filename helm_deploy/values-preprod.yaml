@@ -95,7 +95,5 @@ generic-service:
 
 
 generic-prometheus-alerts:
-  applicationAlertsEnabled: true
-  ingressAlertsEnabled: true
   businessHoursOnly: true
   alertSeverity: syscon-nonprod
