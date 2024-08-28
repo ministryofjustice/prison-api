@@ -8,7 +8,6 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
@@ -1082,8 +1081,7 @@ class OffenderResourceIntTest : ResourceTest() {
   @DisplayName("POST /api/offenders/{offenderNo}/case-notes")
   inner class CreateCaseNote {
 
-    @Value("\${api.caseNote.sourceCode:AUTO}")
-    lateinit var caseNoteSource: String
+    private val caseNoteSource: String = "INST"
 
     private val caseNote =
       """ 
@@ -1220,7 +1218,8 @@ class OffenderResourceIntTest : ResourceTest() {
               "type": "OBSERVE",
               "subType": "OBS_GEN",
               "text": "A new case note",
-              "occurrenceDateTime": "2017-04-14T10:15:30"      
+              "occurrenceDateTime": "2017-04-14T10:15:30",
+              "systemGenerated": true
             }
           """,
         )
@@ -1229,7 +1228,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .expectBody(CaseNote::class.java).returnResult().responseBody!!
 
       assertThat(caseNote.caseNoteId).isGreaterThan(0)
-      assertThat(caseNote.source).isEqualTo(caseNoteSource)
+      assertThat(caseNote.source).isEqualTo("AUTO")
       assertThat(caseNote.type).isEqualTo("OBSERVE")
       assertThat(caseNote.subType).isEqualTo("OBS_GEN")
       assertThat(caseNote.text).isEqualTo("A new case note")
@@ -1272,7 +1271,8 @@ class OffenderResourceIntTest : ResourceTest() {
               "type": "OBSERVE",
               "subType": "OBS_GEN",
               "text": "A new case note",
-              "occurrenceDateTime": "2017-04-14T10:15:30"      
+              "occurrenceDateTime": "2017-04-14T10:15:30",
+              "systemGenerated": false      
             }
           """,
         )
@@ -1280,6 +1280,7 @@ class OffenderResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .returnResult(CaseNote::class.java).responseBody.blockFirst()!!
 
+      assertThat(caseNote1.source).isEqualTo(caseNoteSource)
       assertThat(offenderCaseNoteRepository.findAll(CaseNoteFilter(bookingId = -32), unpaged())).size().isEqualTo(10)
 
       removeCaseNoteCreated(caseNote1.caseNoteId)

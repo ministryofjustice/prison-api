@@ -60,9 +60,6 @@ import static java.util.stream.Collectors.maxBy;
 @Slf4j
 public class CaseNoteService {
 
-    @Value("${api.caseNote.sourceCode:AUTO}")
-    private String caseNoteSource;
-
     private final CaseNoteRepository caseNoteRepository;
     private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
@@ -126,7 +123,7 @@ public class CaseNoteService {
             .agencyLocation(booking.getLocation())
             .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk(caseNote.getType())).orElseThrow(EntityNotFoundException.withId(caseNote.getType())))
             .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk(caseNote.getSubType())).orElseThrow(EntityNotFoundException.withId(caseNote.getSubType())))
-            .noteSourceCode(caseNoteSource)
+            .noteSourceCode(caseNote.isSystemGenerated() ? "AUTO" : "INST")
             .author(userDetail.getStaff())
             .occurrenceDateTime(occurrenceTime)
             .occurrenceDate(occurrenceTime.toLocalDate())

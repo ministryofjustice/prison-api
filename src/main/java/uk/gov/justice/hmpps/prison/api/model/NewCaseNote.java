@@ -10,7 +10,9 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.EqualsAndHashCode;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSize;
 
 import jakarta.validation.constraints.NotBlank;
@@ -49,6 +51,12 @@ public class NewCaseNote {
     @MaximumTextSize
     @NotBlank
     private String text;
+
+    @Schema(requiredMode = REQUIRED, description = "Flag to indicate if it was system generated")
+    @Getter
+    @Setter
+    @Builder.Default
+    private boolean systemGenerated = false;
 
     @JsonAnyGetter
     public Map<String, Object> getAdditionalProperties() {
