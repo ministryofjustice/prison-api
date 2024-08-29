@@ -28,7 +28,6 @@ spring:
     enabled: false
     locations:
 
-api.caseNote.sourceCode: INST
 schema:
   type: nomis
   database.dialect: ORACLE_11
