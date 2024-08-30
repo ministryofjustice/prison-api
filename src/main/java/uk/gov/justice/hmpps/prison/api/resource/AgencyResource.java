@@ -53,6 +53,7 @@ import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 
 import java.time.LocalDate;
+import java.util.Comparator;
 import java.util.List;
 
 import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ACTIVE_ONLY;
@@ -347,6 +348,7 @@ public class AgencyResource {
         return agencyService.getAgenciesByType("INST", true, null, false, false)
             .stream()
             .map((a -> new Prison(a.getAgencyId(), a.getDescription(), a.getLongDescription(), a.getAgencyType(), a.isActive())))
+            .sorted(Comparator.comparing(Prison::getDescription, Comparator.naturalOrder()))
             .toList();
     }
 
