@@ -26,6 +26,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
+import uk.gov.justice.hmpps.prison.api.resource.Prison;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -161,6 +162,7 @@ public class AgencyService {
         return agencyLocationRepository.findAll(filter)
             .stream()
             .map(agency -> translate(withAddresses, agency, skipFormatLocation))
+            .sorted(Comparator.comparing(Agency::getDescription, Comparator.naturalOrder()))
             .collect(toList());
     }
 
