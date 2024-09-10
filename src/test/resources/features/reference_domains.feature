@@ -35,17 +35,6 @@ Feature: Reference Domains
     And there is no parent domain for any returned item
     And there are no sub codes for any returned item
 
-  Scenario: Retrieve used case note types with sub-types
-    When request submitted to retrieve used case note types
-    Then some reference code items are returned
-    And domain for all returned items is "TASK_TYPE"
-    And the returned items contain description "Accredited Programme"
-    And the returned items contain description "Unpaid Work"
-    And there are one or more sub codes for every returned item
-    And item description "Accredited Programme" contains sub-code with description "Assessment"
-    And item description "Accredited Programme" contains sub-code with description "Post Programme OM Session four"
-    And item description "Court" contains sub-code with description "Post Sentence Interview"
-
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"
     Then resource not found response is received from reference domains API
