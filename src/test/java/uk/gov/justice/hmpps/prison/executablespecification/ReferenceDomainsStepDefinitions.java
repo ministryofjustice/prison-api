@@ -15,7 +15,6 @@ import java.util.List;
  * <ul>
  * <li>/reference-domains/alertTypes</li>
  * <li>/reference-domains/caseNoteSources</li>
- * <li>/reference-domains/caseNoteTypes</li>
  * <li>/reference-domains/domains/{domain}</li>
  * <li>/reference-domains/domains/{domain}/codes/{code}</li>
  * </ul>
@@ -33,11 +32,6 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @When("^request submitted to retrieve all case note sources$")
     public void requestSubmittedToRetrieveAllCaseNoteSources() throws Throwable {
         referenceDomains.getAllSources();
-    }
-
-    @When("^request submitted to retrieve used case note types$")
-    public void requestSubmittedToRetrieveUsedCaseNoteTypes() throws Throwable {
-        referenceDomains.getUsedCaseNoteTypes();
     }
 
     @Then("^\"([^\"]*)\" reference code items are returned$")

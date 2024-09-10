@@ -49,8 +49,6 @@ public class UserResource {
     private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final UserService userService;
     private final LocationService locationService;
-    private final CaseLoadService caseLoadService;
-    private final CaseNoteService caseNoteService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = UserDetail.class))}),
@@ -75,22 +73,6 @@ public class UserResource {
     @SlowReportQuery
     public List<CaseLoad> getMyCaseLoads(@RequestParam(value = "allCaseloads", required = false, defaultValue = "false") @Parameter(description = "If set to true then all caseloads are returned") final boolean allCaseloads) {
         return userService.getCaseLoads(hmppsAuthenticationHolder.getUsername(), allCaseloads);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", description = "List of all case note types (with sub-types) accessible to current user (and based on working caseload).", hidden = true)
-    @ReferenceData(description = "Only case note types with sub-types are returned")
-    @GetMapping("/me/caseNoteTypes")
-    public List<ReferenceCode> getMyCaseNoteTypes() {
-        final var currentCaseLoad =
-            caseLoadService.getWorkingCaseLoadForUser(hmppsAuthenticationHolder.getUsername());
-
-        final var caseLoadType = currentCaseLoad.isPresent() ? currentCaseLoad.get().getType() : "BOTH";
-        return caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(caseLoadType);
     }
 
     @ApiResponses({

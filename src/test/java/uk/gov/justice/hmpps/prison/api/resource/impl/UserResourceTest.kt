@@ -12,23 +12,6 @@ import org.springframework.web.reactive.function.BodyInserters
 class UserResourceTest : ResourceTest() {
 
   @Nested
-  @DisplayName("GET /api/users/me/caseNoteTypes")
-  inner class CaseNoteTypes {
-    @Test
-    fun `Retrieve valid case note types for current user`() {
-      webTestClient.get()
-        .uri("/api/users/me/caseNoteTypes")
-        .headers(setAuthorisation("ITAG_USER", emptyList()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.length()").isEqualTo(11)
-        .jsonPath("$[*].subCodes.length()")
-        .value<List<Int>> { assertThat(it).contains(7, 6, 2, 2, 2, 4, 4, 1, 4, 1, 3) }
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/users/me/locations")
   inner class Locations {
     /**
