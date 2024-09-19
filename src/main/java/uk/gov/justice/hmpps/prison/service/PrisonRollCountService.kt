@@ -6,6 +6,7 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.MovementCount
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.PrisonRollCountSummaryRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonRollCountSummary
@@ -25,7 +26,7 @@ class PrisonRollCountService(
   companion object {
     val log: Logger = LoggerFactory.getLogger(this::class.java)
   }
-  fun getPrisonRollCount(prisonId: String, includeCells: Boolean, locationId: String? = null): PrisonRollCount {
+  fun getPrisonRollCount(prisonId: String, includeCells: Boolean): PrisonRollCount {
     val rollCount = prisonRollCountSummaryRepository.findAllByPrisonId(prisonId).sortedBy { it.fullLocationPath }
     val (unassignedIn, rollSummary) = getPrisonRollSummaryInfo(prisonId, rollCount)
 
@@ -62,6 +63,13 @@ class PrisonRollCountService(
   fun getPrisonCellRollCount(prisonId: String, locationId: String): PrisonRollCount {
     val rollCount = getPrisonRollCount(prisonId = prisonId, includeCells = true)
     return rollCount.copy(locations = rollCount.findSubLocations(locationId))
+  }
+
+  fun getRollCountMovementInformation(prisonId: String): Pair<MovementCount, Int> {
+    val now = LocalDate.now()
+    val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
+    val enRouteCount = movementsRepository.getEnRouteMovementsOffenderCount(prisonId, now)
+    return Pair(movementCount, enRouteCount)
   }
 
   fun getPrisonRollSummary(prisonId: String) =

@@ -124,4 +124,33 @@ class PrisonRollCountResource(
     locationId: String,
   ): PrisonRollCount =
     prisonRollCountService.getPrisonCellRollCount(prisonId, locationId)
+
+  @GetMapping("/movement-count")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Provide the IN/OUT movements and en-route counts for today",
+    description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.",
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Returns cell list of roll-counts for a specific prison and sub-location",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires the ESTABLISHMENT_ROLL role",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @VerifyAgencyAccess(overrideRoles = ["ESTABLISHMENT_ROLL"])
+  fun getRollCountMovementInformation(
+    @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
+    @PathVariable
+    prisonId: String
+  ) = prisonRollCountService.getRollCountMovementInformation(prisonId)
 }
