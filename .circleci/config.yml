@@ -1,24 +1,16 @@
 version: 2.1
-
 orbs:
   hmpps: ministryofjustice/hmpps@10
-
-executor:
-  &executor
+executor: &executor
   executor:
     name: hmpps/java
     tag: "21.0"
   environment:
     # Setting max gradle workers to 1 (which means 1 running concurrently, not max 1!) - because although this doesn't stop the ktlint workers from starting it does seem to prevent the test executor from needing as much memory.
-    _JAVA_OPTIONS: -Xmx2048m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2
-      -XX:ParallelGCThreads=2
-      -Djava.util.concurrent.ForkJoinPool.common.parallelism=2
-      -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport
-      -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=1
-
+    _JAVA_OPTIONS: -Xmx2048m -XX:ParallelGCThreads=2 -XX:ConcGCThreads=2 -XX:ParallelGCThreads=2 -Djava.util.concurrent.ForkJoinPool.common.parallelism=2 -Dorg.gradle.daemon=false -Dorg.gradle.jvmargs=-XX:+UseContainerSupport -Dkotlin.compiler.execution.strategy=in-process -Dorg.gradle.workers.max=1
 jobs:
   check:
-    <<: *executor
+    !!merge <<: *executor
     steps:
       - run:
           command: |
@@ -51,15 +43,14 @@ jobs:
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
   test-integration:
-    <<: *executor
+    !!merge <<: *executor
     steps:
       - checkout
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle.kts" }}
-      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit"
-          -Dkotlin.daemon.jvm.options="--illegal-access=permit" testIntegration
+      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" testIntegration
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
@@ -77,16 +68,14 @@ jobs:
     # The resource_class feature allows configuring CPU and RAM resources for each job. Different resource classes are available for different executors. https://circleci.com/docs/2.0/configuration-reference/#resourceclass
     resource_class: large
   test-schema-nomis:
-    <<: *executor
+    !!merge <<: *executor
     steps:
       - checkout
       - restore_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
       - restore_cache:
           key: gradle-cache-{{ checksum "build.gradle.kts" }}
-      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit"
-          -Dkotlin.daemon.jvm.options="--illegal-access=permit"
-          testWithSchemaNomis
+      - run: ./gradlew -Dorg.gradle.jvmargs="--illegal-access=permit" -Dkotlin.daemon.jvm.options="--illegal-access=permit" testWithSchemaNomis
       - save_cache:
           key: gradle-wrapper-{{ checksum "gradle/wrapper/gradle-wrapper.properties" }}
           paths:
@@ -102,7 +91,6 @@ jobs:
       - store_artifacts:
           path: build/libs
     resource_class: large
-
 workflows:
   version: 2
   build-test-and-deploy:
@@ -146,7 +134,6 @@ workflows:
           type: approval
           requires:
             - deploy_dev
-
       - hmpps/deploy_env:
           name: deploy_preprod
           env: "preprod"
@@ -159,12 +146,10 @@ workflows:
             - prison-api-preprod
           requires:
             - request-preprod-approval
-
       - request-prod-approval:
           type: approval
           requires:
             - deploy_preprod
-
       - hmpps/deploy_env:
           name: deploy_prod
           env: "prod"
@@ -178,40 +163,3 @@ workflows:
             - prison-api-prod
           requires:
             - request-prod-approval
-
-  security:
-    triggers:
-      - schedule:
-          cron: "46 6 * * 1-5"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/gradle_owasp_dependency_check:
-          cache_key: "v2_0"
-          jdk_tag: "21.0"
-          context:
-            - hmpps-common-vars
-      - hmpps/trivy_latest_scan:
-          context:
-            - hmpps-common-vars
-      - hmpps/veracode_pipeline_scan:
-          jdk_tag: "21.0"
-          context:
-            - hmpps-common-vars
-            - veracode-credentials
-  security-weekly:
-    triggers:
-      - schedule:
-          cron: "51 5 * * 1"
-          filters:
-            branches:
-              only:
-                - main
-    jobs:
-      - hmpps/veracode_policy_scan:
-          jdk_tag: "21.0"
-          context:
-            - veracode-credentials
-            - hmpps-common-vars

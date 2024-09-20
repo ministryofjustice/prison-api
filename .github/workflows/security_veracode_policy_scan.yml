@@ -1,0 +1,23 @@
+name: Security veracode policy check
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "32 9 * * 1" # Every Monday at 09:32 UTC
+jobs:
+  security-veracode-policy-check:
+    name: Project security veracode policy scan
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_policy_scan.yml@0.2 # WORKFLOW_VERSION 
+    with:
+      channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
+    secrets:
+      SLACK_BOT_TOKEN: ${{ secrets.HMPPS_SRE_SLACK_BOT_TOKEN }}
+      VERACODE_API_ID_0: ${{ secrets.HMPPS_VERACODE_API_ID_0 }}
+      VERACODE_API_ID_1: ${{ secrets.HMPPS_VERACODE_API_ID_1 }}
+      VERACODE_API_ID_2: ${{ secrets.HMPPS_VERACODE_API_ID_2 }}
+      VERACODE_API_ID_3: ${{ secrets.HMPPS_VERACODE_API_ID_3 }}
+      VERACODE_API_ID_4: ${{ secrets.HMPPS_VERACODE_API_ID_4 }}
+      VERACODE_API_KEY_0: ${{ secrets.HMPPS_VERACODE_API_KEY_0 }}
+      VERACODE_API_KEY_1: ${{ secrets.HMPPS_VERACODE_API_KEY_1 }}
+      VERACODE_API_KEY_2: ${{ secrets.HMPPS_VERACODE_API_KEY_2 }}
+      VERACODE_API_KEY_3: ${{ secrets.HMPPS_VERACODE_API_KEY_3 }}
+      VERACODE_API_KEY_4: ${{ secrets.HMPPS_VERACODE_API_KEY_4 }}
