@@ -5,6 +5,9 @@ import io.swagger.v3.oas.annotations.media.Content
 import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
+import jakarta.validation.constraints.NotBlank
+import jakarta.validation.constraints.Pattern
+import jakarta.validation.constraints.Size
 import org.springframework.http.HttpStatus
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
@@ -124,4 +127,37 @@ class PrisonRollCountResource(
     locationId: String,
   ): PrisonRollCount =
     prisonRollCountService.getPrisonCellRollCount(prisonId, locationId)
+
+  @GetMapping("/movement-count")
+  @ResponseStatus(HttpStatus.OK)
+  @Operation(
+    summary = "Provide the IN/OUT movements and en-route counts for today",
+    description = "Requires role ESTABLISHMENT_ROLL or agency in caseload.",
+    responses = [
+      ApiResponse(
+        responseCode = "200",
+        description = "Returns cell list of roll-counts for a specific prison and sub-location",
+      ),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Missing required role. Requires the ESTABLISHMENT_ROLL role",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    ],
+  )
+  @VerifyAgencyAccess(overrideRoles = ["ESTABLISHMENT_ROLL"])
+  fun getRollCountMovementInformation(
+    @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
+    @Size(min = 3, message = "Prison ID must be a minimum of 3 characters")
+    @NotBlank(message = "Prison ID cannot be blank")
+    @Size(max = 5, message = "Prison ID cannot be more than 5 characters")
+    @Pattern(regexp = "^[A-Z]{2}I|ZZGHI$", message = "Prison ID must be 3 characters ending in an I or ZZGHI")
+    @PathVariable
+    prisonId: String,
+  ) = prisonRollCountService.getRollCountMovementInformation(prisonId)
 }
