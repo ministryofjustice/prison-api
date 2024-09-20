@@ -58,6 +58,25 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  inner class Validation {
+    @Test
+    fun `should return 404 for unknown prison`() {
+      webTestClient.get().uri("/api/prison/roll-count/XXI/summary")
+        .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `should return 404 for unknown prison movements`() {
+      webTestClient.get().uri("/api/prison/roll-count/XXI/movement-count")
+        .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isNotFound
+    }
+  }
+
+  @Nested
   inner class HappyPath {
     @Test
     fun `should return correct summary data for Leeds`() {
@@ -451,6 +470,48 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
                 }
               ]
             }   
+          """.trimIndent(),
+
+          false,
+        )
+    }
+
+    @Test
+    fun `should return movement details for Leeds`() {
+      webTestClient.get().uri("/api/prison/roll-count/LEI/movement-count")
+        .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().json(
+          """
+            {
+              "inOutMovementsToday": {
+                "in": 0,
+                "out": 0
+              },
+              "enRouteToday": 2
+            } 
+          """.trimIndent(),
+
+          false,
+        )
+    }
+
+    @Test
+    fun `should return movement details for Brixton`() {
+      webTestClient.get().uri("/api/prison/roll-count/BXI/movement-count")
+        .headers(setAuthorisation(listOf("ESTABLISHMENT_ROLL")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().json(
+          """
+            {
+              "inOutMovementsToday": {
+                "in": 0,
+                "out": 0
+              },
+              "enRouteToday": 0
+            } 
           """.trimIndent(),
 
           false,

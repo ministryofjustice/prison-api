@@ -65,11 +65,11 @@ class PrisonRollCountService(
     return rollCount.copy(locations = rollCount.findSubLocations(locationId))
   }
 
-  fun getRollCountMovementInformation(prisonId: String): Pair<MovementCount, Int> {
+  fun getRollCountMovementInformation(prisonId: String): PrisonRollMovementInfo {
     val now = LocalDate.now()
     val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
     val enRouteCount = movementsRepository.getEnRouteMovementsOffenderCount(prisonId, now)
-    return Pair(movementCount, enRouteCount)
+    return PrisonRollMovementInfo(inOutMovementsToday = movementCount, enRouteToday = enRouteCount)
   }
 
   fun getPrisonRollSummary(prisonId: String) =
@@ -201,6 +201,15 @@ data class LocationRollCount(
   val netVacancies: Int = 0,
   @Schema(description = "Out of order", required = true)
   val outOfOrder: Int = 0,
+)
+
+@Schema(description = "Summary movements in and out of a prison today")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class PrisonRollMovementInfo(
+  @Schema(description = "In/Out count of movements today", required = true)
+  val inOutMovementsToday: MovementCount,
+  @Schema(description = "Prisoner en-route count for today", required = true)
+  val enRouteToday: Int,
 )
 
 fun String.capitalizeWords(delimiter: String = " ") =
