@@ -27,6 +27,7 @@ public interface CourtEventChargeRepository extends CrudRepository<CourtEventCha
        left join fetch oc.resultCodeOne rco
        left join fetch oc.offenderSentenceCharges osc
        left join fetch osc.offenderSentence os
+       left join fetch os.calculationType ct
        left join fetch os.courtOrder co
             join fetch oc.offenderBooking ob
             join       ob.offender o

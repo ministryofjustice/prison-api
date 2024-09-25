@@ -45,6 +45,9 @@ data class CourtDateChargeAndOutcomes(
   @Schema(description = "The sentence date")
   val sentenceDate: LocalDate? = null,
 
+  @Schema(description = "The sentence type")
+  val sentenceType: String? = null,
+
   @Schema(description = "The result description of the charge")
   val resultDescription: String? = null,
 
