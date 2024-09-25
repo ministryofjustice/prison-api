@@ -190,7 +190,7 @@ class CourtDateServiceTest {
                       OffenderSentence()
                         .withId(OffenderSentence.PK(4, 5))
                         .withCalculationType(
-                          SentenceCalcType().withCalculationType("ADIMP")
+                          SentenceCalcType().withCalculationType("ADIMP"),
                         )
                         .withCourtOrder(
                           CourtOrder()
