@@ -48,8 +48,14 @@ data class CourtDateChargeAndOutcomes(
   @Schema(description = "The sentence type")
   val sentenceType: String? = null,
 
+  @Schema(description = "The result code of the charge")
+  val resultCode: String? = null,
+
   @Schema(description = "The result description of the charge")
   val resultDescription: String? = null,
+
+  @Schema(description = "The disposition code of the result of the charge")
+  val resultDispositionCode: String? = null,
 
   @Schema(description = "The id of the booking this court date was linked to")
   val bookingId: Long,
