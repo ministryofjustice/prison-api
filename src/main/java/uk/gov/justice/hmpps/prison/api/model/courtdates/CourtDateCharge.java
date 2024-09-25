@@ -57,8 +57,14 @@ public class CourtDateCharge {
     @Schema(description = "The sentence type")
     private String sentenceType;
 
+    @Schema(description = "The result code of the charge")
+    private String resultCode;
+
     @Schema(description = "The result description of the charge")
     private String resultDescription;
+
+    @Schema(description = "The disposition code of the result of the charge")
+    private String resultDispositionCode;
 
     @Schema(description = "Is this charge active in NOMIS.")
     private Boolean active;

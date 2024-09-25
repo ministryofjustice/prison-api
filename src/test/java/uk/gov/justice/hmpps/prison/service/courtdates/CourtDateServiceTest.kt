@@ -233,7 +233,9 @@ class CourtDateServiceTest {
               .withSentenceSequence(5)
               .withSentenceDate(LocalDate.of(2022, 1, 1))
               .withSentenceType("ADIMP")
+              .withResultCode("1002")
               .withResultDescription("Imprisonment")
+              .withResultDispositionCode("F")
               .withActive(true),
           ),
         ),
