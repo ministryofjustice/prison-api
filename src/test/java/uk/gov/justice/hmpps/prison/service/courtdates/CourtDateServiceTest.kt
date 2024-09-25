@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge
+import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository
 import java.time.LocalDate
@@ -114,6 +115,7 @@ class CourtDateServiceTest {
               .withCourtLocation(null)
               .withSentenceSequence(null)
               .withSentenceDate(null)
+              .withSentenceType(null)
               .withResultDescription(null)
               .withActive(false),
           ),
@@ -138,6 +140,7 @@ class CourtDateServiceTest {
               .withCourtLocation(null)
               .withSentenceSequence(null)
               .withSentenceDate(null)
+              .withSentenceType(null)
               .withResultDescription(null)
               .withActive(false),
           ),
@@ -186,6 +189,9 @@ class CourtDateServiceTest {
                     .withOffenderSentence(
                       OffenderSentence()
                         .withId(OffenderSentence.PK(4, 5))
+                        .withCalculationType(
+                          SentenceCalcType().withCalculationType("ADIMP")
+                        )
                         .withCourtOrder(
                           CourtOrder()
                             .withCourtDate(LocalDate.of(2022, 1, 1)),
@@ -226,6 +232,7 @@ class CourtDateServiceTest {
               .withCourtLocation("Birmingham Crown Court")
               .withSentenceSequence(5)
               .withSentenceDate(LocalDate.of(2022, 1, 1))
+              .withSentenceType("ADIMP")
               .withResultDescription("Imprisonment")
               .withActive(true),
           ),
