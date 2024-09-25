@@ -11,6 +11,7 @@ import lombok.Builder;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.With;
 import org.hibernate.type.YesNoConverter;
 
 import java.io.Serializable;
@@ -23,6 +24,7 @@ import java.util.Set;
 @NoArgsConstructor
 @EqualsAndHashCode(callSuper = false)
 @AllArgsConstructor
+@With
 @Table(name = "SENTENCE_CALC_TYPES")
 @IdClass(SentenceCalcType.PK.class)
 public class SentenceCalcType extends AuditableEntity {
