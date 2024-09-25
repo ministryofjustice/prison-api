@@ -726,6 +726,7 @@ public class OffenderBooking extends AuditableEntity {
                 .fromDate(e.getAdjustFromDate())
                 .toDate(e.getAdjustToDate())
                 .active(e.isActive())
+                .comment(e.getComment())
                 .build()
             )
             .toList();
@@ -743,6 +744,7 @@ public class OffenderBooking extends AuditableEntity {
                 .fromDate(e.getAdjustFromDate())
                 .toDate(e.getAdjustToDate())
                 .active(e.isActive())
+                .comment(e.getComment())
                 .build()
             )
             .toList();

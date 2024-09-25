@@ -60,4 +60,7 @@ public class SentenceAdjustment extends AuditableEntity {
     @Column(name = "ACTIVE_FLAG")
     @Convert(converter = YesNoConverter.class)
     private boolean active;
+
+    @Column(name = "COMMENT_TEXT")
+    private String comment;
 }
