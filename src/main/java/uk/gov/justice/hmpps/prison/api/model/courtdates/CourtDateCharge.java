@@ -54,6 +54,9 @@ public class CourtDateCharge {
     @Schema(description = "The sentence date")
     private LocalDate sentenceDate;
 
+    @Schema(description = "The sentence type")
+    private String sentenceType;
+
     @Schema(description = "The result description of the charge")
     private String resultDescription;
 
