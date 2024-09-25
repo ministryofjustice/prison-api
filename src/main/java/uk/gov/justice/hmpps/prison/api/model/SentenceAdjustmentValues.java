@@ -34,4 +34,7 @@ public class SentenceAdjustmentValues {
 
     @Schema(description = "Boolean flag showing if the adjustment is active", example = "true")
     private boolean active;
+
+    @Schema(description = "The user comments for this adjustment", example = "This is an adjustment")
+    private String comment;
 }
