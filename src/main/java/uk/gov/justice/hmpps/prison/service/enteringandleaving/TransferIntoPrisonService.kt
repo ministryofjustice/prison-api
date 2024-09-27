@@ -255,10 +255,14 @@ class TransferIntoPrisonService(
     return transformer.transform(booking)
   }
 
-  private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).map { success(it) }
-    .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
+  private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> {
+    return offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).map { success(it) }
+      .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
+  }
 
-  private fun getCellLocation(cellLocation: String?, prison: AgencyLocation): Result<AgencyInternalLocation> = getCellLocation(cellLocation, prison.id)
+  private fun getCellLocation(cellLocation: String?, prison: AgencyLocation): Result<AgencyInternalLocation> {
+    return getCellLocation(cellLocation, prison.id)
+  }
 
   private fun getCellLocation(cellLocation: String?, prisonId: String): Result<AgencyInternalLocation> {
     val internalLocationCode = cellLocation ?: "$prisonId-RECP"
@@ -269,10 +273,12 @@ class TransferIntoPrisonService(
       .orElse(failure(EntityNotFoundException.withMessage("$internalLocationCode cell location not found")))
   }
 
-  private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> = agencyLocationRepository.findById(
-    prisonId,
-  ).map { success(it) }
-    .orElse(failure(EntityNotFoundException.withMessage("$prisonId agency not found")))
+  private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> {
+    return agencyLocationRepository.findById(
+      prisonId,
+    ).map { success(it) }
+      .orElse(failure(EntityNotFoundException.withMessage("$prisonId agency not found")))
+  }
 }
 
 private fun OffenderBooking.isBeingTransferred() = this.inOutStatus == "TRN"
@@ -288,8 +294,10 @@ private fun OffenderBooking.assertIsOut(): Result<OffenderBooking> = if (!isOut(
   success(this)
 }
 
-private fun OffenderBooking.getLatestMovement(): Result<ExternalMovement> = this.lastMovement.map { success(it) }
-  .orElse(failure(EntityNotFoundException.withMessage("Not movements found to transfer in")))
+private fun OffenderBooking.getLatestMovement(): Result<ExternalMovement> {
+  return this.lastMovement.map { success(it) }
+    .orElse(failure(EntityNotFoundException.withMessage("Not movements found to transfer in")))
+}
 
 private fun ExternalMovement.assertIsActiveTransfer(): Result<ExternalMovement> {
   if (!this.isTransfer()) {
@@ -337,7 +345,9 @@ private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternal
   )
 }
 
-internal inline fun <T> Result<T>.flatMap(transform: (value: T) -> Result<T>): Result<T> = when {
-  isSuccess -> transform(getOrThrow())
-  else -> this
+internal inline fun <T> Result<T>.flatMap(transform: (value: T) -> Result<T>): Result<T> {
+  return when {
+    isSuccess -> transform(getOrThrow())
+    else -> this
+  }
 }

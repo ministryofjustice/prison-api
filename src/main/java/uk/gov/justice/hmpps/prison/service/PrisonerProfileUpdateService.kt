@@ -14,7 +14,12 @@ class PrisonerProfileUpdateService(
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
     offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
-      .orElseThrow(EntityNotFoundException.withMessage("Prisoner with prisonerNumber %s and existing booking not found"))
+      .orElseThrow(
+        EntityNotFoundException.withMessage(
+          "Prisoner with prisonerNumber %s and existing booking not found",
+          prisonerNumber,
+        ),
+      )
 
     offenderRepository.updateBirthPlaceOfCurrentAlias(prisonerNumber, birthPlace?.ifBlank { null })
   }
