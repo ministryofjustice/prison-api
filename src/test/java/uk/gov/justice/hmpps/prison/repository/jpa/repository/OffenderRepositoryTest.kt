@@ -11,7 +11,6 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
-import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 
@@ -61,42 +60,19 @@ class OffenderRepositoryTest {
   }
 
   @Nested
-  inner class updateBirthPlaceOfCurrentAlias {
+  inner class findLinkedToLatestBookingForUpdate {
     @Test
-    fun `update birth place updates the offender record linked to latest booking`() {
+    fun `retrieves the offender record linked to latest booking`() {
       // this prisoner has two offender records - ensure we get the right one
-      repository.updateBirthPlaceOfCurrentAlias("A1234AL", "LONDON")
+      val offender = repository.findLinkedToLatestBookingForUpdate("A1234AL").orElseThrow()
 
-      TestTransaction.flagForCommit()
-      TestTransaction.end()
-      TestTransaction.start()
-
-      assertThat(repository.getReferenceById(-1012L).birthPlace).isEqualTo("LONDON")
-      assertThat(repository.getReferenceById(-1013L).birthPlace).isEqualTo("SHEFFIELD")
+      assertThat(offender.id).isEqualTo(-1012L)
+      assertThat(offender.allBookings).hasSizeGreaterThan(0)
     }
 
     @Test
-    fun `update birth place does not update offender without linked booking`() {
-      repository.updateBirthPlaceOfCurrentAlias("A9880GH", "LONDON")
-
-      TestTransaction.flagForCommit()
-      TestTransaction.end()
-      TestTransaction.start()
-
-      assertThat(repository.getReferenceById(-1059).birthPlace).isNull()
-    }
-
-    @Test
-    fun `update birth place to null`() {
-      // this prisoner has two offender records - ensure we get the right one
-      repository.updateBirthPlaceOfCurrentAlias("A1234AL", null)
-
-      TestTransaction.flagForCommit()
-      TestTransaction.end()
-      TestTransaction.start()
-
-      assertThat(repository.getReferenceById(-1012L).birthPlace).isNull()
-      assertThat(repository.getReferenceById(-1013L).birthPlace).isEqualTo("SHEFFIELD")
+    fun `returns empty when there is no booking linked to the offender record`() {
+      assertThat(repository.findLinkedToLatestBookingForUpdate("A9880GH")).isEmpty()
     }
   }
 }
