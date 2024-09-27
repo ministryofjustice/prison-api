@@ -11,6 +11,7 @@ import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabas
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.transaction.TestTransaction
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 
@@ -56,6 +57,46 @@ class OffenderRepositoryTest {
       assertThat(offender.rootOffender.id).isEqualTo(-1056L)
 
       assertThat(offender.allBookings).hasSize(0)
+    }
+  }
+
+  @Nested
+  inner class updateBirthPlaceOfCurrentAlias {
+    @Test
+    fun `update birth place updates the offender record linked to latest booking`() {
+      // this prisoner has two offender records - ensure we get the right one
+      repository.updateBirthPlaceOfCurrentAlias("A1234AL", "LONDON")
+
+      TestTransaction.flagForCommit()
+      TestTransaction.end()
+      TestTransaction.start()
+
+      assertThat(repository.getReferenceById(-1012L).birthPlace).isEqualTo("LONDON")
+      assertThat(repository.getReferenceById(-1013L).birthPlace).isEqualTo("SHEFFIELD")
+    }
+
+    @Test
+    fun `update birth place does not update offender without linked booking`() {
+      repository.updateBirthPlaceOfCurrentAlias("A9880GH", "LONDON")
+
+      TestTransaction.flagForCommit()
+      TestTransaction.end()
+      TestTransaction.start()
+
+      assertThat(repository.getReferenceById(-1059).birthPlace).isNull()
+    }
+
+    @Test
+    fun `update birth place to null`() {
+      // this prisoner has two offender records - ensure we get the right one
+      repository.updateBirthPlaceOfCurrentAlias("A1234AL", null)
+
+      TestTransaction.flagForCommit()
+      TestTransaction.end()
+      TestTransaction.start()
+
+      assertThat(repository.getReferenceById(-1012L).birthPlace).isNull()
+      assertThat(repository.getReferenceById(-1013L).birthPlace).isEqualTo("SHEFFIELD")
     }
   }
 }

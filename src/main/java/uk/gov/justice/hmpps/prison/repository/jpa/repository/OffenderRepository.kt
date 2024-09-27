@@ -4,6 +4,7 @@ import jakarta.persistence.LockModeType
 import org.jetbrains.annotations.NotNull
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
+import org.springframework.data.jpa.repository.Modifying
 import org.springframework.data.jpa.repository.Query
 import org.springframework.stereotype.Repository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -23,6 +24,21 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
   fun findRootOffenderByNomsId(nomsId: String): Optional<Offender>
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("SELECT o from Offender o where o.nomsId = :nomsId and o.id = o.rootOffenderId")
+  @Query("select o from Offender o where o.nomsId = :nomsId and o.id = o.rootOffenderId")
   fun findRootOffenderByNomsIdForUpdate(@NotNull nomsId: String): Optional<Offender>
+
+  @Modifying
+  @Query(
+    value = """
+      UPDATE offenders o SET o.birth_place = :birthPlace
+      WHERE o.OFFENDER_ID IN (
+        SELECT o1.offender_id FROM OFFENDERS o1
+        INNER JOIN OFFENDER_BOOKINGS b1 ON b1.OFFENDER_ID = o1.OFFENDER_ID
+        WHERE o1.OFFENDER_ID_DISPLAY = :nomsId
+        AND b1.BOOKING_SEQ = 1
+      )
+    """,
+    nativeQuery = true,
+  )
+  fun updateBirthPlaceOfCurrentAlias(nomsId: String, birthPlace: String?)
 }
