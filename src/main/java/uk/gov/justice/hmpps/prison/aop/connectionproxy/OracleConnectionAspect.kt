@@ -6,6 +6,7 @@ import org.slf4j.LoggerFactory
 import org.slf4j.MDC
 import org.springframework.context.annotation.Profile
 import org.springframework.stereotype.Component
+import org.springframework.transaction.TransactionException
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource
 import uk.gov.justice.hmpps.kotlin.auth.AuthSource.NOMIS
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
@@ -15,6 +16,7 @@ import uk.gov.justice.hmpps.prison.util.MdcUtility.REQUEST_URI
 import uk.gov.justice.hmpps.prison.util.MdcUtility.SUPPRESS_XTAG_EVENTS
 import uk.gov.justice.hmpps.prison.util.MdcUtility.USER_ID_HEADER
 import uk.gov.justice.hmpps.prison.web.config.RoutingDataSource
+import java.lang.Exception
 import java.sql.Connection
 import java.sql.SQLException
 import java.util.Properties
@@ -30,7 +32,7 @@ class OracleConnectionAspect(
 
   private val log = LoggerFactory.getLogger(this::class.java)
 
-  @Throws(SQLException::class)
+  @Throws(SQLException::class, ProxyConnectionTransactionException::class)
   public override fun configureNomisConnection(pooledConnection: Connection): Connection =
     with(pooledConnection) {
       when {
@@ -62,8 +64,14 @@ class OracleConnectionAspect(
     }
 
     return (this.unwrap(Connection::class.java) as OracleConnection)
-      .also { oracleConnection ->
-        oracleConnection.openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info)
+      .apply {
+        try {
+          openProxySession(OracleConnection.PROXYTYPE_USER_NAME, info)
+        } catch (e: SQLException) {
+          if (e.errorCode == 1017) throw ProxyConnectionTransactionException("Could not open proxy session as $currentUsername - account doesn't support proxy connections", e)
+          if (e.errorCode == 28000) throw ProxyConnectionTransactionException("Could not open proxy session as $currentUsername - account is locked", e)
+          throw e
+        }
       }
   }
 
@@ -108,3 +116,5 @@ class OracleConnectionAspect(
 
 @Throws(SQLException::class)
 internal fun Connection.run(sql: String) = prepareStatement(sql).use { ps -> ps.execute() }
+
+class ProxyConnectionTransactionException(message: String, e: Exception) : TransactionException(message, e)
