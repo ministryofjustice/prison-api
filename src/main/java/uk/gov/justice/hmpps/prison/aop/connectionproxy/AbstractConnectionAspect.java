@@ -37,5 +37,5 @@ public abstract class AbstractConnectionAspect {
         }
     }
 
-    protected abstract Connection configureNomisConnection(final Connection pooledConnection) throws SQLException;
+    protected abstract Connection configureNomisConnection(final Connection pooledConnection) throws SQLException, ProxyConnectionTransactionException;
 }
