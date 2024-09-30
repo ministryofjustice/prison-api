@@ -93,6 +93,9 @@ public class Offender extends AuditableEntity {
     @Column(name = "BIRTH_DATE", nullable = false)
     private LocalDate birthDate;
 
+    @Column(name = "BIRTH_PLACE", nullable = false)
+    private String birthPlace;
+
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
 

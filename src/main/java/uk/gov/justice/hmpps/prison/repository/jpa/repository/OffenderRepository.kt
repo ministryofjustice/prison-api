@@ -23,6 +23,10 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
   fun findRootOffenderByNomsId(nomsId: String): Optional<Offender>
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
-  @Query("SELECT o from Offender o where o.nomsId = :nomsId and o.id = o.rootOffenderId")
+  @Query("select o from Offender o where o.nomsId = :nomsId and o.id = o.rootOffenderId")
   fun findRootOffenderByNomsIdForUpdate(@NotNull nomsId: String): Optional<Offender>
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @Query("select o from Offender o inner join o.bookings b where o.nomsId = :nomsId and b.bookingSequence = 1")
+  fun findLinkedToLatestBookingForUpdate(@NotNull nomsId: String): Optional<Offender>
 }

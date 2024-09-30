@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -30,6 +31,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
@@ -61,6 +63,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
+import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
@@ -91,6 +94,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderIdentifierService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
+import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService;
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.BookingIntoPrisonService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.DischargeToHospitalService;
@@ -104,6 +108,7 @@ import java.util.List;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
+import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
 @Tag(name = "offenders")
@@ -132,6 +137,7 @@ public class OffenderResource {
     private final DischargeToHospitalService dischargeToHospitalService;
     private final OffenderBeliefService offenderBeliefService;
     private final OffenderIdentifierService offenderIdentifierService;
+    private final PrisonerProfileUpdateService prisonerProfileUpdateService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -908,5 +914,22 @@ public class OffenderResource {
                                                               @RequestParam(value = "includeAliases", required = false) final boolean includeAliases) {
 
         return offenderIdentifierService.getOffenderIdentifiers(prisonerNumber, includeAliases);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "The birth place has been updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update the prisoner's birth place on the current alias. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PutMapping("/{offenderNo}/birth-place")
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ResponseStatus(NO_CONTENT)
+    @ProxyUser
+    public void updateBirthPlaceOfCurrentAlias(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @RequestBody @NotNull @Valid final UpdateBirthPlace updateBirthPlace
+    ) {
+        prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(prisonerNumber, updateBirthPlace.getBirthPlace());
     }
 }
