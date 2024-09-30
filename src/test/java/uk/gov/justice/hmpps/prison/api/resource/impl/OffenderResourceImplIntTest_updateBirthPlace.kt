@@ -5,14 +5,24 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.doThrow
+import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
 
 class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
 
   @Autowired
   lateinit var offenderRepository: OffenderRepository
+
+  @SpyBean
+  lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
 
   @Nested
   inner class Authorisation {
@@ -61,7 +71,23 @@ class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
   }
 
   @Nested
-  inner class UpdateBirthPlace {
+  inner class HappyPath {
+    @Test
+    fun `should update the birth place`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AL/birth-place")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_BIRTH_PLACE_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(offenderRepository.findById(-1012L).get().birthPlace).isEqualTo("PARIS")
+    }
+  }
+
+  @Nested
+  inner class ErrorConditions {
     @Test
     fun shouldReturn404WhenOffenderDoesNotExist() {
       webTestClient.put()
@@ -87,16 +113,20 @@ class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
     }
 
     @Test
-    fun `should update the birth place`() {
+    fun `returns status 423 (locked) when database row lock times out`() {
+      doThrow(DatabaseRowLockedException("developer message"))
+        .whenever(prisonerProfileUpdateService).updateBirthPlaceOfCurrentAlias(anyString(), anyString())
+
       webTestClient.put()
         .uri("api/offenders/A1234AL/birth-place")
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_BIRTH_PLACE_UPDATE)
         .exchange()
-        .expectStatus().isNoContent
-
-      assertThat(offenderRepository.findById(-1012L).get().birthPlace).isEqualTo("PARIS")
+        .expectStatus().isEqualTo(HttpStatus.LOCKED)
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Resource locked, possibly in use in P-Nomis.")
+        .jsonPath("developerMessage").isEqualTo("developer message")
     }
   }
 

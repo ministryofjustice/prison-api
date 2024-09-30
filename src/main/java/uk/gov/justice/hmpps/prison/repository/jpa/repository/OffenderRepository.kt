@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import jakarta.persistence.LockModeType
+import jakarta.persistence.QueryHint
 import org.jetbrains.annotations.NotNull
 import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.stereotype.Repository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import java.time.LocalDate
@@ -27,6 +29,7 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
   fun findRootOffenderByNomsIdForUpdate(@NotNull nomsId: String): Optional<Offender>
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @QueryHints(value = [QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")])
   @Query("select o from Offender o inner join o.bookings b where o.nomsId = :nomsId and b.bookingSequence = 1")
   fun findLinkedToLatestBookingForUpdate(@NotNull nomsId: String): Optional<Offender>
 }

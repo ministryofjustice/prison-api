@@ -8,6 +8,8 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.dao.CannotAcquireLockException
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import java.util.Optional
@@ -49,6 +51,15 @@ class PrisonerProfileUpdateServiceTest {
       prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, birthPlace)
 
       verify(offender).birthPlace = null
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy { prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, BIRTH_PLACE) }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
     }
   }
 
