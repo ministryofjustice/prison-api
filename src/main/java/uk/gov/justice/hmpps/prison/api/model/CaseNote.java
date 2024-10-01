@@ -69,6 +69,10 @@ public class CaseNote {
     @NotNull
     private Long staffId;
 
+    @Schema(requiredMode = REQUIRED, description = "Username that created case note")
+    @NotBlank
+    private String authorUsername;
+
     @Schema(requiredMode = REQUIRED, description = "Name of staff member who created case note (lastname, firstname)", example = "Smith, John")
     @NotBlank
     private String authorName;

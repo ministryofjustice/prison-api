@@ -45,6 +45,7 @@ public class CaseNoteTransformer {
                     .source(in.getSource())
                     .text(in.getText())
                     .staffId(in.getStaffId())
+                    .authorUsername(in.getAuthorUsername())
                     .agencyId(in.getAgencyId())
                     .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthorName())))
                     .build();
@@ -72,6 +73,7 @@ public class CaseNoteTransformer {
                 .source(in.getNoteSourceCode())
                 .text(in.getCaseNoteText())
                 .staffId(in.getAuthor().getStaffId())
+                .authorUsername(in.getCreateUserId())
                 .agencyId(in.getAgencyLocation() != null ? in.getAgencyLocation().getId() : null)
                 .authorName(WordUtils.capitalize(StringUtils.lowerCase(in.getAuthor().getFullName())))
                 .build();
