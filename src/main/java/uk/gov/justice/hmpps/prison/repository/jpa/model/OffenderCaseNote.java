@@ -120,6 +120,11 @@ public class OffenderCaseNote extends AuditableEntity {
         return super.getCreateDatetime();
     }
 
+    @Override
+    public String getCreateUserId() {
+        return super.getCreateUserId();
+    }
+
     public String createAppendedText(final String appendedText, final String username) {
         return format(AMEND_CASE_NOTE_FORMAT,
             caseNoteText,

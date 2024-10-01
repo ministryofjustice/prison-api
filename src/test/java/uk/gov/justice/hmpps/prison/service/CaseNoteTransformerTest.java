@@ -85,11 +85,13 @@ public class CaseNoteTransformerTest {
     public void singleCaseNoteTest() {
         caseNote.setText("Case Note with no ammendments");
         caseNote.setStaffId(-1L);
+        caseNote.setAuthorUsername("SOME_USER");
 
         final var returnedCaseNote = transformer.transform(caseNote);
 
         assertThat(returnedCaseNote.getOriginalNoteText()).isEqualTo("Case Note with no ammendments");
         assertThat(returnedCaseNote.getStaffId()).isEqualTo(-1L);
+        assertThat(returnedCaseNote.getAuthorUsername()).isEqualTo("SOME_USER");
         assertThat(returnedCaseNote.getAmendments()).isEmpty();
     }
 
