@@ -84,13 +84,13 @@ data class Questionnaire(
       expiryDate = expiryDate,
       prisonerRoles = offenderRoles.filter { it.active }
         .map { role ->
-        IncidentTypePrisonerRole(
-          prisonerRole = role.id.offenderRole,
-          singleRole = role.singleRole,
-          active = role.active,
-          expiryDate = role.expiryDate,
-        )
-      },
+          IncidentTypePrisonerRole(
+            prisonerRole = role.id.offenderRole,
+            singleRole = role.singleRole,
+            active = role.active,
+            expiryDate = role.expiryDate,
+          )
+        },
       questions = questions.sortedBy { it.listSequence }
         .filter { it.active }
         .map {
