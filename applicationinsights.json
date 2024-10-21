@@ -25,7 +25,7 @@
             "matchType": "strict"
           }
         ],
-        "percentage": 10
+        "percentage": 5
       },
       {
         "telemetryType": "request",
