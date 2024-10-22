@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.0.7"
   kotlin("plugin.spring") version "2.0.20"
   kotlin("plugin.jpa") version "2.0.20"
   kotlin("plugin.lombok") version "2.0.20"
@@ -30,14 +30,14 @@ dependencies {
   implementation("commons-codec:commons-codec:1.17.1")
   implementation("com.github.jsqlparser:jsqlparser:5.0")
   implementation("org.ehcache:ehcache:3.10.8")
-  implementation("com.zaxxer:HikariCP:5.1.0")
+  implementation("com.zaxxer:HikariCP:6.0.0")
 
   implementation("io.swagger:swagger-annotations:1.6.14")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
 
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("commons-io:commons-io:2.17.0")
-  implementation("com.google.guava:guava:33.3.0-jre")
+  implementation("com.google.guava:guava:33.3.1-jre")
   implementation("org.apache.commons:commons-text:1.12.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.24.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
@@ -63,18 +63,18 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:3.4.1")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.2.1")
-  testImplementation("net.serenity-bdd:serenity-junit:4.2.1")
-  testImplementation("net.serenity-bdd:serenity-spring:4.2.1")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.1")
+  testImplementation("net.serenity-bdd:serenity-core:4.2.6")
+  testImplementation("net.serenity-bdd:serenity-junit:4.2.6")
+  testImplementation("net.serenity-bdd:serenity-spring:4.2.6")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.6")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.9.1")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.22") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.23")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.25")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.40.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.43.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.34")
 }
