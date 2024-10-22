@@ -30,7 +30,7 @@ dependencies {
   implementation("commons-codec:commons-codec:1.17.1")
   implementation("com.github.jsqlparser:jsqlparser:5.0")
   implementation("org.ehcache:ehcache:3.10.8")
-  implementation("com.zaxxer:HikariCP:6.0.0")
+  runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("io.swagger:swagger-annotations:1.6.14")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.6.0")
