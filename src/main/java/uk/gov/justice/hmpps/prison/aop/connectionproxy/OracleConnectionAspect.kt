@@ -45,7 +45,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionConnection(): Connection {
-    log.info("Configuring Oracle Proxy Session")
+    log.debug("Configuring Oracle Proxy Session")
     assertNotSlow()
     openProxySessionForCurrentUsername()
       .also { oracleConnection -> roleConfigurer.setRoleForConnection(oracleConnection) }
@@ -88,7 +88,7 @@ class OracleConnectionAspect(
 
   @Throws(SQLException::class)
   private fun Connection.openXtagsSuppressingConnection(): Connection {
-    log.info("Configuring session to suppress XTag events")
+    log.debug("Configuring session to suppress XTag events")
     assertNotSlow()
     return ResettableContextConnection(this)
       .also { connection ->

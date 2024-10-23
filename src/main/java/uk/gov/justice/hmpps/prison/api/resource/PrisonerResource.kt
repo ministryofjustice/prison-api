@@ -152,7 +152,7 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     @Parameter(description = "The offenderNo to search for", required = true)
     offenderNo: String,
   ): List<PrisonerDetail> {
-    log.info("Global Search with search criteria offender No: {}", offenderNo)
+    log.debug("Global Search with search criteria offender No: {}", offenderNo)
     return globalSearchService.findOffender(
       offenderNo,
       PageRequest(null, null, 0L, 1000L),

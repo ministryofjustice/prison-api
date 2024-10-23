@@ -7,7 +7,7 @@
   },
   "instrumentation": {
     "logging": {
-      "level": "DEBUG"
+      "level": "INFO"
     }
   },
   "selfDiagnostics": {
@@ -25,18 +25,29 @@
             "matchType": "strict"
           }
         ],
-        "percentage": 100
+        "percentage": 10
       },
       {
         "telemetryType": "request",
         "attributes": [
           {
-            "key": "http.url",
-            "value": "https?://[^/]+/health.*",
+            "key": "url.path",
+            "value": "/health.*",
             "matchType": "regexp"
           }
         ],
-        "percentage": 100
+        "percentage": 10
+      },
+      {
+        "telemetryType": "request",
+        "attributes": [
+          {
+            "key": "url.path",
+            "value": "/info",
+            "matchType": "strict"
+          }
+        ],
+        "percentage": 10
       }
     ]
   }

@@ -61,7 +61,7 @@ public class OffenceResource {
         @PathVariable("offenceCode")
         final String offenceCode,
         @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
-        log.info("Request received to fetch offences that start with offenceCode {}", offenceCode);
+        log.debug("Request received to fetch offences that start with offenceCode {}", offenceCode);
         return service.getOffencesThatStartWith(offenceCode, pageable);
     }
 
@@ -72,7 +72,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> createHomeOfficeCodes(@RequestBody final List<HOCodeDto> hoCodes) {
-        log.info("Request received to create Home Office Notifiable Offence Codes");
+        log.debug("Request received to create Home Office Notifiable Offence Codes");
         service.createHomeOfficeCodes(hoCodes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -84,7 +84,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> createStatute(@RequestBody final List<StatuteDto> statutes) {
-        log.info("Request received to create a statutes");
+        log.debug("Request received to create a statutes");
         service.createStatutes(statutes);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -98,7 +98,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> createOffences(@RequestBody final List<OffenceDto> offences) {
-        log.info("Request received to create offences ");
+        log.debug("Request received to create offences");
         service.createOffences(offences);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
@@ -111,7 +111,7 @@ public class OffenceResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PreAuthorize("hasRole('OFFENCE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> updateOffences(@RequestBody final  List<OffenceDto> offences) {
-        log.info("Request received to update offences");
+        log.debug("Request received to update offences");
         service.updateOffences(offences);
         return ResponseEntity.status(HttpStatus.NO_CONTENT).build();
     }
@@ -125,7 +125,7 @@ public class OffenceResource {
     @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
     @ResponseStatus(HttpStatus.CREATED)
     public void linkOffencesToSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
-        log.info("Request received to link offences to schedules");
+        log.debug("Request received to link offences to schedules");
         service.linkOffencesToSchedules(offencesToSchedules);
     }
 
@@ -137,7 +137,7 @@ public class OffenceResource {
     })
     @PreAuthorize("hasRole('UPDATE_OFFENCE_SCHEDULES')")
     public void unlinkOffencesFromSchedules(@RequestBody final List<OffenceToScheduleMappingDto> offencesToSchedules) {
-        log.info("Request received to unlink offences from schedules");
+        log.debug("Request received to unlink offences from schedules");
         service.unlinkOffencesFromSchedules(offencesToSchedules);
     }
 
@@ -149,7 +149,7 @@ public class OffenceResource {
     })
     @PreAuthorize("hasRole('NOMIS_OFFENCE_ACTIVATOR')")
     public void updateOffenceActiveFlag(@RequestBody final OffenceActivationDto offenceActivationDto) {
-        log.info("Request received to change the active flag for offence code {}", offenceActivationDto.getOffenceCode());
+        log.debug("Request received to change the active flag for offence code {}", offenceActivationDto.getOffenceCode());
         service.updateOffenceActiveFlag(offenceActivationDto);
     }
 }
