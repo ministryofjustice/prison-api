@@ -49,7 +49,7 @@ public class EducationResource {
         @RequestParam(value = "page", defaultValue = "0", required = false) @Parameter(description = "The page number of the paged results") final Integer page,
         @RequestParam(value = "size", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of results returned.") final Integer size
     ) {
-        log.info("get prisoner educations for offenderNo: {}", offenderNo);
+        log.debug("get prisoner educations for offenderNo: {}", offenderNo);
         return offenderEducationService.getOffenderEducations(offenderNo, PageRequest.of(page, size));
     }
 
