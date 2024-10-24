@@ -10,6 +10,3 @@
 # Suppression for h2 2.1.214 password on command line vulnerability
 #   can be suppressed as we only run h2 locally and not on build environments
 CVE-2022-45868
-# Suppression for Spring Framework path directory traversal as it only affects
-#   applications that use WebMvc.fn or WebFlux.fn
-CVE-2024-38819
