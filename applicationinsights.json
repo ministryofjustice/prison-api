@@ -50,5 +50,18 @@
         "percentage": 5
       }
     ]
+  },
+  "preview": {
+    "processors": [
+      {
+        "type": "metric-filter",
+        "exclude": {
+          "matchType": "regexp",
+          "metricNames": [
+            "(cache|executor|disk|http|logback|spring_).*"
+          ]
+        }
+      }
+    ]
   }
 }
