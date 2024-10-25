@@ -32,6 +32,17 @@
         "attributes": [
           {
             "key": "url.path",
+            "value": "/api/users/me.*",
+            "matchType": "regexp"
+          }
+        ],
+        "percentage": 1
+      },
+      {
+        "telemetryType": "request",
+        "attributes": [
+          {
+            "key": "url.path",
             "value": "/health.*",
             "matchType": "regexp"
           }
