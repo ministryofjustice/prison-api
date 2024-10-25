@@ -17,6 +17,17 @@
     "percentage": 100,
     "overrides": [
       {
+        "telemetryType": "request",
+        "attributes": [
+          {
+            "key": "url.path",
+            "value": "/api/users/me.*",
+            "matchType": "regexp"
+          }
+        ],
+        "percentage": 10
+      },
+      {
         "telemetryType": "dependency",
         "attributes": [
           {
