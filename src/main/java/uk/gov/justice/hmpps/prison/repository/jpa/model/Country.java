@@ -10,7 +10,7 @@ import jakarta.persistence.Entity;
 @NoArgsConstructor
 public class Country extends ReferenceCode {
 
-    static final String COUNTRY = "COUNTRY";
+    public static final String COUNTRY = "COUNTRY";
 
     public Country(final String code, final String description) {
         super(COUNTRY, code, description);

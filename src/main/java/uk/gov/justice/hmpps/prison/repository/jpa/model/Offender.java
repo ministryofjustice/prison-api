@@ -42,6 +42,7 @@ import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.toList;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
@@ -95,6 +96,14 @@ public class Offender extends AuditableEntity {
 
     @Column(name = "BIRTH_PLACE", nullable = false)
     private String birthPlace;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + COUNTRY + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "BIRTH_COUNTRY_CODE", referencedColumnName = "code"))
+    })
+    @Exclude
+    private Country birthCountry;
 
     @Column(name = "ROOT_OFFENDER_ID")
     private Long rootOffenderId;
