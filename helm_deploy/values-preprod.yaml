@@ -16,7 +16,8 @@ generic-service:
 
   allowlist:
     groups:
-      - internal
+      - digital_staff_and_mojo
+      - moj_cloud_platform
       - prum-test
       - mod-platform-non-live # oasys-api-client
       - delius-preprod

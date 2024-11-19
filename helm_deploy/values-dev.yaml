@@ -16,7 +16,8 @@ generic-service:
 
   allowlist:
     groups:
-      - internal
+      - moj_cloud_platform
+      - digital_staff_and_mojo
       - circleci
 
     # found in app insights logs for unilink client
