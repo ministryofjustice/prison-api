@@ -14,6 +14,8 @@ configurations {
   }
 }
 
+ext["hibernate.version"] = "6.5.3.Final"
+
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.36")
