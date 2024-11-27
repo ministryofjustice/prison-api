@@ -279,6 +279,54 @@ class AgencyResourceIntTest : ResourceTest() {
       }
 
       @Test
+      fun `can get a list of establishments for a certain area`() {
+        webTestClient.get().uri("/api/agencies/type/INST?areaCode=WMID&withAreas=true")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='MDI')]").doesNotExist()
+          .jsonPath("$[?(@.agencyId=='WAI')]").exists()
+          .jsonPath("$[?(@.agencyId=='BMI')]").exists()
+          .jsonPath("$[?(@.agencyId=='BMI')].area.code").isEqualTo("WMID")
+          .jsonPath("$[?(@.agencyId=='BMI')].area.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='BMI')].region.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='BMI')].geographicalRegion.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].area.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].region.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].geographicalRegion.desc").isEqualTo("West Midlands")
+      }
+
+      @Test
+      fun `can get a list of establishments for a certain region`() {
+        webTestClient.get().uri("/api/agencies/type/INST?regionCode=LON&withAreas=true")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='BXI')]").exists()
+          .jsonPath("$[?(@.agencyId=='BXI')].area.desc").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BXI')].region.code").isEqualTo("LON")
+          .jsonPath("$[?(@.agencyId=='BXI')].region.desc").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BXI')].geographicalRegion.desc").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BWI')]").doesNotExist()
+          .jsonPath("$[?(@.agencyId=='MDI')]").doesNotExist()
+      }
+
+      @Test
+      fun `can get a list of establishments for a certain establishment type`() {
+        webTestClient.get().uri("/api/agencies/type/INST?establishmentType=CNOMIS")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$[?(@.agencyId=='MDI')]").exists()
+          .jsonPath("$[?(@.agencyId=='LEI')]").doesNotExist()
+          .jsonPath("$[?(@.agencyId=='WAI')]").doesNotExist()
+          .jsonPath("$[?(@.agencyId=='BWI')]").doesNotExist()
+      }
+
+      @Test
       fun `can request no formatting of description`() {
         webTestClient.get().uri("/api/agencies/type/CRT?courtType=YC&skipFormatLocation=true")
           .headers(setClientAuthorisation(listOf()))

@@ -18,6 +18,7 @@ import org.hibernate.annotations.JoinColumnOrFormula
 import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
 import org.hibernate.type.YesNoConverter
+import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription
 
 @Entity
 @Table(name = "AREAS")
@@ -37,6 +38,8 @@ abstract class AgencyArea(
   open val active: Boolean = true,
 ) {
 
+  fun toDto() = CodeDescription(code, description)
+
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
@@ -45,6 +48,9 @@ abstract class AgencyArea(
   }
 
   override fun hashCode(): Int = javaClass.hashCode()
+  override fun toString(): String {
+    return "${javaClass.simpleName} (code='$code', description='$description')"
+  }
 }
 
 @Entity

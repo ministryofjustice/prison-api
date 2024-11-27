@@ -22,7 +22,7 @@ public class AgencyTransformerTest {
     void transform_active_and_description_capitalisation() {
         var agency = builder.active(true).build();
 
-        assertThat(transform(agency, false)).isEqualTo(
+        assertThat(transform(agency, false, false)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
                         .agencyType("INST")
@@ -35,7 +35,7 @@ public class AgencyTransformerTest {
     void transform_inactive() {
         var agency = builder.active(false).build();
 
-        assertThat(transform(agency, false)).isEqualTo(
+        assertThat(transform(agency, false, false)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
                         .agencyType("INST")
@@ -48,7 +48,7 @@ public class AgencyTransformerTest {
     void transform_active_unspecified() {
         var agency = builder.build();
 
-        assertThat(transform(agency, false)).isEqualTo(
+        assertThat(transform(agency, false, false)).isEqualTo(
                 Agency.builder()
                         .agencyId("MDI")
                         .agencyType("INST")

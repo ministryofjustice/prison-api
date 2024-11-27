@@ -260,7 +260,7 @@ public class InmateService {
                                 inmate.setLatestLocationId(lastMovement.getFromAgency().getId());
                                 inmate.setLastMovementComment(lastMovement.getCommentText());
                                 if (lastMovement.getToAgency() != null) {
-                                    inmate.setLastMovementToAgency(AgencyTransformer.transform(lastMovement.getToAgency(), true));
+                                    inmate.setLastMovementToAgency(AgencyTransformer.transform(lastMovement.getToAgency(), true, false));
                                 }
                                 if (REL.getCode().equals(inmate.getLastMovementTypeCode())) {
                                     inmate.setLocationDescription(calculateReleaseLocationDescription(lastMovement));
@@ -601,7 +601,7 @@ public class InmateService {
         }
         if (StringUtils.isNotBlank(detail.getPlacementAgencyId())) {
             try {
-                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST", false, false);
+                agencyService.getAgency(detail.getPlacementAgencyId(), ACTIVE_ONLY, "INST", false, false, false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Placement agency id not recognised.");
             }
@@ -639,7 +639,7 @@ public class InmateService {
         }
         if (StringUtils.isNotBlank(detail.getApprovedPlacementAgencyId())) {
             try {
-                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST", false, false);
+                agencyService.getAgency(detail.getApprovedPlacementAgencyId(), ACTIVE_ONLY, "INST", false, false, false);
             } catch (final EntityNotFoundException ex) {
                 throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Review placement agency id not recognised.");
             }

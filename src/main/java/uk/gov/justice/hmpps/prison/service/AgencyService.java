@@ -26,7 +26,6 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
-import uk.gov.justice.hmpps.prison.api.resource.Prison;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -98,7 +97,7 @@ public class AgencyService {
     private final ReferenceCodeRepository<County> countyReferenceCodeRepository;
     private final ReferenceCodeRepository<Country> countryReferenceCodeRepository;
 
-    public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation) {
+    public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation, boolean withAreas) {
         final var criteria = AgencyLocationFilter.builder()
             .id(agencyId)
             .type(agencyType)
@@ -108,14 +107,14 @@ public class AgencyService {
         return agencyLocationRepository.findAll(criteria)
             .stream()
             .findFirst()
-            .map(agency -> translate(withAddresses, agency, skipFormatLocation)).orElseThrow(EntityNotFoundException.withId(agencyId));
+            .map(agency -> translate(withAddresses, agency, skipFormatLocation, withAreas)).orElseThrow(EntityNotFoundException.withId(agencyId));
     }
 
-    private Agency translate(final boolean withAddresses, final AgencyLocation agency, final boolean skipFormatLocation) {
+    private Agency translate(final boolean withAddresses, final AgencyLocation agency, final boolean skipFormatLocation, boolean withAreas) {
         if (withAddresses) {
             return AgencyTransformer.transformWithAddresses(agency, skipFormatLocation);
         }
-        return AgencyTransformer.transform(agency, skipFormatLocation);
+        return AgencyTransformer.transform(agency, skipFormatLocation, withAreas);
     }
 
 
@@ -130,7 +129,7 @@ public class AgencyService {
         }
 
         final var courtType = agencyToUpdate.getCourtType() != null ? courtTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(CourtType.JURISDICTION, agencyToUpdate.getCourtType())).orElseThrow(BadRequestException.withMessage(format("Court Type [%s] not found", agencyToUpdate.getCourtType()))) : null;
-        return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType, courtType), true);
+        return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType, courtType), true, false);
     }
 
     @Transactional
@@ -148,20 +147,32 @@ public class AgencyService {
         final var courtType = agencyToCreate.getCourtType() != null ? courtTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(CourtType.JURISDICTION, agencyToCreate.getCourtType())).orElseThrow(BadRequestException.withMessage(format("Court Type [%s] not found", agencyToCreate.getCourtType()))) : null;
 
         final var agencyLocation = agencyLocationRepository.save(AgencyTransformer.build(agencyToCreate, agencyLocationType, courtType));
-        return AgencyTransformer.transform(agencyLocation, true);
+        return AgencyTransformer.transform(agencyLocation, true, false);
     }
 
-    public List<Agency> getAgenciesByType(final String agencyType, final boolean activeOnly, List<String> courtTypes, final boolean withAddresses, final boolean skipFormatLocation) {
+    public List<Agency> getAgenciesByType(final String agencyType,
+                                          final boolean activeOnly,
+                                          final List<String> courtTypes,
+                                          final String areaCode,
+                                          final String regionCode,
+                                          final String establishmentType,
+                                          final boolean skipFormatLocation,
+                                          final boolean withAddresses,
+                                          boolean withAreas) {
 
         final var filter = AgencyLocationFilter.builder()
             .active(activeOnly ? true : null)
             .type(agencyType)
             .courtTypes(courtTypes)
+            .area(areaCode)
+            .region(regionCode)
+            .establishmentType(establishmentType)
             .build();
 
-        return agencyLocationRepository.findAll(filter)
+        List<AgencyLocation> all = agencyLocationRepository.findAll(filter);
+        return all
             .stream()
-            .map(agency -> translate(withAddresses, agency, skipFormatLocation))
+            .map(agency -> translate(withAddresses, agency, skipFormatLocation, withAreas))
             .sorted(Comparator.comparing(Agency::getDescription, Comparator.naturalOrder()))
             .collect(toList());
     }

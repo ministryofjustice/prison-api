@@ -118,7 +118,7 @@ public class CourtHearingReschedulingServiceTest {
                 CourtHearing.builder()
                         .id(scheduledFutureHearing.getId())
                         .dateTime(revisedDate)
-                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false, false))
                         .build());
     }
 
@@ -138,7 +138,7 @@ public class CourtHearingReschedulingServiceTest {
                 CourtHearing.builder()
                         .id(scheduledFutureHearing.getId())
                         .dateTime(revisedTime)
-                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false, false))
                         .build());
     }
 
@@ -158,7 +158,7 @@ public class CourtHearingReschedulingServiceTest {
                 CourtHearing.builder()
                         .id(scheduledFutureHearing.getId())
                         .dateTime(revisedDateTime)
-                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false, false))
                         .build());
     }
 
@@ -179,7 +179,7 @@ public class CourtHearingReschedulingServiceTest {
                 CourtHearing.builder()
                         .id(scheduledFutureHearing.getId())
                         .dateTime(sameDateTime)
-                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false))
+                        .location(AgencyTransformer.transform(scheduledFutureHearing.getCourtLocation(), false, false))
                         .build());
     }
 

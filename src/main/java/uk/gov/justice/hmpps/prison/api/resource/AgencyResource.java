@@ -116,13 +116,28 @@ public class AgencyResource {
         @Parameter(description = "Only return courts that match the supplied court types(s)", example = "MC")
         List<String> courtTypes,
 
+        @RequestParam(value = "areaCode", required = false)
+        @Parameter(description = "Only agencies that match the area code", example = "LONDON")
+        String areaCode,
+
+        @RequestParam(value = "regionCode", required = false)
+        @Parameter(description = "Only agencies that match the region code", example = "LON")
+        String regionCode,
+
+        @RequestParam(value = "establishmentType", required = false)
+        @Parameter(description = "Only agencies that match the establishment type", example = "CNOMIS")
+        String establishmentType,
+
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false)
         @Parameter(description = "Returns Address Information") final boolean withAddresses,
 
         @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false)
-        @Parameter(description = "Don't format the location") final boolean skipFormatLocation
+        @Parameter(description = "Don't format the location") final boolean skipFormatLocation,
+
+        @RequestParam(value = "withAreas", defaultValue = "false", required = false)
+        @Parameter(description = "Returns area and region information") final boolean withAreas
     ) {
-        return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, withAddresses, skipFormatLocation);
+        return agencyService.getAgenciesByType(agencyType, activeOnly, courtTypes != null ? courtTypes : jurisdictionCodes, areaCode, regionCode, establishmentType, skipFormatLocation, withAddresses, withAreas);
     }
 
     @ApiResponses({
@@ -138,8 +153,9 @@ public class AgencyResource {
         @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
         @RequestParam(value = "agencyType", required = false) @Parameter(description = "Agency Type") final String agencyType,
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @Parameter(description = "Returns Address Information") final boolean withAddresses,
-        @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @Parameter(description = "Don't format the location") final boolean skipFormatLocation) {
-        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses, skipFormatLocation);
+        @RequestParam(value = "skipFormatLocation", defaultValue = "false", required = false) @Parameter(description = "Don't format the location") final boolean skipFormatLocation,
+        @RequestParam(value = "withAreas", defaultValue = "false", required = false) @Parameter(description = "Returns area and region information") final boolean withAreas) {
+        return agencyService.getAgency(agencyId, activeOnly ? ACTIVE_ONLY : ALL, agencyType, withAddresses, skipFormatLocation, withAreas);
     }
 
     @ApiResponses({
@@ -345,7 +361,7 @@ public class AgencyResource {
     @GetMapping("/prisons")
     @SlowReportQuery
     public List<Prison> getPrisons() {
-        return agencyService.getAgenciesByType("INST", true, null, false, false)
+        return agencyService.getAgenciesByType("INST", true, null, null, null, null, false, false, false)
             .stream()
             .map((a -> new Prison(a.getAgencyId(), a.getDescription(), a.getLongDescription(), a.getAgencyType(), a.isActive())))
             .sorted(Comparator.comparing(Prison::getDescription, Comparator.naturalOrder()))
