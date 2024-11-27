@@ -24,7 +24,7 @@ data class AgencyPrisonerPayProfile(
   val payFrequency: Int?,
 
   @Schema(description = "The number of absences that are acceptable within one week", example = "5")
-  val weeklyAbsenceLimit: Int?,
+  val weeklyAbsenceLimit: Int? = null,
 
   @Schema(description = "The minimum value for a half-day rate", example = "1.25")
   val minHalfDayRate: BigDecimal?,

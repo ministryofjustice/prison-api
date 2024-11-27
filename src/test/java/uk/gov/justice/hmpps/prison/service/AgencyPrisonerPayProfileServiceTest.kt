@@ -30,7 +30,7 @@ class AgencyPrisonerPayProfileServiceTest {
       repository.findAgencyPrisonerPayProfileByAgyLocId("MDI"),
     ).thenReturn(
       // Active
-      listOf(getFakeEntity("MDI", today.minusDays(1), today.plusDays(1))),
+      listOf(getFakeEntity("MDI", today.minusDays(1), today.plusDays(1), 12)),
     )
 
     val payProfile = service.getAgencyPrisonerPayProfile("MDI")
@@ -59,11 +59,11 @@ class AgencyPrisonerPayProfileServiceTest {
     ).thenReturn(
       listOf(
         // Expired
-        getFakeEntity("MDI", today.minusDays(10), today.minusDays(8)),
+        getFakeEntity("MDI", today.minusDays(10), today.minusDays(8), 12),
         // Active today
-        getFakeEntity("MDI", today.minusDays(8), today),
+        getFakeEntity("MDI", today.minusDays(8), today, null),
         // Active today
-        getFakeEntity("MDI", today.plusDays(1), null),
+        getFakeEntity("MDI", today.plusDays(1), null, 13),
       ),
     )
 
@@ -73,6 +73,7 @@ class AgencyPrisonerPayProfileServiceTest {
       assertThat(agencyId).isEqualTo("MDI")
       assertThat(startDate).isEqualTo(today.minusDays(8))
       assertThat(endDate).isEqualTo(today)
+      assertThat(weeklyAbsenceLimit).isNull()
     }
   }
 
@@ -94,7 +95,7 @@ class AgencyPrisonerPayProfileServiceTest {
       .hasMessage("Error")
   }
 
-  private fun getFakeEntity(agencyId: String, startDate: LocalDate, endDate: LocalDate?) =
+  private fun getFakeEntity(agencyId: String, startDate: LocalDate, endDate: LocalDate?, weeklyAbsenceLimit: Int?) =
     AgyPrisonerPayProfile(
       agyLocId = agencyId,
       startDate = startDate,
@@ -107,6 +108,6 @@ class AgencyPrisonerPayProfileServiceTest {
       payFrequency = 1,
       backdateDays = 7,
       defaultPayBandCode = "1",
-      weeklyAbsenceLimit = 12,
+      weeklyAbsenceLimit = weeklyAbsenceLimit,
     )
 }

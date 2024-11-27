@@ -18,7 +18,7 @@ data class AgyPrisonerPayProfile(
   val autoPayFlag: String,
   val endDate: LocalDate?,
   val payFrequency: Int,
-  val weeklyAbsenceLimit: Int,
+  val weeklyAbsenceLimit: Int?,
   val minHalfDayRate: BigDecimal,
   val maxHalfDayRate: BigDecimal,
   val maxPieceWorkRate: BigDecimal,
