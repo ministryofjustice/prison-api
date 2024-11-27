@@ -41,6 +41,36 @@ class AgencyPrisonerPayProfileIntTest : ResourceTest() {
   }
 
   @Test
+  fun agencyPayProfile_returnsSuccessAndDataWhenNullableColumnsAreNull() {
+    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_VIEW_PRISON_DATA"), emptyMap())
+    val responseEntity = testRestTemplate.exchange(
+      "/api/agencies/SYI/pay-profile",
+      HttpMethod.GET,
+      requestEntity,
+      object : ParameterizedTypeReference<AgencyPrisonerPayProfile?>() {},
+    )
+    assertThatStatus(responseEntity, 200)
+    assertThat(responseEntity.body).isInstanceOf(AgencyPrisonerPayProfile::class.java)
+    val payProfile = responseEntity.body
+    assertThat(payProfile).isNotNull
+
+    with(payProfile!!) {
+      assertThat(agencyId).isEqualTo("SYI")
+      assertThat(startDate).isEqualTo(LocalDate.of(2020, 10, 1))
+      assertThat(endDate).isNull()
+      assertThat(autoPayFlag).isTrue
+      assertThat(minHalfDayRate).isNull()
+      assertThat(maxHalfDayRate).isNull()
+      assertThat(maxBonusRate).isNull()
+      assertThat(maxPieceWorkRate).isNull()
+      assertThat(payFrequency).isEqualTo(1)
+      assertThat(backdateDays).isEqualTo(7)
+      assertThat(defaultPayBandCode).isNull()
+      assertThat(weeklyAbsenceLimit).isNull()
+    }
+  }
+
+  @Test
   fun agencyPrisonerPayProfile_returnsAccessDenied() {
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_UNRECOGNISED"), emptyMap())
     val responseEntity = testRestTemplate.exchange(
