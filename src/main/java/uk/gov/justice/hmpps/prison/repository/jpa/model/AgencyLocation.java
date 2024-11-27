@@ -37,6 +37,7 @@ import java.util.Set;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.GeographicRegion.GEOGRAPHIC;
 
 @Data
 @Entity
@@ -68,6 +69,11 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
     name = "agency-location-with-court-types",
     attributeNodes = {
         @NamedAttributeNode(value = "courtType"),
+        @NamedAttributeNode(value = "region"),
+        @NamedAttributeNode(value = "area"),
+        @NamedAttributeNode(value = "geographicRegion"),
+
+
     }
 )
 public class AgencyLocation extends AuditableEntity {
@@ -129,6 +135,21 @@ public class AgencyLocation extends AuditableEntity {
     @Where(clause = "OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
     @Default
     private List<AgencyInternetAddress> internetAddresses = new ArrayList<>();
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "AREA_CODE")
+    private Area area;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "NOMS_REGION_CODE")
+    private Region region;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + GEOGRAPHIC + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "GEOGRAPHIC_REGION_CODE", referencedColumnName = "code"))
+    })
+    private GeographicRegion geographicRegion;
 
     public void removeAddress(final AgencyAddress address) {
         addresses.remove(address);

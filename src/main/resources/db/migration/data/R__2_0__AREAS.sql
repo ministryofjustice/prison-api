@@ -1,0 +1,85 @@
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('REGION', 'YP', 'Young People', NULL, 99, 'Y', NULL),
+       ('REGION', 'HS', 'High Security', NULL, 99, 'Y', NULL),
+       ('REGION', 'CT', 'Contracted', NULL, 99, 'Y', NULL),
+       ('REGION', 'WM', 'Women', NULL, 99, 'Y', NULL),
+       ('REGION', 'MID', 'The Midlands', NULL, 99, 'Y', NULL),
+       ('REGION', 'KSE', 'Kent, Sussex and Essex', NULL, 99, 'Y', NULL),
+       ('REGION', 'EMIDS', 'East Midlands', NULL, 99, 'Y', NULL),
+       ('REGION', 'EAST', 'East of England', NULL, 99, 'Y', NULL),
+       ('REGION', 'LON', 'London', NULL, 99, 'Y', NULL),
+       ('REGION', 'NE', 'North East', NULL, 99, 'Y', NULL);
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('REGION', 'NW', 'North West', NULL, 99, 'Y', NULL),
+       ('REGION', 'SE', 'South East', NULL, 99, 'Y', NULL),
+       ('REGION', 'SW', 'South West', NULL, 99, 'Y', NULL),
+       ('REGION', 'WALES', 'Wales', NULL, 99, 'Y', NULL),
+       ('REGION', 'YOHUM', 'Yorkshire & Humberside', NULL, 99, 'Y', NULL),
+       ('REGION', 'WMIDS', 'West Midlands', NULL, 99, 'Y', NULL),
+       ('AREA', 'E', 'Eastern', 'EAST', 99, 'Y', 'INST'),
+       ('AREA', 'NEAST', 'North East', 'NE', 99, 'Y', 'INST'),
+       ('AREA', 'SWEST', 'South West', 'SW', 99, 'Y', 'INST'),
+       ('AREA', 'NWEST', 'North West', 'NW', 99, 'Y', 'INST');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', 'EMID', 'East Midlands', 'EMIDS', 99, 'Y', 'INST'),
+       ('AREA', 'KENT', 'Kent', 'SE', 99, 'Y', 'INST'),
+       ('AREA', 'LONDON', 'London', 'LON', 99, 'Y', 'INST'),
+       ('AREA', 'SURREY', 'Surrey', 'SE', 99, 'Y', 'INST'),
+       ('AREA', 'THAM', 'Thames Valley, Hampshire, IOW', 'SE', 99, 'Y', 'INST'),
+       ('AREA', 'WAL', 'Wales', 'WALES', 99, 'Y', 'INST'),
+       ('AREA', 'WMID', 'West Midlands', 'WMIDS', 99, 'Y', 'INST'),
+       ('AREA', 'YORK', 'Yorkshire & Humberside', 'YOHUM', 99, 'Y', 'INST'),
+       ('AREA', '11', 'Avon & Somerset', 'SW', 11, 'Y', 'COMM'),
+       ('AREA', '12', 'Bedfordshire', 'EAST', 12, 'Y', 'COMM');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', '15', 'Cambridgeshire', 'EAST', 15, 'Y', 'COMM'),
+       ('AREA', '16', 'Cheshire', 'NW', 16, 'Y', 'COMM'),
+       ('AREA', '17', 'Teesside', 'NE', 17, 'Y', 'COMM'),
+       ('AREA', '19', 'Cumbria', 'NW', 19, 'Y', 'COMM'),
+       ('AREA', '20', 'Derbyshire', 'EMIDS', 20, 'Y', 'COMM'),
+       ('AREA', '21', 'Devon & Cornwall', 'SW', 21, 'Y', 'COMM'),
+       ('AREA', '22', 'Dorset', 'SW', 22, 'Y', 'COMM'),
+       ('AREA', '23', 'Durham', 'NE', 23, 'Y', 'COMM'),
+       ('AREA', '24', 'Essex', 'EAST', 24, 'Y', 'COMM'),
+       ('AREA', '25', 'Gloucestershire', 'SW', 25, 'Y', 'COMM');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', '26', 'Hampshire', 'SE', 26, 'Y', 'COMM'),
+       ('AREA', '27', 'West Mercia', 'WMIDS', 27, 'Y', 'COMM'),
+       ('AREA', '29', 'Humberside', 'YOHUM', 29, 'Y', 'COMM'),
+       ('AREA', '32', 'Leicestershire', 'EMIDS', 32, 'Y', 'COMM'),
+       ('AREA', '35', 'Merseyside', 'NW', 35, 'Y', 'COMM'),
+       ('AREA', '38', 'Northumberland', 'NE', 38, 'Y', 'COMM'),
+       ('AREA', '40', 'Thames Valley', 'SE', 40, 'Y', 'COMM'),
+       ('AREA', '45', 'Surrey', 'SE', 45, 'Y', 'COMM'),
+       ('AREA', '49', 'West Midlands', 'WMIDS', 49, 'Y', 'COMM'),
+       ('AREA', '52', 'South Yorkshire', 'YOHUM', 52, 'Y', 'COMM');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', '55', 'Gwent', 'WALES', 55, 'Y', 'COMM'),
+       ('AREA', '62', 'London', 'LON', 62, 'Y', 'COMM'),
+       ('AREA', 'CI', 'Channel Isles', NULL, 99, 'Y', 'COMM'),
+       ('AREA', 'KENTSUSSEX', 'Kent and Sussex', 'SE', 99, 'Y', 'INST'),
+       ('AREA', 'SCENTRAL', 'South Central', 'SE', 99, 'Y', 'INST'),
+       ('AREA', '28', 'Hertfordshire', 'EAST', 28, 'Y', 'COMM'),
+       ('AREA', '30', 'Kent', 'SE', 30, 'Y', 'COMM'),
+       ('AREA', '31', 'Lancashire', 'NW', 31, 'Y', 'COMM'),
+       ('AREA', '33', 'Lincolnshire', 'EMIDS', 33, 'Y', 'COMM'),
+       ('AREA', '34', 'Greater Manchester', 'NW', 34, 'Y', 'COMM');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', '36', 'Norfolk', 'EAST', 36, 'Y', 'COMM'),
+       ('AREA', '37', 'Northamptonshire', 'EMIDS', 37, 'Y', 'COMM'),
+       ('AREA', '39', 'Nottinghamshire', 'EMIDS', 39, 'Y', 'COMM'),
+       ('AREA', '43', 'Staffordshire', 'WMIDS', 43, 'Y', 'COMM'),
+       ('AREA', '44', 'Suffolk', 'EAST', 44, 'Y', 'COMM'),
+       ('AREA', '46', 'East & West Sussex', 'SE', 46, 'Y', 'COMM'),
+       ('AREA', '48', 'Warwickshire', 'WMIDS', 48, 'Y', 'COMM'),
+       ('AREA', '50', 'Wiltshire', 'SW', 50, 'Y', 'COMM'),
+       ('AREA', '51', 'North Yorkshire', 'YOHUM', 51, 'Y', 'COMM'),
+       ('AREA', '53', 'West Yorkshire', 'YOHUM', 53, 'Y', 'COMM');
+INSERT INTO AREAS (AREA_CLASS, AREA_CODE, DESCRIPTION, PARENT_AREA_CODE, LIST_SEQ, ACTIVE_FLAG, AREA_TYPE)
+VALUES ('AREA', '54', 'Dyfed - Powys', 'WALES', 54, 'Y', 'COMM'),
+       ('AREA', '56', 'North Wales', 'WALES', 56, 'Y', 'COMM'),
+       ('AREA', '57', 'South Wales', 'WALES', 57, 'Y', 'COMM'),
+       ('AREA', '99', 'Northern Ireland', NULL, 99, 'Y', 'COMM'),
+       ('AREA', 'EIRE', 'Republic of Ireland', NULL, 99, 'Y', 'COMM'),
+       ('AREA', 'IOM', 'Isle of Man', NULL, 99, 'Y', 'COMM'),
+       ('AREA', 'SCOT', 'Scotland', NULL, 99, 'Y', 'COMM');

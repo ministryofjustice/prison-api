@@ -9,7 +9,7 @@ import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
-import uk.gov.justice.hmpps.prison.api.model.UserRole.UserRoleBuilder;
+
 
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
@@ -46,7 +46,7 @@ public class UserCaseloadRole implements Serializable {
         return builderForUserRole().build();
     }
 
-    private UserRoleBuilder builderForUserRole() {
+    private UserRole.UserRoleBuilder builderForUserRole() {
         return UserRole.builder()
             .roleId(getId().getRoleId())
             .roleCode(getId().getCaseload() + "_" + getRole().getCode())
