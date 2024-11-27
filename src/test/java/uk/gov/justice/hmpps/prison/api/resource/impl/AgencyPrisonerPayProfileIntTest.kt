@@ -41,7 +41,7 @@ class AgencyPrisonerPayProfileIntTest : ResourceTest() {
   }
 
   @Test
-  fun agencyPayProfile_returnsSuccessAndDataWhenWeeklyAbsenceLimitIsNull() {
+  fun agencyPayProfile_returnsSuccessAndDataWhenNullableColumnsAreNull() {
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf("ROLE_VIEW_PRISON_DATA"), emptyMap())
     val responseEntity = testRestTemplate.exchange(
       "/api/agencies/SYI/pay-profile",
@@ -59,13 +59,13 @@ class AgencyPrisonerPayProfileIntTest : ResourceTest() {
       assertThat(startDate).isEqualTo(LocalDate.of(2020, 10, 1))
       assertThat(endDate).isNull()
       assertThat(autoPayFlag).isTrue
-      assertThat(minHalfDayRate).isEqualTo(BigDecimal("1.25"))
-      assertThat(maxHalfDayRate).isEqualTo(BigDecimal("5.25"))
-      assertThat(maxBonusRate).isEqualTo(BigDecimal("4.00"))
-      assertThat(maxPieceWorkRate).isEqualTo(BigDecimal("8.00"))
+      assertThat(minHalfDayRate).isNull()
+      assertThat(maxHalfDayRate).isNull()
+      assertThat(maxBonusRate).isNull()
+      assertThat(maxPieceWorkRate).isNull()
       assertThat(payFrequency).isEqualTo(1)
       assertThat(backdateDays).isEqualTo(7)
-      assertThat(defaultPayBandCode).isEqualTo("1")
+      assertThat(defaultPayBandCode).isNull()
       assertThat(weeklyAbsenceLimit).isNull()
     }
   }

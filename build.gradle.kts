@@ -85,6 +85,11 @@ java {
   toolchain.languageVersion.set(JavaLanguageVersion.of(21))
 }
 
+kotlin {
+  jvmToolchain(21)
+  kotlinDaemonJvmArgs = listOf("-Xmx1g", "-Xms256m", "-XX:+UseParallelGC")
+}
+
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21

@@ -27,16 +27,16 @@ data class AgencyPrisonerPayProfile(
   val weeklyAbsenceLimit: Int? = null,
 
   @Schema(description = "The minimum value for a half-day rate", example = "1.25")
-  val minHalfDayRate: BigDecimal?,
+  val minHalfDayRate: BigDecimal? = null,
 
   @Schema(description = "The maximum value for a half-day rate", example = "5.00")
-  val maxHalfDayRate: BigDecimal?,
+  val maxHalfDayRate: BigDecimal? = null,
 
   @Schema(description = "The maximum value for piece work earnings", example = "6.00")
-  val maxPieceWorkRate: BigDecimal?,
+  val maxPieceWorkRate: BigDecimal? = null,
 
   @Schema(description = "The maximum value for a bonus award", example = "3.00")
-  val maxBonusRate: BigDecimal?,
+  val maxBonusRate: BigDecimal? = null,
 
   @Schema(description = "The number of days allowed to backdate attendance before it locks.", example = "7")
   val backdateDays: Int?,
