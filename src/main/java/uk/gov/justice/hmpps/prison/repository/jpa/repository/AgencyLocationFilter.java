@@ -33,6 +33,12 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
 
     private List<String> courtTypes;
 
+    private String area;
+
+    private String region;
+
+    private String geographicRegion;
+
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
         final ImmutableList.Builder<Predicate> predicateBuilder = ImmutableList.builder();
 
@@ -54,6 +60,18 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
 
         if (courtTypes != null && courtTypes.size() > 0) {
             predicateBuilder.add(root.get("courtType").get("code").in(courtTypes));
+        }
+
+        if (area != null) {
+            predicateBuilder.add(cb.equal(root.get("area").get("code"), area));
+        }
+
+        if (region != null) {
+            predicateBuilder.add(cb.equal(root.get("region").get("code"), region));
+        }
+
+        if (geographicRegion != null) {
+            predicateBuilder.add(cb.equal(root.get("geographicRegion").get("code"), geographicRegion));
         }
 
         final var predicates = predicateBuilder.build();

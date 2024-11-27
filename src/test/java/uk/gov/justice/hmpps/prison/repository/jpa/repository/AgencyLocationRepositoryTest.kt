@@ -10,6 +10,9 @@ import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Area
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AreaType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Region
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.test.kotlin.auth.WithMockAuthUser
 
@@ -71,12 +74,45 @@ class AgencyLocationRepositoryTest {
   }
 
   @Test
+  fun findAgenciesWithRegion() {
+    val expected = AgencyLocationFilter.builder()
+      .active(true)
+      .region("WMIDS")
+      .build()
+    val agencies = repository.findAll(expected)
+    assertThat(agencies).extracting("id").containsAnyOf("BMI", "WAI")
+  }
+
+  @Test
+  fun findAgenciesWithArea() {
+    val expected = AgencyLocationFilter.builder()
+      .active(true)
+      .area("WMIDS")
+      .build()
+    val agencies = repository.findAll(expected)
+    assertThat(agencies).extracting("id").containsAnyOf("BMI", "WAI")
+  }
+
+  @Test
+  fun findAgenciesWithGeographicCodes() {
+    val expected = AgencyLocationFilter.builder()
+      .active(true)
+      .geographicRegion("WMIDS")
+      .build()
+    val agencies = repository.findAll(expected)
+    assertThat(agencies).extracting("id").containsAnyOf("BMI", "WAI")
+  }
+
+  @Test
   fun createAnAgency() {
+    val region = Region(code = "LON", description = "London")
     val newAgency = AgencyLocation.builder()
       .id("TEST")
       .description("A Test Agency")
       .active(true)
       .type(AgencyLocationType.PRISON_TYPE)
+      .region(region)
+      .area(Area(code = "LONDON", description = "London", region = region, areaType = AreaType("INST")))
       .build()
     val createdAgency = repository.save(newAgency)
     val retrievedAgency = repository.findById("TEST").orElseThrow()

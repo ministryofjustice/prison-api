@@ -25,7 +25,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @SuppressWarnings("unused")
 @Schema(description = "User Role")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder
+@Builder(toBuilder = true)
 @AllArgsConstructor
 @NoArgsConstructor
 @EqualsAndHashCode
