@@ -22,5 +22,8 @@ data class AgencyDto(
     null,
     null,
     null,
+    null,
+    null,
+    null,
   )
 }

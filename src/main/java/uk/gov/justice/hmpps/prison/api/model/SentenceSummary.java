@@ -127,14 +127,14 @@ public class SentenceSummary {
                 .id(order.getCourtCase().getId())
                 .caseSeq(order.getCourtCase().getCaseSeq())
                 .beginDate(order.getCourtCase().getBeginDate())
-                .court(AgencyTransformer.transform(order.getCourtCase().getAgencyLocation(), false))
+                .court(AgencyTransformer.transform(order.getCourtCase().getAgencyLocation(), false, false))
                 .caseType(order.getCourtCase().getLegalCaseType().map(LegalCaseType::getDescription).orElse(null))
                 .caseInfoPrefix(order.getCourtCase().getCaseInfoPrefix())
                 .caseStatus(order.getCourtCase().getCaseStatus().map(CaseStatus::getDescription).orElse(null))
                 .sentences(order.getSentences().stream()
                     .sorted(Comparator.comparing(OffenderSentence::getSequence))
                     .map(SentencesOffencesTerms::transform).toList())
-                .issuingCourt(AgencyTransformer.transform(order.getIssuingCourt(), false))
+                .issuingCourt(AgencyTransformer.transform(order.getIssuingCourt(), false, false))
                 .issuingCourtDate(order.getCourtDate())
                 .build();
         }

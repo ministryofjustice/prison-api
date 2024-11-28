@@ -88,7 +88,7 @@ public class AgencyServiceTest {
     @Test
     public void shouldCallGetAgency() {
         when(agencyLocationRepository.findAll(isA(AgencyLocationFilter.class))).thenReturn(List.of(AgencyLocation.builder().id("LEI").build()));
-        service.getAgency("LEI", ALL, null, false, false);
+        service.getAgency("LEI", ALL, null, false, false, false);
         verify(agencyLocationRepository).findAll(isA(AgencyLocationFilter.class));
     }
 

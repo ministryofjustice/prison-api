@@ -126,7 +126,7 @@ public class CourtHearingsServiceTest {
         assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), 1L, PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
                 .id(COURT_EVENT_ID)
                 .dateTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
-                .location(AgencyTransformer.transform(COURT_LOCATION, false))
+                .location(AgencyTransformer.transform(COURT_LOCATION, false, false))
                 .build());
 
         verify(courtEventRepository).save(CourtEvent.builder()
@@ -149,7 +149,7 @@ public class CourtHearingsServiceTest {
         assertThat(courtHearingsService.scheduleHearing(offenderBooking.getBookingId(), PRISON_TO_COURT_HEARING)).isEqualTo(CourtHearing.builder()
                 .id(COURT_EVENT_ID)
                 .dateTime(PRISON_TO_COURT_HEARING.getCourtHearingDateTime())
-                .location(AgencyTransformer.transform(COURT_LOCATION, false))
+                .location(AgencyTransformer.transform(COURT_LOCATION, false, false))
                 .build());
 
         verify(courtEventRepository).save(CourtEvent.builder()
@@ -467,7 +467,7 @@ public class CourtHearingsServiceTest {
                         CourtHearing.builder()
                                 .id(hearing.getId())
                                 .dateTime(hearing.getEventDateTime())
-                                .location(AgencyTransformer.transform(hearing.getCourtLocation(), false))
+                                .location(AgencyTransformer.transform(hearing.getCourtLocation(), false, false))
                                 .build());
     }
 
@@ -500,12 +500,12 @@ public class CourtHearingsServiceTest {
                         CourtHearing.builder()
                                 .id(hearing1.getId())
                                 .dateTime(hearing1.getEventDateTime())
-                                .location(AgencyTransformer.transform(hearing1.getCourtLocation(), false))
+                                .location(AgencyTransformer.transform(hearing1.getCourtLocation(), false, false))
                                 .build(),
                         CourtHearing.builder()
                                 .id(hearing2.getId())
                                 .dateTime(hearing2.getEventDateTime())
-                                .location(AgencyTransformer.transform(hearing2.getCourtLocation(), false))
+                                .location(AgencyTransformer.transform(hearing2.getCourtLocation(), false, false))
                                 .build()
                 );
     }

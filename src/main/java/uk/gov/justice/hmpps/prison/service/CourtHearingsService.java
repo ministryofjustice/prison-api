@@ -140,7 +140,7 @@ public class CourtHearingsService {
                                 CourtHearing.builder()
                                         .id(ce.getId())
                                         .dateTime(ce.getEventDateTime())
-                                        .location(AgencyTransformer.transform(ce.getCourtLocation(), false))
+                                        .location(AgencyTransformer.transform(ce.getCourtLocation(), false, false))
                                         .build())
                 );
 
@@ -210,7 +210,7 @@ public class CourtHearingsService {
     private CourtHearing toCourtHearing(final CourtEvent event) {
         return CourtHearing.builder()
                 .id(event.getId())
-                .location(AgencyTransformer.transform(event.getCourtLocation(), false))
+                .location(AgencyTransformer.transform(event.getCourtLocation(), false, false))
                 .dateTime(event.getEventDateTime())
                 .build();
     }

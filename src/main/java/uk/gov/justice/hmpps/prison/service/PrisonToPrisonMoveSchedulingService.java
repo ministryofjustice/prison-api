@@ -90,8 +90,8 @@ public class PrisonToPrisonMoveSchedulingService {
         return ScheduledPrisonToPrisonMove.builder()
                 .id(scheduledMove.getId())
                 .scheduledMoveDateTime(scheduledMove.getEventDateTime())
-                .fromPrisonLocation(AgencyTransformer.transform(scheduledMove.getFromLocation(), false))
-                .toPrisonLocation(AgencyTransformer.transform(scheduledMove.getToLocation(), false))
+                .fromPrisonLocation(AgencyTransformer.transform(scheduledMove.getFromLocation(), false, false))
+                .toPrisonLocation(AgencyTransformer.transform(scheduledMove.getToLocation(), false, false))
                 .build();
     }
 

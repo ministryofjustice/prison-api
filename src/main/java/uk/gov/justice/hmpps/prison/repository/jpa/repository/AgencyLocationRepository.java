@@ -25,7 +25,7 @@ public interface AgencyLocationRepository extends JpaRepository<AgencyLocation, 
     List<AgencyLocation> findByTypeAndActiveAndDeactivationDateIsNull(AgencyLocationType type, boolean active);
 
     @NotNull
-    @EntityGraph(type = EntityGraphType.FETCH, value = "agency-location-with-court-types")
+    @EntityGraph(type = EntityGraphType.LOAD, value = "agency-location-with-court-types")
     List<AgencyLocation> findAll(@Nullable Specification<AgencyLocation> spec);
 
 

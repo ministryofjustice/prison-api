@@ -20,7 +20,7 @@ public class CourtCaseTransformer {
                 .id(courtCase.getId())
                 .caseSeq(courtCase.getCaseSeq())
                 .beginDate(courtCase.getBeginDate())
-                .agency(AgencyTransformer.transform(courtCase.getAgencyLocation(), false))
+                .agency(AgencyTransformer.transform(courtCase.getAgencyLocation(), false, false))
                 .caseType(courtCase.getLegalCaseType().map(LegalCaseType::getDescription).orElse(null))
                 .caseInfoPrefix(courtCase.getCaseInfoPrefix())
                 .caseInfoNumber(courtCase.getCaseInfoNumber())
@@ -33,7 +33,7 @@ public class CourtCaseTransformer {
         return courtCase.getCourtEvents().stream()
                 .map(ce -> CourtHearing.builder()
                         .id(ce.getId())
-                        .location(AgencyTransformer.transform(ce.getCourtLocation(), false))
+                        .location(AgencyTransformer.transform(ce.getCourtLocation(), false, false))
                         .dateTime(ce.getEventDateTime())
                         .build())
                 .collect(Collectors.toUnmodifiableList());
