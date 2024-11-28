@@ -289,12 +289,12 @@ class AgencyResourceIntTest : ResourceTest() {
           .jsonPath("$[?(@.agencyId=='WAI')]").exists()
           .jsonPath("$[?(@.agencyId=='BMI')]").exists()
           .jsonPath("$[?(@.agencyId=='BMI')].area.code").isEqualTo("WMID")
-          .jsonPath("$[?(@.agencyId=='BMI')].area.desc").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='BMI')].region.desc").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='BMI')].geographicalRegion.desc").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='WAI')].area.desc").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='WAI')].region.desc").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='WAI')].geographicalRegion.desc").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='BMI')].area.description").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='BMI')].region.description").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='BMI')].geographicalRegion.description").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].area.description").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].region.description").isEqualTo("West Midlands")
+          .jsonPath("$[?(@.agencyId=='WAI')].geographicalRegion.description").isEqualTo("West Midlands")
       }
 
       @Test
@@ -305,10 +305,10 @@ class AgencyResourceIntTest : ResourceTest() {
           .expectStatus().isOk
           .expectBody()
           .jsonPath("$[?(@.agencyId=='BXI')]").exists()
-          .jsonPath("$[?(@.agencyId=='BXI')].area.desc").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BXI')].area.description").isEqualTo("London")
           .jsonPath("$[?(@.agencyId=='BXI')].region.code").isEqualTo("LON")
-          .jsonPath("$[?(@.agencyId=='BXI')].region.desc").isEqualTo("London")
-          .jsonPath("$[?(@.agencyId=='BXI')].geographicalRegion.desc").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BXI')].region.description").isEqualTo("London")
+          .jsonPath("$[?(@.agencyId=='BXI')].geographicalRegion.description").isEqualTo("London")
           .jsonPath("$[?(@.agencyId=='BWI')]").doesNotExist()
           .jsonPath("$[?(@.agencyId=='MDI')]").doesNotExist()
       }

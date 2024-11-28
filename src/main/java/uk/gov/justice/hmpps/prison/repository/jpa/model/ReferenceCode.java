@@ -17,7 +17,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Inheritance;
-import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription;
+import uk.gov.justice.hmpps.prison.api.model.RefCodeAndDescription;
 
 import java.io.Serializable;
 import java.util.Objects;
@@ -63,8 +63,8 @@ public abstract class ReferenceCode implements Serializable {
         this(domain, code, description, 99, true);
     }
 
-    public CodeDescription toDto() {
-        return new CodeDescription(code, description);
+    public RefCodeAndDescription toDto() {
+        return new RefCodeAndDescription(code, description);
     }
 
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {

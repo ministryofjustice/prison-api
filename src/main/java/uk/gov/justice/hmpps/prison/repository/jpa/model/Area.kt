@@ -18,7 +18,7 @@ import org.hibernate.annotations.JoinColumnOrFormula
 import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
 import org.hibernate.type.YesNoConverter
-import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription
+import uk.gov.justice.hmpps.prison.api.model.RefCodeAndDescription
 
 @Entity
 @Table(name = "AREAS")
@@ -38,7 +38,7 @@ abstract class AgencyArea(
   open val active: Boolean = true,
 ) {
 
-  fun toDto() = CodeDescription(code, description)
+  fun toDto() = RefCodeAndDescription(code, description)
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
