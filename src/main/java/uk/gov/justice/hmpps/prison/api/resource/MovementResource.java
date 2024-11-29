@@ -278,7 +278,7 @@ public class MovementResource {
         return movementsService.createExternalMovement(createExternalMovement.getBookingId(), createExternalMovement);
     }
 
-    @Operation(summary = "Get the date and time of the latest arrival into prison for the offender")
+    @Operation(summary = "Get the date of the latest arrival into prison for the offender")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNumber}/latest-arrival-date")
     public LocalDate getLatestArrivalDate(
