@@ -1211,6 +1211,31 @@ class MovementResourceTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("GET /api/movements/offenders/{offenderNumber}/latest-arrival-date")
+  inner class GetLatestArrivalDate {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get().uri("/api/movements/offenders/Z0024ZZ/latest-arrival-date")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return latest arrival date`() {
+      webTestClient.get().uri("/api/movements/offenders/Z0024ZZ/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+            "2017-07-16"
+          """.trimIndent(),
+        )
+    }
+  }
+
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
 
   data class MovementParameters(
