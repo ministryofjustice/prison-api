@@ -4,7 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import uk.gov.justice.hmpps.prison.api.model.inmatestatus.ImprisonmentStatusHistoryDto
+import uk.gov.justice.hmpps.prison.api.model.imprisonmentstatus.ImprisonmentStatusHistoryDto
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ImprisonmentStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImprisonmentStatusRepository
@@ -50,7 +50,7 @@ class ImprisonmentStatusHistoryServiceTest {
       ),
     )
 
-    val result = imprisonmentStatusHistoryService.getInmateStatusHistory(offenderId)
+    val result = imprisonmentStatusHistoryService.getImprisonmentStatusHistory(offenderId)
 
     assertThat(
       result,

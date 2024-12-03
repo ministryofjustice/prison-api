@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.api.model.inmatestatus
+package uk.gov.justice.hmpps.prison.api.model.imprisonmentstatus
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema

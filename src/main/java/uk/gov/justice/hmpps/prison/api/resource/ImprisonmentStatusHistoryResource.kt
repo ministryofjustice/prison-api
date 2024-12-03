@@ -14,17 +14,16 @@ import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.inmatestatus.ImprisonmentStatusHistoryDto
-import uk.gov.justice.hmpps.prison.core.SlowReportQuery
+import uk.gov.justice.hmpps.prison.api.model.imprisonmentstatus.ImprisonmentStatusHistoryDto
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.imprisonmentstatus.ImprisonmentStatusHistoryService
 
 @Slf4j
 @RestController
-@Tag(name = "inmate-status-history")
+@Tag(name = "imprisonment-status-history")
 @Validated
 @RequestMapping(
-  value = ["\${api.base.path}/inmate-status-history"],
+  value = ["\${api.base.path}/imprisonment-status-history"],
   produces = ["application/json"],
 )
 class ImprisonmentStatusHistoryResource(private val imprisonmentStatusHistoryService: ImprisonmentStatusHistoryService) {
@@ -49,13 +48,12 @@ class ImprisonmentStatusHistoryResource(private val imprisonmentStatusHistorySer
   @Operation(summary = "Returns the details of all the historic imprisonment statuses for an offender.")
   @GetMapping("/{offenderNo}")
   @VerifyOffenderAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
-  @SlowReportQuery
-  fun getCourtDateResults(
+  fun getImprisonmentStatusHistory(
     @PathVariable("offenderNo") @Parameter(
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,
   ): List<ImprisonmentStatusHistoryDto> {
-    return imprisonmentStatusHistoryService.getInmateStatusHistory(offenderNo)
+    return imprisonmentStatusHistoryService.getImprisonmentStatusHistory(offenderNo)
   }
 }
