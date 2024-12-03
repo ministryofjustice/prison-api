@@ -1,0 +1,17 @@
+[
+  {
+    "status": "FTR_ORA",
+    "effectiveDate": "2016-03-29",
+    "agencyId": "MDI"
+  },
+  {
+    "status": "TRL",
+    "effectiveDate": "2016-03-30",
+    "agencyId": "MDI"
+  },
+  {
+    "status": "DPP",
+    "effectiveDate": "2016-03-31",
+    "agencyId": "MDI"
+  }
+]
