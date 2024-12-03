@@ -7,6 +7,7 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
+import lombok.With;
 import org.apache.commons.lang3.StringUtils;
 import org.hibernate.Hibernate;
 import org.hibernate.type.YesNoConverter;
@@ -29,6 +30,7 @@ import java.util.Objects;
 @Entity
 @Table(name = "IMPRISONMENT_STATUSES")
 @ToString(of = { "id", "status", "description"})
+@With
 public class ImprisonmentStatus extends AuditableEntity {
 
     @Id
