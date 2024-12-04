@@ -292,4 +292,9 @@ public class MovementsRepositoryTest {
             .contains(tuple("EXT_MOV", "SCH", "TRN", "A1234AC", "MDI", "LEI"));
     }
 
+    @Test
+    public void canRetrieveLatestArrivalDate() {
+        final var arrivalDate = repository.getLatestArrivalDate("Z0024ZZ");
+        assertThat(arrivalDate).isEqualTo("2017-07-16");
+    }
 }

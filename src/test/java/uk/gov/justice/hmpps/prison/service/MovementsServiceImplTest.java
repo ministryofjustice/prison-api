@@ -912,4 +912,16 @@ public class MovementsServiceImplTest {
         }
     }
 
+    @Test
+    public void testGetLatestArrivalDate() {
+        final var offenderNumber = "Z0024ZZ";
+        final var arrivalDate = LocalDate.of(2017,6,16);
+
+        when(movementsRepository.getLatestArrivalDate(offenderNumber)).thenReturn(arrivalDate);
+
+        final var latestArrivalDate = movementsService.getLatestArrivalDate(offenderNumber);
+        assertThat(latestArrivalDate).isEqualTo(arrivalDate);
+
+        verify(movementsRepository).getLatestArrivalDate(offenderNumber);
+    }
 }

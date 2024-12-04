@@ -231,4 +231,10 @@ public class MovementsRepository extends RepositoryBase {
         return releases.stream().map(ReleaseEventDto::toReleaseEvent).collect(Collectors.toList());
     }
 
+    public LocalDate getLatestArrivalDate(final String offenderNumber) {
+        return jdbcTemplate.queryForObject(
+            MovementsRepositorySql.GET_LATEST_ARRIVAL_DATE.getSql(),
+            createParams("offenderNumber", offenderNumber),
+            LocalDate.class);
+    }
 }

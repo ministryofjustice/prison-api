@@ -277,4 +277,14 @@ public class MovementResource {
     public OffenderMovement createExternalMovement(@Valid @RequestBody CreateExternalMovement createExternalMovement) {
         return movementsService.createExternalMovement(createExternalMovement.getBookingId(), createExternalMovement);
     }
+
+    @Operation(summary = "Get the date of the latest arrival into prison for the offender")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    @GetMapping("/offenders/{offenderNumber}/latest-arrival-date")
+    public LocalDate getLatestArrivalDate(
+        @PathVariable("offenderNumber")
+        @Parameter(description = "The offender number", required = true) final String offenderNumber) {
+        return movementsService.getLatestArrivalDate(offenderNumber);
+    }
+
 }

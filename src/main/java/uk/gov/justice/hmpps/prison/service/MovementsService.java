@@ -459,4 +459,8 @@ public class MovementsService {
             .location(description)
             .build();
     }
+
+    public LocalDate getLatestArrivalDate(final String offenderNumber) {
+        return movementsRepository.getLatestArrivalDate(offenderNumber);
+    }
 }
