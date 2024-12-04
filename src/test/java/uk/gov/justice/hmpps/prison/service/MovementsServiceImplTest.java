@@ -917,10 +917,10 @@ public class MovementsServiceImplTest {
         final var offenderNumber = "Z0024ZZ";
         final var arrivalDate = LocalDate.of(2017,6,16);
 
-        when(movementsRepository.getLatestArrivalDate(offenderNumber)).thenReturn(arrivalDate);
+        when(movementsRepository.getLatestArrivalDate(offenderNumber)).thenReturn(Optional.of(arrivalDate));
 
         final var latestArrivalDate = movementsService.getLatestArrivalDate(offenderNumber);
-        assertThat(latestArrivalDate).isEqualTo(arrivalDate);
+        assertThat(latestArrivalDate).isEqualTo(Optional.of(arrivalDate));
 
         verify(movementsRepository).getLatestArrivalDate(offenderNumber);
     }

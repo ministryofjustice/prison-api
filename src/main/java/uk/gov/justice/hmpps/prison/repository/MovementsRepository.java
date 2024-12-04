@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -231,10 +232,13 @@ public class MovementsRepository extends RepositoryBase {
         return releases.stream().map(ReleaseEventDto::toReleaseEvent).collect(Collectors.toList());
     }
 
-    public LocalDate getLatestArrivalDate(final String offenderNumber) {
-        return jdbcTemplate.queryForObject(
+    public Optional<LocalDate> getLatestArrivalDate(final String offenderNumber) {
+        List<LocalDate> results = jdbcTemplate.query(
             MovementsRepositorySql.GET_LATEST_ARRIVAL_DATE.getSql(),
             createParams("offenderNumber", offenderNumber),
-            LocalDate.class);
+            (rs, rowNum) -> rs.getObject(1, LocalDate.class)
+        );
+
+        return results.stream().findFirst();
     }
 }

@@ -460,7 +460,7 @@ public class MovementsService {
             .build();
     }
 
-    public LocalDate getLatestArrivalDate(final String offenderNumber) {
+    public Optional<LocalDate> getLatestArrivalDate(final String offenderNumber) {
         return movementsRepository.getLatestArrivalDate(offenderNumber);
     }
 }

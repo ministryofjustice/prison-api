@@ -21,6 +21,7 @@ import java.time.LocalTime;
 import java.time.Month;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
@@ -295,6 +296,12 @@ public class MovementsRepositoryTest {
     @Test
     public void canRetrieveLatestArrivalDate() {
         final var arrivalDate = repository.getLatestArrivalDate("Z0024ZZ");
-        assertThat(arrivalDate).isEqualTo("2017-07-16");
+        assertThat(arrivalDate).isEqualTo(Optional.of(LocalDate.of(2017, 7, 16)));
+    }
+
+    @Test
+    public void canHandleNoLatestArrivalDate() {
+        final var arrivalDate = repository.getLatestArrivalDate("Z0020XY");
+        assertThat(arrivalDate).isEmpty();
     }
 }
