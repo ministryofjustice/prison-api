@@ -14,11 +14,7 @@ import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.ContextConfiguration
-import uk.gov.justice.hmpps.prison.api.model.Alert
-import uk.gov.justice.hmpps.prison.api.model.AlertChanges
-import uk.gov.justice.hmpps.prison.api.model.AlertCreated
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity
-import uk.gov.justice.hmpps.prison.api.model.CreateAlert
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
@@ -28,19 +24,15 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAlert
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import java.time.Clock
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter.ISO_DATE_TIME
 import java.time.temporal.ChronoUnit.DAYS
 import java.time.temporal.ChronoUnit.HOURS
-import java.util.stream.Collectors
-import java.util.stream.IntStream
 
 @ContextConfiguration(classes = [BookingResourceIntTest.TestClock::class])
 class BookingResourceIntTest : ResourceTest() {
@@ -613,265 +605,6 @@ class BookingResourceIntTest : ResourceTest() {
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
       assertThat(response.body).contains("Activity with booking Id 999 and activityId -11 not found")
-    }
-  }
-
-  @Nested
-  inner class Alerts {
-    @Test
-    fun testCreateNewAlert_UnAuthorised() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val body = CreateAlert.builder().alertCode("X").alertType("XX").comment("XXX")
-        .alertDate(LocalDate.now()).build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<ErrorResponse?>() {},
-        -10L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    }
-
-    @Test
-    fun testUpdateAlert_UnAuthorised() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val body = AlertChanges.builder().expiryDate(LocalDate.now()).build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert/{alertSeq}",
-        PUT,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<ErrorResponse?>() {},
-        -1L,
-        4,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
-    }
-
-    @Test
-    fun testUpdateAlert() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val createdAlert = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(
-          token,
-          CreateAlert.builder()
-            .alertType("L")
-            .alertCode("LPQAA")
-            .comment("XXX")
-            .alertDate(LocalDate.now())
-            .build(),
-        ),
-        object : ParameterizedTypeReference<Alert>() {},
-        -14L,
-      ).body
-      val body = AlertChanges.builder().expiryDate(LocalDate.now()).build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert/{alertSeq}",
-        PUT,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -14L,
-        createdAlert!!.alertId,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
-    fun testUpdateAlertWithLockTimeout() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val createdAlert = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(
-          token,
-          CreateAlert.builder()
-            .alertType("L")
-            .alertCode("LPQAA")
-            .comment("XXX")
-            .alertDate(LocalDate.now())
-            .build(),
-        ),
-        object : ParameterizedTypeReference<Alert>() {},
-        -15L,
-      ).body
-      val body = AlertChanges.builder().comment("Test comment").build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert/{alertSeq}?lockTimeout=true",
-        PUT,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -15L,
-        createdAlert!!.alertId,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
-    fun testUpdateAlert_CommentTextOnly() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val createdAlert = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(
-          token,
-          CreateAlert.builder()
-            .alertType("L")
-            .alertCode("LPQAA")
-            .comment("XXX")
-            .alertDate(LocalDate.now())
-            .build(),
-        ),
-        object : ParameterizedTypeReference<Alert>() {},
-        -14L,
-      ).body
-      val body = AlertChanges.builder().comment("New comment").build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert/{alertSeq}",
-        PUT,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -14L,
-        createdAlert!!.alertId,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    }
-
-    @Test
-    fun testCreateNewAlert_BadRequest() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
-      val body = CreateAlert.builder().build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<ErrorResponse?>() {},
-        -10L,
-      )
-      val validationMessages = response.body!!.userMessage
-      assertThat(validationMessages).contains("alertType")
-      assertThat(validationMessages).contains("alertCode")
-      assertThat(validationMessages).contains("comment")
-      assertThat(validationMessages).contains("alertDate")
-      assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-    }
-
-    @Test
-    fun testCreateNewAlert_MaximumLengths() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val largeText = IntStream.range(1, 1002).mapToObj { _: Int -> "A" }.collect(Collectors.joining(""))
-      val body = CreateAlert.builder()
-        .alertCode(largeText.substring(0, 13))
-        .alertType(largeText.substring(0, 13))
-        .comment(largeText)
-        .alertDate(LocalDate.now()).build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<ErrorResponse?>() {},
-        -10L,
-      )
-      val validationMessages = response.body!!.userMessage
-      assertThat(validationMessages).contains("alertType")
-      assertThat(validationMessages).contains("alertCode")
-      assertThat(validationMessages).contains("comment")
-      assertThat(response.statusCode).isEqualTo(HttpStatus.BAD_REQUEST)
-    }
-
-    @Test
-    fun testCreateNewAlert() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val body = CreateAlert.builder().alertType("L").alertCode("LPQAA").comment("comments")
-        .alertDate(LocalDate.now()).build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -10L,
-      )
-      assertThat(response.body!!.alertId).isGreaterThan(1)
-      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
-    }
-
-    @Test
-    @DisplayName("creating an alert with expiry date today should be created inactive")
-    fun testCreateNewExpiredAlertInactive() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val body = CreateAlert
-        .builder()
-        .alertType("L")
-        .alertCode("LFC21")
-        .expiryDate(LocalDate.now())
-        .comment("comments")
-        .alertDate(LocalDate.now().minusDays(1))
-        .build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -10L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
-      assertThat(response.body!!.alertId).isGreaterThan(1)
-
-      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
-      assertThat(alert.isActive).isFalse()
-    }
-
-    @Test
-    @DisplayName("creating an alert with expiry date in future should be created active")
-    fun testCreateNewExpiredAlertActive() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val body = CreateAlert
-        .builder()
-        .alertType("L")
-        .alertCode("LFC25")
-        .expiryDate(LocalDate.now().plusDays(1))
-        .comment("comments")
-        .alertDate(LocalDate.now().minusDays(1))
-        .build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -10L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
-      assertThat(response.body!!.alertId).isGreaterThan(1)
-
-      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
-      assertThat(alert.isActive).isTrue()
-    }
-
-    @Test
-    @DisplayName("creating an alert with no date should be created active")
-    fun testCreateNewUnExpiredAlertActive() {
-      val token = authTokenHelper.getToken(AuthToken.UPDATE_ALERT)
-      val body = CreateAlert
-        .builder()
-        .alertType("X")
-        .alertCode("XA")
-        .expiryDate(null)
-        .comment("comments")
-        .alertDate(LocalDate.now().minusDays(1))
-        .build()
-      val response = testRestTemplate.exchange(
-        "/api/bookings/{bookingId}/alert",
-        POST,
-        createHttpEntity(token, body),
-        object : ParameterizedTypeReference<AlertCreated?>() {},
-        -10L,
-      )
-      assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
-      assertThat(response.body!!.alertId).isGreaterThan(1)
-
-      val alert = alertRepository.findById(OffenderAlert.PK(offenderBookingRepository.findByBookingId(-10L).orElseThrow(), response.body!!.alertId.toInt())).orElseThrow()
-      assertThat(alert.isActive).isTrue()
     }
   }
 

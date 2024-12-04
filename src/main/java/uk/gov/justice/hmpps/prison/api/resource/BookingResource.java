@@ -302,52 +302,6 @@ public class BookingResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Alert id.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = AlertCreated.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/createPrisonerAlert",
-        deprecated = true
-    )
-    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    @PostMapping("/{bookingId}/alert")
-    @ProxyUser
-    public ResponseEntity<AlertCreated> postAlert(
-        @PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId,
-        @Valid @RequestBody @Parameter(description = "Alert details", required = true) final CreateAlert alert
-    ) {
-        final var alertId = inmateAlertService.createNewAlert(bookingId, alert);
-        return ResponseEntity.status(HttpStatus.CREATED).body(new AlertCreated(alertId));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/alerts-controller/updateAlert",
-        deprecated = true
-    )
-    @PreAuthorize("hasAnyRole('UPDATE_ALERT')")
-    @PutMapping("/{bookingId}/alert/{alertSeq}")
-    @ProxyUser
-    public Alert updateAlert(
-        @PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId,
-        @PathVariable("alertSeq") @Parameter(description = "alertSeq", required = true) final Long alertSeq,
-        @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
-        @Valid @RequestBody @Parameter(description = "Alert details", required = true) final AlertChanges alert
-    ) {
-        return inmateAlertService.updateAlert(bookingId, alertSeq, alert, lockTimeout);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -368,25 +322,6 @@ public class BookingResource {
         @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Direction.DESC) final Pageable pageable) {
 
         return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/alerts-controller/retrieveAlert",
-        deprecated = true
-    )
-    @GetMapping("/{bookingId}/alerts/{alertId}")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Alert getOffenderAlert(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
-        @PathVariable("alertId") @Parameter(description = "The Alert Id", required = true) final Long alertId
-    ) {
-        return inmateAlertService.getInmateAlert(bookingId, alertId);
     }
 
     @Operation(
