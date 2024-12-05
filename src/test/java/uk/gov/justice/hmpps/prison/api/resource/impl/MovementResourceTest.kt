@@ -1234,6 +1234,24 @@ class MovementResourceTest : ResourceTest() {
           """.trimIndent(),
         )
     }
+
+    @Test
+    fun `should return when no movements`() {
+      webTestClient.get().uri("/api/movements/offenders/Z0020XY/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().isEmpty
+    }
+
+    @Test
+    fun `should return when offender not found`() {
+      webTestClient.get().uri("/api/movements/offenders/Z0099ZZ/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().isEmpty
+    }
   }
 
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()

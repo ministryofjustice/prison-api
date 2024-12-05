@@ -46,6 +46,7 @@ import jakarta.validation.constraints.NotEmpty;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @RestController
 @Tag(name = "movements")
@@ -281,10 +282,11 @@ public class MovementResource {
     @Operation(summary = "Get the date of the latest arrival into prison for the offender")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNumber}/latest-arrival-date")
-    public LocalDate getLatestArrivalDate(
+    public ResponseEntity<LocalDate> getLatestArrivalDate(
         @PathVariable("offenderNumber")
         @Parameter(description = "The offender number", required = true) final String offenderNumber) {
-        return movementsService.getLatestArrivalDate(offenderNumber);
+        Optional<LocalDate> arrivalDate = movementsService.getLatestArrivalDate(offenderNumber);
+        return ResponseEntity.ok(arrivalDate.orElse(null));
     }
 
 }
