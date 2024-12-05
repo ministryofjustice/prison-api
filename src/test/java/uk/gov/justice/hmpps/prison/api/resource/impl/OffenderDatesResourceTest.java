@@ -46,7 +46,7 @@ public class OffenderDatesResourceTest extends ResourceTest {
 
     @BeforeAll
     public void addAdditionalDataForTusedTests() {
-        // Adding data to test the TUSED retrieval use case
+        // Adding data to test the TUSED retrieval use case, prisoners used are A1234AF, A1234AG and A1180MA
         jdbcTemplate.update("""
             INSERT INTO OFFENDER_BOOKINGS (OFFENDER_BOOK_ID, BOOKING_BEGIN_DATE, BOOKING_NO, OFFENDER_ID, BOOKING_SEQ,
                                            DISCLOSURE_FLAG, IN_OUT_STATUS, ACTIVE_FLAG, YOUTH_ADULT_CODE, AGY_LOC_ID,
@@ -58,14 +58,15 @@ public class OffenderDatesResourceTest extends ResourceTest {
                                                    CALC_REASON_CODE, CREATE_DATETIME, CREATE_USER_ID, TUSED_CALCULATED_DATE,
                                                    TUSED_OVERRIDED_DATE)
             VALUES (-23, -60, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-09-06', 'YYYY-MM-DD'), null),
-                   (-24, -61, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-08-06', 'YYYY-MM-DD'), TO_DATE('2018-10-06', 'YYYY-MM-DD'));
+                   (-24, -61, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-08-06', 'YYYY-MM-DD'), TO_DATE('2018-10-06', 'YYYY-MM-DD')),
+                   (-2999, -36, TO_DATE('2017-09-06', 'YYYY-MM-DD'), 'NEW' ,  SYSDATE, 'SA', TO_DATE('2018-09-07', 'YYYY-MM-DD'), null);
             """);
     }
 
     @AfterAll
     public void removeAdditionalDataForTusedTests() {
         jdbcTemplate.update("""
-            DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_SENT_CALCULATION_ID IN (-23, -24);
+            DELETE FROM OFFENDER_SENT_CALCULATIONS WHERE OFFENDER_SENT_CALCULATION_ID IN (-23, -24, -2999);
             DELETE FROM OFFENDER_BOOKINGS WHERE OFFENDER_BOOK_ID IN (-60, -61);
             """);
     }
@@ -277,6 +278,24 @@ public class OffenderDatesResourceTest extends ResourceTest {
         LatestTusedData latestTusedData = response.getBody();
         assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1234AF");
         assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2018,9,6));
+    }
+
+    @Test
+    public void testGetLatestTusedForPrisonerOnLatestBooking() {
+        // Given
+        final var request = createEmptyHttpEntity(AuthToken.CRD_USER);
+        final var type = new ParameterizedTypeReference<LatestTusedData>() {};
+        // When
+        final var response = testRestTemplate.exchange(
+            "/api/offender-dates/latest-tused/{nomsId}",
+            HttpMethod.GET,
+            request,
+            type,
+            Map.of("nomsId", "A1180MA"));
+        // Then
+        LatestTusedData latestTusedData = response.getBody();
+        assertThat(latestTusedData.getOffenderNo()).isEqualTo("A1180MA");
+        assertThat(latestTusedData.getLatestTused()).isEqualTo(LocalDate.of(2018,9,7));
     }
 
     @Test
