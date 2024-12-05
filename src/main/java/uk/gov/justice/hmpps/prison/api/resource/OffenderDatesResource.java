@@ -115,7 +115,7 @@ public class OffenderDatesResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @Operation(summary = "Get the latest TUSED data for an offender. If the offender has had a previous TUSED recorded on a previous booking this will return the latest one", description = "Requires RELEASE_DATES_CALCULATOR")
+    @Operation(summary = "Get the latest TUSED data for an offender. This will return the latest calculated TUSED for an offender", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/latest-tused/{nomsId}")
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
     @ProxyUser
