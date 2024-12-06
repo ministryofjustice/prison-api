@@ -86,6 +86,20 @@ class OffenderResourceImplIntTest_updateBirthCountry : ResourceTest() {
 
       assertThat(offenderRepository.findById(-1012L).get().birthCountry.code).isEqualTo("FRA")
     }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should allow the birth country to be updated to null`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AL/birth-country")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(NULL_BIRTH_COUNTRY_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(offenderRepository.findById(-1012L).get().birthCountry).isNull()
+    }
   }
 
   @Nested
@@ -133,10 +147,20 @@ class OffenderResourceImplIntTest_updateBirthCountry : ResourceTest() {
   }
 
   private companion object {
-    const val VALID_BIRTH_COUNTRY_UPDATE = """
-    {
-      "countryCode": "FRA"
-    }
-    """
+    const val VALID_BIRTH_COUNTRY_UPDATE =
+      // language=json
+      """
+        {
+          "countryCode": "FRA"
+        }
+      """
+
+    const val NULL_BIRTH_COUNTRY_UPDATE =
+      // language=json
+      """
+        {
+          "countryCode": null
+        }
+      """
   }
 }

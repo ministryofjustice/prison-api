@@ -84,6 +84,19 @@ class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
 
       assertThat(offenderRepository.findById(-1012L).get().birthPlace).isEqualTo("PARIS")
     }
+
+    @Test
+    open fun `should allow birth place to be updated to null`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AL/birth-place")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(NULL_BIRTH_PLACE_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      assertThat(offenderRepository.findById(-1012L).get().birthPlace).isNull()
+    }
   }
 
   @Nested
@@ -131,10 +144,20 @@ class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
   }
 
   private companion object {
-    const val VALID_BIRTH_PLACE_UPDATE = """
-    {
-      "birthPlace": "PARIS"
-    }
-    """
+    const val VALID_BIRTH_PLACE_UPDATE =
+      // language=json
+      """
+        {
+          "birthPlace": "PARIS"
+        }
+      """
+
+    const val NULL_BIRTH_PLACE_UPDATE =
+      // language=json
+      """
+        {
+          "birthPlace": null 
+        }
+      """
   }
 }
