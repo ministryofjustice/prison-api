@@ -47,6 +47,16 @@ class PrisonerProfileUpdateServiceTest {
       verify(offender).birthPlace = BIRTH_PLACE
     }
 
+    @Test
+    internal fun `enforces capitalisation when updating birth place`() {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(offender))
+
+      prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, "sheFFieLD")
+
+      verify(offender).birthPlace = "SHEFFIELD"
+    }
+
     @ParameterizedTest
     @MethodSource("uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateServiceTest#nullOrBlankStrings")
     internal fun `updates null or blank birth place to null`(birthPlace: String?) {
