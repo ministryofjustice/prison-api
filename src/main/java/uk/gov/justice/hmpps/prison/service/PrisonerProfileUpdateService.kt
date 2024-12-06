@@ -27,7 +27,7 @@ class PrisonerProfileUpdateService(
     try {
       offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
-        .let { it.birthPlace = birthPlace?.ifBlank { null } }
+        .let { it.birthPlace = birthPlace?.uppercase()?.ifBlank { null } }
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber)
     }
