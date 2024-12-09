@@ -24,6 +24,8 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.annotations.Where;
 import org.hibernate.type.YesNoConverter;
 
@@ -37,7 +39,6 @@ import java.util.Set;
 
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.AGY_LOC_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDICTION;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.GeographicRegion.GEOGRAPHIC;
 
 @Data
 @Entity
@@ -71,9 +72,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.GeographicRegion.
         @NamedAttributeNode(value = "courtType"),
         @NamedAttributeNode(value = "region"),
         @NamedAttributeNode(value = "area"),
-        @NamedAttributeNode(value = "geographicRegion"),
-
-
     }
 )
 public class AgencyLocation extends AuditableEntity {
@@ -143,13 +141,6 @@ public class AgencyLocation extends AuditableEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "NOMS_REGION_CODE")
     private Region region;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumnsOrFormulas(value = {
-        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + GEOGRAPHIC + "'", referencedColumnName = "domain")),
-        @JoinColumnOrFormula(column = @JoinColumn(name = "GEOGRAPHIC_REGION_CODE", referencedColumnName = "code"))
-    })
-    private GeographicRegion geographicRegion;
 
     public void removeAddress(final AgencyAddress address) {
         addresses.remove(address);

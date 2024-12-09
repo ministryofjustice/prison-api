@@ -37,8 +37,6 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
 
     private String region;
 
-    private String geographicRegion;
-
     private String establishmentType;
 
     public Predicate toPredicate(final Root<AgencyLocation> root, final CriteriaQuery<?> query, final CriteriaBuilder cb) {
@@ -70,10 +68,6 @@ public class AgencyLocationFilter implements Specification<AgencyLocation> {
 
         if (region != null) {
             predicateBuilder.add(cb.equal(root.get("region").get("code"), region));
-        }
-
-        if (geographicRegion != null) {
-            predicateBuilder.add(cb.equal(root.get("geographicRegion").get("code"), geographicRegion));
         }
 
         if (establishmentType != null) {

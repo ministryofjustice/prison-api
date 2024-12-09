@@ -291,10 +291,8 @@ class AgencyResourceIntTest : ResourceTest() {
           .jsonPath("$[?(@.agencyId=='BMI')].area.code").isEqualTo("WMID")
           .jsonPath("$[?(@.agencyId=='BMI')].area.description").isEqualTo("West Midlands")
           .jsonPath("$[?(@.agencyId=='BMI')].region.description").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='BMI')].geographicalRegion.description").isEqualTo("West Midlands")
           .jsonPath("$[?(@.agencyId=='WAI')].area.description").isEqualTo("West Midlands")
           .jsonPath("$[?(@.agencyId=='WAI')].region.description").isEqualTo("West Midlands")
-          .jsonPath("$[?(@.agencyId=='WAI')].geographicalRegion.description").isEqualTo("West Midlands")
       }
 
       @Test
@@ -308,7 +306,6 @@ class AgencyResourceIntTest : ResourceTest() {
           .jsonPath("$[?(@.agencyId=='BXI')].area.description").isEqualTo("London")
           .jsonPath("$[?(@.agencyId=='BXI')].region.code").isEqualTo("LON")
           .jsonPath("$[?(@.agencyId=='BXI')].region.description").isEqualTo("London")
-          .jsonPath("$[?(@.agencyId=='BXI')].geographicalRegion.description").isEqualTo("London")
           .jsonPath("$[?(@.agencyId=='BWI')]").doesNotExist()
           .jsonPath("$[?(@.agencyId=='MDI')]").doesNotExist()
       }
