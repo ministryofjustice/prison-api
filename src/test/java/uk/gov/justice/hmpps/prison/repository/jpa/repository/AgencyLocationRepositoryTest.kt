@@ -94,16 +94,6 @@ class AgencyLocationRepositoryTest {
   }
 
   @Test
-  fun findAgenciesWithGeographicCodes() {
-    val expected = AgencyLocationFilter.builder()
-      .active(true)
-      .geographicRegion("WMID")
-      .build()
-    val agencies = repository.findAll(expected)
-    assertThat(agencies).extracting("id").containsAnyOf("BMI", "WAI")
-  }
-
-  @Test
   fun findAgenciesWithEstablishmentType() {
     val expected = AgencyLocationFilter.builder()
       .active(true)

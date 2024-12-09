@@ -72,9 +72,6 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType.JURISDI
         @NamedAttributeNode(value = "courtType"),
         @NamedAttributeNode(value = "region"),
         @NamedAttributeNode(value = "area"),
-        @NamedAttributeNode(value = "geographicRegion"),
-
-
     }
 )
 public class AgencyLocation extends AuditableEntity {
