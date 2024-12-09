@@ -60,7 +60,7 @@ public class Agency {
     @Schema(description = "Geographical region for this agency")
     private RefCodeAndDescription geographicalRegion;
 
-    public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, String courtTypeDescription, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails, RefCodeAndDescription area, RefCodeAndDescription region, RefCodeAndDescription geographicalRegion) {
+    public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, String courtTypeDescription, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails, RefCodeAndDescription area, RefCodeAndDescription region) {
         this.agencyId = agencyId;
         this.description = description;
         this.longDescription = longDescription;
@@ -74,7 +74,6 @@ public class Agency {
         this.emails = emails;
         this.area = area;
         this.region = region;
-        this.geographicalRegion = geographicalRegion;
     }
 
     public Agency() {

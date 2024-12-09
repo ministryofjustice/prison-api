@@ -44,8 +44,7 @@ public class AgencyTransformer {
             .longDescription(agency.getLongDescription())
             .deactivationDate(agency.getDeactivationDate())
             .area(withAreas ? agency.getArea() != null ? agency.getArea().toDto() : null : null)
-            .region(withAreas ? agency.getRegion() != null ? agency.getRegion().toDto() : null : null)
-            .geographicalRegion(withAreas ? agency.getGeographicRegion() != null ? agency.getGeographicRegion().toDto() : null : null);
+            .region(withAreas ? agency.getRegion() != null ? agency.getRegion().toDto() : null : null);
     }
 
     static private String codeOrNull(final ReferenceCode referenceData) {
