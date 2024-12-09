@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
-import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -56,9 +55,6 @@ public class Agency {
 
     @Schema(description = "Region of this agency")
     private RefCodeAndDescription region;
-
-    @Schema(description = "Geographical region for this agency")
-    private RefCodeAndDescription geographicalRegion;
 
     public Agency(String agencyId, String description, String longDescription, String agencyType, boolean active, String courtType, String courtTypeDescription, LocalDate deactivationDate, List<AddressDto> addresses, List<Telephone> phones, List<Email> emails, RefCodeAndDescription area, RefCodeAndDescription region) {
         this.agencyId = agencyId;
