@@ -1,33 +1,46 @@
 package uk.gov.justice.hmpps.prison.service
 
+import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
-import org.mockito.kotlin.*
+import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.kotlin.any
+import org.mockito.kotlin.eq
+import org.mockito.kotlin.mock
+import org.mockito.kotlin.verify
+import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
-import uk.gov.justice.hmpps.prison.repository.jpa.model.*
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.*
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import java.util.*
 
 class PrisonerProfileUpdateServiceTest {
   private val offenderRepository: OffenderRepository = mock()
-  private val offenderProfileDetailRepository: OffenderProfileDetailRepository = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
   private val offender: Offender = mock()
+  private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
 
   private val prisonerProfileUpdateService: PrisonerProfileUpdateService =
     PrisonerProfileUpdateService(
       offenderRepository,
-      offenderProfileDetailRepository,
       countryRepository,
       profileTypeRepository,
       profileCodeRepository,
@@ -44,24 +57,15 @@ class PrisonerProfileUpdateServiceTest {
         .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
     }
 
-    @Test
-    internal fun `updates birth place`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["SHEFFIELD", "sheFFieLD"])
+    internal fun `updates birth place`(birthplace: String) {
       whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
         .thenReturn(Optional.of(offender))
 
-      prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, BIRTH_PLACE)
+      prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, birthplace)
 
       verify(offender).birthPlace = BIRTH_PLACE
-    }
-
-    @Test
-    internal fun `enforces capitalisation when updating birth place`() {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
-        .thenReturn(Optional.of(offender))
-
-      prisonerProfileUpdateService.updateBirthPlaceOfCurrentAlias(PRISONER_NUMBER, "sheFFieLD")
-
-      verify(offender).birthPlace = "SHEFFIELD"
     }
 
     @ParameterizedTest
@@ -150,40 +154,51 @@ class PrisonerProfileUpdateServiceTest {
         .thenReturn(Optional.of(BRITISH_NATIONALITY))
     }
 
-    @Test
-    internal fun `updates nationality`() {
-      whenever(offenderProfileDetailRepository.findNationalityLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
-        .thenReturn(Optional.of(offenderProfileDetail))
+    @ParameterizedTest
+    @ValueSource(strings = ["BRIT", "BriT"])
+    internal fun `updates nationality`(nationalityCode: String) {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(offender.allBookings).thenReturn(listOf(booking))
+      whenever(booking.bookingSequence).thenReturn(1)
+      whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
+      whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
-      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE)
+      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, nationalityCode)
 
-      verify(offenderProfileDetail).code = BRITISH_NATIONALITY
+      verify(offenderProfileDetail).setProfileCode(BRITISH_NATIONALITY)
     }
 
     @Test
-    internal fun `enforces capitalisation when updating nationality`() {
-      whenever(offenderProfileDetailRepository.findNationalityLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
-        .thenReturn(Optional.of(offenderProfileDetail))
+    internal fun `adds nationality when missing`() {
+      val profileDetails = mutableListOf<OffenderProfileDetail>()
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(offender.allBookings).thenReturn(listOf(booking))
+      whenever(booking.bookingSequence).thenReturn(1)
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
-      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, "bRiT")
+      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE)
 
-      verify(offenderProfileDetail).code = BRITISH_NATIONALITY
+      assertThat(profileDetails.size).isEqualTo(1)
     }
 
     @Test
     internal fun `removes nationality`() {
-      whenever(offenderProfileDetailRepository.findNationalityLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
-        .thenReturn(Optional.of(offenderProfileDetail))
-      offenderProfileDetail.code = BRITISH_NATIONALITY
+      val profileDetails = mutableListOf(offenderProfileDetail)
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(offender.allBookings).thenReturn(listOf(booking))
+      whenever(booking.bookingSequence).thenReturn(1)
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
       prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, null)
 
-      verify(offenderProfileDetail).code = null
+      assertThat(profileDetails).isEmpty()
     }
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderProfileDetailRepository.findNationalityLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(
         Optional.empty(),
       )
 
@@ -234,7 +249,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderProfileDetailRepository.findNationalityLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy {
@@ -259,6 +274,8 @@ class PrisonerProfileUpdateServiceTest {
       ProfileType("NAT", "PI", "Nationality", false, true, "CODE", true, null, null)
     val BRITISH_NATIONALITY =
       ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE), "British", true, true, null, null)
+    val FRENCH_NATIONALITY =
+      ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, "FREN"), "French", true, true, null, null)
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")

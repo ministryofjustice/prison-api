@@ -171,14 +171,18 @@ VALUES (-1061, 'SEQ', 'TAYLOR', null, 'BILLIE', 'M', sysdate, 'TAYLOR', 'Z0020XY
 INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_COUNTRY_CODE)
 VALUES (-101, 'SEQ', 'MORMON', null, 'JOSEPH', 'M', sysdate, 'MORMON', 'B1101BB', -101, 'W1', null, TO_DATE('1809-01-01', 'YYYY-MM-DD'), 'UK');
 
--- Used to  test /prisoners/prisoner-numbers - models a scenario where there are offender records for a root offender ID that doesn't exist
+-- Used to test /prisoners/prisoner-numbers - models a scenario where there are offender records for a root offender ID that doesn't exist
 INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_PLACE, BIRTH_COUNTRY_CODE)
 VALUES (-1062, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST', 'M', sysdate, 'PRISONER-NUMBERS', 'A1062AA', -10629999, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1063, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-2', 'M', sysdate, 'PRISONER-NUMBERS', 'A1062AB', -10629999, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1064, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-3', 'M', sysdate, 'PRISONER-NUMBERS', 'A1064AA', -1064, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1065, 'SEQ', 'PRISONER', 'NUMBERS', 'TEST-4', 'M', sysdate, 'PRISONER-NUMBERS', 'A1064AB', -1064, 'W1', 'CN', TO_DATE('1970-12-30', 'YYYY-MM-DD'), 'WALES', 'UK');
 
--- Used to  test /prisoner-search/offenders/{offenderNo} - models a scenario with addresses on the root offender but the active booking on an alias
+-- Used to test /prisoner-search/offenders/{offenderNo} - models a scenario with addresses on the root offender but the active booking on an alias
 INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_PLACE, BIRTH_COUNTRY_CODE)
 VALUES (-1066, 'SEQ', 'ALIAS', 'BOOKING', 'ADDRESSES', 'M', sysdate, 'ADDRESSES', 'A1065AA', -1066, 'W1', 'CN', TO_DATE('2001-12-30', 'YYYY-MM-DD'), 'WALES', 'UK'),
        (-1067, 'SEQ', 'ALIAS', 'BOOKING', 'ADDRESSES-2', 'M', sysdate, 'ADDRESSES', 'A1065AA', -1066, 'W1', 'A', TO_DATE('2001-12-30', 'YYYY-MM-DD'), 'WALES', 'UK');
+
+-- Used to test /offenders/{offenderNo}/nationality - models a scenario with no nationality on the latest booking
+INSERT INTO OFFENDERS (OFFENDER_ID, ID_SOURCE_CODE, LAST_NAME, MIDDLE_NAME, FIRST_NAME, SEX_CODE, CREATE_DATE, LAST_NAME_KEY, OFFENDER_ID_DISPLAY, ROOT_OFFENDER_ID, RACE_CODE, ALIAS_NAME_TYPE, BIRTH_DATE, BIRTH_PLACE, BIRTH_COUNTRY_CODE)
+VALUES (-1068, 'SEQ', 'LARSON', 'BORIS', 'SVEN', 'M', sysdate, 'ANDERSON', 'A1068AA', -1068, 'W1', 'CN', TO_DATE('2000-12-30', 'YYYY-MM-DD'), 'WALES', 'UK');

@@ -3,8 +3,14 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Named.named
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.Arguments
+import org.junit.jupiter.params.provider.Arguments.arguments
+import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.whenever
@@ -20,6 +26,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDeta
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
+import java.util.stream.Stream
 
 class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
 
@@ -86,11 +93,13 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
 
   @Nested
   open inner class HappyPath {
-    @Test
+    @DisplayName("should update the nationality")
+    @ParameterizedTest(name = "{0}")
+    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceImplIntTest_updateNationality#updateNationalityIds")
     @Transactional(readOnly = true)
-    open fun `should update the nationality`() {
+    open fun `should update the nationality`(prisonerId: String, id: Long) {
       webTestClient.put()
-        .uri("api/offenders/A1234AA/nationality")
+        .uri("api/offenders/$prisonerId/nationality")
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_NATIONALITY_UPDATE)
@@ -98,7 +107,7 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
         .expectStatus().isNoContent
 
       val profileType = profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
-      val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
+      val booking = offenderRepository.findById(id).get().allBookings.first { it.bookingSequence == 1 }
       assertThat(
         offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, profileType, 1)).get().code.id.code,
       ).isEqualTo("BRIT")
@@ -106,7 +115,7 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
 
     @Test
     @Transactional(readOnly = true)
-    open fun `should allow nationality to be updated to null`() {
+    open fun `should allow nationality to be removed`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/nationality")
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
@@ -185,5 +194,13 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
           "nationality": null 
         }
       """
+
+    @JvmStatic
+    fun updateNationalityIds(): Stream<Arguments> {
+      return Stream.of(
+        arguments(named("Prisoner with existing nationality", "A1234AA"), -1001L),
+        arguments(named("Prisoner without existing nationality", "A1068AA"), -1068L),
+      )
+    }
   }
 }
