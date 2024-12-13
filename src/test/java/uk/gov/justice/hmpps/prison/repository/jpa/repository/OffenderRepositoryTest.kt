@@ -66,7 +66,7 @@ class OffenderRepositoryTest {
       // this prisoner has two offender records - ensure we get the right one
       val offender = repository.findLinkedToLatestBookingForUpdate("A1234AL").orElseThrow()
 
-      assertThat(offender.id).isEqualTo(-1012L)
+      assertThat(offender.id).isEqualTo(-1012L) // Needs to be the one connected to the booking with booking seq of 1
       assertThat(offender.allBookings).hasSizeGreaterThan(0)
     }
 
