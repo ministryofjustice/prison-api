@@ -12,15 +12,17 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
-import java.util.*
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
+import java.util.Optional
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
-import kotlin.jvm.optionals.getOrNull
 
 @Service
 class PrisonerProfileUpdateService(
@@ -28,6 +30,8 @@ class PrisonerProfileUpdateService(
   private val countryRepository: ReferenceCodeRepository<Country>,
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
+  private val profileDetailRepository: OffenderProfileDetailRepository,
+  private val offenderBookingRepository: OffenderBookingRepository,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -36,7 +40,7 @@ class PrisonerProfileUpdateService(
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
         .let { it.birthPlace = birthPlace?.uppercase()?.ifBlank { null } }
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber)
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
   }
 
@@ -47,30 +51,31 @@ class PrisonerProfileUpdateService(
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
         .let { it.birthCountry = country(birthCountry)?.getOrThrow() }
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber)
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
   }
 
   @Transactional
-  fun updateNationalityOfCurrentBooking(prisonerNumber: String, nationality: String?) {
+  fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
     val profileType: ProfileType = profileTypeRepository.nationalityProfile().getOrThrow()
     val profileCode: ProfileCode? =
       nationality?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
     try {
-      val currentBooking = currentBooking(prisonerNumber)
-      val currentNationality = currentBooking.profileDetails
-        ?.firstOrNull { it.code?.id?.type?.equals(profileType) ?: false }
+      val latestBooking = latestBooking(prisonerNumber)
+      val latestNationality =
+        profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
+          .orElse(null)
 
-      if (nationality == null && currentNationality != null) {
-        currentBooking.profileDetails.remove(currentNationality)
+      if (nationality == null && latestNationality != null) {
+        latestBooking.profileDetails.remove(latestNationality)
       } else {
-        if (currentNationality != null) {
-          currentNationality.setProfileCode(profileCode)
+        if (latestNationality != null) {
+          latestNationality.setProfileCode(profileCode)
         } else {
-          currentBooking.profileDetails.add(
+          latestBooking.profileDetails.add(
             OffenderProfileDetail.builder()
-              .id(OffenderProfileDetail.PK(currentBooking, profileType, 1))
+              .id(OffenderProfileDetail.PK(latestBooking, profileType, 1))
               .caseloadType("INST")
               .code(profileCode)
               .listSequence(profileType.listSequence)
@@ -79,20 +84,15 @@ class PrisonerProfileUpdateService(
         }
       }
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber)
+      throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
     }
   }
 
-  private fun currentBooking(prisonerNumber: String) =
-    (
-      offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
-        .getOrNull()
-        ?.allBookings
-        ?.firstOrNull { it.bookingSequence == 1 }
-        ?: throw EntityNotFoundException.withMessage(
-          "Prisoner with prisonerNumber %s and existing booking not found",
-          prisonerNumber,
-        )
+  private fun latestBooking(prisonerNumber: String) =
+    offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(prisonerNumber)
+      ?: throw EntityNotFoundException.withMessage(
+        "Prisoner with prisonerNumber %s and existing booking not found",
+        prisonerNumber,
       )
 
   private fun ProfileTypeRepository.nationalityProfile(): Result<ProfileType> =
@@ -114,10 +114,10 @@ class PrisonerProfileUpdateService(
         ?: failure(EntityNotFoundException.withMessage("Country $code not found"))
     }
 
-  private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String): Exception {
+  private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String, table: String): Exception {
     log.error("Error getting lock", e)
     return if (true == e.cause?.message?.contains("ORA-30006")) {
-      DatabaseRowLockedException("Failed to get OFFENDERS lock for prisonerNumber=$prisonerNumber")
+      DatabaseRowLockedException("Failed to get $table lock for prisonerNumber=$prisonerNumber")
     } else {
       e
     }

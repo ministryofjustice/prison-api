@@ -23,17 +23,21 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
-import java.util.*
+import java.util.Optional
 
 class PrisonerProfileUpdateServiceTest {
   private val offenderRepository: OffenderRepository = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
+  private val profileDetailRepository: OffenderProfileDetailRepository = mock()
+  private val offenderBookingRepository: OffenderBookingRepository = mock()
   private val offender: Offender = mock()
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
@@ -44,6 +48,8 @@ class PrisonerProfileUpdateServiceTest {
       countryRepository,
       profileTypeRepository,
       profileCodeRepository,
+      profileDetailRepository,
+      offenderBookingRepository,
     )
 
   @Nested
@@ -144,7 +150,7 @@ class PrisonerProfileUpdateServiceTest {
   }
 
   @Nested
-  inner class UpdateNationalityOfCurrentBooking {
+  inner class UpdateNationalityOfLatestBooking {
 
     @BeforeEach
     internal fun setUp() {
@@ -157,13 +163,12 @@ class PrisonerProfileUpdateServiceTest {
     @ParameterizedTest
     @ValueSource(strings = ["BRIT", "BriT"])
     internal fun `updates nationality`(nationalityCode: String) {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(offender.allBookings).thenReturn(listOf(booking))
-      whenever(booking.bookingSequence).thenReturn(1)
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
       whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
-      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, nationalityCode)
+      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, nationalityCode)
 
       verify(offenderProfileDetail).setProfileCode(BRITISH_NATIONALITY)
     }
@@ -171,39 +176,39 @@ class PrisonerProfileUpdateServiceTest {
     @Test
     internal fun `adds nationality when missing`() {
       val profileDetails = mutableListOf<OffenderProfileDetail>()
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(offender.allBookings).thenReturn(listOf(booking))
-      whenever(booking.bookingSequence).thenReturn(1)
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.empty())
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(profileDetails)
-      whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
-      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE)
+      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE)
 
-      assertThat(profileDetails.size).isEqualTo(1)
+      assertThat(booking.profileDetails).hasSize(1)
+      with(booking.profileDetails[0]) {
+        assertThat(code).isEqualTo(BRITISH_NATIONALITY)
+      }
     }
 
     @Test
     internal fun `removes nationality`() {
       val profileDetails = mutableListOf(offenderProfileDetail)
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(offender.allBookings).thenReturn(listOf(booking))
-      whenever(booking.bookingSequence).thenReturn(1)
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(profileDetails)
       whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
 
-      prisonerProfileUpdateService.updateNationalityOfCurrentBooking(PRISONER_NUMBER, null)
+      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, null)
 
       assertThat(profileDetails).isEmpty()
     }
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(
-        Optional.empty(),
-      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.empty())
 
       assertThatThrownBy {
-        prisonerProfileUpdateService.updateNationalityOfCurrentBooking(
+        prisonerProfileUpdateService.updateNationalityOfLatestBooking(
           PRISONER_NUMBER,
           BRITISH_NATIONALITY_CODE,
         )
@@ -223,7 +228,7 @@ class PrisonerProfileUpdateServiceTest {
       ).thenReturn(Optional.empty())
 
       assertThatThrownBy {
-        prisonerProfileUpdateService.updateNationalityOfCurrentBooking(
+        prisonerProfileUpdateService.updateNationalityOfLatestBooking(
           PRISONER_NUMBER,
           BRITISH_NATIONALITY_CODE,
         )
@@ -238,7 +243,7 @@ class PrisonerProfileUpdateServiceTest {
         .thenReturn(Optional.empty())
 
       assertThatThrownBy {
-        prisonerProfileUpdateService.updateNationalityOfCurrentBooking(
+        prisonerProfileUpdateService.updateNationalityOfLatestBooking(
           PRISONER_NUMBER,
           BRITISH_NATIONALITY_CODE,
         )
@@ -249,11 +254,12 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy {
-        prisonerProfileUpdateService.updateNationalityOfCurrentBooking(
+        prisonerProfileUpdateService.updateNationalityOfLatestBooking(
           PRISONER_NUMBER,
           BRITISH_NATIONALITY_CODE,
         )

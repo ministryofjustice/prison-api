@@ -163,7 +163,7 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
     @Test
     fun `returns status 423 (locked) when database row lock times out`() {
       doThrow(DatabaseRowLockedException("developer message"))
-        .whenever(prisonerProfileUpdateService).updateNationalityOfCurrentBooking(anyString(), anyString())
+        .whenever(prisonerProfileUpdateService).updateNationalityOfLatestBooking(anyString(), anyString())
 
       webTestClient.put()
         .uri("api/offenders/A1234AA/nationality")
