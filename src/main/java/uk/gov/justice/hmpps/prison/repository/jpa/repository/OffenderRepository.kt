@@ -30,6 +30,6 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
 
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints(value = [QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")])
-  @Query("select o from Offender o inner join o.bookings b where o.nomsId = :nomsId and b.bookingSequence = 1")
+  @Query("select o from OffenderBooking b inner join Offender o on b.offender = o where o.nomsId = :nomsId and b.bookingSequence = 1")
   fun findLinkedToLatestBookingForUpdate(@NotNull nomsId: String): Optional<Offender>
 }
