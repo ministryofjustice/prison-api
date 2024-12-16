@@ -29,7 +29,6 @@ import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 
 import jakarta.validation.constraints.NotNull;
@@ -128,6 +127,7 @@ public class ReferenceDomainResource {
 
         return ResponseEntity.ok().headers(referenceCodes.getPaginationHeaders()).body(referenceCodes.getItems());
     }
+
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -235,5 +235,18 @@ public class ReferenceDomainResource {
     @SlowReportQuery
     public List<ReferenceCode> getScheduleReasons(@RequestParam("eventType") @Parameter(description = "Specify event type.", required = true) final String eventType) {
         return referenceDomainService.getScheduleReasons(eventType);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "List of reference codes for reference domain.", description = "List of reference codes / profile codes for reference domain / profile type, ordered by code ascending. The list is an un-paged flat list")
+    @GetMapping("/domains/{domain}/all-codes")
+    @ReferenceData(description = "NO role needed as only reading reference data")
+    @SlowReportQuery
+    public List<ReferenceCode> getReferenceOrProfileCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain or profile type identifier/name.", required = true) final String domain) {
+        return referenceDomainService.getReferenceOrProfileCodesByDomain(domain);
     }
 }
