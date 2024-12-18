@@ -39,17 +39,26 @@ public class AddressDto {
     @Schema(description = "Locality", example = "Brincliffe")
     private String locality;
 
-    @Schema(description = "Town/City. Note: Reference domain is CITY", example = "Liverpool")
+    @Schema(description = "Town/City description. Note: Reference domain is CITY", example = "Liverpool")
     private String town;
+
+    @Schema(description = "Town/City code. Note: Reference domain is CITY", example = "17743")
+    private String townCode;
 
     @Schema(description = "Postal Code", example = "LI1 5TH")
     private String postalCode;
 
-    @Schema(description = "County. Note: Reference domain is COUNTY", example = "HEREFORD")
+    @Schema(description = "County description. Note: Reference domain is COUNTY", example = "Herefordshire")
     private String county;
 
-    @Schema(description = "Country. Note: Reference domain is COUNTRY", example = "ENG")
+    @Schema(description = "County code. Note: Reference domain is COUNTY", example = "HEREFORD")
+    private String countyCode;
+
+    @Schema(description = "Country description. Note: Reference domain is COUNTRY", example = "England")
     private String country;
+
+    @Schema(description = "Country code. Note: Reference domain is COUNTRY", example = "ENG")
+    private String countryCode;
 
     @Schema(description = "Comment", example = "This is a comment text")
     private String comment;

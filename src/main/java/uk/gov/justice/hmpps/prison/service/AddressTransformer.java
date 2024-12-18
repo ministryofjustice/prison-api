@@ -24,8 +24,11 @@ public class AddressTransformer {
 
     public static AddressDto translate(final Address address) {
         final var country = address.getCountry() != null ? address.getCountry().getDescription() : null;
+        final var countryCode = address.getCountry() != null ? address.getCountry().getCode() : null;
         final var county = address.getCounty() != null ? address.getCounty().getDescription() : null;
+        final var countyCode = address.getCounty() != null ? address.getCounty().getCode() : null;
         final var town = address.getCity() != null ? address.getCity().getDescription() : null;
+        final var townCode = address.getCity() != null ? address.getCity().getCode() : null;
         final var addressType = address.getAddressType() != null ? address.getAddressType().getDescription() : null;
 
         return AddressDto.builder()
@@ -34,9 +37,12 @@ public class AddressTransformer {
                 .flat(address.getFlat())
                 .comment(address.getCommentText())
                 .country(country)
+                .countryCode(countryCode)
                 .county(county)
+                .countyCode(countyCode)
                 .locality(address.getLocality())
                 .town(town)
+                .townCode(townCode)
                 .postalCode(address.getPostalCode())
                 .noFixedAddress("Y".equals(address.getNoFixedAddressFlag()))
                 .premise(address.getPremise())
