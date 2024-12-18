@@ -8,6 +8,9 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCodeInfo;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceDomainRepository;
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain;
 import uk.gov.justice.hmpps.prison.service.support.StringWithAbbreviationsProcessor;
@@ -24,10 +27,19 @@ import java.util.stream.Collectors;
 public class ReferenceDomainService {
     private final ReferenceDataRepository referenceDataRepository;
     private final ReferenceDomainRepository referenceDomainRepository;
+    private final ProfileCodeRepository profileCodeRepository;
+    private final ProfileTypeRepository profileTypeRepository;
 
-    public ReferenceDomainService(final ReferenceDataRepository referenceDataRepository, ReferenceDomainRepository referenceDomainRepository) {
+    public ReferenceDomainService(
+        final ReferenceDataRepository referenceDataRepository,
+        ReferenceDomainRepository referenceDomainRepository,
+        ProfileCodeRepository profileCodeRepository,
+        ProfileTypeRepository profileTypeRepository
+    ) {
         this.referenceDataRepository = referenceDataRepository;
         this.referenceDomainRepository = referenceDomainRepository;
+        this.profileCodeRepository = profileCodeRepository;
+        this.profileTypeRepository = profileTypeRepository;
     }
 
     private static String getDefaultOrderBy(final String orderBy) {
@@ -131,6 +143,19 @@ public class ReferenceDomainService {
         return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, withSubCodes);
     }
 
+    public List<ReferenceCode> getReferenceOrProfileCodesByDomain(final String domain) {
+        if (StringUtils.isBlank(domain)) throw new EntityNotFoundException("Reference domain not specified");
+        boolean domainExistsInReferenceCodes = referenceDataRepository.getReferenceDomain(domain).isPresent();
+
+        if(domainExistsInReferenceCodes) {
+            return referenceDataRepository.getReferenceCodesByDomain(domain, "code", Order.ASC);
+        } else {
+            var profileType = profileTypeRepository.findById(domain)
+                .orElseThrow(EntityNotFoundException.withMessage("Reference domain [%s] not found.", domain));
+            return getProfileCodesAsReferenceDataByType(profileType);
+        }
+    }
+
     private void verifyReferenceDomain(final String domain) {
         if (StringUtils.isBlank(domain)) throw new EntityNotFoundException("Reference domain not specified");
         referenceDataRepository.getReferenceDomain(domain)
@@ -141,6 +166,19 @@ public class ReferenceDomainService {
         if (StringUtils.isBlank(code)) throw new EntityNotFoundException("Reference code not specified");
         referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
                 .orElseThrow(EntityNotFoundException.withMessage("Reference code for domain [%s] and code [%s] not found.", domain, code));
+    }
+
+    private List<ReferenceCode> getProfileCodesAsReferenceDataByType(ProfileType type) {
+        return profileCodeRepository.findByProfileType(type)
+            .stream()
+            .map(p -> ReferenceCode.builder()
+                .domain(p.getId().getType().getType())
+                .code(p.getId().getCode())
+                .description(StringWithAbbreviationsProcessor.format(p.getDescription()))
+                .listSeq(p.getListSequence())
+                .build())
+            .sorted(Comparator.comparing(ReferenceCode::getCode))
+            .collect(Collectors.toList());
     }
 
     public List<ReferenceCode> getScheduleReasons(final String eventType) {
