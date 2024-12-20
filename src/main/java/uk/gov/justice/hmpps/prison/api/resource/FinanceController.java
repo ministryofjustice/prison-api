@@ -47,7 +47,7 @@ public class FinanceController {
                     <li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash</li>
                     <li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
                   </ul>
-                <p>Requires role NOMIS_API_V1 or UNILINK</p>""")
+                <p>Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.</p>""")
     @Tag(name = "unilink")
     @ApiResponses({
             @ApiResponse(responseCode = "201", description = "Transaction Created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TransferTransaction.class))}),
