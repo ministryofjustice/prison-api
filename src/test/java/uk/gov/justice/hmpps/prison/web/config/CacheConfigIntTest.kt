@@ -121,7 +121,7 @@ class CacheConfigIntTest {
       // calling twice should only result in one call to the repository
       referenceDomainService.getCaseNoteSources(null, null, 0, 10)
 
-      verify(referenceDataRepository).getReferenceCodesByDomain("NOTE_SOURCE", true, "code", ASC, 0, 10)
+      verify(referenceDataRepository).getReferenceCodesByDomain("NOTE_SOURCE", false, "code", ASC, 0, 10)
     }
   }
 
