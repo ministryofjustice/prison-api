@@ -154,7 +154,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @BeforeEach
     internal fun setUp() {
-      whenever(profileTypeRepository.findByTypeAndCategoryAndActive(eq("NAT"), any(), any()))
+      whenever(profileTypeRepository.findByTypeAndCategoryAndActive(eq(NATIONALITY_PROFILE_TYPE_CODE), any(), any()))
         .thenReturn(Optional.of(NATIONALITY_PROFILE_TYPE))
       whenever(profileCodeRepository.findById(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE)))
         .thenReturn(Optional.of(BRITISH_NATIONALITY))
@@ -221,7 +221,7 @@ class PrisonerProfileUpdateServiceTest {
     internal fun `throws exception if there isn't a matching profile type`() {
       whenever(
         profileTypeRepository.findByTypeAndCategoryAndActive(
-          eq("NAT"),
+          eq(NATIONALITY_PROFILE_TYPE_CODE),
           any(),
           any(),
         ),
@@ -234,7 +234,7 @@ class PrisonerProfileUpdateServiceTest {
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
-        .hasMessage("Resource with id [NAT] not found.")
+        .hasMessage("Resource with id [${NATIONALITY_PROFILE_TYPE_CODE}] not found.")
     }
 
     @Test
@@ -249,7 +249,7 @@ class PrisonerProfileUpdateServiceTest {
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
-        .hasMessage("Profile Code for NAT and BRIT not found")
+        .hasMessage("Profile Code for $NATIONALITY_PROFILE_TYPE_CODE and $BRITISH_NATIONALITY_CODE not found")
     }
 
     @Test
@@ -268,20 +268,149 @@ class PrisonerProfileUpdateServiceTest {
     }
   }
 
+  @Nested
+  inner class UpdateReligionOfLatestBooking {
+
+    @BeforeEach
+    internal fun setUp() {
+      whenever(profileTypeRepository.findByTypeAndCategoryAndActive(eq(RELIGION_PROFILE_TYPE_CODE), any(), any()))
+        .thenReturn(Optional.of(RELIGION_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE)))
+        .thenReturn(Optional.of(DRUID_RELIGION))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["DRU", "drU"])
+    internal fun `updates religion`(religionCode: String) {
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
+      whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
+
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, religionCode)
+
+      verify(offenderProfileDetail).setProfileCode(DRUID_RELIGION)
+    }
+
+    @Test
+    internal fun `adds religion when missing`() {
+      val profileDetails = mutableListOf<OffenderProfileDetail>()
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.empty())
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, DRUID_RELIGION_CODE)
+
+      assertThat(booking.profileDetails).hasSize(1)
+      with(booking.profileDetails[0]) {
+        assertThat(code).isEqualTo(DRUID_RELIGION)
+      }
+    }
+
+    @Test
+    internal fun `removes religion`() {
+      val profileDetails = mutableListOf(offenderProfileDetail)
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
+
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, null)
+
+      assertThat(profileDetails).isEmpty()
+    }
+
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+          PRISONER_NUMBER,
+          DRUID_RELIGION_CODE,
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching profile type`() {
+      whenever(
+        profileTypeRepository.findByTypeAndCategoryAndActive(
+          eq(RELIGION_PROFILE_TYPE_CODE),
+          any(),
+          any(),
+        ),
+      ).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+          PRISONER_NUMBER,
+          DRUID_RELIGION_CODE,
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Resource with id [$RELIGION_PROFILE_TYPE_CODE] not found.")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching profile code`() {
+      whenever(profileCodeRepository.findById(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE)))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+          PRISONER_NUMBER,
+          DRUID_RELIGION_CODE,
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Profile Code for $RELIGION_PROFILE_TYPE_CODE and $DRUID_RELIGION_CODE not found")
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+          PRISONER_NUMBER,
+          DRUID_RELIGION_CODE,
+        )
+      }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val BIRTH_PLACE = "SHEFFIELD"
     const val BIRTH_COUNTRY_CODE = "GBR"
     const val BRITISH_NATIONALITY_CODE = "BRIT"
+    const val DRUID_RELIGION_CODE = "DRU"
 
     val BIRTH_COUNTRY = Country("GBR", "Great Britain")
 
+    const val NATIONALITY_PROFILE_TYPE_CODE = "NAT"
     val NATIONALITY_PROFILE_TYPE =
-      ProfileType("NAT", "PI", "Nationality", false, true, "CODE", true, null, null)
+      ProfileType(NATIONALITY_PROFILE_TYPE_CODE, "PI", "Nationality", false, true, "CODE", true, null, null)
     val BRITISH_NATIONALITY =
       ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE), "British", true, true, null, null)
     val FRENCH_NATIONALITY =
       ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, "FREN"), "French", true, true, null, null)
+
+    const val RELIGION_PROFILE_TYPE_CODE = "RELF"
+    val RELIGION_PROFILE_TYPE =
+      ProfileType(RELIGION_PROFILE_TYPE_CODE, "PI", "Religion", false, true, "CODE", true, null, null)
+    val DRUID_RELIGION =
+      ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE), "Druid", true, true, null, null)
+    val ZOROASTRIAN_RELIGION =
+      ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, "ZORO"), "Zoroastrian", true, true, null, null)
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")
