@@ -56,22 +56,29 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
-    val profileType: ProfileType = profileTypeRepository.nationalityProfile().getOrThrow()
+  fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) =
+    updateProfileDetailsOfLatestBooking(prisonerNumber, NATIONALITY_PROFILE_TYPE, nationality)
+
+  @Transactional
+  fun updateReligionOfLatestBooking(prisonerNumber: String, religion: String?) =
+    updateProfileDetailsOfLatestBooking(prisonerNumber, RELIGION_PROFILE_TYPE, religion)
+
+  private fun updateProfileDetailsOfLatestBooking(prisonerNumber: String, type: String, value: String?) {
+    val profileType: ProfileType = profileTypeRepository.profileType(type).getOrThrow()
     val profileCode: ProfileCode? =
-      nationality?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
+      value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
     try {
       val latestBooking = latestBooking(prisonerNumber)
-      val latestNationality =
+      val latestProfileEntryOfType =
         profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
           .orElse(null)
 
-      if (nationality == null && latestNationality != null) {
-        latestBooking.profileDetails.remove(latestNationality)
+      if (value == null && latestProfileEntryOfType != null) {
+        latestBooking.profileDetails.remove(latestProfileEntryOfType)
       } else {
-        if (latestNationality != null) {
-          latestNationality.setProfileCode(profileCode)
+        if (latestProfileEntryOfType != null) {
+          latestProfileEntryOfType.setProfileCode(profileCode)
         } else {
           latestBooking.profileDetails.add(
             OffenderProfileDetail.builder()
@@ -95,14 +102,18 @@ class PrisonerProfileUpdateService(
         prisonerNumber,
       )
 
-  private fun ProfileTypeRepository.nationalityProfile(): Result<ProfileType> =
-    this.findByTypeAndCategoryAndActiveOrNull("NAT", "PI", true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId("NAT"),
+  private fun ProfileTypeRepository.profileType(
+    type: String,
+    category: String = "PI",
+    active: Boolean = true,
+  ): Result<ProfileType> =
+    this.findByTypeAndCategoryAndActiveOrNull(type, category, active)?.let { success(it) } ?: failure(
+      EntityNotFoundException.withId(type),
     )
 
   private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> =
     this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Profile Code for NAT and $code not found"),
+      EntityNotFoundException.withMessage("Profile Code for ${type.type} and $code not found"),
     )
 
   private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: String) =
@@ -125,5 +136,7 @@ class PrisonerProfileUpdateService(
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+    const val NATIONALITY_PROFILE_TYPE = "NAT"
+    const val RELIGION_PROFILE_TYPE = "RELF"
   }
 }
