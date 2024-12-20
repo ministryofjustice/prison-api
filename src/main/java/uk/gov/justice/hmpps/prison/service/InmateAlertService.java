@@ -59,19 +59,6 @@ public class InmateAlertService {
         return alerts;
     }
 
-    public List<Alert> getInmateAlertsByOffenderNosAtAgency(final String agencyId, final List<String> offenderNos) {
-
-        final var alerts = Lists.partition(offenderNos, maxBatchSize)
-                .stream()
-                .flatMap(offenderNosList -> inmateAlertRepository.getAlertsByOffenderNos(agencyId, offenderNosList, true, "bookingId,alertId", Order.ASC).stream())
-                .toList();
-
-        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
-
-        log.info("Returning {} matching Alerts for Offender Numbers {} in Agency '{}'", alerts.size(), offenderNos, agencyId);
-        return alerts;
-    }
-
     public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
 
         final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly,  orderByField, order);
@@ -109,33 +96,6 @@ public class InmateAlertService {
             .toList();
         log.info("Returning {} matching Alerts for Offender Number {}", alerts.size(), offenderNo);
         return alerts;
-    }
-
-    public org.springframework.data.domain.Page<Alert> getAlertsForBooking(final Long bookingId, final LocalDate fromAlertDate, final LocalDate toAlertDate, final String alertType, final String alertStatus, final Pageable pageable) {
-        final var filter = OffenderAlertFilter
-            .builder()
-            .bookingId(bookingId)
-            .fromAlertDate(fromAlertDate)
-            .toAlertDate(toAlertDate)
-            .alertTypes(alertType)
-            .status(alertStatus)
-            .build();
-
-        final var pageOfAlerts = offenderAlertRepository.findAll(
-            filter,
-            PageRequest.of(pageable.getPageNumber(), pageable.getPageSize(), mapAlertSortOrderProperties(pageable.getSort())));
-
-        log.info("Returning {} of {} matching Alerts starting at page {} for bookingId {}", pageOfAlerts.getNumberOfElements(), pageOfAlerts.getTotalElements(), pageOfAlerts.getNumber(), bookingId);
-        return pageOfAlerts.map(OffenderAlertTransformer::transformForBooking);
-    }
-
-    private Sort mapAlertSortOrderProperties(Sort sort) {
-        return Sort.by(sort
-            .stream()
-            .map(order -> Sort.Order
-                .by(mapSortProperty(order.getProperty()))
-                .with(order.getDirection()))
-            .toList());
     }
 
     private boolean isExpiredAlert(final Alert alert) {

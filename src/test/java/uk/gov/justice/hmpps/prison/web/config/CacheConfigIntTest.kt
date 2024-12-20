@@ -115,13 +115,13 @@ class CacheConfigIntTest {
 
     @Test
     fun `test domain that exist is added to cache`() {
-      val types = referenceDomainService.getAlertTypes(null, null, 0, 10)
+      val types = referenceDomainService.getCaseNoteSources(null, null, 0, 10)
       assertThat(types?.items).isNotEmpty
 
       // calling twice should only result in one call to the repository
-      referenceDomainService.getAlertTypes(null, null, 0, 10)
+      referenceDomainService.getCaseNoteSources(null, null, 0, 10)
 
-      verify(referenceDataRepository).getReferenceCodesByDomain("ALERT", true, "code", ASC, 0, 10)
+      verify(referenceDataRepository).getReferenceCodesByDomain("NOTE_SOURCE", true, "code", ASC, 0, 10)
     }
   }
 
