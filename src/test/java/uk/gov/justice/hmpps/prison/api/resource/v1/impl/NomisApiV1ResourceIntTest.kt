@@ -267,6 +267,31 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
   }
 
   @Test
+  fun transferTransaction_integration_api_role() {
+    val transaction = CreateTransaction()
+    transaction.amount = 1234L
+    transaction.clientUniqueRef = "clientRef"
+    transaction.description = "desc"
+    transaction.type = "type"
+    transaction.clientTransactionId = "transId"
+
+    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_PRISON_API__HMPPS_INTEGRATION_API"), transaction)
+
+    whenever(postTransfer.execute(any(SqlParameterSource::class.java))).thenReturn(
+      mapOf<String, Any>(
+        StoreProcMetadata.P_TXN_ID to "someId",
+        StoreProcMetadata.P_TXN_ENTRY_SEQ to "someSeq",
+        StoreProcMetadata.P_CURRENT_AGY_DESC to "someDesc",
+        StoreProcMetadata.P_CURRENT_AGY_LOC_ID to "someLoc",
+      ),
+    )
+
+    val responseEntity = testRestTemplate.exchange("/api/v1/prison/CKI/offenders/G1408GC/transfer_transactions", HttpMethod.POST, requestEntity, String::class.java)
+
+    assertThatJson(responseEntity.body!!).isEqualTo("{current_location: {code: \"someLoc\", desc: \"someDesc\"}, transaction: {id:\"someId-someSeq\"}}")
+  }
+
+  @Test
   fun transferTransaction_wrong_role() {
     val transaction = CreateTransaction()
     transaction.amount = 1234L
