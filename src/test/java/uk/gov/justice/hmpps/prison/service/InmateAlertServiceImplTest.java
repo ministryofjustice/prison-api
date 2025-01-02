@@ -58,16 +58,6 @@ class InmateAlertServiceImplTest {
         );
     }
 
-    @Test
-    void testGetInmateAlertsByOffenderNosAtAgency() {
-        final var offenders = IntStream.range(1, 20).mapToObj(String::valueOf).toList();
-
-        service.getInmateAlertsByOffenderNosAtAgency("MDI", offenders);
-
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("1","2","3","4","5","6","7","8","9","10"),true, "bookingId,alertId", Order.ASC);
-        verify(inmateAlertRepository).getAlertsByOffenderNos("MDI", List.of("11","12","13","14","15","16","17","18","19"),true, "bookingId,alertId", Order.ASC);
-    }
-
     @Nested
     class GetAlertsForLatestBookingForOffender {
         @Captor
@@ -196,119 +186,6 @@ class InmateAlertServiceImplTest {
 
             assertThat(alerts).hasSize(2).extracting(Alert::getAlertId).containsExactly(1L, 2L);
 
-        }
-    }
-
-    @Nested
-    class GetAlertsForBooking {
-        @Captor
-        private ArgumentCaptor<Specification<OffenderAlert>> specificationArgumentCaptor;
-
-        @Captor
-        private ArgumentCaptor<Pageable> pageableArgumentCaptor;
-
-
-        @BeforeEach
-        void setUp() {
-            when(offenderAlertRepository.findAll(any(), any(PageRequest.class)))
-                .thenAnswer(request -> new PageImpl<>(List.of(alertOfSequence(1), alertOfSequence(2)), request.getArgument(1), 2));
-        }
-
-        @Test
-        @DisplayName("will setup filter with bookingId and filter properties")
-        void willSetupFilterWithOffenderAndAlertCodes() {
-            service.getAlertsForBooking(99L,
-                LocalDate.parse("2020-01-01"),
-                LocalDate.parse("2021-12-31"),
-                "V",
-                "ACTIVE",
-                PageRequest.of(1, 10, Direction.ASC, "dateCreated"));
-
-            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
-
-            assertThat(specificationArgumentCaptor.getValue()).isInstanceOf(OffenderAlertFilter.class);
-
-            final OffenderAlertFilter filter = (OffenderAlertFilter) specificationArgumentCaptor.getValue();
-            assertThat(filter.getBookingId()).isEqualTo(99L);
-            assertThat(filter.getFromAlertDate()).isEqualTo("2020-01-01");
-            assertThat(filter.getToAlertDate()).isEqualTo("2021-12-31");
-            assertThat(filter.getAlertTypes()).isEqualTo("V");
-            assertThat(filter.getStatus()).isEqualTo("ACTIVE");
-        }
-
-        @Test
-        @DisplayName("no parts of the filter are mandatory (other than bookingId)")
-        void noPartsOfTheFilterAreMandatory() {
-            service.getAlertsForBooking(99L,
-                null,
-                null,
-                null,
-                null,
-                PageRequest.of(1, 10, Direction.ASC, "dateCreated"));
-
-            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
-
-            assertThat(specificationArgumentCaptor.getValue()).isInstanceOf(OffenderAlertFilter.class);
-
-            final OffenderAlertFilter filter = (OffenderAlertFilter) specificationArgumentCaptor.getValue();
-            assertThat(filter.getBookingId()).isEqualTo(99L);
-            assertThat(filter.getFromAlertDate()).isNull();
-            assertThat(filter.getToAlertDate()).isNull();
-            assertThat(filter.getAlertTypes()).isNull();
-            assertThat(filter.getStatus()).isNull();
-            assertThat(filter.getLatestBooking()).isNull();
-            assertThat(filter.getOffenderNo()).isNull();
-        }
-
-
-        @Test
-        @DisplayName("will map sort property names")
-        void willMapSortPropertyNames() {
-            service.getAlertsForBooking(99L,
-                LocalDate.parse("2020-01-01"),
-                LocalDate.parse("2021-12-31"),
-                "V",
-                "ACTIVE",
-                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
-
-            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
-
-            final var pageRequest = pageableArgumentCaptor.getValue();
-
-            assertThat(pageRequest.getSort().stream())
-                .extracting(Sort.Order::getProperty)
-                .containsExactly("alertDate", "status");
-        }
-
-        @Test
-        @DisplayName("will use sort direction for each property")
-        void willUseSortDirection() {
-            service.getAlertsForBooking(99L,
-                LocalDate.parse("2020-01-01"),
-                LocalDate.parse("2021-12-31"),
-                "V",
-                "ACTIVE",
-                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
-            verify(offenderAlertRepository).findAll(specificationArgumentCaptor.capture(), pageableArgumentCaptor.capture());
-
-            final var pageRequest = pageableArgumentCaptor.getValue();
-
-            assertThat(pageRequest.getSort().stream())
-                .extracting(Sort.Order::getDirection)
-                .containsExactly(Direction.ASC, Direction.ASC);
-        }
-
-        @Test
-        @DisplayName("will transform results")
-        void willTransformResults() {
-            final var alerts = service.getAlertsForBooking(99L,
-                LocalDate.parse("2020-01-01"),
-                LocalDate.parse("2021-12-31"),
-                "V",
-                "ACTIVE",
-                PageRequest.of(1, 10, Direction.ASC, "dateCreated", "active"));
-
-            assertThat(alerts).hasSize(2).extracting(Alert::getAlertId).containsExactly(1L, 2L);
         }
     }
 

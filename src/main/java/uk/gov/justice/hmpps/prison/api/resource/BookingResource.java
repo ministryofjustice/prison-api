@@ -301,44 +301,6 @@ public class BookingResource {
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts",
-        deprecated = true
-    )
-    @GetMapping("/{bookingId}/alerts/v2")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Page<Alert> getOffenderAlertsV2(
-        @PathVariable("bookingId") @Parameter(description = "The booking id for the booking", required = true) final Long bookingId,
-        @RequestParam(value = "from", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "start alert date to search from", example = "2021-02-03") final LocalDate from,
-        @RequestParam(value = "to", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "end alert date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
-        @RequestParam(value = "alertType", required = false) @Parameter(description = "Filter by alert type", example = "X") final String alertType,
-        @RequestParam(value = "alertStatus", required = false) @Parameter(description = "Filter by alert active status", example = "ACTIVE") final String alertStatus,
-        @ParameterObject @PageableDefault(sort = {"dateExpires", "dateCreated"}, direction = Direction.DESC) final Pageable pageable) {
-
-        return inmateAlertService.getAlertsForBooking(bookingId, from, to, alertType, alertStatus, pageable);
-    }
-
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts_1",
-        deprecated = true
-    )
-    @PostMapping("/offenderNo/{agencyId}/alerts")
-    @SlowReportQuery
-    @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<Alert> getAlertsByOffenderNosAtAgency(
-        @PathVariable("agencyId") @Parameter(description = "The prison where the offenders are booked", required = true) final String agencyId,
-        @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos
-    ) {
-        return inmateAlertService.getInmateAlertsByOffenderNosAtAgency(agencyId, offenderNos);
-    }
-
     @Operation(
         summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
         description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts_1",
