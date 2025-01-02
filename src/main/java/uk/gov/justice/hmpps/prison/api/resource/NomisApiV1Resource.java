@@ -63,7 +63,7 @@ import static uk.gov.justice.hmpps.prison.util.ResourceUtils.getUniqueClientId;
 @Tag(name = "v1")
 @Validated
 @RequestMapping(value = "${api.base.path}/v1", produces = "application/json")
-@PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK')")
+@PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API')")
 public class NomisApiV1Resource {
 
     public static final String NOMS_ID_REGEX_PATTERN = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}";
@@ -171,7 +171,7 @@ public class NomisApiV1Resource {
             request could specify data from 2022-05-18 with limit of 1000.  The next request could then look at the last
             event in the response and specify that as the from_datetime with limit of 1000 again etc. until all data is
             retrieved.
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @GetMapping("/offenders/events")
@@ -213,7 +213,7 @@ public class NomisApiV1Resource {
             "<p>If the account was previously closed then it will be closed again.</p>" +
             "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
-    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Transfer transferTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("previous_prison_id") @Parameter(name = "previous_prison_id", description = "Prison ID", example = "BMI", required = true) final String previousPrisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId,
                                         @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final CreateTransaction createTransaction) {
@@ -257,12 +257,13 @@ public class NomisApiV1Resource {
               <li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.</li>
               <li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
             </ul>
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @Tag(name = "unilink")
+    @Tag(name = "integration-api")
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
-    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName,
                                          @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId,
@@ -299,7 +300,7 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Not a digital prison.  Prison not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Fetching live roll.", description = "Requires NOMIS_API_V1 or UNILINK role.")
+    @Operation(summary = "Fetching live roll.", description = "Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.")
     @GetMapping("/prison/{prison_id}/live_roll")
     @Tag(name = "unilink")
     @SlowReportQuery
@@ -319,7 +320,7 @@ public class NomisApiV1Resource {
               <li>The field 'offender_details_request' contains a JSON block of data containing the offender data.</li>
             </ul>
             The format of 'offender_details_request' is not specified here.<br/>
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @GetMapping("/offenders/{noms_id}/pss_detail")
@@ -350,12 +351,13 @@ public class NomisApiV1Resource {
         </pre>
         <br/>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu.
         Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script intially as part of the deployment process as shown below<br/><br/>
-        Requires NOMIS_API_V1 or UNILINK role.
+        Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
         """
     )
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")
+    @Tag(name = "integration-api")
     @Tag(name = "unilink")
-    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public PaymentResponse storePayment(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @jakarta.validation.Valid @NotNull @RequestBody @Parameter(description = "Transaction Details", required = true) final StorePaymentRequest payment) {
         return service.storePayment(prisonId, nomsId, payment.getType(), payment.getDescription(), payment.getAmountInPounds(), LocalDate.now(), payment.getClientTransactionId());
@@ -369,10 +371,11 @@ public class NomisApiV1Resource {
     @Operation(summary = "Retrieve an offender's financial account balances.", description = """
             Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>
             All balance values are represented as pence values.<br/>
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts")
+    @Tag(name = "integration-api")
     @Tag(name = "unilink")
     // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountBalance getAccountBalance(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId) {
@@ -387,7 +390,7 @@ public class NomisApiV1Resource {
     @Operation(summary = "Deprecated - use the version without the trailing slash. Retrieve an offender's financial account balances.", description = """
             Returns balances for the offender’s three sub accounts (spends, savings and cash) at the specified prison.<br/>
             All balance values are represented as pence values.<br/>
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/")
@@ -406,10 +409,11 @@ public class NomisApiV1Resource {
     @Operation(summary = "Retrieve an offender's financial transaction history for cash, spends or savings.", description = """
             Transactions are returned in NOMIS order (Descending date followed by id).<br/>
             All transaction amounts are represented as pence values.<br/>
-            Requires NOMIS_API_V1 or UNILINK role.
+            Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/transactions")
+    @Tag(name = "integration-api")
     @Tag(name = "unilink")
     // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountTransactions getAccountTransactions(@Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @NotNull @PathVariable("account_code") @Parameter(name = "account_code", description = "Account code", example = "spends", required = true, schema = @Schema(implementation = String.class, allowableValues = {"spends","cash","savings"})) final String accountCode, @RequestParam(value = "from_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "from_date", description = "Start date for transactions (defaults to today if not supplied)", example = "2019-04-01") final LocalDate fromDate, @RequestParam(value = "to_date", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(name = "to_date", description = "To date for transactions (defaults to today if not supplied)", example = "2019-05-01") final LocalDate toDate) {
@@ -424,10 +428,11 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Retrieve a single financial transaction using client unique ref.", description = """
         All transaction amounts are represented as pence values.<br/>
-        Requires NOMIS_API_V1 or UNILINK role.
+        Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
         """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/transactions/{client_unique_ref}")
+    @Tag(name = "integration-api")
     @Tag(name = "unilink")
     // @SlowReportQuery Temporarily go to primary to investigate cause of unilink issue
     public AccountTransaction getTransactionByClientUniqueRef(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "WLI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1404AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @PathVariable("client_unique_ref") @Parameter(name = "client_unique_ref", description = "Client unique reference", required = true) final String clientUniqueRef) {
