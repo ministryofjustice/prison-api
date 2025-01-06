@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
   kotlin("plugin.spring") version "2.0.21"
   kotlin("plugin.jpa") version "2.0.21"
   kotlin("plugin.lombok") version "2.0.21"
@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.36")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.36")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.1.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.1.1")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -39,8 +39,8 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("commons-io:commons-io:2.18.0")
-  implementation("com.google.guava:guava:33.3.1-jre")
-  implementation("org.apache.commons:commons-text:1.12.0")
+  implementation("com.google.guava:guava:33.4.0-jre")
+  implementation("org.apache.commons:commons-text:1.13.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.25.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
@@ -50,7 +50,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.1.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.1.1")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.0")
@@ -63,18 +63,18 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.0.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.0")
 
   testImplementation("net.serenity-bdd:serenity-core:4.2.9")
   testImplementation("net.serenity-bdd:serenity-junit:4.2.9")
   testImplementation("net.serenity-bdd:serenity-spring:4.2.9")
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.9")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.9.2")
+  testImplementation("org.wiremock:wiremock:3.10.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.24") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.26")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.27")
   testImplementation("commons-beanutils:commons-beanutils:1.9.4")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.43.0")
 
