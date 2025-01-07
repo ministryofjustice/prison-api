@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
 import java.util.Optional
 import kotlin.Result.Companion.failure
@@ -64,7 +65,11 @@ class PrisonerProfileUpdateService(
     updateProfileDetailsOfLatestBooking(prisonerNumber, RELIGION_PROFILE_TYPE, religion)
 
   private fun updateProfileDetailsOfLatestBooking(prisonerNumber: String, type: String, value: String?) {
-    val profileType: ProfileType = profileTypeRepository.profileType(type).getOrThrow()
+    val profileType: ProfileType = if (type == RELIGION_PROFILE_TYPE) {
+      profileTypeRepository.profileTypeIgnoringActiveStatus(type).getOrThrow()
+    } else {
+      profileTypeRepository.profileType(type).getOrThrow()
+    }
     val profileCode: ProfileCode? =
       value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
@@ -108,6 +113,14 @@ class PrisonerProfileUpdateService(
     active: Boolean = true,
   ): Result<ProfileType> =
     this.findByTypeAndCategoryAndActiveOrNull(type, category, active)?.let { success(it) } ?: failure(
+      EntityNotFoundException.withId(type),
+    )
+
+  private fun ProfileTypeRepository.profileTypeIgnoringActiveStatus(
+    type: String,
+    category: String = "PI",
+  ): Result<ProfileType> =
+    this.findByTypeAndCategoryOrNull(type, category)?.let { success(it) } ?: failure(
       EntityNotFoundException.withId(type),
     )
 

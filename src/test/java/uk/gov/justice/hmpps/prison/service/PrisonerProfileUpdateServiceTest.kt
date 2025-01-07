@@ -273,7 +273,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @BeforeEach
     internal fun setUp() {
-      whenever(profileTypeRepository.findByTypeAndCategoryAndActive(eq(RELIGION_PROFILE_TYPE_CODE), any(), any()))
+      whenever(profileTypeRepository.findByTypeAndCategory(eq(RELIGION_PROFILE_TYPE_CODE), any()))
         .thenReturn(Optional.of(RELIGION_PROFILE_TYPE))
       whenever(profileCodeRepository.findById(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE)))
         .thenReturn(Optional.of(DRUID_RELIGION))
@@ -339,9 +339,8 @@ class PrisonerProfileUpdateServiceTest {
     @Test
     internal fun `throws exception if there isn't a matching profile type`() {
       whenever(
-        profileTypeRepository.findByTypeAndCategoryAndActive(
+        profileTypeRepository.findByTypeAndCategory(
           eq(RELIGION_PROFILE_TYPE_CODE),
-          any(),
           any(),
         ),
       ).thenReturn(Optional.empty())
