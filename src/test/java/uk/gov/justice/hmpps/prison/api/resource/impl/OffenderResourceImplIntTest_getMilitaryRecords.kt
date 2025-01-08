@@ -7,8 +7,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.GET
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse.builder
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
@@ -56,7 +56,7 @@ class OffenderResourceImplIntTest_getMilitaryRecords : ResourceTest() {
     )
   }
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderBookingRepository: OffenderBookingRepository
 
   @Test

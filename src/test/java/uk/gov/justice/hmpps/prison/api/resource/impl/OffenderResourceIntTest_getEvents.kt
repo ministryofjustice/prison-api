@@ -9,15 +9,15 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.anyLong
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpMethod
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import java.time.LocalDateTime
 
 @DisplayName("OffenderResource get Events")
 class OffenderResourceIntTest_getEvents : ResourceTest() {
-  @SpyBean
+  @MockitoSpyBean
   lateinit var bookingRepository: BookingRepository
 
   @Test

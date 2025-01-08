@@ -14,10 +14,10 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.verifyNoInteractions
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.data.domain.PageImpl
 import org.springframework.data.domain.PageRequest
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
@@ -53,7 +53,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   @Autowired
   private lateinit var builder: NomisDataBuilder
 
-  @MockBean
+  @MockitoBean
   private lateinit var workflowTaskService: WorkflowTaskService
 
   private val team: Team by lazy {

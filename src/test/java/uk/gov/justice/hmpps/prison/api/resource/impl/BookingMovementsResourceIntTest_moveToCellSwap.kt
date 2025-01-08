@@ -9,7 +9,6 @@ import org.junit.jupiter.api.Test
 import org.mockito.Mockito.doThrow
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.PUT
@@ -18,6 +17,7 @@ import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService
@@ -49,7 +49,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   @Autowired
   private lateinit var clock: Clock
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var bedAssignmentHistoryService: BedAssignmentHistoryService
 
   @AfterEach

@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
@@ -39,7 +39,7 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
     )
   }
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderBeliefRepository: OffenderBeliefRepository
 
   @Test

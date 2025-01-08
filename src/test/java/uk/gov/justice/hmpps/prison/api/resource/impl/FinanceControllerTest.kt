@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.POST
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
@@ -15,13 +15,13 @@ import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTr
 import java.util.Optional
 
 class FinanceControllerTest : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var insertIntoOffenderTrans: InsertIntoOffenderTrans
 
-  @MockBean
+  @MockitoBean
   private lateinit var processGlTransNew: ProcessGlTransNew
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderTransactionRepository: OffenderTransactionRepository
 
   @Test
