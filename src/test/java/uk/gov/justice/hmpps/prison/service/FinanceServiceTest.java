@@ -164,6 +164,28 @@ class FinanceServiceTest {
     }
 
     @Test
+    void testTransfer_clientUniqueRefAlreadyUsed() {
+        final var transaction = createTransferTransaction();
+
+        when(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean())).thenReturn(
+            Optional.of(createOffenderBooking()));
+
+        when(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND"))).thenReturn(
+            Optional.of(AccountCode.builder().accountCode(2101L).build()));
+
+        when(offenderTrustAccountRepository.findById(any())).thenReturn(
+            Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()));
+        when(offenderSubAccountRepository.findById(any())).thenReturn(
+            Optional.of(OffenderSubAccount.builder().balance(new BigDecimal("12.34")).build()));
+
+        when(offenderTransactionRepository.findByClientUniqueRef(anyString())).thenReturn(
+            Optional.of(OffenderTransaction.builder().build()));
+
+        assertThatThrownBy(() -> financeService.transferToSavings("LEI", "AA2134", transaction, "1234"))
+                .hasMessage("Duplicate post - The unique_client_ref clientRef has been used before");
+    }
+
+    @Test
     void testTransfer() {
         final var transaction = createTransferTransaction();
 
