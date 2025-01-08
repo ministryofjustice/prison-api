@@ -12,9 +12,9 @@ import org.junit.jupiter.api.Test
 import org.mockito.kotlin.check
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.dsl.JAN
@@ -40,7 +40,7 @@ private const val ESCAPED = "ESCP"
 
 class OffenderResourceIntTest_newBooking : ResourceTest() {
 
-  @MockBean
+  @MockitoBean
   private lateinit var trustAccountService: TrustAccountService
 
   @Autowired

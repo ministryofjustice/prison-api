@@ -13,9 +13,9 @@ import org.mockito.kotlin.reset
 import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.context.SpringBootTest
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.cache.CacheManager
 import org.springframework.test.context.ActiveProfiles
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.resource.AgencyResource
 import uk.gov.justice.hmpps.prison.api.support.Order.ASC
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository
@@ -38,28 +38,28 @@ class CacheConfigIntTest {
   @Autowired
   private lateinit var referenceDomainService: ReferenceDomainService
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var referenceDataRepository: ReferenceDataRepository
 
   @Autowired
   private lateinit var caseNoteService: CaseNoteService
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var caseNoteRepository: CaseNoteRepository
 
   @Autowired
   private lateinit var staffService: StaffService
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var staffRepository: StaffRepository
 
   @Autowired
   private lateinit var agencyResource: AgencyResource
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var agencyService: AgencyService
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var agencyRepository: AgencyRepository
 
   @Test

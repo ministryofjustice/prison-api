@@ -12,9 +12,9 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq
@@ -29,10 +29,10 @@ import java.util.Optional
 class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
   private var token: String? = null
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderDamageObligationRepository: OffenderDamageObligationRepository
 
-  @MockBean
+  @MockitoBean
   private lateinit var bookingRepository: BookingRepository
 
   @BeforeEach

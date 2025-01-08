@@ -7,11 +7,11 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -40,13 +40,13 @@ import java.time.LocalDateTime
 import java.util.Optional
 
 class BookingResourceImplIntTest : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var inmateRepository: InmateRepository
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var bookingRepository: BookingRepository
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderBookingRepository: OffenderBookingRepository
 
   @DisplayName("GET /api/bookings/{bookingId}/personal-care-needs")

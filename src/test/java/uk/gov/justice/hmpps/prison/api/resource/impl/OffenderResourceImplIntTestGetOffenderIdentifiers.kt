@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
@@ -54,7 +54,7 @@ class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
     )
   }
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderIdentifierRepository: OffenderIdentifierRepository
 
   @Test

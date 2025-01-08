@@ -6,8 +6,8 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.Mockito.doThrow
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.service.AgencyService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDate
@@ -22,7 +22,7 @@ class CellResourceHistoryTest : ResourceTest() {
     private val ASSIGNMENT_DATE = LocalDate.of(2020, 4, 3).toString()
   }
 
-  @MockBean
+  @MockitoBean
   private lateinit var agencyService: AgencyService
 
   @Test

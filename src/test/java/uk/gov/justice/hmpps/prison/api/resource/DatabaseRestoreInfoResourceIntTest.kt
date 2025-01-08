@@ -3,13 +3,13 @@ package uk.gov.justice.hmpps.prison.api.resource
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.doReturn
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MisStopPointRepository
 import java.time.LocalDateTime
 
 class DatabaseRestoreInfoResourceIntTest : ResourceTest() {
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var misStopPointRepository: MisStopPointRepository
 
   @Test
