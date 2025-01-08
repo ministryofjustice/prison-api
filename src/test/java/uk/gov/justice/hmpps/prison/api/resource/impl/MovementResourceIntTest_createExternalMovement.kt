@@ -6,8 +6,8 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.WebTestClient.ResponseSpec
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
@@ -16,7 +16,7 @@ import uk.gov.justice.hmpps.prison.service.MovementsService
 import java.time.LocalDateTime
 
 class MovementResourceIntTest_createExternalMovement : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var movementsService: MovementsService
 
   @Test

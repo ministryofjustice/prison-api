@@ -4,7 +4,7 @@ import oracle.jdbc.OracleDatabaseException;
 import org.hibernate.exception.GenericJDBCException;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpEntity;
 import org.springframework.orm.jpa.JpaSystemException;
@@ -39,7 +39,7 @@ public class BookingMovementsResourceIntTest_moveToCell_mockService extends Reso
     @Autowired
     private TestRestTemplate testRestTemplate;
 
-    @MockBean
+    @MockitoBean
     private MovementUpdateService movementUpdateService;
 
     @Test

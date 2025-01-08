@@ -12,7 +12,6 @@ import org.mockito.ArgumentMatchers.any
 import org.mockito.ArgumentMatchers.eq
 import org.mockito.kotlin.whenever
 import org.springframework.boot.test.json.JsonContent
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.core.ResolvableType
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.http.HttpMethod
@@ -22,6 +21,7 @@ import org.springframework.http.HttpStatus.CONFLICT
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
 import org.springframework.jdbc.core.namedparam.SqlParameterSource
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.v1.ContactList
 import uk.gov.justice.hmpps.prison.api.model.v1.CreateTransaction
 import uk.gov.justice.hmpps.prison.api.model.v1.Events
@@ -69,55 +69,55 @@ import javax.sql.rowset.serial.SerialBlob
 import javax.sql.rowset.serial.SerialClob
 
 class NomisApiV1ResourceIntTest : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var postTransaction: PostTransaction
 
-  @MockBean
+  @MockitoBean
   private lateinit var postTransfer: PostTransfer
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderPssDetail: GetOffenderPssDetail
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderDetails: GetOffenderDetails
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderImage: GetOffenderImage
 
-  @MockBean
+  @MockitoBean
   private lateinit var getHolds: GetHolds
 
-  @MockBean
+  @MockitoBean
   private lateinit var getEvents: GetEvents
 
-  @MockBean
+  @MockitoBean
   private lateinit var getLiveRoll: GetLiveRoll
 
-  @MockBean
+  @MockitoBean
   private lateinit var postStorePayment: PostStorePayment
 
-  @MockBean
+  @MockitoBean
   private lateinit var getAccountBalances: GetAccountBalances
 
-  @MockBean
+  @MockitoBean
   private lateinit var getAccountTransactions: GetAccountTransactions
 
-  @MockBean
+  @MockitoBean
   private lateinit var getTransactionByClientUniqueRef: GetTransactionByClientUniqueRef
 
-  @MockBean
+  @MockitoBean
   private lateinit var getActiveOffender: GetActiveOffender
 
-  @MockBean
+  @MockitoBean
   private lateinit var getAvailableDates: GetAvailableDates
 
-  @MockBean
+  @MockitoBean
   private lateinit var getContactList: GetContactList
 
-  @MockBean
+  @MockitoBean
   private lateinit var getUnavailability: GetUnavailability
 
-  @MockBean
+  @MockitoBean
   private lateinit var getVisitSlotsWithCapacity: GetVisitSlotsWithCapacity
 
   @Nested
