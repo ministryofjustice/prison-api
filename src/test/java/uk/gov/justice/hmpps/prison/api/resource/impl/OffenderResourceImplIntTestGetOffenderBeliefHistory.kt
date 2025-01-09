@@ -5,6 +5,7 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
 import org.springframework.test.context.bean.override.mockito.MockitoBean
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
@@ -27,7 +28,7 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
     )
     .build()
   private val offenderBelief = OffenderBelief(
-    98765L, OffenderBooking.builder().bookingId(123456L).build(),
+    98765L, OffenderBooking.builder().bookingId(123456L).build(), Offender.builder().rootOffenderId(-1L).build(),
     beliefCode, LocalDateTime.parse("2024-01-01T00:00:00"), null, true, "Comments",
     false, LocalDateTime.parse("2024-01-01T00:00:00"), staffUserAccount, null, null,
   )

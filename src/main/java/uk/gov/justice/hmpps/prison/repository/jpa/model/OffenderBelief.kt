@@ -3,9 +3,12 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.GeneratedValue
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
+import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.annotations.JoinColumnOrFormula
@@ -19,12 +22,20 @@ import java.time.LocalDateTime
 @EntityOpen
 @Table(name = "OFFENDER_BELIEFS")
 data class OffenderBelief(
+
   @Id
-  val beliefId: Long,
+  @Column(name = "BELIEF_ID", nullable = false)
+  @SequenceGenerator(name = "BELIEF_ID", sequenceName = "BELIEF_ID", allocationSize = 1)
+  @GeneratedValue(generator = "BELIEF_ID")
+  val beliefId: Long = 0,
 
   @ManyToOne
   @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
   val booking: OffenderBooking,
+
+  @ManyToOne(optional = false, fetch = FetchType.LAZY)
+  @JoinColumn(name = "ROOT_OFFENDER_ID", nullable = false)
+  var rootOffender: Offender,
 
   @ManyToOne
   @JoinColumnsOrFormulas(

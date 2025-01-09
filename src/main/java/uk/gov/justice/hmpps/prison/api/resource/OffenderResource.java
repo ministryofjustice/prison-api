@@ -983,6 +983,11 @@ public class OffenderResource {
         @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
         @RequestBody @NotNull @Valid final UpdateReligion updateReligion
     ) {
-        prisonerProfileUpdateService.updateReligionOfLatestBooking(prisonerNumber, updateReligion.getReligion());
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+            prisonerNumber,
+            updateReligion.getReligion(),
+            updateReligion.getComment(),
+            hmppsAuthenticationHolder.getUsername()
+        );
     }
 }

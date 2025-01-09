@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
@@ -8,19 +9,25 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
+import java.time.LocalDateTime
 import java.util.Optional
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
@@ -33,6 +40,8 @@ class PrisonerProfileUpdateService(
   private val profileCodeRepository: ProfileCodeRepository,
   private val profileDetailRepository: OffenderProfileDetailRepository,
   private val offenderBookingRepository: OffenderBookingRepository,
+  private val offenderBeliefRepository: OffenderBeliefRepository,
+  private val staffUserAccountRepository: StaffUserAccountRepository,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -57,37 +66,54 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) =
-    updateProfileDetailsOfLatestBooking(prisonerNumber, NATIONALITY_PROFILE_TYPE, nationality)
+  fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
+    val profileType = profileTypeRepository.profileType(NATIONALITY_PROFILE_TYPE).getOrThrow()
+    val profileCode = profileCode(profileType, nationality)
+    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode)
+  }
 
   @Transactional
-  fun updateReligionOfLatestBooking(prisonerNumber: String, religion: String?) =
-    updateProfileDetailsOfLatestBooking(prisonerNumber, RELIGION_PROFILE_TYPE, religion)
-
-  private fun updateProfileDetailsOfLatestBooking(prisonerNumber: String, type: String, value: String?) {
-    val profileType: ProfileType = if (type == RELIGION_PROFILE_TYPE) {
-      profileTypeRepository.profileTypeIgnoringActiveStatus(type).getOrThrow()
-    } else {
-      profileTypeRepository.profileType(type).getOrThrow()
+  fun updateReligionOfLatestBooking(prisonerNumber: String, religion: String?, comment: String?, username: String?) {
+    if (religion == null) {
+      throw ValidationException("A value must be provided for religion")
     }
-    val profileCode: ProfileCode? =
-      value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
+    val profileType = profileTypeRepository.profileTypeIgnoringActiveStatus(RELIGION_PROFILE_TYPE).getOrThrow()
+    val profileCode = profileCode(profileType, religion)
+      ?: throw EntityNotFoundException.withMessage(
+        "Religion profile code with code %s not found",
+        religion,
+      )
+    val latestBooking = latestBooking(prisonerNumber)
+    val user = staffUserAccountRepository.findByUsername(username).orElseThrow {
+      EntityNotFoundException.withMessage("Staff user account with provided username not found")
+    }
 
+    if (profileCodeDoesNotMatchExistingValue(prisonerNumber, profileType, profileCode)) {
+      updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode)
+      updateBeliefHistory(latestBooking, profileCode, comment, user)
+    }
+  }
+
+  private fun updateProfileDetailsOfBooking(
+    booking: OffenderBooking,
+    prisonerNumber: String,
+    profileType: ProfileType,
+    profileCode: ProfileCode?,
+  ) {
     try {
-      val latestBooking = latestBooking(prisonerNumber)
       val latestProfileEntryOfType =
         profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
           .orElse(null)
 
-      if (value == null && latestProfileEntryOfType != null) {
-        latestBooking.profileDetails.remove(latestProfileEntryOfType)
+      if (profileCode == null && latestProfileEntryOfType != null) {
+        booking.profileDetails.remove(latestProfileEntryOfType)
       } else {
         if (latestProfileEntryOfType != null) {
           latestProfileEntryOfType.setProfileCode(profileCode)
         } else {
-          latestBooking.profileDetails.add(
+          booking.profileDetails.add(
             OffenderProfileDetail.builder()
-              .id(OffenderProfileDetail.PK(latestBooking, profileType, 1))
+              .id(OffenderProfileDetail.PK(booking, profileType, 1))
               .caseloadType("INST")
               .code(profileCode)
               .listSequence(profileType.listSequence)
@@ -99,6 +125,42 @@ class PrisonerProfileUpdateService(
       throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
     }
   }
+
+  private fun updateBeliefHistory(
+    latestBooking: OffenderBooking,
+    profileCode: ProfileCode,
+    comment: String?,
+    user: StaffUserAccount,
+  ) = offenderBeliefRepository.save(
+    OffenderBelief(
+      booking = latestBooking,
+      changeReason = comment?.isNotBlank() ?: false,
+      comments = comment,
+      rootOffender = latestBooking.rootOffender,
+      beliefCode = profileCode,
+      startDate = LocalDateTime.now(),
+      createDatetime = LocalDateTime.now(),
+      createdByUser = user,
+      verified = false,
+    ),
+  )
+
+  private fun profileCodeDoesNotMatchExistingValue(
+    prisonerNumber: String,
+    profileType: ProfileType,
+    newValue: ProfileCode,
+  ): Boolean {
+    try {
+      return profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
+        .map { it.code != newValue }
+        .orElse(true)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
+    }
+  }
+
+  private fun profileCode(profileType: ProfileType, value: String?) =
+    value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
   private fun latestBooking(prisonerNumber: String) =
     offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(prisonerNumber)

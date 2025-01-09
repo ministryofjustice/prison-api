@@ -22,9 +22,11 @@ import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
 import java.util.stream.Stream
 
@@ -41,6 +43,12 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
   @Autowired
   lateinit var prisonerRepository: PrisonerRepository
+
+  @Autowired
+  lateinit var offenderBeliefRepository: OffenderBeliefRepository
+
+  @Autowired
+  lateinit var staffUserAccountRepository: StaffUserAccountRepository
 
   @SpyBean
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
@@ -61,7 +69,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     fun `returns 403 when client does not have any roles`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
-        .headers(setClientAuthorisation(listOf()))
+        .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -72,7 +80,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
+        .headers(setAuthorisation(listOf("ROLE_BANANAS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -83,7 +91,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     fun `returns 204 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -99,7 +107,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     open fun `should update the religion`(prisonerId: String, id: Long) {
       webTestClient.put()
         .uri("api/offenders/$prisonerId/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -113,19 +121,33 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
     @Test
     @Transactional(readOnly = true)
-    open fun `should allow religion to be removed`() {
+    open fun `should update the religion without providing a comment value`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(NULL_RELIGION_UPDATE)
+        .bodyValue(VALID_RELIGION_UPDATE_WITHOUT_COMMENT)
         .exchange()
         .expectStatus().isNoContent
 
       val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
       assertThat(
-        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)),
-      ).isEmpty
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
+      ).isEqualTo("DRU")
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should not allow religion to be removed`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AA/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(NULL_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("A value must be provided for religion")
     }
 
     private fun religionProfileType(): ProfileType =
@@ -135,10 +157,10 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
   @Nested
   inner class ErrorConditions {
     @Test
-    fun shouldReturn404WhenOffenderDoesNotExist() {
+    fun `returns 404 when offender does not exist`() {
       webTestClient.put()
         .uri("api/offenders/AAA444/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -148,10 +170,10 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     }
 
     @Test
-    fun shouldReturn404WhenOffenderHasNoBooking() {
+    fun `returns 404 when offender has no booking`() {
       webTestClient.put()
         .uri("api/offenders/A9880GH/religion")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -161,13 +183,26 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     }
 
     @Test
-    fun `returns status 423 (locked) when database row lock times out`() {
-      doThrow(DatabaseRowLockedException("developer message"))
-        .whenever(prisonerProfileUpdateService).updateReligionOfLatestBooking(anyString(), anyString())
-
+    fun `returns 404 when a staff user account is not found for the provided username`() {
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage")
+        .isEqualTo("Staff user account with provided username not found")
+    }
+
+    @Test
+    fun `returns status 423 (locked) when database row lock times out`() {
+      doThrow(DatabaseRowLockedException("developer message"))
+        .whenever(prisonerProfileUpdateService).updateReligionOfLatestBooking(anyString(), anyString(), anyString(), anyString())
+
+      webTestClient.put()
+        .uri("api/offenders/A1234AA/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
@@ -180,6 +215,15 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
   private companion object {
     const val VALID_RELIGION_UPDATE =
+      // language=json
+      """
+        {
+          "religion": "DRU",
+          "comment": "Some comment"
+        }
+      """
+
+    const val VALID_RELIGION_UPDATE_WITHOUT_COMMENT =
       // language=json
       """
         {

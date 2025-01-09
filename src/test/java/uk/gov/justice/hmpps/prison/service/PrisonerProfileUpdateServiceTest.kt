@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.validation.ValidationException
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -8,9 +9,11 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
+import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
+import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
@@ -18,17 +21,21 @@ import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import java.util.Optional
 
 class PrisonerProfileUpdateServiceTest {
@@ -38,6 +45,8 @@ class PrisonerProfileUpdateServiceTest {
   private val profileCodeRepository: ProfileCodeRepository = mock()
   private val profileDetailRepository: OffenderProfileDetailRepository = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
+  private val offenderBeliefRepository: OffenderBeliefRepository = mock()
+  private val staffUserAccountRepository: StaffUserAccountRepository = mock()
   private val offender: Offender = mock()
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
@@ -50,6 +59,8 @@ class PrisonerProfileUpdateServiceTest {
       profileCodeRepository,
       profileDetailRepository,
       offenderBookingRepository,
+      offenderBeliefRepository,
+      staffUserAccountRepository,
     )
 
   @Nested
@@ -273,53 +284,83 @@ class PrisonerProfileUpdateServiceTest {
 
     @BeforeEach
     internal fun setUp() {
+      val user = StaffUserAccount.builder().username(USERNAME).build()
       whenever(profileTypeRepository.findByTypeAndCategory(eq(RELIGION_PROFILE_TYPE_CODE), any()))
         .thenReturn(Optional.of(RELIGION_PROFILE_TYPE))
       whenever(profileCodeRepository.findById(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE)))
         .thenReturn(Optional.of(DRUID_RELIGION))
+      whenever(staffUserAccountRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user))
     }
 
     @ParameterizedTest
     @ValueSource(strings = ["DRU", "drU"])
-    internal fun `updates religion`(religionCode: String) {
+    internal fun `updates religion and history`(religionCode: String) {
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
+      whenever(booking.rootOffender).thenReturn(offender)
+      whenever(offender.id).thenReturn(123456L)
       whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
+      val beliefCaptor = ArgumentCaptor.forClass(OffenderBelief::class.java)
 
-      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, religionCode)
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, religionCode, "some comment", USERNAME)
 
       verify(offenderProfileDetail).setProfileCode(DRUID_RELIGION)
+      verify(offenderBeliefRepository).save(beliefCaptor.capture())
+      val belief = beliefCaptor.value
+      assertThat(belief.booking).isEqualTo(booking)
+      assertThat(belief.createdByUser.username).isEqualTo(USERNAME)
+      assertThat(belief.beliefCode).isEqualTo(DRUID_RELIGION)
+      assertThat(belief.comments).isEqualTo("some comment")
     }
 
     @Test
-    internal fun `adds religion when missing`() {
+    internal fun `adds religion when missing and updates history`() {
       val profileDetails = mutableListOf<OffenderProfileDetail>()
 
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.empty())
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(booking.rootOffender).thenReturn(offender)
+      whenever(offender.id).thenReturn(123456L)
+      val beliefCaptor = ArgumentCaptor.forClass(OffenderBelief::class.java)
 
-      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, DRUID_RELIGION_CODE)
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, DRUID_RELIGION_CODE, "some comment", USERNAME)
 
       assertThat(booking.profileDetails).hasSize(1)
       with(booking.profileDetails[0]) {
         assertThat(code).isEqualTo(DRUID_RELIGION)
       }
+      verify(offenderBeliefRepository).save(beliefCaptor.capture())
+      val belief = beliefCaptor.value
+      assertThat(belief.booking).isEqualTo(booking)
+      assertThat(belief.createdByUser.username).isEqualTo(USERNAME)
+      assertThat(belief.beliefCode).isEqualTo(DRUID_RELIGION)
+      assertThat(belief.comments).isEqualTo("some comment")
     }
 
     @Test
-    internal fun `removes religion`() {
-      val profileDetails = mutableListOf(offenderProfileDetail)
-
+    internal fun `does not update religion or history if the new value matches the existing value`() {
+      val profileDetails = mutableListOf<OffenderProfileDetail>()
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(booking.profileDetails).thenReturn(profileDetails)
-      whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
+      whenever(booking.rootOffender).thenReturn(offender)
+      whenever(offender.id).thenReturn(123456L)
+      whenever(offenderProfileDetail.code).thenReturn(DRUID_RELIGION)
 
-      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, null)
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, DRUID_RELIGION_CODE, "some comment", USERNAME)
 
-      assertThat(profileDetails).isEmpty()
+      verify(offenderProfileDetail, never()).setProfileCode(any())
+      verify(offenderBeliefRepository, never()).save(any())
+    }
+
+    @Test
+    internal fun `Removal is not permitted`() {
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, null, null, USERNAME)
+      }.isInstanceOf(ValidationException::class.java)
+        .hasMessage("A value must be provided for religion")
     }
 
     @Test
@@ -330,6 +371,8 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.updateReligionOfLatestBooking(
           PRISONER_NUMBER,
           DRUID_RELIGION_CODE,
+          "some comment",
+          USERNAME,
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -349,6 +392,8 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.updateReligionOfLatestBooking(
           PRISONER_NUMBER,
           DRUID_RELIGION_CODE,
+          "some comment",
+          USERNAME,
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -364,10 +409,29 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.updateReligionOfLatestBooking(
           PRISONER_NUMBER,
           DRUID_RELIGION_CODE,
+          "some comment",
+          USERNAME,
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Profile Code for $RELIGION_PROFILE_TYPE_CODE and $DRUID_RELIGION_CODE not found")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a user profile matching the username`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(staffUserAccountRepository.findByUsername(USERNAME)).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateReligionOfLatestBooking(
+          PRISONER_NUMBER,
+          DRUID_RELIGION_CODE,
+          "some comment",
+          USERNAME,
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Staff user account with provided username not found")
     }
 
     @Test
@@ -380,6 +444,8 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.updateReligionOfLatestBooking(
           PRISONER_NUMBER,
           DRUID_RELIGION_CODE,
+          "some comment",
+          USERNAME,
         )
       }
         .isInstanceOf(DatabaseRowLockedException::class.java)
@@ -387,6 +453,7 @@ class PrisonerProfileUpdateServiceTest {
   }
 
   private companion object {
+    const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
     const val BIRTH_PLACE = "SHEFFIELD"
     const val BIRTH_COUNTRY_CODE = "GBR"
