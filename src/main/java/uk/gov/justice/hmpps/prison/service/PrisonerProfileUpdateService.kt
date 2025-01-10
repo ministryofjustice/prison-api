@@ -90,7 +90,7 @@ class PrisonerProfileUpdateService(
 
     if (profileCodeDoesNotMatchExistingValue(prisonerNumber, profileType, profileCode)) {
       updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode)
-      updateBeliefHistory(latestBooking, profileCode, comment, user)
+      updateBeliefHistory(prisonerNumber, latestBooking, profileCode, comment, user)
     }
   }
 
@@ -127,23 +127,35 @@ class PrisonerProfileUpdateService(
   }
 
   private fun updateBeliefHistory(
+    prisonerNumber: String,
     latestBooking: OffenderBooking,
     profileCode: ProfileCode,
     comment: String?,
     user: StaffUserAccount,
-  ) = offenderBeliefRepository.save(
-    OffenderBelief(
-      booking = latestBooking,
-      changeReason = comment?.isNotBlank() ?: false,
-      comments = comment,
-      rootOffender = latestBooking.rootOffender,
-      beliefCode = profileCode,
-      startDate = LocalDateTime.now(),
-      createDatetime = LocalDateTime.now(),
-      createdByUser = user,
-      verified = false,
-    ),
-  )
+  ) {
+    val now = LocalDateTime.now()
+    offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, latestBooking.bookingId.toString())
+      .filter { it.endDate?.isAfter(now) ?: true }
+      .forEach {
+        it.endDate = now
+        it.modifyDatetime = now
+        it.modifiedByUser = user
+      }
+
+    offenderBeliefRepository.save(
+      OffenderBelief(
+        booking = latestBooking,
+        changeReason = comment?.isNotBlank() ?: false,
+        comments = comment,
+        rootOffender = latestBooking.rootOffender,
+        beliefCode = profileCode,
+        startDate = now,
+        createDatetime = now,
+        createdByUser = user,
+        verified = false,
+      ),
+    )
+  }
 
   private fun profileCodeDoesNotMatchExistingValue(
     prisonerNumber: String,

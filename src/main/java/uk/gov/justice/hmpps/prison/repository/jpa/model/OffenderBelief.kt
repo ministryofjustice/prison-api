@@ -54,7 +54,8 @@ data class OffenderBelief(
   @Column(name = "EFFECTIVE_DATE")
   val startDate: LocalDateTime,
 
-  val endDate: LocalDateTime? = null,
+  @Column(name = "END_DATE")
+  var endDate: LocalDateTime? = null,
 
   @Convert(converter = YesNoConverter::class)
   val changeReason: Boolean? = null,
@@ -72,11 +73,12 @@ data class OffenderBelief(
   @JoinColumn(name = "CREATE_USER_ID", nullable = false)
   val createdByUser: StaffUserAccount,
 
-  val modifyDatetime: LocalDateTime? = null,
+  @Column(name = "MODIFY_DATETIME")
+  var modifyDatetime: LocalDateTime? = null,
 
   @ManyToOne(optional = true)
   @JoinColumn(name = "MODIFY_USER_ID")
-  val modifiedByUser: StaffUserAccount? = null,
+  var modifiedByUser: StaffUserAccount? = null,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
