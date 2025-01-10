@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service;
 import jakarta.validation.ValidationException;
 import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.dao.DuplicateKeyException;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -86,7 +87,7 @@ public class FinanceService {
         final var subActTypeDrId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subActTypeDr).orElseThrow().getAccountCode();
         final var subActTypeCr = SAVINGS.code;
 
-        validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDrId);
+        validateTransferToSavings(prisonId, offenderNo, transferTransaction, booking, subActTypeDrId, transferTransaction.getClientUniqueRef());
 
         final var transactionNumber = offenderTransactionRepository.getNextTransactionId();
 
@@ -114,7 +115,7 @@ public class FinanceService {
                 .transactionId(transactionNumber).build();
     }
 
-    private void validateTransferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction, final OffenderBooking booking, final Long subActTypeDr) {
+    private void validateTransferToSavings(final String prisonId, final String offenderNo, final TransferTransaction transferTransaction, final OffenderBooking booking, final Long subActTypeDr, final String clientUniqueRef) {
         if (!booking.getLocation().getId().equals(prisonId)) {
             throw EntityNotFoundException.withMessage("Offender %s found at prison %s instead of %s", offenderNo, booking.getLocation().getId(), prisonId);
         }
@@ -136,5 +137,8 @@ public class FinanceService {
         if (balance.compareTo(transferTransaction.getAmountInPounds()) < 0) {
             throw new ValidationException(String.format("Not enough money in offender sub account balance - %s", balance.setScale(2, RoundingMode.HALF_UP)));
         }
+        offenderTransactionRepository.findByClientUniqueRef(clientUniqueRef).ifPresent(offenderTransaction -> {
+            throw new DuplicateKeyException(String.format("Duplicate post - The unique_client_ref %s has been used before", clientUniqueRef));
+        });
     }
 }

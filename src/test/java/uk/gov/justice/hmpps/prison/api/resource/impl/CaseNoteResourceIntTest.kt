@@ -5,8 +5,8 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest
@@ -17,7 +17,7 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class CaseNoteResourceIntTest : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var offenderCaseNoteRepository: OffenderCaseNoteRepository
 
   @Nested

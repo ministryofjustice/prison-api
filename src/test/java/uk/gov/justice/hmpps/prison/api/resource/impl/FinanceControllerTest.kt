@@ -1,11 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
+import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
 import org.springframework.http.HttpMethod.POST
+import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
@@ -14,13 +15,13 @@ import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTr
 import java.util.Optional
 
 class FinanceControllerTest : ResourceTest() {
-  @MockBean
+  @MockitoBean
   private lateinit var insertIntoOffenderTrans: InsertIntoOffenderTrans
 
-  @MockBean
+  @MockitoBean
   private lateinit var processGlTransNew: ProcessGlTransNew
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderTransactionRepository: OffenderTransactionRepository
 
   @Test
@@ -80,7 +81,7 @@ class FinanceControllerTest : ResourceTest() {
       "A1234AA",
     )
     assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}")
-    Assertions.assertThat(transaction1.clientUniqueRef).isEqualTo("clientName-clientRef")
+    assertThat(transaction1.clientUniqueRef).isEqualTo("clientName-clientRef")
   }
 
   @Test
@@ -153,6 +154,29 @@ class FinanceControllerTest : ResourceTest() {
       "A1234AA",
     )
     assertThatJsonAndStatus(responseEntity, 403, "{\"status\":403,\"userMessage\":\"Access Denied\"}")
+  }
+
+  @Test
+  fun transferToSavings_duplicateClientUniqueRef() {
+    whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
+      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+    val transaction = createTransferTransaction(124L)
+    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
+    whenever(offenderTransactionRepository.findByClientUniqueRef(any())).thenReturn(Optional.of(OffenderTransaction.builder().build()))
+    val responseEntity = testRestTemplate.exchange(
+      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
+      POST,
+      requestEntity,
+      String::class.java,
+      "LEI",
+      "A1234AA",
+    )
+    assertThatJsonAndStatus(
+      responseEntity,
+      409,
+      "{\"status\":409,\"userMessage\":\"Duplicate post - The unique_client_ref clientRef has been used before\",\"developerMessage\":\"Duplicate post - The unique_client_ref clientRef has been used before\"}",
+    )
   }
 
   private fun createTransferTransaction(amount: Long): TransferTransaction {

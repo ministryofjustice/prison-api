@@ -4,7 +4,7 @@ import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.TestConfiguration;
-import org.springframework.boot.test.mock.mockito.SpyBean;
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean;
 import org.springframework.context.annotation.Bean;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpStatus;
@@ -50,7 +50,7 @@ public class BookingMovementsResourceIntTest_moveToCell extends ResourceTest {
     private BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     @Autowired
     private Clock clock;
-    @SpyBean
+    @MockitoSpyBean
     private BedAssignmentHistoryService bedAssignmentHistoryService;
 
     private static final Long BOOKING_ID = -33L;

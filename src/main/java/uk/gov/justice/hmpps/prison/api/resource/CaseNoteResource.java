@@ -46,7 +46,10 @@ public class CaseNoteResource {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by type/sub-type and staff", description = "Retrieves list of case notes grouped by type/sub-type and staff. Requires role VIEW_CASE_NOTES")
+    @Operation(
+        deprecated = true,
+        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/staff-usage"
+    )
     @PostMapping("/staff-usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -59,7 +62,10 @@ public class CaseNoteResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes", description = "Count of case notes. Requires role VIEW_CASE_NOTES")
+    @Operation(
+        deprecated = true,
+        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
+    )
     @GetMapping("/usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -78,7 +84,10 @@ public class CaseNoteResource {
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by type and offender", description = "Retrieves list of case notes grouped by type and offender. Requires role VIEW_CASE_NOTES")
+    @Operation(
+        deprecated = true,
+        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
+    )
     @PostMapping("/usage")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -88,7 +97,10 @@ public class CaseNoteResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(summary = "Retrieves list of case notes grouped by types, bookings and from dates", description = "Retrieves list of case notes grouped by type/sub and offender. Requires role VIEW_CASE_NOTES")
+    @Operation(
+        deprecated = true,
+        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
+    )
     @PostMapping("/usage-by-types")
     @SlowReportQuery
     @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
@@ -101,7 +113,10 @@ public class CaseNoteResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes by booking id", description = "Count of case notes by booking id. Requires role VIEW_CASE_NOTES")
+    @Operation(
+        deprecated = true,
+        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
+    )
     @Hidden
     @GetMapping("/summary")
     @SlowReportQuery

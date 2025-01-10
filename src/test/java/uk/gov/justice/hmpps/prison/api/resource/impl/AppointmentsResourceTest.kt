@@ -10,11 +10,11 @@ import org.mockito.Mockito.times
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.verifyNoInteractions
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.aop.ProxyUserAspect
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
@@ -34,10 +34,10 @@ import java.time.temporal.ChronoUnit
 import java.util.Optional
 
 class AppointmentsResourceTest : ResourceTest() {
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var proxyUserAspect: ProxyUserAspect
 
-  @MockBean
+  @MockitoBean
   private lateinit var offenderIndividualScheduleRepository: OffenderIndividualScheduleRepository
 
   private fun appointmentWithId(createdId1: Long): OffenderIndividualSchedule {

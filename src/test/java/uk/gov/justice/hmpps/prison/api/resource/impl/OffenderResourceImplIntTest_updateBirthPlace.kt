@@ -9,9 +9,9 @@ import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
@@ -21,7 +21,7 @@ class OffenderResourceImplIntTest_updateBirthPlace : ResourceTest() {
   @Autowired
   lateinit var offenderRepository: OffenderRepository
 
-  @SpyBean
+  @MockitoSpyBean
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
 
   @Nested

@@ -51,7 +51,7 @@ public class FinanceController {
     @Tag(name = "integration-api")
     @Tag(name = "unilink")
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Transaction Created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = TransferTransaction.class))}),
+            @ApiResponse(responseCode = "200", description = "Transaction Created"),
             @ApiResponse(responseCode = "400", description = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +
                     "<li>Offender not in specified prison - prisoner identified by {noms_id} is not in prison {prison_id}</li>" +
                     "<li>Finance Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),

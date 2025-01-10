@@ -5,8 +5,8 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.whenever
-import org.springframework.boot.test.mock.mockito.MockBean
-import org.springframework.boot.test.mock.mockito.SpyBean
+import org.springframework.test.context.bean.override.mockito.MockitoBean
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.model.Location.builder
 import uk.gov.justice.hmpps.prison.repository.LocationRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -14,10 +14,10 @@ import uk.gov.justice.hmpps.prison.service.LocationGroupService
 
 class AgencyResourceIntTest : ResourceTest() {
 
-  @MockBean
+  @MockitoBean
   private lateinit var repository: LocationRepository
 
-  @SpyBean
+  @MockitoSpyBean
   private lateinit var locationGroupService: LocationGroupService
 
   @Nested
