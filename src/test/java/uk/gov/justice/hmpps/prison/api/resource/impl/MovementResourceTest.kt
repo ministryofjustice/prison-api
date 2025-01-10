@@ -186,6 +186,159 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/movements/offender/{offenderNo}")
+  inner class GetMovementsForOffender {
+    @Test
+    fun `Get movements across all bookings for an offender`() {
+      webTestClient.get()
+        .uri("/api/movements/offender/{offenderNo}?allBookings=true", "A1179MT")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+          [
+            {
+              "offenderNo": "A1179MT",
+              "createDateTime": "2018-04-25T00:00:00",
+              "fromAgency": "MDI",
+              "fromAgencyDescription": "Moorland",
+              "toAgency": "OUT",
+              "toAgencyDescription": "Outside",
+              "fromCity": "",
+              "toCity": "",
+              "movementType": "REL",
+              "movementTypeDescription": "Release",
+              "directionCode": "OUT",
+              "movementDate": "2018-05-01",
+              "movementTime": "13:00:00",
+              "movementReason": "Abscond",
+              "movementReasonCode": "UAL"
+            },
+            {
+              "offenderNo": "A1179MT",
+              "createDateTime": "2019-04-25T00:00:00",
+              "fromAgency": "MDI",
+              "fromAgencyDescription": "Moorland",
+              "toAgency": "LEI",
+              "toAgencyDescription": "Leeds",
+              "fromCity": "Birmingham",
+              "toCity": "Leicester",
+              "movementType": "ADM",
+              "movementTypeDescription": "Admission",
+              "directionCode": "IN",
+              "movementDate": "2019-05-01",
+              "movementTime": "13:00:00",
+              "movementReason": "Recapture (Escapee)",
+              "movementReasonCode": "RECA"
+            }
+          ]
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `Get movements filtered by movement type for offender`() {
+      webTestClient.get()
+        .uri("/api/movements/offender/{offenderNo}?movementTypes=ADM", "A1179MT")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+          [
+            {
+              "offenderNo": "A1179MT",
+              "createDateTime": "2019-04-25T00:00:00",
+              "fromAgency": "MDI",
+              "fromAgencyDescription": "Moorland",
+              "toAgency": "LEI",
+              "toAgencyDescription": "Leeds",
+              "fromCity": "Birmingham",
+              "toCity": "Leicester", 
+              "movementType": "ADM",
+              "movementTypeDescription": "Admission",
+              "directionCode": "IN",
+              "movementDate": "2019-05-01",
+              "movementTime": "13:00:00",
+              "movementReason": "Recapture (Escapee)",
+              "movementReasonCode": "RECA"
+            }
+          ]
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `Get movements across filtered by date`() {
+      webTestClient.get()
+        .uri("/api/movements/offender/{offenderNo}?allBookings=true&movementsAfter=2018-06-01", "A1179MT")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+          [
+            {
+              "offenderNo": "A1179MT",
+              "createDateTime": "2019-04-25T00:00:00",
+              "fromAgency": "MDI",
+              "fromAgencyDescription": "Moorland",
+              "toAgency": "LEI",
+              "toAgencyDescription": "Leeds",
+              "fromCity": "Birmingham",
+              "toCity": "Leicester",
+              "movementType": "ADM",
+              "movementTypeDescription": "Admission",
+              "directionCode": "IN",
+              "movementDate": "2019-05-01",
+              "movementTime": "13:00:00",
+              "movementReason": "Recapture (Escapee)",
+              "movementReasonCode": "RECA"
+            }
+          ]
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `Get movements by date and movement type`() {
+      webTestClient.get()
+        .uri("/api/movements/offender/{offenderNo}?allBookings=true&movementsAfter=2018-06-01&movementTypes=ADM", "A1179MT")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+          [
+            {
+              "offenderNo": "A1179MT",
+              "createDateTime": "2019-04-25T00:00:00",
+              "fromAgency": "MDI",
+              "fromAgencyDescription": "Moorland",
+              "toAgency": "LEI",
+              "toAgencyDescription": "Leeds",
+              "fromCity": "Birmingham",
+              "toCity": "Leicester",
+              "movementType": "ADM",
+              "movementTypeDescription": "Admission",
+              "directionCode": "IN",
+              "movementDate": "2019-05-01",
+              "movementTime": "13:00:00",
+              "movementReason": "Recapture (Escapee)",
+              "movementReasonCode": "RECA"
+            }
+          ]
+          """.trimIndent(),
+        )
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/movements/rollcount/{agencyId}/movements")
   inner class GetMovementRollcount {
 

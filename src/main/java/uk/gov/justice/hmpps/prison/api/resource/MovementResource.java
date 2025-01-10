@@ -45,8 +45,12 @@ import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+
+import static java.util.Arrays.asList;
+import static java.util.Collections.singletonList;
 
 @RestController
 @Tag(name = "movements")
@@ -142,6 +146,20 @@ public class MovementResource {
         @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only latest movement for the offenders specified") final Boolean latestOnly,
         @RequestParam(value = "allBookings", required = false, defaultValue = "false") @Parameter(description = "Returns all movements for this offender list from all bookings if true") final boolean allBookings) {
         return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly == null || latestOnly, allBookings);
+    }
+
+    @Operation
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    @GetMapping("/offender/{offenderNo}")
+    public List<Movement> getMovementsByOffender(
+        @PathVariable("offenderNo") @Parameter(
+            description = "The required offender id (mandatory)",
+            required = true
+        ) final String offenderNo,
+        @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by") final List<String> movementTypes,
+        @RequestParam(value = "allBookings", required = false, defaultValue = "false") @Parameter(description = "Returns all movements for this offender list from all bookings if true") final boolean allBookings,
+        @RequestParam(value = "movementsAfter", required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returns all movements for this offender list from all bookings if true") final LocalDate movementsAfter) {
+        return movementsService.getMovementsByOffender(offenderNo, movementTypes, allBookings, movementsAfter);
     }
 
     @ApiResponses({
