@@ -11,12 +11,13 @@ import org.junit.jupiter.params.provider.Arguments
 import org.junit.jupiter.params.provider.Arguments.arguments
 import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.ArgumentMatchers.anyString
+import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
 import org.mockito.kotlin.whenever
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.mock.mockito.SpyBean
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
@@ -28,6 +29,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
+import java.time.Instant
+import java.time.LocalDate
+import java.time.ZoneOffset
 import java.util.stream.Stream
 
 class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
@@ -50,7 +54,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
   @Autowired
   lateinit var staffUserAccountRepository: StaffUserAccountRepository
 
-  @SpyBean
+  @MockitoSpyBean
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
 
   @Nested
@@ -114,26 +118,42 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .expectStatus().isNoContent
 
       val booking = offenderRepository.findById(id).get().allBookings.first { it.bookingSequence == 1 }
+      val history = offenderBeliefRepository.getOffenderBeliefHistory(prisonerId, booking.bookingId.toString())
+
       assertThat(
         offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
       ).isEqualTo("DRU")
+      val historyEntry = history[0]
+      assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
+      assertThat(historyEntry.changeReason).isTrue()
+      assertThat(historyEntry.comments).isEqualTo("Some comment")
+      assertThat(historyEntry.verified).isTrue()
+      assertThat(historyEntry.startDate).isEqualTo(LocalDate.parse("2025-01-01").atStartOfDay())
     }
 
     @Test
     @Transactional(readOnly = true)
-    open fun `should update the religion without providing a comment value`() {
+    open fun `should update the religion with a minimal update request`() {
       webTestClient.put()
-        .uri("api/offenders/A1234AA/religion")
+        .uri("api/offenders/A1234AB/religion")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(VALID_RELIGION_UPDATE_WITHOUT_COMMENT)
+        .bodyValue(VALID_MINIMAL_RELIGION_UPDATE)
         .exchange()
         .expectStatus().isNoContent
 
-      val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
+      val booking = offenderRepository.findById(-1002L).get().allBookings.first { it.bookingSequence == 1 }
+      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AB", booking.bookingId.toString())
       assertThat(
         offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
       ).isEqualTo("DRU")
+      val historyEntry = history[0]
+      val now = Instant.now().toEpochMilli()
+      assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
+      assertThat(historyEntry.changeReason).isFalse()
+      assertThat(historyEntry.comments).isNull()
+      assertThat(historyEntry.verified).isFalse()
+      assertThat(now.minus(historyEntry.startDate.toInstant(ZoneOffset.UTC).toEpochMilli())).isLessThan(60000)
     }
 
     @Test
@@ -147,7 +167,21 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
-        .jsonPath("userMessage").isEqualTo("A value must be provided for religion")
+        .jsonPath("userMessage").isEqualTo("Malformed request")
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should prevent invalid date format`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AA/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(INVALID_DATE_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Malformed request")
     }
 
     private fun religionProfileType(): ProfileType =
@@ -198,7 +232,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     @Test
     fun `returns status 423 (locked) when database row lock times out`() {
       doThrow(DatabaseRowLockedException("developer message"))
-        .whenever(prisonerProfileUpdateService).updateReligionOfLatestBooking(anyString(), anyString(), anyString(), anyString())
+        .whenever(prisonerProfileUpdateService).updateReligionOfLatestBooking(anyString(), any(), anyString())
 
       webTestClient.put()
         .uri("api/offenders/A1234AA/religion")
@@ -219,15 +253,26 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
       """
         {
           "religion": "DRU",
-          "comment": "Some comment"
+          "comment": "Some comment",
+          "effectiveFromDate": "2025-01-01",
+          "verified": true
         }
       """
 
-    const val VALID_RELIGION_UPDATE_WITHOUT_COMMENT =
+    const val VALID_MINIMAL_RELIGION_UPDATE =
       // language=json
       """
         {
           "religion": "DRU"
+        }
+      """
+
+    const val INVALID_DATE_RELIGION_UPDATE =
+      // language=json
+      """
+        {
+          "religion": "DRU",
+          "effectiveFromDate": "1st January 2025"
         }
       """
 

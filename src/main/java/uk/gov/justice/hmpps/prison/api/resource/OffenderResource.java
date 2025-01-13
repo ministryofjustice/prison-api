@@ -985,8 +985,7 @@ public class OffenderResource {
     ) {
         prisonerProfileUpdateService.updateReligionOfLatestBooking(
             prisonerNumber,
-            updateReligion.getReligion(),
-            updateReligion.getComment(),
+            updateReligion,
             hmppsAuthenticationHolder.getUsername()
         );
     }

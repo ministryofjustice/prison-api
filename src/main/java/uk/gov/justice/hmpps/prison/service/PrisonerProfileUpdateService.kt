@@ -1,11 +1,11 @@
 package uk.gov.justice.hmpps.prison.service
 
-import jakarta.validation.ValidationException
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
@@ -73,15 +73,12 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun updateReligionOfLatestBooking(prisonerNumber: String, religion: String?, comment: String?, username: String?) {
-    if (religion == null) {
-      throw ValidationException("A value must be provided for religion")
-    }
+  fun updateReligionOfLatestBooking(prisonerNumber: String, request: UpdateReligion, username: String?) {
     val profileType = profileTypeRepository.profileTypeIgnoringActiveStatus(RELIGION_PROFILE_TYPE).getOrThrow()
-    val profileCode = profileCode(profileType, religion)
+    val profileCode = profileCode(profileType, request.religion)
       ?: throw EntityNotFoundException.withMessage(
         "Religion profile code with code %s not found",
-        religion,
+        request.religion,
       )
     val latestBooking = latestBooking(prisonerNumber)
     val user = staffUserAccountRepository.findByUsername(username).orElseThrow {
@@ -90,7 +87,13 @@ class PrisonerProfileUpdateService(
 
     if (profileCodeDoesNotMatchExistingValue(prisonerNumber, profileType, profileCode)) {
       updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode)
-      updateBeliefHistory(prisonerNumber, latestBooking, profileCode, comment, user)
+      updateBeliefHistory(
+        prisonerNumber,
+        latestBooking,
+        profileCode,
+        request,
+        user,
+      )
     }
   }
 
@@ -130,10 +133,11 @@ class PrisonerProfileUpdateService(
     prisonerNumber: String,
     latestBooking: OffenderBooking,
     profileCode: ProfileCode,
-    comment: String?,
+    updateRequest: UpdateReligion,
     user: StaffUserAccount,
   ) {
     val now = LocalDateTime.now()
+    val startDate = updateRequest.effectiveFromDate?.atStartOfDay() ?: now
     offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, latestBooking.bookingId.toString())
       .filter { it.endDate?.isAfter(now) ?: true }
       .forEach {
@@ -145,14 +149,14 @@ class PrisonerProfileUpdateService(
     offenderBeliefRepository.save(
       OffenderBelief(
         booking = latestBooking,
-        changeReason = comment?.isNotBlank() ?: false,
-        comments = comment,
+        changeReason = updateRequest.comment?.isNotBlank() ?: false,
+        comments = updateRequest.comment,
         rootOffender = latestBooking.rootOffender,
         beliefCode = profileCode,
-        startDate = now,
+        startDate = startDate,
         createDatetime = now,
         createdByUser = user,
-        verified = false,
+        verified = updateRequest.verified,
       ),
     )
   }
