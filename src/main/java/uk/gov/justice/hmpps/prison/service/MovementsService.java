@@ -51,6 +51,8 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
 import static java.util.stream.Collectors.toList;
@@ -111,13 +113,28 @@ public class MovementsService {
             .map(offenders -> movementsRepository.getMovementsByOffenders(offenders, movementTypes, latestOnly, allBookings))
             .flatMap(List::stream);
 
-        return movements.map(movement -> movement.toBuilder()
-                .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
-                .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
-                .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
-                .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
-                .build())
+
+        return movements
+            .map(this::mapMovementDescriptions)
             .collect(toList());
+    }
+
+
+    public List<Movement> getMovementsByOffender(final String offenderNumber, final List<String> movementTypes, final boolean allBookings, final LocalDate movementsAfter) {
+        final var movements = movementsRepository.getMovementsByOffender(offenderNumber, movementTypes, allBookings, movementsAfter);
+
+        return movements.stream()
+            .map(this::mapMovementDescriptions)
+            .collect(toList());
+    }
+
+    private Movement mapMovementDescriptions(final Movement movement) {
+        return movement.toBuilder()
+            .fromAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getFromAgencyDescription())))
+            .toAgencyDescription(StringUtils.trimToEmpty(LocationProcessor.formatLocation(movement.getToAgencyDescription())))
+            .toCity(capitalizeFully(StringUtils.trimToEmpty(movement.getToCity())))
+            .fromCity(capitalizeFully(StringUtils.trimToEmpty(movement.getFromCity())))
+            .build();
     }
 
     public MovementCount getMovementCount(final String agencyId, final LocalDate date) {

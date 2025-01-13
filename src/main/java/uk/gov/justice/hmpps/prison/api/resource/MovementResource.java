@@ -144,6 +144,20 @@ public class MovementResource {
         return movementsService.getMovementsByOffenders(offenderNumbers, movementTypes, latestOnly == null || latestOnly, allBookings);
     }
 
+    @Operation
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    @GetMapping("/offender/{offenderNo}")
+    public List<Movement> getMovementsByOffender(
+        @PathVariable("offenderNo") @Parameter(
+            description = "The required offender id (mandatory)",
+            required = true
+        ) final String offenderNo,
+        @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by") final List<String> movementTypes,
+        @RequestParam(value = "allBookings", required = false, defaultValue = "false") @Parameter(description = "Returns all movements for this offender list from all bookings if true") final boolean allBookings,
+        @RequestParam(value = "movementsAfter", required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filters movements that happened since this date") final LocalDate movementsAfter) {
+        return movementsService.getMovementsByOffender(offenderNo, movementTypes, allBookings, movementsAfter);
+    }
+
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),

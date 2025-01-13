@@ -82,6 +82,19 @@ public class MovementsRepository extends RepositoryBase {
         return movements.stream().map(MovementDto::toMovement).collect(Collectors.toList());
     }
 
+    public List<Movement> getMovementsByOffender(final String offenderNumber, final List<String> movementTypes, final boolean allBookings, final LocalDate movementsAfter) {
+        var sql = MovementsRepositorySql.GET_MOVEMENTS_BY_OFFENDER.getSql();
+        sql +=  allBookings ? "" : " AND OB.BOOKING_SEQ = 1";
+        sql += movementTypes == null || movementTypes.isEmpty() ? "" : " AND OEM.MOVEMENT_TYPE IN (:movementTypes)";
+        sql += movementsAfter == null ? "" : " AND OEM.MOVEMENT_DATE >= :movementsAfter";
+        final List<MovementDto> movements = jdbcTemplate.query(sql, createParams(
+                    "offenderNumber", offenderNumber,
+                    "movementTypes", movementTypes,
+                    "movementsAfter", DateTimeConverter.toDate(movementsAfter)),
+                MOVEMENT_MAPPER);
+        return movements.stream().map(MovementDto::toMovement).collect(Collectors.toList());
+    }
+
 
     public List<OffenderMovement> getOffendersOut(final String agencyId, final LocalDate movementDate, final String movementType) {
         final var sql = MovementsRepositorySql.GET_OFFENDERS_OUT_TODAY.getSql();
