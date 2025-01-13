@@ -30,8 +30,9 @@ generic-service:
     unilink-prod-16: "35.234.149.158/32"
     unilink-prod-17: "20.108.124.58/32"
 
-    # copied from curious-sync-client / meganexus client
+    # copied from curious-sync-client / meganexus client and see #meganexus-collaboration
     curious-prod-1: "51.142.161.93/32"
+    curious-prod-2: "51.140.252.153/32"
 
     # azure logic apps in microsoft azure for in-cell-client / kainos
     kainos-azure-logic-apps-1: "51.140.74.14/32"
