@@ -45,12 +45,8 @@ import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
-import static java.util.Arrays.asList;
-import static java.util.Collections.singletonList;
 
 @RestController
 @Tag(name = "movements")
@@ -158,7 +154,7 @@ public class MovementResource {
         ) final String offenderNo,
         @RequestParam(value = "movementTypes", required = false) @Parameter(description = "movement type codes to filter by") final List<String> movementTypes,
         @RequestParam(value = "allBookings", required = false, defaultValue = "false") @Parameter(description = "Returns all movements for this offender list from all bookings if true") final boolean allBookings,
-        @RequestParam(value = "movementsAfter", required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Returns all movements for this offender list from all bookings if true") final LocalDate movementsAfter) {
+        @RequestParam(value = "movementsAfter", required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filters movements that happened since this date") final LocalDate movementsAfter) {
         return movementsService.getMovementsByOffender(offenderNo, movementTypes, allBookings, movementsAfter);
     }
 
