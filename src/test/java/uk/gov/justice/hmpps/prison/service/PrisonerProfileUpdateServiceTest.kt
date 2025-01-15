@@ -36,9 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
 import java.util.Optional
 
 class PrisonerProfileUpdateServiceTest {
@@ -317,7 +315,7 @@ class PrisonerProfileUpdateServiceTest {
       assertThat(belief.beliefCode).isEqualTo(DRUID_RELIGION)
       assertThat(belief.changeReason).isTrue()
       assertThat(belief.comments).isEqualTo("some comment")
-      assertThat(belief.startDate).isEqualTo(LocalDate.now().atStartOfDay())
+      assertThat(belief.startDate).isEqualTo(LocalDate.now())
       assertThat(belief.verified).isTrue()
     }
 
@@ -338,14 +336,13 @@ class PrisonerProfileUpdateServiceTest {
       assertThat(booking.profileDetails).hasSize(0)
       verify(offenderBeliefRepository).save(beliefCaptor.capture())
       val belief = beliefCaptor.value
-      val now = Instant.now().toEpochMilli()
       assertThat(belief.booking).isEqualTo(booking)
       assertThat(belief.createdByUser.username).isEqualTo(USERNAME)
       assertThat(belief.beliefCode).isEqualTo(DRUID_RELIGION)
       assertThat(belief.changeReason).isFalse()
       assertThat(belief.comments).isNull()
       assertThat(belief.verified).isFalse()
-      assertThat(now.minus(belief.startDate.toInstant(ZoneOffset.UTC).toEpochMilli())).isLessThan(60000)
+      assertThat(belief.startDate).isEqualTo(LocalDate.now())
     }
 
     @Test

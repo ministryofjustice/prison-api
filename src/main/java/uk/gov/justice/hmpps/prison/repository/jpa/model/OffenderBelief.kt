@@ -16,6 +16,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 @Entity
@@ -52,10 +53,10 @@ data class OffenderBelief(
   val beliefCode: ProfileCode,
 
   @Column(name = "EFFECTIVE_DATE")
-  val startDate: LocalDateTime,
+  val startDate: LocalDate,
 
   @Column(name = "END_DATE")
-  var endDate: LocalDateTime? = null,
+  var endDate: LocalDate? = null,
 
   @Convert(converter = YesNoConverter::class)
   val changeReason: Boolean? = null,

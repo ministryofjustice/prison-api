@@ -138,11 +138,12 @@ class PrisonerProfileUpdateService(
     user: StaffUserAccount,
   ) {
     val now = LocalDateTime.now()
-    val startDate = updateRequest.effectiveFromDate?.atStartOfDay() ?: now
+    val today = now.toLocalDate()
+    val startDate = updateRequest.effectiveFromDate ?: today
     offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, latestBooking.bookingId.toString())
-      .filter { it.endDate?.isAfter(now) ?: true }
+      .filter { it.endDate?.isAfter(today) ?: true }
       .forEach {
-        it.endDate = now
+        it.endDate = today
         it.modifyDatetime = now
         it.modifiedByUser = user
       }

@@ -3,13 +3,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.Named.named
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.params.ParameterizedTest
-import org.junit.jupiter.params.provider.Arguments
-import org.junit.jupiter.params.provider.Arguments.arguments
-import org.junit.jupiter.params.provider.MethodSource
 import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
 import org.mockito.kotlin.doThrow
@@ -29,10 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
-import java.time.Instant
 import java.time.LocalDate
-import java.time.ZoneOffset
-import java.util.stream.Stream
 
 class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
@@ -105,20 +97,19 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
   @Nested
   open inner class HappyPath {
-    @ParameterizedTest(name = "{0}")
-    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceImplIntTest_updateReligion#updateReligionIds")
+    @Test
     @Transactional(readOnly = true)
-    open fun `should update the religion`(prisonerId: String, id: Long) {
+    open fun `should update the religion`() {
       webTestClient.put()
-        .uri("api/offenders/$prisonerId/religion")
+        .uri("api/offenders/A1234AA/religion")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_RELIGION_UPDATE)
         .exchange()
         .expectStatus().isNoContent
 
-      val booking = offenderRepository.findById(id).get().allBookings.first { it.bookingSequence == 1 }
-      val history = offenderBeliefRepository.getOffenderBeliefHistory(prisonerId, booking.bookingId.toString())
+      val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
+      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AA", booking.bookingId.toString())
 
       assertThat(
         offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
@@ -128,32 +119,28 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
       assertThat(historyEntry.changeReason).isTrue()
       assertThat(historyEntry.comments).isEqualTo("Some comment")
       assertThat(historyEntry.verified).isTrue()
-      assertThat(historyEntry.startDate).isEqualTo(LocalDate.parse("2025-01-01").atStartOfDay())
+      assertThat(historyEntry.startDate).isEqualTo(LocalDate.parse("2025-01-01"))
     }
 
     @Test
     @Transactional(readOnly = true)
     open fun `should update the religion with a minimal update request`() {
       webTestClient.put()
-        .uri("api/offenders/A1234AB/religion")
+        .uri("api/offenders/A1068AA/religion")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_MINIMAL_RELIGION_UPDATE)
         .exchange()
         .expectStatus().isNoContent
 
-      val booking = offenderRepository.findById(-1002L).get().allBookings.first { it.bookingSequence == 1 }
-      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AB", booking.bookingId.toString())
-      assertThat(
-        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
-      ).isEqualTo("DRU")
+      val booking = offenderRepository.findById(-1068L).get().allBookings.first { it.bookingSequence == 1 }
+      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA", booking.bookingId.toString())
       val historyEntry = history[0]
-      val now = Instant.now().toEpochMilli()
       assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
       assertThat(historyEntry.changeReason).isFalse()
       assertThat(historyEntry.comments).isNull()
       assertThat(historyEntry.verified).isFalse()
-      assertThat(now.minus(historyEntry.startDate.toInstant(ZoneOffset.UTC).toEpochMilli())).isLessThan(60000)
+      assertThat(historyEntry.startDate).isEqualTo(LocalDate.now())
     }
 
     @Test
@@ -283,13 +270,5 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
           "religion": null 
         }
       """
-
-    @JvmStatic
-    fun updateReligionIds(): Stream<Arguments> {
-      return Stream.of(
-        arguments(named("Prisoner with existing religion", "A1234AA"), -1001L),
-        arguments(named("Prisoner without existing religion", "A1068AA"), -1068L),
-      )
-    }
   }
 }

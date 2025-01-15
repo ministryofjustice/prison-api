@@ -15,7 +15,7 @@ interface OffenderBeliefRepository : CrudRepository<OffenderBelief, Long> {
     FROM OffenderBelief belief
     WHERE belief.booking.offender.nomsId = :prisonerNumber
     AND (:bookingId IS NULL OR belief.booking.bookingId = :bookingId)
-    ORDER BY belief.startDate DESC
+    ORDER BY belief.startDate DESC, belief.createDatetime DESC
   """,
   )
   fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<OffenderBelief>

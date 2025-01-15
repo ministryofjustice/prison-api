@@ -706,7 +706,7 @@ public class MovementsServiceImplTest {
             @Test
             public void dateRangeIsGreaterThan24Hours() {
                 final var from = LocalDateTime.now();
-                final var to = LocalDateTime.now().plusDays(1);
+                final var to = from.plusDays(1).plusSeconds(1);
 
                 final var agencyList = List.of("LEI");
                 final var courtEvents = true;

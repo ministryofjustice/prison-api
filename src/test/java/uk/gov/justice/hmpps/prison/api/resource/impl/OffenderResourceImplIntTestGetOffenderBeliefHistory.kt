@@ -13,6 +13,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
@@ -29,7 +30,7 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
     .build()
   private val offenderBelief = OffenderBelief(
     98765L, OffenderBooking.builder().bookingId(123456L).build(), Offender.builder().rootOffenderId(-1L).build(),
-    beliefCode, LocalDateTime.parse("2024-01-01T00:00:00"), null, true, "Comments",
+    beliefCode, LocalDate.parse("2024-01-01"), null, true, "Comments",
     false, LocalDateTime.parse("2024-01-01T00:00:00"), staffUserAccount, null, null,
   )
   private fun stubRepositoryCall() {
