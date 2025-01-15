@@ -322,7 +322,7 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
-    internal fun `adds religion when missing and provides sensible default values for optional fields when updating history`() {
+    internal fun `adds religion to history but not profile details when missing, and provides sensible default values for optional fields`() {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
       val profileDetails = mutableListOf<OffenderProfileDetail>()
 
@@ -335,10 +335,7 @@ class PrisonerProfileUpdateServiceTest {
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
-      assertThat(booking.profileDetails).hasSize(1)
-      with(booking.profileDetails[0]) {
-        assertThat(code).isEqualTo(DRUID_RELIGION)
-      }
+      assertThat(booking.profileDetails).hasSize(0)
       verify(offenderBeliefRepository).save(beliefCaptor.capture())
       val belief = beliefCaptor.value
       val now = Instant.now().toEpochMilli()

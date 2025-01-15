@@ -69,7 +69,7 @@ class PrisonerProfileUpdateService(
   fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
     val profileType = profileTypeRepository.profileType(NATIONALITY_PROFILE_TYPE).getOrThrow()
     val profileCode = profileCode(profileType, nationality)
-    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode)
+    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode, insertWhenMissing = true)
   }
 
   @Transactional
@@ -102,27 +102,28 @@ class PrisonerProfileUpdateService(
     prisonerNumber: String,
     profileType: ProfileType,
     profileCode: ProfileCode?,
+    insertWhenMissing: Boolean = false,
   ) {
     try {
       val latestProfileEntryOfType =
         profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
           .orElse(null)
 
-      if (profileCode == null && latestProfileEntryOfType != null) {
-        booking.profileDetails.remove(latestProfileEntryOfType)
-      } else {
-        if (latestProfileEntryOfType != null) {
-          latestProfileEntryOfType.setProfileCode(profileCode)
+      if (latestProfileEntryOfType != null) {
+        if (profileCode == null) {
+          booking.profileDetails.remove(latestProfileEntryOfType)
         } else {
-          booking.profileDetails.add(
-            OffenderProfileDetail.builder()
-              .id(OffenderProfileDetail.PK(booking, profileType, 1))
-              .caseloadType("INST")
-              .code(profileCode)
-              .listSequence(profileType.listSequence)
-              .build(),
-          )
+          latestProfileEntryOfType.setProfileCode(profileCode)
         }
+      } else if (insertWhenMissing) {
+        booking.profileDetails.add(
+          OffenderProfileDetail.builder()
+            .id(OffenderProfileDetail.PK(booking, profileType, 1))
+            .caseloadType("INST")
+            .code(profileCode)
+            .listSequence(profileType.listSequence)
+            .build(),
+        )
       }
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
