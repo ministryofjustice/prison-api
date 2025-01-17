@@ -69,7 +69,7 @@ class PrisonerProfileUpdateService(
   fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
     val profileType = profileTypeRepository.profileType(NATIONALITY_PROFILE_TYPE).getOrThrow()
     val profileCode = profileCode(profileType, nationality)
-    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode, insertWhenMissing = true)
+    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode)
   }
 
   @Transactional
@@ -86,14 +86,8 @@ class PrisonerProfileUpdateService(
     }
 
     if (profileCodeDoesNotMatchExistingValue(prisonerNumber, profileType, profileCode)) {
-      updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode)
-      updateBeliefHistory(
-        prisonerNumber,
-        latestBooking,
-        profileCode,
-        request,
-        user,
-      )
+      // Profile details are updated by the OFFENDER_BELIEFS_T1 trigger
+      updateBeliefHistory(prisonerNumber, latestBooking, profileCode, request, user)
     }
   }
 
@@ -102,7 +96,6 @@ class PrisonerProfileUpdateService(
     prisonerNumber: String,
     profileType: ProfileType,
     profileCode: ProfileCode?,
-    insertWhenMissing: Boolean = false,
   ) {
     try {
       val latestProfileEntryOfType =
@@ -115,7 +108,7 @@ class PrisonerProfileUpdateService(
         } else {
           latestProfileEntryOfType.setProfileCode(profileCode)
         }
-      } else if (insertWhenMissing) {
+      } else {
         booking.profileDetails.add(
           OffenderProfileDetail.builder()
             .id(OffenderProfileDetail.PK(booking, profileType, 1))

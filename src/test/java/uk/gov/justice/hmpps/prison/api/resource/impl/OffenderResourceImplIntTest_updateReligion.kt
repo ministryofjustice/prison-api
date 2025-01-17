@@ -16,7 +16,6 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
@@ -111,9 +110,6 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
       val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
       val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AA", booking.bookingId.toString())
 
-      assertThat(
-        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, religionProfileType(), 1)).get().code.id.code,
-      ).isEqualTo("DRU")
       val historyEntry = history[0]
       assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
       assertThat(historyEntry.changeReason).isTrue()

@@ -307,7 +307,7 @@ class PrisonerProfileUpdateServiceTest {
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
-      verify(offenderProfileDetail).setProfileCode(DRUID_RELIGION)
+      verify(offenderProfileDetail, never()).setProfileCode(any())
       verify(offenderBeliefRepository).save(beliefCaptor.capture())
       val belief = beliefCaptor.value
       assertThat(belief.booking).isEqualTo(booking)
