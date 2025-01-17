@@ -11,4 +11,6 @@ import java.util.Optional;
 public interface ProfileTypeRepository extends CrudRepository<ProfileType, String> {
 
     Optional<ProfileType> findByTypeAndCategoryAndActive(String type, String category, boolean active);
+
+    Optional<ProfileType> findByTypeAndCategory(String type, String category);
 }

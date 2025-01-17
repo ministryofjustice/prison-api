@@ -22,6 +22,7 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
@@ -106,10 +107,9 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
         .exchange()
         .expectStatus().isNoContent
 
-      val profileType = profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
       val booking = offenderRepository.findById(id).get().allBookings.first { it.bookingSequence == 1 }
       assertThat(
-        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, profileType, 1)).get().code.id.code,
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, nationalityProfileType(), 1)).get().code.id.code,
       ).isEqualTo("BRIT")
     }
 
@@ -124,12 +124,14 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
         .exchange()
         .expectStatus().isNoContent
 
-      val profileType = profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
       val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
       assertThat(
-        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, profileType, 1)),
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, nationalityProfileType(), 1)),
       ).isEmpty
     }
+
+    private fun nationalityProfileType(): ProfileType =
+      profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
   }
 
   @Nested

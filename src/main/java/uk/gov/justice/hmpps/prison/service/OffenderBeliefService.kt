@@ -20,7 +20,7 @@ class OffenderBeliefService(
   private fun transformBelief(offenderBelief: OffenderBelief): Belief {
     return Belief(
       offenderBelief.booking.bookingId, offenderBelief.beliefId, offenderBelief.beliefCode.id.code,
-      offenderBelief.beliefCode.description, offenderBelief.startDate.toLocalDate(), offenderBelief.endDate?.toLocalDate(),
+      offenderBelief.beliefCode.description, offenderBelief.startDate, offenderBelief.endDate,
       offenderBelief.changeReason, offenderBelief.comments, offenderBelief.createdByUser.staff.firstName,
       offenderBelief.createdByUser.staff.lastName, offenderBelief.modifiedByUser?.staff?.firstName,
       offenderBelief.modifiedByUser?.staff?.lastName, offenderBelief.modifyDatetime?.toLocalDate(), offenderBelief.verified,

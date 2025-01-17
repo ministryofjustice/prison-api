@@ -5,21 +5,29 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
+import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
+import java.time.LocalDateTime
 import java.util.Optional
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
@@ -32,6 +40,8 @@ class PrisonerProfileUpdateService(
   private val profileCodeRepository: ProfileCodeRepository,
   private val profileDetailRepository: OffenderProfileDetailRepository,
   private val offenderBookingRepository: OffenderBookingRepository,
+  private val offenderBeliefRepository: OffenderBeliefRepository,
+  private val staffUserAccountRepository: StaffUserAccountRepository,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -57,36 +67,111 @@ class PrisonerProfileUpdateService(
 
   @Transactional
   fun updateNationalityOfLatestBooking(prisonerNumber: String, nationality: String?) {
-    val profileType: ProfileType = profileTypeRepository.nationalityProfile().getOrThrow()
-    val profileCode: ProfileCode? =
-      nationality?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
+    val profileType = profileTypeRepository.profileType(NATIONALITY_PROFILE_TYPE).getOrThrow()
+    val profileCode = profileCode(profileType, nationality)
+    updateProfileDetailsOfBooking(latestBooking(prisonerNumber), prisonerNumber, profileType, profileCode)
+  }
 
+  @Transactional
+  fun updateReligionOfLatestBooking(prisonerNumber: String, request: UpdateReligion, username: String?) {
+    val profileType = profileTypeRepository.profileTypeIgnoringActiveStatus(RELIGION_PROFILE_TYPE).getOrThrow()
+    val profileCode = profileCode(profileType, request.religion)
+      ?: throw EntityNotFoundException.withMessage(
+        "Religion profile code with code %s not found",
+        request.religion,
+      )
+    val latestBooking = latestBooking(prisonerNumber)
+    val user = staffUserAccountRepository.findByUsername(username).orElseThrow {
+      EntityNotFoundException.withMessage("Staff user account with provided username not found")
+    }
+
+    if (profileCodeDoesNotMatchExistingValue(prisonerNumber, profileType, profileCode)) {
+      // Profile details are updated by the OFFENDER_BELIEFS_T1 trigger
+      updateBeliefHistory(prisonerNumber, latestBooking, profileCode, request, user)
+    }
+  }
+
+  private fun updateProfileDetailsOfBooking(
+    booking: OffenderBooking,
+    prisonerNumber: String,
+    profileType: ProfileType,
+    profileCode: ProfileCode?,
+  ) {
     try {
-      val latestBooking = latestBooking(prisonerNumber)
-      val latestNationality =
+      val latestProfileEntryOfType =
         profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
           .orElse(null)
 
-      if (nationality == null && latestNationality != null) {
-        latestBooking.profileDetails.remove(latestNationality)
-      } else {
-        if (latestNationality != null) {
-          latestNationality.setProfileCode(profileCode)
+      if (latestProfileEntryOfType != null) {
+        if (profileCode == null) {
+          booking.profileDetails.remove(latestProfileEntryOfType)
         } else {
-          latestBooking.profileDetails.add(
-            OffenderProfileDetail.builder()
-              .id(OffenderProfileDetail.PK(latestBooking, profileType, 1))
-              .caseloadType("INST")
-              .code(profileCode)
-              .listSequence(profileType.listSequence)
-              .build(),
-          )
+          latestProfileEntryOfType.setProfileCode(profileCode)
         }
+      } else {
+        booking.profileDetails.add(
+          OffenderProfileDetail.builder()
+            .id(OffenderProfileDetail.PK(booking, profileType, 1))
+            .caseloadType("INST")
+            .code(profileCode)
+            .listSequence(profileType.listSequence)
+            .build(),
+        )
       }
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
     }
   }
+
+  private fun updateBeliefHistory(
+    prisonerNumber: String,
+    latestBooking: OffenderBooking,
+    profileCode: ProfileCode,
+    updateRequest: UpdateReligion,
+    user: StaffUserAccount,
+  ) {
+    val now = LocalDateTime.now()
+    val today = now.toLocalDate()
+    val startDate = updateRequest.effectiveFromDate ?: today
+    offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, latestBooking.bookingId.toString())
+      .filter { it.endDate?.isAfter(today) ?: true }
+      .forEach {
+        it.endDate = today
+        it.modifyDatetime = now
+        it.modifiedByUser = user
+      }
+
+    offenderBeliefRepository.save(
+      OffenderBelief(
+        booking = latestBooking,
+        changeReason = updateRequest.comment?.isNotBlank() ?: false,
+        comments = updateRequest.comment,
+        rootOffender = latestBooking.rootOffender,
+        beliefCode = profileCode,
+        startDate = startDate,
+        createDatetime = now,
+        createdByUser = user,
+        verified = updateRequest.verified,
+      ),
+    )
+  }
+
+  private fun profileCodeDoesNotMatchExistingValue(
+    prisonerNumber: String,
+    profileType: ProfileType,
+    newValue: ProfileCode,
+  ): Boolean {
+    try {
+      return profileDetailRepository.findLinkedToLatestBookingForUpdate(prisonerNumber, profileType)
+        .map { it.code != newValue }
+        .orElse(true)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDER_PROFILE_DETAILS")
+    }
+  }
+
+  private fun profileCode(profileType: ProfileType, value: String?) =
+    value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
   private fun latestBooking(prisonerNumber: String) =
     offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(prisonerNumber)
@@ -95,14 +180,26 @@ class PrisonerProfileUpdateService(
         prisonerNumber,
       )
 
-  private fun ProfileTypeRepository.nationalityProfile(): Result<ProfileType> =
-    this.findByTypeAndCategoryAndActiveOrNull("NAT", "PI", true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId("NAT"),
+  private fun ProfileTypeRepository.profileType(
+    type: String,
+    category: String = "PI",
+    active: Boolean = true,
+  ): Result<ProfileType> =
+    this.findByTypeAndCategoryAndActiveOrNull(type, category, active)?.let { success(it) } ?: failure(
+      EntityNotFoundException.withId(type),
+    )
+
+  private fun ProfileTypeRepository.profileTypeIgnoringActiveStatus(
+    type: String,
+    category: String = "PI",
+  ): Result<ProfileType> =
+    this.findByTypeAndCategoryOrNull(type, category)?.let { success(it) } ?: failure(
+      EntityNotFoundException.withId(type),
     )
 
   private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> =
     this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Profile Code for NAT and $code not found"),
+      EntityNotFoundException.withMessage("Profile Code for ${type.type} and $code not found"),
     )
 
   private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: String) =
@@ -125,5 +222,7 @@ class PrisonerProfileUpdateService(
 
   companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
+    const val NATIONALITY_PROFILE_TYPE = "NAT"
+    const val RELIGION_PROFILE_TYPE = "RELF"
   }
 }
