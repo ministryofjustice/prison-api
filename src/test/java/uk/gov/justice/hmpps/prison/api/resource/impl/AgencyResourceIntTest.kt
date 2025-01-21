@@ -53,60 +53,6 @@ class AgencyResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/agencies/{agencyId}/locations/type/{type}")
-  inner class InternalLocations {
-
-    @Test
-    fun locationsByType_singleResult_returnsSuccessAndData() {
-      webTestClient.get().uri("/api/agencies/SYI/locations/type/AREA")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("[0].locationId").isEqualTo(-208)
-        .jsonPath("[0].locationType").isEqualTo("AREA")
-        .jsonPath("[0].agencyId").isEqualTo("SYI")
-        .jsonPath("[0].description").isEqualTo("CHAP")
-        .jsonPath("[0].userDescription").isEqualTo("Chapel")
-        .jsonPath("[0].locationPrefix").isEqualTo("SYI-CHAP")
-        .jsonPath("[0].operationalCapacity").isEqualTo(1)
-        .jsonPath("[0].currentOccupancy").isEqualTo(1)
-    }
-
-    @Test
-    fun locationsByType_multipleResults_returnsAllLocations() {
-      webTestClient.get().uri("/api/agencies/SYI/locations/type/CELL")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("[*].locationId").value<List<Int>> { assertThat(it).containsExactlyInAnyOrder(-202, -204, -207) }
-    }
-
-    @Test
-    fun locationsByType_agencyNotFound_returnsNotFound() {
-      webTestClient.get().uri("/api/agencies/XYZ/locations/type/AREA")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody()
-        .jsonPath("userMessage")
-        .isEqualTo("Locations of type AREA in agency XYZ not found")
-    }
-
-    @Test
-    fun locationsByType_locationTypeNotFound_returnsNotFound() {
-      webTestClient.get().uri("/api/agencies/SYI/locations/type/WXYZ")
-        .headers(setAuthorisation("ITAG_USER", listOf("SYSTEM_USER")))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody()
-        .jsonPath("userMessage")
-        .isEqualTo("Locations of type WXYZ in agency SYI not found")
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/agencies/{agencyId}/eventLocationsBooked")
   inner class EventLocationsBooked {
 
