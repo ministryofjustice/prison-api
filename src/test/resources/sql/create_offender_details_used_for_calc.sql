@@ -28,6 +28,13 @@ VALUES (999991, 2, -2, 'ADIMP_ORA', 'A', TO_DATE('2017-07-05', 'YYYY-MM-DD'), TO
         TO_DATE('2017-09-04', 'YYYY-MM-DD'), TO_DATE('2017-11-04', 'YYYY-MM-DD'), '2003', 120.00, 'IND',
         TO_DATE('2017-11-04', 'YYYY-MM-DD'), 'A', 1, 'Some Comment Text', 'Some Status Update Comment Text');
 
+INSERT INTO offender_external_movements (offender_book_id, movement_seq, movement_date, movement_time,
+                                         movement_type, movement_reason_code, direction_code, escort_code, from_agy_loc_id,
+                                         to_agy_loc_id, active_flag, event_id)
+VALUES (999991, 1, TO_DATE('2017-07-17', 'YYYY-MM-DD'), TO_DATE('2017-07-17', 'YYYY-MM-DD'), 'ADM', 'I', 'IN', 'GEOAME', 'ABDRCT', 'BXI', 'N', NULL) ,
+       (999991, 2, TO_DATE('2021-12-14', 'YYYY-MM-DD'), TO_DATE('2021-12-14', 'YYYY-MM-DD'), 'REL', 'UAL', 'OUT', 'A', 'BXI', 'ABDRCT', 'Y', NULL);
+
+
 INSERT INTO offenders (offender_id, id_source_code, last_name, middle_name, first_name, sex_code, create_date,
                        last_name_key, offender_id_display, root_offender_id, race_code, alias_name_type, birth_date,
                        birth_place, birth_country_code)
