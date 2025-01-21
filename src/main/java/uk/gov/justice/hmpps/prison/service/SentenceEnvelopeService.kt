@@ -24,6 +24,7 @@ class SentenceEnvelopeService(
   private val offenderFixedTermRecallRepository: OffenderFixedTermRecallRepository,
   private val offenderBookingRepository: OffenderBookingRepository,
   private val bookingService: BookingService,
+  private val movementsService: MovementsService,
 ) {
   fun getCalculableSentenceEnvelopeByEstablishment(
     caseLoad: String,
@@ -91,6 +92,9 @@ class SentenceEnvelopeService(
           .map(OffenderFixedTermRecall::mapToFixedTermRecallDetails)
           .orElseThrow(EntityNotFoundException.withMessage("No fixed term recall found for booking $bookingId"))
       }
+
+    val movements = movementsService.getMovementsByOffender(offenderBooking.offender.nomsId, listOf("ADM", "REL"), true, sentences.minOf { it.sentenceDate })
+
     return CalculableSentenceEnvelope(
       person,
       bookingId,
@@ -100,6 +104,7 @@ class SentenceEnvelopeService(
       offenderFinePaymentDtoList,
       fixedTermRecallDetails,
       offenderBooking.sentenceCalcDates,
+      movements,
     )
   }
 }
