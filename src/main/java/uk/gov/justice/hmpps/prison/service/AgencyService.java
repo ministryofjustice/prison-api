@@ -244,16 +244,6 @@ public class AgencyService {
         return LocationProcessor.processLocations(rawLocations);
     }
 
-    public List<Location> getAgencyLocationsByType(final String agencyId, final String type) {
-        final var agencyInternalLocations = agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, type, true);
-
-        if (agencyInternalLocations.isEmpty()) {
-            throw EntityNotFoundException.withMessage(format("Locations of type %s in agency %s not found", type, agencyId));
-        }
-
-        return agencyInternalLocations.stream().map(LocationTransformer::fromAgencyInternalLocation).collect(toList());
-    }
-
     public List<Location> getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
         final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);

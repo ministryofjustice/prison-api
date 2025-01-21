@@ -242,22 +242,6 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active internal locations for agency by type.", description = "List of active internal locations for agency by type.")
-    @ReferenceData(description = "Agency data is considered non-sensitive")
-    @GetMapping("/{agencyId}/locations/type/{type}")
-    @Deprecated(forRemoval = true)
-    public List<Location> getAgencyLocationsByType(
-        @PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId,
-        @PathVariable("type") @Parameter(description = "Restricts list of locations returned to those of the passed type.", required = true) final String type
-    ) {
-        return agencyService.getAgencyLocationsByType(agencyId, type);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of active IEP levels for agency.", description = "Do not use, use incentives API", deprecated = true, hidden = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/iepLevels")
