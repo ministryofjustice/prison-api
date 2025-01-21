@@ -54,35 +54,6 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/alert-types-controller/retrieveAlertTypes",
-        deprecated = true
-    )
-    @GetMapping("/alertTypes")
-    @ReferenceData(description = "NO role needed as only reading reference data")
-    @SlowReportQuery
-    public ResponseEntity<List<ReferenceCode>> getAlertTypes(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of alertType records.") final Long pageOffset,
-                                                             @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of alertType records returned.") final Long pageLimit,
-                                                             @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>code, description</b>") final String sortFields,
-                                                             @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
-        final var referenceCodes =
-                referenceDomainService.getAlertTypes(
-                        sortFields,
-                        sortOrder,
-                        nvl(pageOffset, 0L),
-                        nvl(pageLimit, 10L));
-
-        return ResponseEntity.ok()
-                .headers(referenceCodes.getPaginationHeaders())
-                .body(referenceCodes.getItems());
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of case note source codes.", description = "List of case note source codes.", hidden = true)
     @GetMapping("/caseNoteSources")
     @ReferenceData(description = "NO role needed as only reading reference data")
