@@ -110,34 +110,6 @@ public class AgencyServiceTest {
     }
 
     @Test
-    public void shouldCallRepositoryForAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SOME AGENCY", "SOME TYPE", true))
-                .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
-
-        service.getAgencyLocationsByType("SOME AGENCY", "SOME TYPE");
-
-        verify(agencyInternalLocationRepository).findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("SOME AGENCY", "SOME TYPE", true);
-    }
-
-    @Test
-    public void shouldReturnLocationsForAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("ANY AGENCY", "ANY TYPE", true))
-                .thenReturn(List.of(AgencyInternalLocation.builder().locationId(1L).build()));
-
-        final var locations = service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE");
-
-        assertThat(locations).extracting("locationId").containsExactly(1L);
-    }
-
-    @Test
-    public void shouldThrowNotFoundIfNoAgencyLocationsByType() {
-        when(agencyInternalLocationRepository.findAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("ANY AGENCY", "ANY TYPE", true))
-                .thenReturn(emptyList());
-
-        assertThatThrownBy(() -> service.getAgencyLocationsByType("ANY AGENCY", "ANY TYPE")).isInstanceOf(EntityNotFoundException.class);
-    }
-
-    @Test
     public void shouldReturnAllActiveCellsWithSpaceForAgency() {
         when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
                 AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
