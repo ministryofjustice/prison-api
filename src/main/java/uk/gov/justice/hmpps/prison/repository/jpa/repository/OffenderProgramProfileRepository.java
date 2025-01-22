@@ -10,7 +10,6 @@ import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.*;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile;
 
 import java.time.LocalDate;
@@ -23,7 +22,7 @@ public interface OffenderProgramProfileRepository extends CrudRepository<Offende
         value = """
                 SELECT OPP
                 FROM OffenderProgramProfile OPP
-                    INNER JOIN OPP.offenderBooking booking 
+                    INNER JOIN OPP.offenderBooking booking
                     INNER JOIN booking.offender offender
                 WHERE offender.nomsId = :nomsId
                    AND OPP.programStatus IN :programStatuses

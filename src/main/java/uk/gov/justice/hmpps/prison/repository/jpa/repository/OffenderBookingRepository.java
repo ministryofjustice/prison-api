@@ -58,7 +58,7 @@ public interface OffenderBookingRepository extends
 
     /**
      * Need a distinct here otherwise we will get the same offender bookings more than once as it does two left joins.
-     * Also workaround hibernate bug that seems to cause not enough sentence data to be returned, but splitting into
+     * Also, workaround hibernate bug that seems to cause not enough sentence data to be returned, but splitting into
      * this query and then calling findAllByBookingIdIn to get the data.
      */
     List<OffenderBookingId> findDistinctByActiveTrueAndOffenderNomsIdInAndSentences_statusAndSentences_CalculationType_CalculationTypeNotLikeAndSentences_CalculationType_CategoryNot(

@@ -211,21 +211,6 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active cells with capacity for agency.", description = "List of active cells with capacity for agency.")
-    @ReferenceData(description = "Agency data is considered non-sensitive")
-    @GetMapping("/{agencyId}/cellsWithCapacity")
-    @SlowReportQuery
-    public List<OffenderCell> getAgencyActiveCellsWithCapacity(
-        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
-        @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of cells returned to those that have a specified attribute.") final String attribute) {
-        return agencyService.getCellsWithCapacityInAgency(agencyId, attribute);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of receptions with capacity for agency.", description = "List of active receptions with capacity for agency.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/receptionsWithCapacity")
