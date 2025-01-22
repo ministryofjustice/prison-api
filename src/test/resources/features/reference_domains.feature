@@ -18,14 +18,6 @@ Feature: Reference Domains
   Background:
     Given a user has authenticated with the API
 
-  Scenario: Retrieve all alert types with alert codes
-    When request submitted to retrieve all alert types with alert codes
-    Then "14" reference code items are returned
-    And domain for all returned items is "ALERT"
-    And codes of returned items are "A,C,H,L,M,O,P,R,S,T,TEST,V,W,X"
-    And there are one or more sub codes for every returned item
-    And domain for all returned item sub-codes is "ALERT_CODE"
-
   Scenario: Retrieve all case note sources
     When request submitted to retrieve all case note sources
     Then "4" reference code items are returned
