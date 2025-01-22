@@ -110,41 +110,6 @@ public class AgencyServiceTest {
     }
 
     @Test
-    public void shouldReturnAllActiveCellsWithSpaceForAgency() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).active(true).profiles(buildAgencyInternalLocationProfiles()).build()
-        ));
-
-        final var offenderCells = service.getCellsWithCapacityInAgency("LEI", null);
-        assertThat(offenderCells).extracting("id").containsExactly(-1L, -2L);
-    }
-
-    @Test
-    public void shouldReturnAllActiveCellsWithSpaceForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
-                AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-                AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").capacity(2).currentOccupancy(1).active(true).profiles(List.of()).build(),
-                AgencyInternalLocation.builder().locationId(-3L).locationType("CELL").operationalCapacity(2).currentOccupancy(2).active(true).profiles(List.of()).build()
-        ));
-
-        final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
-        assertThat(offenderCells).extracting("id").containsExactly(-1L);
-    }
-
-    @Test
-    public void shouldReturnAllActiveCellsWithIgnoringZeroOperationalCapacityForAgencyWithAttribute() {
-        when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive("LEI", "CELL", true)).thenReturn(List.of(
-            AgencyInternalLocation.builder().locationId(-1L).locationType("CELL").operationalCapacity(0).capacity(3).currentOccupancy(2).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),
-            AgencyInternalLocation.builder().locationId(-2L).locationType("CELL").operationalCapacity(0).capacity(2).currentOccupancy(2).active(true).profiles(emptyList()).build()
-        ));
-
-        final var offenderCells = service.getCellsWithCapacityInAgency("LEI", "DO");
-        assertThat(offenderCells).extracting("id").containsExactly(-1L);
-    }
-
-    @Test
     public void shouldReturnAllActiveReceptionsWithSpaceForAgency() {
         when(agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationCodeAndActive("LEI", "RECP", true)).thenReturn(List.of(
             AgencyInternalLocation.builder().locationId(-1L).description("LEI-RECP").locationCode("RECP").operationalCapacity(2).currentOccupancy(1).active(true).profiles(buildAgencyInternalLocationProfiles()).build(),

@@ -6,7 +6,7 @@ import org.springframework.data.repository.CrudRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm.PK
 
-public interface SentenceTermRepository : CrudRepository<SentenceTerm, PK> {
+interface SentenceTermRepository : CrudRepository<SentenceTerm, PK> {
   @EntityGraph(type = EntityGraphType.FETCH, value = "sentence-term-with-offender-sentence")
   fun findByOffenderBookingBookingId(bookingId: Long): List<SentenceTerm>
 }

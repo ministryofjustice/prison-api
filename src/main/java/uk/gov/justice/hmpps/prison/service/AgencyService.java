@@ -48,7 +48,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilte
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.transform.LocationTransformer;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.support.AlphaNumericComparator;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
@@ -357,15 +356,6 @@ public class AgencyService {
 
     private boolean isBlankAddress(final PrisonContactDetail pcd) {
         return pcd.getPremise() == null && pcd.getCity() == null && pcd.getLocality() == null && pcd.getPostCode() == null;
-    }
-
-    public List<OffenderCell> getCellsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {
-        final var cells = agencyInternalLocationRepository.findWithProfilesAgencyInternalLocationsByAgencyIdAndLocationTypeAndActive(agencyId, "CELL", true);
-        return cells.stream()
-            .filter(AgencyInternalLocation::isActiveCellWithSpace)
-            .map(this::transform)
-            .filter(cell -> attribute == null || cell.getAttributes().stream().anyMatch((a) -> a.getCode().equals(attribute)))
-            .collect(toList());
     }
 
     public List<OffenderCell> getReceptionsWithCapacityInAgency(@NotNull final String agencyId, final String attribute) {

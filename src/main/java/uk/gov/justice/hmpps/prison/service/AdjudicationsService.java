@@ -364,7 +364,7 @@ public class AdjudicationsService {
 
         Long oicOffenceId;
         try {
-            oicOffenceId = adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getCharges().get(0).getOffenceType().getOffenceId();
+            oicOffenceId = adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getCharges().getFirst().getOffenceType().getOffenceId();
         } catch (Exception e) {
             throw EntityNotFoundException.withMessage(format("OicOffenceId not found for adjudicationNumber %d and oicHearingId %d", adjudicationNumber, oicHearingId), e.getMessage());
         }
@@ -442,7 +442,7 @@ public class AdjudicationsService {
 
         return new OicSanctionValidationResult(
             adjudication,
-            hearingResult.get(0).getOicHearingId(),
+            hearingResult.getFirst().getOicHearingId(),
             adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getOffenderBooking().getBookingId()
         );
     }
@@ -464,7 +464,7 @@ public class AdjudicationsService {
         if (filteredSanctions.isEmpty()) throw EntityNotFoundException.withMessage(format("Could not find sanction for offenderBookId %d, sanction code ADA, status %s", oicSanctionValidationResult.offenderBookId, oicSanctionRequest.getStatus()));
 
         // not expecting this to return more than 1 sanction
-        return filteredSanctions.get(0);
+        return filteredSanctions.getFirst();
     }
 
     @Transactional
@@ -546,7 +546,7 @@ public class AdjudicationsService {
 
                 optionalLinkedSanctionForThisBookId.ifPresent(linkedSanctionForThisBookId -> {
                     if (Objects.equals(adaSanction.getStatus(), linkedSanctionForThisBookId.getStatus())) {
-                        var adaSanctionRequest = requestsToPersist.stream().filter(sanctionRequest -> sanctionRequest.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList().get(0);
+                        var adaSanctionRequest = requestsToPersist.stream().filter(sanctionRequest -> sanctionRequest.getOicSanctionCode().equals(OicSanctionCode.ADA)).toList().getFirst();
                         requestsToPersist.remove(adaSanctionRequest);
                         var sanctionDays = adaSanctionRequest.getSanctionDays();
 

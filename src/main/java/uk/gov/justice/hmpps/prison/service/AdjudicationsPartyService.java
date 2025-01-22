@@ -4,7 +4,6 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -12,7 +11,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
-import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.NotNull;
@@ -98,7 +96,6 @@ public class AdjudicationsPartyService {
             entityManager.flush();
         });
         adjudicationRepository.save(adjudication);
-        return;
     }
 
     private Set<AdjudicationParty> newAncillaryAdjudicationParties(
@@ -149,7 +146,7 @@ public class AdjudicationsPartyService {
         idsToRemove(requiredConnectedOffenderBookings, adjudication.getConnectedOffenderBookings(), OffenderBooking::getBookingId)
             .forEach(offenderBookingId -> remove(remainingConnectedOffendersParties, AdjudicationParty::offenderBookingId, offenderBookingId));
 
-        return List.of(remainingVictimsStaffParties, remainingVictimsOffenderParties, remainingConnectedOffendersParties).stream()
+        return Stream.of(remainingVictimsStaffParties, remainingVictimsOffenderParties, remainingConnectedOffendersParties)
             .flatMap(Collection::stream)
             .collect(Collectors.toSet());
     }
@@ -189,13 +186,13 @@ public class AdjudicationsPartyService {
 
     public static <T> Set<Long> idsToAdd(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
         var toAdd = new HashSet<>(required.stream().map(toId).toList());
-        toAdd.removeAll(current.stream().map(toId).toList());
+        current.stream().map(toId).toList().forEach(toAdd::remove);
         return toAdd;
     }
 
     public static <T> Set<Long> idsToRemove(Collection<T> required, Collection<T> current, Function<T, Long> toId) {
         var toRemove = new HashSet<>(current.stream().map(toId).toList());
-        toRemove.removeAll(required.stream().map(toId).toList());
+        required.stream().map(toId).toList().forEach(toRemove::remove);
         return toRemove;
     }
 
