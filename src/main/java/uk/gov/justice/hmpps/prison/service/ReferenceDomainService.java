@@ -50,6 +50,13 @@ public class ReferenceDomainService {
         return Objects.isNull(order) ? Order.ASC : order;
     }
 
+    public Page<ReferenceCode> getAlertTypes(final String orderBy, final Order order, final long offset, final long limit) {
+        return referenceDataRepository.getReferenceCodesByDomain(
+            ReferenceDomain.ALERT.getDomain(), true,
+            getDefaultOrderBy(orderBy), getDefaultOrder(order),
+            offset, limit);
+    }
+
     public Page<ReferenceCode> getCaseNoteSources(final String orderBy, final Order order, final long offset, final long limit) {
         return referenceDataRepository.getReferenceCodesByDomain(
                 ReferenceDomain.CASE_NOTE_SOURCE.getDomain(), false,
