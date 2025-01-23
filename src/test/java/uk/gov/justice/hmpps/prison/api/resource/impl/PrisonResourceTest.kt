@@ -80,14 +80,10 @@ class PrisonResourceTest : ResourceTest() {
     assertThat(secondPageResponse.content.size).isEqualTo(1)
   }
 
-  private fun getPrisonResourceAsText(path: String): String {
-    return getResourceAsText("/${this.javaClass.`package`.name.replace(".", "/")}/$path")
-  }
+  private fun getPrisonResourceAsText(path: String): String = getResourceAsText("/${this.javaClass.`package`.name.replace(".", "/")}/$path")
 
   @Suppress("RECEIVER_NULLABILITY_MISMATCH_BASED_ON_JAVA_ANNOTATIONS")
-  private fun getResourceAsText(path: String): String {
-    return object {}.javaClass.getResource(path).readText()
-  }
+  private fun getResourceAsText(path: String): String = object {}.javaClass.getResource(path).readText()
 
   @Nested
   inner class Authorisation {
