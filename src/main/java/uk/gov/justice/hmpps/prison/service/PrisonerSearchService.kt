@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as OffenderIdentifierModel
 
 @Component
@@ -56,8 +57,9 @@ class PrisonerSearchService(
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
           status = it.status,
-          lastMovementTypeCode = it.lastMovementTypeCode,
-          lastMovementReasonCode = it.lastMovementReasonCode,
+          lastMovementTypeCode = booking?.lastMovement?.getOrNull()?.movementType?.code,
+          lastMovementReasonCode = booking?.lastMovement?.getOrNull()?.movementReason?.code,
+          lastMovementTime = booking?.lastMovement?.getOrNull()?.movementTime,
           legalStatus = it.legalStatus,
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
