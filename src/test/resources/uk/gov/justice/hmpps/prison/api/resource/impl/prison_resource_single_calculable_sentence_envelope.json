@@ -112,8 +112,8 @@
             "directionCode": "IN",
             "movementDate": "2018-10-02",
             "movementTime": "17:00",
-            "movementReason": "Unconvicted Remand",
-            "movementReasonCode": "N",
+            "movementReason": "Recall From Intermittent Custody",
+            "movementReasonCode": "24",
             "commentText": "Admitted to Leeds from court"
         }
     ]

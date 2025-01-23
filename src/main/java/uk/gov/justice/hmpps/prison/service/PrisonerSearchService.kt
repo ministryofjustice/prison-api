@@ -4,6 +4,7 @@ import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
@@ -11,7 +12,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.util.Optional
-import kotlin.jvm.optionals.getOrNull
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as OffenderIdentifierModel
 
 @Component
@@ -57,9 +57,9 @@ class PrisonerSearchService(
           indeterminateSentence = it.sentenceTerms?.any { st -> st.lifeSentence && it.bookingId == st.bookingId },
           aliases = it.aliases,
           status = it.status,
-          lastMovementTypeCode = booking?.lastMovement?.getOrNull()?.movementType?.code,
-          lastMovementReasonCode = booking?.lastMovement?.getOrNull()?.movementReason?.code,
-          lastMovementTime = booking?.lastMovement?.getOrNull()?.movementTime,
+          lastMovementTypeCode = it.lastMovementTypeCode,
+          lastMovementReasonCode = it.lastMovementReasonCode,
+          lastMovementTime = findLastMovementTime(booking?.externalMovements, it.lastMovementTypeCode, it.lastMovementReasonCode),
           legalStatus = it.legalStatus,
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
@@ -77,6 +77,18 @@ class PrisonerSearchService(
         )
       }
   }
+
+  private fun findLastMovementTime(
+    externalMovements: List<ExternalMovement>?,
+    lastMovementTypeCode: String?,
+    lastMovementReasonCode: String?,
+  ) =
+    externalMovements?.filter { em ->
+      em.movementType.code == lastMovementTypeCode &&
+        em.movementReason.code == lastMovementReasonCode
+    }
+      ?.maxByOrNull { em -> em.movementTime }
+      ?.movementTime
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail =
     booking
