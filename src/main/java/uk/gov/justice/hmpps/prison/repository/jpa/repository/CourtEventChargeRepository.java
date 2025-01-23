@@ -33,7 +33,7 @@ public interface CourtEventChargeRepository extends CrudRepository<CourtEventCha
             join       ob.offender o
             where o.nomsId = :offenderId
             and exists (select id from CourtEvent where id = ce.id)
-        """
+       """
     )
     List<CourtEventCharge> findByOffender(String offenderId);
 }

@@ -52,9 +52,9 @@ public class ReferenceDomainService {
 
     public Page<ReferenceCode> getAlertTypes(final String orderBy, final Order order, final long offset, final long limit) {
         return referenceDataRepository.getReferenceCodesByDomain(
-                ReferenceDomain.ALERT.getDomain(), true,
-                getDefaultOrderBy(orderBy), getDefaultOrder(order),
-                offset, limit);
+            ReferenceDomain.ALERT.getDomain(), true,
+            getDefaultOrderBy(orderBy), getDefaultOrder(order),
+            offset, limit);
     }
 
     public Page<ReferenceCode> getCaseNoteSources(final String orderBy, final Order order, final long offset, final long limit) {

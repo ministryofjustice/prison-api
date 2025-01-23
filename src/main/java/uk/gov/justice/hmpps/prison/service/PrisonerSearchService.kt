@@ -71,8 +71,8 @@ class PrisonerSearchService(
             // we only want a no fixed address if it is their primary address
             a.noFixedAddressFlag == "N" || (a.noFixedAddressFlag == "Y" && a.primaryFlag == "Y")
           }.map(AddressTransformer::translate),
-          phones = offender.phones.map(AddressTransformer::translate),
-          emailAddresses = offender.emailAddresses.map(AddressTransformer::translate),
+          phones = offender.rootOffender.phones.map(AddressTransformer::translate),
+          emailAddresses = offender.rootOffender.emailAddresses.map(AddressTransformer::translate),
           allConvictedOffences = it.offenceHistory,
         )
       }

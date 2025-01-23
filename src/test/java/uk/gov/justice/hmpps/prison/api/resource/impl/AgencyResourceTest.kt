@@ -715,40 +715,6 @@ class AgencyResourceTest : ResourceTest() {
   }
 
   @Test
-  fun testCanFindCellsWithCapacity() {
-    val token = authTokenHelper.getToken(NORMAL_USER)
-
-    val httpEntity = createHttpEntity(token, null)
-
-    val response = testRestTemplate.exchange(
-      "/api/agencies/LEI/cellsWithCapacity",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(response, 200, "cells_with_capacity.json")
-  }
-
-  @Test
-  fun testCanFindCellsWithCapacity_filtered() {
-    val token = authTokenHelper.getToken(NORMAL_USER)
-
-    val httpEntity = createHttpEntity(token, null)
-
-    val response = testRestTemplate.exchange(
-      "/api/agencies/LEI/cellsWithCapacity?attribute=DO",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(response, 200, "cells_with_capacity_filtered.json")
-  }
-
-  @Test
   fun testEstablishmentTypesForMoorlandPrison() {
     val token = authTokenHelper.getToken(NORMAL_USER)
 

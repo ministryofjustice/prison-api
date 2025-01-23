@@ -44,18 +44,6 @@ import static org.hibernate.annotations.NotFoundAction.IGNORE;
 @Setter
 @RequiredArgsConstructor
 @Table(name = "AGENCY_INTERNAL_LOCATIONS")
-@NamedEntityGraph(
-    name = "agency-internal-location-with-profiles",
-    attributeNodes = @NamedAttributeNode(value = "profiles", subgraph = "housing-units"),
-    subgraphs = {
-        @NamedSubgraph(
-            name = "housing-units",
-            attributeNodes = {
-                @NamedAttributeNode("housingAttributeReferenceCode")
-            }
-        )
-    }
-)
 public class AgencyInternalLocation {
     @Id
     @Column(name = "INTERNAL_LOCATION_ID")

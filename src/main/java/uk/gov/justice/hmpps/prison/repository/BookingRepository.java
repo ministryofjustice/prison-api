@@ -657,7 +657,7 @@ public class BookingRepository extends RepositoryBase {
         additionSql.append("ORDER BY OSC.OFFENDER_SENT_CALCULATION_ID DESC");
         return jdbcTemplate
             .query(
-                initialSql + additionSql.toString(),
+                initialSql + additionSql,
                 createParams("offenderId", prisonerId, "activeFlag", "Y", "bookingSeq", 1),
                 SENTENCE_CALC_SUMMARY_ROW_MAPPER);
     }

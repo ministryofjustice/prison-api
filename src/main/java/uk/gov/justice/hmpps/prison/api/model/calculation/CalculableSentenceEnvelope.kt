@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model.calculation
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.hmpps.prison.api.model.BookingAdjustment
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails
+import uk.gov.justice.hmpps.prison.api.model.Movement
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentValues
@@ -31,5 +32,8 @@ data class CalculableSentenceEnvelope(
 
   @Schema(description = "The current set of sentence dates determined by NOMIS or recorded via overrides")
   val sentenceCalcDates: SentenceCalcDates? = null,
+
+  @Schema(description = "The external movements for this calculation")
+  val movements: List<Movement> = emptyList(),
 
 )

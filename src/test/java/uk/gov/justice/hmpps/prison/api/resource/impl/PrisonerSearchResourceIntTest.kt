@@ -324,6 +324,28 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return phones where the active booking is for an alias`() {
+      webTestClient.getPrisonerSearchDetails("A1065AA")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(offenderId).isEqualTo(-1067L)
+            assertThat(phones).extracting("phoneId").containsExactly(-18L)
+          }
+        }
+    }
+
+    @Test
+    fun `should return emails where the active booking is for an alias`() {
+      webTestClient.getPrisonerSearchDetails("A1065AA")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            assertThat(offenderId).isEqualTo(-1067L)
+            assertThat(emailAddresses).extracting("email").containsExactly("prisoner@somewhere.com")
+          }
+        }
+    }
+
+    @Test
     fun `should return offender phones and emails`() {
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
