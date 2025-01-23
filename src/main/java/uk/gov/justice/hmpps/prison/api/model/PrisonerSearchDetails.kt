@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.model
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Schema(description = "Prisoner details required by Prisoner Search")
 @JsonInclude(JsonInclude.Include.NON_NULL)
@@ -97,6 +98,9 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")
   val lastMovementReasonCode: String? = null,
+
+  @Schema(description = "Last Movement time", example = "2024-12-01 12:23:34")
+  val lastMovementTime: LocalDateTime? = null,
 
   @Schema(description = "Legal Status", example = "REMAND")
   val legalStatus: LegalStatus? = null,

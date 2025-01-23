@@ -96,5 +96,25 @@
         "nonDtoReleaseDateType": "ARD",
         "confirmedReleaseDate": "2018-04-19",
         "releaseDate": "2018-04-19"
-    }
+    },
+    "movements": [
+        {
+            "offenderNo": "A1234AB",
+            "createDateTime": "2018-10-01T00:00",
+            "fromAgency": "OUT",
+            "fromAgencyDescription": "Outside",
+            "toAgency": "LEI",
+            "toAgencyDescription": "Leeds",
+            "fromCity": "",
+            "toCity":  "",
+            "movementType": "ADM",
+            "movementTypeDescription": "Admission",
+            "directionCode": "IN",
+            "movementDate": "2018-10-02",
+            "movementTime": "17:00",
+            "movementReason": "Recall From Intermittent Custody",
+            "movementReasonCode": "24",
+            "commentText": "Admitted to Leeds from court"
+        }
+    ]
 }

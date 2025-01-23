@@ -135,6 +135,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(status).isEqualTo("ACTIVE IN")
             assertThat(lastMovementTypeCode).isEqualTo("ADM")
             assertThat(lastMovementReasonCode).isEqualTo("24")
+            assertThat(lastMovementTime).isEqualTo("2018-10-01T17:00:00")
             assertThat(legalStatus).isEqualTo(LegalStatus.SENTENCED)
             assertThat(recall).isTrue()
             assertThat(imprisonmentStatus).isEqualTo("SENT")
