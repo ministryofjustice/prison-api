@@ -305,8 +305,8 @@ public class OffenderResource {
     @PostMapping
     @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate) {
-        return prisonerCreationService.createPrisoner(requestToCreate);
+    public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate,  @Parameter(description = "When true do not reject new prisoners with same name as existing person") final boolean allowNameDuplicate) {
+        return prisonerCreationService.createPrisoner(requestToCreate, allowNameDuplicate);
     }
 
     @ApiResponses({

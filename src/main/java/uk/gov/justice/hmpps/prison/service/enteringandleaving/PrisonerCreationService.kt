@@ -41,7 +41,7 @@ class PrisonerCreationService(
   private val prisonerRepository: PrisonerRepository,
   private val bookingIntoPrisonService: BookingIntoPrisonService,
 ) {
-  fun createPrisoner(requestToCreate: RequestToCreate): InmateDetail {
+  fun createPrisoner(requestToCreate: RequestToCreate, allowNameDuplicate: Boolean = false): InmateDetail {
     val gender: Gender = gender(requestToCreate.gender).getOrThrow()
     val ethnicity: Ethnicity? = ethnicity(requestToCreate.ethnicity)?.getOrThrow()
     val title: Title? = title(requestToCreate.title)?.getOrThrow()
@@ -49,7 +49,7 @@ class PrisonerCreationService(
 
     val validPncNumber: String? = validPncNumber(requestToCreate.pncNumber)?.getOrThrow()
     val validCroNumber: String? = validCroNumber(requestToCreate.croNumber)?.getOrThrow()
-    val (firstName, lastName) = validUniqueUppercaseNames(requestToCreate).getOrThrow()
+    val (firstName, lastName) = validUniqueUppercaseNames(requestToCreate, allowNameDuplicate).getOrThrow()
     val dateOfBirth = validDateOfBirth(requestToCreate.dateOfBirth).getOrThrow()
 
     val prisoner = offenderRepository.save(
@@ -145,9 +145,9 @@ class PrisonerCreationService(
         failure(matches.toCroMatchFailure())
       } ?: success(this)
 
-  private fun validUniqueUppercaseNames(requestToCreate: RequestToCreate): Result<Pair<String, String>> {
+  private fun validUniqueUppercaseNames(requestToCreate: RequestToCreate, allowNameDuplicate: Boolean): Result<Pair<String, String>> {
     val names = requestToCreate.firstName.uppercase() to requestToCreate.lastName.uppercase()
-    if (requestToCreate.hasNoIdentifiers()) {
+    if (requestToCreate.hasNoIdentifiers() && !allowNameDuplicate) {
       return names.checkForDuplicatePrisonerByName(requestToCreate.dateOfBirth)
     }
     return success(requestToCreate.firstName.uppercase() to requestToCreate.lastName.uppercase())

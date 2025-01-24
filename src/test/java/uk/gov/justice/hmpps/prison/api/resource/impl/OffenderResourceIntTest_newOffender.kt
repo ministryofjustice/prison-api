@@ -392,6 +392,30 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
             ).jsonPath("$.developerMessage")
               .isEqualTo("Prisoner with lastname ROCHEFORT, firstname FABIEN and dob 1987-09-12 already exists with ID ${existingPrisoner.offenderNo}")
           }
+
+          @Test
+          internal fun `can override duplicate reject behaviour`() {
+            expectBadRequest(
+              requestToCreate(
+                lastName = "Rochefort",
+                firstName = "Fabien",
+                dateOfBirth = LocalDate.parse("1987-09-12"),
+                pncNumber = null,
+                croNumber = null,
+              ),
+              allowNameDuplicate = false,
+            )
+            expectSuccess(
+              requestToCreate(
+                lastName = "Rochefort",
+                firstName = "Fabien",
+                dateOfBirth = LocalDate.parse("1987-09-12"),
+                pncNumber = null,
+                croNumber = null,
+              ),
+              allowNameDuplicate = true,
+            )
+          }
         }
 
         @Nested
@@ -670,8 +694,8 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
     }
   }
 
-  fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec =
-    webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+  fun expectBadRequest(body: Any, allowNameDuplicate: Boolean = false): WebTestClient.BodyContentSpec =
+    webTestClient.post().uri("/api/offenders?allowNameDuplicate={allowNameDuplicate}", allowNameDuplicate).headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(body).accept(MediaType.APPLICATION_JSON)
       .exchange().expectStatus().isBadRequest.expectBody().jsonPath("$.status").isEqualTo(400)
 
@@ -679,6 +703,11 @@ class OffenderResourceIntTest_newOffender : ResourceTest() {
     webTestClient.post().uri("/api/offenders").headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(body).accept(MediaType.APPLICATION_JSON)
       .exchange().expectStatus().isNotFound.expectBody().jsonPath("$.status").isEqualTo(404)
+
+  fun expectSuccess(body: Any, allowNameDuplicate: Boolean = false) =
+    webTestClient.post().uri("/api/offenders?allowNameDuplicate={allowNameDuplicate}", allowNameDuplicate).headers(setAuthorisation(listOf("ROLE_BOOKING_CREATE")))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE).bodyValue(body).accept(MediaType.APPLICATION_JSON)
+      .exchange().expectStatus().isOk
 }
 
 private fun requestToCreate(
