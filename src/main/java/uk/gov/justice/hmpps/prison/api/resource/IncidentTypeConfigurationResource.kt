@@ -53,6 +53,5 @@ class IncidentTypeConfigurationResource(
   fun getQuestionnaires(
     @Schema(description = "Return configuration for incident type only")
     @RequestParam(name = "incident-type", required = false) incidentType: String? = null,
-  ): List<IncidentTypeConfiguration> =
-    incidentReportConfigurationService.getIncidentTypeConfiguration(incidentType = incidentType)
+  ): List<IncidentTypeConfiguration> = incidentReportConfigurationService.getIncidentTypeConfiguration(incidentType = incidentType)
 }

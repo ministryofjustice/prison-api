@@ -24,8 +24,7 @@ class AppointmentsResourceIntTest : ResourceTest() {
     private val now = LocalDateTime.now().withNano(0)
     private val futureDateTime = futureDate(1, 0)
 
-    private fun futureDate(day: Long, minutes: Int): String =
-      now.plusDays(day).withHour(14).withMinute(minutes).format(ISO_LOCAL_DATE_TIME)
+    private fun futureDate(day: Long, minutes: Int): String = now.plusDays(day).withHour(14).withMinute(minutes).format(ISO_LOCAL_DATE_TIME)
 
     private val defaultAppointment =
       """
@@ -191,8 +190,9 @@ class AppointmentsResourceIntTest : ResourceTest() {
       assertThat(getAppointment32.createUserId).isEqualTo("ITAG_USER")
 
       // tidy up
-      for (appointment in appointments)
+      for (appointment in appointments) {
         bookingRepository.deleteBookingAppointment(appointment.appointmentEventId)
+      }
     }
 
     @Test
@@ -250,8 +250,9 @@ class AppointmentsResourceIntTest : ResourceTest() {
       assertThat(appointment32[0].eventLocation).isEqualTo("Chapel")
 
       // tidy up
-      for (appointment in appointments)
+      for (appointment in appointments) {
         bookingRepository.deleteBookingAppointment(appointment.appointmentEventId)
+      }
     }
 
     @Test

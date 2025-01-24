@@ -48,14 +48,12 @@ class OffenderLocationService(
     )
   }
 
-  private fun isTemporaryLocation(locationCode: String?): Boolean =
-    setOf("RECP", "RECEP", "RECEPTION", "COURT", "TAP", "ECL", "CSWAP").contains(locationCode)
+  private fun isTemporaryLocation(locationCode: String?): Boolean = setOf("RECP", "RECEP", "RECEPTION", "COURT", "TAP", "ECL", "CSWAP").contains(locationCode)
 }
 
-private fun AgencyInternalLocation.getLocationWithParents(): List<HousingLocation> =
-  this.parentLocation?.getLocationWithParents()?.let {
-    it.plus(HousingLocation(it.size + 1, this.locationCode, this.livingUnit, this.userDescription))
-  } ?: listOf(HousingLocation(1, this.locationCode, this.livingUnit, this.userDescription))
+private fun AgencyInternalLocation.getLocationWithParents(): List<HousingLocation> = this.parentLocation?.getLocationWithParents()?.let {
+  it.plus(HousingLocation(it.size + 1, this.locationCode, this.livingUnit, this.userDescription))
+} ?: listOf(HousingLocation(1, this.locationCode, this.livingUnit, this.userDescription))
 
 @JsonInclude(NON_NULL)
 data class OffenderLocation(

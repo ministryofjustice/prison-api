@@ -71,52 +71,47 @@ data class Questionnaire(
   override fun hashCode(): Int = id.hashCode()
 
   @Override
-  override fun toString(): String {
-    return this::class.simpleName + "(id = $id, code = $code, description = $description)"
-  }
+  override fun toString(): String = this::class.simpleName + "(id = $id, code = $code, description = $description)"
 
-  fun toIncidentTypeConfiguration(): IncidentTypeConfiguration {
-    return IncidentTypeConfiguration(
-      questionnaireId = id,
-      incidentType = code,
-      incidentTypeDescription = description,
-      active = active,
-      expiryDate = expiryDate,
-      prisonerRoles = offenderRoles.map { role ->
-        IncidentTypePrisonerRole(
-          prisonerRole = role.id.offenderRole,
-          singleRole = role.singleRole,
-          active = role.active,
-          expiryDate = role.expiryDate,
+  fun toIncidentTypeConfiguration(): IncidentTypeConfiguration = IncidentTypeConfiguration(
+    questionnaireId = id,
+    incidentType = code,
+    incidentTypeDescription = description,
+    active = active,
+    expiryDate = expiryDate,
+    prisonerRoles = offenderRoles.map { role ->
+      IncidentTypePrisonerRole(
+        prisonerRole = role.id.offenderRole,
+        singleRole = role.singleRole,
+        active = role.active,
+        expiryDate = role.expiryDate,
+      )
+    },
+    questions = questions.sortedBy { it.listSequence }
+      .map { question ->
+        IncidentTypeQuestion(
+          questionnaireQueId = question.id,
+          questionSeq = question.questionSequence,
+          questionDesc = question.questionText,
+          questionListSeq = question.listSequence,
+          multipleAnswerFlag = question.multipleAnswers,
+          questionActiveFlag = question.active,
+          questionExpiryDate = question.expiryDate,
+          answers = question.answers.sortedBy { it.listSequence }
+            .map { answer ->
+              IncidentTypeAnswer(
+                questionnaireAnsId = answer.id,
+                answerSeq = answer.answerSequence,
+                answerDesc = answer.answerText,
+                answerListSeq = answer.listSequence,
+                dateRequiredFlag = answer.dateRequired,
+                commentRequiredFlag = answer.commentRequired,
+                nextQuestionnaireQueId = answer.nextQuestion?.id,
+                answerActiveFlag = answer.active,
+                answerExpiryDate = answer.expiryDate,
+              )
+            },
         )
       },
-      questions = questions.sortedBy { it.listSequence }
-        .map {
-            question ->
-          IncidentTypeQuestion(
-            questionnaireQueId = question.id,
-            questionSeq = question.questionSequence,
-            questionDesc = question.questionText,
-            questionListSeq = question.listSequence,
-            multipleAnswerFlag = question.multipleAnswers,
-            questionActiveFlag = question.active,
-            questionExpiryDate = question.expiryDate,
-            answers = question.answers.sortedBy { it.listSequence }
-              .map { answer ->
-                IncidentTypeAnswer(
-                  questionnaireAnsId = answer.id,
-                  answerSeq = answer.answerSequence,
-                  answerDesc = answer.answerText,
-                  answerListSeq = answer.listSequence,
-                  dateRequiredFlag = answer.dateRequired,
-                  commentRequiredFlag = answer.commentRequired,
-                  nextQuestionnaireQueId = answer.nextQuestion?.id,
-                  answerActiveFlag = answer.active,
-                  answerExpiryDate = answer.expiryDate,
-                )
-              },
-          )
-        },
-    )
-  }
+  )
 }

@@ -63,22 +63,19 @@ class ReleasePrisonerService(
       .let { transformer.transform(it) }
   }
 
-  private fun getOffenderBooking(offenderNo: String): Result<OffenderBooking> =
-    offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-      .map { success(it) }
-      .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
+  private fun getOffenderBooking(offenderNo: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+    .map { success(it) }
+    .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
 
-  private fun OffenderBooking.isActiveIn(): Result<OffenderBooking> =
-    if (!isActive) {
-      failure(BadRequestException("Booking $bookingId is not active"))
-    } else if (!isIn) {
-      failure(BadRequestException("Booking $bookingId is not IN"))
-    } else {
-      success(this)
-    }
+  private fun OffenderBooking.isActiveIn(): Result<OffenderBooking> = if (!isActive) {
+    failure(BadRequestException("Booking $bookingId is not active"))
+  } else if (!isIn) {
+    failure(BadRequestException("Booking $bookingId is not IN"))
+  } else {
+    success(this)
+  }
 
-  private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> =
-    agencyLocationRepository.findByIdOrNull(prisonId)
-      ?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No $prisonId agency found"))
+  private fun getAgencyLocation(prisonId: String): Result<AgencyLocation> = agencyLocationRepository.findByIdOrNull(prisonId)
+    ?.let { success(it) }
+    ?: failure(EntityNotFoundException.withMessage("No $prisonId agency found"))
 }

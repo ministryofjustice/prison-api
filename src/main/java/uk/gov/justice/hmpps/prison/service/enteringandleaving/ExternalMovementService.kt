@@ -185,25 +185,21 @@ class ExternalMovementService(
     )
   }
 
-  private fun getAdmissionMovementType(): Result<MovementType> =
-    movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found"),
-    )
+  private fun getAdmissionMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found"),
+  )
 
-  private fun getCourtMovementType(): Result<MovementType> =
-    movementTypeRepository.findByIdOrNull(MovementType.CRT)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found"),
-    )
+  private fun getCourtMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.CRT)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found"),
+  )
 
-  private fun getTAPMovementType(): Result<MovementType> =
-    movementTypeRepository.findByIdOrNull(MovementType.TAP)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found"),
-    )
+  private fun getTAPMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.TAP)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found"),
+  )
 
-  private fun getReleaseMovementType(): Result<MovementType> =
-    movementTypeRepository.findByIdOrNull(MovementType.REL)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No ${MovementType.REL} movement type found"),
-    )
+  private fun getReleaseMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.REL)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("No ${MovementType.REL} movement type found"),
+  )
 
   private fun getMovementReasonForPrisonTransfer(): Result<MovementReason> {
     return movementReasonRepository.findByIdOrNull(MovementReason.pk("INT"))
@@ -211,10 +207,9 @@ class ExternalMovementService(
       ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
   }
 
-  fun getMovementReason(movementReasonCode: String): Result<MovementReason> =
-    movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
-      ?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))
+  fun getMovementReason(movementReasonCode: String): Result<MovementReason> = movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
+    ?.let { success(it) }
+    ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))
 
   fun getMovementDateTime(movementTime: LocalDateTime?, booking: OffenderBooking?): Result<LocalDateTime> {
     val now = LocalDateTime.now()
@@ -229,18 +224,16 @@ class ExternalMovementService(
     } ?: success(now)
   }
 
-  fun wasLastMovementAnEscape(booking: OffenderBooking): Boolean =
-    externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(booking.bookingId)
-      .map {
-        movementTypeAndReasonRepository.findByIdOrNull(MovementTypeAndReason.Pk("REL", it.movementReason.code))
-      }
-      .orElse(null)?.isEscaped
-      ?: false
-
-  private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) =
-    externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
-      movementTime.isBefore(it.movementTime)
+  fun wasLastMovementAnEscape(booking: OffenderBooking): Boolean = externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(booking.bookingId)
+    .map {
+      movementTypeAndReasonRepository.findByIdOrNull(MovementTypeAndReason.Pk("REL", it.movementReason.code))
     }
+    .orElse(null)?.isEscaped
+    ?: false
+
+  private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) = externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
+    movementTime.isBefore(it.movementTime)
+  }
 
   private fun OffenderBooking.addExternalMovementIn(
     movementDateTime: LocalDateTime,

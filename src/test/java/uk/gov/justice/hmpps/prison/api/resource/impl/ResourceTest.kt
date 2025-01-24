@@ -54,21 +54,13 @@ abstract class ResourceTest {
   protected val testDataContext: TestDataContext
     get() = TestDataContext(webTestClient, jwtAuthenticationHelper, dataLoader)
 
-  protected fun createHttpEntity(bearerToken: String?, body: Any?): HttpEntity<*> {
-    return createHttpEntity(bearerToken, body, emptyMap<String?, String>())
-  }
+  protected fun createHttpEntity(bearerToken: String?, body: Any?): HttpEntity<*> = createHttpEntity(bearerToken, body, emptyMap<String?, String>())
 
-  protected fun createHttpEntity(authToken: AuthToken, body: Any?): HttpEntity<*> {
-    return createHttpEntity(authTokenHelper.getToken(authToken), body, emptyMap<String?, String>())
-  }
+  protected fun createHttpEntity(authToken: AuthToken, body: Any?): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), body, emptyMap<String?, String>())
 
-  protected fun createEmptyHttpEntity(authToken: AuthToken): HttpEntity<*> {
-    return createHttpEntity(authTokenHelper.getToken(authToken), null, emptyMap<String?, String>())
-  }
+  protected fun createEmptyHttpEntity(authToken: AuthToken): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, emptyMap<String?, String>())
 
-  protected fun createEmptyHttpEntity(authToken: AuthToken, additionalHeaders: Map<String?, String?>): HttpEntity<*> {
-    return createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders)
-  }
+  protected fun createEmptyHttpEntity(authToken: AuthToken, additionalHeaders: Map<String?, String?>): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders)
 
   protected fun createHttpEntity(
     bearerToken: String?,
@@ -168,22 +160,17 @@ abstract class ResourceTest {
     Assertions.assertThat(getBodyAsJsonContent<Any>(response)).isEqualToJson(json)
   }
 
-  protected fun <T> getBodyAsJsonContent(response: ResponseEntity<String?>): JsonContent<T> {
-    return JsonContent(
-      javaClass,
-      ResolvableType.forType(
-        String::class.java,
-      ),
-      Objects.requireNonNull(response.body),
-    )
-  }
+  protected fun <T> getBodyAsJsonContent(response: ResponseEntity<String?>): JsonContent<T> = JsonContent(
+    javaClass,
+    ResolvableType.forType(
+      String::class.java,
+    ),
+    Objects.requireNonNull(response.body),
+  )
 
-  protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> =
-    Consumer { it.setBearerAuth(validToken(roles)) }
+  protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(validToken(roles)) }
 
-  protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> =
-    Consumer { it.setBearerAuth(createJwtAccessToken(username, roles)) }
+  protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(createJwtAccessToken(username, roles)) }
 
-  protected fun setClientAuthorisation(roles: List<String>): Consumer<HttpHeaders> =
-    Consumer { it.setBearerAuth(clientToken(roles)) }
+  protected fun setClientAuthorisation(roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(clientToken(roles)) }
 }

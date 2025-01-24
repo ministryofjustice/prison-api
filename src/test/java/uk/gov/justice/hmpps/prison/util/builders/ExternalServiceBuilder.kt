@@ -6,8 +6,7 @@ import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 class ExternalServiceBuilder(private val serviceName: String) {
   fun save(
     dataLoader: DataLoaderRepository,
-  ) =
-    dataLoader.externalServiceRepository.save(
-      ExternalServiceEntity(serviceName, serviceName),
-    )
+  ) = dataLoader.externalServiceRepository.save(
+    ExternalServiceEntity(serviceName, serviceName),
+  )
 }

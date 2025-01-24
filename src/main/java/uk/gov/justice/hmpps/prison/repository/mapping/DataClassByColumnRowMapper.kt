@@ -78,10 +78,8 @@ class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapp
     return BeanUtils.instantiateClass(mappedConstructor, *args)
   }
 
-  override fun getColumnValue(rs: ResultSet, index: Int, paramType: Class<*>): Any? {
-    return when (paramType) {
-      Boolean::class.javaObjectType -> "Y" == rs.getObject(index) || rs.getBoolean(index)
-      else -> super.getColumnValue(rs, index, paramType)
-    }
+  override fun getColumnValue(rs: ResultSet, index: Int, paramType: Class<*>): Any? = when (paramType) {
+    Boolean::class.javaObjectType -> "Y" == rs.getObject(index) || rs.getBoolean(index)
+    else -> super.getColumnValue(rs, index, paramType)
   }
 }

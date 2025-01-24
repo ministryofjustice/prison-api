@@ -1,9 +1,7 @@
 package uk.gov.justice.hmpps.prison.util
 
 class NaturalOrderComparator : Comparator<SortAttribute> {
-  private fun isDigit(ch: Char): Boolean {
-    return ((ch.code >= 48) && (ch.code <= 57))
-  }
+  private fun isDigit(ch: Char): Boolean = ((ch.code >= 48) && (ch.code <= 57))
 
   /**
    * Length of string is passed in for improved efficiency (only need to calculate it once)

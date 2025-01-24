@@ -38,8 +38,7 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     @PathVariable
     @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
-  ): List<PrisonDetails> =
-    service.getServicePrisons(serviceCode)
+  ): List<PrisonDetails> = service.getServicePrisons(serviceCode)
 
   @ApiResponses(
     ApiResponse(responseCode = "201", description = "Created"),
@@ -60,8 +59,7 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     @PathVariable
     @Parameter(description = "The id of the prison from the AGENCY_LOCATIONS table")
     prisonId: String,
-  ): PrisonDetails =
-    service.addServicePrison(serviceCode, prisonId)
+  ): PrisonDetails = service.addServicePrison(serviceCode, prisonId)
 
   @ApiResponses(
     ApiResponse(responseCode = "204", description = "OK"),
@@ -81,6 +79,5 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     @PathVariable
     @Parameter(description = "The id of the prison from the AGENCY_LOCATIONS table")
     prisonId: String,
-  ) =
-    service.removeServicePrison(serviceCode, prisonId)
+  ) = service.removeServicePrison(serviceCode, prisonId)
 }

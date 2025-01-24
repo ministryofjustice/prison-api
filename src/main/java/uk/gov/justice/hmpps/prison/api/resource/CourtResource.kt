@@ -48,9 +48,7 @@ class CourtResource(private val courtService: CourtService) {
     @PathVariable
     @Parameter(description = "The bookingId to check court events against", required = true)
     bookingId: Long,
-  ): CourtEventDetails? {
-    return this.courtService.getNextCourtEvent(bookingId)
-  }
+  ): CourtEventDetails? = this.courtService.getNextCourtEvent(bookingId)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -77,7 +75,5 @@ class CourtResource(private val courtService: CourtService) {
     @PathVariable
     @Parameter(description = "The bookingId to check court cases against", required = true)
     bookingId: Long,
-  ): Int {
-    return this.courtService.getCountOfActiveCases(bookingId)
-  }
+  ): Int = this.courtService.getCountOfActiveCases(bookingId)
 }

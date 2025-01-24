@@ -16,11 +16,9 @@ class SentenceMovementService(
     deactivateKeyDateAdjustments(bookingId)
   }
 
-  private fun deactivateSentenceAdjustments(bookingId: Long) =
-    offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
-      .forEach { it.isActive = false }
+  private fun deactivateSentenceAdjustments(bookingId: Long) = offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
+    .forEach { it.isActive = false }
 
-  private fun deactivateKeyDateAdjustments(bookingId: Long) =
-    offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
-      .forEach { it.isActive = false }
+  private fun deactivateKeyDateAdjustments(bookingId: Long) = offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true)
+    .forEach { it.isActive = false }
 }

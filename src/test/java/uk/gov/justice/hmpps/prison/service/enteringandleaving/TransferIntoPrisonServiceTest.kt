@@ -115,24 +115,22 @@ class TransferIntoPrisonServiceTest {
     toCityIn: City? = null,
     eventIdIn: Long? = null,
     active: Boolean = true,
-  ): ExternalMovement {
-    return ExternalMovement().apply {
-      fromAgency = fromPrison
-      toAgency = toAgencyIn
-      toCity = toCityIn
-      movementType = MovementType().apply {
-        code = movementTypeCode
-        description = "type description"
-      }
-      movementReason = MovementReason().apply {
-        code = movementReasonCode
-        description = "code description"
-      }
-      movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
-      movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
-      isActive = active
-      eventId = eventIdIn
+  ): ExternalMovement = ExternalMovement().apply {
+    fromAgency = fromPrison
+    toAgency = toAgencyIn
+    toCity = toCityIn
+    movementType = MovementType().apply {
+      code = movementTypeCode
+      description = "type description"
     }
+    movementReason = MovementReason().apply {
+      code = movementReasonCode
+      description = "code description"
+    }
+    movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
+    movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
+    isActive = active
+    eventId = eventIdIn
   }
 
   @BeforeEach

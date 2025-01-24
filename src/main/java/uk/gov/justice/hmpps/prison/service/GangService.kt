@@ -52,15 +52,14 @@ class GangService(
     )
   }
 
-  private fun gangMemberDetail(currentBooking: OffenderBooking) =
-    GangMemberDetail(
-      offenderNo = currentBooking.offender.nomsId,
-      firstName = currentBooking.offender.firstName,
-      lastName = currentBooking.offender.lastName,
-      prisonId = currentBooking.location.id,
-      prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
-      cellLocation = currentBooking.assignedLivingUnit?.description,
-    )
+  private fun gangMemberDetail(currentBooking: OffenderBooking) = GangMemberDetail(
+    offenderNo = currentBooking.offender.nomsId,
+    firstName = currentBooking.offender.firstName,
+    lastName = currentBooking.offender.lastName,
+    prisonId = currentBooking.location.id,
+    prisonName = LocationProcessor.formatLocation(currentBooking.location.description),
+    cellLocation = currentBooking.assignedLivingUnit?.description,
+  )
 }
 
 @Schema(description = "Summary of Gangs for a specified prisoner")
@@ -94,9 +93,7 @@ data class GangSummary(
     return code == other.code
   }
 
-  override fun hashCode(): Int {
-    return code.hashCode()
-  }
+  override fun hashCode(): Int = code.hashCode()
 }
 
 @Schema(description = "Non associations Gang information")
@@ -119,9 +116,7 @@ data class GangNonAssociationSummary(
     return code == other.code
   }
 
-  override fun hashCode(): Int {
-    return code.hashCode()
-  }
+  override fun hashCode(): Int = code.hashCode()
 }
 
 @Schema(description = "Gang Member Detail")

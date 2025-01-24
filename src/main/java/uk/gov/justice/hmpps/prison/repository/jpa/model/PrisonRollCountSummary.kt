@@ -115,12 +115,11 @@ class PrisonRollCountSummary(
 
   fun getPathHierarchy(): String = LocationProcessor.stripAgencyId(fullLocationPath, prisonId)
 
-  fun getLocalNameDescription(): String? =
-    if (locationType == "CELL") {
-      locationCode
-    } else {
-      LocationProcessor.formatLocation(localName ?: locationCode)
-    }
+  fun getLocalNameDescription(): String? = if (locationType == "CELL") {
+    locationCode
+  } else {
+    LocationProcessor.formatLocation(localName ?: locationCode)
+  }
 
   fun hasChildren(allLocations: List<PrisonRollCountSummary>): Boolean = allLocations.firstOrNull { it.parentLocationId == locationId } != null
 }

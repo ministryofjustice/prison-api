@@ -43,24 +43,23 @@ class NomisData(
     genderCode: String,
     ethnicity: String?,
     dsl: OffenderDsl.() -> Unit,
-  ): OffenderId =
-    offenderBuilderFactory.builder()
-      .let { builder ->
-        builder.build(
-          pncNumber = pncNumber,
-          croNumber = croNumber,
-          lastName = lastName,
-          firstName = firstName,
-          middleName1 = middleName1,
-          middleName2 = middleName2,
-          birthDate = birthDate,
-          genderCode = genderCode,
-          ethnicity = ethnicity,
-        )
-          .also {
-            builder.apply(dsl)
-          }
-      }
+  ): OffenderId = offenderBuilderFactory.builder()
+    .let { builder ->
+      builder.build(
+        pncNumber = pncNumber,
+        croNumber = croNumber,
+        lastName = lastName,
+        firstName = firstName,
+        middleName1 = middleName1,
+        middleName2 = middleName2,
+        birthDate = birthDate,
+        genderCode = genderCode,
+        ethnicity = ethnicity,
+      )
+        .also {
+          builder.apply(dsl)
+        }
+    }
 
   @TeamDslMarker
   override fun team(
@@ -70,20 +69,19 @@ class NomisData(
     categoryCode: String,
     agencyId: String,
     dsl: TeamDsl.() -> Unit,
-  ): Team =
-    teamBuilderFactory.builder()
-      .let { builder ->
-        builder.build(
-          code = code,
-          description = description,
-          areaCode = areaCode,
-          categoryCode = categoryCode,
-          agencyId = agencyId,
-        )
-          .also {
-            builder.apply(dsl)
-          }
-      }
+  ): Team = teamBuilderFactory.builder()
+    .let { builder ->
+      builder.build(
+        code = code,
+        description = description,
+        areaCode = areaCode,
+        categoryCode = categoryCode,
+        agencyId = agencyId,
+      )
+        .also {
+          builder.apply(dsl)
+        }
+    }
 }
 
 @NomisDataDslMarker

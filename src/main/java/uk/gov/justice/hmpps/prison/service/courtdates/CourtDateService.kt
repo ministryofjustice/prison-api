@@ -14,46 +14,16 @@ class CourtDateService(
   private val courtEventChargeRepository: CourtEventChargeRepository,
 ) {
 
-  fun getCourtDateResultsFlat(offenderNo: String): List<CourtDateResult> {
-    return courtEventChargeRepository.findByOffender(offenderNo).map {
-      val event = it.eventAndCharge.courtEvent
-      val charge = it.eventAndCharge.offenderCharge
-      CourtDateResult(
-        event.id,
-        event.eventDate,
-        it.resultCodeOne?.code,
-        it.resultCodeOne?.description,
-        it.resultCodeOne?.dispositionCode,
-        CourtDateCharge(
-          charge.id,
-          charge.offence.code,
-          charge.offence.statute.code,
-          charge.offence.description,
-          charge.dateOfOffence,
-          charge.endDate,
-          charge.pleaCode == "G",
-          charge.offenderCourtCase.id,
-          charge.offenderCourtCase.caseInfoNumber,
-          charge.offenderCourtCase.agencyLocation?.description,
-          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence,
-          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.courtOrder?.courtDate,
-          charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.calculationType?.calculationType,
-          charge.resultCodeOne?.code,
-          charge.resultCodeOne?.description,
-          charge.resultCodeOne?.dispositionCode,
-          charge.isActive,
-        ),
-        charge.offenderBooking.bookingId,
-        charge.offenderBooking.bookNumber,
-      )
-    }
-      .sortedBy { it.date }
-  }
-
-  fun getCourtDateResults(offenderNo: String): List<CourtDateChargeAndOutcomes> {
-    return courtEventChargeRepository.findByOffender(offenderNo).groupBy({
-      val charge = it.eventAndCharge.offenderCharge
-      CourtDateChargeAndOutcomes(
+  fun getCourtDateResultsFlat(offenderNo: String): List<CourtDateResult> = courtEventChargeRepository.findByOffender(offenderNo).map {
+    val event = it.eventAndCharge.courtEvent
+    val charge = it.eventAndCharge.offenderCharge
+    CourtDateResult(
+      event.id,
+      event.eventDate,
+      it.resultCodeOne?.code,
+      it.resultCodeOne?.description,
+      it.resultCodeOne?.dispositionCode,
+      CourtDateCharge(
         charge.id,
         charge.offence.code,
         charge.offence.statute.code,
@@ -70,22 +40,48 @@ class CourtDateService(
         charge.resultCodeOne?.code,
         charge.resultCodeOne?.description,
         charge.resultCodeOne?.dispositionCode,
-        charge.offenderBooking.bookingId,
-        charge.offenderBooking.bookNumber,
         charge.isActive,
-        emptyList(),
-      )
-    }, {
-      val event = it.eventAndCharge.courtEvent
-      CourtDateOutcome(
-        event.id,
-        event.eventDate,
-        it.resultCodeOne?.code,
-        it.resultCodeOne?.description,
-        it.resultCodeOne?.dispositionCode,
-      )
-    }).map { (charge, outcomes) ->
-      charge.copy(outcomes = outcomes)
-    }
+      ),
+      charge.offenderBooking.bookingId,
+      charge.offenderBooking.bookNumber,
+    )
+  }
+    .sortedBy { it.date }
+
+  fun getCourtDateResults(offenderNo: String): List<CourtDateChargeAndOutcomes> = courtEventChargeRepository.findByOffender(offenderNo).groupBy({
+    val charge = it.eventAndCharge.offenderCharge
+    CourtDateChargeAndOutcomes(
+      charge.id,
+      charge.offence.code,
+      charge.offence.statute.code,
+      charge.offence.description,
+      charge.dateOfOffence,
+      charge.endDate,
+      charge.pleaCode == "G",
+      charge.offenderCourtCase.id,
+      charge.offenderCourtCase.caseInfoNumber,
+      charge.offenderCourtCase.agencyLocation?.description,
+      charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.sequence,
+      charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.courtOrder?.courtDate,
+      charge.offenderSentenceCharges.firstOrNull()?.offenderSentence?.calculationType?.calculationType,
+      charge.resultCodeOne?.code,
+      charge.resultCodeOne?.description,
+      charge.resultCodeOne?.dispositionCode,
+      charge.offenderBooking.bookingId,
+      charge.offenderBooking.bookNumber,
+      charge.isActive,
+      emptyList(),
+    )
+  }, {
+    val event = it.eventAndCharge.courtEvent
+    CourtDateOutcome(
+      event.id,
+      event.eventDate,
+      it.resultCodeOne?.code,
+      it.resultCodeOne?.description,
+      it.resultCodeOne?.dispositionCode,
+    )
+  }).map { (charge, outcomes) ->
+    charge.copy(outcomes = outcomes)
   }
 }

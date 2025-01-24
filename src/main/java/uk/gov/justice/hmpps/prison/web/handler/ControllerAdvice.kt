@@ -146,30 +146,28 @@ class ControllerAdvice {
   }
 
   @ExceptionHandler(EmptyResultDataAccessException::class)
-  fun handleEmptyResultDataAccessException(e: EmptyResultDataAccessException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(HttpStatus.NOT_FOUND)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.NOT_FOUND.value())
-          .developerMessage(e.message)
-          .build(),
-      )
+  fun handleEmptyResultDataAccessException(e: EmptyResultDataAccessException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.NOT_FOUND)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.NOT_FOUND.value())
+        .developerMessage(e.message)
+        .build(),
+    )
 
   @ExceptionHandler(jakarta.persistence.EntityNotFoundException::class)
-  fun handleEntityNotFoundException(e: jakarta.persistence.EntityNotFoundException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(HttpStatus.NOT_FOUND)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.NOT_FOUND.value())
-          .developerMessage(e.cause?.message)
-          .build(),
-      )
+  fun handleEntityNotFoundException(e: jakarta.persistence.EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.NOT_FOUND)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.NOT_FOUND.value())
+        .developerMessage(e.cause?.message)
+        .build(),
+    )
 
   @ExceptionHandler(EntityExistsException::class)
   fun handleEntityExistsException(e: EntityExistsException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -232,17 +230,16 @@ class ControllerAdvice {
     )
 
   @ExceptionHandler(InvalidDataAccessApiUsageException::class)
-  fun handleInvalidDataAccessApiUsageException(e: InvalidDataAccessApiUsageException): ResponseEntity<ErrorResponse> =
-    ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.mostSpecificCause.message)
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.mostSpecificCause.message)
-          .build(),
-      )
+  fun handleInvalidDataAccessApiUsageException(e: InvalidDataAccessApiUsageException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.mostSpecificCause.message)
+        .status(HttpStatus.BAD_REQUEST.value())
+        .developerMessage(e.mostSpecificCause.message)
+        .build(),
+    )
 
   @ExceptionHandler(HttpMessageConversionException::class)
   fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> {

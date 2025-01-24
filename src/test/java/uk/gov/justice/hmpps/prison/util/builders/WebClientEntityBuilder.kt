@@ -15,10 +15,9 @@ abstract class WebClientEntityBuilder {
     )
   }
 
-  protected fun validToken(jwtAuthenticationHelper: JwtAuthorisationHelper, roles: List<String>): String =
-    jwtAuthenticationHelper.createJwtAccessToken(
-      username = "ITAG_USER",
-      scope = listOf("read", "write"),
-      roles = roles,
-    )
+  protected fun validToken(jwtAuthenticationHelper: JwtAuthorisationHelper, roles: List<String>): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = listOf("read", "write"),
+    roles = roles,
+  )
 }

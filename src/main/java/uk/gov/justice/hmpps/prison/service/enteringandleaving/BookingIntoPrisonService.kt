@@ -202,16 +202,13 @@ class BookingIntoPrisonService(
     }
   }
 
-  private fun rootOffenderForUpdate(prisonerIdentifier: String): Result<Offender> =
-    offenderRepository.findRootOffenderByNomsIdForUpdate(prisonerIdentifier).map { success(it) }
-      .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
+  private fun rootOffenderForUpdate(prisonerIdentifier: String): Result<Offender> = offenderRepository.findRootOffenderByNomsIdForUpdate(prisonerIdentifier).map { success(it) }
+    .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
 
-  private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> =
-    offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
-      ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
+  private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
+    ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
 
-  private fun previousInactiveBooking(offenderBooking: OffenderBooking?): Result<OffenderBooking?> =
-    offenderBooking?.inActiveOut() ?: success(null)
+  private fun previousInactiveBooking(offenderBooking: OffenderBooking?): Result<OffenderBooking?> = offenderBooking?.inActiveOut() ?: success(null)
 
   private fun fromLocation(location: String?): Result<AgencyLocation> = location?.takeIf { it.isNotBlank() }?.let {
     agencyLocationRepository.findByIdAndDeactivationDateIsNullOrNull(it)?.let { location -> success(location) }
@@ -220,37 +217,33 @@ class BookingIntoPrisonService(
     EntityNotFoundException.withMessage("${AgencyLocation.OUT} is not a valid from location"),
   )
 
-  private fun imprisonmentStatus(imprisonmentStatus: String): Result<ImprisonmentStatus> =
-    imprisonmentStatusRepository.findByStatusAndActiveOrNull(imprisonmentStatus, true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("No imprisonment status $imprisonmentStatus found"),
-    )
+  private fun imprisonmentStatus(imprisonmentStatus: String): Result<ImprisonmentStatus> = imprisonmentStatusRepository.findByStatusAndActiveOrNull(imprisonmentStatus, true)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("No imprisonment status $imprisonmentStatus found"),
+  )
 
-  private fun prison(prisonId: String): Result<AgencyLocation> =
-    agencyLocationTypeRepository.findByIdOrNull(AgencyLocationType.INST)?.let {
-      agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull(prisonId, it, true)
-        ?.let { prison -> success(prison) } ?: failure(
-        EntityNotFoundException.withMessage("$prisonId prison not found"),
-      )
-    } ?: failure(
-      EntityNotFoundException.withMessage("Not Found"),
+  private fun prison(prisonId: String): Result<AgencyLocation> = agencyLocationTypeRepository.findByIdOrNull(AgencyLocationType.INST)?.let {
+    agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull(prisonId, it, true)
+      ?.let { prison -> success(prison) } ?: failure(
+      EntityNotFoundException.withMessage("$prisonId prison not found"),
     )
+  } ?: failure(
+    EntityNotFoundException.withMessage("Not Found"),
+  )
 
-  private fun cellOrReceptionCode(prisonId: String, cellLocation: String?) =
-    cellLocation?.takeIf { it.isNotBlank() } ?: "$prisonId-RECP"
+  private fun cellOrReceptionCode(prisonId: String, cellLocation: String?) = cellLocation?.takeIf { it.isNotBlank() } ?: "$prisonId-RECP"
 
   private fun cellOrLocationWithSpace(
     internalLocationDescription: String,
     prison: AgencyLocation,
-  ): Result<AgencyInternalLocation> =
-    agencyInternalLocationRepository.findOneByDescriptionAndAgencyIdOrNull(internalLocationDescription, prison.id)
-      ?.let {
-        it.takeIf { it.hasSpace() }?.let { internalLocation -> success(internalLocation) } ?: failure(
-          ConflictingRequestException.withMessage(
-            "The cell $internalLocationDescription does not have any available capacity",
-            CustomErrorCodes.NO_CELL_CAPACITY,
-          ),
-        )
-      } ?: failure(EntityNotFoundException.withMessage("$internalLocationDescription cell location not found"))
+  ): Result<AgencyInternalLocation> = agencyInternalLocationRepository.findOneByDescriptionAndAgencyIdOrNull(internalLocationDescription, prison.id)
+    ?.let {
+      it.takeIf { it.hasSpace() }?.let { internalLocation -> success(internalLocation) } ?: failure(
+        ConflictingRequestException.withMessage(
+          "The cell $internalLocationDescription does not have any available capacity",
+          CustomErrorCodes.NO_CELL_CAPACITY,
+        ),
+      )
+    } ?: failure(EntityNotFoundException.withMessage("$internalLocationDescription cell location not found"))
 
   private fun OffenderBooking?.copyKeyDataFromPreviousBooking(newBooking: OffenderBooking, movement: ExternalMovement) {
     this?.takeIf { copyTableRepository.shouldCopyForAdmission() }?.run {
@@ -268,15 +261,13 @@ class BookingIntoPrisonService(
     this.add(profileType, profileCode)
   }
 
-  private fun ProfileTypeRepository.youthProfile(): Result<ProfileType> =
-    this.findByTypeAndCategoryAndActiveOrNull("YOUTH", "PI", true)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId("YOUTH"),
-    )
+  private fun ProfileTypeRepository.youthProfile(): Result<ProfileType> = this.findByTypeAndCategoryAndActiveOrNull("YOUTH", "PI", true)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withId("YOUTH"),
+  )
 
-  private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> =
-    this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Profile Code for YOUTH and $code not found"),
-    )
+  private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> = this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("Profile Code for YOUTH and $code not found"),
+  )
 
   private fun OffenderBooking?.didNotPreviouslyEscapeOrAbscond(): Result<OffenderBooking?> {
     if (this != null && externalMovementService.wasLastMovementAnEscape(this)) {
@@ -291,12 +282,11 @@ class BookingIntoPrisonService(
   }
 }
 
-private fun CopyTableRepository.shouldCopyForAdmission(): Boolean =
-  findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull(
-    "COP",
-    MovementType.ADM.code,
-    true,
-  ).isNotEmpty()
+private fun CopyTableRepository.shouldCopyForAdmission(): Boolean = findByOperationCodeAndMovementTypeAndActiveAndExpiryDateIsNull(
+  "COP",
+  MovementType.ADM.code,
+  true,
+).isNotEmpty()
 
 private fun OffenderBooking.inActiveOut(): Result<OffenderBooking> {
   if (this.isActive) {

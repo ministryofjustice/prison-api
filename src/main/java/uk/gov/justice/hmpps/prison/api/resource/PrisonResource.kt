@@ -58,6 +58,5 @@ class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeServic
     @RequestParam(value = "size", defaultValue = "200", required = false)
     @Parameter(description = "Requested limit of the page size (i.e. the number of bookings in response)")
     size: Int,
-  ): Page<CalculableSentenceEnvelope> =
-    sentenceEnvelopeService.getCalculableSentenceEnvelopeByEstablishment(agencyId, page, size)
+  ): Page<CalculableSentenceEnvelope> = sentenceEnvelopeService.getCalculableSentenceEnvelopeByEstablishment(agencyId, page, size)
 }

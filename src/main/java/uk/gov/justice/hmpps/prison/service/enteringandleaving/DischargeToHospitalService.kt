@@ -57,16 +57,15 @@ class DischargeToHospitalService(
     }
   }
 
-  private fun findHospitalLocation(hospitalCode: String): Result<AgencyLocation> =
-    agencyLocationRepository.findByIdOrNull(hospitalCode)
-      ?.let {
-        if (it.isHospital) {
-          success(it)
-        } else {
-          failure(EntityNotFoundException.withMessage(String.format("%s is not a hospital", it.description)))
-        }
+  private fun findHospitalLocation(hospitalCode: String): Result<AgencyLocation> = agencyLocationRepository.findByIdOrNull(hospitalCode)
+    ?.let {
+      if (it.isHospital) {
+        success(it)
+      } else {
+        failure(EntityNotFoundException.withMessage(String.format("%s is not a hospital", it.description)))
       }
-      ?: failure(EntityNotFoundException.withMessage("No $hospitalCode agency found"))
+    }
+    ?: failure(EntityNotFoundException.withMessage("No $hospitalCode agency found"))
 
   private fun getOrCreateBooking(offenderNo: String, dischargeTime: LocalDateTime, fromLocation: String?, prison: String?): Result<OffenderBooking> {
     val rootOffender = findRootOffender(offenderNo).getOrThrow()
@@ -91,15 +90,13 @@ class DischargeToHospitalService(
     return getLatestOffenderBooking(offenderNo)
   }
 
-  private fun findRootOffender(offenderNo: String): Result<Offender> =
-    offenderRepository.findRootOffenderByNomsIdOrNull(offenderNo)
-      ?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $offenderNo"))
+  private fun findRootOffender(offenderNo: String): Result<Offender> = offenderRepository.findRootOffenderByNomsIdOrNull(offenderNo)
+    ?.let { success(it) }
+    ?: failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $offenderNo"))
 
-  private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> =
-    offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
-      .map { success(it) }
-      .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
+  private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1)
+    .map { success(it) }
+    .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
 
   private fun ExternalMovement.changeToHospitalDischarge(toLocation: AgencyLocation) {
     val text = (if (commentText == null) "" else "$commentText. ")
@@ -112,12 +109,11 @@ class DischargeToHospitalService(
 
   private fun ExternalMovement?.isRelease() = this?.movementType?.code == MovementType.REL.code
 
-  private fun dischargeToHospital(offenderNo: String, dischargeTime: LocalDateTime, toLocation: AgencyLocation) =
-    RequestToReleasePrisoner.builder()
-      .commentText("Psychiatric Hospital Discharge to " + toLocation.description)
-      .releaseTime(dischargeTime)
-      .movementReasonCode(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code)
-      .toLocationCode(toLocation.id)
-      .build()
-      .let { releasePrisonerService.releasePrisoner(offenderNo, it, mustBeActiveIn = false) }
+  private fun dischargeToHospital(offenderNo: String, dischargeTime: LocalDateTime, toLocation: AgencyLocation) = RequestToReleasePrisoner.builder()
+    .commentText("Psychiatric Hospital Discharge to " + toLocation.description)
+    .releaseTime(dischargeTime)
+    .movementReasonCode(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code)
+    .toLocationCode(toLocation.id)
+    .build()
+    .let { releasePrisonerService.releasePrisoner(offenderNo, it, mustBeActiveIn = false) }
 }

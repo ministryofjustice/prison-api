@@ -17,13 +17,12 @@ class HsqlConnectionAspect(private val hmppsAuthenticationHolder: HmppsAuthentic
   private val log = LoggerFactory.getLogger(this::class.java)
 
   @Throws(SQLException::class)
-  override fun configureNomisConnection(pooledConnection: Connection): Connection =
-    with(pooledConnection) {
-      when {
-        isNomisProxyUser() -> openAndConfigureProxySessionForConnection(this)
-        else -> this
-      }
+  override fun configureNomisConnection(pooledConnection: Connection): Connection = with(pooledConnection) {
+    when {
+      isNomisProxyUser() -> openAndConfigureProxySessionForConnection(this)
+      else -> this
     }
+  }
 
   @Throws(SQLException::class)
   private fun openAndConfigureProxySessionForConnection(pooledConnection: Connection): Connection {

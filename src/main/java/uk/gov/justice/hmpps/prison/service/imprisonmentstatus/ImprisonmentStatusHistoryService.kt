@@ -11,16 +11,14 @@ class ImprisonmentStatusHistoryService(
   private val offenderImprisonmentStatusRepository: OffenderImprisonmentStatusRepository,
 ) {
 
-  fun getImprisonmentStatusHistory(offenderNo: String): List<ImprisonmentStatusHistoryDto> {
-    return offenderImprisonmentStatusRepository.findByOffender(offenderNo)
-      .groupBy { it.effectiveDate }
-      .map { (_, statuses) -> statuses.maxBy { it.imprisonStatusSeq } }
-      .map {
-        ImprisonmentStatusHistoryDto(
-          status = it.imprisonmentStatus.status,
-          effectiveDate = it.effectiveDate,
-          agencyId = it.agyLocId,
-        )
-      }
-  }
+  fun getImprisonmentStatusHistory(offenderNo: String): List<ImprisonmentStatusHistoryDto> = offenderImprisonmentStatusRepository.findByOffender(offenderNo)
+    .groupBy { it.effectiveDate }
+    .map { (_, statuses) -> statuses.maxBy { it.imprisonStatusSeq } }
+    .map {
+      ImprisonmentStatusHistoryDto(
+        status = it.imprisonmentStatus.status,
+        effectiveDate = it.effectiveDate,
+        agencyId = it.agyLocId,
+      )
+    }
 }

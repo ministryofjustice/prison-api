@@ -94,19 +94,18 @@ class AgencyPrisonerPayProfileServiceTest {
       .hasMessage("Error")
   }
 
-  private fun getFakeEntity(agencyId: String, startDate: LocalDate, endDate: LocalDate?) =
-    AgyPrisonerPayProfile(
-      agyLocId = agencyId,
-      startDate = startDate,
-      endDate = endDate,
-      autoPayFlag = "Y",
-      minHalfDayRate = BigDecimal("1.25"),
-      maxHalfDayRate = BigDecimal("5.25"),
-      maxBonusRate = BigDecimal("4.00"),
-      maxPieceWorkRate = BigDecimal("8.00"),
-      payFrequency = 1,
-      backdateDays = 7,
-      defaultPayBandCode = "1",
-      weeklyAbsenceLimit = 12,
-    )
+  private fun getFakeEntity(agencyId: String, startDate: LocalDate, endDate: LocalDate?) = AgyPrisonerPayProfile(
+    agyLocId = agencyId,
+    startDate = startDate,
+    endDate = endDate,
+    autoPayFlag = "Y",
+    minHalfDayRate = BigDecimal("1.25"),
+    maxHalfDayRate = BigDecimal("5.25"),
+    maxBonusRate = BigDecimal("4.00"),
+    maxPieceWorkRate = BigDecimal("8.00"),
+    payFrequency = 1,
+    backdateDays = 7,
+    defaultPayBandCode = "1",
+    weeklyAbsenceLimit = 12,
+  )
 }
