@@ -10,15 +10,22 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 
 @Service
 @Transactional
 class OffenderMilitaryRecordService(
   private val repository: OffenderMilitaryRecordRepository,
   private val offenderBookingRepository: OffenderBookingRepository,
+  private val warZoneRepository: ReferenceCodeRepository<WarZone>,
+  private val militaryRankRepository: ReferenceCodeRepository<MilitaryRank>,
+  private val militaryBranchRepository: ReferenceCodeRepository<MilitaryBranch>,
+  private val militaryDischargeRepository: ReferenceCodeRepository<MilitaryDischarge>,
+  private val disciplinaryActionRepository: ReferenceCodeRepository<DisciplinaryAction>,
 ) {
 
   fun getMilitaryRecords(bookingId: Long): MilitaryRecords = repository.findAllByBookingId(bookingId)
@@ -39,19 +46,47 @@ class OffenderMilitaryRecordService(
 
     val offenderMilitaryRecord = OffenderMilitaryRecord.builder()
       .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(booking, nextMilitarySeq))
-      .warZone(militaryRecord.warZoneCode?.let { WarZone(it, militaryRecord.warZoneDescription) })
+      .warZone(
+        militaryRecord.warZoneCode?.let {
+          warZoneRepository.findById(ReferenceCode.Pk("MLTY_WZONE", militaryRecord.warZoneCode)).orElseThrow(
+            { EntityNotFoundException.withMessage("War zone code ${militaryRecord.warZoneCode} not found") },
+          )
+        },
+      )
       .startDate(militaryRecord.startDate)
       .endDate(militaryRecord.endDate)
-      .militaryDischarge(militaryRecord.militaryDischargeCode?.let { MilitaryDischarge(it, militaryRecord.militaryDischargeDescription) })
-      .militaryBranch(MilitaryBranch(militaryRecord.militaryBranchCode, militaryRecord.militaryBranchDescription))
+      .militaryDischarge(
+        militaryRecord.militaryDischargeCode?.let {
+          militaryDischargeRepository.findById(ReferenceCode.Pk("MLTY_DSCHRG", militaryRecord.militaryDischargeCode)).orElseThrow(
+            { EntityNotFoundException.withMessage("Military discharge code ${militaryRecord.militaryDischargeCode} not found") },
+          )
+        },
+      )
+      .militaryBranch(
+        militaryBranchRepository.findById(ReferenceCode.Pk("MLTY_BRANCH", militaryRecord.militaryBranchCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Military branch code ${militaryRecord.militaryBranchCode} not found") },
+        ),
+      )
       .description(militaryRecord.description)
       .unitNumber(militaryRecord.unitNumber)
       .enlistmentLocation(militaryRecord.enlistmentLocation)
       .dischargeLocation(militaryRecord.dischargeLocation)
       .selectiveServicesFlag(militaryRecord.selectiveServicesFlag)
-      .militaryRank(militaryRecord.militaryRankCode?.let { MilitaryRank(it, militaryRecord.militaryRankDescription) })
+      .militaryRank(
+        militaryRecord.militaryRankCode?.let {
+          militaryRankRepository.findById(ReferenceCode.Pk("MLTY_RANK", militaryRecord.militaryRankCode)).orElseThrow(
+            { EntityNotFoundException.withMessage("Military rank code ${militaryRecord.militaryRankCode} not found") },
+          )
+        },
+      )
       .serviceNumber(militaryRecord.serviceNumber)
-      .disciplinaryAction(militaryRecord.disciplinaryActionCode?.let { DisciplinaryAction(it, militaryRecord.disciplinaryActionDescription) })
+      .disciplinaryAction(
+        militaryRecord.disciplinaryActionCode?.let {
+          disciplinaryActionRepository.findById(ReferenceCode.Pk("MLTY_DISCP", militaryRecord.disciplinaryActionCode)).orElseThrow(
+            { EntityNotFoundException.withMessage("Disciplinary action code ${militaryRecord.disciplinaryActionCode} not found") },
+          )
+        },
+      )
       .build()
 
     repository.save(offenderMilitaryRecord)
@@ -62,19 +97,37 @@ class OffenderMilitaryRecordService(
       ?: throw RuntimeException("Military record not found")
 
     with(record) {
-      warZone = militaryRecord.warZoneCode?.let { WarZone(it, militaryRecord.warZoneDescription) }
+      warZone = militaryRecord.warZoneCode?.let {
+        warZoneRepository.findById(ReferenceCode.Pk("MLTY_WZONE", militaryRecord.warZoneCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("War zone code ${militaryRecord.warZoneCode} not found") },
+        )
+      }
       startDate = militaryRecord.startDate
       endDate = militaryRecord.endDate
-      militaryDischarge = militaryRecord.militaryDischargeCode?.let { MilitaryDischarge(it, militaryRecord.militaryDischargeDescription) }
-      militaryBranch = MilitaryBranch(militaryRecord.militaryBranchCode, militaryRecord.militaryBranchDescription)
+      militaryDischarge = militaryRecord.militaryDischargeCode?.let {
+        militaryDischargeRepository.findById(ReferenceCode.Pk("MLTY_DSCHRG", militaryRecord.militaryDischargeCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Military discharge code ${militaryRecord.militaryDischargeCode} not found") },
+        )
+      }
+      militaryBranch = militaryBranchRepository.findById(ReferenceCode.Pk("MLTY_BRANCH", militaryRecord.militaryBranchCode)).orElseThrow(
+        { EntityNotFoundException.withMessage("Military branch code ${militaryRecord.militaryBranchCode} not found") },
+      )
       description = militaryRecord.description
       unitNumber = militaryRecord.unitNumber
       enlistmentLocation = militaryRecord.enlistmentLocation
       dischargeLocation = militaryRecord.dischargeLocation
       selectiveServicesFlag = militaryRecord.selectiveServicesFlag
-      militaryRank = militaryRecord.militaryRankCode?.let { MilitaryRank(it, militaryRecord.militaryRankDescription) }
+      militaryRank = militaryRecord.militaryRankCode?.let {
+        militaryRankRepository.findById(ReferenceCode.Pk("MLTY_RANK", militaryRecord.militaryRankCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Military rank code ${militaryRecord.militaryRankCode} not found") },
+        )
+      }
       serviceNumber = militaryRecord.serviceNumber
-      disciplinaryAction = militaryRecord.disciplinaryActionCode?.let { DisciplinaryAction(it, militaryRecord.disciplinaryActionDescription) }
+      disciplinaryAction = militaryRecord.disciplinaryActionCode?.let {
+        disciplinaryActionRepository.findById(ReferenceCode.Pk("MLTY_DISCP", militaryRecord.disciplinaryActionCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Disciplinary action code ${militaryRecord.disciplinaryActionCode} not found") },
+        )
+      }
     }
 
     repository.save(record)

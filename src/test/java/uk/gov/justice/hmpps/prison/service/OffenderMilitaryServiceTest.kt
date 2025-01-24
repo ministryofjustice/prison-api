@@ -18,9 +18,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import java.time.LocalDate
 import java.util.Optional
 
@@ -28,8 +30,21 @@ class OffenderMilitaryServiceTest {
 
   private val repository: OffenderMilitaryRecordRepository = mock()
   private val offenderBookingRepository: OffenderBookingRepository = mock()
+  private val warZoneRepository: ReferenceCodeRepository<WarZone> = mock()
+  private val militaryRankRepository: ReferenceCodeRepository<MilitaryRank> = mock()
+  private val militaryBranchRepository: ReferenceCodeRepository<MilitaryBranch> = mock()
+  private val militaryDischargeRepository: ReferenceCodeRepository<MilitaryDischarge> = mock()
+  private val disciplinaryActionRepository: ReferenceCodeRepository<DisciplinaryAction> = mock()
 
-  private val offenderMilitaryRecordService = OffenderMilitaryRecordService(repository, offenderBookingRepository)
+  private val offenderMilitaryRecordService = OffenderMilitaryRecordService(
+    repository,
+    offenderBookingRepository,
+    warZoneRepository,
+    militaryRankRepository,
+    militaryBranchRepository,
+    militaryDischargeRepository,
+    disciplinaryActionRepository,
+  )
 
   private fun stubSuccessfulRepositoryCall() {
     whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(anyString(), anyInt())).thenReturn(
@@ -51,6 +66,30 @@ class OffenderMilitaryServiceTest {
           .description("second record")
           .build(),
       ),
+    )
+
+    whenever(warZoneRepository.findById(ReferenceCode.Pk("MLTY_WZONE", "AFG"))).thenReturn(
+      Optional.of(WarZone("AFG", "Afghanistan")),
+    )
+
+    whenever(militaryRankRepository.findById(ReferenceCode.Pk("MLTY_RANK", "LCPL_RMA"))).thenReturn(
+      Optional.of(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)")),
+    )
+
+    whenever(militaryBranchRepository.findById(ReferenceCode.Pk("MLTY_BRANCH", "ARM"))).thenReturn(
+      Optional.of(MilitaryBranch("ARM", "Army")),
+    )
+
+    whenever(militaryBranchRepository.findById(ReferenceCode.Pk("MLTY_BRANCH", "NAV"))).thenReturn(
+      Optional.of(MilitaryBranch("NAV", "Navy")),
+    )
+
+    whenever(militaryDischargeRepository.findById(ReferenceCode.Pk("MLTY_DSCHRG", "DIS"))).thenReturn(
+      Optional.of(MilitaryDischarge("DIS", "Dishonourable")),
+    )
+
+    whenever(disciplinaryActionRepository.findById(ReferenceCode.Pk("MLTY_DISCP", "CM"))).thenReturn(
+      Optional.of(DisciplinaryAction("CM", "Court Martial")),
     )
   }
 
@@ -101,7 +140,9 @@ class OffenderMilitaryServiceTest {
 
   @Test
   fun `updateMilitaryRecord should update existing record`() {
-    val militaryRecord = MILITARY_RECORD_TWO
+    stubSuccessfulRepositoryCall()
+
+    val militaryRecord = MILITARY_RECORD_TWO.copy(militarySeq = 1)
 
     val existingRecord = OffenderMilitaryRecord.builder()
       .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(1L).build(), 1))
