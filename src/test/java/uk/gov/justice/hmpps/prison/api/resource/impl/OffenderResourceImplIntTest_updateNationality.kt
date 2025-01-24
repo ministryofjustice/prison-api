@@ -130,8 +130,7 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
       ).isEmpty
     }
 
-    private fun nationalityProfileType(): ProfileType =
-      profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
+    private fun nationalityProfileType(): ProfileType = profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
   }
 
   @Nested
@@ -198,11 +197,9 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
       """
 
     @JvmStatic
-    fun updateNationalityIds(): Stream<Arguments> {
-      return Stream.of(
-        arguments(named("Prisoner with existing nationality", "A1234AA"), -1001L),
-        arguments(named("Prisoner without existing nationality", "A1068AA"), -1068L),
-      )
-    }
+    fun updateNationalityIds(): Stream<Arguments> = Stream.of(
+      arguments(named("Prisoner with existing nationality", "A1234AA"), -1001L),
+      arguments(named("Prisoner without existing nationality", "A1068AA"), -1068L),
+    )
   }
 }

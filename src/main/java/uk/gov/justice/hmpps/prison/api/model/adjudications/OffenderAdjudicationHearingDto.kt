@@ -12,15 +12,14 @@ data class OffenderAdjudicationHearingDto(
   val internalLocationDescription: String?,
   val eventStatus: String?,
 ) {
-  fun toOffenderAdjudicationHearing() =
-    OffenderAdjudicationHearing(
-      agencyId,
-      offenderNo,
-      hearingId,
-      hearingType,
-      startTime,
-      internalLocationId,
-      internalLocationDescription,
-      eventStatus,
-    )
+  fun toOffenderAdjudicationHearing() = OffenderAdjudicationHearing(
+    agencyId,
+    offenderNo,
+    hearingId,
+    hearingType,
+    startTime,
+    internalLocationId,
+    internalLocationDescription,
+    eventStatus,
+  )
 }

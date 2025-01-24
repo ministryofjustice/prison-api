@@ -63,8 +63,7 @@ data class PrisonerScheduleDto(
     this.suspended,
   )
 
-  fun programHasntEnded(): Boolean =
-    // SQL ensures that the activity happens after the start date parameter, now need to check that the offender
+  fun programHasntEnded(): Boolean = // SQL ensures that the activity happens after the start date parameter, now need to check that the offender
     // program hasn't ended. END indicates that the program has ended, in which case the end date will also be populated
     programStatus != "END" || programEndDate == null || scheduleDate == null || programEndDate >= scheduleDate
 }

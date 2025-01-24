@@ -48,13 +48,12 @@ class CaseNoteMovementService(
     )
   }
 
-  private fun releaseNoteText(movementReason: MovementReason, fromLocation: AgencyLocation, toLocation: AgencyLocation) =
-    when {
-      movementReason.code == DISCHARGE_TO_PSY_HOSPITAL.code && toLocation.id != AgencyLocation.OUT ->
-        "Transferred from ${fromLocation.description} for reason: Moved to psychiatric hospital ${toLocation.description}."
-      else ->
-        "Released from ${fromLocation.description} for reason: ${movementReason.description}."
-    }
+  private fun releaseNoteText(movementReason: MovementReason, fromLocation: AgencyLocation, toLocation: AgencyLocation) = when {
+    movementReason.code == DISCHARGE_TO_PSY_HOSPITAL.code && toLocation.id != AgencyLocation.OUT ->
+      "Transferred from ${fromLocation.description} for reason: Moved to psychiatric hospital ${toLocation.description}."
+    else ->
+      "Released from ${fromLocation.description} for reason: ${movementReason.description}."
+  }
 
   private fun createMovementCaseNote(booking: OffenderBooking, typeCode: String, subTypeCode: String, note: String, movementTime: LocalDateTime) {
     val staff = getLoggedInStaff().getOrThrow().staff
@@ -76,11 +75,9 @@ class CaseNoteMovementService(
     caseNoteRepository.save(caseNote)
   }
 
-  private fun getType(typeCode: String): Result<CaseNoteType> =
-    caseNoteTypeReferenceCodeRepository.findByIdOrNull(CaseNoteType.pk(typeCode))?.let { Result.success(it) }
-      ?: Result.failure(EntityNotFoundException.withId(typeCode))
+  private fun getType(typeCode: String): Result<CaseNoteType> = caseNoteTypeReferenceCodeRepository.findByIdOrNull(CaseNoteType.pk(typeCode))?.let { Result.success(it) }
+    ?: Result.failure(EntityNotFoundException.withId(typeCode))
 
-  private fun getSubType(subTypeCode: String): Result<CaseNoteSubType> =
-    caseNoteSubTypeReferenceCodeRepository.findByIdOrNull(CaseNoteSubType.pk(subTypeCode))?.let { Result.success(it) }
-      ?: Result.failure(EntityNotFoundException.withId(subTypeCode))
+  private fun getSubType(subTypeCode: String): Result<CaseNoteSubType> = caseNoteSubTypeReferenceCodeRepository.findByIdOrNull(CaseNoteSubType.pk(subTypeCode))?.let { Result.success(it) }
+    ?: Result.failure(EntityNotFoundException.withId(subTypeCode))
 }

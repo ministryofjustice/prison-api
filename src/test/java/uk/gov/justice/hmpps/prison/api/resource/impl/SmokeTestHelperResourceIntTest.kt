@@ -79,9 +79,8 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
 
   @Nested
   inner class UpdateDetails {
-    private fun createPrisoner() =
-      OffenderBuilder(bookingBuilders = arrayOf(), firstName = "Bob", lastName = "Bailey")
-        .save(testDataContext).offenderNo
+    private fun createPrisoner() = OffenderBuilder(bookingBuilders = arrayOf(), firstName = "Bob", lastName = "Bailey")
+      .save(testDataContext).offenderNo
 
     @Test
     fun `requires ROLE_SMOKE_TEST`() {

@@ -310,14 +310,13 @@ class BookingBuilderFactory(
   private val teamAssignmentBuilderFactory: TeamAssignmentBuilderFactory,
   private val temporaryAbsenceScheduleBuilderFactory: TemporaryAbsenceScheduleBuilderFactory,
 ) {
-  fun builder() =
-    BookingBuilder(
-      repository,
-      visitBalanceBuilderFactory,
-      courtCaseBuilderFactory,
-      teamAssignmentBuilderFactory,
-      temporaryAbsenceScheduleBuilderFactory,
-    )
+  fun builder() = BookingBuilder(
+    repository,
+    visitBalanceBuilderFactory,
+    courtCaseBuilderFactory,
+    teamAssignmentBuilderFactory,
+    temporaryAbsenceScheduleBuilderFactory,
+  )
 }
 
 class BookingBuilder(
@@ -343,22 +342,20 @@ class BookingBuilder(
     voBalance: Int?,
     pvoBalance: Int?,
     youthOffender: Boolean,
-  ): OffenderBookingId {
-    return repository.save(
-      offenderId = offenderId,
-      prisonId = prisonId,
-      bookingInTime = bookingInTime,
-      fromLocationId = fromLocationId,
-      movementReasonCode = movementReasonCode,
-      cellLocation = cellLocation,
-      imprisonmentStatus = imprisonmentStatus,
-      iepLevel = iepLevel,
-      iepLevelComment = iepLevelComment,
-      voBalance = voBalance,
-      pvoBalance = pvoBalance,
-      youthOffender = youthOffender,
-    ).also { offenderBookingId = it }
-  }
+  ): OffenderBookingId = repository.save(
+    offenderId = offenderId,
+    prisonId = prisonId,
+    bookingInTime = bookingInTime,
+    fromLocationId = fromLocationId,
+    movementReasonCode = movementReasonCode,
+    cellLocation = cellLocation,
+    imprisonmentStatus = imprisonmentStatus,
+    iepLevel = iepLevel,
+    iepLevelComment = iepLevelComment,
+    voBalance = voBalance,
+    pvoBalance = pvoBalance,
+    youthOffender = youthOffender,
+  ).also { offenderBookingId = it }
 
   override fun release(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
     repository.release(
@@ -495,19 +492,17 @@ class BookingBuilder(
     }
   }
 
-  override fun scheduleTemporaryAbsence(startTime: LocalDateTime, toAddressId: Long) =
-    temporaryAbsenceScheduleBuilderFactory.builder().build(
-      bookingId = offenderBookingId.bookingId,
-      startTime = startTime,
-      toAddressId = toAddressId,
-    )
+  override fun scheduleTemporaryAbsence(startTime: LocalDateTime, toAddressId: Long) = temporaryAbsenceScheduleBuilderFactory.builder().build(
+    bookingId = offenderBookingId.bookingId,
+    startTime = startTime,
+    toAddressId = toAddressId,
+  )
 
-  override fun teamAssignment(teamToAssign: Team, functionTypeCode: String) =
-    teamAssignmentBuilderFactory.builder().build(
-      offenderBookingId = offenderBookingId,
-      teamToAssign = teamToAssign,
-      functionTypeCode = functionTypeCode,
-    )
+  override fun teamAssignment(teamToAssign: Team, functionTypeCode: String) = teamAssignmentBuilderFactory.builder().build(
+    offenderBookingId = offenderBookingId,
+    teamToAssign = teamToAssign,
+    functionTypeCode = functionTypeCode,
+  )
 }
 
 data class OffenderBookingId(val offenderNo: String, val bookingId: Long)

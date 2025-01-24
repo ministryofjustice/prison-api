@@ -38,7 +38,5 @@ class IncidentsResource(
     @PathVariable("incidentId")
     @Parameter(description = "Incident Id", required = true)
     incidentId: @NotNull Long,
-  ): IncidentCase {
-    return incidentService.getIncidentCase(incidentId)
-  }
+  ): IncidentCase = incidentService.getIncidentCase(incidentId)
 }

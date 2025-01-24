@@ -53,7 +53,5 @@ class ImprisonmentStatusHistoryResource(private val imprisonmentStatusHistorySer
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,
-  ): List<ImprisonmentStatusHistoryDto> {
-    return imprisonmentStatusHistoryService.getImprisonmentStatusHistory(offenderNo)
-  }
+  ): List<ImprisonmentStatusHistoryDto> = imprisonmentStatusHistoryService.getImprisonmentStatusHistory(offenderNo)
 }

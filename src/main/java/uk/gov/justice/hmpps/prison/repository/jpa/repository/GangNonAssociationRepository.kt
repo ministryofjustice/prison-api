@@ -13,6 +13,5 @@ interface GangNonAssociationRepository : JpaRepository<GangNonAssociation, GangN
   /**
    * Returns all gang non-associations where the given gang code is either primary OR secondary in the non-association
    */
-  fun findAllByGangCode(gangCode: String): List<GangNonAssociation> =
-    findAllByPrimaryGangCodeOrSecondaryGangCode(gangCode, gangCode)
+  fun findAllByGangCode(gangCode: String): List<GangNonAssociation> = findAllByPrimaryGangCodeOrSecondaryGangCode(gangCode, gangCode)
 }

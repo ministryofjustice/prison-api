@@ -167,9 +167,7 @@ class AppointmentsService(
   }
 
   @Transactional(readOnly = true)
-  fun getBookingAppointment(appointmentId: Long): ScheduledEvent {
-    return getScheduledEventOrThrowEntityNotFound(appointmentId)
-  }
+  fun getBookingAppointment(appointmentId: Long): ScheduledEvent = getScheduledEventOrThrowEntityNotFound(appointmentId)
 
   @Transactional
   fun deleteBookingAppointments(appointmentIds: List<Long>) {
@@ -307,13 +305,11 @@ class AppointmentsService(
     )
   }
 
-  private fun findEventType(appointmentType: String): Optional<ReferenceCode> {
-    return referenceDomainService.getReferenceCodeByDomainAndCode(
-      ReferenceDomain.INTERNAL_SCHEDULE_REASON.domain,
-      appointmentType,
-      false,
-    )
-  }
+  private fun findEventType(appointmentType: String): Optional<ReferenceCode> = referenceDomainService.getReferenceCodeByDomainAndCode(
+    ReferenceDomain.INTERNAL_SCHEDULE_REASON.domain,
+    appointmentType,
+    false,
+  )
 
   private fun findLocationInUserLocations(appointmentLocation: AgencyInternalLocation): Optional<Location> {
     val userLocations = locationService.getUserLocations(hmppsAuthenticationHolder.username, true)
@@ -433,9 +429,7 @@ class AppointmentsService(
     private const val MAXIMUM_NUMBER_OF_APPOINTMENTS = 1000
     private const val APPOINTMENT_TIME_LIMIT_IN_DAYS = 365
 
-    private fun appointmentTimeLimit(): LocalDateTime {
-      return LocalDateTime.now().plusDays(APPOINTMENT_TIME_LIMIT_IN_DAYS.toLong())
-    }
+    private fun appointmentTimeLimit(): LocalDateTime = LocalDateTime.now().plusDays(APPOINTMENT_TIME_LIMIT_IN_DAYS.toLong())
 
     private fun assertStartTimePrecedesEndTime(appointment: AppointmentDetails) {
       if (appointment.endTime != null &&
@@ -445,11 +439,9 @@ class AppointmentsService(
       }
     }
 
-    fun withRepeats(repeat: Repeat?, details: List<AppointmentDetails>): List<AppointmentDetails> {
-      return details.stream()
-        .flatMap { d: AppointmentDetails -> withRepeats(repeat, d).stream() }
-        .collect(Collectors.toList())
-    }
+    fun withRepeats(repeat: Repeat?, details: List<AppointmentDetails>): List<AppointmentDetails> = details.stream()
+      .flatMap { d: AppointmentDetails -> withRepeats(repeat, d).stream() }
+      .collect(Collectors.toList())
 
     fun withRepeats(repeat: Repeat?, details: AppointmentDetails): List<AppointmentDetails> {
       if (repeat == null || repeat.count < 2) return listOf(details)

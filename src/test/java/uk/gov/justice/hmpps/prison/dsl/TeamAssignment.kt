@@ -39,9 +39,7 @@ class TeamAssignmentBuilderFactory(
   private val repository: TeamAssignmentBuilderRepository,
 ) {
 
-  fun builder(): TeamAssignmentBuilder {
-    return TeamAssignmentBuilder(repository)
-  }
+  fun builder(): TeamAssignmentBuilder = TeamAssignmentBuilder(repository)
 }
 
 class TeamAssignmentBuilder(

@@ -14,12 +14,10 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
     return offenderIdentifiers.filter { includeAliases == true || it.rootOffenderId == it.offender.id }.map(this::transformOffenderIdentifier)
   }
 
-  private fun transformOffenderIdentifier(identifier: OffenderIdentifier): Identifier {
-    return Identifier(
-      identifier.identifierType, identifier.identifier, identifier.offender.nomsId,
-      null, identifier.issuedAuthorityText,
-      identifier.issuedDate, identifier.caseloadType, identifier.createDateTime, identifier.offender.id,
-      identifier.rootOffenderId,
-    )
-  }
+  private fun transformOffenderIdentifier(identifier: OffenderIdentifier): Identifier = Identifier(
+    identifier.identifierType, identifier.identifier, identifier.offender.nomsId,
+    null, identifier.issuedAuthorityText,
+    identifier.issuedDate, identifier.caseloadType, identifier.createDateTime, identifier.offender.id,
+    identifier.rootOffenderId,
+  )
 }

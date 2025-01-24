@@ -27,9 +27,7 @@ class VisitBalanceBuilderFactory(
   private val repository: VisitBalanceBuilderRepository,
 ) {
 
-  fun builder(): VisitBalanceBuilder {
-    return VisitBalanceBuilder(repository)
-  }
+  fun builder(): VisitBalanceBuilder = VisitBalanceBuilder(repository)
 }
 
 class VisitBalanceBuilder(

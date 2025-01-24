@@ -210,18 +210,16 @@ class AdjudicationServiceImplTest {
     assertThat(actual).isEqualTo(expectedResult)
   }
 
-  private fun fakeOffenderHearingStartingAt(time: LocalDateTime): OffenderAdjudicationHearing {
-    return OffenderAdjudicationHearing(
-      "LEI",
-      "A1181HH",
-      -1,
-      "Governor's Hearing Adult",
-      time,
-      -1000,
-      "LEI-AABCW-1",
-      "SCH",
-    )
-  }
+  private fun fakeOffenderHearingStartingAt(time: LocalDateTime): OffenderAdjudicationHearing = OffenderAdjudicationHearing(
+    "LEI",
+    "A1181HH",
+    -1,
+    "Governor's Hearing Adult",
+    time,
+    -1000,
+    "LEI-AABCW-1",
+    "SCH",
+  )
 
   @Test
   fun findOffenderAdjudicationHearingsFailsWhenToBeforeFrom() {

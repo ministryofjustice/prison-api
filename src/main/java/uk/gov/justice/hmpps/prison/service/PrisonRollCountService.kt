@@ -72,8 +72,7 @@ class PrisonRollCountService(
     return PrisonRollMovementInfo(inOutMovementsToday = movementCount, enRouteToday = enRouteCount)
   }
 
-  fun getPrisonRollSummary(prisonId: String) =
-    getPrisonRollSummaryInfo(prisonId, prisonRollCountSummaryRepository.findAllByPrisonIdAndParentLocationIdIsNull(prisonId)).rollSummary
+  fun getPrisonRollSummary(prisonId: String) = getPrisonRollSummaryInfo(prisonId, prisonRollCountSummaryRepository.findAllByPrisonIdAndParentLocationIdIsNull(prisonId)).rollSummary
 
   private fun getPrisonRollSummaryInfo(prisonId: String, rollCount: List<PrisonRollCountSummary>): PrisonRollSummaryInfo {
     val certifiedTopLevelLocations = rollCount.filter { !it.hasParent() && it.isCertified() }
@@ -212,9 +211,8 @@ data class PrisonRollMovementInfo(
   val enRouteToday: Int,
 )
 
-fun String.capitalizeWords(delimiter: String = " ") =
-  split(delimiter).joinToString(delimiter) { word ->
+fun String.capitalizeWords(delimiter: String = " ") = split(delimiter).joinToString(delimiter) { word ->
 
-    val smallCaseWord = word.lowercase()
-    smallCaseWord.replaceFirstChar(Char::titlecaseChar)
-  }
+  val smallCaseWord = word.lowercase()
+  smallCaseWord.replaceFirstChar(Char::titlecaseChar)
+}

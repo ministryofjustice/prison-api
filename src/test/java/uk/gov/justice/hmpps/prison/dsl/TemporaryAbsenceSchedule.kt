@@ -57,9 +57,7 @@ class TemporaryAbsenceScheduleBuilderFactory(
   private val repository: TemporaryAbsenceScheduleBuilderRepository,
 ) {
 
-  fun builder(): TemporaryAbsenceScheduleBuilder {
-    return TemporaryAbsenceScheduleBuilder(repository)
-  }
+  fun builder(): TemporaryAbsenceScheduleBuilder = TemporaryAbsenceScheduleBuilder(repository)
 }
 
 class TemporaryAbsenceScheduleBuilder(

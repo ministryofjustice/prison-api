@@ -82,42 +82,39 @@ class PrisonerSearchService(
     externalMovements: List<ExternalMovement>?,
     lastMovementTypeCode: String?,
     lastMovementReasonCode: String?,
-  ) =
-    externalMovements?.filter { em ->
-      em.movementType.code == lastMovementTypeCode &&
-        em.movementReason.code == lastMovementReasonCode
-    }
-      ?.maxByOrNull { em -> em.movementTime }
-      ?.movementTime
+  ) = externalMovements?.filter { em ->
+    em.movementType.code == lastMovementTypeCode &&
+      em.movementReason.code == lastMovementReasonCode
+  }
+    ?.maxByOrNull { em -> em.movementTime }
+    ?.movementTime
 
-  private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail =
-    booking
-      ?.let { offenderTransformer.transform(it) }
-      ?.apply {
-        // TODO These need to be modelled in JPA and set by the OffenderTransformer
-        physicalCharacteristics = inmateService.getPhysicalCharacteristics(bookingId)
-        physicalMarks = inmateService.getPhysicalMarks(bookingId)
-        aliases = inmateService.getAliases(bookingId)
-        inmateService.getAllAssessmentsOrdered(bookingId).also {
-          csra = it.firstOrNull { it.isCellSharingAlertFlag }?.classification
-          categoryCode = it.firstOrNull { "CATEGORY" == it.assessmentCode }?.classificationCode
-        }
+  private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
+    ?.let { offenderTransformer.transform(it) }
+    ?.apply {
+      // TODO These need to be modelled in JPA and set by the OffenderTransformer
+      physicalCharacteristics = inmateService.getPhysicalCharacteristics(bookingId)
+      physicalMarks = inmateService.getPhysicalMarks(bookingId)
+      aliases = inmateService.getAliases(bookingId)
+      inmateService.getAllAssessmentsOrdered(bookingId).also {
+        csra = it.firstOrNull { it.isCellSharingAlertFlag }?.classification
+        categoryCode = it.firstOrNull { "CATEGORY" == it.assessmentCode }?.classificationCode
       }
-      ?: let { offenderTransformer.transformWithoutBooking(offender) }
+    }
+    ?: let { offenderTransformer.transformWithoutBooking(offender) }
 
-  private fun OffenderIdentifier.toModel(offenderNo: String) =
-    OffenderIdentifierModel(
-      this.identifierType,
-      this.identifier,
-      offenderNo,
-      null,
-      this.issuedAuthorityText,
-      this.issuedDate,
-      this.caseloadType,
-      this.createDateTime,
-      this.offender.id,
-      this.rootOffenderId,
-    )
+  private fun OffenderIdentifier.toModel(offenderNo: String) = OffenderIdentifierModel(
+    this.identifierType,
+    this.identifier,
+    offenderNo,
+    null,
+    this.issuedAuthorityText,
+    this.issuedDate,
+    this.caseloadType,
+    this.createDateTime,
+    this.offender.id,
+    this.rootOffenderId,
+  )
 }
 
 private fun <T> Optional<T>.toNullable(): T? = orElse(null)

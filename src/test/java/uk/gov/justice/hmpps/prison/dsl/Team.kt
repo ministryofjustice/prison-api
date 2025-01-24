@@ -27,19 +27,18 @@ class TeamBuilderRepository(
     areaCode: String,
     categoryCode: String,
     agencyId: String,
-  ): Team =
-    teamRepository.save(
-      Team().apply {
-        this.code = code
-        this.description = description
-        this.area = institutionAreaRepository.findById(InstitutionArea.pk(areaCode)).orElseThrow()
-        this.category = teamCategoryRepository.findById(TeamCategory.pk(categoryCode)).orElseThrow()
-        this.isActive = true
-        this.listSequence = 1
-        this.location = agencyLocationRepository.findById(agencyId).orElseThrow()
-        this.queueClusterId = 1
-      },
-    )
+  ): Team = teamRepository.save(
+    Team().apply {
+      this.code = code
+      this.description = description
+      this.area = institutionAreaRepository.findById(InstitutionArea.pk(areaCode)).orElseThrow()
+      this.category = teamCategoryRepository.findById(TeamCategory.pk(categoryCode)).orElseThrow()
+      this.isActive = true
+      this.listSequence = 1
+      this.location = agencyLocationRepository.findById(agencyId).orElseThrow()
+      this.queueClusterId = 1
+    },
+  )
 }
 
 @Component
@@ -47,9 +46,7 @@ class TeamBuilderFactory(
   private val repository: TeamBuilderRepository,
 ) {
 
-  fun builder(): TeamBuilder {
-    return TeamBuilder(repository)
-  }
+  fun builder(): TeamBuilder = TeamBuilder(repository)
 }
 
 class TeamBuilder(

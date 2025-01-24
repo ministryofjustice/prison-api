@@ -36,7 +36,5 @@ data class ServiceAgencySwitch(
       id.agencyLocation.id == other.id.agencyLocation.id
   }
 
-  override fun hashCode(): Int {
-    return this.javaClass.hashCode()
-  }
+  override fun hashCode(): Int = this.javaClass.hashCode()
 }

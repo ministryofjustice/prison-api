@@ -66,9 +66,7 @@ class CourtCaseBuilderFactory(
   private val courtHearingBuilderFactory: CourtHearingBuilderFactory,
 ) {
 
-  fun builder(): CourtCaseBuilder {
-    return CourtCaseBuilder(repository, courtHearingBuilderFactory)
-  }
+  fun builder(): CourtCaseBuilder = CourtCaseBuilder(repository, courtHearingBuilderFactory)
 }
 
 class CourtCaseBuilder(
@@ -91,13 +89,12 @@ class CourtCaseBuilder(
     toCourtLocation: String,
     courtHearingDateTime: LocalDateTime,
     comments: String,
-  ): CourtHearing =
-    courtHearingBuilderFactory.builder().build(
-      bookingId = courtCase.offenderBooking.bookingId,
-      courtCase = courtCase,
-      fromPrisonLocation = fromPrisonLocation,
-      toCourtLocation = toCourtLocation,
-      courtHearingDateTime = courtHearingDateTime,
-      comments = comments,
-    )
+  ): CourtHearing = courtHearingBuilderFactory.builder().build(
+    bookingId = courtCase.offenderBooking.bookingId,
+    courtCase = courtCase,
+    fromPrisonLocation = fromPrisonLocation,
+    toCourtLocation = toCourtLocation,
+    courtHearingDateTime = courtHearingDateTime,
+    comments = comments,
+  )
 }

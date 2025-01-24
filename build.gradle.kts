@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "6.1.2"
-  kotlin("plugin.spring") version "2.0.21"
-  kotlin("plugin.jpa") version "2.0.21"
-  kotlin("plugin.lombok") version "2.0.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.0.0-beta"
+  kotlin("plugin.spring") version "2.1.0"
+  kotlin("plugin.jpa") version "2.1.0"
+  kotlin("plugin.lombok") version "2.1.0"
 }
 
 configurations {
@@ -29,13 +29,13 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  implementation("commons-codec:commons-codec:1.17.1")
-  implementation("com.github.jsqlparser:jsqlparser:5.0")
+  implementation("commons-codec:commons-codec:1.17.2")
+  implementation("com.github.jsqlparser:jsqlparser:5.1")
   implementation("org.ehcache:ehcache:3.10.8")
   runtimeOnly("com.zaxxer:HikariCP")
 
-  implementation("io.swagger:swagger-annotations:1.6.14")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.7.0")
+  implementation("io.swagger:swagger-annotations:1.6.15")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.3")
 
   implementation("org.apache.commons:commons-lang3:3.17.0")
   implementation("commons-io:commons-io:2.18.0")
@@ -65,18 +65,18 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.2.9")
-  testImplementation("net.serenity-bdd:serenity-junit:4.2.9")
-  testImplementation("net.serenity-bdd:serenity-spring:4.2.9")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.9")
+  testImplementation("net.serenity-bdd:serenity-core:4.2.13")
+  testImplementation("net.serenity-bdd:serenity-junit:4.2.13")
+  testImplementation("net.serenity-bdd:serenity-spring:4.2.13")
+  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.13")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.10.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.24") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.25") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.27")
-  testImplementation("commons-beanutils:commons-beanutils:1.9.4")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.43.0")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.28")
+  testImplementation("commons-beanutils:commons-beanutils:1.10.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.46.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.36")
 }

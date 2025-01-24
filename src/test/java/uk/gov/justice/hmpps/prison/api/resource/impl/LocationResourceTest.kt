@@ -65,13 +65,12 @@ class LocationResourceTest : ResourceTest() {
         .expectStatus().isNotFound
     }
 
-    fun getLocation(locationId: Long, queryString: String): WebTestClient.ResponseSpec =
-      webTestClient.get()
-        .uri("/api/locations/$locationId$queryString")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
+    fun getLocation(locationId: Long, queryString: String): WebTestClient.ResponseSpec = webTestClient.get()
+      .uri("/api/locations/$locationId$queryString")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
   }
 
   @Nested
@@ -104,13 +103,12 @@ class LocationResourceTest : ResourceTest() {
       response.expectStatus().isNotFound
     }
 
-    private fun getLocationByCode(code: String): WebTestClient.ResponseSpec =
-      webTestClient.get()
-        .uri("/api/locations/code/$code")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
+    private fun getLocationByCode(code: String): WebTestClient.ResponseSpec = webTestClient.get()
+      .uri("/api/locations/code/$code")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
   }
 
   @Nested

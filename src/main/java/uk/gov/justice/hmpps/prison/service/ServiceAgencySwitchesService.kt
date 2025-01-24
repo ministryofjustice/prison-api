@@ -16,16 +16,14 @@ class ServiceAgencySwitchesService(
   private val agencyLocationRepository: AgencyLocationRepository,
 ) {
 
-  fun getServicePrisons(serviceCode: String): List<PrisonDetails> =
-    findExternalServiceOrThrow(serviceCode)
-      .serviceAgencySwitches
-      .map { PrisonDetails(it.id.agencyLocation.id, it.id.agencyLocation.description) }
+  fun getServicePrisons(serviceCode: String): List<PrisonDetails> = findExternalServiceOrThrow(serviceCode)
+    .serviceAgencySwitches
+    .map { PrisonDetails(it.id.agencyLocation.id, it.id.agencyLocation.description) }
 
-  fun checkServiceSwitchedOnForPrison(serviceCode: String, prisonId: String): Boolean =
-    externalServiceRepository.findByIdOrNull(serviceCode)
-      ?.serviceAgencySwitches
-      ?.any { it.id.agencyLocation.id == prisonId }
-      ?: false
+  fun checkServiceSwitchedOnForPrison(serviceCode: String, prisonId: String): Boolean = externalServiceRepository.findByIdOrNull(serviceCode)
+    ?.serviceAgencySwitches
+    ?.any { it.id.agencyLocation.id == prisonId }
+    ?: false
 
   fun addServicePrison(serviceCode: String, prisonId: String): PrisonDetails {
     val service = findExternalServiceOrThrow(serviceCode)
@@ -44,11 +42,9 @@ class ServiceAgencySwitchesService(
       ?.also { service.serviceAgencySwitches -= it }
   }
 
-  private fun findExternalServiceOrThrow(serviceCode: String) =
-    externalServiceRepository.findByIdOrNull(serviceCode)
-      ?: throw EntityNotFoundException("Service code $serviceCode does not exist")
+  private fun findExternalServiceOrThrow(serviceCode: String) = externalServiceRepository.findByIdOrNull(serviceCode)
+    ?: throw EntityNotFoundException("Service code $serviceCode does not exist")
 
-  private fun findAgencyLocationOrThrow(prisonId: String) =
-    agencyLocationRepository.findByIdOrNull(prisonId)
-      ?: throw EntityNotFoundException("Prison id $prisonId does not exist")
+  private fun findAgencyLocationOrThrow(prisonId: String) = agencyLocationRepository.findByIdOrNull(prisonId)
+    ?: throw EntityNotFoundException("Prison id $prisonId does not exist")
 }

@@ -33,15 +33,14 @@ class OracleConnectionAspect(
   private val log = LoggerFactory.getLogger(this::class.java)
 
   @Throws(SQLException::class, ProxyConnectionTransactionException::class)
-  public override fun configureNomisConnection(pooledConnection: Connection): Connection =
-    with(pooledConnection) {
-      when {
-        isNomisProxyUser() -> openProxySessionConnection()
-        isProxyUser() -> openResettableContextConnection()
-        isSuppressXTags() -> openXtagsSuppressingConnection()
-        else -> this.also { nomisConfigurer.setDefaultSchema(it) }
-      }
+  public override fun configureNomisConnection(pooledConnection: Connection): Connection = with(pooledConnection) {
+    when {
+      isNomisProxyUser() -> openProxySessionConnection()
+      isProxyUser() -> openResettableContextConnection()
+      isSuppressXTags() -> openXtagsSuppressingConnection()
+      else -> this.also { nomisConfigurer.setDefaultSchema(it) }
     }
+  }
 
   @Throws(SQLException::class)
   private fun Connection.openProxySessionConnection(): Connection {

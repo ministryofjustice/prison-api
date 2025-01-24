@@ -60,10 +60,9 @@ class Gang(
     nonAssociationsPrimary.add(GangNonAssociation(this, gang, reason))
   }
 
-  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> =
-    nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
-      Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
-    }
+  fun getNonAssociations(): List<Pair<Gang, NonAssociationReason>> = nonAssociationsPrimary.plus(nonAssociationsSecondary).map { naGang ->
+    Pair(naGang.primaryGang.takeIf { it != this } ?: naGang.secondaryGang, naGang.nonAssociationReason)
+  }
 
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -74,7 +73,5 @@ class Gang(
     return code == other.code
   }
 
-  override fun hashCode(): Int {
-    return code.hashCode()
-  }
+  override fun hashCode(): Int = code.hashCode()
 }

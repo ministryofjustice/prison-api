@@ -170,46 +170,39 @@ class PrisonerProfileUpdateService(
     }
   }
 
-  private fun profileCode(profileType: ProfileType, value: String?) =
-    value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
+  private fun profileCode(profileType: ProfileType, value: String?) = value?.uppercase()?.let { profileCodeRepository.profile(profileType, it).getOrThrow() }
 
-  private fun latestBooking(prisonerNumber: String) =
-    offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(prisonerNumber)
-      ?: throw EntityNotFoundException.withMessage(
-        "Prisoner with prisonerNumber %s and existing booking not found",
-        prisonerNumber,
-      )
+  private fun latestBooking(prisonerNumber: String) = offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(prisonerNumber)
+    ?: throw EntityNotFoundException.withMessage(
+      "Prisoner with prisonerNumber %s and existing booking not found",
+      prisonerNumber,
+    )
 
   private fun ProfileTypeRepository.profileType(
     type: String,
     category: String = "PI",
     active: Boolean = true,
-  ): Result<ProfileType> =
-    this.findByTypeAndCategoryAndActiveOrNull(type, category, active)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId(type),
-    )
+  ): Result<ProfileType> = this.findByTypeAndCategoryAndActiveOrNull(type, category, active)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withId(type),
+  )
 
   private fun ProfileTypeRepository.profileTypeIgnoringActiveStatus(
     type: String,
     category: String = "PI",
-  ): Result<ProfileType> =
-    this.findByTypeAndCategoryOrNull(type, category)?.let { success(it) } ?: failure(
-      EntityNotFoundException.withId(type),
-    )
+  ): Result<ProfileType> = this.findByTypeAndCategoryOrNull(type, category)?.let { success(it) } ?: failure(
+    EntityNotFoundException.withId(type),
+  )
 
-  private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> =
-    this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Profile Code for ${type.type} and $code not found"),
-    )
+  private fun ProfileCodeRepository.profile(type: ProfileType, code: String): Result<ProfileCode> = this.findByIdOrNull(ProfileCode.PK(type, code))?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("Profile Code for ${type.type} and $code not found"),
+  )
 
-  private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: String) =
-    orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))
+  private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: String) = orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))
 
-  private fun country(code: String?): Result<Country>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      countryRepository.findByIdOrNull(Pk(COUNTRY, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Country $code not found"))
-    }
+  private fun country(code: String?): Result<Country>? = code?.takeIf { it.isNotBlank() }?.let {
+    countryRepository.findByIdOrNull(Pk(COUNTRY, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Country $code not found"))
+  }
 
   private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String, table: String): Exception {
     log.error("Error getting lock", e)

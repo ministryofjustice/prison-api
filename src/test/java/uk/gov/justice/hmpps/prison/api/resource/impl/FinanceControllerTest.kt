@@ -179,12 +179,10 @@ class FinanceControllerTest : ResourceTest() {
     )
   }
 
-  private fun createTransferTransaction(amount: Long): TransferTransaction {
-    return TransferTransaction.builder()
-      .amount(amount)
-      .clientUniqueRef("clientRef")
-      .description("desc")
-      .clientTransactionId("transId")
-      .build()
-  }
+  private fun createTransferTransaction(amount: Long): TransferTransaction = TransferTransaction.builder()
+    .amount(amount)
+    .clientUniqueRef("clientRef")
+    .description("desc")
+    .clientTransactionId("transId")
+    .build()
 }

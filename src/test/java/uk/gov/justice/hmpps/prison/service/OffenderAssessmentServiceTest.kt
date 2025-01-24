@@ -550,47 +550,43 @@ class OffenderAssessmentServiceTest {
     assessmentSeq: Int,
     nomsId: String,
     assesmentTypeId: Long,
-  ): OffenderAssessment.OffenderAssessmentBuilder {
-    return OffenderAssessment.builder()
-      .bookingId(bookingId)
-      .assessmentSeq(assessmentSeq)
-      .offenderBooking(
-        OffenderBooking.builder()
-          .offender(
-            Offender.builder()
-              .nomsId(nomsId)
-              .build(),
-          )
-          .build(),
-      )
-      .assessmentType(
-        AssessmentEntry.builder()
-          .assessmentId(assesmentTypeId)
-          .build(),
-      )
-      .assessmentItems(listOf())
-  }
+  ): OffenderAssessment.OffenderAssessmentBuilder = OffenderAssessment.builder()
+    .bookingId(bookingId)
+    .assessmentSeq(assessmentSeq)
+    .offenderBooking(
+      OffenderBooking.builder()
+        .offender(
+          Offender.builder()
+            .nomsId(nomsId)
+            .build(),
+        )
+        .build(),
+    )
+    .assessmentType(
+      AssessmentEntry.builder()
+        .assessmentId(assesmentTypeId)
+        .build(),
+    )
+    .assessmentItems(listOf())
 
-  private fun getOffenderAssessment_CsraClassificationBuilder(offenderNo: String, csraClassification: AssessmentClassification?, assessmentDate: LocalDate): OffenderAssessment.OffenderAssessmentBuilder {
-    return OffenderAssessment.builder()
-      .bookingId(-1L)
-      .assessmentSeq(2)
-      .assessmentDate(assessmentDate)
-      .offenderBooking(
-        OffenderBooking.builder()
-          .offender(
-            Offender.builder()
-              .nomsId(offenderNo)
-              .build(),
-          )
-          .build(),
-      )
-      .assessmentType(
-        AssessmentEntry.builder()
-          .assessmentId(-5L)
-          .build(),
-      )
-      .assessmentItems(listOf())
-      .reviewedClassification(csraClassification)
-  }
+  private fun getOffenderAssessment_CsraClassificationBuilder(offenderNo: String, csraClassification: AssessmentClassification?, assessmentDate: LocalDate): OffenderAssessment.OffenderAssessmentBuilder = OffenderAssessment.builder()
+    .bookingId(-1L)
+    .assessmentSeq(2)
+    .assessmentDate(assessmentDate)
+    .offenderBooking(
+      OffenderBooking.builder()
+        .offender(
+          Offender.builder()
+            .nomsId(offenderNo)
+            .build(),
+        )
+        .build(),
+    )
+    .assessmentType(
+      AssessmentEntry.builder()
+        .assessmentId(-5L)
+        .build(),
+    )
+    .assessmentItems(listOf())
+    .reviewedClassification(csraClassification)
 }
