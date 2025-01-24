@@ -39,6 +39,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
@@ -95,6 +96,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderIdentifierService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
+import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService;
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
@@ -140,6 +142,7 @@ public class OffenderResource {
     private final OffenderBeliefService offenderBeliefService;
     private final OffenderIdentifierService offenderIdentifierService;
     private final PrisonerProfileUpdateService prisonerProfileUpdateService;
+    private final OffenderMilitaryRecordService offenderMilitaryRecordService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -760,18 +763,49 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Military Records", description = "Military Records")
-    @ProgrammaticAuthorisation("Checked in service for legacy reasons")
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/military-records")
     public MilitaryRecords getMilitaryRecords(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo
     ) {
-        final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        try {
-            return bookingService.getMilitaryRecords(booking.getBookingId());
-        } catch (EntityNotFoundException e) {
-            // rethrow against the offender number rather than the booking id
-            throw EntityNotFoundException.withId(offenderNo);
-        }
+        return offenderMilitaryRecordService.getMilitaryRecords(offenderNo);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create military record for prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Create the prisoner's military record. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PostMapping("/{offenderNo}/military-records")
+    @VerifyOffenderAccess
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ProxyUser
+    public void createMilitaryRecord(
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @RequestBody @NotNull @Valid final MilitaryRecord militaryRecord
+    ) {
+        offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecord);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "The military record has been updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update military record for prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update the prisoner's military record. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PutMapping("/{offenderNo}/military-records")
+    @VerifyOffenderAccess
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ResponseStatus(NO_CONTENT)
+    @ProxyUser
+    public void updateMilitaryRecord(
+        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @RequestBody @NotNull @Valid final MilitaryRecord militaryRecord
+    ) {
+        offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord);
     }
 
     @ApiResponses({

@@ -1,5 +1,14 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
@@ -12,15 +21,7 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Embeddable;
-import jakarta.persistence.EmbeddedId;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import java.io.Serializable;
 import java.time.LocalDate;
 
@@ -35,7 +36,8 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone.MLTY_WZON
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "OFFENDER_MILITARY_RECORDS")
+@Entity
+@Table(name = "OFFENDER_MILITARY_RECORDS")
 @EqualsAndHashCode(exclude = "bookingAndSequence", callSuper = false)
 @ToString(exclude = "bookingAndSequence")
 public class OffenderMilitaryRecord extends AuditableEntity implements Serializable {

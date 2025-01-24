@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContaine
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -48,6 +49,9 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var offenderBookingRepository: OffenderBookingRepository
+
+  @MockitoBean
+  private lateinit var offenderMilitaryRecordRepository: OffenderMilitaryRecordRepository
 
   @DisplayName("GET /api/bookings/{bookingId}/personal-care-needs")
   @Nested
@@ -274,29 +278,25 @@ class BookingResourceImplIntTest : ResourceTest() {
     verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodes)
   }
 
-  private fun createPersonalCareNeeds(): PersonalCareNeed {
-    return PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build()
-  }
+  private fun createPersonalCareNeeds(): PersonalCareNeed = PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON").problemDescription("Preg, acc under 9mths").startDate(LocalDate.of(2010, 6, 21)).build()
 
-  private fun createPersonalCareNeedsForOffenders(): List<PersonalCareNeed> {
-    return listOf(
-      PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
-        .problemDescription("Preg, acc under 9mths").commentText("P1")
-        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-      PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("RM").problemStatus("ON")
-        .problemDescription("No Disability").commentText("description 1")
-        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-      PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("RC").problemStatus("ON")
-        .problemDescription("No Disability").commentText(null)
-        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
-      PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("RC").problemStatus("ON")
-        .problemDescription("No Disability").commentText(null)
-        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
-      PersonalCareNeed.builder().personalCareNeedId(-205L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-        .problemDescription("No Disability").commentText("description 2")
-        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
-    )
-  }
+  private fun createPersonalCareNeedsForOffenders(): List<PersonalCareNeed> = listOf(
+    PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("MATSTAT").problemCode("ACCU9").problemStatus("ON")
+      .problemDescription("Preg, acc under 9mths").commentText("P1")
+      .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+    PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("RM").problemStatus("ON")
+      .problemDescription("No Disability").commentText("description 1")
+      .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+    PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("RC").problemStatus("ON")
+      .problemDescription("No Disability").commentText(null)
+      .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
+    PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("RC").problemStatus("ON")
+      .problemDescription("No Disability").commentText(null)
+      .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+    PersonalCareNeed.builder().personalCareNeedId(-205L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+      .problemDescription("No Disability").commentText("description 2")
+      .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
+  )
 
   @Test
   fun reasonableAdjustment_missingTreatmentCodes() {
@@ -374,32 +374,28 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @Test
   fun militaryRecords() {
-    `when`(offenderBookingRepository.findById(ArgumentMatchers.anyLong())).thenReturn(
-      Optional.of(
-        OffenderBooking.builder()
-          .militaryRecords(
-            listOf(
-              OffenderMilitaryRecord.builder()
-                .startDate(LocalDate.parse("2000-01-01"))
-                .endDate(LocalDate.parse("2020-10-17"))
-                .militaryDischarge(MilitaryDischarge("DIS", "Dishonourable"))
-                .warZone(WarZone("AFG", "Afghanistan"))
-                .militaryBranch(MilitaryBranch("ARM", "Army"))
-                .description("left")
-                .unitNumber("auno")
-                .enlistmentLocation("Somewhere")
-                .militaryRank(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
-                .serviceNumber("asno")
-                .disciplinaryAction(DisciplinaryAction("CM", "Court Martial"))
-                .dischargeLocation("Sheffield")
-                .build(),
-              OffenderMilitaryRecord.builder()
-                .startDate(LocalDate.parse("2001-01-01"))
-                .militaryBranch(MilitaryBranch("NAV", "Navy"))
-                .description("second record")
-                .build(),
-            ),
-          )
+    `when`(offenderMilitaryRecordRepository.findAllByBookingId(ArgumentMatchers.anyLong())).thenReturn(
+      listOf(
+        OffenderMilitaryRecord.builder()
+          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 1))
+          .startDate(LocalDate.parse("2000-01-01"))
+          .endDate(LocalDate.parse("2020-10-17"))
+          .militaryDischarge(MilitaryDischarge("DIS", "Dishonourable"))
+          .warZone(WarZone("AFG", "Afghanistan"))
+          .militaryBranch(MilitaryBranch("ARM", "Army"))
+          .description("left")
+          .unitNumber("auno")
+          .enlistmentLocation("Somewhere")
+          .militaryRank(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
+          .serviceNumber("asno")
+          .disciplinaryAction(DisciplinaryAction("CM", "Court Martial"))
+          .dischargeLocation("Sheffield")
+          .build(),
+        OffenderMilitaryRecord.builder()
+          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 2))
+          .startDate(LocalDate.parse("2001-01-01"))
+          .militaryBranch(MilitaryBranch("NAV", "Navy"))
+          .description("second record")
           .build(),
       ),
     )
@@ -646,11 +642,9 @@ class BookingResourceImplIntTest : ResourceTest() {
     assertThat(responseEntity.statusCode.value()).isEqualTo(403)
   }
 
-  private fun createEvent(type: String, time: String?): ScheduledEvent {
-    return ScheduledEvent.builder().bookingId(-1L)
-      .startTime(Optional.ofNullable(time).map { t: String -> "2019-01-02T$t" }.map { text: String? -> LocalDateTime.parse(text) }.orElse(null))
-      .eventType(type + time)
-      .eventSubType("some sub $type")
-      .build()
-  }
+  private fun createEvent(type: String, time: String?): ScheduledEvent = ScheduledEvent.builder().bookingId(-1L)
+    .startTime(Optional.ofNullable(time).map { t: String -> "2019-01-02T$t" }.map { text: String? -> LocalDateTime.parse(text) }.orElse(null))
+    .eventType(type + time)
+    .eventSubType("some sub $type")
+    .build()
 }
