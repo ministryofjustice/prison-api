@@ -194,7 +194,7 @@ class OffenderMilitaryServiceTest {
     }
 
     assertThat(exception.message).isEqualTo("Resource locked, possibly in use in P-Nomis.")
-    assertThat(exception.developerMessage).isEqualTo("Failed to get OFFENDER_MILITARY_RECORD row lock for booking id 1 and military sequence 1")
+    assertThat(exception.developerMessage).isEqualTo("Failed to get OFFENDER_MILITARY_RECORD row lock for booking id -1 and military sequence 1")
   }
 
   companion object {
