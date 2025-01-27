@@ -24,8 +24,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContact;
@@ -694,33 +692,6 @@ public class BookingService {
                     .sentenceDetail(getBookingSentenceCalcDates(booking.getBookingId()))
                     .build()
             ).orElseThrow(EntityNotFoundException.withMessage(format("No prisoner found for prisoner number %s", offenderNo)));
-    }
-
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
-    public MilitaryRecords getMilitaryRecords(final Long bookingId) {
-        return offenderBookingRepository.findById(bookingId).map(b ->
-                new MilitaryRecords(b.getMilitaryRecords().stream().map(mr ->
-                    MilitaryRecord.builder()
-                        .warZoneCode(ReferenceCode.getCodeOrNull(mr.getWarZone()))
-                        .warZoneDescription(ReferenceCode.getDescriptionOrNull(mr.getWarZone()))
-                        .startDate(mr.getStartDate())
-                        .endDate(mr.getEndDate())
-                        .militaryDischargeCode(ReferenceCode.getCodeOrNull(mr.getMilitaryDischarge()))
-                        .militaryDischargeDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryDischarge()))
-                        .militaryBranchCode(ReferenceCode.getCodeOrNull(mr.getMilitaryBranch()))
-                        .militaryBranchDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryBranch()))
-                        .description(mr.getDescription())
-                        .unitNumber(mr.getUnitNumber())
-                        .enlistmentLocation(mr.getEnlistmentLocation())
-                        .dischargeLocation(mr.getDischargeLocation())
-                        .selectiveServicesFlag(mr.getSelectiveServicesFlag())
-                        .militaryRankCode(ReferenceCode.getCodeOrNull(mr.getMilitaryRank()))
-                        .militaryRankDescription(ReferenceCode.getDescriptionOrNull(mr.getMilitaryRank()))
-                        .serviceNumber(mr.getServiceNumber())
-                        .disciplinaryActionCode(ReferenceCode.getCodeOrNull(mr.getDisciplinaryAction()))
-                        .disciplinaryActionDescription(ReferenceCode.getDescriptionOrNull(mr.getDisciplinaryAction()))
-                        .build()).toList()
-                )).orElseThrow(EntityNotFoundException.withMessage("Offender booking with id %d not found.", bookingId));
     }
 
     public List<CourtCase> getOffenderCourtCases(final Long bookingId, final boolean activeOnly) {
