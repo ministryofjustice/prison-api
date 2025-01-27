@@ -19,6 +19,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
@@ -772,7 +773,7 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "201", description = "Military record created.", content = {}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create military record for prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -782,11 +783,12 @@ public class OffenderResource {
     @VerifyOffenderAccess
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @ProxyUser
-    public void createMilitaryRecord(
+    public ResponseEntity<Void> createMilitaryRecord(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
         @RequestBody @NotNull @Valid final MilitaryRecord militaryRecord
     ) {
         offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecord);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
     @ApiResponses({

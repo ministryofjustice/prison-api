@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
+import org.hibernate.exception.LockTimeoutException
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.ArgumentMatchers.anyInt
@@ -10,8 +11,10 @@ import org.mockito.ArgumentMatchers.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge
@@ -23,6 +26,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import java.sql.SQLException
 import java.time.LocalDate
 import java.util.Optional
 
@@ -176,6 +180,21 @@ class OffenderMilitaryServiceTest {
     assertThrows<RuntimeException> {
       offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord)
     }
+  }
+
+  @Test
+  fun `updateMilitaryRecord should throw DatabaseRowLockedException`() {
+    val militaryRecord = MILITARY_RECORD_ONE
+
+    whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt()))
+      .thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
+
+    val exception = assertThrows<DatabaseRowLockedException> {
+      offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord)
+    }
+
+    assertThat(exception.message).isEqualTo("Resource locked, possibly in use in P-Nomis.")
+    assertThat(exception.developerMessage).isEqualTo("Failed to get OFFENDER_MILITARY_RECORD row lock for booking id 1 and military sequence 1")
   }
 
   companion object {
