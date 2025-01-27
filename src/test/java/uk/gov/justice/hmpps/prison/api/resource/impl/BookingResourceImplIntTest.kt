@@ -35,6 +35,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContaine
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
@@ -48,6 +49,9 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var offenderBookingRepository: OffenderBookingRepository
+
+  @MockitoBean
+  private lateinit var offenderMilitaryRecordRepository: OffenderMilitaryRecordRepository
 
   @DisplayName("GET /api/bookings/{bookingId}/personal-care-needs")
   @Nested
@@ -370,32 +374,28 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @Test
   fun militaryRecords() {
-    `when`(offenderBookingRepository.findById(ArgumentMatchers.anyLong())).thenReturn(
-      Optional.of(
-        OffenderBooking.builder()
-          .militaryRecords(
-            listOf(
-              OffenderMilitaryRecord.builder()
-                .startDate(LocalDate.parse("2000-01-01"))
-                .endDate(LocalDate.parse("2020-10-17"))
-                .militaryDischarge(MilitaryDischarge("DIS", "Dishonourable"))
-                .warZone(WarZone("AFG", "Afghanistan"))
-                .militaryBranch(MilitaryBranch("ARM", "Army"))
-                .description("left")
-                .unitNumber("auno")
-                .enlistmentLocation("Somewhere")
-                .militaryRank(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
-                .serviceNumber("asno")
-                .disciplinaryAction(DisciplinaryAction("CM", "Court Martial"))
-                .dischargeLocation("Sheffield")
-                .build(),
-              OffenderMilitaryRecord.builder()
-                .startDate(LocalDate.parse("2001-01-01"))
-                .militaryBranch(MilitaryBranch("NAV", "Navy"))
-                .description("second record")
-                .build(),
-            ),
-          )
+    `when`(offenderMilitaryRecordRepository.findAllByBookingId(ArgumentMatchers.anyLong())).thenReturn(
+      listOf(
+        OffenderMilitaryRecord.builder()
+          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 1))
+          .startDate(LocalDate.parse("2000-01-01"))
+          .endDate(LocalDate.parse("2020-10-17"))
+          .militaryDischarge(MilitaryDischarge("DIS", "Dishonourable"))
+          .warZone(WarZone("AFG", "Afghanistan"))
+          .militaryBranch(MilitaryBranch("ARM", "Army"))
+          .description("left")
+          .unitNumber("auno")
+          .enlistmentLocation("Somewhere")
+          .militaryRank(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
+          .serviceNumber("asno")
+          .disciplinaryAction(DisciplinaryAction("CM", "Court Martial"))
+          .dischargeLocation("Sheffield")
+          .build(),
+        OffenderMilitaryRecord.builder()
+          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 2))
+          .startDate(LocalDate.parse("2001-01-01"))
+          .militaryBranch(MilitaryBranch("NAV", "Navy"))
+          .description("second record")
           .build(),
       ),
     )

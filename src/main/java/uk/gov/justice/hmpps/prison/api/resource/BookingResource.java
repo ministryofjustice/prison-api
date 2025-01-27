@@ -38,8 +38,6 @@ import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
-import uk.gov.justice.hmpps.prison.api.model.AlertChanges;
-import uk.gov.justice.hmpps.prison.api.model.AlertCreated;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
@@ -47,7 +45,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
-import uk.gov.justice.hmpps.prison.api.model.CreateAlert;
 import uk.gov.justice.hmpps.prison.api.model.CreatePersonalCareNeed;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
@@ -100,6 +97,7 @@ import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
+import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
 import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
@@ -136,6 +134,7 @@ public class BookingResource {
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
     private final SentenceEnvelopeService sentenceEnvelopeService;
+    private final OffenderMilitaryRecordService offenderMilitaryRecordService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -567,10 +566,10 @@ public class BookingResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Military Records", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
-    @ProgrammaticAuthorisation("Checked in service for legacy reasons")
+    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/military-records")
     public MilitaryRecords getMilitaryRecords(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return bookingService.getMilitaryRecords(bookingId);
+        return offenderMilitaryRecordService.getMilitaryRecords(bookingId);
     }
 
     @ApiResponses({

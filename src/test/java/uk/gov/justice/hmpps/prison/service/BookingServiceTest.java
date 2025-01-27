@@ -18,8 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
@@ -46,13 +44,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventOutcome;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
@@ -62,7 +56,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
@@ -75,7 +68,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
@@ -423,65 +415,6 @@ public class BookingServiceTest {
             final var events = bookingService.getScheduledEvents(bookingId, from, null);
             assertThat(events).extracting(ScheduledEvent::getEventType).containsExactly("act08:59:50", "app09:02:03", "act10:11:12", "visnull");
         }
-    }
-
-    @Test
-    public void getMilitaryRecords_map() {
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OffenderBooking.builder()
-            .militaryRecords(List.of(
-                OffenderMilitaryRecord.builder()
-                    .startDate(LocalDate.parse("2000-01-01"))
-                    .endDate(LocalDate.parse("2020-10-17"))
-                    .militaryDischarge(new MilitaryDischarge("DIS", "Dishonourable"))
-                    .warZone(new WarZone("AFG", "Afghanistan"))
-                    .militaryBranch(new MilitaryBranch("ARM", "Army"))
-                    .description("left")
-                    .unitNumber("auno")
-                    .enlistmentLocation("Somewhere")
-                    .militaryRank(new MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
-                    .serviceNumber("asno")
-                    .disciplinaryAction(new DisciplinaryAction("CM", "Court Martial"))
-                    .dischargeLocation("Sheffield")
-                    .build(),
-                OffenderMilitaryRecord.builder()
-                    .startDate(LocalDate.parse("2001-01-01"))
-                    .militaryBranch(new MilitaryBranch("NAV", "Navy"))
-                    .description("second record")
-                    .build()))
-            .build()));
-        final var militaryRecords = bookingService.getMilitaryRecords(-1L);
-        assertThat(militaryRecords).usingRecursiveComparison().isEqualTo(new MilitaryRecords(List.of(
-            MilitaryRecord.builder()
-                .startDate(LocalDate.parse("2000-01-01"))
-                .endDate(LocalDate.parse("2020-10-17"))
-                .militaryDischargeCode("DIS")
-                .militaryDischargeDescription("Dishonourable")
-                .warZoneCode("AFG")
-                .warZoneDescription("Afghanistan")
-                .militaryBranchCode("ARM")
-                .militaryBranchDescription("Army")
-                .description("left")
-                .unitNumber("auno")
-                .enlistmentLocation("Somewhere")
-                .militaryRankCode("LCPL_RMA")
-                .militaryRankDescription("Lance Corporal  (Royal Marines)")
-                .serviceNumber("asno")
-                .disciplinaryActionCode("CM")
-                .disciplinaryActionDescription("Court Martial")
-                .dischargeLocation("Sheffield")
-                .build(),
-            MilitaryRecord.builder()
-                .startDate(LocalDate.parse("2001-01-01"))
-                .militaryBranchCode("NAV")
-                .militaryBranchDescription("Navy")
-                .description("second record")
-                .build())));
-    }
-
-    @Test
-    public void getMilitaryRecords_notfound() {
-        when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.empty());
-        assertThatThrownBy(() -> bookingService.getMilitaryRecords(-1L)).isInstanceOf(EntityNotFoundException.class).hasMessage("Offender booking with id -1 not found.");
     }
 
     @Test
