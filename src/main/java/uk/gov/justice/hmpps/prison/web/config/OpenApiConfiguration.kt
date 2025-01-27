@@ -7,9 +7,7 @@ import io.swagger.v3.oas.models.Operation
 import io.swagger.v3.oas.models.info.Contact
 import io.swagger.v3.oas.models.info.Info
 import io.swagger.v3.oas.models.info.License
-import io.swagger.v3.oas.models.media.DateTimeSchema
 import io.swagger.v3.oas.models.media.Schema
-import io.swagger.v3.oas.models.media.StringSchema
 import io.swagger.v3.oas.models.security.SecurityRequirement
 import io.swagger.v3.oas.models.security.SecurityScheme
 import io.swagger.v3.oas.models.servers.Server
@@ -64,15 +62,11 @@ class OpenApiConfiguration(buildProperties: BuildProperties) {
         val properties = schema.properties ?: mutableMapOf()
         for (propertyName in properties.keys) {
           val propertySchema = properties[propertyName]!!
-          if (propertySchema is DateTimeSchema) {
-            properties.replace(
-              propertyName,
-              StringSchema()
-                .example("2021-07-05T10:35:17")
-                .pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$")
-                .description(propertySchema.description)
-                .required(propertySchema.required),
-            )
+          if (propertySchema.format == "date-time") {
+            propertySchema.format(null)
+            propertySchema.pattern("^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}$")
+            propertySchema.examples(listOf("2021-07-05T10:35:17"))
+            propertySchema.example("2021-07-05T10:35:17")
           }
         }
       }
