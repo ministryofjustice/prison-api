@@ -44,4 +44,10 @@ public class SentenceAdjustmentDetail {
 
     @Schema(description = "Number of unused remand days", example = "12")
     private Integer unusedRemand;
+
+    @Schema(description = "Number of time spent in custody abroad days", example = "12")
+    private Integer timeSpentInCustodyAbroad;
+
+    @Schema(description = "Number of time spent as an appeal applicant days", example = "12")
+    private Integer timeSpentAsAnAppealApplicant;
 }

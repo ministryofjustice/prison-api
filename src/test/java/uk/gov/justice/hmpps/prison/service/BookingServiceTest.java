@@ -983,6 +983,20 @@ public class BookingServiceTest {
                 .sentenceAdjustCode("RX")
                 .active(true)
                 .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-14L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("TCA")
+                .active(true)
+                .adjustDays(4)
+                .build(),
+            SentenceAdjustment.builder()
+                .id(-15L)
+                .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                .sentenceAdjustCode("TSA")
+                .active(true)
+                .adjustDays(4)
                 .build()
         );
 
@@ -1053,6 +1067,8 @@ public class BookingServiceTest {
                 .recallSentenceRemand(4)
                 .remand(8)
                 .unusedRemand(4)
+                .timeSpentInCustodyAbroad(4)
+                .timeSpentAsAnAppealApplicant(4)
                 .build());
     }
 
