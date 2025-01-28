@@ -82,6 +82,10 @@ public class OffenderProfileDetail extends AuditableEntity {
         this.profileCode = code.getId().getCode();
     }
 
+    public void setProfileCode(String profileCode) {
+        this.profileCode = profileCode;
+    }
+
     @Column(name = "PROFILE_CODE")
     private String profileCode;
 

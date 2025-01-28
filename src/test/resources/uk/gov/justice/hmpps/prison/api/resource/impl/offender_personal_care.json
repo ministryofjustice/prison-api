@@ -114,6 +114,11 @@
       "type": "NAT",
       "question": "Nationality?",
       "resultValue": "Spaniard"
+    },
+    {
+      "type": "NATIO",
+      "question": "Multiple Nationalities - Add Details",
+      "resultValue": "Spaniard"
     }
   ],
   "physicalMarks": [
