@@ -53,6 +53,20 @@
       "toDate": "2017-10-07",
       "active": true,
       "comment": "Comment 6"
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "TIME_SPENT_IN_CUSTODY_ABROAD",
+      "numberOfDays": 8,
+      "active": true,
+      "comment": "Comment 8"
+    },
+    {
+      "sentenceSequence": 1,
+      "type": "TIME_SPENT_AS_AN_APPEAL_APPLICANT",
+      "numberOfDays": 9,
+      "active": true,
+      "comment": "Comment 9"
     }
   ],
   "bookingAdjustments": [

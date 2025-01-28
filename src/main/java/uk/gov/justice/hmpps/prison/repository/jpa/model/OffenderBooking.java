@@ -670,6 +670,8 @@ public class OffenderBooking extends AuditableEntity {
             .remand(getRemand())
             .taggedBail(getTaggedBail())
             .unusedRemand(getUnusedRemand())
+            .timeSpentInCustodyAbroad(getTimeSpentInCustodyAbroad())
+            .timeSpentAsAnAppealApplicant(getTimeSpentAsAnAppealApplicant())
             .build();
     }
 
@@ -711,6 +713,13 @@ public class OffenderBooking extends AuditableEntity {
 
     public Integer getUnusedRemand() {
         return getDaysForSentenceAdjustmentsCode(sentenceAdjustments, "UR");
+    }
+
+    public Integer getTimeSpentInCustodyAbroad() {
+        return getDaysForSentenceAdjustmentsCode(sentenceAdjustments, "TCA");
+    }
+    public Integer getTimeSpentAsAnAppealApplicant() {
+        return getDaysForSentenceAdjustmentsCode(sentenceAdjustments, "TSA");
     }
 
     public List<SentenceAdjustmentValues> getSentenceAdjustments() {
