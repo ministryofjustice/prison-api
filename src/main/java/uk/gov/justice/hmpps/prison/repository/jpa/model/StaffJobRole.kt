@@ -62,9 +62,7 @@ class StaffJobRole(
   val toDate: LocalDate? = null,
 ) {
 
-  fun isWithinRange(testDate: LocalDate): Boolean {
-    return testDate >= fromDate && (toDate == null || testDate < toDate)
-  }
+  fun isWithinRange(testDate: LocalDate): Boolean = testDate >= fromDate && (toDate == null || testDate < toDate)
 }
 
 class StaffJobRoleId(

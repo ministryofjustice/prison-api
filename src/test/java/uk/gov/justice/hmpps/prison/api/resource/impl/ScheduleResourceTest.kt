@@ -636,78 +636,76 @@ class ScheduleResourceTest : ResourceTest() {
 
   private companion object {
     @JvmStatic
-    fun locationScheduledEventsInOrderTable(): List<LocationScheduleRow> {
-      return listOf(
-        LocationScheduleRow(-28, "VISIT", "", listOf("BATES"), listOf("VISIT"), listOf("01:00")),
-        LocationScheduleRow(
-          -25,
-          "VISIT",
-          "",
-          listOf("BATES", "MATTHEWS"),
-          listOf("VISIT", "VISIT"),
-          listOf("00:00", "00:00"),
+    fun locationScheduledEventsInOrderTable(): List<LocationScheduleRow> = listOf(
+      LocationScheduleRow(-28, "VISIT", "", listOf("BATES"), listOf("VISIT"), listOf("01:00")),
+      LocationScheduleRow(
+        -25,
+        "VISIT",
+        "",
+        listOf("BATES", "MATTHEWS"),
+        listOf("VISIT", "VISIT"),
+        listOf("00:00", "00:00"),
+      ),
+      LocationScheduleRow(
+        -28,
+        "APP",
+        "",
+        listOf("BATES", "MATTHEWS", "MATTHEWS"),
+        listOf("EDUC", "EDUC", "EDUC"),
+        listOf("04:00", "01:00", "00:00"),
+      ),
+      LocationScheduleRow(-29, "APP", "", listOf("BATES"), listOf("MEDE"), listOf("03:00")),
+      LocationScheduleRow(
+        -26,
+        "PROG",
+        "AM",
+        listOf("ANDERSON", "BATES", "CHAPLIN", "MATTHEWS"),
+        listOf("EDUC", "EDUC", "EDUC", "EDUC"),
+        listOf("00:00", "00:00", "00:00", "00:00"),
+      ),
+      LocationScheduleRow(
+        -26,
+        "PROG",
+        "PM",
+        listOf("ANDERSON", "ANDERSON", "BATES", "BATES", "CHAPLIN", "CHAPLIN", "MATTHEWS", "MATTHEWS"),
+        listOf("EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC"),
+        listOf("12:00", "13:00", "12:00", "13:00", "12:00", "13:00", "12:00", "13:00"),
+      ),
+      LocationScheduleRow(
+        -26,
+        "PROG",
+        "",
+        listOf(
+          "ANDERSON",
+          "ANDERSON",
+          "ANDERSON",
+          "BATES",
+          "BATES",
+          "BATES",
+          "CHAPLIN",
+          "CHAPLIN",
+          "CHAPLIN",
+          "MATTHEWS",
+          "MATTHEWS",
+          "MATTHEWS",
         ),
-        LocationScheduleRow(
-          -28,
-          "APP",
-          "",
-          listOf("BATES", "MATTHEWS", "MATTHEWS"),
-          listOf("EDUC", "EDUC", "EDUC"),
-          listOf("04:00", "01:00", "00:00"),
+        listOf("EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC"),
+        listOf(
+          "12:00",
+          "13:00",
+          "00:00",
+          "12:00",
+          "13:00",
+          "00:00",
+          "12:00",
+          "13:00",
+          "00:00",
+          "12:00",
+          "13:00",
+          "00:00",
         ),
-        LocationScheduleRow(-29, "APP", "", listOf("BATES"), listOf("MEDE"), listOf("03:00")),
-        LocationScheduleRow(
-          -26,
-          "PROG",
-          "AM",
-          listOf("ANDERSON", "BATES", "CHAPLIN", "MATTHEWS"),
-          listOf("EDUC", "EDUC", "EDUC", "EDUC"),
-          listOf("00:00", "00:00", "00:00", "00:00"),
-        ),
-        LocationScheduleRow(
-          -26,
-          "PROG",
-          "PM",
-          listOf("ANDERSON", "ANDERSON", "BATES", "BATES", "CHAPLIN", "CHAPLIN", "MATTHEWS", "MATTHEWS"),
-          listOf("EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC"),
-          listOf("12:00", "13:00", "12:00", "13:00", "12:00", "13:00", "12:00", "13:00"),
-        ),
-        LocationScheduleRow(
-          -26,
-          "PROG",
-          "",
-          listOf(
-            "ANDERSON",
-            "ANDERSON",
-            "ANDERSON",
-            "BATES",
-            "BATES",
-            "BATES",
-            "CHAPLIN",
-            "CHAPLIN",
-            "CHAPLIN",
-            "MATTHEWS",
-            "MATTHEWS",
-            "MATTHEWS",
-          ),
-          listOf("EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC", "EDUC"),
-          listOf(
-            "12:00",
-            "13:00",
-            "00:00",
-            "12:00",
-            "13:00",
-            "00:00",
-            "12:00",
-            "13:00",
-            "00:00",
-            "12:00",
-            "13:00",
-            "00:00",
-          ),
-        ),
-      )
-    }
+      ),
+    )
 
     @JvmStatic
     fun offendersScheduledActivitiesTable() = listOf(
@@ -717,47 +715,44 @@ class ScheduleResourceTest : ResourceTest() {
     )
 
     @JvmStatic
-    fun offendersScheduledVisitsTable() =
-      listOf(
-        VisitsRow("A1234AC", "AM", listOf("Social Contact", "Official Visit")),
-        VisitsRow("A1234AC", "PM", listOf("Social Contact")),
-        VisitsRow("A1234AC", "", listOf("Social Contact", "Social Contact", "Official Visit")),
-        VisitsRow("A1234AE", "AM", listOf("Official Visit")),
-        VisitsRow("A1234AE", "PM", emptyList()),
-      )
+    fun offendersScheduledVisitsTable() = listOf(
+      VisitsRow("A1234AC", "AM", listOf("Social Contact", "Official Visit")),
+      VisitsRow("A1234AC", "PM", listOf("Social Contact")),
+      VisitsRow("A1234AC", "", listOf("Social Contact", "Social Contact", "Official Visit")),
+      VisitsRow("A1234AE", "AM", listOf("Official Visit")),
+      VisitsRow("A1234AE", "PM", emptyList()),
+    )
 
     @JvmStatic
-    fun scheduledAppointmentsTable() =
-      listOf(
-        AppointmentScheduleRow(
-          "A1234AC",
-          "AM",
-          listOf("Education", "Medical - Dentist"),
-          listOf("Visiting Room", "Medical Centre"),
-        ),
-        AppointmentScheduleRow(
-          "A1234AC",
-          "",
-          listOf("Education", "Medical - Dentist"),
-          listOf("Visiting Room", "Medical Centre"),
-        ),
-        AppointmentScheduleRow(
-          "A1234AE",
-          "AM",
-          listOf("Education", "Education"),
-          listOf("Visiting Room", "Visiting Room"),
-        ),
-      )
+    fun scheduledAppointmentsTable() = listOf(
+      AppointmentScheduleRow(
+        "A1234AC",
+        "AM",
+        listOf("Education", "Medical - Dentist"),
+        listOf("Visiting Room", "Medical Centre"),
+      ),
+      AppointmentScheduleRow(
+        "A1234AC",
+        "",
+        listOf("Education", "Medical - Dentist"),
+        listOf("Visiting Room", "Medical Centre"),
+      ),
+      AppointmentScheduleRow(
+        "A1234AE",
+        "AM",
+        listOf("Education", "Education"),
+        listOf("Visiting Room", "Visiting Room"),
+      ),
+    )
 
     @JvmStatic
-    fun courtEventsTable() =
-      listOf(
-        CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "ED", listOf(-104, -105, -106)),
-        CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "PM", emptyList()),
-        CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "", listOf(-104, -105, -106)),
-        CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-14", "ED", emptyList()),
-        CourtEventRow(listOf("A1234AC"), "2017-10-15", "AM", listOf(-103)),
-      )
+    fun courtEventsTable() = listOf(
+      CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "ED", listOf(-104, -105, -106)),
+      CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "PM", emptyList()),
+      CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-13", "", listOf(-104, -105, -106)),
+      CourtEventRow(listOf("A1234AD", "A1234AE", "A1234AF"), "2017-02-14", "ED", emptyList()),
+      CourtEventRow(listOf("A1234AC"), "2017-10-15", "AM", listOf(-103)),
+    )
   }
 
   data class LocationScheduleRow(

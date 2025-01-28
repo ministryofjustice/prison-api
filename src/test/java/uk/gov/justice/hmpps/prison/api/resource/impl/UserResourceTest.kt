@@ -188,114 +188,108 @@ class UserResourceTest : ResourceTest() {
 
   private companion object {
     @JvmStatic
-    fun rolesTableAll(): List<RoleRow> {
-      return listOf(
-        RoleRow(
-          "ITAG_USER",
-          listOf(
-            "BXI_WING_OFF",
-            "LEI_WING_OFF",
-            "MDI_WING_OFF",
-            "NWEB_ACCESS_ROLE_ADMIN",
-            "NWEB_KW_ADMIN",
-            "NWEB_OMIC_ADMIN",
-            "SYI_WING_OFF",
-            "WAI_WING_OFF",
-            "NWEB_MAINTAIN_ACCESS_ROLES",
-            "NWEB_MAINTAIN_ACCESS_ROLES_ADMIN",
-          ),
+    fun rolesTableAll(): List<RoleRow> = listOf(
+      RoleRow(
+        "ITAG_USER",
+        listOf(
+          "BXI_WING_OFF",
+          "LEI_WING_OFF",
+          "MDI_WING_OFF",
+          "NWEB_ACCESS_ROLE_ADMIN",
+          "NWEB_KW_ADMIN",
+          "NWEB_OMIC_ADMIN",
+          "SYI_WING_OFF",
+          "WAI_WING_OFF",
+          "NWEB_MAINTAIN_ACCESS_ROLES",
+          "NWEB_MAINTAIN_ACCESS_ROLES_ADMIN",
         ),
-        RoleRow(
-          "API_TEST_USER",
-          listOf("MUL_WING_OFF", "NWEB_KW_ADMIN", "NWEB_OMIC_ADMIN"),
-        ),
-      )
-    }
+      ),
+      RoleRow(
+        "API_TEST_USER",
+        listOf("MUL_WING_OFF", "NWEB_KW_ADMIN", "NWEB_OMIC_ADMIN"),
+      ),
+    )
 
     @JvmStatic
-    fun rolesTable(): List<RoleRow> {
-      return listOf(
-        RoleRow(
-          "ITAG_USER",
-          listOf("KW_ADMIN", "OMIC_ADMIN", "ACCESS_ROLE_ADMIN", "MAINTAIN_ACCESS_ROLES", "MAINTAIN_ACCESS_ROLES_ADMIN"),
-        ),
-        RoleRow(
-          "API_TEST_USER",
-          listOf("KW_ADMIN", "OMIC_ADMIN"),
-        ),
-        RoleRow(
-          "RO_USER",
-          listOf("VIEW_PRISONER_DATA", "LICENCE_RO"),
-        ),
-      )
-    }
+    fun rolesTable(): List<RoleRow> = listOf(
+      RoleRow(
+        "ITAG_USER",
+        listOf("KW_ADMIN", "OMIC_ADMIN", "ACCESS_ROLE_ADMIN", "MAINTAIN_ACCESS_ROLES", "MAINTAIN_ACCESS_ROLES_ADMIN"),
+      ),
+      RoleRow(
+        "API_TEST_USER",
+        listOf("KW_ADMIN", "OMIC_ADMIN"),
+      ),
+      RoleRow(
+        "RO_USER",
+        listOf("VIEW_PRISONER_DATA", "LICENCE_RO"),
+      ),
+    )
 
     @JvmStatic
-    fun locationsTable(): List<LocationRow> {
-      return listOf(
-        LocationRow(
-          "ITAG_USER",
-          false,
-          9,
-          listOf("LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
-          listOf("Block A", "C", "D", "E", "F", "H", "I", "Leeds", "S"),
-          listOf("LEI", "LEI-A", "LEI-C", "LEI-D", "LEI-E", "LEI-F", "LEI-H", "LEI-I", "LEI-S"),
+    fun locationsTable(): List<LocationRow> = listOf(
+      LocationRow(
+        "ITAG_USER",
+        false,
+        9,
+        listOf("LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
+        listOf("Block A", "C", "D", "E", "F", "H", "I", "Leeds", "S"),
+        listOf("LEI", "LEI-A", "LEI-C", "LEI-D", "LEI-E", "LEI-F", "LEI-H", "LEI-I", "LEI-S"),
+      ),
+      LocationRow(
+        "API_TEST_USER",
+        false,
+        10,
+        listOf("BXI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
+        listOf("Block A", "Brixton", "C", "D", "E", "F", "H", "I", "Leeds", "S"),
+        listOf("BXI", "LEI", "LEI-A", "LEI-C", "LEI-D", "LEI-E", "LEI-F", "LEI-H", "LEI-I", "LEI-S"),
+      ),
+      LocationRow(
+        "ITAG_USER",
+        true,
+        13,
+        listOf("LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
+        listOf("Block A", "C", "Court", "Cswap", "D", "E", "F", "H", "I", "Leeds", "Recp", "S", "Tap"),
+        listOf(
+          "LEI",
+          "LEI-A",
+          "LEI-C",
+          "LEI-COURT",
+          "LEI-CSWAP",
+          "LEI-D",
+          "LEI-E",
+          "LEI-F",
+          "LEI-H",
+          "LEI-I",
+          "LEI-RECP",
+          "LEI-S",
+          "LEI-TAP",
         ),
-        LocationRow(
-          "API_TEST_USER",
-          false,
-          10,
-          listOf("BXI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
-          listOf("Block A", "Brixton", "C", "D", "E", "F", "H", "I", "Leeds", "S"),
-          listOf("BXI", "LEI", "LEI-A", "LEI-C", "LEI-D", "LEI-E", "LEI-F", "LEI-H", "LEI-I", "LEI-S"),
+      ),
+      LocationRow(
+        "API_TEST_USER",
+        true,
+        14,
+        listOf("BXI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
+        listOf("Block A", "Brixton", "C", "Court", "Cswap", "D", "E", "F", "H", "I", "Leeds", "Recp", "S", "Tap"),
+        listOf(
+          "BXI",
+          "LEI",
+          "LEI-A",
+          "LEI-C",
+          "LEI-COURT",
+          "LEI-CSWAP",
+          "LEI-D",
+          "LEI-E",
+          "LEI-F",
+          "LEI-H",
+          "LEI-I",
+          "LEI-RECP",
+          "LEI-S",
+          "LEI-TAP",
         ),
-        LocationRow(
-          "ITAG_USER",
-          true,
-          13,
-          listOf("LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
-          listOf("Block A", "C", "Court", "Cswap", "D", "E", "F", "H", "I", "Leeds", "Recp", "S", "Tap"),
-          listOf(
-            "LEI",
-            "LEI-A",
-            "LEI-C",
-            "LEI-COURT",
-            "LEI-CSWAP",
-            "LEI-D",
-            "LEI-E",
-            "LEI-F",
-            "LEI-H",
-            "LEI-I",
-            "LEI-RECP",
-            "LEI-S",
-            "LEI-TAP",
-          ),
-        ),
-        LocationRow(
-          "API_TEST_USER",
-          true,
-          14,
-          listOf("BXI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI", "LEI"),
-          listOf("Block A", "Brixton", "C", "Court", "Cswap", "D", "E", "F", "H", "I", "Leeds", "Recp", "S", "Tap"),
-          listOf(
-            "BXI",
-            "LEI",
-            "LEI-A",
-            "LEI-C",
-            "LEI-COURT",
-            "LEI-CSWAP",
-            "LEI-D",
-            "LEI-E",
-            "LEI-F",
-            "LEI-H",
-            "LEI-I",
-            "LEI-RECP",
-            "LEI-S",
-            "LEI-TAP",
-          ),
-        ),
-      )
-    }
+      ),
+    )
   }
 
   data class RoleRow(

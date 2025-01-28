@@ -1987,18 +1987,17 @@ class OffendersResourceTransferImpTest : ResourceTest() {
     """.trimIndent()
   }
 
-  private fun getOffender(offenderNo: String): StatusAssertions =
-    webTestClient.get()
-      .uri("/api/offenders/{offenderNo}", offenderNo)
-      .headers(
-        setAuthorisation(
-          listOf("ROLE_SYSTEM_USER"),
-        ),
-      )
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus()
+  private fun getOffender(offenderNo: String): StatusAssertions = webTestClient.get()
+    .uri("/api/offenders/{offenderNo}", offenderNo)
+    .headers(
+      setAuthorisation(
+        listOf("ROLE_SYSTEM_USER"),
+      ),
+    )
+    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus()
 
   private fun lastMovement(bookingId: Long) = testDataContext.getMovements(bookingId).find { it.isActive }!!
 }

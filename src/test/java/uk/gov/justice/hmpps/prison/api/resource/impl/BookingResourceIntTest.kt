@@ -49,12 +49,10 @@ class BookingResourceIntTest : ResourceTest() {
   @TestConfiguration
   internal class TestClock {
     @Bean
-    fun clock(): Clock {
-      return Clock.fixed(
-        LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
-        ZoneId.systemDefault(),
-      )
-    }
+    fun clock(): Clock = Clock.fixed(
+      LocalDateTime.of(2020, 1, 2, 3, 4, 5).atZone(ZoneId.systemDefault()).toInstant(),
+      ZoneId.systemDefault(),
+    )
   }
 
   @Nested

@@ -56,9 +56,7 @@ class CourtDateResource(private val courtDateService: CourtDateService) {
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,
-  ): List<CourtDateResult> {
-    return courtDateService.getCourtDateResultsFlat(offenderNo)
-  }
+  ): List<CourtDateResult> = courtDateService.getCourtDateResultsFlat(offenderNo)
 
   @ApiResponses(
     ApiResponse(
@@ -86,7 +84,5 @@ class CourtDateResource(private val courtDateService: CourtDateService) {
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,
-  ): List<CourtDateChargeAndOutcomes> {
-    return courtDateService.getCourtDateResults(offenderNo)
-  }
+  ): List<CourtDateChargeAndOutcomes> = courtDateService.getCourtDateResults(offenderNo)
 }

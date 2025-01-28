@@ -84,8 +84,7 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelpe
     token = getToken(clientId)
   }
 
-  fun getToken(clientId: AuthToken): String =
-    tokens[clientId] ?: throw RuntimeException("Token for $clientId not found")
+  fun getToken(clientId: AuthToken): String = tokens[clientId] ?: throw RuntimeException("Token for $clientId not found")
 
   private fun prisonApiUser(): String = jwtAuthenticationHelper.createJwtAccessToken(username = "PRISON_API_USER")
 
@@ -228,12 +227,11 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelpe
     username = "UNAUTHORISED_USER",
   )
 
-  private fun createRefDataMaintainerUser(allowWriteScope: Boolean): String =
-    jwtAuthenticationHelper.createJwtAccessToken(
-      username = "ITAG_USER",
-      scope = if (allowWriteScope) listOf("read", "write") else listOf("read"),
-      roles = listOf("ROLE_MAINTAIN_REF_DATA"),
-    )
+  private fun createRefDataMaintainerUser(allowWriteScope: Boolean): String = jwtAuthenticationHelper.createJwtAccessToken(
+    username = "ITAG_USER",
+    scope = if (allowWriteScope) listOf("read", "write") else listOf("read"),
+    roles = listOf("ROLE_MAINTAIN_REF_DATA"),
+  )
 
   private fun createReleaseDatesCalculatorUser(): String = jwtAuthenticationHelper.createJwtAccessToken(
 // use ITAG_USER to avoid the pain of creating a new username in the test DB

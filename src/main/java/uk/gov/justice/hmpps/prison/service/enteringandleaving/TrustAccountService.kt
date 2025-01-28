@@ -39,8 +39,7 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
     )
   }
 
-  private fun doesNotRequireTrustAccount(movementIn: ExternalMovement): Boolean =
-    movementIn.movementReason.code.equals(MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
+  private fun doesNotRequireTrustAccount(movementIn: ExternalMovement): Boolean = movementIn.movementReason.code.equals(MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
 }
 
 @Service

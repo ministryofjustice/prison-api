@@ -13,19 +13,15 @@ import java.time.LocalDate
 class OffenderBeliefService(
   private val offenderBeliefRepository: OffenderBeliefRepository,
 ) {
-  fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<Belief> {
-    return offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, bookingId).map(this::transformBelief)
-  }
+  fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<Belief> = offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, bookingId).map(this::transformBelief)
 
-  private fun transformBelief(offenderBelief: OffenderBelief): Belief {
-    return Belief(
-      offenderBelief.booking.bookingId, offenderBelief.beliefId, offenderBelief.beliefCode.id.code,
-      offenderBelief.beliefCode.description, offenderBelief.startDate, offenderBelief.endDate,
-      offenderBelief.changeReason, offenderBelief.comments, offenderBelief.createdByUser.staff.firstName,
-      offenderBelief.createdByUser.staff.lastName, offenderBelief.modifiedByUser?.staff?.firstName,
-      offenderBelief.modifiedByUser?.staff?.lastName, offenderBelief.modifyDatetime?.toLocalDate(), offenderBelief.verified,
-    )
-  }
+  private fun transformBelief(offenderBelief: OffenderBelief): Belief = Belief(
+    offenderBelief.booking.bookingId, offenderBelief.beliefId, offenderBelief.beliefCode.id.code,
+    offenderBelief.beliefCode.description, offenderBelief.startDate, offenderBelief.endDate,
+    offenderBelief.changeReason, offenderBelief.comments, offenderBelief.createdByUser.staff.firstName,
+    offenderBelief.createdByUser.staff.lastName, offenderBelief.modifiedByUser?.staff?.firstName,
+    offenderBelief.modifiedByUser?.staff?.lastName, offenderBelief.modifyDatetime?.toLocalDate(), offenderBelief.verified,
+  )
 }
 
 @JsonInclude(JsonInclude.Include.NON_NULL)

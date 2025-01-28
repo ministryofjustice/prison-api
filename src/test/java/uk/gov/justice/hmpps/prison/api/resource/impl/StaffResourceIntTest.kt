@@ -476,24 +476,20 @@ class StaffResourceIntTest : ResourceTest() {
 
   private companion object {
     @JvmStatic
-    fun staffDetailsTable(): List<StaffDetailsRow> {
-      return listOf(
-        StaffDetailsRow(-1, "PRISON", "USER", "F", "1970-01-01"),
-        StaffDetailsRow(-2, "API", "USER", "M", "1970-02-01"),
-        StaffDetailsRow(-3, "CA", "USER", "M", "1970-03-01"),
-        StaffDetailsRow(-5, "RO", "USER", "M", "1970-05-01"),
-        StaffDetailsRow(-6, "DM", "USER", "M", "1970-06-01"),
-      )
-    }
+    fun staffDetailsTable(): List<StaffDetailsRow> = listOf(
+      StaffDetailsRow(-1, "PRISON", "USER", "F", "1970-01-01"),
+      StaffDetailsRow(-2, "API", "USER", "M", "1970-02-01"),
+      StaffDetailsRow(-3, "CA", "USER", "M", "1970-03-01"),
+      StaffDetailsRow(-5, "RO", "USER", "M", "1970-05-01"),
+      StaffDetailsRow(-6, "DM", "USER", "M", "1970-06-01"),
+    )
 
     @JvmStatic
-    fun staffRolesTable(): List<StaffRolesRow> {
-      return listOf(
-        StaffRolesRow(-2, "LEI", "OS", "Offender Supervisor"),
-        StaffRolesRow(-1, "LEI", "KW", "Key Worker"),
-        StaffRolesRow(-2, "BXI", "KW", "Key Worker"),
-      )
-    }
+    fun staffRolesTable(): List<StaffRolesRow> = listOf(
+      StaffRolesRow(-2, "LEI", "OS", "Offender Supervisor"),
+      StaffRolesRow(-1, "LEI", "KW", "Key Worker"),
+      StaffRolesRow(-2, "BXI", "KW", "Key Worker"),
+    )
   }
 
   data class StaffDetailsRow(

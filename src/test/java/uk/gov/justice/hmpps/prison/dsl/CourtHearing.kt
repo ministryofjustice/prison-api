@@ -24,18 +24,17 @@ class CourtHearingBuilderRepository(
     toCourtLocation: String,
     courtHearingDateTime: LocalDateTime,
     comments: String,
-  ): CourtHearing =
-    courtHearingsService.scheduleHearing(
-      bookingId,
-      courtCaseId,
-      PrisonToCourtHearing
-        .builder()
-        .toCourtLocation(toCourtLocation)
-        .fromPrisonLocation(fromPrisonLocation)
-        .courtHearingDateTime(courtHearingDateTime)
-        .comments(comments)
-        .build(),
-    )
+  ): CourtHearing = courtHearingsService.scheduleHearing(
+    bookingId,
+    courtCaseId,
+    PrisonToCourtHearing
+      .builder()
+      .toCourtLocation(toCourtLocation)
+      .fromPrisonLocation(fromPrisonLocation)
+      .courtHearingDateTime(courtHearingDateTime)
+      .comments(comments)
+      .build(),
+  )
 }
 
 @Component
@@ -43,9 +42,7 @@ class CourtHearingBuilderFactory(
   private val repository: CourtHearingBuilderRepository,
 ) {
 
-  fun builder(): CourtHearingBuilder {
-    return CourtHearingBuilder(repository)
-  }
+  fun builder(): CourtHearingBuilder = CourtHearingBuilder(repository)
 }
 
 class CourtHearingBuilder(

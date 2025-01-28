@@ -67,23 +67,22 @@ class OffenderBuilderRepository(
     birthDate: LocalDate,
     genderCode: String,
     ethnicity: String? = null,
-  ): OffenderId =
-    prisonerCreationService.createPrisoner(
-      RequestToCreate
-        .builder()
-        .pncNumber(pncNumber)
-        .croNumber(croNumber)
-        .lastName(lastName)
-        .firstName(firstName)
-        .middleName1(middleName1)
-        .middleName2(middleName2)
-        .dateOfBirth(birthDate)
-        .gender(genderCode)
-        .ethnicity(ethnicity)
-        .build(),
-    ).let {
-      OffenderId(it.offenderNo)
-    }
+  ): OffenderId = prisonerCreationService.createPrisoner(
+    RequestToCreate
+      .builder()
+      .pncNumber(pncNumber)
+      .croNumber(croNumber)
+      .lastName(lastName)
+      .firstName(firstName)
+      .middleName1(middleName1)
+      .middleName2(middleName2)
+      .dateOfBirth(birthDate)
+      .gender(genderCode)
+      .ethnicity(ethnicity)
+      .build(),
+  ).let {
+    OffenderId(it.offenderNo)
+  }
 
   fun deletePrisoner(offenderNo: String) {
     kotlin.runCatching {
@@ -105,9 +104,7 @@ class OffenderBuilderFactory(
   private val offenderAddressBuilderFactory: OffenderAddressBuilderFactory,
 ) {
 
-  fun builder(): OffenderBuilder {
-    return OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory, offenderAddressBuilderFactory)
-  }
+  fun builder(): OffenderBuilder = OffenderBuilder(repository, bookingBuilderFactory, aliasBuilderFactory, offenderAddressBuilderFactory)
 
   fun deletePrisoner(offenderNo: String) {
     repository.deletePrisoner(offenderNo)

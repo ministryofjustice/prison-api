@@ -58,14 +58,12 @@ class AliasBuilder(
     lastName: String,
     firstName: String,
     birthDate: LocalDate,
-  ): AliasId {
-    return repository.save(
-      offenderId = offenderId,
-      lastName = lastName,
-      firstName = firstName,
-      birthDate = birthDate,
-    ).also { aliasId = it }
-  }
+  ): AliasId = repository.save(
+    offenderId = offenderId,
+    lastName = lastName,
+    firstName = firstName,
+    birthDate = birthDate,
+  ).also { aliasId = it }
 }
 
 data class AliasId(val offenderId: Long)

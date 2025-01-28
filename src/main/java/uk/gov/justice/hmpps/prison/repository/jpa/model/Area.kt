@@ -48,9 +48,7 @@ abstract class AgencyArea(
   }
 
   override fun hashCode(): Int = javaClass.hashCode()
-  override fun toString(): String {
-    return "${javaClass.simpleName} (code='$code', description='$description')"
-  }
+  override fun toString(): String = "${javaClass.simpleName} (code='$code', description='$description')"
 }
 
 @Entity

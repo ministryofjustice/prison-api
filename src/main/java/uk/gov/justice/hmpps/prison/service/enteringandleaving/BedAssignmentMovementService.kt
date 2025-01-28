@@ -17,34 +17,32 @@ class BedAssignmentMovementService(private val bedAssignmentHistoriesRepository:
     cellLocation: AgencyInternalLocation,
     receiveTime: LocalDateTime,
     reasonCode: String? = null,
-  ): BedAssignmentHistory =
-    bedAssignmentHistoriesRepository.save(
-      BedAssignmentHistory.builder()
-        .bedAssignmentHistoryPK(
-          BedAssignmentHistoryPK(
-            booking.bookingId,
-            getNextSequence(booking),
-          ),
-        )
-        .offenderBooking(booking)
-        .livingUnitId(cellLocation.locationId)
-        .location(cellLocation)
-        .assignmentDate(receiveTime.toLocalDate())
-        .assignmentDateTime(receiveTime)
-        .assignmentReason(reasonCode)
-        .build(),
-    )
+  ): BedAssignmentHistory = bedAssignmentHistoriesRepository.save(
+    BedAssignmentHistory.builder()
+      .bedAssignmentHistoryPK(
+        BedAssignmentHistoryPK(
+          booking.bookingId,
+          getNextSequence(booking),
+        ),
+      )
+      .offenderBooking(booking)
+      .livingUnitId(cellLocation.locationId)
+      .location(cellLocation)
+      .assignmentDate(receiveTime.toLocalDate())
+      .assignmentDateTime(receiveTime)
+      .assignmentReason(reasonCode)
+      .build(),
+  )
 
-  fun endBedHistory(bookingId: Long, time: LocalDateTime) =
-    bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(
-      bookingId,
-      bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId),
-    ).ifPresent {
-      if (it.assignmentEndDate == null && it.assignmentEndDateTime == null) {
-        it.assignmentEndDate = time.toLocalDate()
-        it.assignmentEndDateTime = time
-      }
+  fun endBedHistory(bookingId: Long, time: LocalDateTime) = bedAssignmentHistoriesRepository.findByBedAssignmentHistoryPKOffenderBookingIdAndBedAssignmentHistoryPKSequence(
+    bookingId,
+    bedAssignmentHistoriesRepository.getMaxSeqForBookingId(bookingId),
+  ).ifPresent {
+    if (it.assignmentEndDate == null && it.assignmentEndDateTime == null) {
+      it.assignmentEndDate = time.toLocalDate()
+      it.assignmentEndDateTime = time
     }
+  }
 
   private fun getNextSequence(booking: OffenderBooking) = bedAssignmentHistoriesRepository.getMaxSeqForBookingId(booking.bookingId) + 1
 }

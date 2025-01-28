@@ -10,10 +10,14 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Area
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Region
 
 @Repository
-interface AgencyAreaRepository : JpaRepository<AgencyArea, String>, JpaSpecificationExecutor<AgencyArea>
+interface AgencyAreaRepository :
+  JpaRepository<AgencyArea, String>,
+  JpaSpecificationExecutor<AgencyArea>
 
 @Repository
-interface AreaRepository : JpaRepository<Area, String>, JpaSpecificationExecutor<Area> {
+interface AreaRepository :
+  JpaRepository<Area, String>,
+  JpaSpecificationExecutor<Area> {
   @EntityGraph(value = "area-entity-graph", type = EntityGraph.EntityGraphType.LOAD)
   override fun findAll(spec: Specification<Area>?): List<Area>
 
@@ -22,4 +26,6 @@ interface AreaRepository : JpaRepository<Area, String>, JpaSpecificationExecutor
 }
 
 @Repository
-interface RegionRepository : JpaRepository<Region, String>, JpaSpecificationExecutor<Region>
+interface RegionRepository :
+  JpaRepository<Region, String>,
+  JpaSpecificationExecutor<Region>

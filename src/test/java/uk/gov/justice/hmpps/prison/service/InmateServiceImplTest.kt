@@ -811,68 +811,56 @@ class InmateServiceImplTest {
     assertThat(inmateDetail.imprisonmentStatusDescription).isEqualTo("Life imprisonment")
   }
 
-  private fun buildInmateDetail(): InmateDetail {
-    return InmateDetail.builder()
-      .offenderNo("S1234AA")
-      .bookingId(-1L)
-      .bookingNo("Z00001")
-      .offenderId(-999L)
-      .rootOffenderId(-999L)
-      .firstName("FRED")
-      .lastName("JAMES")
-      .dateOfBirth(LocalDate.of(1955, 12, 1))
-      .age(65)
-      .agencyId("outside")
-      .assignedLivingUnitId(-13L)
-      .birthCountryCode("UK")
-      .inOutStatus("OUT")
-      .status("REL-HP")
-      .lastMovementTypeCode("REL")
-      .lastMovementReasonCode("HP")
-      .build()
-  }
+  private fun buildInmateDetail(): InmateDetail = InmateDetail.builder()
+    .offenderNo("S1234AA")
+    .bookingId(-1L)
+    .bookingNo("Z00001")
+    .offenderId(-999L)
+    .rootOffenderId(-999L)
+    .firstName("FRED")
+    .lastName("JAMES")
+    .dateOfBirth(LocalDate.of(1955, 12, 1))
+    .age(65)
+    .agencyId("outside")
+    .assignedLivingUnitId(-13L)
+    .birthCountryCode("UK")
+    .inOutStatus("OUT")
+    .status("REL-HP")
+    .lastMovementTypeCode("REL")
+    .lastMovementReasonCode("HP")
+    .build()
 
-  private fun buildInmateDetailTransferring(): InmateDetail {
-    return buildInmateDetail()
-      .toBuilder()
-      .agencyId("TRN")
-      .status("INACTIVE TRN")
-      .lastMovementTypeCode("TRN")
-      .lastMovementReasonCode("PROD")
-      .inOutStatus("TRN")
-      .build()
-  }
+  private fun buildInmateDetailTransferring(): InmateDetail = buildInmateDetail()
+    .toBuilder()
+    .agencyId("TRN")
+    .status("INACTIVE TRN")
+    .lastMovementTypeCode("TRN")
+    .lastMovementReasonCode("PROD")
+    .inOutStatus("TRN")
+    .build()
 
-  private fun buildPhysicalAttributes(): PhysicalAttributes {
-    return PhysicalAttributes.builder()
-      .gender("Male")
-      .raceCode("W2")
-      .ethnicity("White: Irish")
-      .build()
-  }
+  private fun buildPhysicalAttributes(): PhysicalAttributes = PhysicalAttributes.builder()
+    .gender("Male")
+    .raceCode("W2")
+    .ethnicity("White: Irish")
+    .build()
 
-  private fun buildAssignedLivingUnit(): AssignedLivingUnit {
-    return AssignedLivingUnit.builder()
-      .agencyId("MDI")
-      .locationId(-41L)
-      .description("1-1-001")
-      .agencyName("MOORLAND")
-      .build()
-  }
+  private fun buildAssignedLivingUnit(): AssignedLivingUnit = AssignedLivingUnit.builder()
+    .agencyId("MDI")
+    .locationId(-41L)
+    .description("1-1-001")
+    .agencyName("MOORLAND")
+    .build()
 
-  private fun buildAssignedLivingUnitForOutside(): AssignedLivingUnit {
-    return AssignedLivingUnit.builder()
-      .agencyId("OUT")
-      .agencyName("Outside")
-      .build()
-  }
+  private fun buildAssignedLivingUnitForOutside(): AssignedLivingUnit = AssignedLivingUnit.builder()
+    .agencyId("OUT")
+    .agencyName("Outside")
+    .build()
 
-  private fun buildAssignedLivingUnitTransferred(): AssignedLivingUnit {
-    return AssignedLivingUnit.builder()
-      .agencyId("TRN")
-      .agencyName("Transfer")
-      .build()
-  }
+  private fun buildAssignedLivingUnitTransferred(): AssignedLivingUnit = AssignedLivingUnit.builder()
+    .agencyId("TRN")
+    .agencyName("Transfer")
+    .build()
 
   private fun buildMovementReleased(movementType: String, movementTypeDescription: String): Optional<ExternalMovement> {
     val now = LocalDateTime.now()

@@ -1637,21 +1637,17 @@ class InmateRepositoryTest {
   }
 
   /** */
-  private fun criteriaForOffenderNo(offenderNos: List<String>): PrisonerDetailSearchCriteria =
-    PrisonerDetailSearchCriteria.builder()
-      .offenderNos(offenderNos)
-      .build()
+  private fun criteriaForOffenderNo(offenderNos: List<String>): PrisonerDetailSearchCriteria = PrisonerDetailSearchCriteria.builder()
+    .offenderNos(offenderNos)
+    .build()
 
-  private fun criteriaForPNCNumber(pncNumber: String): PrisonerDetailSearchCriteria =
-    PrisonerDetailSearchCriteria.builder()
-      .pncNumber(pncNumber)
-      .build()
+  private fun criteriaForPNCNumber(pncNumber: String): PrisonerDetailSearchCriteria = PrisonerDetailSearchCriteria.builder()
+    .pncNumber(pncNumber)
+    .build()
 
-  fun criteriaForCRONumber(croNumber: String): PrisonerDetailSearchCriteria {
-    return PrisonerDetailSearchCriteria.builder()
-      .croNumber(croNumber)
-      .build()
-  }
+  fun criteriaForCRONumber(croNumber: String): PrisonerDetailSearchCriteria = PrisonerDetailSearchCriteria.builder()
+    .croNumber(croNumber)
+    .build()
 
   private fun criteriaForPersonalAttrs(
     offenderNos: List<String>?,
@@ -1696,15 +1692,13 @@ class InmateRepositoryTest {
     .maxYearsRange(10)
     .build()
 
-  private fun criteriaForLocationFilter(location: String): PrisonerDetailSearchCriteria =
-    PrisonerDetailSearchCriteria.builder()
-      .location(location)
-      .build()
+  private fun criteriaForLocationFilter(location: String): PrisonerDetailSearchCriteria = PrisonerDetailSearchCriteria.builder()
+    .location(location)
+    .build()
 
-  private fun criteriaForGenderFilter(gender: String): PrisonerDetailSearchCriteria =
-    PrisonerDetailSearchCriteria.builder()
-      .gender(gender)
-      .build()
+  private fun criteriaForGenderFilter(gender: String): PrisonerDetailSearchCriteria = PrisonerDetailSearchCriteria.builder()
+    .gender(gender)
+    .build()
 
   private fun addDOBRangeCriteria(
     criteria: PrisonerDetailSearchCriteria,
@@ -1713,8 +1707,7 @@ class InmateRepositoryTest {
     dobTo: LocalDate?,
   ): PrisonerDetailSearchCriteria = criteria.withDob(dob).withDobFrom(dobFrom).withDobTo(dobTo).withMaxYearsRange(10)
 
-  private fun buildQuery(criteria: PrisonerDetailSearchCriteria): String? =
-    repository.generateFindOffendersQuery(criteria)
+  private fun buildQuery(criteria: PrisonerDetailSearchCriteria): String? = repository.generateFindOffendersQuery(criteria)
 
   private fun findOffender(query: String?): PrisonerDetail {
     val page = repository.findOffenders(query, PageRequest())

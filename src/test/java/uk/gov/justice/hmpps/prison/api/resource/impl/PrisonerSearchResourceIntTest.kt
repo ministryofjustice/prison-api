@@ -428,12 +428,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         }
     }
 
-    private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) =
-      get().uri("/api/prisoner-search/offenders/$offenderNo")
-        .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .accept(APPLICATION_JSON)
-        .exchange()
-        .expectStatus().isOk
-        .expectBody<PrisonerSearchDetails>()
+    private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) = get().uri("/api/prisoner-search/offenders/$offenderNo")
+      .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
+      .accept(APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody<PrisonerSearchDetails>()
   }
 }

@@ -130,21 +130,19 @@ class ActivityMovementServiceIntTest : ResourceTest() {
     offenderBooking: OffenderBooking,
     prison: AgencyLocation,
     testEndDate: LocalDate,
-  ): List<OffenderProgramProfile> =
-    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
-      offenderBooking,
-      prison,
-      testEndDate,
-    )
+  ): List<OffenderProgramProfile> = testDataContext.dataLoader.offenderProgramProfileRepository.findActiveActivitiesForBookingAtPrison(
+    offenderBooking,
+    prison,
+    testEndDate,
+  )
 
   fun getActiveWaitList(
     offenderBooking: OffenderBooking,
     prison: AgencyLocation,
-  ): List<OffenderProgramProfile> =
-    testDataContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
-      offenderBooking,
-      prison,
-    )
+  ): List<OffenderProgramProfile> = testDataContext.dataLoader.offenderProgramProfileRepository.findActiveWaitListActivitiesForBookingAtPrison(
+    offenderBooking,
+    prison,
+  )
 
   fun transferOutToCourt(offenderNo: String, toLocation: String, shouldReleaseBed: Boolean = false): LocalDateTime {
     val movementTime = LocalDateTime.now().minusHours(1)

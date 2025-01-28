@@ -60,12 +60,11 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
     }
 
     @JvmStatic
-    fun getOffenderTypes(): Stream<Arguments> =
-      Stream.of(
-        *OffenderType.entries.map {
-          Arguments.of(it.name)
-        }.toTypedArray(),
-      )
+    fun getOffenderTypes(): Stream<Arguments> = Stream.of(
+      *OffenderType.entries.map {
+        Arguments.of(it.name)
+      }.toTypedArray(),
+    )
   }
 
   private fun createOffender(offenderType: OffenderType) {
@@ -77,13 +76,12 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
     }
   }
 
-  private fun findBookingId(offenderType: OffenderType): Long =
-    when (offenderType) {
-      BOOKING -> bookingId!!
-      NO_BOOKING -> testDataContext.getOffenderBooking(offenderNo, active = false)!!.bookingId
-      TEMPORARY_ABSENCE -> bookingId!!
-      RELEASED -> bookingId!!
-    }
+  private fun findBookingId(offenderType: OffenderType): Long = when (offenderType) {
+    BOOKING -> bookingId!!
+    NO_BOOKING -> testDataContext.getOffenderBooking(offenderNo, active = false)!!.bookingId
+    TEMPORARY_ABSENCE -> bookingId!!
+    RELEASED -> bookingId!!
+  }
 
   @Nested
   @DisplayName("POST /offenders/{offenderNo}/discharge-to-hospital")
@@ -632,18 +630,17 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
       }
     }
 
-    private fun getOffender(offenderNo: String): StatusAssertions =
-      webTestClient.get()
-        .uri("/api/offenders/{offenderNo}", offenderNo)
-        .headers(
-          setAuthorisation(
-            listOf("ROLE_SYSTEM_USER"),
-          ),
-        )
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus()
+    private fun getOffender(offenderNo: String): StatusAssertions = webTestClient.get()
+      .uri("/api/offenders/{offenderNo}", offenderNo)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_SYSTEM_USER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus()
 
     private fun createExternalService(serviceName: String = "ACTIVITY") {
       ExternalServiceBuilder(serviceName).save(testDataContext.dataLoader)
@@ -652,23 +649,21 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
         }
     }
 
-    private fun createServiceAgencySwitch(serviceName: String = "ACTIVITY", agencyId: String = "SYI") =
-      ServiceAgencySwitchBuilder(serviceName, agencyId).save(testDataContext.dataLoader)
+    private fun createServiceAgencySwitch(serviceName: String = "ACTIVITY", agencyId: String = "SYI") = ServiceAgencySwitchBuilder(serviceName, agencyId).save(testDataContext.dataLoader)
 
     private fun dischargeToHospital(
       offenderNo: String,
       body: String,
       username: String = "ITAG_USER",
       roles: List<String> = listOf("ROLE_RELEASE_PRISONER"),
-    ): StatusAssertions =
-      webTestClient.put()
-        .uri("/api/offenders/{offenderNo}/discharge-to-hospital", offenderNo)
-        .headers(setAuthorisation(username, roles))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(body.trimIndent())
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus()
+    ): StatusAssertions = webTestClient.put()
+      .uri("/api/offenders/{offenderNo}/discharge-to-hospital", offenderNo)
+      .headers(setAuthorisation(username, roles))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .bodyValue(body.trimIndent())
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus()
 
     private fun dischargeRequest(
       hospitalLocationCode: String = "HAZLWD",

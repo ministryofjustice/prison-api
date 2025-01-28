@@ -1125,8 +1125,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       assertThatJson(response.body!!).node("userMessage").asString().contains("Placement agency id not recognised.")
     }
 
-    private fun resetCreatedCategorisation() =
-      jdbcTemplate.update("DELETE FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -35 AND CALC_SUP_LEVEL_TYPE = 'D'")
+    private fun resetCreatedCategorisation() = jdbcTemplate.update("DELETE FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -35 AND CALC_SUP_LEVEL_TYPE = 'D'")
   }
 
   @Nested
@@ -1742,8 +1741,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       assertThatJson(body).node("userMessage").asString().contains("Review placement agency id not recognised.")
     }
 
-    private fun resetApprovedCategorisation() =
-      jdbcTemplate.update("UPDATE OFFENDER_ASSESSMENTS SET ASSESS_STATUS='P', EVALUATION_RESULT_CODE=null WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1")
+    private fun resetApprovedCategorisation() = jdbcTemplate.update("UPDATE OFFENDER_ASSESSMENTS SET ASSESS_STATUS='P', EVALUATION_RESULT_CODE=null WHERE OFFENDER_BOOK_ID = -34 AND ASSESSMENT_SEQ = 1")
   }
 
   @Nested

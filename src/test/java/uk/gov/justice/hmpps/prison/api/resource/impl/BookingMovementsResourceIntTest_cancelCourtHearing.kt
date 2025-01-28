@@ -27,9 +27,7 @@ class BookingMovementsResourceIntTest_cancelCourtHearing : ResourceTest() {
   @TestConfiguration
   internal class TestClock {
     @Bean
-    fun clock(): Clock {
-      return Clock.fixed(Instant.now(), ZoneId.systemDefault())
-    }
+    fun clock(): Clock = Clock.fixed(Instant.now(), ZoneId.systemDefault())
   }
 
   @Autowired
@@ -141,20 +139,18 @@ class BookingMovementsResourceIntTest_cancelCourtHearing : ResourceTest() {
     return courtHearings.hearings
   }
 
-  private fun givenScheduleHearing(token: String): CourtHearing {
-    return testRestTemplate.exchange(
-      "/api/bookings/-1/prison-to-court-hearings",
-      HttpMethod.POST,
-      createHttpEntity(
-        token,
-        mapOf(
-          "fromPrisonLocation" to "LEI",
-          "toCourtLocation" to "COURT1",
-          "courtHearingDateTime" to LocalDateTime.now(clock).plusDays(1).truncatedTo(ChronoUnit.MINUTES),
-        ),
+  private fun givenScheduleHearing(token: String): CourtHearing = testRestTemplate.exchange(
+    "/api/bookings/-1/prison-to-court-hearings",
+    HttpMethod.POST,
+    createHttpEntity(
+      token,
+      mapOf(
+        "fromPrisonLocation" to "LEI",
+        "toCourtLocation" to "COURT1",
+        "courtHearingDateTime" to LocalDateTime.now(clock).plusDays(1).truncatedTo(ChronoUnit.MINUTES),
       ),
-      object : ParameterizedTypeReference<CourtHearing>() {
-      },
-    ).body!!
-  }
+    ),
+    object : ParameterizedTypeReference<CourtHearing>() {
+    },
+  ).body!!
 }

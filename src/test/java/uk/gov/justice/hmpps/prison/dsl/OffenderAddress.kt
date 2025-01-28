@@ -83,21 +83,19 @@ class OffenderAddressBuilder(
     pafValidated: Boolean,
     mail: Boolean,
     noFixedAddress: Boolean,
-  ): AddressId {
-    return repository.save(
-      offenderId = offenderId,
-      premise = premise,
-      street = street,
-      locality = locality,
-      cityCode = cityCode,
-      postalCode = postalCode,
-      countryCode = countryCode,
-      primary = primary,
-      pafValidated = pafValidated,
-      mail = mail,
-      noFixedAddress = noFixedAddress,
-    ).also { addressId = it }
-  }
+  ): AddressId = repository.save(
+    offenderId = offenderId,
+    premise = premise,
+    street = street,
+    locality = locality,
+    cityCode = cityCode,
+    postalCode = postalCode,
+    countryCode = countryCode,
+    primary = primary,
+    pafValidated = pafValidated,
+    mail = mail,
+    noFixedAddress = noFixedAddress,
+  ).also { addressId = it }
 }
 
 data class AddressId(val addressId: Long)

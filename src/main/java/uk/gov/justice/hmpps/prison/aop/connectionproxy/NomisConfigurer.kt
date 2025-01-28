@@ -49,15 +49,13 @@ class NomisConfigurer(@Value("\${oracle.default.schema}") private val defaultSch
   }
 
   @Throws(SQLException::class)
-  fun setSuppressXtagEvents(conn: Connection): Boolean {
-    return """
+  fun setSuppressXtagEvents(conn: Connection): Boolean = """
       BEGIN
       nomis_context.set_context('AUDIT_MODULE_NAME', 'MERGE');
       END;
     """
-      .trimIndent()
-      .let { sql -> conn.run(sql) }
-  }
+    .trimIndent()
+    .let { sql -> conn.run(sql) }
 
   @Throws(SQLException::class)
   fun setDefaultSchema(conn: Connection) {

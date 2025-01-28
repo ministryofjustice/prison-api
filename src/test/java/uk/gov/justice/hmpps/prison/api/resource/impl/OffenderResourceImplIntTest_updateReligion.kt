@@ -167,8 +167,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .jsonPath("userMessage").isEqualTo("Malformed request")
     }
 
-    private fun religionProfileType(): ProfileType =
-      profileTypeRepository.findByTypeAndCategoryAndActive("RELF", "PI", true).get()
+    private fun religionProfileType(): ProfileType = profileTypeRepository.findByTypeAndCategoryAndActive("RELF", "PI", true).get()
   }
 
   @Nested

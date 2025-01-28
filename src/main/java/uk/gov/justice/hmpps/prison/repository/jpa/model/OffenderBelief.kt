@@ -88,7 +88,5 @@ data class OffenderBelief(
     return beliefId == other.beliefId
   }
 
-  override fun hashCode(): Int {
-    return this.javaClass.hashCode()
-  }
+  override fun hashCode(): Int = this.javaClass.hashCode()
 }

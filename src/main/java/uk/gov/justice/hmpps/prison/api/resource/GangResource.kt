@@ -48,7 +48,5 @@ class GangResource(private val gangService: GangService) {
     @PathVariable
     @Parameter(description = "Prisoner number", required = true, example = "A1234AA")
     offenderNo: String,
-  ): GangMemberSummary {
-    return gangService.getNonAssociatesInGangs(offenderNo)
-  }
+  ): GangMemberSummary = gangService.getNonAssociatesInGangs(offenderNo)
 }

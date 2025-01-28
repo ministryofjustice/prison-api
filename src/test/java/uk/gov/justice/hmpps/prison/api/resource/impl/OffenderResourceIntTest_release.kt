@@ -464,18 +464,17 @@ class OffenderResourceIntTest_release : ResourceTest() {
       }
     }
 
-    private fun getOffender(offenderNo: String): StatusAssertions =
-      webTestClient.get()
-        .uri("/api/offenders/{offenderNo}", offenderNo)
-        .headers(
-          setAuthorisation(
-            listOf("ROLE_SYSTEM_USER"),
-          ),
-        )
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus()
+    private fun getOffender(offenderNo: String): StatusAssertions = webTestClient.get()
+      .uri("/api/offenders/{offenderNo}", offenderNo)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_SYSTEM_USER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus()
 
     private fun createPrisonerWithNoBooking() {
       OffenderBuilder(bookingBuilders = arrayOf()).save(testDataContext).also {
@@ -508,23 +507,21 @@ class OffenderResourceIntTest_release : ResourceTest() {
         }
     }
 
-    private fun createServiceAgencySwitch(serviceName: String = "ACTIVITY", agencyId: String = "SYI") =
-      ServiceAgencySwitchBuilder(serviceName, agencyId).save(testDataContext.dataLoader)
+    private fun createServiceAgencySwitch(serviceName: String = "ACTIVITY", agencyId: String = "SYI") = ServiceAgencySwitchBuilder(serviceName, agencyId).save(testDataContext.dataLoader)
 
     private fun releaseOffender(
       offenderNo: String,
       body: String,
       username: String = "ITAG_USER",
       roles: List<String> = listOf("ROLE_RELEASE_PRISONER"),
-    ): StatusAssertions =
-      webTestClient.put()
-        .uri("/api/offenders/{offenderNo}/release", offenderNo)
-        .headers(setAuthorisation(username, roles))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .bodyValue(body.trimIndent())
-        .accept(MediaType.APPLICATION_JSON)
-        .exchange()
-        .expectStatus()
+    ): StatusAssertions = webTestClient.put()
+      .uri("/api/offenders/{offenderNo}/release", offenderNo)
+      .headers(setAuthorisation(username, roles))
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .bodyValue(body.trimIndent())
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus()
 
     private fun releaseRequest(
       movementReasonCode: String = "CR",

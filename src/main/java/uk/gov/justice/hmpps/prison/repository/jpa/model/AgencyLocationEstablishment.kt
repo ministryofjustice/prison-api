@@ -55,7 +55,5 @@ data class AgencyLocationEstablishment(
       id.establishmentTypeCode == other.id.establishmentTypeCode
   }
 
-  override fun hashCode(): Int {
-    return this.javaClass.hashCode()
-  }
+  override fun hashCode(): Int = this.javaClass.hashCode()
 }

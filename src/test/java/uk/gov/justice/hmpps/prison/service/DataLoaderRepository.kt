@@ -71,17 +71,15 @@ class DataLoaderTransaction {
   fun load(
     offenderBuilder: OffenderBuilder,
     testDataContext: TestDataContext,
-  ) =
-    offenderBuilder.save(testDataContext)
+  ) = offenderBuilder.save(testDataContext)
 
   @Transactional
   fun load(
     teamBuilder: TeamBuilder,
     testDataContext: TestDataContext,
-  ) =
-    teamBuilder.save(
-      dataLoader = testDataContext.dataLoader,
-    )
+  ) = teamBuilder.save(
+    dataLoader = testDataContext.dataLoader,
+  )
 
   @Transactional
   fun <T> save(operation: () -> T) = operation()

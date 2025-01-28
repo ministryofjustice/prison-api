@@ -100,50 +100,42 @@ class PrisonerCreationService(
     return PrisonerIdentifier.builder().id(currentSequence.prisonerIdentifier).build()
   }
 
-  private fun gender(code: String): Result<Gender> =
-    genderRepository.findByIdOrNull(ReferenceCode.Pk(Gender.SEX, code))?.let { success(it) } ?: failure(
-      EntityNotFoundException.withMessage("Gender $code not found"),
-    )
+  private fun gender(code: String): Result<Gender> = genderRepository.findByIdOrNull(ReferenceCode.Pk(Gender.SEX, code))?.let { success(it) } ?: failure(
+    EntityNotFoundException.withMessage("Gender $code not found"),
+  )
 
-  private fun ethnicity(code: String?): Result<Ethnicity>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      ethnicityRepository.findByIdOrNull(ReferenceCode.Pk(Ethnicity.ETHNICITY, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Ethnicity $code not found"))
+  private fun ethnicity(code: String?): Result<Ethnicity>? = code?.takeIf { it.isNotBlank() }?.let {
+    ethnicityRepository.findByIdOrNull(ReferenceCode.Pk(Ethnicity.ETHNICITY, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Ethnicity $code not found"))
+  }
+
+  private fun title(code: String?): Result<Title>? = code?.takeIf { it.isNotBlank() }?.let {
+    titleRepository.findByIdOrNull(ReferenceCode.Pk(Title.TITLE, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Title $code not found"))
+  }
+
+  private fun suffix(code: String?): Result<Suffix>? = code?.takeIf { it.isNotBlank() }?.let {
+    suffixRepository.findByIdOrNull(ReferenceCode.Pk(Suffix.SUFFIX, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Suffix $code not found"))
+  }
+
+  private fun validPncNumber(pncNumber: String?): Result<String>? = pncNumber?.takeIf { it.isNotBlank() }?.let { pnc ->
+    Pnc.getShortPncNumber(pnc).checkForDuplicatePncNumber().flatMap {
+      Pnc.getLongPncNumber(pnc).checkForDuplicatePncNumber()
     }
+  }
 
-  private fun title(code: String?): Result<Title>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      titleRepository.findByIdOrNull(ReferenceCode.Pk(Title.TITLE, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Title $code not found"))
-    }
+  private fun String.checkForDuplicatePncNumber(): Result<String> = offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", this)
+    .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
+      failure(matches.toPncMatchFailure())
+    } ?: success(Pnc.getLongPncNumber(this))
 
-  private fun suffix(code: String?): Result<Suffix>? =
-    code?.takeIf { it.isNotBlank() }?.let {
-      suffixRepository.findByIdOrNull(ReferenceCode.Pk(Suffix.SUFFIX, code))?.let { success(it) }
-        ?: failure(EntityNotFoundException.withMessage("Suffix $code not found"))
-    }
+  private fun validCroNumber(croNumber: String?): Result<String>? = croNumber?.takeIf { it.isNotBlank() }?.checkForDuplicateCroNumber()
 
-  private fun validPncNumber(pncNumber: String?): Result<String>? =
-    pncNumber?.takeIf { it.isNotBlank() }?.let { pnc ->
-      Pnc.getShortPncNumber(pnc).checkForDuplicatePncNumber().flatMap {
-        Pnc.getLongPncNumber(pnc).checkForDuplicatePncNumber()
-      }
-    }
-
-  private fun String.checkForDuplicatePncNumber(): Result<String> =
-    offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("PNC", this)
-      .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
-        failure(matches.toPncMatchFailure())
-      } ?: success(Pnc.getLongPncNumber(this))
-
-  private fun validCroNumber(croNumber: String?): Result<String>? =
-    croNumber?.takeIf { it.isNotBlank() }?.checkForDuplicateCroNumber()
-
-  private fun String.checkForDuplicateCroNumber(): Result<String> =
-    offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("CRO", this)
-      .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
-        failure(matches.toCroMatchFailure())
-      } ?: success(this)
+  private fun String.checkForDuplicateCroNumber(): Result<String> = offenderIdentifierRepository.findByIdentifierTypeAndIdentifier("CRO", this)
+    .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
+      failure(matches.toCroMatchFailure())
+    } ?: success(this)
 
   private fun validUniqueUppercaseNames(requestToCreate: RequestToCreate, allowNameDuplicate: Boolean): Result<Pair<String, String>> {
     val names = requestToCreate.firstName.uppercase() to requestToCreate.lastName.uppercase()
@@ -153,19 +145,17 @@ class PrisonerCreationService(
     return success(requestToCreate.firstName.uppercase() to requestToCreate.lastName.uppercase())
   }
 
-  private fun Pair<String, String>.checkForDuplicatePrisonerByName(dateOfBirth: LocalDate): Result<Pair<String, String>> =
-    offenderRepository.findByLastNameAndFirstNameAndBirthDate(
-      this.second,
-      this.first,
-      dateOfBirth,
-    )
-      .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
-        failure(matches.toNameMatchFailure())
-      } ?: success(this)
+  private fun Pair<String, String>.checkForDuplicatePrisonerByName(dateOfBirth: LocalDate): Result<Pair<String, String>> = offenderRepository.findByLastNameAndFirstNameAndBirthDate(
+    this.second,
+    this.first,
+    dateOfBirth,
+  )
+    .takeIf { matches -> matches.isNotEmpty() }?.let { matches ->
+      failure(matches.toNameMatchFailure())
+    } ?: success(this)
 
-  private fun validDateOfBirth(dateOfBirth: LocalDate): Result<LocalDate> =
-    dateOfBirth.takeUnless { it.isNotValidAgeForPrison() }?.let { success(it) }
-      ?: failure(BadRequestException.withMessage("Date of birth must be between ${oldestPossibleDateOfBirth()} and ${youngestPossibleDateOfBirth()}"))
+  private fun validDateOfBirth(dateOfBirth: LocalDate): Result<LocalDate> = dateOfBirth.takeUnless { it.isNotValidAgeForPrison() }?.let { success(it) }
+    ?: failure(BadRequestException.withMessage("Date of birth must be between ${oldestPossibleDateOfBirth()} and ${youngestPossibleDateOfBirth()}"))
 }
 
 private fun List<OffenderIdentifier>.toPncMatchFailure() = first().let {
@@ -192,5 +182,4 @@ private fun List<Offender>.toNameMatchFailure() = first().let {
 private fun RequestToCreate.hasNoIdentifiers() = pncNumber.isNullOrBlank() && croNumber.isNullOrBlank()
 private fun youngestPossibleDateOfBirth() = LocalDate.now().minusYears(16)
 private fun oldestPossibleDateOfBirth() = LocalDate.now().minusYears(110)
-private fun LocalDate.isNotValidAgeForPrison() =
-  this.isAfter(youngestPossibleDateOfBirth()) || this.isBefore(oldestPossibleDateOfBirth())
+private fun LocalDate.isNotValidAgeForPrison() = this.isAfter(youngestPossibleDateOfBirth()) || this.isBefore(oldestPossibleDateOfBirth())

@@ -83,13 +83,12 @@ class AppointmentsResourceTest : ResourceTest() {
       verify(offenderIndividualScheduleRepository, times(2)).save(any())
     }
 
-    private fun makeCreateAppointmentsRequest(body: AppointmentsToCreate) =
-      webTestClient.post().uri("/api/appointments")
-        .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(APPLICATION_JSON)
-        .body(BodyInserters.fromValue(body))
-        .exchange()
+    private fun makeCreateAppointmentsRequest(body: AppointmentsToCreate) = webTestClient.post().uri("/api/appointments")
+      .headers(setAuthorisation(listOf("BULK_APPOINTMENTS")))
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .accept(APPLICATION_JSON)
+      .body(BodyInserters.fromValue(body))
+      .exchange()
 
     private fun createAppointmentBody(): AppointmentsToCreate {
       val now = LocalDateTime.now().plusHours(5).truncatedTo(ChronoUnit.SECONDS)

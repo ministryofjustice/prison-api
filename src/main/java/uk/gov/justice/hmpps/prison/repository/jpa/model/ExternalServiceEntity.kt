@@ -30,7 +30,5 @@ data class ExternalServiceEntity(
     return serviceName == other.serviceName
   }
 
-  override fun hashCode(): Int {
-    return this.javaClass.hashCode()
-  }
+  override fun hashCode(): Int = this.javaClass.hashCode()
 }

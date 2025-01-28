@@ -13,13 +13,12 @@ class BookingResourceIntTest_getEvents : ResourceTest() {
   @Nested
   @TestInstance(PER_CLASS)
   inner class SecureEndpoints {
-    private fun secureEndpoints() =
-      listOf(
-        "/api/bookings/{bookingId}/events",
-        "/api/bookings/{bookingId}/events/today",
-        "/api/bookings/{bookingId}/events/thisWeek",
-        "/api/bookings/{bookingId}/events/nextWeek",
-      )
+    private fun secureEndpoints() = listOf(
+      "/api/bookings/{bookingId}/events",
+      "/api/bookings/{bookingId}/events/today",
+      "/api/bookings/{bookingId}/events/thisWeek",
+      "/api/bookings/{bookingId}/events/nextWeek",
+    )
 
     @ParameterizedTest
     @MethodSource("secureEndpoints")

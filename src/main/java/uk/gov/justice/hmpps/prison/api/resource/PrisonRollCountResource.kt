@@ -60,8 +60,7 @@ class PrisonRollCountResource(
     @PathVariable
     prisonId: String,
     @RequestParam(name = "include-cells", required = false, defaultValue = "false") includeCells: Boolean = false,
-  ): PrisonRollCount =
-    prisonRollCountService.getPrisonRollCount(prisonId, includeCells)
+  ): PrisonRollCount = prisonRollCountService.getPrisonRollCount(prisonId, includeCells)
 
   @GetMapping("/summary")
   @ResponseStatus(HttpStatus.OK)
@@ -91,8 +90,7 @@ class PrisonRollCountResource(
     @Schema(description = "Prison Id", example = "MDI", required = true, minLength = 3, maxLength = 5, pattern = "^[A-Z]{2}I|ZZGHI$")
     @PathVariable
     prisonId: String,
-  ): PrisonRollSummary =
-    prisonRollCountService.getPrisonRollSummary(prisonId)
+  ): PrisonRollSummary = prisonRollCountService.getPrisonRollSummary(prisonId)
 
   @GetMapping("/cells-only/{locationId}")
   @ResponseStatus(HttpStatus.OK)
@@ -125,8 +123,7 @@ class PrisonRollCountResource(
     @Schema(description = "Location ID of parent of the cells", required = true, example = "1212312")
     @PathVariable
     locationId: String,
-  ): PrisonRollCount =
-    prisonRollCountService.getPrisonCellRollCount(prisonId, locationId)
+  ): PrisonRollCount = prisonRollCountService.getPrisonCellRollCount(prisonId, locationId)
 
   @GetMapping("/movement-count")
   @ResponseStatus(HttpStatus.OK)

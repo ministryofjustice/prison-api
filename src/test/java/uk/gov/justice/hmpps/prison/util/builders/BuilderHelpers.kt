@@ -167,13 +167,11 @@ fun TestDataContext.transferOutToTemporaryAbsence(
   return movementTime
 }
 
-private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<HttpHeaders> {
-  return Consumer { httpHeaders: HttpHeaders ->
-    httpHeaders.add(
-      "Authorization",
-      "Bearer " + this.validToken(roles),
-    )
-  }
+private fun TestDataContext.setAuthorisation(roles: List<String>): Consumer<HttpHeaders> = Consumer { httpHeaders: HttpHeaders ->
+  httpHeaders.add(
+    "Authorization",
+    "Bearer " + this.validToken(roles),
+  )
 }
 
 fun TestDataContext.validToken(roles: List<String>): String = this.jwtAuthenticationHelper.createJwtAccessToken(
@@ -236,8 +234,7 @@ fun TestDataContext.createCourtHearing(bookingId: Long): Long {
 }
 
 fun TestDataContext.getMovements(bookingId: Long): List<ExternalMovement> = this.dataLoader.externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
-fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> =
-  this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
+fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> = this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
 
 fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestClient.get()
   .uri("/api/offenders/{offenderNo}/case-notes/v2?size=999", offenderNo)
@@ -252,29 +249,20 @@ fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestCl
   .expectStatus().isOk
   .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
 
-fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> =
-  this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
+fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> = this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 
-fun TestDataContext.getScheduledMovements(bookingId: Long): List<OffenderIndividualSchedule> =
-  this.dataLoader.scheduleRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
+fun TestDataContext.getScheduledMovements(bookingId: Long): List<OffenderIndividualSchedule> = this.dataLoader.scheduleRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 
-fun TestDataContext.getSentenceAdjustments(bookingId: Long): List<SentenceAdjustment> =
-  this.dataLoader.offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
+fun TestDataContext.getSentenceAdjustments(bookingId: Long): List<SentenceAdjustment> = this.dataLoader.offenderSentenceAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
 
-fun TestDataContext.getKeyDateAdjustments(bookingId: Long): List<KeyDateAdjustment> =
-  this.dataLoader.offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
+fun TestDataContext.getKeyDateAdjustments(bookingId: Long): List<KeyDateAdjustment> = this.dataLoader.offenderKeyDateAdjustmentRepository.findAllByOffenderBooking_BookingId(bookingId)
 
-fun TestDataContext.getOffenderPayStatus(bookingId: Long): List<OffenderPayStatus> =
-  this.dataLoader.offenderPayStatusRepository.findAllByBookingId(bookingId)
+fun TestDataContext.getOffenderPayStatus(bookingId: Long): List<OffenderPayStatus> = this.dataLoader.offenderPayStatusRepository.findAllByBookingId(bookingId)
 
-fun TestDataContext.getOffenderNoPayPeriods(bookingId: Long): List<OffenderNoPayPeriod> =
-  this.dataLoader.offenderNoPayPeriodRepository.findAllByBookingId(bookingId)
+fun TestDataContext.getOffenderNoPayPeriods(bookingId: Long): List<OffenderNoPayPeriod> = this.dataLoader.offenderNoPayPeriodRepository.findAllByBookingId(bookingId)
 
-fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: String): List<OffenderProgramProfile> =
-  this.dataLoader.offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, programStatus)
+fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: String): List<OffenderProgramProfile> = this.dataLoader.offenderProgramProfileRepository.findByOffenderBooking_BookingIdAndProgramStatus(bookingId, programStatus)
 
-fun TestDataContext.getOffenderBooking(bookingId: Long): OffenderBooking? =
-  this.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElse(null)
+fun TestDataContext.getOffenderBooking(bookingId: Long): OffenderBooking? = this.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElse(null)
 
-fun TestDataContext.getOffenderBooking(offenderNo: String, active: Boolean = true): OffenderBooking? =
-  this.dataLoader.offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElse(null)
+fun TestDataContext.getOffenderBooking(offenderNo: String, active: Boolean = true): OffenderBooking? = this.dataLoader.offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElse(null)

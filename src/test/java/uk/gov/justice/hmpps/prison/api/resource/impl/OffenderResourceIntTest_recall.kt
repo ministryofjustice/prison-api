@@ -517,18 +517,17 @@ class OffenderResourceIntTest_recall : ResourceTest() {
     }
   }
 
-  private fun getOffender(offenderNo: String): StatusAssertions =
-    webTestClient.get()
-      .uri("/api/offenders/{offenderNo}", offenderNo)
-      .headers(
-        setAuthorisation(
-          listOf("ROLE_VIEW_PRISONER_DATA"),
-        ),
-      )
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus()
+  private fun getOffender(offenderNo: String): StatusAssertions = webTestClient.get()
+    .uri("/api/offenders/{offenderNo}", offenderNo)
+    .headers(
+      setAuthorisation(
+        listOf("ROLE_VIEW_PRISONER_DATA"),
+      ),
+    )
+    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus()
 
   fun createActiveBooking(prisonId: String = "MDI"): String = OffenderBuilder().withBooking(
     OffenderBookingBuilder(
@@ -536,33 +535,30 @@ class OffenderResourceIntTest_recall : ResourceTest() {
     ),
   ).save(testDataContext).offenderNo
 
-  fun createPrisonerWithNoBooking(): String =
-    OffenderBuilder(bookingBuilders = arrayOf()).save(testDataContext).offenderNo
+  fun createPrisonerWithNoBooking(): String = OffenderBuilder(bookingBuilders = arrayOf()).save(testDataContext).offenderNo
 
-  fun createInactiveBooking(iepLevel: String = "ENH", imprisonmentStatus: String = "SENT03"): String =
-    OffenderBuilder().withBooking(
-      OffenderBookingBuilder(
-        prisonId = "MDI",
-        released = true,
-        imprisonmentStatus = imprisonmentStatus,
-      ).withIEPLevel(iepLevel),
-    ).save(testDataContext).offenderNo
+  fun createInactiveBooking(iepLevel: String = "ENH", imprisonmentStatus: String = "SENT03"): String = OffenderBuilder().withBooking(
+    OffenderBookingBuilder(
+      prisonId = "MDI",
+      released = true,
+      imprisonmentStatus = imprisonmentStatus,
+    ).withIEPLevel(iepLevel),
+  ).save(testDataContext).offenderNo
 
-  private fun recallOffender(offenderNo: String, body: String): StatusAssertions =
-    webTestClient.put()
-      .uri("/api/offenders/{offenderNo}/recall", offenderNo)
-      .headers(
-        setAuthorisation(
-          listOf("ROLE_TRANSFER_PRISONER"),
-        ),
-      )
-      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-      .bodyValue(
-        body.trimIndent(),
-      )
-      .accept(MediaType.APPLICATION_JSON)
-      .exchange()
-      .expectStatus()
+  private fun recallOffender(offenderNo: String, body: String): StatusAssertions = webTestClient.put()
+    .uri("/api/offenders/{offenderNo}/recall", offenderNo)
+    .headers(
+      setAuthorisation(
+        listOf("ROLE_TRANSFER_PRISONER"),
+      ),
+    )
+    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+    .bodyValue(
+      body.trimIndent(),
+    )
+    .accept(MediaType.APPLICATION_JSON)
+    .exchange()
+    .expectStatus()
 
   private fun StatusAssertions.inmate() = this.isOk
     .returnResult(InmateDetail::class.java)

@@ -27,22 +27,18 @@ class ImageService(
   private val offenderBookingRepository: OffenderBookingRepository,
 ) {
 
-  fun findOffenderImagesFor(offenderNumber: String): List<ImageDetail> =
-    offenderImageRepository.getImagesByOffenderNumber(offenderNumber)
-      .map(OffenderImage::transform)
+  fun findOffenderImagesFor(offenderNumber: String): List<ImageDetail> = offenderImageRepository.getImagesByOffenderNumber(offenderNumber)
+    .map(OffenderImage::transform)
 
-  fun findImageDetail(imageId: Long): ImageDetail =
-    offenderImageRepository.findById(imageId)
-      .map(OffenderImage::transform)
-      .orElseThrow(EntityNotFoundException.withId(imageId))
+  fun findImageDetail(imageId: Long): ImageDetail = offenderImageRepository.findById(imageId)
+    .map(OffenderImage::transform)
+    .orElseThrow(EntityNotFoundException.withId(imageId))
 
-  fun getImageContent(imageId: Long, fullSizeImage: Boolean): Optional<ByteArray> =
-    offenderImageRepository.findById(imageId)
-      .map { if (fullSizeImage) it.fullSizeImage else it.thumbnailImage }
+  fun getImageContent(imageId: Long, fullSizeImage: Boolean): Optional<ByteArray> = offenderImageRepository.findById(imageId)
+    .map { if (fullSizeImage) it.fullSizeImage else it.thumbnailImage }
 
-  fun getImageContent(offenderNo: String, fullSizeImage: Boolean): Optional<ByteArray> =
-    offenderImageRepository.findLatestByOffenderNumber(offenderNo)
-      .map { if (fullSizeImage) it.fullSizeImage else it.thumbnailImage }
+  fun getImageContent(offenderNo: String, fullSizeImage: Boolean): Optional<ByteArray> = offenderImageRepository.findLatestByOffenderNumber(offenderNo)
+    .map { if (fullSizeImage) it.fullSizeImage else it.thumbnailImage }
 
   @Transactional
   fun putImageForOffender(offenderNumber: String, receivedImage: InputStream): ImageDetail {
