@@ -166,8 +166,10 @@ class PrisonerProfileUpdateServiceTest {
 
     @BeforeEach
     internal fun setUp() {
-      whenever(profileTypeRepository.findByTypeAndCategoryAndActive(eq(NATIONALITY_PROFILE_TYPE_CODE), any(), any()))
+      whenever(profileTypeRepository.findByTypeAndCategory(eq(NATIONALITY_PROFILE_TYPE_CODE), any()))
         .thenReturn(Optional.of(NATIONALITY_PROFILE_TYPE))
+      whenever(profileTypeRepository.findByTypeAndCategory(eq(OTHER_NATIONALITIES_PROFILE_TYPE_CODE), any()))
+        .thenReturn(Optional.of(OTHER_NATIONALITIES_PROFILE_TYPE))
       whenever(profileCodeRepository.findById(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE)))
         .thenReturn(Optional.of(BRITISH_NATIONALITY))
     }
@@ -175,40 +177,73 @@ class PrisonerProfileUpdateServiceTest {
     @ParameterizedTest
     @ValueSource(strings = ["BRIT", "BriT"])
     internal fun `updates nationality`(nationalityCode: String) {
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
-      whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
+      val otherNationalitiesProfileDetail: OffenderProfileDetail = mock()
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, NATIONALITY_PROFILE_TYPE)).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, OTHER_NATIONALITIES_PROFILE_TYPE)).thenReturn(
+        Optional.of(otherNationalitiesProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
+      whenever(booking.profileDetails).thenReturn(mutableListOf(offenderProfileDetail))
       whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
+      whenever(otherNationalitiesProfileDetail.profileCode).thenReturn("Original nationalities")
 
-      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, nationalityCode)
-
+      prisonerProfileUpdateService.updateNationalityOfLatestBooking(
+        PRISONER_NUMBER,
+        nationalityCode,
+        "Updated nationalities",
+      )
       verify(offenderProfileDetail).setProfileCode(BRITISH_NATIONALITY)
+      verify(otherNationalitiesProfileDetail).profileCode = "Updated nationalities"
     }
 
     @Test
     internal fun `adds nationality when missing`() {
       val profileDetails = mutableListOf<OffenderProfileDetail>()
 
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.empty())
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(
+        Optional.empty(),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(booking),
+      )
       whenever(booking.profileDetails).thenReturn(profileDetails)
 
-      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE)
+      prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, BRITISH_NATIONALITY_CODE, "Added nationalities")
 
-      assertThat(booking.profileDetails).hasSize(1)
+      assertThat(booking.profileDetails).hasSize(2)
       with(booking.profileDetails[0]) {
         assertThat(code).isEqualTo(BRITISH_NATIONALITY)
+      }
+      with(booking.profileDetails[1]) {
+        assertThat(profileCode).isEqualTo("Added nationalities")
       }
     }
 
     @Test
     internal fun `removes nationality`() {
+      val otherNationalitiesProfileDetail: OffenderProfileDetail = mock()
       val profileDetails = mutableListOf(offenderProfileDetail)
 
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, NATIONALITY_PROFILE_TYPE)).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, OTHER_NATIONALITIES_PROFILE_TYPE)).thenReturn(
+        Optional.of(otherNationalitiesProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(booking.profileDetails).thenReturn(profileDetails)
       whenever(offenderProfileDetail.code).thenReturn(FRENCH_NATIONALITY)
+      whenever(otherNationalitiesProfileDetail.profileCode).thenReturn("Existing nationalities")
 
       prisonerProfileUpdateService.updateNationalityOfLatestBooking(PRISONER_NUMBER, null)
 
@@ -230,11 +265,10 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
-    internal fun `throws exception if there isn't a matching profile type`() {
+    internal fun `throws exception if there isn't a matching NAT profile type`() {
       whenever(
-        profileTypeRepository.findByTypeAndCategoryAndActive(
+        profileTypeRepository.findByTypeAndCategory(
           eq(NATIONALITY_PROFILE_TYPE_CODE),
-          any(),
           any(),
         ),
       ).thenReturn(Optional.empty())
@@ -250,7 +284,12 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
-    internal fun `throws exception if there isn't a matching profile code`() {
+    internal fun `throws exception if there isn't a matching profile code for nationality`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(profileCodeRepository.findById(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE)))
         .thenReturn(Optional.empty())
 
@@ -266,7 +305,11 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
@@ -297,8 +340,14 @@ class PrisonerProfileUpdateServiceTest {
     @ValueSource(strings = ["DRU", "drU"])
     internal fun `updates religion and history`(religionCode: String) {
       val request = UpdateReligion(religionCode, "some comment", LocalDate.now(), true)
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
       whenever(booking.rootOffender).thenReturn(offender)
       whenever(offender.id).thenReturn(123456L)
@@ -307,7 +356,8 @@ class PrisonerProfileUpdateServiceTest {
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
-      verify(offenderProfileDetail, never()).setProfileCode(any())
+      verify(offenderProfileDetail, never()).setProfileCode(any<ProfileCode>())
+      verify(offenderProfileDetail, never()).profileCode = any<String>()
       verify(offenderBeliefRepository).save(beliefCaptor.capture())
       val belief = beliefCaptor.value
       assertThat(belief.booking).isEqualTo(booking)
@@ -324,8 +374,14 @@ class PrisonerProfileUpdateServiceTest {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
       val profileDetails = mutableListOf<OffenderProfileDetail>()
 
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.empty())
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(
+        Optional.empty(),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(booking.profileDetails).thenReturn(profileDetails)
       whenever(booking.rootOffender).thenReturn(offender)
       whenever(offender.id).thenReturn(123456L)
@@ -349,8 +405,14 @@ class PrisonerProfileUpdateServiceTest {
     internal fun `does not update religion or history if the new value matches the existing value`() {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
       val profileDetails = mutableListOf<OffenderProfileDetail>()
-      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(Optional.of(offenderProfileDetail))
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(booking.profileDetails).thenReturn(profileDetails)
       whenever(booking.rootOffender).thenReturn(offender)
       whenever(offender.id).thenReturn(123456L)
@@ -358,7 +420,8 @@ class PrisonerProfileUpdateServiceTest {
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
-      verify(offenderProfileDetail, never()).setProfileCode(any())
+      verify(offenderProfileDetail, never()).setProfileCode(any<ProfileCode>())
+      verify(offenderProfileDetail, never()).profileCode = any<String>()
       verify(offenderBeliefRepository, never()).save(any())
     }
 
@@ -419,7 +482,11 @@ class PrisonerProfileUpdateServiceTest {
     @Test
     internal fun `throws exception if there isn't a user profile matching the username`() {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(staffUserAccountRepository.findByUsername(USERNAME)).thenReturn(Optional.empty())
 
       assertThatThrownBy {
@@ -436,7 +503,11 @@ class PrisonerProfileUpdateServiceTest {
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(
+          booking,
+        ),
+      )
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
@@ -468,6 +539,20 @@ class PrisonerProfileUpdateServiceTest {
       ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, BRITISH_NATIONALITY_CODE), "British", true, true, null, null)
     val FRENCH_NATIONALITY =
       ProfileCode(ProfileCode.PK(NATIONALITY_PROFILE_TYPE, "FREN"), "French", true, true, null, null)
+
+    const val OTHER_NATIONALITIES_PROFILE_TYPE_CODE = "NATIO"
+    val OTHER_NATIONALITIES_PROFILE_TYPE =
+      ProfileType(
+        OTHER_NATIONALITIES_PROFILE_TYPE_CODE,
+        "PI",
+        "Other nationalities",
+        false,
+        true,
+        "TEXT",
+        true,
+        null,
+        null,
+      )
 
     const val RELIGION_PROFILE_TYPE_CODE = "RELF"
     val RELIGION_PROFILE_TYPE =

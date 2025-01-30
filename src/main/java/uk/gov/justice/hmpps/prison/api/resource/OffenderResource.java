@@ -1002,7 +1002,7 @@ public class OffenderResource {
         @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
         @RequestBody @NotNull @Valid final UpdateNationality updateNationality
     ) {
-        prisonerProfileUpdateService.updateNationalityOfLatestBooking(prisonerNumber, updateNationality.getNationality());
+        prisonerProfileUpdateService.updateNationalityOfLatestBooking(prisonerNumber, updateNationality.getNationality(), updateNationality.getOtherNationalities());
     }
 
     @ApiResponses({

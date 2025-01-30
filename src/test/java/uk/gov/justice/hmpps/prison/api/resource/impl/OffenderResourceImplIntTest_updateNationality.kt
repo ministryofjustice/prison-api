@@ -111,6 +111,26 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
       assertThat(
         offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, nationalityProfileType(), 1)).get().code.id.code,
       ).isEqualTo("BRIT")
+      assertThat(
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, otherNationalitiesProfileType(), 1)).get().profileCode,
+      ).isEqualTo("Irish")
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should allow an update to nationality only, without providing any detail for other nationalities`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AA/nationality")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(MINIMAL_NATIONALITY_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
+      assertThat(
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, nationalityProfileType(), 1)).get().code.id.code,
+      ).isEqualTo("BRIT")
     }
 
     @Test
@@ -130,7 +150,26 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
       ).isEmpty
     }
 
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should allow other nationalities to be removed`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AA/nationality")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(NULL_OTHER_NATIONALITIES_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
+      assertThat(
+        offenderProfileDetailRepository.findById(OffenderProfileDetail.PK(booking, otherNationalitiesProfileType(), 1)),
+      ).isEmpty
+    }
+
     private fun nationalityProfileType(): ProfileType = profileTypeRepository.findByTypeAndCategoryAndActive("NAT", "PI", true).get()
+
+    private fun otherNationalitiesProfileType(): ProfileType = profileTypeRepository.findByTypeAndCategory("NATIO", "PI").get()
   }
 
   @Nested
@@ -164,7 +203,7 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
     @Test
     fun `returns status 423 (locked) when database row lock times out`() {
       doThrow(DatabaseRowLockedException("developer message"))
-        .whenever(prisonerProfileUpdateService).updateNationalityOfLatestBooking(anyString(), anyString())
+        .whenever(prisonerProfileUpdateService).updateNationalityOfLatestBooking(anyString(), anyString(), anyString())
 
       webTestClient.put()
         .uri("api/offenders/A1234AA/nationality")
@@ -184,15 +223,30 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
       // language=json
       """
         {
+          "nationality": "BRIT",
+          "otherNationalities": "Irish"
+        }
+      """
+    const val MINIMAL_NATIONALITY_UPDATE =
+      // language=json
+      """
+        {
           "nationality": "BRIT"
         }
       """
-
     const val NULL_NATIONALITY_UPDATE =
       // language=json
       """
         {
           "nationality": null 
+        }
+      """
+    const val NULL_OTHER_NATIONALITIES_UPDATE =
+      // language=json
+      """
+        {
+          "nationality": "BRIT",
+          "otherNationalities": null
         }
       """
 
