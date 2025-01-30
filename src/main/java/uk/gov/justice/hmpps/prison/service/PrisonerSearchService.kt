@@ -83,8 +83,8 @@ class PrisonerSearchService(
     lastMovementTypeCode: String?,
     lastMovementReasonCode: String?,
   ) = externalMovements?.filter { em ->
-    em.movementType.code == lastMovementTypeCode &&
-      em.movementReason.code == lastMovementReasonCode
+    em.movementType?.code == lastMovementTypeCode &&
+      em.movementReason?.code == lastMovementReasonCode
   }
     ?.maxByOrNull { em -> em.movementTime }
     ?.movementTime

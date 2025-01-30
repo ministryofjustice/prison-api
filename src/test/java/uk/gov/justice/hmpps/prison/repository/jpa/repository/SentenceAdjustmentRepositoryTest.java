@@ -69,8 +69,22 @@ public class SentenceAdjustmentRepositoryTest {
                             .build(),
                     SentenceAdjustment.builder()
                             .id(-14L)
+                            .build(),
+                    SentenceAdjustment.builder()
+                            .id(-15L)
+                            .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                            .sentenceAdjustCode("TCA")
+                            .active(true)
+                            .adjustDays(8)
+                            .build(),
+                    SentenceAdjustment.builder()
+                            .id(-16L)
+                            .offenderBooking(OffenderBooking.builder().bookingId(-6L).build())
+                            .sentenceAdjustCode("TSA")
+                            .active(true)
+                            .adjustDays(9)
                             .build()
-                );
+                        );
 
         final var sentenceAdjustments = repository.findAllByOffenderBooking_BookingId(-6L);
 

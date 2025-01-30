@@ -14,7 +14,7 @@ import java.util.List;
 @Builder
 @Data
 public class BookingAndSentenceAdjustments {
-    @Schema(description = "Adjustments associated at a sentence level (of type RECALL_SENTENCE_REMAND, TAGGED_BAIL, RECALL_SENTENCE_TAGGED_BAIL, REMAND or UNUSED_REMAND)")
+    @Schema(description = "Adjustments associated at a sentence level (of type RECALL_SENTENCE_REMAND, TAGGED_BAIL, RECALL_SENTENCE_TAGGED_BAIL, REMAND, UNUSED_REMAND, TIME_SPENT_IN_CUSTODY_ABROAD or TIME_SPENT_AS_AN_APPEAL_APPLICANT)")
     private List<SentenceAdjustmentValues> sentenceAdjustments;
 
     @Schema(description = "Adjustments associated at a booking level (of type SPECIAL_REMISSION, ADDITIONAL_DAYS_AWARDED, RESTORED_ADDITIONAL_DAYS_AWARDED, UNLAWFULLY_AT_LARGE, LAWFULLY_AT_LARGE)")
