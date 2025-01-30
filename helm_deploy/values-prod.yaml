@@ -10,25 +10,8 @@ generic-service:
       - prum-prod
       - mod-platform-live # oasys-api-client
       - delius-prod
-
-    # copied from unilink client in HMPPS Auth
-    unilink-prod-1: "18.130.83.42/32"
-    unilink-prod-2: "51.104.212.188/32"
-    unilink-prod-3: "51.132.159.34/32"
-    unilink-prod-4: "51.132.208.80/32"
-    unilink-prod-5: "52.56.132.127/32"
-    unilink-prod-6: "51.132.208.67/32"
-    unilink-prod-7: "51.132.208.122/32"
-    unilink-prod-8: "51.132.208.113/32"
-    unilink-prod-9: "20.50.98.17/32"
-    unilink-prod-10: "20.50.97.130/32"
-    unilink-prod-11: "20.49.147.12/32"
-    unilink-prod-12: "20.49.147.10/32"
-    unilink-prod-13: "20.26.218.189/32"
-    unilink-prod-14: "51.155.55.241/32"
-    unilink-prod-15: "34.142.69.222/32"
-    unilink-prod-16: "35.234.149.158/32"
-    unilink-prod-17: "20.108.124.58/32"
+      - unilink-api
+      - unilink-api-prod
 
     # copied from curious-sync-client / meganexus client and see #meganexus-collaboration
     curious-prod-1: "51.142.161.93/32"
