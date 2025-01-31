@@ -69,6 +69,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
+import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
@@ -1023,6 +1024,26 @@ public class OffenderResource {
             prisonerNumber,
             updateReligion,
             hmppsAuthenticationHolder.getUsername()
+        );
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "The smoker status has been updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update the prisoner's smoker status on the current alias. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PutMapping("/{offenderNo}/smoker")
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ResponseStatus(NO_CONTENT)
+    @ProxyUser
+    public void updateSmokerStatus(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @RequestBody @NotNull @Valid final UpdateSmokerStatus updateSmokerStatus
+    ) {
+        prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(
+            prisonerNumber,
+            updateSmokerStatus
         );
     }
 }

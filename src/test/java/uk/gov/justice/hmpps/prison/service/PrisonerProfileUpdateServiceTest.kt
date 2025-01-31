@@ -17,6 +17,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
+import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
@@ -522,6 +523,135 @@ class PrisonerProfileUpdateServiceTest {
     }
   }
 
+  @Nested
+  inner class UpdateSmokerStatusOfLatestBooking {
+
+    @BeforeEach
+    internal fun setUp() {
+      whenever(profileTypeRepository.findByTypeAndCategory(eq(SMOKER_PROFILE_TYPE_CODE), any()))
+        .thenReturn(Optional.of(SMOKER_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_YES_CODE)))
+        .thenReturn(Optional.of(SMOKER_YES))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["Y", "y"])
+    internal fun `updates smoker status`(smokerStatusCode: String) {
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, SMOKER_PROFILE_TYPE)).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(mutableListOf(offenderProfileDetail))
+      whenever(offenderProfileDetail.code).thenReturn(SMOKER_NO)
+
+      prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(
+        PRISONER_NUMBER,
+        UpdateSmokerStatus(SMOKER_YES_CODE),
+      )
+
+      verify(offenderProfileDetail).setProfileCode(SMOKER_YES)
+    }
+
+    @Test
+    internal fun `adds smoker status when missing`() {
+      val profileDetails = mutableListOf<OffenderProfileDetail>()
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
+        .thenReturn(Optional.empty())
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+
+      prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(PRISONER_NUMBER, UpdateSmokerStatus(SMOKER_YES_CODE))
+
+      assertThat(booking.profileDetails).hasSize(1)
+      with(booking.profileDetails[0]) { assertThat(code).isEqualTo(SMOKER_YES) }
+    }
+
+    @Test
+    internal fun `removes smoker status`() {
+      val otherNationalitiesProfileDetail: OffenderProfileDetail = mock()
+      val profileDetails = mutableListOf(offenderProfileDetail)
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, SMOKER_PROFILE_TYPE))
+        .thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(offenderProfileDetail.code).thenReturn(SMOKER_YES)
+
+      prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(PRISONER_NUMBER, UpdateSmokerStatus(smokerStatus = null))
+
+      assertThat(profileDetails).isEmpty()
+    }
+
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(PRISONER_NUMBER, UpdateSmokerStatus(SMOKER_YES_CODE))
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching SMOKE profile type`() {
+      whenever(
+        profileTypeRepository.findByTypeAndCategory(
+          eq(SMOKER_PROFILE_TYPE_CODE),
+          any(),
+        ),
+      ).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSmokerStatus(SMOKER_YES_CODE),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Resource with id [${SMOKER_PROFILE_TYPE_CODE}] not found.")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching profile code for smoker status`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(
+          Optional.of(booking),
+        )
+      whenever(profileCodeRepository.findById(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_YES_CODE)))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSmokerStatus(SMOKER_YES_CODE),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Profile Code for ${SMOKER_PROFILE_TYPE_CODE} and ${SMOKER_YES_CODE} not found")
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSmokerStatusOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSmokerStatus(SMOKER_YES_CODE),
+        )
+      }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
   private companion object {
     const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
@@ -561,6 +691,16 @@ class PrisonerProfileUpdateServiceTest {
       ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE), "Druid", true, true, null, null)
     val ZOROASTRIAN_RELIGION =
       ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, "ZORO"), "Zoroastrian", true, true, null, null)
+
+    const val SMOKER_PROFILE_TYPE_CODE = "SMOKE"
+    val SMOKER_PROFILE_TYPE =
+      ProfileType(SMOKER_PROFILE_TYPE_CODE, "PI", "Smoker", false, true, "CODE", true, null, null)
+    const val SMOKER_NO_CODE = "N"
+    const val SMOKER_YES_CODE = "Y"
+    val SMOKER_NO =
+      ProfileCode(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_NO_CODE), "No", true, true, null, null)
+    val SMOKER_YES =
+      ProfileCode(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_YES_CODE), "Yes", true, true, null, null)
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")
