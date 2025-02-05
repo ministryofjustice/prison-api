@@ -6,6 +6,7 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
+import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
@@ -95,6 +96,23 @@ class PrisonerProfileUpdateService(
       // Profile details are updated by the OFFENDER_BELIEFS_T1 trigger
       updateBeliefHistory(prisonerNumber, latestBooking, profileCode, request, user)
     }
+  }
+
+  @Transactional
+  fun updateSmokerStatusOfLatestBooking(prisonerNumber: String, request: UpdateSmokerStatus) {
+    val profileType = profileTypeRepository.profileType(SMOKER_PROFILE_TYPE).getOrThrow()
+    val profileCode = when (request.smokerStatus) {
+      null -> null
+      else -> profileCode(profileType, request.smokerStatus)
+        ?: throw EntityNotFoundException.withMessage(
+          "Smoker profile code with code %s not found",
+          request.smokerStatus,
+        )
+    }
+
+    val latestBooking = latestBooking(prisonerNumber)
+
+    updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode?.id?.code)
   }
 
   private fun updateProfileDetailsOfBooking(
@@ -246,6 +264,7 @@ class PrisonerProfileUpdateService(
     const val NATIONALITY_PROFILE_TYPE = "NAT"
     const val OTHER_NATIONALITIES_PROFILE_TYPE = "NATIO"
     const val RELIGION_PROFILE_TYPE = "RELF"
+    const val SMOKER_PROFILE_TYPE = "SMOKE"
     val FREE_TEXT_PROFILE_CODES = listOf(OTHER_NATIONALITIES_PROFILE_TYPE)
   }
 }
