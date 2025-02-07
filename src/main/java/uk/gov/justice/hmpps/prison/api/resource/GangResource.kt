@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.service.GangService
 
 @RestController
 @Tag(name = "gang")
+@Tag(name = "integration-api")
 @Validated
 @RequestMapping(value = ["/api/gang"], produces = ["application/json"])
 class GangResource(private val gangService: GangService) {
