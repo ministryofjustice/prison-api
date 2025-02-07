@@ -42,7 +42,7 @@ class GangResource(private val gangService: GangService) {
     ),
   )
   @Operation(summary = "Returns a list of gangs for a prisoner and the gang non-associations and their members")
-  @PreAuthorize("hasRole('VIEW_GANG')")
+  @PreAuthorize("hasAnyRole('VIEW_GANG', 'PRISON_API__HMPPS_INTEGRATION_API')")
   @GetMapping("/non-associations/{offenderNo}")
   fun getNonAssociationGangsForPrisoner(
     @PathVariable
