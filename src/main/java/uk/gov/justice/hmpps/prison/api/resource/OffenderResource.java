@@ -37,10 +37,10 @@ import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.CreateMilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecordRequest;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
@@ -67,7 +67,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthCountry;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.UpdateMilitaryRecord;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
@@ -787,9 +786,9 @@ public class OffenderResource {
     @ProxyUser
     public ResponseEntity<Void> createMilitaryRecord(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestBody @NotNull @Valid final CreateMilitaryRecord militaryRecord
+        @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
-        offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecord);
+        offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecordRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -800,16 +799,17 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update the prisoner's military record. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
-    @PutMapping("/{offenderNo}/military-records")
+    @PutMapping("/{offenderNo}/military-records/{militarySeq}")
     @VerifyOffenderAccess
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @ResponseStatus(NO_CONTENT)
     @ProxyUser
     public void updateMilitaryRecord(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestBody @NotNull @Valid final UpdateMilitaryRecord militaryRecord
+        @Parameter(name = "militarySeq", description = "Military record sequence number", example = "1", required = true) @PathVariable(value = "militarySeq") @NotNull final Integer militarySeq,
+        @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
-        offenderMilitaryRecordService.updateMilitaryRecord(offenderNo, militaryRecord);
+        offenderMilitaryRecordService.updateMilitaryRecord(offenderNo, militarySeq, militaryRecordRequest);
     }
 
     @ApiResponses({

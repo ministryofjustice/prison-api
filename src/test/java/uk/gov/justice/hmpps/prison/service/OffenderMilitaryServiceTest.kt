@@ -12,10 +12,9 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
-import uk.gov.justice.hmpps.prison.api.model.CreateMilitaryRecord
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecordRequest
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
-import uk.gov.justice.hmpps.prison.api.model.UpdateMilitaryRecord
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch
@@ -148,7 +147,7 @@ class OffenderMilitaryServiceTest {
   fun `updateMilitaryRecord should update existing record`() {
     stubSuccessfulRepositoryCall()
 
-    val militaryRecord = UPDATE_MILITARY_RECORD_TWO.copy(militarySeq = 1)
+    val militaryRecord = UPDATE_MILITARY_RECORD_TWO
 
     val existingRecord = OffenderMilitaryRecord.builder()
       .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(1L).build(), 1))
@@ -168,7 +167,7 @@ class OffenderMilitaryServiceTest {
 
     whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt())).thenReturn(existingRecord)
 
-    offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", militaryRecord)
+    offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
 
     verify(repository).save(existingRecord)
   }
@@ -182,7 +181,7 @@ class OffenderMilitaryServiceTest {
     whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt())).thenReturn(null)
 
     assertThrows<RuntimeException> {
-      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", militaryRecord)
+      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
     }
   }
 
@@ -196,7 +195,7 @@ class OffenderMilitaryServiceTest {
       .thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
     val exception = assertThrows<DatabaseRowLockedException> {
-      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", militaryRecord)
+      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
     }
 
     assertThat(exception.message).isEqualTo("Resource locked, possibly in use in P-Nomis.")
@@ -235,7 +234,7 @@ class OffenderMilitaryServiceTest {
       description = "second record",
       selectiveServicesFlag = false,
     )
-    private val CREATE_MILITARY_RECORD = CreateMilitaryRecord(
+    private val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2000-01-01"),
       endDate = LocalDate.parse("2020-10-17"),
@@ -250,8 +249,7 @@ class OffenderMilitaryServiceTest {
       militaryDischargeCode = "DIS",
       selectiveServicesFlag = false,
     )
-    private val UPDATE_MILITARY_RECORD_ONE = UpdateMilitaryRecord(
-      militarySeq = 1,
+    private val UPDATE_MILITARY_RECORD_ONE = MilitaryRecordRequest(
       warZoneCode = "AFG",
       startDate = LocalDate.parse("2000-01-01"),
       endDate = LocalDate.parse("2020-10-17"),
@@ -266,8 +264,7 @@ class OffenderMilitaryServiceTest {
       militaryDischargeCode = "DIS",
       selectiveServicesFlag = false,
     )
-    private val UPDATE_MILITARY_RECORD_TWO = UpdateMilitaryRecord(
-      militarySeq = 2,
+    private val UPDATE_MILITARY_RECORD_TWO = MilitaryRecordRequest(
       startDate = LocalDate.parse("2001-01-01"),
       militaryBranchCode = "NAV",
       description = "second record",

@@ -6,14 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema
 import java.time.LocalDate
 
 @JsonInclude(Include.NON_NULL)
-@Schema(description = "Update military record.")
-data class UpdateMilitaryRecord(
-  @Schema(
-    description = "Sequence number of the military record within the booking.",
-    example = "1",
-  )
-  val militarySeq: Int,
-
+@Schema(description = "Military record request object. Used to create or update a military record.")
+data class MilitaryRecordRequest(
   @Schema(
     description = "Code identifying the war zone where the service took place.",
     example = "AFG",
