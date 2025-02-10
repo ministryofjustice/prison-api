@@ -4,8 +4,10 @@ import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.CreateMilitaryRecord
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
+import uk.gov.justice.hmpps.prison.api.model.UpdateMilitaryRecord
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch
@@ -43,7 +45,7 @@ class OffenderMilitaryRecordService(
     throw EntityNotFoundException.withId(offenderNo)
   }
 
-  fun createMilitaryRecord(offenderNo: String, militaryRecord: MilitaryRecord) {
+  fun createMilitaryRecord(offenderNo: String, militaryRecord: CreateMilitaryRecord) {
     val booking = getLatestOffenderBooking(offenderNo)
     val nextMilitarySeq = booking.militaryRecords.size + 1
 
@@ -95,10 +97,11 @@ class OffenderMilitaryRecordService(
     repository.save(offenderMilitaryRecord)
   }
 
-  fun updateMilitaryRecord(militaryRecord: MilitaryRecord) {
+  fun updateMilitaryRecord(offenderNo: String, militaryRecord: UpdateMilitaryRecord) {
+    val booking = getLatestOffenderBooking(offenderNo)
     try {
-      val record = repository.findByBookingIdAndMilitarySeqWithLock(militaryRecord.bookingId, militaryRecord.militarySeq)
-        ?: throw EntityNotFoundException("Military record not found with booking id ${militaryRecord.bookingId} and military sequence ${militaryRecord.militarySeq}")
+      val record = repository.findByBookingIdAndMilitarySeqWithLock(booking.bookingId, militaryRecord.militarySeq)
+        ?: throw EntityNotFoundException("Military record not found for prisoner number $offenderNo and military sequence ${militaryRecord.militarySeq}")
 
       with(record) {
         warZone = militaryRecord.warZoneCode?.let {
@@ -138,7 +141,7 @@ class OffenderMilitaryRecordService(
     } catch (error: CannotAcquireLockException) {
       log.error("Failed to acquire lock when updating military record", error)
       throw if (true == error.cause?.message?.contains("ORA-30006")) {
-        DatabaseRowLockedException("Failed to get OFFENDER_MILITARY_RECORD row lock for booking id ${militaryRecord.bookingId} and military sequence ${militaryRecord.militarySeq}")
+        DatabaseRowLockedException("Failed to get OFFENDER_MILITARY_RECORD row lock for booking id ${booking.bookingId} and military sequence ${militaryRecord.militarySeq}")
       } else {
         error
       }
