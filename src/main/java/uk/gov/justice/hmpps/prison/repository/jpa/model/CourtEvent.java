@@ -80,7 +80,7 @@ public class CourtEvent extends AuditableEntity {
     @Column(name = "START_TIME", nullable = false)
     private LocalDateTime startTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
@@ -88,7 +88,7 @@ public class CourtEvent extends AuditableEntity {
     })
     private MovementReason courtEventType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_STS + "'", referencedColumnName = "domain")),

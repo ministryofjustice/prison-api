@@ -1,31 +1,27 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import org.hibernate.annotations.JoinColumnOrFormula;
-import org.hibernate.annotations.JoinColumnsOrFormulas;
-import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Where;
-import uk.gov.justice.hmpps.prison.repository.converter.YesNoToBooleanConverter;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
 import jakarta.persistence.Embeddable;
 import jakarta.persistence.EmbeddedId;
 import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.EqualsAndHashCode;
+import lombok.NoArgsConstructor;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.Where;
+import org.hibernate.type.YesNoConverter;
+
 import java.io.Serializable;
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -99,11 +95,11 @@ public class OffenderEmployment {
     private Integer hoursWeek;
 
     @Column(name = "EMPLOYER_AWARE_FLAG")
-    @Convert(converter = YesNoToBooleanConverter.class)
+    @Convert(converter = YesNoConverter.class)
     private Boolean isEmployerAware;
 
     @Column(name = "CONTACT_EMPLOYER_FLAG")
-    @Convert(converter = YesNoToBooleanConverter.class)
+    @Convert(converter = YesNoConverter.class)
     private Boolean isEmployerContactable;
 
 

@@ -57,7 +57,7 @@ public class OffenderTeamAssignment extends AuditableEntity {
         private String functionTypeCode;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + FUNCTION_DOMAIN + "'", referencedColumnName = "domain")),

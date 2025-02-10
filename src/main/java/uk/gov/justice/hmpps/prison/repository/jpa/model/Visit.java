@@ -68,7 +68,7 @@ public class Visit extends AuditableEntity {
     @Column(nullable = false)
     private LocalDateTime endTime;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_TYPE + "'", referencedColumnName = "domain")),
@@ -76,7 +76,7 @@ public class Visit extends AuditableEntity {
     })
     private VisitType visitType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_STATUS + "'", referencedColumnName = "domain")),
@@ -112,7 +112,7 @@ public class Visit extends AuditableEntity {
     private List<VisitVisitor> visitors = new ArrayList<>();
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + SEARCH_LEVEL + "'", referencedColumnName = "domain")),

@@ -71,7 +71,7 @@ public class AdjudicationParty extends AuditableEntity {
     @Column(name = "PARTY_ADDED_DATE", nullable = false)
     private LocalDate partyAddedDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AdjudicationActionCode.TYPE + "'", referencedColumnName = "domain")),

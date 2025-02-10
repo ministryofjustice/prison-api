@@ -52,7 +52,7 @@ public class Team extends AuditableEntity {
     @Column(name = "TEAM_CODE")
     private String code;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TEAM_CATEGORY_DOMAIN + "'", referencedColumnName = "domain")),
@@ -70,7 +70,7 @@ public class Team extends AuditableEntity {
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + INSTITUTION_AREA_DOMAIN + "'", referencedColumnName = "domain")),

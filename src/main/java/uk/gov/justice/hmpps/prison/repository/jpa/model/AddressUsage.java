@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -55,7 +56,7 @@ public class AddressUsage extends AuditableEntity {
     @Convert(converter = YesNoConverter.class)
     private boolean active;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ADDRESS_TYPE + "'", referencedColumnName = "domain")),

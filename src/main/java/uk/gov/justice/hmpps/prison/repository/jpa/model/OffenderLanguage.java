@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,7 +65,7 @@ public class OffenderLanguage {
     @Column(name = "PREFERED_WRITE_FLAG")
     private String preferredWriteFlag;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LanguageReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),

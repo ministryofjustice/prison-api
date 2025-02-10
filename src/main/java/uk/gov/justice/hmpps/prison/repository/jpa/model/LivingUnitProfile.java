@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -64,7 +65,7 @@ public class LivingUnitProfile {
     @Column(name = "PROFILE_ID")
     private Long profileId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + HousingAttributeReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),

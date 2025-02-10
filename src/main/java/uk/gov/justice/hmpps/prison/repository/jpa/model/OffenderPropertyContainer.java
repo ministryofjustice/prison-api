@@ -51,7 +51,7 @@ public class OffenderPropertyContainer {
     @Column(name = "SEAL_MARK")
     private String sealMark;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CONTAINER + "'", referencedColumnName = "domain")),

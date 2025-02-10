@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.JoinColumn;
@@ -55,7 +56,7 @@ public class AgencyInternalLocationProfile {
     @Column(name = "INT_LOC_PROFILE_TYPE", nullable = false)
     private String profileType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + HousingAttributeReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),

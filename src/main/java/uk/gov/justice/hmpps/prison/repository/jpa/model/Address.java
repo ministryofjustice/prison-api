@@ -54,7 +54,7 @@ public abstract class Address extends AuditableEntity {
     @Column(name = "ADDRESS_ID", nullable = false)
     private Long addressId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + ADDR_TYPE + "'", referencedColumnName = "domain")),
@@ -90,7 +90,7 @@ public abstract class Address extends AuditableEntity {
     @Column(name = "END_DATE")
     private LocalDate endDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + COUNTY + "'", referencedColumnName = "domain")),
@@ -98,7 +98,7 @@ public abstract class Address extends AuditableEntity {
     })
     private County county;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CITY + "'", referencedColumnName = "domain")),
@@ -106,7 +106,7 @@ public abstract class Address extends AuditableEntity {
     })
     private City city;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + COUNTRY + "'", referencedColumnName = "domain")),
