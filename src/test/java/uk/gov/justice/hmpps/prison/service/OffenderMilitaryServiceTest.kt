@@ -13,6 +13,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecordRequest
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
@@ -135,7 +136,7 @@ class OffenderMilitaryServiceTest {
     stubSuccessfulRepositoryCall()
 
     val offenderNo = "A1234AA"
-    val militaryRecord = MILITARY_RECORD_ONE
+    val militaryRecord = CREATE_MILITARY_RECORD
 
     offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecord)
 
@@ -146,7 +147,7 @@ class OffenderMilitaryServiceTest {
   fun `updateMilitaryRecord should update existing record`() {
     stubSuccessfulRepositoryCall()
 
-    val militaryRecord = MILITARY_RECORD_TWO.copy(militarySeq = 1)
+    val militaryRecord = UPDATE_MILITARY_RECORD_TWO
 
     val existingRecord = OffenderMilitaryRecord.builder()
       .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(1L).build(), 1))
@@ -166,31 +167,35 @@ class OffenderMilitaryServiceTest {
 
     whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt())).thenReturn(existingRecord)
 
-    offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord)
+    offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
 
     verify(repository).save(existingRecord)
   }
 
   @Test
   fun `updateMilitaryRecord should throw exception if offender not found`() {
-    val militaryRecord = MILITARY_RECORD_ONE
+    stubSuccessfulRepositoryCall()
+
+    val militaryRecord = UPDATE_MILITARY_RECORD_ONE
 
     whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt())).thenReturn(null)
 
     assertThrows<RuntimeException> {
-      offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord)
+      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
     }
   }
 
   @Test
   fun `updateMilitaryRecord should throw DatabaseRowLockedException`() {
-    val militaryRecord = MILITARY_RECORD_ONE
+    stubSuccessfulRepositoryCall()
+
+    val militaryRecord = UPDATE_MILITARY_RECORD_ONE
 
     whenever(repository.findByBookingIdAndMilitarySeqWithLock(anyLong(), anyInt()))
       .thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
     val exception = assertThrows<DatabaseRowLockedException> {
-      offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord)
+      offenderMilitaryRecordService.updateMilitaryRecord("A1234AA", 1, militaryRecord)
     }
 
     assertThat(exception.message).isEqualTo("Resource locked, possibly in use in P-Nomis.")
@@ -226,6 +231,42 @@ class OffenderMilitaryServiceTest {
       startDate = LocalDate.parse("2001-01-01"),
       militaryBranchCode = "NAV",
       militaryBranchDescription = "Navy",
+      description = "second record",
+      selectiveServicesFlag = false,
+    )
+    private val CREATE_MILITARY_RECORD = MilitaryRecordRequest(
+      warZoneCode = "AFG",
+      startDate = LocalDate.parse("2000-01-01"),
+      endDate = LocalDate.parse("2020-10-17"),
+      militaryBranchCode = "ARM",
+      description = "left",
+      unitNumber = "auno",
+      enlistmentLocation = "Somewhere",
+      militaryRankCode = "LCPL_RMA",
+      serviceNumber = "asno",
+      disciplinaryActionCode = "CM",
+      dischargeLocation = "Sheffield",
+      militaryDischargeCode = "DIS",
+      selectiveServicesFlag = false,
+    )
+    private val UPDATE_MILITARY_RECORD_ONE = MilitaryRecordRequest(
+      warZoneCode = "AFG",
+      startDate = LocalDate.parse("2000-01-01"),
+      endDate = LocalDate.parse("2020-10-17"),
+      militaryBranchCode = "ARM",
+      description = "left",
+      unitNumber = "auno",
+      enlistmentLocation = "Somewhere",
+      militaryRankCode = "LCPL_RMA",
+      serviceNumber = "asno",
+      disciplinaryActionCode = "CM",
+      dischargeLocation = "Sheffield",
+      militaryDischargeCode = "DIS",
+      selectiveServicesFlag = false,
+    )
+    private val UPDATE_MILITARY_RECORD_TWO = MilitaryRecordRequest(
+      startDate = LocalDate.parse("2001-01-01"),
+      militaryBranchCode = "NAV",
       description = "second record",
       selectiveServicesFlag = false,
     )
