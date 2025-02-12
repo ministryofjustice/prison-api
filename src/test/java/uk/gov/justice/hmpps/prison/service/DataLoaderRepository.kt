@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository
@@ -62,6 +63,7 @@ class DataLoaderRepository(
   val serviceAgencySwitchesRepository: ServiceAgencySwitchesRepository,
   val offenderNoPayPeriodRepository: OffenderNoPayPeriodRepository,
   val offenderDeletionRepository: OffenderDeletionRepository,
+  val imageRepository: OffenderImageRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 

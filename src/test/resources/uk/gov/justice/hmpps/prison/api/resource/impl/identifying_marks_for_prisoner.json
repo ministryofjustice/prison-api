@@ -1,0 +1,45 @@
+[
+  {
+    "id": 1,
+    "bookingId": -1,
+    "offenderNo": "A1234AA",
+    "bodyPart": "TORSO",
+    "markType": "TAT",
+    "comment": "Some Comment Text",
+    "createdAt": "2017-02-18T00:00:00",
+    "createdBy": "SA",
+    "photographUuids": [
+      -101,
+      -100
+    ]
+  },
+  {
+    "id": 2,
+    "bookingId": -1,
+    "offenderNo": "A1234AA",
+    "bodyPart": "ARM",
+    "markType": "TAT",
+    "side": "L",
+    "partOrientation": "UPP",
+    "comment": "Some Comment Text",
+    "createdAt": "2017-02-18T00:00:00",
+    "createdBy": "SA",
+    "photographUuids": [
+      -103,
+      -102
+    ]
+  },
+  {
+    "id": 3,
+    "bookingId": -1,
+    "offenderNo": "A1234AA",
+    "bodyPart": "LEG",
+    "markType": "TAT",
+    "side": "R",
+    "partOrientation": "UPP",
+    "comment": "Some Comment Text",
+    "createdAt": "2017-02-18T00:00:00",
+    "createdBy": "SA",
+    "photographUuids": []
+  }
+]

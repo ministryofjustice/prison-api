@@ -66,11 +66,13 @@ abstract class ResourceTest {
     bearerToken: String?,
     body: Any?,
     additionalHeaders: Map<String?, String?> = emptyMap<String?, String>(),
+    contentType: String = "application/json",
+    accept: String = "application/json",
   ): HttpEntity<*> {
     val headers = HttpHeaders()
     headers.add("Authorization", "Bearer $bearerToken")
-    headers.add("Content-Type", "application/json")
-    headers.add("Accept", "application/json")
+    headers.add("Content-Type", contentType)
+    headers.add("Accept", accept)
     additionalHeaders.forEach { (headerName: String?, headerValue: String?) -> headers.add(headerName, headerValue) }
     return HttpEntity(body, headers)
   }

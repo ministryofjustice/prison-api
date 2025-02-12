@@ -1,0 +1,16 @@
+{
+  "id": 2,
+  "bookingId": -1,
+  "offenderNo": "A1234AA",
+  "bodyPart": "ARM",
+  "markType": "TAT",
+  "side": "L",
+  "partOrientation": "UPP",
+  "comment": "Some Comment Text",
+  "createdAt": "2017-02-18T00:00:00",
+  "createdBy": "SA",
+  "photographUuids": [
+    -103,
+    -102
+  ]
+}

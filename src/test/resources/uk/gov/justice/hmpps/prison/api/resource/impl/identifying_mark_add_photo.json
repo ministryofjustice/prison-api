@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "bookingId": -2,
+  "offenderNo": "A1234AB",
+  "bodyPart": "TORSO",
+  "markType": "TAT",
+  "comment": "Some Comment Text",
+  "createdAt": "2017-02-18T00:00:00",
+  "createdBy": "SA",
+  "photographUuids": [
+    2
+  ]
+}

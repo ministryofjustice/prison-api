@@ -13,6 +13,7 @@ import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
 import java.time.LocalDateTime;
+import java.util.List;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
@@ -27,9 +28,13 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Data
 public class IdentifyingMark {
 
-    @Schema(description = "The id of the identifying mark", requiredMode = REQUIRED)
+    @Schema(description = "The sequence id of the identifying mark", requiredMode = REQUIRED)
     @NotNull
-    private Long id;
+    private Integer id;
+
+    @Schema(description = "The id of the booking associated with the mark", requiredMode = REQUIRED)
+    @NotNull
+    private Long bookingId;
 
     @Schema(description = "Offender Unique Reference", example = "A1234AA", requiredMode = REQUIRED)
     @NotBlank
@@ -56,4 +61,6 @@ public class IdentifyingMark {
     @Schema(description = "Username of the user that last modified this field", example = "USER1", requiredMode = REQUIRED)
     private String createdBy;
 
+    @Schema(description = "List of image ids associated with this identifying mark")
+    private List<Long> photographUuids;
 }
