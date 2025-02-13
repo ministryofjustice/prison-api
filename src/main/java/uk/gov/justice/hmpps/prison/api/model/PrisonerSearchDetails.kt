@@ -114,6 +114,9 @@ data class PrisonerSearchDetails(
   @Schema(description = "The prisoner's imprisonment status description", example = "Serving Life Imprisonment")
   val imprisonmentStatusDescription: String? = null,
 
+  @Schema(description = "The prisoner's convicted status", example = "Convicted")
+  val convictedStatus: String? = null,
+
   @Schema(description = "Date prisoner was received into the prison.", example = "1980-01-01")
   val receptionDate: LocalDate? = null,
 

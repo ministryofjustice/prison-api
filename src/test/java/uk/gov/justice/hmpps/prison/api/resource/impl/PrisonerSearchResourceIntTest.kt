@@ -140,6 +140,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(recall).isTrue()
             assertThat(imprisonmentStatus).isEqualTo("SENT")
             assertThat(imprisonmentStatusDescription).isEqualTo("Adult Imprisonment Without Option")
+            assertThat(convictedStatus).isEqualTo("Convicted")
             assertThat(receptionDate).isEqualTo(LocalDate.now().toString())
             assertThat(locationDescription).isEqualTo("Leeds")
             assertThat(latestLocationId).isEqualTo("LEI")
@@ -273,6 +274,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(legalStatus).isNull()
             assertThat(imprisonmentStatus).isNull()
             assertThat(imprisonmentStatusDescription).isNull()
+            assertThat(convictedStatus).isNull()
           }
         }
     }
