@@ -10,7 +10,9 @@
   "createdAt": "2017-02-18T00:00:00",
   "createdBy": "SA",
   "photographUuids": [
-    -103,
-    -102
+    {
+      "id": -102,
+      "latest": true
+    }
   ]
 }

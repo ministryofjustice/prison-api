@@ -6,8 +6,6 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase
 import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone
-import uk.gov.justice.hmpps.prison.repository.jpa.model.PersonPhone
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -54,7 +52,7 @@ class OffenderIdentifyingMarkRepositoryTest {
 
   @Test
   fun `find specific mark for a prisoner's latest booking`() {
-    val mark = repository.getMarkForLatestBookingByOffenderNumberAndSequenceId("A1234AA", 2)
+    val mark = repository.getMarkForLatestBookingByOffenderNumberAndSequenceId("A1234AA", 2)!!
 
     assertThat(mark.bookingId).isEqualTo(-1L)
     assertThat(mark.sequenceId).isEqualTo(2)

@@ -1,0 +1,13 @@
+{
+  "id": 1,
+  "bookingId": -3,
+  "offenderNo": "A1234AC",
+  "bodyPart": "LEG",
+  "markType": "TAT",
+  "side": "R",
+  "partOrientation": "LOW",
+  "comment": "Some comment",
+  "createdAt": "2020-01-02T03:04:05",
+  "createdBy": "aclient",
+  "photographUuids": []
+}

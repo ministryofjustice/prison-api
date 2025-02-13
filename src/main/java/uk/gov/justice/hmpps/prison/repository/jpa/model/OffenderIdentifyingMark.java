@@ -22,8 +22,10 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark;
+import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark.IdentifyingMarkImageDetail;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.Comparator;
 import java.util.List;
 import static jakarta.persistence.FetchType.EAGER;
 
@@ -56,7 +58,7 @@ public class OffenderIdentifyingMark extends AuditableEntity {
     private Integer sequenceId;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
-    @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+    @JoinColumn(name = "OFFENDER_BOOK_ID", insertable = false, updatable = false, nullable = false)
     @Exclude
     private OffenderBooking offenderBooking;
 
@@ -80,6 +82,16 @@ public class OffenderIdentifyingMark extends AuditableEntity {
     private List<OffenderImage> images = new ArrayList<>();
 
     public IdentifyingMark transform() {
+        var latestImageId = images.stream()
+            .filter(OffenderImage::isActive)
+            .max(Comparator.comparingLong(OffenderImage::getId))
+            .map(OffenderImage::getId)
+            .orElse(-1L);
+        var imageInfo = images.stream()
+            .filter(OffenderImage::isActive)
+            .map(it -> new IdentifyingMarkImageDetail(it.getId(), latestImageId.equals(it.getId())))
+            .toList();
+
         return IdentifyingMark.builder()
             .id(sequenceId)
             .bookingId(bookingId)
@@ -89,7 +101,7 @@ public class OffenderIdentifyingMark extends AuditableEntity {
             .side(side)
             .partOrientation(partOrientation)
             .comment(commentText)
-            .photographUuids(images.stream().map(OffenderImage::getId).toList())
+            .photographUuids(imageInfo)
             .createdBy(getCreateUserId())
             .createdAt(getCreateDatetime())
             .build();

@@ -2,13 +2,14 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.slf4j.Logger
 import org.slf4j.LoggerFactory
-import org.springframework.dao.CannotAcquireLockException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark
-import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.api.model.IdentifyingMarkDetails
+import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifyingMark
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifyingMarkRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository
 import java.awt.Image
@@ -19,26 +20,90 @@ import java.io.ByteArrayOutputStream
 import java.io.IOException
 import java.io.InputStream
 import java.time.LocalDateTime
-import java.util.Base64
 import javax.imageio.ImageIO
 
 @Service
 class IdentifyingMarkService(
   private val identifyingMarksRepository: OffenderIdentifyingMarkRepository,
   private val imageRepository: OffenderImageRepository,
+  private val bookingRepository: OffenderBookingRepository,
+  private val referenceDataRepository: ReferenceDataRepository,
 ) {
 
   @Transactional(readOnly = true)
-  fun findIdentifyingMarksForLatestBooking(offenderNumber: String): List<IdentifyingMark> =
-    identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map(OffenderIdentifyingMark::transform)
+  fun findIdentifyingMarksForLatestBooking(offenderNumber: String): List<IdentifyingMark> = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map(OffenderIdentifyingMark::transform)
 
   @Transactional(readOnly = true)
-  fun getIdentifyingMarkForLatestBooking(offenderNumber: String, markId: Int): IdentifyingMark =
-    identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId).transform()
+  fun getIdentifyingMarkForLatestBooking(offenderNumber: String, markId: Int): IdentifyingMark = identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
+    ?.transform()
+    ?: notFound(offenderNumber, markId)
+
+  @Transactional
+  fun updateIdentifyingMark(
+    offenderNumber: String,
+    markId: Int,
+    updateRequest: IdentifyingMarkDetails,
+  ): IdentifyingMark {
+    validateRequest(updateRequest)
+    return identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
+      ?.apply {
+        markType = updateRequest.markType
+        bodyPart = updateRequest.bodyPart
+        side = updateRequest.side
+        partOrientation = updateRequest.partOrientation
+        commentText = updateRequest.comment
+      }?.transform()
+      ?: notFound(offenderNumber, markId)
+  }
+
+  @Transactional
+  fun createIdentifyingMark(
+    offenderNumber: String,
+    createRequest: IdentifyingMarkDetails,
+    image: InputStream? = null,
+  ): IdentifyingMark {
+    validateRequest(createRequest)
+    val booking = bookingRepository.findLatestOffenderBookingByNomsId(offenderNumber)
+      .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNumber))
+
+    val maxSeqId: Int = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber)
+      .maxOfOrNull { it.sequenceId } ?: 0
+
+    val mark = OffenderIdentifyingMark.builder()
+      .bookingId(booking.bookingId)
+      .offenderBooking(booking)
+      .sequenceId(maxSeqId + 1)
+      .markType(createRequest.markType)
+      .bodyPart(createRequest.bodyPart)
+      .side(createRequest.side)
+      .partOrientation(createRequest.partOrientation)
+      .commentText(createRequest.comment)
+      .build()
+
+    val savedMark = identifyingMarksRepository.save(mark)
+    val savedMarkId = savedMark.sequenceId
+
+    if (image != null) {
+      saveImage(savedMark, image)
+      return identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(
+        offenderNumber,
+        savedMarkId,
+      )
+        ?.transform()
+        ?: notFound(offenderNumber, savedMarkId)
+    }
+
+    return savedMark.transform()
+  }
 
   @Transactional
   fun addPhotoToMark(offenderNumber: String, markId: Int, image: InputStream) {
     val mark = identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
+      ?: notFound(offenderNumber, markId)
+    saveImage(mark, image)
+  }
+
+  private fun saveImage(mark: OffenderIdentifyingMark, image: InputStream) {
     val imageContent = image.readAllBytes()
     val newImage = OffenderImage
       .builder()
@@ -53,8 +118,21 @@ class IdentifyingMarkService(
       .thumbnailImage(scaleImage(imageContent))
       .fullSizeImage(imageContent)
       .build()
-
     imageRepository.save(newImage)
+  }
+
+  private fun validateRequest(request: IdentifyingMarkDetails) {
+    verifyReferenceCodeExists("MARK_TYPE", request.markType)
+    verifyReferenceCodeExists("BODY_PART", request.bodyPart)
+    verifyReferenceCodeExists("SIDE", request.side)
+    verifyReferenceCodeExists("PART_ORIENT", request.partOrientation)
+  }
+
+  private fun verifyReferenceCodeExists(domain: String, code: String?) {
+    if (code != null) {
+      referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+        .orElseThrow { BadRequestException("Reference code not found: $domain") }
+    }
   }
 
   @Throws(IOException::class, IllegalArgumentException::class, InterruptedException::class)
@@ -81,15 +159,7 @@ class IdentifyingMarkService(
     }
   }
 
-  // Needed?
-  private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String, table: String): Exception {
-    log.error("Error getting lock", e)
-    return if (true == e.cause?.message?.contains("ORA-30006")) {
-      DatabaseRowLockedException("Failed to get $table lock for prisonerNumber=$prisonerNumber")
-    } else {
-      e
-    }
-  }
+  private fun notFound(offenderNumber: String, markId: Int): Nothing = throw EntityNotFoundException.withMessage("Mark for $offenderNumber with seq_id $markId not found")
 
   private companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)

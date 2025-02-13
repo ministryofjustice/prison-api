@@ -14,12 +14,15 @@ import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
+import org.springframework.web.bind.annotation.PutMapping
+import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark
+import uk.gov.justice.hmpps.prison.api.model.IdentifyingMarkDetails
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -146,7 +149,7 @@ class IdentifyingMarkResource(
     ),
     ApiResponse(
       responseCode = "403",
-      description = "IMAGE_UPLOAD role required to access endpoint",
+      description = "VIEW_PRISONER_DATA role required to access endpoint",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -183,6 +186,111 @@ class IdentifyingMarkResource(
   ): IdentifyingMark {
     try {
       identifyingMarkService.addPhotoToMark(offenderNo, markId, file.inputStream)
+      return identifyingMarkService.getIdentifyingMarkForLatestBooking(offenderNo, markId)
+    } catch (e: IOException) {
+      throw BadRequestException("Image Data cannot be processed")
+    }
+  }
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(
+      responseCode = "400",
+      description = "Invalid request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "403",
+      description = "VIEW_PRISONER_DATA role required to access endpoint",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "The offender number could not be found or has no bookings.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  @Operation(
+    summary = "Update an existing identifying mark",
+    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+  )
+  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PutMapping(
+    value = ["/prisoner/{offenderNo}/mark/{markId}"],
+    consumes = [MediaType.APPLICATION_JSON_VALUE],
+    produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun updateMark(
+    @PathVariable("offenderNo") @Parameter(
+      description = "The offender number relating to the mark",
+      required = true,
+    ) offenderNo: String,
+    @PathVariable("markId") @Parameter(
+      description = "The mark id",
+      required = true,
+    ) markId: Int,
+    @RequestBody
+    @Parameter(
+      description = "The update request",
+      required = true,
+    ) request: IdentifyingMarkDetails,
+  ): IdentifyingMark = identifyingMarkService.updateIdentifyingMark(offenderNo, markId, request)
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(
+      responseCode = "400",
+      description = "Invalid request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "403",
+      description = "VIEW_PRISONER_DATA role required to access endpoint",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "The offender number could not be found or has no bookings.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  @Operation(
+    summary = "Create a new identifying mark, optionally providing a photo",
+    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+  )
+  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PostMapping(
+    value = ["/prisoner/{offenderNo}/mark"],
+    produces = [MediaType.APPLICATION_JSON_VALUE],
+  )
+  fun createMark(
+    @PathVariable("offenderNo") @Parameter(
+      description = "The offender number relating to the mark",
+      required = true,
+    ) offenderNo: String,
+    @Parameter(
+      description = "The create request",
+      required = true,
+    )
+    request: IdentifyingMarkDetails,
+    @Parameter(
+      description = "The image as a file to upload (optional)",
+      required = false,
+    )
+    @RequestPart("file") file: MultipartFile?,
+  ): IdentifyingMark {
+    try {
+      val markId = identifyingMarkService.createIdentifyingMark(offenderNo, request, file?.inputStream).id
       return identifyingMarkService.getIdentifyingMarkForLatestBooking(offenderNo, markId)
     } catch (e: IOException) {
       throw BadRequestException("Image Data cannot be processed")

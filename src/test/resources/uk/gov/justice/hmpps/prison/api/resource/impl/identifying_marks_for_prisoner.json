@@ -9,8 +9,14 @@
     "createdAt": "2017-02-18T00:00:00",
     "createdBy": "SA",
     "photographUuids": [
-      -101,
-      -100
+      {
+        "id": -101,
+        "latest": false
+      },
+      {
+        "id": -100,
+        "latest": true
+      }
     ]
   },
   {
@@ -25,8 +31,10 @@
     "createdAt": "2017-02-18T00:00:00",
     "createdBy": "SA",
     "photographUuids": [
-      -103,
-      -102
+      {
+        "id": -102,
+        "latest": true
+      }
     ]
   },
   {

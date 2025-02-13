@@ -15,5 +15,5 @@ interface OffenderIdentifyingMarkRepository : CrudRepository<OffenderIdentifying
   fun getMarkForLatestBookingByOffenderNumberAndSequenceId(
     @Param("offenderNumber") offenderNumber: String,
     @Param("markId") markId: Int,
-  ): OffenderIdentifyingMark
+  ): OffenderIdentifyingMark?
 }

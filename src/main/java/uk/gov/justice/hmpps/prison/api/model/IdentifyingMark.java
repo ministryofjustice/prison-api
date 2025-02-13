@@ -61,6 +61,19 @@ public class IdentifyingMark {
     @Schema(description = "Username of the user that last modified this field", example = "USER1", requiredMode = REQUIRED)
     private String createdBy;
 
-    @Schema(description = "List of image ids associated with this identifying mark")
-    private List<Long> photographUuids;
+    @Schema(description = "List of images associated with this identifying mark")
+    private List<IdentifyingMarkImageDetail> photographUuids;
+
+    @EqualsAndHashCode
+    @ToString
+    @Data
+    @NoArgsConstructor
+    @AllArgsConstructor
+    public static class IdentifyingMarkImageDetail {
+        @Schema(description = "The image id")
+        private Long id;
+
+        @Schema(description = "True if this image is the latest one associated with a mark")
+        private boolean latest;
+    }
 }
