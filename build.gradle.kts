@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "7.1.2"
   kotlin("plugin.spring") version "2.1.10"
   kotlin("plugin.jpa") version "2.1.10"
   kotlin("plugin.lombok") version "2.1.10"
@@ -70,12 +70,12 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-spring:4.2.16")
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.16")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
-  testImplementation("org.wiremock:wiremock:3.11.0")
+  testImplementation("org.wiremock:wiremock:3.12.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.25") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.28")
-  testImplementation("commons-beanutils:commons-beanutils:1.10.0")
+  testImplementation("commons-beanutils:commons-beanutils:1.10.1")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.46.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.36")
