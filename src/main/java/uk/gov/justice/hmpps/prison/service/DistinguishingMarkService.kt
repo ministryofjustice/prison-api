@@ -4,8 +4,8 @@ import org.slf4j.Logger
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMarkDetails
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifyingMark
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage
@@ -23,7 +23,7 @@ import java.time.LocalDateTime
 import javax.imageio.ImageIO
 
 @Service
-class IdentifyingMarkService(
+class DistinguishingMarkService(
   private val identifyingMarksRepository: OffenderIdentifyingMarkRepository,
   private val imageRepository: OffenderImageRepository,
   private val bookingRepository: OffenderBookingRepository,
@@ -31,19 +31,19 @@ class IdentifyingMarkService(
 ) {
 
   @Transactional(readOnly = true)
-  fun findIdentifyingMarksForLatestBooking(offenderNumber: String): List<IdentifyingMark> = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map(OffenderIdentifyingMark::transform)
+  fun findMarksForLatestBooking(offenderNumber: String): List<DistinguishingMark> = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map(OffenderIdentifyingMark::transform)
 
   @Transactional(readOnly = true)
-  fun getIdentifyingMarkForLatestBooking(offenderNumber: String, markId: Int): IdentifyingMark = identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
+  fun getMarkForLatestBooking(offenderNumber: String, markId: Int): DistinguishingMark = identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
     ?.transform()
     ?: notFound(offenderNumber, markId)
 
   @Transactional
-  fun updateIdentifyingMark(
+  fun updateMark(
     offenderNumber: String,
     markId: Int,
-    updateRequest: IdentifyingMarkDetails,
-  ): IdentifyingMark {
+    updateRequest: DistinguishingMarkDetails,
+  ): DistinguishingMark {
     validateRequest(updateRequest)
     return identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
       ?.apply {
@@ -57,11 +57,11 @@ class IdentifyingMarkService(
   }
 
   @Transactional
-  fun createIdentifyingMark(
+  fun createMark(
     offenderNumber: String,
-    createRequest: IdentifyingMarkDetails,
+    createRequest: DistinguishingMarkDetails,
     image: InputStream? = null,
-  ): IdentifyingMark {
+  ): DistinguishingMark {
     validateRequest(createRequest)
     val booking = bookingRepository.findLatestOffenderBookingByNomsId(offenderNumber)
       .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender {}", offenderNumber))
@@ -121,7 +121,7 @@ class IdentifyingMarkService(
     imageRepository.save(newImage)
   }
 
-  private fun validateRequest(request: IdentifyingMarkDetails) {
+  private fun validateRequest(request: DistinguishingMarkDetails) {
     verifyReferenceCodeExists("MARK_TYPE", request.markType)
     verifyReferenceCodeExists("BODY_PART", request.bodyPart)
     verifyReferenceCodeExists("SIDE", request.side)

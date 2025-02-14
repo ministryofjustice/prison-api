@@ -21,8 +21,8 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark;
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark.IdentifyingMarkImageDetail;
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark;
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark.DistinguishingMarkImageDetail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -81,7 +81,7 @@ public class OffenderIdentifyingMark extends AuditableEntity {
     @Default
     private List<OffenderImage> images = new ArrayList<>();
 
-    public IdentifyingMark transform() {
+    public DistinguishingMark transform() {
         var latestImageId = images.stream()
             .filter(OffenderImage::isActive)
             .max(Comparator.comparingLong(OffenderImage::getId))
@@ -89,10 +89,10 @@ public class OffenderIdentifyingMark extends AuditableEntity {
             .orElse(-1L);
         var imageInfo = images.stream()
             .filter(OffenderImage::isActive)
-            .map(it -> new IdentifyingMarkImageDetail(it.getId(), latestImageId.equals(it.getId())))
+            .map(it -> new DistinguishingMarkImageDetail(it.getId(), latestImageId.equals(it.getId())))
             .toList();
 
-        return IdentifyingMark.builder()
+        return DistinguishingMark.builder()
             .id(sequenceId)
             .bookingId(bookingId)
             .offenderNo(offenderBooking.getOffender().getNomsId())

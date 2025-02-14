@@ -5,7 +5,7 @@ import jakarta.validation.constraints.Size
 import org.jetbrains.annotations.NotNull
 
 @Schema(description = "Request object for creating or updating an identifying mark for a prisoner.")
-data class IdentifyingMarkDetails(
+data class DistinguishingMarkDetails(
 
   @Schema(
     description = "Code representing the type of distinguishing mark. Reference code from the MARK_TYPE domain.",

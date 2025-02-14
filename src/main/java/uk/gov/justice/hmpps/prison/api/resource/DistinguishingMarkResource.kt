@@ -20,24 +20,24 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestPart
 import org.springframework.web.bind.annotation.RestController
 import org.springframework.web.multipart.MultipartFile
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMarkDetails
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.BadRequestException
+import uk.gov.justice.hmpps.prison.service.DistinguishingMarkService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
-import uk.gov.justice.hmpps.prison.service.IdentifyingMarkService
 import uk.gov.justice.hmpps.prison.service.ImageService
 import java.io.IOException
 
 @RestController
-@Tag(name = "identifying-marks")
+@Tag(name = "distinguishing-marks")
 @Validated
-@RequestMapping(value = ["\${api.base.path}/identifying-marks"], produces = ["application/json"])
-class IdentifyingMarkResource(
-  private val service: IdentifyingMarkService,
+@RequestMapping(value = ["\${api.base.path}/person"], produces = ["application/json"])
+class DistinguishingMarkResource(
+  private val service: DistinguishingMarkService,
   private val imageService: ImageService,
-  private val identifyingMarkService: IdentifyingMarkService,
+  private val distinguishingMarkService: DistinguishingMarkService,
 ) {
 
   @ApiResponses(
@@ -59,17 +59,18 @@ class IdentifyingMarkResource(
     ),
   )
   @Operation(
-    summary = "Get all identifying marks associated with a prisoner's latest booking",
+    summary = "Get all distinguishing marks associated with a prisoner's latest booking",
     description = "Requires role ROLE_VIEW_PRISONER_DATA",
   )
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
-  @GetMapping("/prisoner/{offenderNo}")
+  @GetMapping("/{prisonerNumber}/distinguishing-marks")
   fun getIdentifyingMarksForLatestBooking(
-    @PathVariable("offenderNo") @Parameter(
-      description = "The offenderNo of offender",
+    @PathVariable("prisonerNumber") @Parameter(
+      description = "Prisoner unique reference",
+      example = "A1234AA",
       required = true,
-    ) offenderNo: String,
-  ): List<IdentifyingMark> = service.findIdentifyingMarksForLatestBooking(offenderNo)
+    ) prisonerNumber: String,
+  ): List<DistinguishingMark> = service.findMarksForLatestBooking(prisonerNumber)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -90,18 +91,19 @@ class IdentifyingMarkResource(
     ),
   )
   @Operation(
-    summary = "Get a specific identifying mark associated with a prisoner",
+    summary = "Get a specific distinguishing mark associated with a prisoner",
     description = "Requires role ROLE_VIEW_PRISONER_DATA",
   )
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
-  @GetMapping("/prisoner/{offenderNo}/mark/{markId}")
+  @GetMapping("/{prisonerNumber}/distinguishing-mark/{seqId}")
   fun getIdentifyingMark(
-    @PathVariable("offenderNo") @Parameter(
-      description = "The offenderNo of offender",
+    @PathVariable("prisonerNumber") @Parameter(
+      description = "Prisoner unique reference",
+      example = "A1234AA",
       required = true,
-    ) offenderNo: String,
-    @PathVariable("markId") @Parameter(description = "The id of the mark", required = true) markId: Int,
-  ): IdentifyingMark = service.getIdentifyingMarkForLatestBooking(offenderNo, markId)
+    ) prisonerNumber: String,
+    @PathVariable("seqId") @Parameter(description = "The sequence id of the mark", required = true) seqId: Int,
+  ): DistinguishingMark = service.getMarkForLatestBooking(prisonerNumber, seqId)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -149,7 +151,7 @@ class IdentifyingMarkResource(
     ),
     ApiResponse(
       responseCode = "403",
-      description = "VIEW_PRISONER_DATA role required to access endpoint",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -164,29 +166,31 @@ class IdentifyingMarkResource(
     ),
   )
   @Operation(
-    summary = "Add a new photo to an identifying mark",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    summary = "Add a new photo to an distinguishing mark",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PostMapping(
-    value = ["/prisoner/{offenderNo}/mark/{markId}/photo"],
+    value = ["/{prisonerNumber}/distinguishing-mark/{seqId}/photo"],
     consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   fun addMarkPhoto(
-    @PathVariable("offenderNo") @Parameter(
-      description = "The offender number relating to the mark",
+    @PathVariable("prisonerNumber") @Parameter(
+      description = "Prisoner unique reference",
+      example = "A1234AA",
       required = true,
-    ) offenderNo: String,
-    @PathVariable("markId") @Parameter(
-      description = "The mark id",
+    ) prisonerNumber: String,
+    @PathVariable("seqId") @Parameter(
+      description = "The sequence id of the mark",
       required = true,
-    ) markId: Int,
+    ) seqId: Int,
     @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") file: MultipartFile,
-  ): IdentifyingMark {
+  ): DistinguishingMark {
     try {
-      identifyingMarkService.addPhotoToMark(offenderNo, markId, file.inputStream)
-      return identifyingMarkService.getIdentifyingMarkForLatestBooking(offenderNo, markId)
+      distinguishingMarkService.addPhotoToMark(prisonerNumber, seqId, file.inputStream)
+      return distinguishingMarkService.getMarkForLatestBooking(prisonerNumber, seqId)
     } catch (e: IOException) {
       throw BadRequestException("Image Data cannot be processed")
     }
@@ -201,7 +205,7 @@ class IdentifyingMarkResource(
     ),
     ApiResponse(
       responseCode = "403",
-      description = "VIEW_PRISONER_DATA role required to access endpoint",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -216,30 +220,32 @@ class IdentifyingMarkResource(
     ),
   )
   @Operation(
-    summary = "Update an existing identifying mark",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    summary = "Update an existing distinguishing mark",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PutMapping(
-    value = ["/prisoner/{offenderNo}/mark/{markId}"],
+    value = ["/{prisonerNumber}/distinguishing-mark/{seqId}"],
     consumes = [MediaType.APPLICATION_JSON_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   fun updateMark(
-    @PathVariable("offenderNo") @Parameter(
-      description = "The offender number relating to the mark",
+    @PathVariable("prisonerNumber") @Parameter(
+      description = "Prisoner unique reference",
+      example = "A1234AA",
       required = true,
-    ) offenderNo: String,
-    @PathVariable("markId") @Parameter(
-      description = "The mark id",
+    ) prisonerNumber: String,
+    @PathVariable("seqId") @Parameter(
+      description = "The sequence id of the mark",
       required = true,
-    ) markId: Int,
+    ) seqId: Int,
     @RequestBody
     @Parameter(
       description = "The update request",
       required = true,
-    ) request: IdentifyingMarkDetails,
-  ): IdentifyingMark = identifyingMarkService.updateIdentifyingMark(offenderNo, markId, request)
+    ) request: DistinguishingMarkDetails,
+  ): DistinguishingMark = distinguishingMarkService.updateMark(prisonerNumber, seqId, request)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -250,7 +256,7 @@ class IdentifyingMarkResource(
     ),
     ApiResponse(
       responseCode = "403",
-      description = "VIEW_PRISONER_DATA role required to access endpoint",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -265,33 +271,35 @@ class IdentifyingMarkResource(
     ),
   )
   @Operation(
-    summary = "Create a new identifying mark, optionally providing a photo",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    summary = "Create a new distinguishing mark, optionally providing a photo",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PostMapping(
-    value = ["/prisoner/{offenderNo}/mark"],
+    value = ["/{prisonerNumber}/distinguishing-mark"],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
   fun createMark(
-    @PathVariable("offenderNo") @Parameter(
-      description = "The offender number relating to the mark",
+    @PathVariable("prisonerNumber") @Parameter(
+      description = "Prisoner unique reference",
+      example = "A1234AA",
       required = true,
-    ) offenderNo: String,
+    ) prisonerNumber: String,
     @Parameter(
       description = "The create request",
       required = true,
     )
-    request: IdentifyingMarkDetails,
+    request: DistinguishingMarkDetails,
     @Parameter(
       description = "The image as a file to upload (optional)",
       required = false,
     )
     @RequestPart("file") file: MultipartFile?,
-  ): IdentifyingMark {
+  ): DistinguishingMark {
     try {
-      val markId = identifyingMarkService.createIdentifyingMark(offenderNo, request, file?.inputStream).id
-      return identifyingMarkService.getIdentifyingMarkForLatestBooking(offenderNo, markId)
+      val markId = distinguishingMarkService.createMark(prisonerNumber, request, file?.inputStream).id
+      return distinguishingMarkService.getMarkForLatestBooking(prisonerNumber, markId)
     } catch (e: IOException) {
       throw BadRequestException("Image Data cannot be processed")
     }

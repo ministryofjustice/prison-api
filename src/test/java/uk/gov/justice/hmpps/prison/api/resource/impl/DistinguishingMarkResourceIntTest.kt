@@ -20,24 +20,24 @@ import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
+import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISONER_PROFILE_RW
 import java.io.File
 
-class IdentifyingMarkResourceIntTest : ResourceTest() {
+class DistinguishingMarkResourceIntTest : ResourceTest() {
 
   @Nested
-  @DisplayName("GET /api/identifying-marks/prisoner/{offenderId}")
-  inner class GetAllIdentifyingMarksForLatestBooking {
+  @DisplayName("GET /api/person/{prisonerNumber}/distinguishing-marks")
+  inner class GetAllDistinguishingMarksForLatestBooking {
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -45,7 +45,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
         .expectStatus().isForbidden
@@ -53,7 +53,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
@@ -61,19 +61,19 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
         .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 404 if prisoner not found`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/ZZ9999ZZ")
+      webTestClient.get().uri("/api/person/ZZ9999ZZ/distinguishing-marks")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
     }
 
@@ -82,28 +82,28 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(NORMAL_USER)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AA",
+        "/api/person/A1069AA/distinguishing-marks",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      assertThatJsonFileAndStatus(response, 200, "identifying_marks_for_prisoner.json")
+      assertThatJsonFileAndStatus(response, 200, "distinguishing_marks_for_prisoner.json")
     }
   }
 
   @Nested
-  @DisplayName("GET /api/identifying-marks/prisoner/{offenderId}/mark/{markId}")
-  inner class GetIdentifyingMarkForLatestBooking {
+  @DisplayName("GET /api/person/{prisonerNumber}/distinguishing-mark/{seqId}")
+  inner class GetDistinguishingMarkForLatestBooking {
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -111,7 +111,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
         .expectStatus().isForbidden
@@ -119,7 +119,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
@@ -127,25 +127,25 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/2")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
         .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 404 if prisoner not found`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/ZZ9999ZZ/mark/2")
+      webTestClient.get().uri("/api/person/ZZ9999ZZ/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
     }
 
     @Test
     fun `returns 404 if mark not found`() {
-      webTestClient.get().uri("/api/identifying-marks/prisoner/A1234AA/mark/999")
+      webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/999")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
     }
 
@@ -154,29 +154,28 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(NORMAL_USER)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AA/mark/2",
+        "/api/person/A1069AA/distinguishing-mark/2",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
-      println(response)
-      assertThatJsonFileAndStatus(response, 200, "identifying_mark_2.json")
+      assertThatJsonFileAndStatus(response, 200, "distinguishing_mark_2.json")
     }
   }
 
   @Nested
-  @DisplayName("GET /api/identifying-marks/photo/{photoId}")
+  @DisplayName("GET /api/person/photo/{photoId}")
   inner class GetImageContent {
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .headers(setClientAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -184,7 +183,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange()
         .expectStatus().isForbidden
@@ -192,7 +191,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
@@ -200,19 +199,19 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-100")
+      webTestClient.get().uri("/api/person/photo/-100")
         .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
     }
 
     @Test
     fun `returns 404 if mark not found`() {
-      webTestClient.get().uri("/api/identifying-marks/photo/-999")
+      webTestClient.get().uri("/api/person/photo/-999")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
     }
 
@@ -221,7 +220,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       val token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/photo/-100",
+        "/api/person/photo/-100",
         GET,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -231,12 +230,12 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /api/identifying-marks/prisoner/{offenderId}/mark/{markId}/photo")
+  @DisplayName("POST /api/person/{prisonerNumber}/distinguishing-mark/{seqId}/photo")
   inner class AddPhotoToMark {
 
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/2/photo")
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/2/photo")
         .body(multiPartFormRequest())
         .exchange()
         .expectStatus().isUnauthorized
@@ -244,7 +243,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/2/photo")
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/2/photo")
         .headers(setClientAuthorisation(listOf()))
         .body(multiPartFormRequest())
         .exchange()
@@ -253,7 +252,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/2/photo")
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/2/photo")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .body(multiPartFormRequest())
         .exchange()
@@ -262,7 +261,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/2/photo")
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/2/photo")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .body(multiPartFormRequest())
         .exchange()
@@ -271,7 +270,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/2/photo")
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/2/photo")
         .headers(setAuthorisation("RO_USER", listOf()))
         .body(multiPartFormRequest())
         .exchange()
@@ -280,8 +279,8 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 404 if prisoner not found`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/ZZ9999ZZ/mark/2/photo")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      webTestClient.post().uri("/api/person/ZZ9999ZZ/distinguishing-mark/2/photo")
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .body(multiPartFormRequest())
         .exchange()
         .expectStatus().isNotFound
@@ -289,8 +288,8 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 404 if mark not found`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AA/mark/999/photo")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/999/photo")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
         .body(multiPartFormRequest())
         .exchange()
         .expectStatus().isNotFound
@@ -298,7 +297,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `Adds the photo to the mark`() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val parameters: MultiValueMap<String, Any> = LinkedMultiValueMap()
       parameters.add("file", FileSystemResource(File(javaClass.getResource("/images/image.jpg")!!.file)))
       val httpEntity = createHttpEntity(
@@ -308,13 +307,18 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       )
 
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AB/mark/1/photo",
+        "/api/person/A1070AA/distinguishing-mark/1/photo",
         POST,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
 
-      assertThatJsonFileAndStatus(response, 200, "identifying_mark_add_photo.json")
+      assertThatStatus(response, 200)
+      val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
+      Assertions.assertThat(bodyAsJsonContent).isEqualToJson(
+        "distinguishing_mark_add_photo.json",
+        CustomComparator(JSONCompareMode.STRICT, Customization("photographUuids[*].id") { _, _ -> true }),
+      )
     }
 
     private fun multiPartFormRequest(): BodyInserters.MultipartInserter = LinkedMultiValueMap<String, FileSystemResource>()
@@ -323,7 +327,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("PUT /api/identifying-marks/prisoner/{offenderId}/mark/{markId}")
+  @DisplayName("PUT /api/person/{prisonerNumber}/distinguishing-mark/{seqId}")
   inner class UpdateExistingMark {
     private val updateRequest = """
       {
@@ -337,7 +341,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AB/mark/2")
+      webTestClient.put().uri("/api/person/A1234AB/distinguishing-mark/2")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
         .exchange()
@@ -346,7 +350,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AB/mark/2")
+      webTestClient.put().uri("/api/person/A1234AB/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
@@ -356,7 +360,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AB/mark/2")
+      webTestClient.put().uri("/api/person/A1234AB/distinguishing-mark/2")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
@@ -366,7 +370,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AB/mark/2")
+      webTestClient.put().uri("/api/person/A1234AB/distinguishing-mark/2")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
@@ -376,7 +380,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AB/mark/2")
+      webTestClient.put().uri("/api/person/A1234AB/distinguishing-mark/2")
         .headers(setAuthorisation("RO_USER", listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
@@ -386,8 +390,8 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 404 if prisoner not found`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/ZZ9999ZZ/mark/2")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      webTestClient.put().uri("/api/person/ZZ9999ZZ/distinguishing-mark/2")
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
         .exchange()
@@ -396,8 +400,8 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 404 if mark not found`() {
-      webTestClient.put().uri("/api/identifying-marks/prisoner/A1234AA/mark/999")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      webTestClient.put().uri("/api/person/A1069AA/distinguishing-mark/999")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
         .exchange()
@@ -406,27 +410,27 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `Updates the existing mark`() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val httpEntity = createHttpEntity(token, updateRequest)
 
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AB/mark/2",
+        "/api/person/A1070AA/distinguishing-mark/2",
         PUT,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
       )
 
-      assertThatJsonFileAndStatus(response, 200, "identifying_mark_updated.json")
+      assertThatJsonFileAndStatus(response, 200, "distinguishing_mark_updated.json")
     }
   }
 
   @Nested
-  @DisplayName("POST /api/identifying-marks/prisoner/{offenderId}/mark/{markId}")
+  @DisplayName("POST /api/person/{prisonerNumber}/distinguishing-mark")
   inner class CreateNewMark {
 
     @Test
     fun `returns 401 when user does not have a token`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AC/mark")
+      webTestClient.post().uri("/api/person/A1234AC/distinguishing-mark")
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
         .expectStatus().isUnauthorized
@@ -434,7 +438,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if does not have override role`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AC/mark")
+      webTestClient.post().uri("/api/person/A1234AC/distinguishing-mark")
         .headers(setClientAuthorisation(listOf()))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
@@ -443,7 +447,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 when client has incorrect role`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AC/mark")
+      webTestClient.post().uri("/api/person/A1234AC/distinguishing-mark")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
@@ -452,7 +456,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if not in user caseload`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AC/mark")
+      webTestClient.post().uri("/api/person/A1234AC/distinguishing-mark")
         .headers(setAuthorisation("WAI_USER", listOf()))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
@@ -461,7 +465,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 403 if user has no caseloads`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/A1234AC/mark")
+      webTestClient.post().uri("/api/person/A1234AC/distinguishing-mark")
         .headers(setAuthorisation("RO_USER", listOf()))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
@@ -470,8 +474,8 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `returns 404 if prisoner not found`() {
-      webTestClient.post().uri("/api/identifying-marks/prisoner/ZZ9999ZZ/mark")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+      webTestClient.post().uri("/api/person/ZZ9999ZZ/distinguishing-mark")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
         .expectStatus().isNotFound
@@ -479,7 +483,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
 
     @Test
     fun `Creates a new mark without an image`() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val parameters: MultiValueMap<String, Any> = LinkedMultiValueMap()
       parameters.add("bodyPart", "LEG")
       parameters.add("markType", "TAT")
@@ -494,7 +498,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       )
 
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AC/mark",
+        "/api/person/A1071AA/distinguishing-mark",
         POST,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -503,14 +507,14 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       assertThatStatus(response, 200)
       val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
       Assertions.assertThat(bodyAsJsonContent).isEqualToJson(
-        "identifying_mark_created_without_image.json",
+        "distinguishing_mark_created_without_image.json",
         CustomComparator(JSONCompareMode.STRICT, Customization("createdAt") { _, _ -> true }),
       )
     }
 
     @Test
     fun `Creates a new mark with an image`() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val parameters: MultiValueMap<String, Any> = LinkedMultiValueMap()
       parameters.add("file", FileSystemResource(File(javaClass.getResource("/images/image.jpg")!!.file)))
       parameters.add("bodyPart", "LEG")
@@ -526,7 +530,7 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       )
 
       val response = testRestTemplate.exchange(
-        "/api/identifying-marks/prisoner/A1234AD/mark",
+        "/api/person/A1070AA/distinguishing-mark",
         POST,
         httpEntity,
         object : ParameterizedTypeReference<String?>() {},
@@ -535,8 +539,12 @@ class IdentifyingMarkResourceIntTest : ResourceTest() {
       assertThatStatus(response, 200)
       val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
       Assertions.assertThat(bodyAsJsonContent).isEqualToJson(
-        "identifying_mark_created_with_image.json",
-        CustomComparator(JSONCompareMode.STRICT, Customization("createdAt") { _, _ -> true }),
+        "distinguishing_mark_created_with_image.json",
+        CustomComparator(
+          JSONCompareMode.STRICT,
+          Customization("createdAt") { _, _ -> true },
+          Customization("photographUuids[*].id") { _, _ -> true },
+        ),
       )
     }
 

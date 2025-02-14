@@ -20,8 +20,8 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMark
-import uk.gov.justice.hmpps.prison.api.model.IdentifyingMarkDetails
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -36,13 +36,13 @@ import java.util.Base64
 import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
-class IdentifyingMarkServiceImplTest {
+class DistinguishingMarkServiceImplTest {
   private val identifyingMarkRepository: OffenderIdentifyingMarkRepository = mock()
   private val imageRepository: OffenderImageRepository = mock()
   private val bookingRepository: OffenderBookingRepository = mock()
   private val referenceDataRepository: ReferenceDataRepository = mock()
 
-  private var service = IdentifyingMarkService(
+  private var service = DistinguishingMarkService(
     identifyingMarkRepository,
     imageRepository,
     bookingRepository,
@@ -50,7 +50,7 @@ class IdentifyingMarkServiceImplTest {
   )
 
   @Test
-  fun `get identifying marks for latest booking`() {
+  fun `get distinguishing marks for latest booking`() {
     val offender = Offender.builder().nomsId(OFFENDER_ID).build()
     val booking = OffenderBooking.builder().offender(offender).build()
     val identifyingMarks = listOf(
@@ -72,8 +72,9 @@ class IdentifyingMarkServiceImplTest {
         .partOrientation("UPP")
         .images(
           listOf(
-            OffenderImage.builder().id(1L).imageObjectId(1).build(),
-            OffenderImage.builder().id(2L).imageObjectId(2).build(),
+            OffenderImage.builder().id(1L).imageObjectId(1).active(true).build(),
+            OffenderImage.builder().id(2L).imageObjectId(2).active(true).build(),
+            OffenderImage.builder().id(3L).imageObjectId(2).active(false).build(),
           ),
         )
         .build(),
@@ -81,7 +82,7 @@ class IdentifyingMarkServiceImplTest {
     whenever(identifyingMarkRepository.findAllMarksForLatestBooking(anyString())).thenReturn(identifyingMarks)
 
     val expected = listOf(
-      IdentifyingMark.builder()
+      DistinguishingMark.builder()
         .bookingId(-1L)
         .id(1)
         .offenderNo(OFFENDER_ID)
@@ -90,7 +91,7 @@ class IdentifyingMarkServiceImplTest {
         .comment("Some comment")
         .photographUuids(listOf())
         .build(),
-      IdentifyingMark.builder()
+      DistinguishingMark.builder()
         .bookingId(-1L)
         .id(2)
         .offenderNo(OFFENDER_ID)
@@ -100,21 +101,21 @@ class IdentifyingMarkServiceImplTest {
         .partOrientation("UPP")
         .photographUuids(
           listOf(
-            IdentifyingMark.IdentifyingMarkImageDetail(1L, false),
-            IdentifyingMark.IdentifyingMarkImageDetail(2L, true),
+            DistinguishingMark.DistinguishingMarkImageDetail(1L, false),
+            DistinguishingMark.DistinguishingMarkImageDetail(2L, true),
           ),
         )
         .build(),
     )
 
-    val response = service.findIdentifyingMarksForLatestBooking(OFFENDER_ID)
+    val response = service.findMarksForLatestBooking(OFFENDER_ID)
 
     verify(identifyingMarkRepository).findAllMarksForLatestBooking(OFFENDER_ID)
     assertThat(response).isEqualTo(expected)
   }
 
   @Test
-  fun `get specific identifying mark for latest booking`() {
+  fun `get specific distinguishing mark for latest booking`() {
     val offender = Offender.builder().nomsId(OFFENDER_ID).build()
     val booking = OffenderBooking.builder().offender(offender).build()
     val identifyingMark = OffenderIdentifyingMark.builder()
@@ -127,8 +128,9 @@ class IdentifyingMarkServiceImplTest {
       .partOrientation("UPP")
       .images(
         listOf(
-          OffenderImage.builder().id(1L).imageObjectId(1).build(),
-          OffenderImage.builder().id(2L).imageObjectId(2).build(),
+          OffenderImage.builder().id(1L).imageObjectId(1).active(true).build(),
+          OffenderImage.builder().id(2L).imageObjectId(2).active(true).build(),
+          OffenderImage.builder().id(3L).imageObjectId(2).active(false).build(),
         ),
       )
       .build()
@@ -140,7 +142,7 @@ class IdentifyingMarkServiceImplTest {
       ),
     ).thenReturn(identifyingMark)
 
-    val expected = IdentifyingMark.builder()
+    val expected = DistinguishingMark.builder()
       .bookingId(-1L)
       .id(2)
       .offenderNo(OFFENDER_ID)
@@ -150,20 +152,26 @@ class IdentifyingMarkServiceImplTest {
       .partOrientation("UPP")
       .photographUuids(
         listOf(
-          IdentifyingMark.IdentifyingMarkImageDetail(1L, false),
-          IdentifyingMark.IdentifyingMarkImageDetail(2L, true),
+          DistinguishingMark.DistinguishingMarkImageDetail(
+            1L,
+            false,
+          ),
+          DistinguishingMark.DistinguishingMarkImageDetail(
+            2L,
+            true,
+          ),
         ),
       )
       .build()
 
-    val response = service.getIdentifyingMarkForLatestBooking(OFFENDER_ID, 2)
+    val response = service.getMarkForLatestBooking(OFFENDER_ID, 2)
 
     verify(identifyingMarkRepository).getMarkForLatestBookingByOffenderNumberAndSequenceId(OFFENDER_ID, 2)
     assertThat(response).isEqualTo(expected)
   }
 
   @Test
-  fun `Add photo to existing identifying mark`() {
+  fun `Add photo to existing distinguishing mark`() {
     val offender = Offender.builder().nomsId(OFFENDER_ID).build()
     val booking = OffenderBooking.builder().offender(offender).build()
     val identifyingMark = OffenderIdentifyingMark.builder()
@@ -200,7 +208,7 @@ class IdentifyingMarkServiceImplTest {
   }
 
   @Nested
-  @DisplayName("Update existing identifying mark")
+  @DisplayName("Update existing distinguishing mark")
   inner class UpdateExistingMark {
 
     @BeforeEach
@@ -216,7 +224,7 @@ class IdentifyingMarkServiceImplTest {
     }
 
     @Test
-    fun `Update existing mark`() {
+    fun `Updates successfully`() {
       val offender = Offender.builder().nomsId(OFFENDER_ID).build()
       val booking = OffenderBooking.builder().offender(offender).build()
       val existingMark = OffenderIdentifyingMark.builder()
@@ -230,8 +238,8 @@ class IdentifyingMarkServiceImplTest {
       whenever(identifyingMarkRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(OFFENDER_ID, 1))
         .thenReturn(existingMark)
 
-      val updateRequest = IdentifyingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = IdentifyingMark.builder()
+      val updateRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
+      val expected = DistinguishingMark.builder()
         .bookingId(-1L)
         .id(1)
         .offenderNo(OFFENDER_ID)
@@ -242,7 +250,7 @@ class IdentifyingMarkServiceImplTest {
         .comment("Old wound")
         .photographUuids(listOf())
         .build()
-      val response = service.updateIdentifyingMark(OFFENDER_ID, 1, updateRequest)
+      val response = service.updateMark(OFFENDER_ID, 1, updateRequest)
 
       assertThat(response).isEqualTo(expected)
     }
@@ -253,15 +261,15 @@ class IdentifyingMarkServiceImplTest {
     fun `Reference code not found`(domain: String) {
       whenever(referenceDataRepository.getReferenceCodeByDomainAndCode(eq(domain), anyString(), anyBoolean()))
         .thenReturn(Optional.empty())
-      val updateRequest = IdentifyingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
+      val updateRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
 
-      val exception = assertThrows<BadRequestException> { service.updateIdentifyingMark(OFFENDER_ID, 1, updateRequest) }
+      val exception = assertThrows<BadRequestException> { service.updateMark(OFFENDER_ID, 1, updateRequest) }
       assertThat(exception.message).isEqualTo("Reference code not found: $domain")
     }
   }
 
   @Nested
-  @DisplayName("Create new identifying mark")
+  @DisplayName("Create new distinguishing mark")
   inner class CreateMark {
     val offender = Offender.builder().nomsId(OFFENDER_ID).build()
     val booking = OffenderBooking.builder().offender(offender).build()
@@ -290,12 +298,12 @@ class IdentifyingMarkServiceImplTest {
     }
 
     @Test
-    fun `Create new mark without image`() {
+    fun `Create new distinguishing mark without image`() {
       whenever(bookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_ID)).thenReturn(Optional.of(booking))
       whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
 
-      val createRequest = IdentifyingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = IdentifyingMark.builder()
+      val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
+      val expected = DistinguishingMark.builder()
         .bookingId(-1L)
         .id(1)
         .offenderNo(OFFENDER_ID)
@@ -306,7 +314,7 @@ class IdentifyingMarkServiceImplTest {
         .comment("Old wound")
         .photographUuids(listOf())
         .build()
-      val response = service.createIdentifyingMark(OFFENDER_ID, createRequest)
+      val response = service.createMark(OFFENDER_ID, createRequest)
 
       verify(identifyingMarkRepository).save(any())
       verify(imageRepository, never()).save(any())
@@ -314,14 +322,14 @@ class IdentifyingMarkServiceImplTest {
     }
 
     @Test
-    fun `Create new mark with image`() {
+    fun `Create new distinguishing mark with image`() {
       whenever(bookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_ID)).thenReturn(Optional.of(booking))
       whenever(identifyingMarkRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(OFFENDER_ID, 1))
         .thenReturn(saveResponse)
       whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
 
-      val createRequest = IdentifyingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = IdentifyingMark.builder()
+      val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
+      val expected = DistinguishingMark.builder()
         .bookingId(-1L)
         .id(1)
         .offenderNo(OFFENDER_ID)
@@ -332,7 +340,7 @@ class IdentifyingMarkServiceImplTest {
         .comment("Old wound")
         .photographUuids(listOf())
         .build()
-      val response = service.createIdentifyingMark(OFFENDER_ID, createRequest, ByteArrayInputStream(IMAGE_DATA))
+      val response = service.createMark(OFFENDER_ID, createRequest, ByteArrayInputStream(IMAGE_DATA))
 
       val imageCaptor = argumentCaptor<OffenderImage>()
       verify(identifyingMarkRepository).save(any())
@@ -355,9 +363,9 @@ class IdentifyingMarkServiceImplTest {
     fun `Reference code not found`(domain: String) {
       whenever(referenceDataRepository.getReferenceCodeByDomainAndCode(eq(domain), anyString(), anyBoolean()))
         .thenReturn(Optional.empty())
-      val updateRequest = IdentifyingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
+      val updateRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
 
-      val exception = assertThrows<BadRequestException> { service.updateIdentifyingMark(OFFENDER_ID, 1, updateRequest) }
+      val exception = assertThrows<BadRequestException> { service.updateMark(OFFENDER_ID, 1, updateRequest) }
       assertThat(exception.message).isEqualTo("Reference code not found: $domain")
     }
   }

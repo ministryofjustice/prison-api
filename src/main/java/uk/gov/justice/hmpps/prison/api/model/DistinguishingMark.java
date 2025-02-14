@@ -18,7 +18,7 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIR
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 @SuppressWarnings("unused")
-@Schema(description = "Identifying Mark")
+@Schema(description = "Distinguishing Mark")
 @JsonInclude(Include.NON_NULL)
 @Builder(toBuilder = true)
 @AllArgsConstructor
@@ -26,9 +26,9 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @EqualsAndHashCode
 @ToString
 @Data
-public class IdentifyingMark {
+public class DistinguishingMark {
 
-    @Schema(description = "The sequence id of the identifying mark", requiredMode = REQUIRED)
+    @Schema(description = "The sequence id of the distinguishing mark", requiredMode = REQUIRED)
     @NotNull
     private Integer id;
 
@@ -55,21 +55,21 @@ public class IdentifyingMark {
     @Schema(description = "Comment about the distinguishing mark", requiredMode = NOT_REQUIRED)
     private String comment;
 
-    @Schema(description = "The date and time the data was last modified", requiredMode = REQUIRED)
+    @Schema(description = "The date and time the data was created", requiredMode = REQUIRED)
     private LocalDateTime createdAt;
 
-    @Schema(description = "Username of the user that last modified this field", example = "USER1", requiredMode = REQUIRED)
+    @Schema(description = "Username of the user that created the mark", example = "USER1", requiredMode = REQUIRED)
     private String createdBy;
 
-    @Schema(description = "List of images associated with this identifying mark")
-    private List<IdentifyingMarkImageDetail> photographUuids;
+    @Schema(description = "List of images associated with this distinguishing mark")
+    private List<DistinguishingMarkImageDetail> photographUuids;
 
     @EqualsAndHashCode
     @ToString
     @Data
     @NoArgsConstructor
     @AllArgsConstructor
-    public static class IdentifyingMarkImageDetail {
+    public static class DistinguishingMarkImageDetail {
         @Schema(description = "The image id")
         private Long id;
 

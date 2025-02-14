@@ -1,7 +1,7 @@
 {
   "id": 1,
-  "bookingId": -2,
-  "offenderNo": "A1234AB",
+  "bookingId": -107,
+  "offenderNo": "A1070AA",
   "bodyPart": "TORSO",
   "markType": "TAT",
   "comment": "Some Comment Text",
@@ -9,7 +9,7 @@
   "createdBy": "SA",
   "photographUuids": [
     {
-      "id": 2,
+      "id": 1,
       "latest": true
     }
   ]
