@@ -64,6 +64,7 @@ class PrisonerSearchService(
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
           imprisonmentStatusDescription = it.imprisonmentStatusDescription,
+          convictedStatus = it.convictedStatus,
           receptionDate = it.receptionDate,
           locationDescription = it.locationDescription,
           latestLocationId = it.latestLocationId,

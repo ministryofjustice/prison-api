@@ -17,6 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.RecallCalc;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImprisonmentStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
@@ -51,6 +52,7 @@ public class OffenderTransformer {
         final var allConvictedOffences = getAllConvictedOffences(latestBooking.getOffender().getRootOffenderId());
         final var activeConvictedOffences = getActiveConvictedOffences(latestBooking.getBookingId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
+        final var imprisonmentStatus = latestBooking.getActiveImprisonmentStatus().map(OffenderImprisonmentStatus::getImprisonmentStatus).orElse(null);
 
         return offenderBuilder
             .activeFlag(latestBooking.isActive())
@@ -80,8 +82,9 @@ public class OffenderTransformer {
                     .resultValue(pd.getCode() != null ? pd.getCode().getDescription() : pd.getProfileCode())
                     .build()).toList())
             .legalStatus(latestBooking.getLegalStatus())
-            .imprisonmentStatus(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus() != null ? ims.getImprisonmentStatus().getStatus() : null).orElse(null))
-            .imprisonmentStatusDescription(latestBooking.getActiveImprisonmentStatus().map(ims -> ims.getImprisonmentStatus() != null ? ims.getImprisonmentStatus().getDescription() : null).orElse(null))
+            .imprisonmentStatus(imprisonmentStatus != null ? imprisonmentStatus.getStatus() : null)
+            .imprisonmentStatusDescription(imprisonmentStatus != null ? imprisonmentStatus.getDescription() : null)
+            .convictedStatus(imprisonmentStatus != null ? latestBooking.getConvictedStatus(): null)
             .offenceHistory(allConvictedOffences)
             .recall(RecallCalc.calculate(latestBooking.getBookingId(), latestBooking.getLegalStatus(), activeConvictedOffences, sentenceTerms))
             .receptionDate(latestBooking.getBookingBeginDate().toLocalDate())
