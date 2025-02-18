@@ -29,17 +29,17 @@ internal class OffenderPhysicalAttributes(
   val id: OffenderPhysicalAttributeId,
 
   @Column(name = "HEIGHT_FT")
-  val heightFeet: Int? = null,
+  var heightFeet: Int? = null,
 
   @Column(name = "HEIGHT_IN")
-  val heightInches: Int? = null,
+  var heightInches: Int? = null,
 
   @Column(name = "HEIGHT_CM")
-  val heightCentimetres: Int? = null,
+  var heightCentimetres: Int? = null,
 
   @Column(name = "WEIGHT_LBS")
-  val weightPounds: Int? = null,
+  var weightPounds: Int? = null,
 
   @Column(name = "WEIGHT_KG")
-  val weightKgs: Int? = null,
+  var weightKgs: Int? = null,
 ) : AuditableEntity()
