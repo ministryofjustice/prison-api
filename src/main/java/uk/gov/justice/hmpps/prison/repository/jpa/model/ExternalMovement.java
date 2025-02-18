@@ -22,6 +22,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
+import org.hibernate.annotations.NotFound;
 import org.hibernate.type.YesNoConverter;
 import org.jetbrains.annotations.Nullable;
 
@@ -140,12 +141,17 @@ public class ExternalMovement extends AuditableEntity {
     })
     private City fromCity;
 
+    // TODO SDIT-2595 Change mapping to use MOVEMENT_REASONS table (not REFERENCE_CODES table)
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + REASON + "'", referencedColumnName = "domain")),
             @JoinColumnOrFormula(column = @JoinColumn(name = "MOVEMENT_REASON_CODE", referencedColumnName = "code"))
     })
+    @NotFound(action = org.hibernate.annotations.NotFoundAction.IGNORE)
     private MovementReason movementReason;
+
+    @Column(name = "MOVEMENT_REASON_CODE", insertable= false, updatable = false)
+    private String movementReasonCode;
 
     @Enumerated(STRING)
     @Column(name = "DIRECTION_CODE")
