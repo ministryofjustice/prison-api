@@ -23,7 +23,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceDomainRepository
 import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain
-import java.util.*
+import java.util.Optional
 
 @ExtendWith(MockitoExtension::class)
 class ReferenceDomainServiceImplTest {
@@ -121,14 +121,16 @@ class ReferenceDomainServiceImplTest {
       )
       whenever(repository.getReferenceCodesByDomain(domain, "code", Order.ASC)).thenReturn(
         listOf(
-          ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").build(),
-          ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").build(),
+          ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").activeFlag("Y").build(),
+          ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").activeFlag("Y").build(),
+          ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").activeFlag("Y").build(),
         ),
       )
 
       assertThat(service.getReferenceOrProfileCodesByDomain(domain)).containsExactly(
-        ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").build(),
-        ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").build(),
+        ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").activeFlag("Y").build(),
+        ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").activeFlag("Y").build(),
+        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").activeFlag("Y").build(),
       )
       verifyNoInteractions(profileCodeRepository, profileTypeRepository)
     }
@@ -140,14 +142,16 @@ class ReferenceDomainServiceImplTest {
       whenever(profileTypeRepository.findById(domain)).thenReturn(Optional.of(profileType))
       whenever(profileCodeRepository.findByProfileType(profileType)).thenReturn(
         listOf(
-          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE1")).description("Description 1").listSequence(99).build(),
-          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE2")).description("Description 2").listSequence(99).build(),
+          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE1")).description("Description 1").listSequence(99).active(true).build(),
+          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE2")).description("Description 2").listSequence(99).active(true).build(),
+          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE3")).description("Inactive Description").listSequence(99).active(false).build(),
         ),
       )
 
       assertThat(service.getReferenceOrProfileCodesByDomain(domain)).containsExactly(
-        ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").listSeq(99).build(),
-        ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").listSeq(99).build(),
+        ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").listSeq(99).activeFlag("Y").build(),
+        ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").listSeq(99).activeFlag("Y").build(),
+        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").listSeq(99).activeFlag("N").build(),
       )
     }
 
