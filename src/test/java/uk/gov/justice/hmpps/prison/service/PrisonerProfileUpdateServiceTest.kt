@@ -16,6 +16,8 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
+import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
+import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
@@ -24,6 +26,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
@@ -652,6 +656,147 @@ class PrisonerProfileUpdateServiceTest {
     }
   }
 
+  @Nested
+  inner class GetPhysicalAttributes {
+    @Test
+    internal fun `returns physical attributes when booking exists`() {
+      val booking = mock<OffenderBooking>()
+      val physicalAttributes = OffenderPhysicalAttributes(id = OffenderPhysicalAttributeId(OffenderBooking.builder().bookingId(1).build(), 1), heightCentimetres = 180, weightKgs = 75)
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.latestPhysicalAttributes).thenReturn(physicalAttributes)
+
+      val result = prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER)
+
+      assertThat(result.height).isEqualTo(180)
+      assertThat(result.weight).isEqualTo(75)
+    }
+
+    @Test
+    internal fun `returns empty physical attributes when no attributes exist`() {
+      val booking = mock<OffenderBooking>()
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.latestPhysicalAttributes).thenReturn(null)
+
+      val result = prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER)
+
+      assertThat(result).isEqualTo(CorePersonPhysicalAttributes())
+    }
+
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy { prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER) }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
+  @Nested
+  inner class UpdatePhysicalAttributes {
+    private val request = CorePersonPhysicalAttributesRequest(height = 190, weight = 80)
+
+    @BeforeEach
+    internal fun setUp() {
+      whenever(profileTypeRepository.findByTypeAndCategory(HAIR_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(HAIR_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(HAIR_PROFILE_TYPE, HAIR_BROWN_CODE)))
+        .thenReturn(Optional.of(HAIR_BROWN))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(FACIAL_HAIR_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(FACIAL_HAIR_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(FACIAL_HAIR_PROFILE_TYPE, FACIAL_HAIR_BEARDED_CODE)))
+        .thenReturn(Optional.of(FACIAL_HAIR_BEARDED))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(FACE_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(FACE_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(FACE_PROFILE_TYPE, FACE_ROUND_CODE)))
+        .thenReturn(Optional.of(FACE_ROUND))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(BUILD_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(BUILD_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(BUILD_PROFILE_TYPE, BUILD_MEDIUM_CODE)))
+        .thenReturn(Optional.of(BUILD_MEDIUM))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(LEFT_EYE_COLOUR_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(LEFT_EYE_COLOUR_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(LEFT_EYE_COLOUR_PROFILE_TYPE, LEFT_EYE_COLOUR_BLUE_CODE)))
+        .thenReturn(Optional.of(LEFT_EYE_COLOUR_BLUE))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(RIGHT_EYE_COLOUR_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(RIGHT_EYE_COLOUR_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(RIGHT_EYE_COLOUR_PROFILE_TYPE, RIGHT_EYE_COLOUR_BLUE_CODE)))
+        .thenReturn(Optional.of(RIGHT_EYE_COLOUR_BLUE))
+
+      whenever(profileTypeRepository.findByTypeAndCategory(SHOESIZE_PROFILE_TYPE_CODE, PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE))
+        .thenReturn(Optional.of(SHOESIZE_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(RIGHT_EYE_COLOUR_PROFILE_TYPE, RIGHT_EYE_COLOUR_BLUE_CODE)))
+        .thenReturn(Optional.of(RIGHT_EYE_COLOUR_BLUE))
+    }
+
+    @Test
+    internal fun `updates physical attributes when booking exists`() {
+      val booking = mock<OffenderBooking>()
+      val physicalAttributes = OffenderPhysicalAttributes(id = OffenderPhysicalAttributeId(OffenderBooking.builder().bookingId(1).build(), 1), heightCentimetres = 180, weightKgs = 75)
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.latestPhysicalAttributes).thenReturn(physicalAttributes)
+
+      prisonerProfileUpdateService.updatePhysicalAttributes(PRISONER_NUMBER, request)
+
+      assertThat(physicalAttributes.heightCentimetres).isEqualTo(190)
+      assertThat(physicalAttributes.weightKgs).isEqualTo(80)
+      verify(offenderBookingRepository).save(booking)
+    }
+
+    @Test
+    internal fun `adds physical attributes when none exist`() {
+      val booking = mock<OffenderBooking>()
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.offenderPhysicalAttributes).thenReturn(mutableListOf())
+      whenever(booking.latestPhysicalAttributes).thenReturn(null)
+
+      prisonerProfileUpdateService.updatePhysicalAttributes(PRISONER_NUMBER, request)
+
+      assertThat(booking.offenderPhysicalAttributes).hasSize(1)
+      assertThat(booking.offenderPhysicalAttributes[0].heightCentimetres).isEqualTo(190)
+      assertThat(booking.offenderPhysicalAttributes[0].weightKgs).isEqualTo(80)
+      verify(offenderBookingRepository).save(booking)
+    }
+
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.updatePhysicalAttributes(PRISONER_NUMBER, request) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy { prisonerProfileUpdateService.updatePhysicalAttributes(PRISONER_NUMBER, request) }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
   private companion object {
     const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
@@ -701,6 +846,53 @@ class PrisonerProfileUpdateServiceTest {
       ProfileCode(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_NO_CODE), "No", true, true, null, null)
     val SMOKER_YES =
       ProfileCode(ProfileCode.PK(SMOKER_PROFILE_TYPE, SMOKER_YES_CODE), "Yes", true, true, null, null)
+
+    const val PHYSICAL_ATTRIBUTES_PROFILE_CATEGORY_CODE = "PA"
+    const val HAIR_PROFILE_TYPE_CODE = "HAIR"
+    val HAIR_PROFILE_TYPE =
+      ProfileType(HAIR_PROFILE_TYPE_CODE, "PA", "Hair", false, true, "CODE", true, null, null)
+    const val HAIR_BROWN_CODE = "BROWN"
+    val HAIR_BROWN =
+      ProfileCode(ProfileCode.PK(HAIR_PROFILE_TYPE, HAIR_BROWN_CODE), "Brown", true, true, null, null)
+
+    const val FACIAL_HAIR_PROFILE_TYPE_CODE = "FACIAL_HAIR"
+    val FACIAL_HAIR_PROFILE_TYPE =
+      ProfileType(FACIAL_HAIR_PROFILE_TYPE_CODE, "PA", "Facial hair", false, true, "CODE", true, null, null)
+    const val FACIAL_HAIR_BEARDED_CODE = "BEARDED"
+    val FACIAL_HAIR_BEARDED =
+      ProfileCode(ProfileCode.PK(FACIAL_HAIR_PROFILE_TYPE, FACIAL_HAIR_BEARDED_CODE), "Full beard", true, true, null, null)
+
+    const val BUILD_PROFILE_TYPE_CODE = "BUILD"
+    val BUILD_PROFILE_TYPE =
+      ProfileType(BUILD_PROFILE_TYPE_CODE, "PA", "Build", false, true, "CODE", true, null, null)
+    const val BUILD_MEDIUM_CODE = "MEDIUM"
+    val BUILD_MEDIUM =
+      ProfileCode(ProfileCode.PK(BUILD_PROFILE_TYPE, BUILD_MEDIUM_CODE), "Medium", true, true, null, null)
+
+    const val FACE_PROFILE_TYPE_CODE = "FACE"
+    val FACE_PROFILE_TYPE =
+      ProfileType(FACE_PROFILE_TYPE_CODE, "PA", "Face", false, true, "CODE", true, null, null)
+    const val FACE_ROUND_CODE = "ROUND"
+    val FACE_ROUND =
+      ProfileCode(ProfileCode.PK(FACE_PROFILE_TYPE, FACE_ROUND_CODE), "Round", true, true, null, null)
+
+    const val LEFT_EYE_COLOUR_PROFILE_TYPE_CODE = "L_EYE_C"
+    val LEFT_EYE_COLOUR_PROFILE_TYPE =
+      ProfileType(LEFT_EYE_COLOUR_PROFILE_TYPE_CODE, "PA", "Left eye colour", false, true, "CODE", true, null, null)
+    const val LEFT_EYE_COLOUR_BLUE_CODE = "BLUE"
+    val LEFT_EYE_COLOUR_BLUE =
+      ProfileCode(ProfileCode.PK(LEFT_EYE_COLOUR_PROFILE_TYPE, LEFT_EYE_COLOUR_BLUE_CODE), "Blue", true, true, null, null)
+
+    const val RIGHT_EYE_COLOUR_PROFILE_TYPE_CODE = "R_EYE_C"
+    val RIGHT_EYE_COLOUR_PROFILE_TYPE =
+      ProfileType(RIGHT_EYE_COLOUR_PROFILE_TYPE_CODE, "PA", "Right eye colour", false, true, "CODE", true, null, null)
+    const val RIGHT_EYE_COLOUR_BLUE_CODE = "BLUE"
+    val RIGHT_EYE_COLOUR_BLUE =
+      ProfileCode(ProfileCode.PK(RIGHT_EYE_COLOUR_PROFILE_TYPE, RIGHT_EYE_COLOUR_BLUE_CODE), "Blue", true, true, null, null)
+
+    const val SHOESIZE_PROFILE_TYPE_CODE = "SHOESIZE"
+    val SHOESIZE_PROFILE_TYPE =
+      ProfileType(SHOESIZE_PROFILE_TYPE_CODE, "PA", "Shoe size", false, true, "TEXT", true, null, null)
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")
