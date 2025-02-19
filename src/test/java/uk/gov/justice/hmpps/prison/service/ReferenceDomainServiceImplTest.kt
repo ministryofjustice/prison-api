@@ -123,14 +123,14 @@ class ReferenceDomainServiceImplTest {
         listOf(
           ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").activeFlag("Y").build(),
           ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").activeFlag("Y").build(),
-          ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive description ").activeFlag("Y").build(),
+          ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").activeFlag("Y").build(),
         ),
       )
 
       assertThat(service.getReferenceOrProfileCodesByDomain(domain)).containsExactly(
         ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").activeFlag("Y").build(),
         ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").activeFlag("Y").build(),
-        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive description ").activeFlag("Y").build(),
+        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").activeFlag("Y").build(),
       )
       verifyNoInteractions(profileCodeRepository, profileTypeRepository)
     }
@@ -144,14 +144,14 @@ class ReferenceDomainServiceImplTest {
         listOf(
           ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE1")).description("Description 1").listSequence(99).active(true).build(),
           ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE2")).description("Description 2").listSequence(99).active(true).build(),
-          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE3")).description("Inactive description").listSequence(99).active(false).build(),
+          ProfileCode.builder().id(ProfileCode.PK(profileType, "CODE3")).description("Inactive Description").listSequence(99).active(false).build(),
         ),
       )
 
       assertThat(service.getReferenceOrProfileCodesByDomain(domain)).containsExactly(
         ReferenceCode.builder().code("CODE1").domain(domain).description("Description 1").listSeq(99).activeFlag("Y").build(),
         ReferenceCode.builder().code("CODE2").domain(domain).description("Description 2").listSeq(99).activeFlag("Y").build(),
-        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive description").listSeq(99).activeFlag("N").build(),
+        ReferenceCode.builder().code("CODE3").domain(domain).description("Inactive Description").listSeq(99).activeFlag("N").build(),
       )
     }
 
