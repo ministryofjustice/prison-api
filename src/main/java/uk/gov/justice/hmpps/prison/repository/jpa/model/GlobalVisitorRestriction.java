@@ -51,7 +51,7 @@ public class GlobalVisitorRestriction extends AuditableEntity {
     @Column(name = "EXPIRY_DATE")
     private LocalDate expiryDate;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_RESTRICTION_TYPE + "'", referencedColumnName = "domain")),

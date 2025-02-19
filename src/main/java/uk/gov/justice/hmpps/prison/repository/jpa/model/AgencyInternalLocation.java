@@ -60,7 +60,7 @@ public class AgencyInternalLocation {
     @Column(name = "INTERNAL_LOCATION_TYPE")
     private String locationType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LivingUnitReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),

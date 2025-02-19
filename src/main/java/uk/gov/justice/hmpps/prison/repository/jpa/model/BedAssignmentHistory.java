@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.FetchType;
 import jakarta.persistence.NamedAttributeNode;
 import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
@@ -82,7 +83,7 @@ public class BedAssignmentHistory extends AuditableEntity {
     private Long livingUnitId;
 
     @NotFound(action = IGNORE)
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "LIVING_UNIT_ID", referencedColumnName = "INTERNAL_LOCATION_ID", insertable = false, updatable = false)
     private AgencyInternalLocation location;
 
