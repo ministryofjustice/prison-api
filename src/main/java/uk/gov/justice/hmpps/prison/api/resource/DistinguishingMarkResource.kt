@@ -23,7 +23,6 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.DistinguishingMarkService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -48,8 +47,8 @@ class DistinguishingMarkResource(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
-      responseCode = "404",
-      description = "Requested resource not found.",
+      responseCode = "403",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -60,9 +59,9 @@ class DistinguishingMarkResource(
   )
   @Operation(
     summary = "Get all distinguishing marks associated with a prisoner's latest booking",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/{prisonerNumber}/distinguishing-marks")
   fun getIdentifyingMarksForLatestBooking(
     @PathVariable("prisonerNumber") @Parameter(
@@ -80,6 +79,11 @@ class DistinguishingMarkResource(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
+      responseCode = "403",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
       responseCode = "404",
       description = "Requested resource not found.",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
@@ -92,9 +96,9 @@ class DistinguishingMarkResource(
   )
   @Operation(
     summary = "Get a specific distinguishing mark associated with a prisoner",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/{prisonerNumber}/distinguishing-mark/{seqId}")
   fun getIdentifyingMark(
     @PathVariable("prisonerNumber") @Parameter(
@@ -113,6 +117,11 @@ class DistinguishingMarkResource(
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
+      responseCode = "403",
+      description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
       responseCode = "404",
       description = "Requested resource not found.",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
@@ -125,9 +134,9 @@ class DistinguishingMarkResource(
   )
   @Operation(
     summary = "Get the content of an image",
-    description = "Requires role ROLE_VIEW_PRISONER_DATA",
+    description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/photo/{photoId}")
   fun getImage(
     @PathVariable("photoId") @Parameter(
@@ -169,7 +178,6 @@ class DistinguishingMarkResource(
     summary = "Add a new photo to an distinguishing mark",
     description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PostMapping(
     value = ["/{prisonerNumber}/distinguishing-mark/{seqId}/photo"],
@@ -223,7 +231,6 @@ class DistinguishingMarkResource(
     summary = "Update an existing distinguishing mark",
     description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PutMapping(
     value = ["/{prisonerNumber}/distinguishing-mark/{seqId}"],
@@ -274,7 +281,6 @@ class DistinguishingMarkResource(
     summary = "Create a new distinguishing mark, optionally providing a photo",
     description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
-  @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @PostMapping(
     value = ["/{prisonerNumber}/distinguishing-mark"],

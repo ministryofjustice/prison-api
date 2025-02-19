@@ -79,7 +79,7 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelpe
     tokens[AuthToken.UPDATE_OFFENCE_SCHEDULES] = someClientUser("ROLE_UPDATE_OFFENCE_SCHEDULES")
     tokens[AuthToken.RELEASE_DATE_MANUAL_COMPARER] = someClientUser("ROLE_RELEASE_DATE_MANUAL_COMPARER")
     tokens[AuthToken.VIEW_CASE_NOTES] = someClientUser("ROLE_VIEW_CASE_NOTES")
-    tokens[AuthToken.PRISONER_PROFILE_RW] = someClientUser("PRISON_API__PRISONER_PROFILE__RW", "ROLE_VIEW_PRISONER_DATA")
+    tokens[AuthToken.PRISONER_PROFILE_RW] = someClientUser("PRISON_API__PRISONER_PROFILE__RW")
   }
 
   fun setToken(clientId: AuthToken) {

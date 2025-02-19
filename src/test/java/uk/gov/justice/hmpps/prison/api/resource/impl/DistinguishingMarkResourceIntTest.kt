@@ -19,7 +19,6 @@ import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISONER_PROFILE_RW
 import java.io.File
 
@@ -52,9 +51,9 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+    fun `returns success when client has override role PRISON_API__PRISONER_PROFILE__RW `() {
       webTestClient.get().uri("/api/person/A1069AA/distinguishing-marks")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .exchange()
         .expectStatus().isOk
     }
@@ -72,14 +71,8 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 404 if prisoner not found`() {
-      webTestClient.get().uri("/api/person/ZZ9999ZZ/distinguishing-marks")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
-    }
-
-    @Test
     fun `correctly returns all marks associated with the prisoner's latest booking`() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
         "/api/person/A1069AA/distinguishing-marks",
@@ -118,9 +111,9 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+    fun `returns success when client has override role PRISON_API__PRISONER_PROFILE__RW `() {
       webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/2")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .exchange()
         .expectStatus().isOk
     }
@@ -140,18 +133,18 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if prisoner not found`() {
       webTestClient.get().uri("/api/person/ZZ9999ZZ/distinguishing-mark/2")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW"))).exchange().expectStatus().isNotFound
     }
 
     @Test
     fun `returns 404 if mark not found`() {
       webTestClient.get().uri("/api/person/A1069AA/distinguishing-mark/999")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW"))).exchange().expectStatus().isNotFound
     }
 
     @Test
     fun `correctly returns specific mark associated with the prisoner's latest booking`() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
       val httpEntity = createHttpEntity(token, null)
       val response = testRestTemplate.exchange(
         "/api/person/A1069AA/distinguishing-mark/2",
@@ -190,9 +183,9 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA `() {
+    fun `returns success when client has override role PRISON_API__PRISONER_PROFILE__RW `() {
       webTestClient.get().uri("/api/person/photo/-100")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .exchange()
         .expectStatus().isOk
     }
@@ -212,7 +205,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if mark not found`() {
       webTestClient.get().uri("/api/person/photo/-999")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange().expectStatus().isNotFound
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW"))).exchange().expectStatus().isNotFound
     }
 
     @Test
@@ -289,7 +282,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if mark not found`() {
       webTestClient.post().uri("/api/person/A1069AA/distinguishing-mark/999/photo")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .body(multiPartFormRequest())
         .exchange()
         .expectStatus().isNotFound
@@ -401,7 +394,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if mark not found`() {
       webTestClient.put().uri("/api/person/A1069AA/distinguishing-mark/999")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(updateRequest)
         .exchange()
@@ -475,7 +468,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
     @Test
     fun `returns 404 if prisoner not found`() {
       webTestClient.post().uri("/api/person/ZZ9999ZZ/distinguishing-mark")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA", "PRISON_API__PRISONER_PROFILE__RW")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .bodyValue(multiPartBodyBuilder().build())
         .exchange()
         .expectStatus().isNotFound
