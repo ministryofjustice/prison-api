@@ -22,6 +22,7 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -82,30 +83,28 @@ class DistinguishingMarkServiceImplTest {
     whenever(identifyingMarkRepository.findAllMarksForLatestBooking(anyString())).thenReturn(identifyingMarks)
 
     val expected = listOf(
-      DistinguishingMark.builder()
-        .bookingId(-1L)
-        .id(1)
-        .offenderNo(OFFENDER_ID)
-        .markType("TAT")
-        .bodyPart("TORSO")
-        .comment("Some comment")
-        .photographUuids(listOf())
-        .build(),
-      DistinguishingMark.builder()
-        .bookingId(-1L)
-        .id(2)
-        .offenderNo(OFFENDER_ID)
-        .markType("TAT")
-        .bodyPart("ARM")
-        .side("L")
-        .partOrientation("UPP")
-        .photographUuids(
-          listOf(
-            DistinguishingMark.DistinguishingMarkImageDetail(1L, false),
-            DistinguishingMark.DistinguishingMarkImageDetail(2L, true),
-          ),
-        )
-        .build(),
+      DistinguishingMark(
+        id = 1,
+        bookingId = -1L,
+        offenderNo = OFFENDER_ID,
+        markType = "TAT",
+        bodyPart = "TORSO",
+        comment = "Some comment",
+        photographUuids = listOf(),
+      ),
+      DistinguishingMark(
+        id = 2,
+        bookingId = -1L,
+        offenderNo = OFFENDER_ID,
+        markType = "TAT",
+        bodyPart = "ARM",
+        side = "L",
+        partOrientation = "UPP",
+        photographUuids = listOf(
+          DistinguishingMarkImageDetail(1L, false),
+          DistinguishingMarkImageDetail(2L, true),
+        ),
+      ),
     )
 
     val response = service.findMarksForLatestBooking(OFFENDER_ID)
@@ -142,27 +141,19 @@ class DistinguishingMarkServiceImplTest {
       ),
     ).thenReturn(identifyingMark)
 
-    val expected = DistinguishingMark.builder()
-      .bookingId(-1L)
-      .id(2)
-      .offenderNo(OFFENDER_ID)
-      .markType("TAT")
-      .bodyPart("ARM")
-      .side("L")
-      .partOrientation("UPP")
-      .photographUuids(
-        listOf(
-          DistinguishingMark.DistinguishingMarkImageDetail(
-            1L,
-            false,
-          ),
-          DistinguishingMark.DistinguishingMarkImageDetail(
-            2L,
-            true,
-          ),
-        ),
-      )
-      .build()
+    val expected = DistinguishingMark(
+      id = 2,
+      bookingId = -1L,
+      offenderNo = OFFENDER_ID,
+      markType = "TAT",
+      bodyPart = "ARM",
+      side = "L",
+      partOrientation = "UPP",
+      photographUuids = listOf(
+        DistinguishingMarkImageDetail(1L, false),
+        DistinguishingMarkImageDetail(2L, true),
+      ),
+    )
 
     val response = service.getMarkForLatestBooking(OFFENDER_ID, 2)
 
@@ -239,17 +230,17 @@ class DistinguishingMarkServiceImplTest {
         .thenReturn(existingMark)
 
       val updateRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = DistinguishingMark.builder()
-        .bookingId(-1L)
-        .id(1)
-        .offenderNo(OFFENDER_ID)
-        .markType("SCAR")
-        .bodyPart("ARM")
-        .side("L")
-        .partOrientation("UPP")
-        .comment("Old wound")
-        .photographUuids(listOf())
-        .build()
+      val expected = DistinguishingMark(
+        id = 1,
+        bookingId = -1L,
+        offenderNo = OFFENDER_ID,
+        markType = "SCAR",
+        bodyPart = "ARM",
+        side = "L",
+        partOrientation = "UPP",
+        comment = "Old wound",
+        photographUuids = listOf(),
+      )
       val response = service.updateMark(OFFENDER_ID, 1, updateRequest)
 
       assertThat(response).isEqualTo(expected)
@@ -271,9 +262,9 @@ class DistinguishingMarkServiceImplTest {
   @Nested
   @DisplayName("Create new distinguishing mark")
   inner class CreateMark {
-    val offender = Offender.builder().nomsId(OFFENDER_ID).build()
-    val booking = OffenderBooking.builder().offender(offender).build()
-    val saveResponse = OffenderIdentifyingMark.builder()
+    val offender: Offender = Offender.builder().nomsId(OFFENDER_ID).build()
+    val booking: OffenderBooking = OffenderBooking.builder().offender(offender).build()
+    private val saveResponse: OffenderIdentifyingMark = OffenderIdentifyingMark.builder()
       .bookingId(-1L)
       .offenderBooking(booking)
       .sequenceId(1)
@@ -303,17 +294,17 @@ class DistinguishingMarkServiceImplTest {
       whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
 
       val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = DistinguishingMark.builder()
-        .bookingId(-1L)
-        .id(1)
-        .offenderNo(OFFENDER_ID)
-        .markType("SCAR")
-        .bodyPart("ARM")
-        .side("L")
-        .partOrientation("UPP")
-        .comment("Old wound")
-        .photographUuids(listOf())
-        .build()
+      val expected = DistinguishingMark(
+        id = 1,
+        bookingId = -1L,
+        offenderNo = OFFENDER_ID,
+        markType = "SCAR",
+        bodyPart = "ARM",
+        side = "L",
+        partOrientation = "UPP",
+        comment = "Old wound",
+        photographUuids = listOf(),
+      )
       val response = service.createMark(OFFENDER_ID, createRequest)
 
       verify(identifyingMarkRepository).save(any())
@@ -329,17 +320,17 @@ class DistinguishingMarkServiceImplTest {
       whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
 
       val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
-      val expected = DistinguishingMark.builder()
-        .bookingId(-1L)
-        .id(1)
-        .offenderNo(OFFENDER_ID)
-        .markType("SCAR")
-        .bodyPart("ARM")
-        .side("L")
-        .partOrientation("UPP")
-        .comment("Old wound")
-        .photographUuids(listOf())
-        .build()
+      val expected = DistinguishingMark(
+        id = 1,
+        bookingId = -1L,
+        offenderNo = OFFENDER_ID,
+        markType = "SCAR",
+        bodyPart = "ARM",
+        side = "L",
+        partOrientation = "UPP",
+        comment = "Old wound",
+        photographUuids = listOf(),
+      )
       val response = service.createMark(OFFENDER_ID, createRequest, ByteArrayInputStream(IMAGE_DATA))
 
       val imageCaptor = argumentCaptor<OffenderImage>()

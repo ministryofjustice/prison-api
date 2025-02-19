@@ -22,7 +22,7 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark;
-import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark.DistinguishingMarkImageDetail;
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail;
 import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Comparator;
@@ -92,18 +92,18 @@ public class OffenderIdentifyingMark extends AuditableEntity {
             .map(it -> new DistinguishingMarkImageDetail(it.getId(), latestImageId.equals(it.getId())))
             .toList();
 
-        return DistinguishingMark.builder()
-            .id(sequenceId)
-            .bookingId(bookingId)
-            .offenderNo(offenderBooking.getOffender().getNomsId())
-            .markType(markType)
-            .bodyPart(bodyPart)
-            .side(side)
-            .partOrientation(partOrientation)
-            .comment(commentText)
-            .photographUuids(imageInfo)
-            .createdBy(getCreateUserId())
-            .createdAt(getCreateDatetime())
-            .build();
+        return new DistinguishingMark(
+            sequenceId,
+            bookingId,
+            offenderBooking.getOffender().getNomsId(),
+            bodyPart,
+            markType,
+            side,
+            partOrientation,
+            commentText,
+            getCreateDatetime(),
+            getCreateUserId(),
+            imageInfo
+        );
     }
 }
