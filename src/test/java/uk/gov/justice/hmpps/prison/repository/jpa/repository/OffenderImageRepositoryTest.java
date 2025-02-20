@@ -22,10 +22,10 @@ public class OffenderImageRepositoryTest {
     @Test
     public void getImagesByOffenderNumber() {
 
-        var images = repository.getImagesByOffenderNumber("A1234AA");
+        var images = repository.getImagesByOffenderNumber("A1069AA");
 
-        assertThat(images).hasSize(1);
-        assertThat(images).extracting(OffenderImage::getId).containsOnly(-1L);
+        assertThat(images).hasSize(4);
+        assertThat(images).extracting(OffenderImage::getId).containsOnly(-100L, -101L, -102L, -103L);
     }
 
     @Test

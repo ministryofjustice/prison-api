@@ -1,0 +1,13 @@
+{
+  "id": 2,
+  "bookingId": -107,
+  "offenderNo": "A1070AA",
+  "bodyPart": "ARM",
+  "markType": "SCAR",
+  "side": "R",
+  "partOrientation": "LOW",
+  "comment": "Old wound",
+  "createdAt": "2017-02-18T00:00:00",
+  "createdBy": "SA",
+  "photographUuids": []
+}

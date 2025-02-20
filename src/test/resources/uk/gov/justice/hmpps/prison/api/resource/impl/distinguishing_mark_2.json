@@ -1,0 +1,18 @@
+{
+  "id": 2,
+  "bookingId": -105,
+  "offenderNo": "A1069AA",
+  "bodyPart": "LEG",
+  "markType": "TAT",
+  "side": "R",
+  "partOrientation": "UPP",
+  "comment": "Some Comment Text",
+  "createdAt": "2017-02-18T00:00:00",
+  "createdBy": "SA",
+  "photographUuids": [
+    {
+      "id": -102,
+      "latest": true
+    }
+  ]
+}
