@@ -41,7 +41,7 @@ public class OffenderRestriction extends AuditableEntity {
     @Column(name = "OFFENDER_BOOK_ID", nullable = false)
     private Long offenderBookingId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_RESTRICTION_TYPE + "'", referencedColumnName = "domain")),
