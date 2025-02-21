@@ -123,15 +123,13 @@ class DistinguishingMarkService(
   }
 
   private fun OffenderIdentifyingMark.toDistinguishingMark(): DistinguishingMark {
-    val latestImageId = images.stream()
-      .filter { obj: OffenderImage -> obj.isActive }
-      .max(Comparator.comparingLong { obj: OffenderImage -> obj.id })
-      .map { obj: OffenderImage -> obj.id }
-      .orElse(-1L)
-    val imageInfo = images.stream()
-      .filter { obj: OffenderImage -> obj.isActive }
-      .map { it: OffenderImage -> DistinguishingMarkImageDetail(it.id, latestImageId == it.id) }
-      .toList()
+    val latestImageId = images
+      .filter { it.isActive }
+      .maxByOrNull { it.id }?.id ?: 1L
+    val imageInfo = images
+      .filter { it.isActive }
+      .map { DistinguishingMarkImageDetail(it.id, latestImageId == it.id) }
+      .sortedBy { it.id }
 
     return DistinguishingMark(
       this.sequenceId,
