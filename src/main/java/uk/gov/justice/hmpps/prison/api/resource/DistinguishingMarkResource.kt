@@ -175,7 +175,7 @@ class DistinguishingMarkResource(
     ),
   )
   @Operation(
-    summary = "Add a new photo to an distinguishing mark",
+    summary = "Add a new photo to an distinguishing mark. The calling service is responsible for virus scanning the photo.",
     description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
@@ -278,7 +278,7 @@ class DistinguishingMarkResource(
     ),
   )
   @Operation(
-    summary = "Create a new distinguishing mark, optionally providing a photo",
+    summary = "Create a new distinguishing mark, optionally providing a photo. The calling service is responsible for virus scanning the photo.",
     description = "Requires role PRISON_API__PRISONER_PROFILE__RW",
   )
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
