@@ -18,19 +18,19 @@ data class DistinguishingMark(
   val offenderNo: String,
 
   @Schema(description = "The body part the mark is on", requiredMode = RequiredMode.REQUIRED)
-  val bodyPart: String,
+  val bodyPart: ReferenceCode? = null,
 
   @Schema(description = "The type of distinguishing mark (e.g. tattoo, scar)", requiredMode = RequiredMode.REQUIRED)
-  val markType: String,
+  val markType: ReferenceCode? = null,
 
   @Schema(description = "The side of the body part the mark is on", requiredMode = RequiredMode.NOT_REQUIRED)
-  val side: String? = null,
+  val side: ReferenceCode? = null,
 
   @Schema(
     description = "The orientation of the mark on the body part (e.g. Centre, Low, Upper)",
     requiredMode = RequiredMode.NOT_REQUIRED,
   )
-  val partOrientation: String? = null,
+  val partOrientation: ReferenceCode? = null,
 
   @Schema(description = "Comment about the distinguishing mark", requiredMode = RequiredMode.NOT_REQUIRED)
   val comment: String? = null,

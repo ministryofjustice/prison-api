@@ -2,10 +2,42 @@
   "id": 2,
   "bookingId": -105,
   "offenderNo": "A1069AA",
-  "bodyPart": "LEG",
-  "markType": "TAT",
-  "side": "R",
-  "partOrientation": "UPP",
+  "bodyPart": {
+    "domain": "BODY_PART",
+    "code": "LEG",
+    "description": "Leg",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "markType": {
+    "domain": "MARK_TYPE",
+    "code": "TAT",
+    "description": "Tattoo",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "side": {
+    "domain": "SIDE",
+    "code": "R",
+    "description": "Right",
+    "activeFlag": "Y",
+    "listSeq": 1,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "partOrientation": {
+    "domain": "PART_ORIENT",
+    "code": "UPP",
+    "description": "Upper",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
   "comment": "Some Comment Text",
   "createdAt": "2017-02-18T00:00:00",
   "createdBy": "SA",

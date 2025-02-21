@@ -21,11 +21,9 @@ import lombok.RequiredArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
-import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark;
-import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail;
 import java.io.Serializable;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import static jakarta.persistence.FetchType.EAGER;
 
@@ -81,29 +79,13 @@ public class OffenderIdentifyingMark extends AuditableEntity {
     @Default
     private List<OffenderImage> images = new ArrayList<>();
 
-    public DistinguishingMark transform() {
-        var latestImageId = images.stream()
-            .filter(OffenderImage::isActive)
-            .max(Comparator.comparingLong(OffenderImage::getId))
-            .map(OffenderImage::getId)
-            .orElse(-1L);
-        var imageInfo = images.stream()
-            .filter(OffenderImage::isActive)
-            .map(it -> new DistinguishingMarkImageDetail(it.getId(), latestImageId.equals(it.getId())))
-            .toList();
+    @Override
+    public String getCreateUserId() {
+        return super.getCreateUserId();
+    }
 
-        return new DistinguishingMark(
-            sequenceId,
-            bookingId,
-            offenderBooking.getOffender().getNomsId(),
-            bodyPart,
-            markType,
-            side,
-            partOrientation,
-            commentText,
-            getCreateDatetime(),
-            getCreateUserId(),
-            imageInfo
-        );
+    @Override
+    public LocalDateTime getCreateDatetime() {
+        return super.getCreateDatetime();
     }
 }

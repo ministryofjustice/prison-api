@@ -6,6 +6,8 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifyingMark
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage
@@ -29,13 +31,12 @@ class DistinguishingMarkService(
   private val bookingRepository: OffenderBookingRepository,
   private val referenceDataRepository: ReferenceDataRepository,
 ) {
-
   @Transactional(readOnly = true)
-  fun findMarksForLatestBooking(offenderNumber: String): List<DistinguishingMark> = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map(OffenderIdentifyingMark::transform)
+  fun findMarksForLatestBooking(offenderNumber: String): List<DistinguishingMark> = identifyingMarksRepository.findAllMarksForLatestBooking(offenderNumber).map { it.toDistinguishingMark() }
 
   @Transactional(readOnly = true)
   fun getMarkForLatestBooking(offenderNumber: String, markId: Int): DistinguishingMark = identifyingMarksRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(offenderNumber, markId)
-    ?.transform()
+    ?.toDistinguishingMark()
     ?: notFound(offenderNumber, markId)
 
   @Transactional
@@ -52,7 +53,7 @@ class DistinguishingMarkService(
         side = updateRequest.side
         partOrientation = updateRequest.partOrientation
         commentText = updateRequest.comment
-      }?.transform()
+      }?.toDistinguishingMark()
       ?: notFound(offenderNumber, markId)
   }
 
@@ -89,11 +90,11 @@ class DistinguishingMarkService(
         offenderNumber,
         savedMarkId,
       )
-        ?.transform()
+        ?.toDistinguishingMark()
         ?: notFound(offenderNumber, savedMarkId)
     }
 
-    return savedMark.transform()
+    return savedMark.toDistinguishingMark()
   }
 
   @Transactional
@@ -121,11 +122,43 @@ class DistinguishingMarkService(
     imageRepository.save(newImage)
   }
 
+  private fun OffenderIdentifyingMark.toDistinguishingMark(): DistinguishingMark {
+    val latestImageId = images
+      .filter { it.isActive }
+      .maxByOrNull { it.id }?.id ?: 1L
+    val imageInfo = images
+      .filter { it.isActive }
+      .map { DistinguishingMarkImageDetail(it.id, latestImageId == it.id) }
+      .sortedBy { it.id }
+
+    return DistinguishingMark(
+      this.sequenceId,
+      this.bookingId,
+      this.offenderBooking.offender.nomsId,
+      getReferenceCode("BODY_PART", this.bodyPart),
+      getReferenceCode("MARK_TYPE", this.markType),
+      getReferenceCode("SIDE", this.side),
+      getReferenceCode("PART_ORIENT", this.partOrientation),
+      this.commentText,
+      this.createDatetime,
+      this.createUserId,
+      imageInfo,
+    )
+  }
+
   private fun validateRequest(request: DistinguishingMarkDetails) {
     verifyReferenceCodeExists("MARK_TYPE", request.markType)
     verifyReferenceCodeExists("BODY_PART", request.bodyPart)
     verifyReferenceCodeExists("SIDE", request.side)
     verifyReferenceCodeExists("PART_ORIENT", request.partOrientation)
+  }
+
+  private fun getReferenceCode(domain: String, code: String?): ReferenceCode? {
+    if (code == null) {
+      return null
+    }
+    return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
+      .orElseThrow { RuntimeException("Reference code $code with domain $domain not found") }
   }
 
   private fun verifyReferenceCodeExists(domain: String, code: String?) {

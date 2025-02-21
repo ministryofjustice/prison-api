@@ -50,6 +50,22 @@ class DistinguishingMarkServiceImplTest {
     referenceDataRepository,
   )
 
+  @BeforeEach
+  fun setup() {
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("MARK_TYPE", "SCAR", false))
+      .thenReturn(Optional.of(MARK_TYPE_SCAR))
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("MARK_TYPE", "TAT", false))
+      .thenReturn(Optional.of(MARK_TYPE_TATTOO))
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("BODY_PART", "ARM", false))
+      .thenReturn(Optional.of(BODY_PART_ARM))
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("BODY_PART", "TORSO", false))
+      .thenReturn(Optional.of(BODY_PART_TORSO))
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("SIDE", "L", false))
+      .thenReturn(Optional.of(SIDE_LEFT))
+    whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("PART_ORIENT", "UPP", false))
+      .thenReturn(Optional.of(ORIENTATION_UPPER))
+  }
+
   @Test
   fun `get distinguishing marks for latest booking`() {
     val offender = Offender.builder().nomsId(OFFENDER_ID).build()
@@ -87,8 +103,8 @@ class DistinguishingMarkServiceImplTest {
         id = 1,
         bookingId = -1L,
         offenderNo = OFFENDER_ID,
-        markType = "TAT",
-        bodyPart = "TORSO",
+        markType = MARK_TYPE_TATTOO,
+        bodyPart = BODY_PART_TORSO,
         comment = "Some comment",
         photographUuids = listOf(),
       ),
@@ -96,10 +112,10 @@ class DistinguishingMarkServiceImplTest {
         id = 2,
         bookingId = -1L,
         offenderNo = OFFENDER_ID,
-        markType = "TAT",
-        bodyPart = "ARM",
-        side = "L",
-        partOrientation = "UPP",
+        markType = MARK_TYPE_TATTOO,
+        bodyPart = BODY_PART_ARM,
+        side = SIDE_LEFT,
+        partOrientation = ORIENTATION_UPPER,
         photographUuids = listOf(
           DistinguishingMarkImageDetail(1L, false),
           DistinguishingMarkImageDetail(2L, true),
@@ -145,10 +161,10 @@ class DistinguishingMarkServiceImplTest {
       id = 2,
       bookingId = -1L,
       offenderNo = OFFENDER_ID,
-      markType = "TAT",
-      bodyPart = "ARM",
-      side = "L",
-      partOrientation = "UPP",
+      markType = MARK_TYPE_TATTOO,
+      bodyPart = BODY_PART_ARM,
+      side = SIDE_LEFT,
+      partOrientation = ORIENTATION_UPPER,
       photographUuids = listOf(
         DistinguishingMarkImageDetail(1L, false),
         DistinguishingMarkImageDetail(2L, true),
@@ -159,6 +175,32 @@ class DistinguishingMarkServiceImplTest {
 
     verify(identifyingMarkRepository).getMarkForLatestBookingByOffenderNumberAndSequenceId(OFFENDER_ID, 2)
     assertThat(response).isEqualTo(expected)
+  }
+
+  @Test
+  fun `throws exception if a reference code cannot be found`() {
+    val offender = Offender.builder().nomsId(OFFENDER_ID).build()
+    val booking = OffenderBooking.builder().offender(offender).build()
+    val identifyingMark = OffenderIdentifyingMark.builder()
+      .bookingId(-1L)
+      .offenderBooking(booking)
+      .sequenceId(2)
+      .markType("NOTFOUND")
+      .bodyPart("ARM")
+      .side("L")
+      .partOrientation("UPP")
+      .images(listOf())
+      .build()
+
+    whenever(
+      identifyingMarkRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(
+        anyString(),
+        anyInt(),
+      ),
+    ).thenReturn(identifyingMark)
+
+    val ex = assertThrows<RuntimeException> { service.getMarkForLatestBooking(OFFENDER_ID, 2) }
+    assertThat(ex.message).isEqualTo("Reference code NOTFOUND with domain MARK_TYPE not found")
   }
 
   @Test
@@ -202,18 +244,6 @@ class DistinguishingMarkServiceImplTest {
   @DisplayName("Update existing distinguishing mark")
   inner class UpdateExistingMark {
 
-    @BeforeEach
-    fun setup() {
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("MARK_TYPE", "SCAR", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("BODY_PART", "ARM", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("SIDE", "L", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("PART_ORIENT", "UPP", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-    }
-
     @Test
     fun `Updates successfully`() {
       val offender = Offender.builder().nomsId(OFFENDER_ID).build()
@@ -234,10 +264,10 @@ class DistinguishingMarkServiceImplTest {
         id = 1,
         bookingId = -1L,
         offenderNo = OFFENDER_ID,
-        markType = "SCAR",
-        bodyPart = "ARM",
-        side = "L",
-        partOrientation = "UPP",
+        markType = MARK_TYPE_SCAR,
+        bodyPart = BODY_PART_ARM,
+        side = SIDE_LEFT,
+        partOrientation = ORIENTATION_UPPER,
         comment = "Old wound",
         photographUuids = listOf(),
       )
@@ -276,18 +306,6 @@ class DistinguishingMarkServiceImplTest {
       .images(listOf())
       .build()
 
-    @BeforeEach
-    fun setup() {
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("MARK_TYPE", "SCAR", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("BODY_PART", "ARM", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("SIDE", "L", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-      whenever(referenceDataRepository.getReferenceCodeByDomainAndCode("PART_ORIENT", "UPP", false))
-        .thenReturn(Optional.of(ReferenceCode()))
-    }
-
     @Test
     fun `Create new distinguishing mark without image`() {
       whenever(bookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_ID)).thenReturn(Optional.of(booking))
@@ -298,10 +316,10 @@ class DistinguishingMarkServiceImplTest {
         id = 1,
         bookingId = -1L,
         offenderNo = OFFENDER_ID,
-        markType = "SCAR",
-        bodyPart = "ARM",
-        side = "L",
-        partOrientation = "UPP",
+        markType = MARK_TYPE_SCAR,
+        bodyPart = BODY_PART_ARM,
+        side = SIDE_LEFT,
+        partOrientation = ORIENTATION_UPPER,
         comment = "Old wound",
         photographUuids = listOf(),
       )
@@ -324,10 +342,10 @@ class DistinguishingMarkServiceImplTest {
         id = 1,
         bookingId = -1L,
         offenderNo = OFFENDER_ID,
-        markType = "SCAR",
-        bodyPart = "ARM",
-        side = "L",
-        partOrientation = "UPP",
+        markType = MARK_TYPE_SCAR,
+        bodyPart = BODY_PART_ARM,
+        side = SIDE_LEFT,
+        partOrientation = ORIENTATION_UPPER,
         comment = "Old wound",
         photographUuids = listOf(),
       )
@@ -364,5 +382,15 @@ class DistinguishingMarkServiceImplTest {
   companion object {
     private const val OFFENDER_ID = "A1234AA"
     private val IMAGE_DATA = Base64.getDecoder().decode("R0lGODlhAQABAIAAAAAAAAAAACH5BAAAAAAALAAAAAABAAEAAAICTAEAOw==")
+
+    private val MARK_TYPE_SCAR = ReferenceCode("MARK_TYPE", "SCAR", listOf())
+    private val MARK_TYPE_TATTOO = ReferenceCode("MARK_TYPE", "TAT", listOf())
+
+    private val BODY_PART_ARM = ReferenceCode("BODY_PART", "ARM", listOf())
+    private val BODY_PART_TORSO = ReferenceCode("BODY_PART", "TORSO", listOf())
+
+    private val SIDE_LEFT = ReferenceCode("SIDE", "L", listOf())
+
+    private val ORIENTATION_UPPER = ReferenceCode("PART_ORIENT", "UPP", listOf())
   }
 }

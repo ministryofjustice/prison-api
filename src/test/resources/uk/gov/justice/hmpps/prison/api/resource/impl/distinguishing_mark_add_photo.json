@@ -2,8 +2,24 @@
   "id": 1,
   "bookingId": -107,
   "offenderNo": "A1070AA",
-  "bodyPart": "TORSO",
-  "markType": "TAT",
+  "bodyPart": {
+    "domain": "BODY_PART",
+    "code": "TORSO",
+    "description": "Torso",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "markType": {
+    "domain": "MARK_TYPE",
+    "code": "TAT",
+    "description": "Tattoo",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
   "comment": "Some Comment Text",
   "createdAt": "2017-02-18T00:00:00",
   "createdBy": "SA",
