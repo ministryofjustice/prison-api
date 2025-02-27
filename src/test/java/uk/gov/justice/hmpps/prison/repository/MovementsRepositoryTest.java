@@ -146,7 +146,7 @@ public class MovementsRepositoryTest {
                         "LANDING H/1",
                         "ADM",
                         "Unconvicted Remand",
-                        null
+                        "Birmingham Youth Court, Justice Avenue"
                 )
 
         );
