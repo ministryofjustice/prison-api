@@ -653,7 +653,7 @@ class MovementResourceTest : ResourceTest() {
             "LEI",
             LocalTime.parse("00:00"),
             LocalDateTime.parse("2018-01-01T00:00"),
-            "",
+            null,
             "Wadhurst",
           ),
         )
