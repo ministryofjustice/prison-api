@@ -12,7 +12,9 @@
     "movementTime": "17:30:00",
     "offenderNo": "A1234AA",
     "toAgencyDescription": "LEEDS",
-    "toAgencyId": "LEI"
+    "toAgencyId": "LEI",
+    "movementType":"ADM",
+    "movementReasonDescription":"Unconvicted Remand"
   },
   {
     "firstName": "Marcus",
@@ -28,6 +30,8 @@
     "toAgencyDescription": "LEEDS",
     "toAgencyId": "LEI",
     "fromCity": "Birmingham",
-    "toCity": "Leicester"
+    "toCity": "Leicester",
+    "movementType":"ADM",
+    "movementReasonDescription":"Recapture (Escapee)"
   }
 ]
