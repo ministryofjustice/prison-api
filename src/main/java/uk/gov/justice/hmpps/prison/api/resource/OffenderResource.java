@@ -308,7 +308,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Creates a prisoner and optional receives them into a prison by creating a new booking. BOOKING_CREATE role")
     @PostMapping
-    @PreAuthorize("hasRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate,  @Parameter(description = "When true do not reject new prisoners with same name as existing person") final boolean allowNameDuplicate) {
         return prisonerCreationService.createPrisoner(requestToCreate, allowNameDuplicate);
@@ -371,7 +371,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Receives a prisoner on a new booking. BOOKING_CREATE role")
     @PostMapping("/{offenderNo}/booking")
-    @PreAuthorize("hasRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
