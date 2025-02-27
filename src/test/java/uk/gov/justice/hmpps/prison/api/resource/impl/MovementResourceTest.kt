@@ -596,6 +596,7 @@ class MovementResourceTest : ResourceTest() {
         "movementTime",
         "movementDateTime",
         "location",
+        "fromAddress",
       )
         .containsExactly(
           Tuple(
@@ -612,6 +613,7 @@ class MovementResourceTest : ResourceTest() {
             LocalTime.parse("10:45"),
             LocalDateTime.parse("2017-10-12T10:45"),
             "LANDING H/1",
+            "Birmingham Youth Court, Justice Avenue",
           ),
         )
     }

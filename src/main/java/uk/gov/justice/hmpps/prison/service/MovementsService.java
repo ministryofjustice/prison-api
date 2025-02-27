@@ -158,6 +158,8 @@ public class MovementsService {
             .reasonDescription(capitalizeFully(offenderMovement.getMovementReasonDescription()))
             .offenderNo(offenderMovement.getOffenderNo())
             .timeOut(offenderMovement.getMovementTime())
+            .movementType(offenderMovement.getMovementType())
+            .toAddress(offenderMovement.getToAddress())
             .build();
     }
 
