@@ -128,20 +128,27 @@ public class MovementsRepositoryTest {
         final var offendersIn = repository.getOffendersIn("LEI", LocalDate.of(2017, 10, 12));
 
         assertThat(offendersIn).containsExactlyInAnyOrder(
-                OffenderIn.builder()
-                        .offenderNo("A6676RS")
-                        .bookingId(-29L)
-                        .dateOfBirth(LocalDate.of(1945, 1, 10))
-                        .firstName("NEIL")
-                        .lastName("BRADLEY")
-                        .fromAgencyDescription("BIRMINGHAM")
-                        .toAgencyDescription("LEEDS")
-                        .fromAgencyId("BMI")
-                        .toAgencyId("LEI")
-                        .movementDateTime(LocalDateTime.of(2017, 10, 12, 10, 45, 0))
-                        .movementTime(LocalTime.of(10, 45, 0))
-                        .location("LANDING H/1")
-                        .build()
+                new OffenderIn(
+                        "A6676RS",
+                        -29L,
+                        LocalDate.of(1945, 1, 10),
+                        "Neil",
+                        null,
+                        "Bradley",
+                        "BMI",
+                        "Birmingham",
+                        "LEI",
+                        "Leeds",
+                        null,
+                        null,
+                        LocalTime.of(10, 45, 0),
+                        LocalDateTime.of(2017, 10, 12, 10, 45, 0),
+                        "LANDING H/1",
+                        "ADM",
+                        "Unconvicted Remand",
+                        null
+                )
+
         );
     }
 
@@ -154,6 +161,7 @@ public class MovementsRepositoryTest {
             .lastName("REYNOLDS")
             .fromAgency("LEI")
             .directionCode("OUT")
+            .movementType("TAP")
             .movementTime(LocalTime.of(0, 0))
             .movementDate(LocalDate.of(2017, 7, 16))
             .movementReasonDescription("Funerals And Deaths")
@@ -171,6 +179,7 @@ public class MovementsRepositoryTest {
             .lastName("REYNOLDS")
             .fromAgency("LEI")
             .directionCode("OUT")
+            .movementType("TAP")
             .movementTime(LocalTime.of(0, 0))
             .movementDate(LocalDate.of(2017, 7, 16))
             .movementReasonDescription("Funerals And Deaths")

@@ -20,6 +20,11 @@ data class OffenderMovementDto(
   val directionCode: String?,
   val movementTime: LocalTime?,
   val movementDate: LocalDate?,
+  val toAddrPremise: String?,
+  val toAddrStreet: String?,
+  val toAddrLocality: String?,
+  val toAddrCity: String?,
+  val toAddrPostalCode: String?,
 ) {
   fun toOffenderMovement() = OffenderMovement(
     this.offenderNo,
@@ -39,5 +44,12 @@ data class OffenderMovementDto(
     this.directionCode,
     this.movementTime,
     this.movementDate,
+    listOfNotNull(
+      this.toAddrPremise,
+      this.toAddrStreet,
+      this.toAddrLocality,
+      this.toAddrCity,
+      this.toAddrPostalCode,
+    ).joinToString(", ").ifEmpty { null },
   )
 }

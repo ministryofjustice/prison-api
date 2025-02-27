@@ -333,6 +333,8 @@ public class MovementsServiceImplTest {
         when(externalMovementRepository.findMovements(any(), anyBoolean(), any(), any(), any(), any()))
             .thenReturn(
                 new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
+                    .movementType(MovementType.of(MovementType.TAP))
+                    .movementReason(MovementReason.of(MovementReason.TRANSFER_VIA_TAP))
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
                     .offenderBooking(OffenderBooking.builder()
                         .bookingId(-1L)
@@ -364,24 +366,27 @@ public class MovementsServiceImplTest {
             LocalDateTime.of(2020, 2, 2, 1, 2),
             PageRequest.of(1, 2), false);
 
-        assertThat(offenders).containsExactly(OffenderIn.builder()
-            .offenderNo("A1234AA")
-            .firstName("Bob")
-            .middleName("John")
-            .lastName("Smith")
-            .bookingId(-1L)
-            .dateOfBirth(LocalDate.of(2001, 1, 2))
-            .movementDateTime(LocalDateTime.of(2020, 1, 30, 12, 30))
-            .movementTime(LocalTime.of(12, 30))
-            .fromCity("City 1")
-            .toCity("City 2")
-            .fromAgencyId("MDI")
-            .fromAgencyDescription("MOORLAND")
-            .toAgencyId("LEI")
-            .toAgencyDescription("LEEDS")
-            .location("INSIDE")
-            .build());
-
+        assertThat(offenders).containsExactly(
+            new OffenderIn(
+                "A1234AA",
+                -1L,
+                LocalDate.of(2001, 1, 2),
+                "Bob",
+                "John",
+                "Smith",
+                "MDI",
+                "MOORLAND",
+                "LEI",
+                "LEEDS",
+                "City 1",
+                "City 2",
+                LocalTime.of(12, 30),
+                LocalDateTime.of(2020, 1, 30, 12, 30),
+                "INSIDE",
+                "TAP",
+                "MOVE_RSN",
+                null
+            ));
 
         verify(externalMovementRepository).findMovements(
             "LEI",

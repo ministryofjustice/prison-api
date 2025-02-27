@@ -1,95 +1,65 @@
-package uk.gov.justice.hmpps.prison.api.model;
+package uk.gov.justice.hmpps.prison.api.model
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import lombok.Builder;
-import lombok.Data;
-
-import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.NotNull;
-import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.LocalTime;
-
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.annotation.JsonInclude
+import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDate
+import java.time.LocalDateTime
+import java.time.LocalTime
 
 @Schema(description = "Summary of an offender counted as Establishment Roll - In")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Builder(toBuilder = true)
-@Data
+data class OffenderIn(
+  @Schema(description = "Display Prisoner Number", required = true)
+  val offenderNo: String? = null,
 
-public class OffenderIn {
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Display Prisoner Number")
-    private String offenderNo;
+  @Schema(description = "Booking ID", required = true)
+  val bookingId: Long? = null,
 
-    @NotNull
-    private Long bookingId;
+  @Schema(description = "Date of birth", required = true)
+  val dateOfBirth: LocalDate? = null,
 
-    @NotNull
-    private LocalDate dateOfBirth;
+  @Schema(description = "First name", required = true)
+  val firstName: String? = null,
 
-    @NotBlank
-    private String firstName;
+  @Schema(description = "Middle name", required = false)
+  val middleName: String? = null,
 
-    private String middleName;
+  @Schema(description = "Display Prisoner Number", required = true)
+  val lastName: String,
 
-    @NotBlank
-    private String lastName;
+  @Schema(description = "Id for Agency travelling from", required = false)
+  val fromAgencyId: String? = null,
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Id for Agency travelling from")
-    private String fromAgencyId;
+  @Schema(description = "Description for Agency travelling from", required = false)
+  val fromAgencyDescription: String? = null,
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling from")
-    private String fromAgencyDescription;
+  @Schema(description = "Id for Agency travelling to", required = false)
+  val toAgencyId: String? = null,
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Id for Agency travelling to")
-    private String toAgencyId;
+  @Schema(description = "Description for Agency travelling to", required = false)
+  val toAgencyDescription: String? = null,
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "Description for Agency travelling to")
-    private String toAgencyDescription;
+  @Schema(description = "From city", required = false)
+  val fromCity: String? = null,
 
-    @NotBlank
-    @Schema(description = "City offender was received from")
-    private String fromCity;
+  @Schema(description = "City offender was sent to", required = false)
+  val toCity: String? = null,
 
-    @NotBlank
-    @Schema(description = "City offender was sent to")
-    private String toCity;
+  @Schema(description = "Movement time", required = true)
+  val movementTime: LocalTime,
 
-    @NotNull
-    @Schema(requiredMode = REQUIRED, description = "Movement time")
-    private LocalTime movementTime;
+  @Schema(description = "Movement date time", required = true)
+  val movementDateTime: LocalDateTime? = null,
 
-    @NotNull
-    @Schema(requiredMode = REQUIRED, description = "Movement date time")
-    private LocalDateTime movementDateTime;
+  @Schema(description = "Description of the offender's (internal) location", required = false)
+  val location: String? = null,
 
-    @NotNull
-    @Schema(requiredMode = REQUIRED, description = "Description of the offender's (internal) location")
-    private String location;
+  @Schema(description = "Type of movement", example = "TAP", required = true)
+  val movementType: String,
 
-    public OffenderIn(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, String middleName, @NotBlank String lastName, @NotBlank String fromAgencyId, @NotBlank String fromAgencyDescription, @NotBlank String toAgencyId, @NotBlank String toAgencyDescription, @NotBlank String fromCity, @NotBlank String toCity, @NotNull LocalTime movementTime, @NotNull LocalDateTime movementDateTime, @NotNull String location) {
-        this.offenderNo = offenderNo;
-        this.bookingId = bookingId;
-        this.dateOfBirth = dateOfBirth;
-        this.firstName = firstName;
-        this.middleName = middleName;
-        this.lastName = lastName;
-        this.fromAgencyId = fromAgencyId;
-        this.fromAgencyDescription = fromAgencyDescription;
-        this.toAgencyId = toAgencyId;
-        this.toAgencyDescription = toAgencyDescription;
-        this.fromCity = fromCity;
-        this.toCity = toCity;
-        this.movementTime = movementTime;
-        this.movementDateTime = movementDateTime;
-        this.location = location;
-    }
+  @Schema(description = "Reason for movement in", required = false)
+  val movementReasonDescription: String? = null,
 
-    public OffenderIn() {}
-}
+  @Schema(description = "From address", required = false)
+  val fromAddress: String? = null,
+)
