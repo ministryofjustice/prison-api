@@ -158,6 +158,8 @@ public class MovementsService {
             .reasonDescription(capitalizeFully(offenderMovement.getMovementReasonDescription()))
             .offenderNo(offenderMovement.getOffenderNo())
             .timeOut(offenderMovement.getMovementTime())
+            .movementType(offenderMovement.getMovementType())
+            .toAddress(offenderMovement.getToAddress())
             .build();
     }
 
@@ -179,20 +181,7 @@ public class MovementsService {
     }
 
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
-        final var offendersIn = movementsRepository.getOffendersIn(agencyId, date);
-
-        return offendersIn
-            .stream()
-            .map(offender -> offender.toBuilder()
-                .firstName(capitalizeFully(offender.getFirstName()))
-                .lastName(capitalizeFully(offender.getLastName()))
-                .middleName(capitalizeFully(StringUtils.trimToEmpty(offender.getMiddleName())))
-                .fromAgencyDescription(LocationProcessor.formatLocation(offender.getFromAgencyDescription()))
-                .toAgencyDescription(LocationProcessor.formatLocation(offender.getToAgencyDescription()))
-                .location(StringUtils.trimToEmpty(offender.getLocation()))
-                .movementTime(offender.getMovementDateTime().toLocalTime())
-                .build())
-            .collect(toList());
+        return movementsRepository.getOffendersIn(agencyId, date);
     }
 
     public List<OffenderInReception> getOffendersInReception(final String agencyId) {
@@ -456,23 +445,25 @@ public class MovementsService {
         final var toAgency = Optional.ofNullable(m.getToAgency());
         final var fromCityDescription = Optional.ofNullable(m.getFromCity()).map(City::getDescription).orElse(null);
         final var toCityDescription = Optional.ofNullable(m.getToCity()).map(City::getDescription).orElse(null);
-        return OffenderIn.builder()
-            .offenderNo(offender.getNomsId())
-            .bookingId(m.getOffenderBooking().getBookingId())
-            .dateOfBirth(offender.getBirthDate())
-            .firstName(capitalizeFully(offender.getFirstName()))
-            .middleName(capitalizeFully(offender.getMiddleName()))
-            .lastName(capitalizeFully(offender.getLastName()))
-            .fromAgencyId(fromAgency.map(AgencyLocation::getId).orElse(null))
-            .fromAgencyDescription(fromAgency.map(AgencyLocation::getDescription).orElse(null))
-            .toAgencyId(toAgency.map(AgencyLocation::getId).orElse(null))
-            .toAgencyDescription(toAgency.map(AgencyLocation::getDescription).orElse(null))
-            .fromCity(fromCityDescription)
-            .toCity(toCityDescription)
-            .movementDateTime(m.getMovementTime())
-            .movementTime(m.getMovementTime().toLocalTime())
-            .location(description)
-            .build();
+        return new OffenderIn(
+            offender.getNomsId(),
+            m.getOffenderBooking().getBookingId(),
+            offender.getBirthDate(),
+            capitalizeFully(offender.getFirstName()),
+            capitalizeFully(offender.getMiddleName()),
+            capitalizeFully(offender.getLastName()),
+            fromAgency.map(AgencyLocation::getId).orElse(null),
+            fromAgency.map(AgencyLocation::getDescription).orElse(null),
+            toAgency.map(AgencyLocation::getId).orElse(null),
+            toAgency.map(AgencyLocation::getDescription).orElse(null),
+            fromCityDescription,
+            toCityDescription,
+            m.getMovementTime().toLocalTime(),
+            m.getMovementTime(),
+            description,
+            m.getMovementType() != null ? m.getMovementType().getCode() : "",
+            m.getMovementReason() != null ? m.getMovementReason().getDescription() : "",
+            null);
     }
 
     public Optional<LocalDate> getLatestArrivalDate(final String offenderNumber) {

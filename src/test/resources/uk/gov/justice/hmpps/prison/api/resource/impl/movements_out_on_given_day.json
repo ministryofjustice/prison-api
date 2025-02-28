@@ -5,7 +5,8 @@
     "reasonDescription": "Escape",
     "timeOut": "00:00:00",
     "firstName": "Lucius",
-    "lastName": "Fox"
+    "lastName": "Fox",
+    "movementType":"REL"
   },
   {
     "offenderNo": "Z0023ZZ",
@@ -13,7 +14,8 @@
     "reasonDescription": "Escape",
     "timeOut": "00:00:00",
     "firstName": "Richard",
-    "lastName": "Grayson"
+    "lastName": "Grayson",
+    "movementType":"REL"
   },
   {
     "offenderNo": "Z0021ZZ",
@@ -21,6 +23,8 @@
     "reasonDescription": "Funerals And Deaths",
     "timeOut": "00:00:00",
     "firstName": "David",
-    "lastName": "Dickenson"
+    "lastName": "Dickenson",
+    "movementType":"TAP",
+    "toAddress": "The Court House, Peyton Place"
   }
 ]
