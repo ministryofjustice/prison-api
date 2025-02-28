@@ -19,6 +19,7 @@ import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
+import org.mockito.kotlin.verifyNoMoreInteractions
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
@@ -238,6 +239,31 @@ class DistinguishingMarkServiceImplTest {
     assertThat(savedImage.imageObjectId).isEqualTo(2)
     assertThat(savedImage.fullSizeImage).isEqualTo(IMAGE_DATA)
     assertThat(savedImage.thumbnailImage).isNotEmpty()
+  }
+
+  @Nested
+  @DisplayName("Update existing image")
+  inner class UpdateExistingImage {
+    @Test
+    fun `Throws exception when image is not found`() {
+      whenever(imageRepository.findById(any())).thenReturn(Optional.empty())
+
+      val ex = assertThrows<RuntimeException> { service.updatePhotoImage(123L, ByteArrayInputStream(IMAGE_DATA)) }
+      assertThat(ex.message).isEqualTo("Image with id 123 not found")
+    }
+
+    @Test
+    fun `Updates image and thumbnail successfully`() {
+      val imageId = 123L
+      val image: OffenderImage = mock()
+      whenever(imageRepository.findById(imageId)).thenReturn(Optional.of(image))
+
+      service.updatePhotoImage(imageId, ByteArrayInputStream(IMAGE_DATA))
+
+      verify(image).fullSizeImage = IMAGE_DATA
+      verify(image).thumbnailImage = any()
+      verifyNoMoreInteractions(image)
+    }
   }
 
   @Nested
