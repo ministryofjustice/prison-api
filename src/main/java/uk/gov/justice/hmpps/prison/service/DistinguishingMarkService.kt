@@ -104,6 +104,17 @@ class DistinguishingMarkService(
     saveImage(mark, image)
   }
 
+  @Transactional
+  fun updatePhotoImage(imageId: Long, image: InputStream) {
+    val imageContent = image.readAllBytes()
+    imageRepository.findById(imageId)
+      .orElseThrow { EntityNotFoundException.withMessage("Image with id $imageId not found") }
+      .let {
+        it.fullSizeImage = imageContent
+        it.thumbnailImage = scaleImage(imageContent)
+      }
+  }
+
   private fun saveImage(mark: OffenderIdentifyingMark, image: InputStream) {
     val imageContent = image.readAllBytes()
     val newImage = OffenderImage
@@ -169,7 +180,7 @@ class DistinguishingMarkService(
   }
 
   @Throws(IOException::class, IllegalArgumentException::class, InterruptedException::class)
-  private fun scaleImage(source: ByteArray, width: Int = 150, height: Int = 200): ByteArray {
+  private fun scaleImage(source: ByteArray, width: Int = THUMBNAIL_WIDTH, height: Int = THUMBNAIL_HEIGHT): ByteArray {
     val inputStream = ByteArrayInputStream(source)
     val original = ImageIO.read(inputStream)
     val scaled = original.getScaledInstance(width, height, Image.SCALE_DEFAULT)
@@ -196,5 +207,7 @@ class DistinguishingMarkService(
 
   private companion object {
     private val log: Logger = LoggerFactory.getLogger(this::class.java)
+    private const val THUMBNAIL_WIDTH = 150
+    private const val THUMBNAIL_HEIGHT = 200
   }
 }

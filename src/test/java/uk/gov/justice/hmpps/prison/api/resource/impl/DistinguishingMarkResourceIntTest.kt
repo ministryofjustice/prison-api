@@ -223,6 +223,90 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("PUT /api/person/photo/{photoId}/image")
+  inner class UpdateImageContent {
+
+    @Test
+    fun `returns 401 when user does not have a token`() {
+      webTestClient.put().uri("/api/person/photo/-103/image")
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns 403 if does not have override role`() {
+      webTestClient.put().uri("/api/person/photo/-103/image")
+        .headers(setClientAuthorisation(listOf()))
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 when client has incorrect role`() {
+      webTestClient.put().uri("/api/person/photo/-103/image")
+        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.put().uri("/api/person/photo/-103/image")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 403 if user has no caseloads`() {
+      webTestClient.put().uri("/api/person/photo/-103/image")
+        .headers(setAuthorisation("RO_USER", listOf()))
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `returns 404 if image not found`() {
+      webTestClient.put().uri("/api/person/photo/-999/image")
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
+        .body(multiPartFormRequest())
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `Adds the photo to the mark`() {
+      val token = authTokenHelper.getToken(PRISONER_PROFILE_RW)
+      val parameters: MultiValueMap<String, Any> = LinkedMultiValueMap()
+      parameters.add("file", FileSystemResource(File(javaClass.getResource("/images/image.jpg")!!.file)))
+      val httpEntity = createHttpEntity(
+        token,
+        parameters,
+        contentType = MULTIPART_FORM_DATA_VALUE,
+      )
+
+      val response = testRestTemplate.exchange(
+        "/api/person/photo/-103/image",
+        PUT,
+        httpEntity,
+        object : ParameterizedTypeReference<String?>() {},
+      )
+
+      assertThatStatus(response, 200)
+      Assertions.assertThat(response.body).isNotEmpty()
+    }
+
+    private fun multiPartFormRequest(): BodyInserters.MultipartInserter = LinkedMultiValueMap<String, FileSystemResource>()
+      .apply { add("file", FileSystemResource(File(javaClass.getResource("/images/image.jpg")!!.file))) }
+      .let { BodyInserters.fromMultipartData(it) }
+  }
+
+  @Nested
   @DisplayName("POST /api/person/{prisonerNumber}/distinguishing-mark/{seqId}/photo")
   inner class AddPhotoToMark {
 
