@@ -596,6 +596,7 @@ class MovementResourceTest : ResourceTest() {
         "movementTime",
         "movementDateTime",
         "location",
+        "fromAddress",
       )
         .containsExactly(
           Tuple(
@@ -603,7 +604,7 @@ class MovementResourceTest : ResourceTest() {
             -29L,
             LocalDate.parse("1945-01-10"),
             "Neil",
-            "",
+            null,
             "Bradley",
             "Birmingham",
             "Leeds",
@@ -612,6 +613,7 @@ class MovementResourceTest : ResourceTest() {
             LocalTime.parse("10:45"),
             LocalDateTime.parse("2017-10-12T10:45"),
             "LANDING H/1",
+            "Birmingham Youth Court, Justice Avenue",
           ),
         )
     }
@@ -647,13 +649,13 @@ class MovementResourceTest : ResourceTest() {
             -47L,
             LocalDate.parse("1980-01-02"),
             "Janis",
-            "",
+            null,
             "Drp",
             "Leeds",
             "LEI",
             LocalTime.parse("00:00"),
             LocalDateTime.parse("2018-01-01T00:00"),
-            "",
+            null,
             "Wadhurst",
           ),
         )
@@ -691,7 +693,7 @@ class MovementResourceTest : ResourceTest() {
             -47L,
             LocalDate.parse("1980-01-02"),
             "Janis",
-            "",
+            null,
             "Drp",
             "Outside",
             "Moorland",
@@ -699,14 +701,14 @@ class MovementResourceTest : ResourceTest() {
             "MDI",
             LocalTime.parse("00:00"),
             LocalDateTime.parse("2000-08-16T00:00"),
-            "",
+            null,
           ),
           Tuple(
             "A1181FF",
             -47L,
             LocalDate.parse("1980-01-02"),
             "Janis",
-            "",
+            null,
             "Drp",
             "Court 1",
             "Moorland",
@@ -714,7 +716,7 @@ class MovementResourceTest : ResourceTest() {
             "MDI",
             LocalTime.parse("00:00"),
             LocalDateTime.parse("2000-08-16T00:00"),
-            "",
+            null,
           ),
         )
     }
@@ -751,7 +753,7 @@ class MovementResourceTest : ResourceTest() {
             -47L,
             LocalDate.parse("1980-01-02"),
             "Janis",
-            "",
+            null,
             "Drp",
             "Moorland",
             "Leeds",
@@ -759,7 +761,7 @@ class MovementResourceTest : ResourceTest() {
             "LEI",
             LocalTime.parse("00:00"),
             LocalDateTime.parse("2000-08-16T00:00"),
-            "",
+            null,
           ),
         )
     }

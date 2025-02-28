@@ -43,4 +43,10 @@ public class OffenderOutTodayDto {
     @NotBlank
     @Schema(requiredMode = REQUIRED)
     private String lastName;
+
+    @Schema(description = "Address to where the prisoner is moving")
+    private String toAddress;
+
+    @Schema(description = "Type of movement")
+    private String movementType;
 }
