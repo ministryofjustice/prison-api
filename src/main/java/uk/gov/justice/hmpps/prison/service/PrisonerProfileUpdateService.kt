@@ -5,6 +5,8 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
+import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
@@ -12,6 +14,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
@@ -27,6 +31,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
+import uk.gov.justice.hmpps.prison.util.centimetresToFeetAndInches
+import uk.gov.justice.hmpps.prison.util.kilogramsToPounds
 import java.time.LocalDateTime
 import java.util.Optional
 import kotlin.Result.Companion.failure
@@ -113,6 +119,88 @@ class PrisonerProfileUpdateService(
     val latestBooking = latestBooking(prisonerNumber)
 
     updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode?.id?.code)
+  }
+
+  @Transactional
+  fun getPhysicalAttributes(prisonerNumber: String): CorePersonPhysicalAttributes {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+      return booking.latestPhysicalAttributes?.let { attributes ->
+        CorePersonPhysicalAttributes(
+          height = attributes.heightCentimetres,
+          weight = attributes.weightKgs,
+          hairCode = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.profileCode,
+          hairDescription = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code?.description,
+          faceCode = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.profileCode,
+          faceDescription = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code?.description,
+          facialHairCode = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.profileCode,
+          facialHairDescription = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code?.description,
+          buildCode = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.profileCode,
+          buildDescription = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code?.description,
+          leftEyeColourCode = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.profileCode,
+          leftEyeColourDescription = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code?.description,
+          rightEyeColourCode = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.profileCode,
+          rightEyeColourDescription = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code?.description,
+          shoeSize = booking.profileDetails.find { it.id.type.type == SHOESIZE_PROFILE_TYPE }?.profileCode,
+        )
+      } ?: CorePersonPhysicalAttributes()
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun updatePhysicalAttributes(prisonerNumber: String, request: CorePersonPhysicalAttributesRequest) {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      // Update height and weight on physical attributes
+      booking.latestPhysicalAttributes?.let { latestPhysicalAttributes ->
+        latestPhysicalAttributes.heightCentimetres = request.height
+        latestPhysicalAttributes.heightFeet = request.height?.let { centimetresToFeetAndInches(it).first }
+        latestPhysicalAttributes.heightInches = request.height?.let { centimetresToFeetAndInches(it).second }
+        latestPhysicalAttributes.weightKgs = request.weight
+        latestPhysicalAttributes.weightPounds = request.weight?.let { kilogramsToPounds(it) }
+      } ?: booking.offenderPhysicalAttributes.add(
+        OffenderPhysicalAttributes(
+          id = OffenderPhysicalAttributeId(booking, 1),
+          heightCentimetres = request.height,
+          weightKgs = request.weight,
+        ),
+      )
+
+      // Update hair, facial hair, face, build, left eye colour, right eye colour on profile details
+      val properties = mapOf(
+        HAIR_PROFILE_TYPE to request.hairCode,
+        FACIAL_HAIR_PROFILE_TYPE to request.facialHairCode,
+        FACE_PROFILE_TYPE to request.faceCode,
+        BUILD_PROFILE_TYPE to request.buildCode,
+        L_EYE_C_PROFILE_TYPE to request.leftEyeColourCode,
+        R_EYE_C_PROFILE_TYPE to request.rightEyeColourCode,
+      )
+
+      properties.forEach { (type, code) ->
+        val profileType = profileTypeRepository.profileType(type, PHYSICAL_APPEARANCE_PROFILE_CATEGORY).getOrThrow()
+        code?.let {
+          val profileCode = profileCode(profileType, it)
+            ?: throw EntityNotFoundException.withMessage(
+              "$type profile code with code %s not found",
+              it,
+            )
+          updateProfileDetailsOfBooking(booking, prisonerNumber, profileType, profileCode.id.code)
+        } ?: updateProfileDetailsOfBooking(booking, prisonerNumber, profileType, null)
+      }
+
+      // Update shoe size on profile details
+      val profileType = profileTypeRepository.profileType(SHOESIZE_PROFILE_TYPE, PHYSICAL_APPEARANCE_PROFILE_CATEGORY).getOrThrow()
+      updateProfileDetailsOfBooking(booking, prisonerNumber, profileType, request.shoeSize)
+
+      offenderBookingRepository.save(booking)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
   }
 
   private fun updateProfileDetailsOfBooking(
@@ -265,6 +353,14 @@ class PrisonerProfileUpdateService(
     const val OTHER_NATIONALITIES_PROFILE_TYPE = "NATIO"
     const val RELIGION_PROFILE_TYPE = "RELF"
     const val SMOKER_PROFILE_TYPE = "SMOKE"
-    val FREE_TEXT_PROFILE_CODES = listOf(OTHER_NATIONALITIES_PROFILE_TYPE)
+    const val HAIR_PROFILE_TYPE = "HAIR"
+    const val FACIAL_HAIR_PROFILE_TYPE = "FACIAL_HAIR"
+    const val FACE_PROFILE_TYPE = "FACE"
+    const val BUILD_PROFILE_TYPE = "BUILD"
+    const val L_EYE_C_PROFILE_TYPE = "L_EYE_C"
+    const val R_EYE_C_PROFILE_TYPE = "R_EYE_C"
+    const val SHOESIZE_PROFILE_TYPE = "SHOESIZE"
+    const val PHYSICAL_APPEARANCE_PROFILE_CATEGORY = "PA"
+    val FREE_TEXT_PROFILE_CODES = listOf(OTHER_NATIONALITIES_PROFILE_TYPE, SHOESIZE_PROFILE_TYPE)
   }
 }

@@ -176,6 +176,7 @@ public class ReferenceDomainService {
                 .code(p.getId().getCode())
                 .description(StringWithAbbreviationsProcessor.format(p.getDescription()))
                 .listSeq(p.getListSequence())
+                .activeFlag(p.isActive() ? "Y" : "N")
                 .build())
             .sorted(Comparator.comparing(ReferenceCode::getCode))
             .collect(Collectors.toList());

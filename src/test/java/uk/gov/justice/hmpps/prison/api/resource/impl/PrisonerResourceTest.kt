@@ -435,7 +435,7 @@ class PrisonerResourceTest : ResourceTest() {
           assertThat(it)
             .hasSize(10)
             .startsWith("A1234AN", "A1234AO")
-            .doesNotContain("A1181FF")
+            .doesNotContain("A1181GG")
         }
     }
 
@@ -488,7 +488,7 @@ class PrisonerResourceTest : ResourceTest() {
         .jsonPath("content").value<List<String>> {
           assertThat(it)
             .hasSize(10)
-            .contains("A1181FF")
+            .contains("A1181GG")
             .doesNotContain("A1234AN", "A1234AO")
         }
     }

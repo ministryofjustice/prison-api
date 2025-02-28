@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
 import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.JoinColumns;
 import jakarta.persistence.Lob;
 import jakarta.persistence.SequenceGenerator;
 import lombok.AllArgsConstructor;
@@ -11,6 +12,8 @@ import lombok.Setter;
 import lombok.ToString;
 import lombok.ToString.Exclude;
 import org.hibernate.Hibernate;
+import org.hibernate.annotations.NotFound;
+import org.hibernate.annotations.NotFoundAction;
 import org.hibernate.type.YesNoConverter;
 import jakarta.persistence.Convert;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
@@ -24,6 +27,7 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 import java.time.LocalDateTime;
 import java.util.Objects;
+import static org.hibernate.annotations.NotFoundAction.IGNORE;
 
 @Getter
 @Setter
@@ -44,6 +48,15 @@ public class OffenderImage extends AuditableEntity {
     @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
     @Exclude
     private OffenderBooking offenderBooking;
+
+    @NotFound(action = IGNORE)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumns(value = {
+        @JoinColumn(name = "OFFENDER_BOOK_ID", referencedColumnName = "OFFENDER_BOOK_ID", insertable = false, updatable = false),
+        @JoinColumn(name = "IMAGE_OBJECT_ID", referencedColumnName = "ID_MARK_SEQ", insertable = false, updatable = false)
+    })
+    @Exclude
+    private OffenderIdentifyingMark mark;
 
     @Column(name = "CAPTURE_DATETIME")
     private LocalDateTime captureDateTime;

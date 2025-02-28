@@ -64,6 +64,7 @@ class PrisonerSearchService(
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
           imprisonmentStatusDescription = it.imprisonmentStatusDescription,
+          convictedStatus = it.convictedStatus,
           receptionDate = it.receptionDate,
           locationDescription = it.locationDescription,
           latestLocationId = it.latestLocationId,
@@ -84,7 +85,7 @@ class PrisonerSearchService(
     lastMovementReasonCode: String?,
   ) = externalMovements?.filter { em ->
     em.movementType?.code == lastMovementTypeCode &&
-      em.movementReason?.code == lastMovementReasonCode
+      em.movementReasonCode == lastMovementReasonCode
   }
     ?.maxByOrNull { em -> em.movementTime }
     ?.movementTime

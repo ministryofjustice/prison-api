@@ -40,7 +40,7 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord;
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecordRequest;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
@@ -308,7 +308,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Creates a prisoner and optional receives them into a prison by creating a new booking. BOOKING_CREATE role")
     @PostMapping
-    @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail createPrisoner(@RequestBody @NotNull @Valid final RequestToCreate requestToCreate,  @Parameter(description = "When true do not reject new prisoners with same name as existing person") final boolean allowNameDuplicate) {
         return prisonerCreationService.createPrisoner(requestToCreate, allowNameDuplicate);
@@ -371,7 +371,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Receives a prisoner on a new booking. BOOKING_CREATE role")
     @PostMapping("/{offenderNo}/booking")
-    @PreAuthorize("hasRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('BOOKING_CREATE', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail newBooking(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
@@ -786,9 +786,9 @@ public class OffenderResource {
     @ProxyUser
     public ResponseEntity<Void> createMilitaryRecord(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestBody @NotNull @Valid final MilitaryRecord militaryRecord
+        @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
-        offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecord);
+        offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecordRequest);
         return ResponseEntity.status(HttpStatus.CREATED).build();
     }
 
@@ -799,16 +799,17 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update the prisoner's military record. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
-    @PutMapping("/{offenderNo}/military-records")
+    @PutMapping("/{offenderNo}/military-records/{militarySeq}")
     @VerifyOffenderAccess
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @ResponseStatus(NO_CONTENT)
     @ProxyUser
     public void updateMilitaryRecord(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @RequestBody @NotNull @Valid final MilitaryRecord militaryRecord
+        @Parameter(name = "militarySeq", description = "Military record sequence number", example = "1", required = true) @PathVariable(value = "militarySeq") @NotNull final Integer militarySeq,
+        @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
-        offenderMilitaryRecordService.updateMilitaryRecord(militaryRecord);
+        offenderMilitaryRecordService.updateMilitaryRecord(offenderNo, militarySeq, militaryRecordRequest);
     }
 
     @ApiResponses({
@@ -835,7 +836,8 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Gets the offender visit restrictions for a given offender using the latest booking",
         description = "Get offender visit restrictions by offender No. <p>Requires a relationship (via caseload) with the offender or VISIT_SCHEDULER role.</p>")
-    @VerifyOffenderAccess(overrideRoles = {"VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"VISIT_SCHEDULER", "PRISON_API__HMPPS_INTEGRATION_API"})
+    @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,

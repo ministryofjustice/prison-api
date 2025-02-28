@@ -13,6 +13,8 @@
     "toAgencyDescription": "LEEDS",
     "toAgencyId": "LEI",
     "fromCity": "Birmingham",
-    "toCity": "Leicester"
+    "toCity": "Leicester",
+    "movementType": "ADM",
+    "movementReasonDescription":"Recapture (Escapee)"
   }
 ]

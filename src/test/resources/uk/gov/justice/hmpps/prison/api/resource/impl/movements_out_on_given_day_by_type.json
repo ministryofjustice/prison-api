@@ -5,6 +5,8 @@
     "reasonDescription": "Funerals And Deaths",
     "timeOut": "00:00:00",
     "firstName": "David",
-    "lastName": "Dickenson"
+    "lastName": "Dickenson",
+    "movementType":"TAP",
+    "toAddress": "The Court House, Peyton Place"
   }
 ]

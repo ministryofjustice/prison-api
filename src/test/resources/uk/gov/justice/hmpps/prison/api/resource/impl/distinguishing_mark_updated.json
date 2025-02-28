@@ -1,0 +1,45 @@
+{
+  "id": 2,
+  "bookingId": -107,
+  "offenderNo": "A1070AA",
+  "bodyPart": {
+    "domain": "BODY_PART",
+    "code": "ARM",
+    "description": "Arm",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "markType": {
+    "domain": "MARK_TYPE",
+    "code": "SCAR",
+    "description": "Scar",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "side": {
+    "domain": "SIDE",
+    "code": "R",
+    "description": "Right",
+    "activeFlag": "Y",
+    "listSeq": 1,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "partOrientation": {
+    "domain": "PART_ORIENT",
+    "code": "LOW",
+    "description": "Low",
+    "activeFlag": "Y",
+    "listSeq": 99,
+    "systemDataFlag": "N",
+    "subCodes": []
+  },
+  "comment": "Old wound",
+  "createdAt": "2017-02-18T00:00:00",
+  "createdBy": "SA",
+  "photographUuids": []
+}
