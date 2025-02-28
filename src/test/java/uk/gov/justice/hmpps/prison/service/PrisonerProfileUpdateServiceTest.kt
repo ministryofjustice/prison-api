@@ -662,7 +662,7 @@ class PrisonerProfileUpdateServiceTest {
     internal fun `returns physical attributes when booking exists`() {
       val booking = mock<OffenderBooking>()
       val physicalAttributes = OffenderPhysicalAttributes(id = OffenderPhysicalAttributeId(OffenderBooking.builder().bookingId(1).build(), 1), heightCentimetres = 180, weightKgs = 75)
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(booking.latestPhysicalAttributes).thenReturn(physicalAttributes)
 
@@ -675,7 +675,7 @@ class PrisonerProfileUpdateServiceTest {
     @Test
     internal fun `returns empty physical attributes when no attributes exist`() {
       val booking = mock<OffenderBooking>()
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(booking.latestPhysicalAttributes).thenReturn(null)
 
@@ -686,21 +686,12 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER) }
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
-    }
-
-    @Test
-    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
-        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
-
-      assertThatThrownBy { prisonerProfileUpdateService.getPhysicalAttributes(PRISONER_NUMBER) }
-        .isInstanceOf(DatabaseRowLockedException::class.java)
     }
   }
 

@@ -124,7 +124,7 @@ class PrisonerProfileUpdateService(
   @Transactional
   fun getPhysicalAttributes(prisonerNumber: String): CorePersonPhysicalAttributes {
     try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
       return booking.latestPhysicalAttributes?.let { attributes ->
         CorePersonPhysicalAttributes(
