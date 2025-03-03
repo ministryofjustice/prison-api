@@ -52,10 +52,10 @@ class CorePersonPhysicalAttributesResourceTest : ResourceTest() {
         .expectBody()
         .jsonPath("$.height").isEqualTo(155)
         .jsonPath("$.weight").isEqualTo(77)
-        .jsonPath("$.rightEyeColourCode").isEqualTo("BLUE")
-        .jsonPath("$.rightEyeColourDescription").isEqualTo("Blue")
-        .jsonPath("$.faceCode").isEqualTo("OVAL")
-        .jsonPath("$.faceDescription").isEqualTo("Oval")
+        .jsonPath("$.rightEyeColour.id.code").isEqualTo("BLUE")
+        .jsonPath("$.rightEyeColour.description").isEqualTo("Blue")
+        .jsonPath("$.face.id.code").isEqualTo("OVAL")
+        .jsonPath("$.face.description").isEqualTo("Oval")
     }
   }
 
