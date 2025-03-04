@@ -13,10 +13,11 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METH
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelopeVersion2
 import java.time.LocalDate
 
 @DisplayName("GET /api/prison/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
-class PrisonResourceTest : ResourceTest() {
+class PrisonResourceIntTest : ResourceTest() {
 
   @Sql(
     scripts = ["/sql/create_offender_details_used_for_calc.sql"],
@@ -71,6 +72,66 @@ class PrisonResourceTest : ResourceTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody(object : ParameterizedTypeReference<RestResponsePage<CalculableSentenceEnvelope>>() {})
+      .returnResult()
+      .responseBody!!
+
+    assertThat(secondPageResponse.pageable.pageNumber).isEqualTo(1)
+    assertThat(secondPageResponse.totalPages).isEqualTo(2)
+    assertThat(secondPageResponse.isLast).isTrue()
+    assertThat(secondPageResponse.content.size).isEqualTo(1)
+  }
+
+  @Sql(
+    scripts = ["/sql/create_offender_details_used_for_calc.sql"],
+    executionPhase = BEFORE_TEST_METHOD,
+    config = SqlConfig(transactionMode = ISOLATED),
+  )
+  @Sql(
+    scripts = ["/sql/clean_offender_details_used_for_calc.sql"],
+    executionPhase = AFTER_TEST_METHOD,
+    config = SqlConfig(transactionMode = ISOLATED),
+  )
+  @Test
+  fun `Test that paginated endpoint version 2 returns the correct calculable sentence and the correct number of pages`() {
+    val establishment = "LEI"
+
+    val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope_v2.json")
+    val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelopeVersion2>(json)
+
+    val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelopeVersion2>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope_v2.json"))
+
+    val firstPageResponse = webTestClient.get()
+      .uri("/api/prison/{establishment}/booking/latest/paged/calculable-sentence-envelope/v2?page=0&size=3", establishment)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody(object : ParameterizedTypeReference<RestResponsePage<CalculableSentenceEnvelopeVersion2>>() {})
+      .returnResult()
+      .responseBody!!
+
+    assertThat(firstPageResponse.pageable.pageNumber).isEqualTo(0)
+    assertThat(firstPageResponse.totalPages).isEqualTo(2)
+    assertThat(firstPageResponse.isLast).isFalse()
+    assertThat(firstPageResponse.content).contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
+
+    val secondPageResponse = webTestClient.get()
+      .uri("/api/prison/{establishment}/booking/latest/paged/calculable-sentence-envelope/v2?page=1&size=3", establishment)
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody(object : ParameterizedTypeReference<RestResponsePage<CalculableSentenceEnvelopeVersion2>>() {})
       .returnResult()
       .responseBody!!
 

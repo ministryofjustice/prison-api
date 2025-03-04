@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelopeVersion2
 import java.time.LocalDate
 
 @DisplayName("GET /api/bookings/latest/calculable-sentence-envelope")
@@ -92,6 +93,31 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
       .exchange()
       .expectStatus().isOk
       .expectBodyList(object : ParameterizedTypeReference<CalculableSentenceEnvelope>() {})
+      .contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
+  }
+
+  @Test
+  fun `Test that version 2 endpoint returns a summary list when authorised`() {
+    val json = getPrisonResourceAsText("prison_resource_single_calculable_sentence_envelope_v2.json")
+    val calculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelopeVersion2>(json)
+    val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculableSentenceEnvelopeVersion2>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_sentence_envelope_v2.json"))
+
+    webTestClient.get()
+      .uri { uriBuilder ->
+        uriBuilder.path("/api/bookings/latest/calculable-sentence-envelope/v2")
+          .queryParam("offenderNo", "A1234AB", "A1234AE")
+          .build()
+      }
+      .headers(
+        setAuthorisation(
+          listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
+        ),
+      )
+      .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBodyList(object : ParameterizedTypeReference<CalculableSentenceEnvelopeVersion2>() {})
       .contains(calculableSentenceEnvelope, fixedRecallCalculableSentenceEnvelope)
   }
 
