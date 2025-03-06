@@ -178,6 +178,12 @@ public class Offender extends AuditableEntity {
     @Column(name = "LAST_NAME_ALPHA_KEY")
     private String lastNameAlphaKey;
 
+    @Column(name = "ALIAS_NAME_TYPE")
+    private String aliasNameType;
+
+    @Column(name = "ALIAS_OFFENDER_ID")
+    private Long aliasOffenderId;
+
     @OneToMany(mappedBy = "offender", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @Default
     @Exclude

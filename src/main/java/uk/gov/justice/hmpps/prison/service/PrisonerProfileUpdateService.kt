@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import org.apache.commons.codec.language.Soundex
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
@@ -9,9 +10,11 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
+import uk.gov.justice.hmpps.prison.api.model.UpdateWorkingName
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
@@ -198,6 +201,76 @@ class PrisonerProfileUpdateService(
       updateProfileDetailsOfBooking(booking, prisonerNumber, profileType, request.shoeSize)
 
       offenderBookingRepository.save(booking)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun updateWorkingName(
+    prisonerNumber: String,
+    request: UpdateWorkingName,
+    forceAliasCreation: Boolean? = false,
+  ): Optional<Offender> {
+    try {
+      val oldWorkingName = offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val newFirstName = request.firstName.trim().uppercase()
+      val newLastName = request.lastName.trim().uppercase()
+      val newMiddleName1 = request.middleName1?.trim()?.uppercase()
+      val newMiddleName2 = request.middleName2?.trim()?.uppercase()
+
+      val firstNameChanged = newFirstName != oldWorkingName.firstName.trim().uppercase()
+      val lastNameChanged = newLastName != oldWorkingName.lastName.trim().uppercase()
+      val middleName1Changed = newMiddleName1 != oldWorkingName.middleName?.trim()?.uppercase()
+      val middleName2Changed = newMiddleName2 != oldWorkingName.middleName2?.trim()?.uppercase()
+
+      if (!firstNameChanged && !lastNameChanged && !middleName1Changed && !middleName2Changed) {
+        log.info("No changes to working name for prisonerNumber=$prisonerNumber")
+        return Optional.empty()
+      }
+
+      if (forceAliasCreation == false && !lastNameChanged) {
+        return Optional.of(
+          oldWorkingName.also {
+            it.firstName = newFirstName
+            it.middleName = newMiddleName1
+            it.middleName2 = newMiddleName2
+          },
+        )
+      }
+
+      val newWorkingName = Offender.builder()
+        .nomsId(oldWorkingName.nomsId)
+        .rootOffenderId(oldWorkingName.rootOffenderId)
+        .aliasOffenderId(oldWorkingName.aliasOffenderId)
+        .lastName(newLastName)
+        .lastNameKey(newLastName)
+        .lastNameAlphaKey(newLastName.take(1))
+        .lastNameSoundex(Soundex().soundex(newLastName))
+        .firstName(newFirstName)
+        .middleName(newMiddleName1)
+        .middleName2(newMiddleName2)
+        .birthDate(oldWorkingName.birthDate)
+        .gender(oldWorkingName.gender)
+        .title(oldWorkingName.title)
+        .suffix(oldWorkingName.suffix)
+        .ethnicity(oldWorkingName.ethnicity)
+        .birthPlace(oldWorkingName.birthPlace)
+        .birthCountry(oldWorkingName.birthCountry)
+        .idSourceCode("SEQ")
+        .nameSequence("1234")
+        .caseloadType("INST")
+        .aliasNameType("CN")
+        .build()
+        .let { offenderRepository.save(it) }
+
+      offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+        .also { it.offender = newWorkingName }
+
+      return Optional.of(newWorkingName)
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
