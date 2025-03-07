@@ -127,24 +127,18 @@ class PrisonerProfileUpdateService(
   @Transactional
   fun getPhysicalAttributes(prisonerNumber: String): CorePersonPhysicalAttributes {
     try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
       return booking.latestPhysicalAttributes?.let { attributes ->
         CorePersonPhysicalAttributes(
           height = attributes.heightCentimetres,
           weight = attributes.weightKgs,
-          hairCode = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.profileCode,
-          hairDescription = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code?.description,
-          faceCode = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.profileCode,
-          faceDescription = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code?.description,
-          facialHairCode = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.profileCode,
-          facialHairDescription = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code?.description,
-          buildCode = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.profileCode,
-          buildDescription = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code?.description,
-          leftEyeColourCode = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.profileCode,
-          leftEyeColourDescription = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code?.description,
-          rightEyeColourCode = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.profileCode,
-          rightEyeColourDescription = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code?.description,
+          hair = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code,
+          face = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code,
+          facialHair = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code,
+          build = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code,
+          leftEyeColour = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code,
+          rightEyeColour = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code,
           shoeSize = booking.profileDetails.find { it.id.type.type == SHOESIZE_PROFILE_TYPE }?.profileCode,
         )
       } ?: CorePersonPhysicalAttributes()
