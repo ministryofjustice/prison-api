@@ -1068,8 +1068,8 @@ public class OffenderResource {
     public ResponseEntity<Object> updateWorkingName(
         @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
         @RequestBody @NotNull @Valid final UpdateWorkingName updateWorkingName,
-        @Parameter(description = "Force alias creation. If this is set to false a new alias will only be created if the last " +
-                "name changes, otherwise a new alias will be created for any change.")
+        @Parameter(description = "This will generate a new alias if forceAliasCreation is true (default: false), " +
+            "otherwise only changes to the surname will cause a new alias to be created.")
         @RequestParam(required = false, defaultValue = "false")
         final boolean forceAliasCreation
     ) {
