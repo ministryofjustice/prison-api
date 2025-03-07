@@ -88,7 +88,7 @@ public class OffenderContactPerson extends AuditableEntity {
     @Exclude
     private Person person;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + RELATIONSHIP + "'", referencedColumnName = "domain")),
@@ -96,7 +96,7 @@ public class OffenderContactPerson extends AuditableEntity {
     })
     private RelationshipType relationshipType;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + CONTACTS + "'", referencedColumnName = "domain")),

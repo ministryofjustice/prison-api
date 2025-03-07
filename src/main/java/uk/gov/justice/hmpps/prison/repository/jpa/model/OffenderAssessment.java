@@ -79,7 +79,7 @@ public class OffenderAssessment extends AuditableEntity {
     @MapsId("bookingId")
     private OffenderBooking offenderBooking;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
@@ -87,7 +87,7 @@ public class OffenderAssessment extends AuditableEntity {
     })
     private AssessmentClassification calculatedClassification;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
@@ -95,7 +95,7 @@ public class OffenderAssessment extends AuditableEntity {
     })
     private AssessmentClassification overridingClassification;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentClassification.ASSESS_CLASS + "'", referencedColumnName = "domain")),
@@ -116,7 +116,7 @@ public class OffenderAssessment extends AuditableEntity {
     @Column(name = "ASSESS_STATUS")
     private String assessStatus;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentCommittee.ASSESS_COMMITTEE + "'", referencedColumnName = "domain")),
@@ -124,7 +124,7 @@ public class OffenderAssessment extends AuditableEntity {
     })
     private AssessmentCommittee assessCommittee;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentOverrideReason.OVERRIDE_REASON + "'", referencedColumnName = "domain")),
@@ -132,7 +132,7 @@ public class OffenderAssessment extends AuditableEntity {
     })
     private AssessmentOverrideReason overrideReason;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AssessmentCommittee.ASSESS_COMMITTEE + "'", referencedColumnName = "domain")),

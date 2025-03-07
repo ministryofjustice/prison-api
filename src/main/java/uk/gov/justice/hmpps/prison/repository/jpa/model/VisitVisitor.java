@@ -76,7 +76,7 @@ public class VisitVisitor extends AuditableEntity {
     private boolean groupLeader;
 
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_STS + "'", referencedColumnName = "domain")),
@@ -87,7 +87,7 @@ public class VisitVisitor extends AuditableEntity {
     @Column
     private Long eventId;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + VISIT_OUTCOME_REASON + "'", referencedColumnName = "domain")),
@@ -96,7 +96,7 @@ public class VisitVisitor extends AuditableEntity {
     private VisitOutcomeReason outcomeReason;
 
     /* DB constraint exists: EVENT_OUTCOME IN ('ATT', 'ABS', 'CANC') */
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + EVENT_OUTCOME + "'", referencedColumnName = "domain")),
