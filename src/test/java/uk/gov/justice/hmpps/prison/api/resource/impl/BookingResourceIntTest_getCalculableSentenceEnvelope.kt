@@ -110,7 +110,7 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
       }
       .headers(
         setAuthorisation(
-          listOf("ROLE_RELEASE_DATE_MANUAL_COMPARER"),
+          listOf("VIEW_PRISONER_DATA"),
         ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -131,7 +131,8 @@ class BookingResourceIntTest_getCalculableSentenceEnvelope : ResourceTest() {
       }
       .headers(
         setAuthorisation(
-          listOf("ROLE_RELEASE_DATES_CALCULATOR"),
+          "A_USER_WITHOUT_BOOKING_ACCESS",
+          listOf("UNAUTHORISED_ROLE"),
         ),
       )
       .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)

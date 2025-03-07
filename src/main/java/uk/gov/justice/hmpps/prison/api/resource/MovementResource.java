@@ -145,7 +145,7 @@ public class MovementResource {
     }
 
     @Operation
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offender/{offenderNo}")
     public List<Movement> getMovementsByOffender(
         @PathVariable("offenderNo") @Parameter(
