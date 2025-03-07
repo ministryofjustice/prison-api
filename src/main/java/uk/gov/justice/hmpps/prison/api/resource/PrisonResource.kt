@@ -8,7 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.data.domain.Page
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -47,7 +46,6 @@ class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeServic
     ),
   )
   @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment (paged response)")
-  @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @VerifyAgencyAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @GetMapping("/{agencyId}/booking/latest/paged/calculable-sentence-envelope")
   fun getCalculableSentenceEnvelopeByEstablishment(
@@ -81,7 +79,6 @@ class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeServic
     ),
   )
   @Operation(summary = "Details of the the person to be calculated at a particular establishment (paged response)")
-  @PreAuthorize("hasRole('RELEASE_DATE_MANUAL_COMPARER')")
   @VerifyAgencyAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @GetMapping("/{agencyId}/booking/latest/paged/calculable-sentence-envelope/v2")
   fun getCalculableSentenceEnvelopeByEstablishmentV2(

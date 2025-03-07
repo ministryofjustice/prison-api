@@ -68,7 +68,7 @@ public class OffenderDatesResource {
     })
     @Operation(summary = "Get the key dates for an offender.", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/{bookingId}")
-    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -85,7 +85,7 @@ public class OffenderDatesResource {
     })
     @Operation(summary = "Get the key dates for an offender.", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/sentence-calculation/{offenderSentCalcId}")
-    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDatesForOffenderSentCalcId(@PathVariable("offenderSentCalcId") @Parameter(description = "The Offender Sent Calc Id id of offender", required = true) final Long offenderSentCalcId) {
         return ResponseEntity.status(HttpStatus.OK)
@@ -101,7 +101,7 @@ public class OffenderDatesResource {
     })
     @Operation(summary = "Get the key dates for an offender.", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/calculations/{nomsId}")
-    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId,
             @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
@@ -117,7 +117,7 @@ public class OffenderDatesResource {
     })
     @Operation(summary = "Get the latest TUSED data for an offender. This will return the latest calculated TUSED for an offender", description = "Requires RELEASE_DATES_CALCULATOR")
     @GetMapping("/latest-tused/{nomsId}")
-    @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
     public LatestTusedData getOffenderLatestTused(@PathVariable("nomsId") @Parameter(description = "The nomis id of the offender", required = true) final String nomsId) {
         return offenderDatesService.getLatestTusedDataFromNomsId(nomsId);
