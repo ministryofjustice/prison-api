@@ -75,4 +75,20 @@ class OffenderRepositoryTest {
       assertThat(repository.findLinkedToLatestBookingForUpdate("A9880GH")).isEmpty()
     }
   }
+
+  @Nested
+  inner class findByIdForUpdate {
+    @Test
+    fun `retrieves the offender record`() {
+      val offender = repository.findByIdForUpdate(-1012L).orElseThrow()
+
+      assertThat(offender.id).isEqualTo(-1012L)
+      assertThat(offender.allBookings).hasSizeGreaterThan(0)
+    }
+
+    @Test
+    fun `returns empty when offender id not found`() {
+      assertThat(repository.findByIdForUpdate(-999)).isEmpty()
+    }
+  }
 }

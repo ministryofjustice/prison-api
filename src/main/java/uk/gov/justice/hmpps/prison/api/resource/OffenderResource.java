@@ -67,7 +67,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthCountry;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.UpdateWorkingName;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
@@ -80,7 +79,6 @@ import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -113,11 +111,9 @@ import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrison
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Optional;
 import java.util.Set;
 
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
-import static org.springframework.http.HttpStatus.NOT_MODIFIED;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
 @RestController
@@ -1051,31 +1047,5 @@ public class OffenderResource {
             prisonerNumber,
             updateSmokerStatus
         );
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "The prisoner's working name has been updated."),
-        @ApiResponse(responseCode = "304", description = "The prisoner's working name has not been changed (the supplied name was the same as the current working name)."),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Update the prisoner's working name. This will generate a new alias unless `forceAliasCreation` " +
-        "is false in which case only changes to the surname will cause a new alias to be created. " +
-        "Requires the PRISON_API__PRISONER_PROFILE__RW role.")
-    @PutMapping("/{offenderNo}/working-name")
-    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
-    @ProxyUser
-    public ResponseEntity<Object> updateWorkingName(
-        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-        @RequestBody @NotNull @Valid final UpdateWorkingName updateWorkingName,
-        @Parameter(description = "Force alias creation. If this is set to false a new alias will only be created if the last " +
-                "name changes, otherwise a new alias will be created for any change.")
-        @RequestParam(required = false, defaultValue = "false")
-        final boolean forceAliasCreation
-    ) {
-        final Optional<Offender> updatedAlias = prisonerProfileUpdateService.updateWorkingName(prisonerNumber, updateWorkingName, forceAliasCreation);
-        return updatedAlias
-            .map(alias -> ResponseEntity.noContent().build())
-            .orElse(ResponseEntity.status(NOT_MODIFIED).build());
     }
 }
