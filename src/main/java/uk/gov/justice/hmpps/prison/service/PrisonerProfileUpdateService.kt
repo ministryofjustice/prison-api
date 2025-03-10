@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service
 
-import org.apache.commons.codec.language.Soundex
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
@@ -8,13 +7,18 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
+import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
-import uk.gov.justice.hmpps.prison.api.model.UpdateWorkingName
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
@@ -24,6 +28,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
@@ -44,6 +50,10 @@ import kotlin.Result.Companion.success
 @Service
 class PrisonerProfileUpdateService(
   private val offenderRepository: OffenderRepository,
+  private val titleRepository: ReferenceCodeRepository<Title>,
+  private val genderRepository: ReferenceCodeRepository<Gender>,
+  private val ethnicityRepository: ReferenceCodeRepository<Ethnicity>,
+  private val nameTypeRepository: ReferenceCodeRepository<NameType>,
   private val countryRepository: ReferenceCodeRepository<Country>,
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
@@ -201,70 +211,25 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun updateWorkingName(
-    prisonerNumber: String,
-    request: UpdateWorkingName,
-    forceAliasCreation: Boolean? = false,
-  ): Optional<Offender> {
+  fun updateAlias(prisonerNumber: String, offenderId: Long, request: UpdateAlias) {
     try {
-      val oldWorkingName = offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
-        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+      val alias = offenderRepository.findByIdForUpdate(offenderId)
+        .orElseThrowNotFound("Alias with offenderId %d not found", offenderId)
 
       val newFirstName = request.firstName.trim().uppercase()
       val newLastName = request.lastName.trim().uppercase()
-      val newMiddleName1 = request.middleName1?.trim()?.uppercase()
-      val newMiddleName2 = request.middleName2?.trim()?.uppercase()
+      val newMiddleName = request.middleName?.trim()?.uppercase()
 
-      val firstNameChanged = newFirstName != oldWorkingName.firstName.trim().uppercase()
-      val lastNameChanged = newLastName != oldWorkingName.lastName.trim().uppercase()
-      val middleName1Changed = newMiddleName1 != oldWorkingName.middleName?.trim()?.uppercase()
-      val middleName2Changed = newMiddleName2 != oldWorkingName.middleName2?.trim()?.uppercase()
-
-      if (!firstNameChanged && !lastNameChanged && !middleName1Changed && !middleName2Changed) {
-        log.info("No changes to working name for prisonerNumber=$prisonerNumber")
-        return Optional.empty()
+      alias.also {
+        it.firstName = newFirstName
+        it.middleName = newMiddleName
+        it.lastName = newLastName
+        it.birthDate = request.dateOfBirth
+        it.aliasNameType = nameType(request.nameType)?.getOrThrow()?.code
+        it.title = title(request.title)?.getOrThrow()
+        it.gender = gender(request.sexCode)?.getOrThrow()
+        it.ethnicity = ethnicity(request.ethnicityCode)?.getOrThrow()
       }
-
-      if (forceAliasCreation == false && !lastNameChanged) {
-        return Optional.of(
-          oldWorkingName.also {
-            it.firstName = newFirstName
-            it.middleName = newMiddleName1
-            it.middleName2 = newMiddleName2
-          },
-        )
-      }
-
-      val newWorkingName = Offender.builder()
-        .nomsId(oldWorkingName.nomsId)
-        .rootOffenderId(oldWorkingName.rootOffenderId)
-        .aliasOffenderId(oldWorkingName.aliasOffenderId)
-        .lastName(newLastName)
-        .lastNameKey(newLastName)
-        .lastNameAlphaKey(newLastName.take(1))
-        .lastNameSoundex(Soundex().soundex(newLastName))
-        .firstName(newFirstName)
-        .middleName(newMiddleName1)
-        .middleName2(newMiddleName2)
-        .birthDate(oldWorkingName.birthDate)
-        .gender(oldWorkingName.gender)
-        .title(oldWorkingName.title)
-        .suffix(oldWorkingName.suffix)
-        .ethnicity(oldWorkingName.ethnicity)
-        .birthPlace(oldWorkingName.birthPlace)
-        .birthCountry(oldWorkingName.birthCountry)
-        .idSourceCode("SEQ")
-        .nameSequence("1234")
-        .caseloadType("INST")
-        .aliasNameType("CN")
-        .build()
-        .let { offenderRepository.save(it) }
-
-      offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
-        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
-        .also { it.offender = newWorkingName }
-
-      return Optional.of(newWorkingName)
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
@@ -398,11 +363,31 @@ class PrisonerProfileUpdateService(
     EntityNotFoundException.withMessage("Profile Code for ${type.type} and $code not found"),
   )
 
-  private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: String) = orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))
+  private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: Any) = orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))
 
   private fun country(code: String?): Result<Country>? = code?.takeIf { it.isNotBlank() }?.let {
     countryRepository.findByIdOrNull(Pk(COUNTRY, code))?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("Country $code not found"))
+  }
+
+  private fun gender(code: String?): Result<Gender>? = code?.takeIf { it.isNotBlank() }?.let {
+    genderRepository.findByIdOrNull(Pk(SEX, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Gender $code not found"))
+  }
+
+  private fun ethnicity(code: String?): Result<Ethnicity>? = code?.takeIf { it.isNotBlank() }?.let {
+    ethnicityRepository.findByIdOrNull(Pk(ETHNICITY, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Ethnicity $code not found"))
+  }
+
+  private fun title(code: String?): Result<Title>? = code?.takeIf { it.isNotBlank() }?.let {
+    titleRepository.findByIdOrNull(Pk(TITLE, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Title $code not found"))
+  }
+
+  private fun nameType(code: String?): Result<NameType>? = code?.takeIf { it.isNotBlank() }?.let {
+    nameTypeRepository.findByIdOrNull(Pk(NAME_TYPE, code))?.let { success(it) }
+      ?: failure(EntityNotFoundException.withMessage("Name type $code not found"))
   }
 
   private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String, table: String): Exception {

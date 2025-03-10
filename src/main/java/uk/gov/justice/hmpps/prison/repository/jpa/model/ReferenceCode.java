@@ -67,6 +67,10 @@ public abstract class ReferenceCode implements Serializable {
         return new RefCodeAndDescription(code, description);
     }
 
+    public Pk getPrimaryKey() {
+        return new Pk(domain, code);
+    }
+
     public static String getDescriptionOrNull(final ReferenceCode referenceCode) {
         return referenceCode != null ? referenceCode.getDescription() : null;
     }

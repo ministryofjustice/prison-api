@@ -10,7 +10,6 @@ import org.junit.jupiter.params.provider.MethodSource
 import org.junit.jupiter.params.provider.ValueSource
 import org.mockito.ArgumentCaptor
 import org.mockito.kotlin.any
-import org.mockito.kotlin.argumentCaptor
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.never
@@ -19,14 +18,15 @@ import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
+import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
-import uk.gov.justice.hmpps.prison.api.model.UpdateWorkingName
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
@@ -51,6 +51,10 @@ import java.util.Optional
 
 class PrisonerProfileUpdateServiceTest {
   private val offenderRepository: OffenderRepository = mock()
+  private val titleRepository: ReferenceCodeRepository<Title> = mock()
+  private val genderRepository: ReferenceCodeRepository<Gender> = mock()
+  private val ethnicityRepository: ReferenceCodeRepository<Ethnicity> = mock()
+  private val nameTypeRepository: ReferenceCodeRepository<NameType> = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
@@ -61,11 +65,14 @@ class PrisonerProfileUpdateServiceTest {
   private val offender: Offender = mock()
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
-  private val aliasCaptor = argumentCaptor<Offender>()
 
   private val prisonerProfileUpdateService: PrisonerProfileUpdateService =
     PrisonerProfileUpdateService(
       offenderRepository,
+      titleRepository,
+      genderRepository,
+      ethnicityRepository,
+      nameTypeRepository,
       countryRepository,
       profileTypeRepository,
       profileCodeRepository,
@@ -795,169 +802,121 @@ class PrisonerProfileUpdateServiceTest {
   }
 
   @Nested
-  inner class UpdateWorkingName {
+  inner class UpdateAlias {
 
-    private val request = UpdateWorkingName(
+    private val request = UpdateAlias(
       firstName = FIRST_NAME,
-      middleName1 = MIDDLE_NAME_1,
-      middleName2 = MIDDLE_NAME_2,
+      middleName = MIDDLE_NAME_1,
       lastName = LAST_NAME,
+      dateOfBirth = BIRTH_DATE,
+      nameType = NAME_TYPE.code,
+      title = TITLE.code,
+      sexCode = GENDER.code,
+      ethnicityCode = ETHNICITY.code,
     )
 
     @BeforeEach
     internal fun setUp() {
-      // The data on the existing working name alias:
+      // The data on the existing alias:
+      whenever(offender.id).thenReturn(OFFENDER_ID)
       whenever(offender.rootOffenderId).thenReturn(ROOT_OFFENDER_ID)
       whenever(offender.aliasOffenderId).thenReturn(ALIAS_OFFENDER_ID)
-      whenever(offender.firstName).thenReturn(FIRST_NAME)
-      whenever(offender.middleName).thenReturn(MIDDLE_NAME_1)
-      whenever(offender.middleName2).thenReturn(MIDDLE_NAME_2)
-      whenever(offender.lastName).thenReturn(LAST_NAME)
-      whenever(offender.lastNameKey).thenReturn(LAST_NAME)
-      whenever(offender.lastNameSoundex).thenReturn(LAST_NAME_SOUNDEX)
-      whenever(offender.lastNameAlphaKey).thenReturn(LAST_NAME_ALPHA)
+      whenever(offender.firstName).thenReturn("OLD_${FIRST_NAME}")
+      whenever(offender.middleName).thenReturn("OLD_${MIDDLE_NAME_1}")
+      whenever(offender.lastName).thenReturn("OLD_${LAST_NAME}")
+      whenever(offender.lastNameKey).thenReturn("OLD_${LAST_NAME}")
+      whenever(offender.lastNameSoundex).thenReturn("OLD_${LAST_NAME_SOUNDEX}")
+      whenever(offender.lastNameAlphaKey).thenReturn("OLD_${LAST_NAME_ALPHA}")
       whenever(offender.nomsId).thenReturn(PRISONER_NUMBER)
       whenever(offender.birthCountry).thenReturn(BIRTH_COUNTRY)
       whenever(offender.birthPlace).thenReturn(BIRTH_PLACE)
-      whenever(offender.birthDate).thenReturn(BIRTH_DATE)
-      whenever(offender.gender).thenReturn(GENDER)
-      whenever(offender.ethnicity).thenReturn(ETHNICITY)
-      whenever(offender.title).thenReturn(TITLE)
+      whenever(offender.birthDate).thenReturn(BIRTH_DATE.minusDays(1))
+      whenever(offender.gender).thenReturn(Gender("F", "Female"))
+      whenever(offender.ethnicity).thenReturn(Ethnicity("O1", "Chinese"))
+      whenever(offender.title).thenReturn(Title("MS", "Ms"))
+      whenever(offender.aliasNameType).thenReturn("NICK")
 
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
-      whenever(offenderRepository.save(aliasCaptor.capture())).thenAnswer { aliasCaptor.firstValue }
+      whenever(offenderRepository.findByIdForUpdate(OFFENDER_ID)).thenReturn(Optional.of(offender))
+      whenever(nameTypeRepository.findById(NAME_TYPE.primaryKey)).thenReturn(Optional.of(NAME_TYPE))
+      whenever(genderRepository.findById(GENDER.primaryKey)).thenReturn(Optional.of(GENDER))
+      whenever(ethnicityRepository.findById(ETHNICITY.primaryKey)).thenReturn(Optional.of(ETHNICITY))
+      whenever(titleRepository.findById(TITLE.primaryKey)).thenReturn(Optional.of(TITLE))
     }
 
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    internal fun `return empty when no change`(forceAliasCreation: Boolean) {
-      assertThat(prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request, forceAliasCreation))
-        .isEmpty()
-    }
+    @Test
+    internal fun `can update an alias`() {
+      prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request)
 
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    internal fun `can update first name - alias only created if forceAliasCreation is true`(forceAliasCreation: Boolean) {
-      whenever(offender.firstName).thenReturn("OLD_$FIRST_NAME")
-
-      assertThat(prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request, forceAliasCreation))
-        .isNotEmpty()
-
-      if (forceAliasCreation) {
-        assertNewAliasSaved()
-      } else {
-        assertNewAliasNotSaved()
-        verify(offender).firstName = FIRST_NAME
-      }
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    internal fun `can update middle name  - alias only created if forceAliasCreation is true`(forceAliasCreation: Boolean) {
-      whenever(offender.middleName).thenReturn("OLD_$MIDDLE_NAME_1")
-
-      assertThat(prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request, forceAliasCreation))
-        .isNotEmpty()
-
-      if (forceAliasCreation) {
-        assertNewAliasSaved()
-      } else {
-        assertNewAliasNotSaved()
-        verify(offender).middleName = MIDDLE_NAME_1
-      }
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    internal fun `can update last name - alias always created`(forceAliasCreation: Boolean) {
-      whenever(offender.lastName).thenReturn("OLD_$LAST_NAME")
-      whenever(offender.lastNameKey).thenReturn("OLD_$LAST_NAME")
-      whenever(offender.lastNameAlphaKey).thenReturn("OLD_$LAST_NAME_ALPHA")
-      whenever(offender.lastNameSoundex).thenReturn("OLD_$LAST_NAME_SOUNDEX")
-
-      assertThat(prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request))
-        .isNotEmpty()
-
-      assertNewAliasSaved()
-    }
-
-    @ParameterizedTest
-    @ValueSource(booleans = [true, false])
-    internal fun `can update all names - alias always created`(forceAliasCreation: Boolean) {
-      whenever(offender.firstName).thenReturn("OLD_$FIRST_NAME")
-      whenever(offender.middleName).thenReturn("OLD_$FIRST_NAME")
-      whenever(offender.lastName).thenReturn("OLD_$LAST_NAME")
-      whenever(offender.lastNameKey).thenReturn("OLD_$LAST_NAME")
-      whenever(offender.lastNameAlphaKey).thenReturn("OLD_$LAST_NAME_ALPHA")
-      whenever(offender.lastNameSoundex).thenReturn("OLD_$LAST_NAME_SOUNDEX")
-
-      assertThat(prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request, forceAliasCreation))
-        .isNotEmpty()
-
-      assertNewAliasSaved()
+      verify(offender).firstName = FIRST_NAME
+      verify(offender).middleName = MIDDLE_NAME_1
+      verify(offender).lastName = LAST_NAME
+      verify(offender).birthDate = BIRTH_DATE
+      verify(offender).aliasNameType = NAME_TYPE.code
+      verify(offender).title = TITLE
+      verify(offender).gender = GENDER
+      verify(offender).ethnicity = ETHNICITY
     }
 
     @Test
     internal fun `throws exception when there isn't an offender`() {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+      whenever(offenderRepository.findByIdForUpdate(OFFENDER_ID))
         .thenReturn(Optional.empty())
 
-      assertThatThrownBy { prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request) }
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
         .isInstanceOf(EntityNotFoundException::class.java)
-        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+        .hasMessage("Alias with offenderId 111111 not found")
     }
 
     @Test
-    internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offender.lastName).thenReturn("OLD_$LAST_NAME")
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
-        .thenReturn(Optional.empty())
+    internal fun `throws exception when title is not valid`() {
+      whenever(titleRepository.findById(TITLE.primaryKey)).thenReturn(Optional.empty())
 
-      assertThatThrownBy { prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request) }
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
         .isInstanceOf(EntityNotFoundException::class.java)
-        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+        .hasMessage("Title MR not found")
+    }
+
+    @Test
+    internal fun `throws exception when gender is not valid`() {
+      whenever(genderRepository.findById(GENDER.primaryKey)).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Gender M not found")
+    }
+
+    @Test
+    internal fun `throws exception when ethnicity is not valid`() {
+      whenever(ethnicityRepository.findById(ETHNICITY.primaryKey)).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Ethnicity W1 not found")
+    }
+
+    @Test
+    internal fun `throws exception when name type is not valid`() {
+      whenever(nameTypeRepository.findById(NAME_TYPE.primaryKey)).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Name type CN not found")
     }
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+      whenever(offenderRepository.findByIdForUpdate(OFFENDER_ID))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
-      assertThatThrownBy { prisonerProfileUpdateService.updateWorkingName(PRISONER_NUMBER, request) }
+      assertThatThrownBy { prisonerProfileUpdateService.updateAlias(PRISONER_NUMBER, OFFENDER_ID, request) }
         .isInstanceOf(DatabaseRowLockedException::class.java)
-    }
-
-    private fun assertNewAliasNotSaved() = verify(offenderRepository, never()).save(any<Offender>())
-
-    private fun assertNewAliasSaved() {
-      val newAlias = aliasCaptor.firstValue
-      assertThat(newAlias.nomsId).isEqualTo(PRISONER_NUMBER)
-      assertThat(newAlias.rootOffenderId).isEqualTo(ROOT_OFFENDER_ID)
-      assertThat(newAlias.aliasOffenderId).isEqualTo(ALIAS_OFFENDER_ID)
-      assertThat(newAlias.lastName).isEqualTo(LAST_NAME)
-      assertThat(newAlias.lastNameKey).isEqualTo(LAST_NAME)
-      assertThat(newAlias.lastNameAlphaKey).isEqualTo(LAST_NAME_ALPHA)
-      assertThat(newAlias.lastNameSoundex).isEqualTo(LAST_NAME_SOUNDEX)
-      assertThat(newAlias.firstName).isEqualTo(FIRST_NAME)
-      assertThat(newAlias.middleName).isEqualTo(MIDDLE_NAME_1)
-      assertThat(newAlias.middleName2).isEqualTo(MIDDLE_NAME_2)
-      assertThat(newAlias.birthDate).isEqualTo(BIRTH_DATE)
-      assertThat(newAlias.gender).isEqualTo(GENDER)
-      assertThat(newAlias.title).isEqualTo(TITLE)
-      assertThat(newAlias.ethnicity).isEqualTo(ETHNICITY)
-      assertThat(newAlias.birthPlace).isEqualTo(BIRTH_PLACE)
-      assertThat(newAlias.birthCountry).isEqualTo(BIRTH_COUNTRY)
-      assertThat(newAlias.idSourceCode).isEqualTo("SEQ")
-      assertThat(newAlias.nameSequence).isEqualTo("1234")
-      assertThat(newAlias.caseloadType).isEqualTo("INST")
-      assertThat(newAlias.aliasNameType).isEqualTo("CN")
     }
   }
 
   private companion object {
     const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
+    const val OFFENDER_ID = 111111L
     const val BIRTH_PLACE = "SHEFFIELD"
     const val BRITISH_NATIONALITY_CODE = "BRIT"
     const val DRUID_RELIGION_CODE = "DRU"
@@ -980,6 +939,8 @@ class PrisonerProfileUpdateServiceTest {
     val ETHNICITY = Ethnicity("W1", "White British")
 
     val TITLE = Title("MR", "Mr.")
+
+    val NAME_TYPE = NameType("CN", "Current Name")
 
     const val NATIONALITY_PROFILE_TYPE_CODE = "NAT"
     val NATIONALITY_PROFILE_TYPE =
