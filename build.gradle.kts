@@ -88,12 +88,14 @@ java {
 kotlin {
   jvmToolchain(21)
   kotlinDaemonJvmArgs = listOf("-Xmx1g", "-Xms256m", "-XX:+UseParallelGC")
+  compilerOptions {
+    freeCompilerArgs.addAll("-Xjvm-default=all", "-Xwhen-guards")
+  }
 }
 
 tasks {
   withType<org.jetbrains.kotlin.gradle.tasks.KotlinCompile> {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_21
-    compilerOptions.freeCompilerArgs = listOf("-Xjvm-default=all")
   }
 
   // Exclude Serenity BDD integration and IntTest tests from "test" task so they can be controlled independently
