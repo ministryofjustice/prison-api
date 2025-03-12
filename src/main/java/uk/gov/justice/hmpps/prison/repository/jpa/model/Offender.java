@@ -45,6 +45,7 @@ import static java.util.stream.Collectors.toList;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX;
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Suffix.SUFFIX;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE;
 
@@ -93,6 +94,9 @@ public class Offender extends AuditableEntity {
 
     @Column(name = "BIRTH_DATE", nullable = false)
     private LocalDate birthDate;
+
+    @Column(name = "AGE", nullable = false)
+    private Integer age;
 
     @Column(name = "BIRTH_PLACE", nullable = false)
     private String birthPlace;
@@ -178,8 +182,13 @@ public class Offender extends AuditableEntity {
     @Column(name = "LAST_NAME_ALPHA_KEY")
     private String lastNameAlphaKey;
 
-    @Column(name = "ALIAS_NAME_TYPE")
-    private String aliasNameType;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + NAME_TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "ALIAS_NAME_TYPE", referencedColumnName = "code"))
+    })
+    @Exclude
+    private NameType aliasNameType;
 
     @Column(name = "ALIAS_OFFENDER_ID")
     private Long aliasOffenderId;

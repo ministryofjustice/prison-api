@@ -16,7 +16,9 @@ import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.Alias
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -30,6 +32,262 @@ class AliasResourceImplIntTest : ResourceTest() {
 
   @MockitoSpyBean
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
+
+  @Nested
+  @DisplayName("POST /offenders/{offenderNo}/alias")
+  inner class CreateAlias {
+
+    @Nested
+    @DisplayName("Authorisation checks")
+    inner class Authorisation {
+      @Test
+      fun `returns 401 without an auth token`() {
+        webTestClient.post()
+          .uri("api/offenders/A1072AA/alias")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `returns 403 when client does not have any roles`() {
+        webTestClient.post()
+          .uri("api/offenders/A1072AA/alias")
+          .headers(setClientAuthorisation(listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
+        webTestClient.post()
+          .uri("api/offenders/A1072AA/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 201 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
+        webTestClient.post()
+          .uri("api/offenders/A1072AA/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isCreated
+      }
+    }
+
+    @Nested
+    @DisplayName("Happy path")
+    open inner class HappyPath {
+
+      @Test
+      @Transactional(readOnly = true)
+      open fun `should create a new non-working name alias`() {
+        val newAlias = webTestClient.post()
+          .uri("api/offenders/A1073AA/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(NON_WORKING_NAME_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isCreated
+          .returnResult<Alias>()
+          .responseBody
+          .blockFirst()
+
+        assertThat(newAlias).isNotNull
+        assertThat(newAlias!!.offenderId).isNotEqualTo(-1073)
+
+        with(offenderRepository.findById(newAlias.offenderId).get()) {
+          assertThat(firstName).isEqualTo("JOHN")
+          assertThat(middleName).isEqualTo("MIDDLENAME")
+          assertThat(lastName).isEqualTo("SMITH")
+          assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
+          assertThat(gender.code).isEqualTo("M")
+          assertThat(title.code).isEqualTo("MR")
+          assertThat(ethnicity.code).isEqualTo("W1")
+          assertThat(aliasNameType.code).isEqualTo("CN")
+        }
+
+        assertThat(offenderRepository.findLinkedToLatestBookingForUpdate("A1073AA").get().id)
+          .isEqualTo(-1073)
+      }
+
+      @Test
+      @Transactional(readOnly = true)
+      open fun `should create a new working name alias`() {
+        val newAlias = webTestClient.post()
+          .uri("api/offenders/A1074AA/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(WORKING_NAME_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isCreated
+          .returnResult<Alias>()
+          .responseBody
+          .blockFirst()
+
+        assertThat(newAlias).isNotNull
+        assertThat(newAlias!!.offenderId).isNotEqualTo(-1074)
+
+        with(offenderRepository.findLinkedToLatestBookingForUpdate("A1074AA").get()) {
+          assertThat(id).isEqualTo(newAlias.offenderId)
+          assertThat(firstName).isEqualTo("JOHN")
+          assertThat(middleName).isEqualTo("MIDDLENAME")
+          assertThat(lastName).isEqualTo("SMITH")
+          assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
+          assertThat(gender.code).isEqualTo("M")
+          assertThat(title.code).isEqualTo("MR")
+          assertThat(ethnicity.code).isEqualTo("W1")
+          assertThat(aliasNameType.code).isEqualTo("CN")
+        }
+      }
+    }
+
+    @Nested
+    @DisplayName("Error conditions")
+    inner class ErrorConditions {
+      @Test
+      fun shouldReturn404WhenPrisonerDoesNotExist() {
+        webTestClient.post()
+          .uri("api/offenders/XXXX/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().jsonPath("userMessage")
+          .isEqualTo("Prisoner with prisonerNumber XXXX and existing booking not found")
+      }
+
+      @Test
+      fun `returns status 423 (locked) when database row lock times out`() {
+        doThrow(DatabaseRowLockedException("developer message"))
+          .whenever(prisonerProfileUpdateService).createAlias(anyString(), any())
+
+        webTestClient.post()
+          .uri("api/offenders/A1072AA/alias")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(VALID_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isEqualTo(HttpStatus.LOCKED)
+          .expectBody()
+          .jsonPath("userMessage").isEqualTo("Resource locked, possibly in use in P-Nomis.")
+          .jsonPath("developerMessage").isEqualTo("developer message")
+      }
+
+      @Nested
+      @DisplayName("Validation checks")
+      inner class Validation {
+
+        @Nested
+        @DisplayName("First name")
+        inner class FirstName {
+          @Test
+          internal fun `first name must only contain valid characters`() {
+            expectBadRequest(createRequest(firstName = "@@@"))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: firstName - First name is not valid")
+          }
+
+          @Test
+          internal fun `first name can not be greater than 35 characters`() {
+            expectBadRequest(createRequest(firstName = "A".repeat(36)))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: firstName - Value is too long: max length is 35")
+          }
+
+          @Test
+          internal fun `first name can not be blank`() {
+            expectBadRequest(createRequest(firstName = "   "))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: firstName - Value cannot be blank")
+          }
+        }
+
+        @Nested
+        @DisplayName("Last name")
+        inner class LastName {
+          @Test
+          internal fun `last name must only contain valid characters`() {
+            expectBadRequest(createRequest(lastName = "###"))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: lastName - Last name is not valid")
+          }
+
+          @Test
+          internal fun `last name can not be greater than 35 characters`() {
+            expectBadRequest(createRequest(lastName = "A".repeat(36)))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: lastName - Value is too long: max length is 35")
+          }
+
+          @Test
+          internal fun `last name can not be blank`() {
+            expectBadRequest(createRequest(lastName = "   "))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: lastName - Value cannot be blank")
+          }
+        }
+
+        @Nested
+        @DisplayName("Middle name")
+        inner class MiddleName {
+
+          @Test
+          internal fun `first middle name must only contain valid characters`() {
+            expectBadRequest(createRequest(middleName = "@@@"))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName - Middle name is not valid")
+          }
+
+          @Test
+          internal fun `first middle can not be greater than 35 characters`() {
+            expectBadRequest(createRequest(middleName = "A".repeat(36)))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName - Value is too long: max length is 35")
+          }
+        }
+      }
+    }
+
+    private fun createRequest(
+      firstName: String = "John",
+      middleName: String? = "Middlename",
+      lastName: String = "Smith",
+      title: String? = "MR",
+      dateOfBirth: LocalDate = LocalDate.parse("1990-01-02"),
+      sex: String = "M",
+      ethnicity: String? = "M1",
+      nameType: String? = "CN",
+    ) = UpdateAlias(
+      firstName,
+      middleName,
+      lastName,
+      dateOfBirth,
+      sex,
+      title,
+      ethnicity,
+      nameType,
+    )
+
+    fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec = webTestClient.post()
+      .uri("api/offenders/A1072AA/alias")
+      .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .bodyValue(body)
+      .exchange()
+      .expectStatus().isBadRequest
+      .expectBody().jsonPath("$.status").isEqualTo(400)
+  }
 
   @Nested
   @DisplayName("PUT /offenders/{offenderNo}/alias/{offenderId}")
@@ -71,14 +329,14 @@ class AliasResourceImplIntTest : ResourceTest() {
       }
 
       @Test
-      fun `returns 204 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
+      fun `returns 200 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.put()
           .uri("api/offenders/A1072AA/alias/-1072")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
           .exchange()
-          .expectStatus().isNoContent
+          .expectStatus().isOk
       }
     }
 
@@ -94,7 +352,9 @@ class AliasResourceImplIntTest : ResourceTest() {
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
           .exchange()
-          .expectStatus().isNoContent
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("offenderId").isEqualTo(-1073)
 
         with(offenderRepository.findById(-1073L).get()) {
           assertThat(firstName).isEqualTo("JOHN")
@@ -104,7 +364,7 @@ class AliasResourceImplIntTest : ResourceTest() {
           assertThat(gender.code).isEqualTo("M")
           assertThat(title.code).isEqualTo("MR")
           assertThat(ethnicity.code).isEqualTo("W1")
-          assertThat(aliasNameType).isEqualTo("CN")
+          assertThat(aliasNameType.code).isEqualTo("CN")
         }
       }
     }
@@ -197,8 +457,8 @@ class AliasResourceImplIntTest : ResourceTest() {
         }
 
         @Nested
-        @DisplayName("Middle names")
-        inner class MiddleNames {
+        @DisplayName("Middle name")
+        inner class MiddleName {
 
           @Test
           internal fun `first middle name must only contain valid characters`() {
@@ -248,6 +508,40 @@ class AliasResourceImplIntTest : ResourceTest() {
   }
 
   private companion object {
+    const val NON_WORKING_NAME_ALIAS_CREATION =
+      // language=json
+      """
+        {
+          "firstName": "John",
+          "middleName": "Middlename",
+          "lastName": "Smith",
+          "dateOfBirth": "1990-01-01",
+          "nameType": "CN",
+          "title": "MR",
+          "sexCode": "M",
+          "ethnicityCode": "W1",
+          "isWorkingName": false 
+        }
+      """
+
+    const val WORKING_NAME_ALIAS_CREATION =
+      // language=json
+      """
+        {
+          "firstName": "John",
+          "middleName": "Middlename",
+          "lastName": "Smith",
+          "dateOfBirth": "1990-01-01",
+          "nameType": "CN",
+          "title": "MR",
+          "sexCode": "M",
+          "ethnicityCode": "W1",
+          "isWorkingName": true 
+        }
+      """
+
+    const val VALID_ALIAS_CREATION = NON_WORKING_NAME_ALIAS_CREATION
+
     const val VALID_ALIAS_UPDATE =
       // language=json
       """
