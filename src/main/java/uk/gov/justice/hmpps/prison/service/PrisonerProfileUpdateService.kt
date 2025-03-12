@@ -1,12 +1,15 @@
 package uk.gov.justice.hmpps.prison.service
 
+import org.apache.commons.codec.language.Soundex
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.Alias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
+import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
@@ -19,6 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
@@ -211,7 +215,52 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun updateAlias(prisonerNumber: String, offenderId: Long, request: UpdateAlias) {
+  fun createAlias(prisonerNumber: String, request: CreateAlias): Alias {
+    try {
+      val oldWorkingName = offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val newFirstName = request.firstName.trim().uppercase()
+      val newLastName = request.lastName.trim().uppercase()
+      val newMiddleName = request.middleName?.trim()?.uppercase()
+
+      val newAlias = Offender.builder()
+        .nomsId(oldWorkingName.nomsId)
+        .rootOffenderId(oldWorkingName.rootOffenderId)
+        .aliasOffenderId(oldWorkingName.aliasOffenderId)
+        .lastName(newLastName)
+        .lastNameKey(newLastName)
+        .lastNameAlphaKey(newLastName.take(1))
+        .lastNameSoundex(Soundex().soundex(newLastName))
+        .firstName(newFirstName)
+        .middleName(newMiddleName)
+        .birthDate(request.dateOfBirth)
+        .gender(gender(request.sexCode)?.getOrThrow())
+        .title(title(request.title)?.getOrThrow())
+        .ethnicity(ethnicity(request.ethnicityCode)?.getOrThrow())
+        .aliasNameType(nameType(request.nameType)?.getOrThrow())
+        .birthPlace(oldWorkingName.birthPlace)
+        .birthCountry(oldWorkingName.birthCountry)
+        .idSourceCode("SEQ")
+        .nameSequence("1234")
+        .caseloadType("INST")
+        .build()
+        .let { offenderRepository.save(it) }
+
+      if (request.isWorkingName) {
+        offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+          .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+          .also { it.offender = newAlias }
+      }
+
+      return newAlias.toAlias()
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun updateAlias(prisonerNumber: String, offenderId: Long, request: UpdateAlias): Alias {
     try {
       val alias = offenderRepository.findByIdForUpdate(offenderId)
         .orElseThrowNotFound("Alias with offenderId %d not found", offenderId)
@@ -220,20 +269,38 @@ class PrisonerProfileUpdateService(
       val newLastName = request.lastName.trim().uppercase()
       val newMiddleName = request.middleName?.trim()?.uppercase()
 
-      alias.also {
+      return alias.also {
         it.firstName = newFirstName
         it.middleName = newMiddleName
         it.lastName = newLastName
+        it.lastNameKey = newLastName
+        it.lastNameAlphaKey = newLastName.take(1)
+        it.lastNameSoundex = Soundex().soundex(newLastName)
         it.birthDate = request.dateOfBirth
-        it.aliasNameType = nameType(request.nameType)?.getOrThrow()?.code
+        it.aliasNameType = nameType(request.nameType)?.getOrThrow()
         it.title = title(request.title)?.getOrThrow()
         it.gender = gender(request.sexCode)?.getOrThrow()
         it.ethnicity = ethnicity(request.ethnicityCode)?.getOrThrow()
-      }
+      }.toAlias()
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
   }
+
+  private fun Offender.toAlias() = Alias.builder()
+    .title(title?.description)
+    .firstName(firstName)
+    .middleName(middleName)
+    .lastName(lastName)
+    .age(age)
+    .dob(birthDate)
+    .gender(gender?.description)
+    .ethnicity(ethnicity?.description)
+    .raceCode(ethnicity?.code)
+    .nameType(aliasNameType?.description)
+    .createDate(createDate)
+    .offenderId(id)
+    .build()
 
   private fun updateProfileDetailsOfBooking(
     booking: OffenderBooking,
