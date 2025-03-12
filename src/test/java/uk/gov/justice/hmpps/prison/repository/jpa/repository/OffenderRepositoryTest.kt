@@ -60,6 +60,23 @@ class OffenderRepositoryTest {
   }
 
   @Nested
+  inner class findLinkedToLatestBooking {
+    @Test
+    fun `retrieves the offender record linked to latest booking`() {
+      // this prisoner has two offender records - ensure we get the right one
+      val offender = repository.findLinkedToLatestBooking("A1234AL").orElseThrow()
+
+      assertThat(offender.id).isEqualTo(-1012L) // Needs to be the one connected to the booking with booking seq of 1
+      assertThat(offender.allBookings).hasSizeGreaterThan(0)
+    }
+
+    @Test
+    fun `returns empty when there is no booking linked to the offender record`() {
+      assertThat(repository.findLinkedToLatestBooking("A9880GH")).isEmpty()
+    }
+  }
+
+  @Nested
   inner class findLinkedToLatestBookingForUpdate {
     @Test
     fun `retrieves the offender record linked to latest booking`() {

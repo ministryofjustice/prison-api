@@ -42,7 +42,7 @@ data class UpdateAlias(
     allowableValues = ["M", "F", "NK", "NS", "REF"],
   )
   @field:NotBlank
-  val sexCode: String,
+  val sex: String,
 
   @Schema(
     description = "A code representing the prisoner's title (from TITLE reference domain).",
@@ -55,7 +55,7 @@ data class UpdateAlias(
     description = "A code representing the prisoner's ethnicity (from ETHNICITY reference domain).",
     example = "W1",
   )
-  val ethnicityCode: String? = null,
+  val ethnicity: String? = null,
 
   @Schema(
     description = "The name type (from NAME_TYPE reference domain)",
@@ -63,5 +63,4 @@ data class UpdateAlias(
     allowableValues = ["A", "CN", "MAID", "NICK"],
   )
   val nameType: String? = null,
-
 )

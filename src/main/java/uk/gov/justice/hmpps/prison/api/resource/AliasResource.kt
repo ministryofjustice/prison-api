@@ -28,7 +28,7 @@ import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
 @RestController
 @Tag(name = "aliases")
 @Validated
-@RequestMapping(value = ["\${api.base.path}/offenders"], produces = ["application/json"])
+@RequestMapping(value = ["\${api.base.path}"], produces = ["application/json"])
 class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpdateService) {
   @ApiResponses(
     ApiResponse(responseCode = "201", description = "A new alias for the prisoner has been created."),
@@ -51,7 +51,7 @@ class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpd
   @Operation(
     summary = "Create a new alias for the prisoner. Requires the PRISON_API__PRISONER_PROFILE__RW role.",
   )
-  @PostMapping("/{offenderNo}/alias")
+  @PostMapping("/offenders/{offenderNo}/aliases")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ResponseStatus(CREATED)
   @ProxyUser
@@ -81,12 +81,11 @@ class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpd
   @Operation(
     summary = "Update the prisoner's alias. Requires the PRISON_API__PRISONER_PROFILE__RW role.",
   )
-  @PutMapping("/{offenderNo}/alias/{offenderId}")
+  @PutMapping("/aliases/{offenderId}")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ProxyUser
   fun updateAlias(
-    @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) prisonerNumber: String,
     @PathVariable("offenderId") @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
     @RequestBody @NotNull @Valid updateAlias: UpdateAlias,
-  ) = prisonerProfileUpdateService.updateAlias(prisonerNumber, offenderId, updateAlias)
+  ) = prisonerProfileUpdateService.updateAlias(offenderId, updateAlias)
 }
