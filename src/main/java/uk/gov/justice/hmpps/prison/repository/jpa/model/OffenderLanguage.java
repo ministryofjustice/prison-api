@@ -1,5 +1,12 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.Id;
+import jakarta.persistence.IdClass;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -11,13 +18,6 @@ import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
 import java.io.Serializable;
 
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
@@ -68,7 +68,7 @@ public class OffenderLanguage {
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
             @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + LanguageReferenceCode.DOMAIN + "'", referencedColumnName = "domain")),
-            @JoinColumnOrFormula(column = @JoinColumn(name = "LANGUAGE_CODE", referencedColumnName = "code"))
+            @JoinColumnOrFormula(column = @JoinColumn(name = "LANGUAGE_CODE", insertable = false, updatable = false, referencedColumnName = "code"))
     })
     private LanguageReferenceCode referenceCode;
 }

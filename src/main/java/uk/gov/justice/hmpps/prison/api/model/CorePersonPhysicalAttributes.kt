@@ -14,22 +14,22 @@ data class CorePersonPhysicalAttributes(
   @Schema(description = "Weight (in kilograms)")
   val weight: Int? = null,
 
-  @Schema(description = "Hair type or colour. Note: uses PROFILE_TYPE of `HAIR`", example = "BROWN")
+  @Schema(description = "Hair type or colour")
   val hair: ProfileCode? = null,
 
-  @Schema(description = "Facial hair type. Note: uses PROFILE_TYPE of `FACIAL_HAIR`", example = "BEARDED")
+  @Schema(description = "Facial hair type")
   val facialHair: ProfileCode? = null,
 
-  @Schema(description = "Face shape. Note: uses PROFILE_TYPE of `FACE`", example = "ROUND")
+  @Schema(description = "Face shape")
   val face: ProfileCode? = null,
 
-  @Schema(description = "Build. Note: uses PROFILE_TYPE of `BUILD`", example = "MEDIUM")
+  @Schema(description = "Build")
   val build: ProfileCode? = null,
 
-  @Schema(description = "Left eye colour. Note: uses PROFILE_TYPE of `L_EYE_C`", example = "BLUE")
+  @Schema(description = "Left eye colour")
   val leftEyeColour: ProfileCode? = null,
 
-  @Schema(description = "Right eye colour. Note: uses PROFILE_TYPE of `R_EYE_C`", example = "BLUE")
+  @Schema(description = "Right eye colour")
   val rightEyeColour: ProfileCode? = null,
 
   @Schema(description = "Shoe size", example = "9")

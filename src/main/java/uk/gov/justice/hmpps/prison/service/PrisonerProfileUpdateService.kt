@@ -6,12 +6,17 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.CorePersonCommunicationNeeds
+import uk.gov.justice.hmpps.prison.api.model.CorePersonLanguagePreferences
+import uk.gov.justice.hmpps.prison.api.model.CorePersonLanguagePreferencesRequest
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
+import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguage
+import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
@@ -24,8 +29,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributeId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttributes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
@@ -38,6 +45,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeRepository
@@ -52,6 +60,7 @@ import java.time.LocalDateTime
 import java.util.Optional
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class PrisonerProfileUpdateService(
@@ -67,6 +76,8 @@ class PrisonerProfileUpdateService(
   private val offenderBookingRepository: OffenderBookingRepository,
   private val offenderBeliefRepository: OffenderBeliefRepository,
   private val staffUserAccountRepository: StaffUserAccountRepository,
+  private val offenderLanguageRepository: OffenderLanguageRepository,
+  private val languageCodeRepository: ReferenceCodeRepository<LanguageReferenceCode>,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -313,6 +324,173 @@ class PrisonerProfileUpdateService(
     ethnicity = ethnicity?.toReferenceDataValue(),
   )
 
+  @Transactional
+  fun getCommunicationNeeds(prisonerNumber: String): CorePersonCommunicationNeeds {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val languages = offenderLanguageRepository.findByOffenderBookId(booking.bookingId)
+
+      return CorePersonCommunicationNeeds(
+        prisonerNumber,
+        languagePreferences = CorePersonLanguagePreferences(
+          preferredSpokenLanguage = getFirstPreferredSpokenLanguage(languages)?.referenceCode,
+          preferredWrittenLanguage = getFirstPreferredWrittenLanguage(languages)?.referenceCode,
+          interpreterRequired = getInterpreterRequired(languages),
+        ),
+        secondaryLanguages = getSecondaryLanguages(languages),
+      )
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun createOrUpdateLanguagePreferences(prisonerNumber: String, request: CorePersonLanguagePreferencesRequest) {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val preferredWrittenLanguageReferenceCode = request.preferredWrittenLanguageCode?.let {
+        languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.preferredWrittenLanguageCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Preferred written language with code ${request.preferredWrittenLanguageCode} not found") },
+        )
+      }
+
+      val preferredSpokenLanguageReferenceCode = request.preferredSpokenLanguageCode?.let {
+        languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.preferredSpokenLanguageCode)).orElseThrow(
+          { EntityNotFoundException.withMessage("Preferred spoken language with code ${request.preferredSpokenLanguageCode} not found") },
+        )
+      }
+
+      val preferredWrittenOffenderLanguage = preferredWrittenLanguageReferenceCode?.let {
+        OffenderLanguage.builder()
+          .offenderBookId(booking.bookingId)
+          .code(preferredWrittenLanguageReferenceCode.code)
+          .type(PREF_WRITE_LANGUAGE_TYPE)
+          .interpreterRequestedFlag("N")
+          .preferredWriteFlag("Y")
+          .readSkill("N")
+          .writeSkill("N")
+          .speakSkill("N")
+          .referenceCode(preferredWrittenLanguageReferenceCode)
+          .build()
+      }
+
+      val preferredSpokenOffenderLanguage = preferredSpokenLanguageReferenceCode?.let {
+        OffenderLanguage.builder()
+          .offenderBookId(booking.bookingId)
+          .code(preferredSpokenLanguageReferenceCode.code)
+          .type(PREF_SPEAK_LANGUAGE_TYPE)
+          .interpreterRequestedFlag(if (request.interpreterRequired) "Y" else "N")
+          .preferredWriteFlag("N")
+          .readSkill("N")
+          .writeSkill("N")
+          .speakSkill("N")
+          .referenceCode(preferredSpokenLanguageReferenceCode)
+          .build()
+      }
+
+      val existingPreferredLanguages = offenderLanguageRepository.findByOffenderBookId(booking.bookingId).filter { language ->
+        language.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) ||
+          language.type.equals(PREF_WRITE_LANGUAGE_TYPE, ignoreCase = true)
+      }
+      val newPreferredLanguages = mutableListOf<OffenderLanguage>().apply {
+        preferredWrittenOffenderLanguage?.let { add(it) }
+        preferredSpokenOffenderLanguage?.let { add(it) }
+      }
+
+      offenderLanguageRepository.deleteAll(existingPreferredLanguages)
+      offenderLanguageRepository.saveAll(newPreferredLanguages)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun addOrUpdateSecondaryLanguage(prisonerNumber: String, request: CorePersonSecondaryLanguageRequest) {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val languageReferenceCode = languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.language)).orElseThrow {
+        EntityNotFoundException.withMessage("Language with code ${request.language} not found")
+      }
+
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, languageReferenceCode.code).getOrNull()?.apply {
+        readSkill = if (request.canRead) "Y" else "N"
+        writeSkill = if (request.canWrite) "Y" else "N"
+        speakSkill = if (request.canSpeak) "Y" else "N"
+      } ?: run {
+        OffenderLanguage.builder()
+          .offenderBookId(booking.bookingId)
+          .code(languageReferenceCode.code)
+          .type(SEC_LANGUAGE_TYPE)
+          .interpreterRequestedFlag("N")
+          .preferredWriteFlag("N")
+          .readSkill(if (request.canRead) "Y" else "N")
+          .writeSkill(if (request.canWrite) "Y" else "N")
+          .speakSkill(if (request.canSpeak) "Y" else "N")
+          .referenceCode(languageReferenceCode)
+          .build()
+      }
+
+      offenderLanguageRepository.save(offenderLanguage)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
+  fun deleteSecondaryLanguage(prisonerNumber: String, languageCode: String) {
+    try {
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+      val languageReferenceCode = languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, languageCode)).orElseThrow {
+        EntityNotFoundException.withMessage("Language with code $languageCode not found")
+      }
+
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, languageReferenceCode.code).orElseThrow {
+        EntityNotFoundException.withMessage("Secondary language with code $languageCode not found for [$prisonerNumber]")
+      }
+
+      offenderLanguageRepository.delete(offenderLanguage)
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  /*
+   * NOTE: Due to NOMIS allowing multiple preferred languages to be added, both NOMIS and existing Prison API functions
+   * use sorting by description to determine the 'first' preferred language. We are following the same approach here for
+   * consistency during viewing existing records, but the `createOrUpdateLanguagePreferences` function clears all existing
+   * preferred languages when adding/updating so going forward there should only ever by one for spoken and one for written.
+   */
+  private fun getFirstPreferredSpokenLanguage(languages: List<OffenderLanguage>): OffenderLanguage? = languages
+    .filter { it.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) && it.referenceCode != null }
+    .maxByOrNull { it.referenceCode.description }
+
+  private fun getFirstPreferredWrittenLanguage(languages: List<OffenderLanguage>): OffenderLanguage? = languages
+    .filter { it.type.equals(PREF_WRITE_LANGUAGE_TYPE, ignoreCase = true) && it.referenceCode != null }
+    .maxByOrNull { it.referenceCode.description }
+
+  private fun getInterpreterRequired(languages: List<OffenderLanguage>): Boolean = languages
+    .filter { it.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) && it.referenceCode != null }
+    .maxByOrNull { it.referenceCode.description }?.interpreterRequestedFlag.equals("Y", ignoreCase = true)
+
+  private fun getSecondaryLanguages(languages: List<OffenderLanguage>): List<CorePersonSecondaryLanguage> = languages
+    .filter { it.type.equals(SEC_LANGUAGE_TYPE, ignoreCase = true) }
+    .map {
+      CorePersonSecondaryLanguage(
+        language = it.referenceCode,
+        canRead = it.readSkill.equals("Y", ignoreCase = true),
+        canWrite = it.writeSkill.equals("Y", ignoreCase = true),
+        canSpeak = it.speakSkill.equals("Y", ignoreCase = true),
+      )
+    }
+
   private fun updateProfileDetailsOfBooking(
     booking: OffenderBooking,
     prisonerNumber: String,
@@ -501,5 +679,11 @@ class PrisonerProfileUpdateService(
     const val SHOESIZE_PROFILE_TYPE = "SHOESIZE"
     const val PHYSICAL_APPEARANCE_PROFILE_CATEGORY = "PA"
     val FREE_TEXT_PROFILE_CODES = listOf(OTHER_NATIONALITIES_PROFILE_TYPE, SHOESIZE_PROFILE_TYPE)
+
+    // Communication Needs
+    const val PREF_SPEAK_LANGUAGE_TYPE = "PREF_SPEAK"
+    const val PREF_WRITE_LANGUAGE_TYPE = "PREF_WRITE"
+    const val SEC_LANGUAGE_TYPE = "SEC"
+    const val LANGUAGE_REF_DOMAIN = "LANG"
   }
 }
