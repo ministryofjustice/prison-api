@@ -149,6 +149,36 @@ class AliasResourceImplIntTest : ResourceTest() {
           assertThat(aliasNameType.code).isEqualTo("CN")
         }
       }
+
+      @Test
+      @Transactional(readOnly = true)
+      open fun `should accept minimal number of fields`() {
+        val newAlias = webTestClient.post()
+          .uri("api/offenders/A1075AA/aliases")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(MINIMAL_ALIAS_CREATION)
+          .exchange()
+          .expectStatus().isCreated
+          .returnResult<CorePersonRecordAlias>()
+          .responseBody
+          .blockFirst()
+
+        assertThat(newAlias).isNotNull
+        assertThat(newAlias!!.offenderId).isNotEqualTo(-1075)
+
+        with(offenderRepository.findLinkedToLatestBookingForUpdate("A1075AA").get()) {
+          assertThat(id).isEqualTo(newAlias.offenderId)
+          assertThat(firstName).isEqualTo("JOHN")
+          assertThat(middleName).isNull()
+          assertThat(lastName).isEqualTo("SMITH")
+          assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
+          assertThat(gender.code).isEqualTo("M")
+          assertThat(title).isNull()
+          assertThat(ethnicity).isNull()
+          assertThat(aliasNameType).isNull()
+        }
+      }
     }
 
     @Nested
@@ -367,6 +397,31 @@ class AliasResourceImplIntTest : ResourceTest() {
           assertThat(aliasNameType.code).isEqualTo("CN")
         }
       }
+
+      @Test
+      @Transactional(readOnly = true)
+      open fun `should accept minimal number of fields`() {
+        webTestClient.put()
+          .uri("api/aliases/-1073")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(MINIMAL_ALIAS_UPDATE)
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("offenderId").isEqualTo(-1073)
+
+        with(offenderRepository.findById(-1073L).get()) {
+          assertThat(firstName).isEqualTo("JOHN")
+          assertThat(middleName).isNull()
+          assertThat(lastName).isEqualTo("SMITH")
+          assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
+          assertThat(gender.code).isEqualTo("M")
+          assertThat(title).isNull()
+          assertThat(ethnicity).isNull()
+          assertThat(aliasNameType).isNull()
+        }
+      }
     }
 
     @Nested
@@ -540,7 +595,30 @@ class AliasResourceImplIntTest : ResourceTest() {
         }
       """
 
+    const val MINIMAL_ALIAS_CREATION =
+      // language=json
+      """
+        {
+          "firstName": "John",
+          "lastName": "Smith",
+          "dateOfBirth": "1990-01-01",
+          "sex": "M",
+          "isWorkingName": true 
+        }
+      """
+
     const val VALID_ALIAS_CREATION = NON_WORKING_NAME_ALIAS_CREATION
+
+    const val MINIMAL_ALIAS_UPDATE =
+      // language=json
+      """
+        {
+          "firstName": "John",
+          "lastName": "Smith",
+          "dateOfBirth": "1990-01-01",
+          "sex": "M"
+        }
+      """
 
     const val VALID_ALIAS_UPDATE =
       // language=json
