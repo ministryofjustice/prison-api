@@ -309,8 +309,8 @@ class PrisonerProfileUpdateService(
     dateOfBirth = birthDate,
     nameType = aliasNameType?.toReferenceDataValue(),
     title = title?.toReferenceDataValue(),
-    sex = gender.toReferenceDataValue(),
-    ethnicity = ethnicity.toReferenceDataValue(),
+    sex = gender?.toReferenceDataValue(),
+    ethnicity = ethnicity?.toReferenceDataValue(),
   )
 
   private fun updateProfileDetailsOfBooking(
