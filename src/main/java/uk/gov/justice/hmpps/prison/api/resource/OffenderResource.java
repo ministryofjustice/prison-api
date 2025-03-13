@@ -152,6 +152,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Full details about the current state of an offender. Requires GLOBAL_SEARCH, VIEW_PRISONER_DATA or a user token with valid offender access")
+    @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffender(
@@ -504,6 +505,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of addresses for a given offender, most recent first.", description = "Requires offender to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @Tag(name = "integration-api")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/addresses")
     @SlowReportQuery
@@ -696,6 +698,7 @@ public class OffenderResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceDetail.class))})})
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
+    @Tag(name = "integration-api")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/sentences")
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
@@ -707,6 +710,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details")
+    @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}/booking/latest/sentence-summary")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
