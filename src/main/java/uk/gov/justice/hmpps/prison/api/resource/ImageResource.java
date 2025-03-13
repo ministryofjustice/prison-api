@@ -47,6 +47,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found."),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Requires role VIEW_PRISONER_DATA.")
+    @Tag(name = "integration-api")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     public ResponseEntity<byte[]> getImageData(
@@ -63,6 +64,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image details related to offender.", description = "Requires role VIEW_PRISONER_DATA.")
+    @Tag(name = "integration-api")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
