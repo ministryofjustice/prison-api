@@ -6,10 +6,11 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.hmpps.prison.api.model.Alias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
+import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
+import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
@@ -30,6 +31,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttribut
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
@@ -215,7 +217,7 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
-  fun createAlias(prisonerNumber: String, request: CreateAlias): Alias {
+  fun createAlias(prisonerNumber: String, request: CreateAlias): CorePersonRecordAlias {
     try {
       val oldWorkingName = offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
@@ -235,9 +237,9 @@ class PrisonerProfileUpdateService(
         .firstName(newFirstName)
         .middleName(newMiddleName)
         .birthDate(request.dateOfBirth)
-        .gender(gender(request.sexCode)?.getOrThrow())
+        .gender(gender(request.sex)?.getOrThrow())
         .title(title(request.title)?.getOrThrow())
-        .ethnicity(ethnicity(request.ethnicityCode)?.getOrThrow())
+        .ethnicity(ethnicity(request.ethnicity)?.getOrThrow())
         .aliasNameType(nameType(request.nameType)?.getOrThrow())
         .birthPlace(oldWorkingName.birthPlace)
         .birthCountry(oldWorkingName.birthCountry)
@@ -253,54 +255,63 @@ class PrisonerProfileUpdateService(
           .also { it.offender = newAlias }
       }
 
-      return newAlias.toAlias()
+      return newAlias.toCorePersonRecordAlias(isWorkingName = request.isWorkingName)
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDERS")
     }
   }
 
   @Transactional
-  fun updateAlias(prisonerNumber: String, offenderId: Long, request: UpdateAlias): Alias {
+  fun updateAlias(offenderId: Long, request: UpdateAlias): CorePersonRecordAlias {
     try {
-      val alias = offenderRepository.findByIdForUpdate(offenderId)
+      val aliasToUpdate = offenderRepository.findByIdForUpdate(offenderId)
         .orElseThrowNotFound("Alias with offenderId %d not found", offenderId)
+
+      val workingNameAlias = offenderRepository.findLinkedToLatestBooking(aliasToUpdate.nomsId)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", aliasToUpdate.nomsId)
 
       val newFirstName = request.firstName.trim().uppercase()
       val newLastName = request.lastName.trim().uppercase()
       val newMiddleName = request.middleName?.trim()?.uppercase()
 
-      return alias.also {
-        it.firstName = newFirstName
-        it.middleName = newMiddleName
-        it.lastName = newLastName
-        it.lastNameKey = newLastName
-        it.lastNameAlphaKey = newLastName.take(1)
-        it.lastNameSoundex = Soundex().soundex(newLastName)
-        it.birthDate = request.dateOfBirth
-        it.aliasNameType = nameType(request.nameType)?.getOrThrow()
-        it.title = title(request.title)?.getOrThrow()
-        it.gender = gender(request.sexCode)?.getOrThrow()
-        it.ethnicity = ethnicity(request.ethnicityCode)?.getOrThrow()
-      }.toAlias()
+      val a = aliasToUpdate.apply {
+        firstName = newFirstName
+        middleName = newMiddleName
+        lastName = newLastName
+        lastNameKey = newLastName
+        lastNameAlphaKey = newLastName.take(1)
+        lastNameSoundex = Soundex().soundex(newLastName)
+        birthDate = request.dateOfBirth
+        aliasNameType = nameType(request.nameType)?.getOrThrow()
+        title = title(request.title)?.getOrThrow()
+        gender = gender(request.sex)?.getOrThrow()
+        ethnicity = ethnicity(request.ethnicity)?.getOrThrow()
+      }.toCorePersonRecordAlias(isWorkingName = workingNameAlias.id == aliasToUpdate.id)
+      return a
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
+      throw processAliasLockError(e, offenderId)
     }
   }
 
-  private fun Offender.toAlias() = Alias.builder()
-    .title(title?.description)
-    .firstName(firstName)
-    .middleName(middleName)
-    .lastName(lastName)
-    .age(age)
-    .dob(birthDate)
-    .gender(gender?.description)
-    .ethnicity(ethnicity?.description)
-    .raceCode(ethnicity?.code)
-    .nameType(aliasNameType?.description)
-    .createDate(createDate)
-    .offenderId(id)
-    .build()
+  private fun ReferenceCode.toReferenceDataValue() = ReferenceDataValue(
+    domain = domain,
+    code = code,
+    description = description,
+  )
+
+  private fun Offender.toCorePersonRecordAlias(isWorkingName: Boolean) = CorePersonRecordAlias(
+    prisonerNumber = nomsId,
+    offenderId = id,
+    isWorkingName = isWorkingName,
+    firstName = firstName,
+    middleName = middleName,
+    lastName = lastName,
+    dateOfBirth = birthDate,
+    nameType = aliasNameType?.toReferenceDataValue(),
+    title = title?.toReferenceDataValue(),
+    sex = gender.toReferenceDataValue(),
+    ethnicity = ethnicity.toReferenceDataValue(),
+  )
 
   private fun updateProfileDetailsOfBooking(
     booking: OffenderBooking,
@@ -461,6 +472,15 @@ class PrisonerProfileUpdateService(
     log.error("Error getting lock", e)
     return if (true == e.cause?.message?.contains("ORA-30006")) {
       DatabaseRowLockedException("Failed to get $table lock for prisonerNumber=$prisonerNumber")
+    } else {
+      e
+    }
+  }
+
+  private fun processAliasLockError(e: CannotAcquireLockException, offenderId: Long): Exception {
+    log.error("Error getting lock", e)
+    return if (true == e.cause?.message?.contains("ORA-30006")) {
+      DatabaseRowLockedException("Failed to get alias lock for offenderId=$offenderId")
     } else {
       e
     }

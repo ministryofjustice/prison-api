@@ -18,7 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.transaction.annotation.Transactional
-import uk.gov.justice.hmpps.prison.api.model.Alias
+import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -34,7 +34,7 @@ class AliasResourceImplIntTest : ResourceTest() {
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
 
   @Nested
-  @DisplayName("POST /offenders/{offenderNo}/alias")
+  @DisplayName("POST /offender/{offenderNo}/aliases")
   inner class CreateAlias {
 
     @Nested
@@ -43,7 +43,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 401 without an auth token`() {
         webTestClient.post()
-          .uri("api/offenders/A1072AA/alias")
+          .uri("api/offenders/A1072AA/aliases")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
           .exchange()
@@ -53,7 +53,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 403 when client does not have any roles`() {
         webTestClient.post()
-          .uri("api/offenders/A1072AA/alias")
+          .uri("api/offenders/A1072AA/aliases")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
@@ -64,7 +64,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.post()
-          .uri("api/offenders/A1072AA/alias")
+          .uri("api/offenders/A1072AA/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
@@ -75,7 +75,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 201 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.post()
-          .uri("api/offenders/A1072AA/alias")
+          .uri("api/offenders/A1072AA/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
@@ -92,13 +92,13 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Transactional(readOnly = true)
       open fun `should create a new non-working name alias`() {
         val newAlias = webTestClient.post()
-          .uri("api/offenders/A1073AA/alias")
+          .uri("api/offenders/A1073AA/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(NON_WORKING_NAME_ALIAS_CREATION)
           .exchange()
           .expectStatus().isCreated
-          .returnResult<Alias>()
+          .returnResult<CorePersonRecordAlias>()
           .responseBody
           .blockFirst()
 
@@ -124,13 +124,13 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Transactional(readOnly = true)
       open fun `should create a new working name alias`() {
         val newAlias = webTestClient.post()
-          .uri("api/offenders/A1074AA/alias")
+          .uri("api/offenders/A1074AA/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(WORKING_NAME_ALIAS_CREATION)
           .exchange()
           .expectStatus().isCreated
-          .returnResult<Alias>()
+          .returnResult<CorePersonRecordAlias>()
           .responseBody
           .blockFirst()
 
@@ -157,7 +157,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun shouldReturn404WhenPrisonerDoesNotExist() {
         webTestClient.post()
-          .uri("api/offenders/XXXX/alias")
+          .uri("api/offenders/XXXX/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
@@ -173,7 +173,7 @@ class AliasResourceImplIntTest : ResourceTest() {
           .whenever(prisonerProfileUpdateService).createAlias(anyString(), any())
 
         webTestClient.post()
-          .uri("api/offenders/A1072AA/alias")
+          .uri("api/offenders/A1072AA/aliases")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_CREATION)
@@ -280,7 +280,7 @@ class AliasResourceImplIntTest : ResourceTest() {
     )
 
     fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec = webTestClient.post()
-      .uri("api/offenders/A1072AA/alias")
+      .uri("api/offenders/A1072AA/aliases")
       .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .bodyValue(body)
@@ -290,7 +290,7 @@ class AliasResourceImplIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("PUT /offenders/{offenderNo}/alias/{offenderId}")
+  @DisplayName("PUT /aliases/{offenderId}")
   inner class UpdateAlias {
 
     @Nested
@@ -299,7 +299,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 401 without an auth token`() {
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/-1072")
+          .uri("api/aliases/-1072")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
           .exchange()
@@ -309,7 +309,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 403 when client does not have any roles`() {
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/-1072")
+          .uri("api/aliases/-1072")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -320,7 +320,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/-1072")
+          .uri("api/aliases/-1072")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -331,7 +331,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns 200 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/-1072")
+          .uri("api/aliases/-1072")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -347,7 +347,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Transactional(readOnly = true)
       open fun `should update the current working name alias`() {
         webTestClient.put()
-          .uri("api/offenders/A1073AA/alias/-1073")
+          .uri("api/aliases/-1073")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -375,7 +375,7 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun shouldReturn404WhenAliasDoesNotExist() {
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/9999")
+          .uri("api/aliases/9999")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -388,10 +388,10 @@ class AliasResourceImplIntTest : ResourceTest() {
       @Test
       fun `returns status 423 (locked) when database row lock times out`() {
         doThrow(DatabaseRowLockedException("developer message"))
-          .whenever(prisonerProfileUpdateService).updateAlias(anyString(), anyLong(), any())
+          .whenever(prisonerProfileUpdateService).updateAlias(anyLong(), any())
 
         webTestClient.put()
-          .uri("api/offenders/A1072AA/alias/-1072")
+          .uri("api/aliases/-1072")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(VALID_ALIAS_UPDATE)
@@ -498,7 +498,7 @@ class AliasResourceImplIntTest : ResourceTest() {
     )
 
     fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec = webTestClient.put()
-      .uri("api/offenders/A1072AA/alias/-1072")
+      .uri("api/aliases/-1072")
       .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
       .header("Content-Type", APPLICATION_JSON_VALUE)
       .bodyValue(body)
@@ -518,8 +518,8 @@ class AliasResourceImplIntTest : ResourceTest() {
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
           "title": "MR",
-          "sexCode": "M",
-          "ethnicityCode": "W1",
+          "sex": "M",
+          "ethnicity": "W1",
           "isWorkingName": false 
         }
       """
@@ -534,8 +534,8 @@ class AliasResourceImplIntTest : ResourceTest() {
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
           "title": "MR",
-          "sexCode": "M",
-          "ethnicityCode": "W1",
+          "sex": "M",
+          "ethnicity": "W1",
           "isWorkingName": true 
         }
       """
@@ -552,8 +552,8 @@ class AliasResourceImplIntTest : ResourceTest() {
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
           "title": "MR",
-          "sexCode": "M",
-          "ethnicityCode": "W1"
+          "sex": "M",
+          "ethnicity": "W1"
         }
       """
   }
