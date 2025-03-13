@@ -134,6 +134,7 @@ public class ReferenceDomainResource {
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of reference codes for reference domain.", description = "List of reference codes for reference domain ordered by code ascending. The list is an un-paged flat list")
+    @Tag(name = "integration-api")
     @GetMapping("/domains/{domain}/codes")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery

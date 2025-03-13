@@ -75,6 +75,7 @@ public class OffenderSentenceResource {
           <li>If there is no confirmed release date, actual parole date or home detention curfew actual date for the offender, the release date is the later of the nonDtoReleaseDate or midTermDate value (if either or both are present)</li>
         </ul>
         """)
+    @Tag(name = "integration-api")
     @ProgrammaticAuthorisation("Access is determined programmatically by the service")
     @GetMapping
     @SlowReportQuery
@@ -218,6 +219,7 @@ public class OffenderSentenceResource {
             @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence and offence details  for a prisoner")
+    @Tag(name = "integration-api")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
