@@ -326,30 +326,26 @@ class PrisonerProfileUpdateService(
 
   @Transactional
   fun getCommunicationNeeds(prisonerNumber: String): CorePersonCommunicationNeeds {
-    try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
-        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
-      val languages = offenderLanguageRepository.findByOffenderBookId(booking.bookingId)
+    val languages = offenderLanguageRepository.findByOffenderBookId(booking.bookingId)
 
-      return CorePersonCommunicationNeeds(
-        prisonerNumber,
-        languagePreferences = CorePersonLanguagePreferences(
-          preferredSpokenLanguage = getFirstPreferredSpokenLanguage(languages)?.referenceCode,
-          preferredWrittenLanguage = getFirstPreferredWrittenLanguage(languages)?.referenceCode,
-          interpreterRequired = getInterpreterRequired(languages),
-        ),
-        secondaryLanguages = getSecondaryLanguages(languages),
-      )
-    } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
-    }
+    return CorePersonCommunicationNeeds(
+      prisonerNumber,
+      languagePreferences = CorePersonLanguagePreferences(
+        preferredSpokenLanguage = getFirstPreferredSpokenLanguage(languages)?.referenceCode,
+        preferredWrittenLanguage = getFirstPreferredWrittenLanguage(languages)?.referenceCode,
+        interpreterRequired = getInterpreterRequired(languages),
+      ),
+      secondaryLanguages = getSecondaryLanguages(languages),
+    )
   }
 
   @Transactional
   fun createOrUpdateLanguagePreferences(prisonerNumber: String, request: CorePersonLanguagePreferencesRequest) {
     try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
       val preferredWrittenLanguageReferenceCode = request.preferredWrittenLanguageCode?.let {
@@ -392,7 +388,7 @@ class PrisonerProfileUpdateService(
           .build()
       }
 
-      val existingPreferredLanguages = offenderLanguageRepository.findByOffenderBookId(booking.bookingId).filter { language ->
+      val existingPreferredLanguages = offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId).filter { language ->
         language.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) ||
           language.type.equals(PREF_WRITE_LANGUAGE_TYPE, ignoreCase = true)
       }
@@ -404,21 +400,21 @@ class PrisonerProfileUpdateService(
       offenderLanguageRepository.deleteAll(existingPreferredLanguages)
       offenderLanguageRepository.saveAll(newPreferredLanguages)
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
+      throw processLockError(e, prisonerNumber, "OFFENDER_LANGUAGES")
     }
   }
 
   @Transactional
   fun addOrUpdateSecondaryLanguage(prisonerNumber: String, request: CorePersonSecondaryLanguageRequest) {
     try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
       val languageReferenceCode = languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.language)).orElseThrow {
         EntityNotFoundException.withMessage("Language with code ${request.language} not found")
       }
 
-      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, languageReferenceCode.code).getOrNull()?.apply {
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, languageReferenceCode.code).getOrNull()?.apply {
         readSkill = if (request.canRead) "Y" else "N"
         writeSkill = if (request.canWrite) "Y" else "N"
         speakSkill = if (request.canSpeak) "Y" else "N"
@@ -438,27 +434,27 @@ class PrisonerProfileUpdateService(
 
       offenderLanguageRepository.save(offenderLanguage)
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
+      throw processLockError(e, prisonerNumber, "OFFENDER_LANGUAGES")
     }
   }
 
   @Transactional
   fun deleteSecondaryLanguage(prisonerNumber: String, languageCode: String) {
     try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(prisonerNumber)
+      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
       val languageReferenceCode = languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, languageCode)).orElseThrow {
         EntityNotFoundException.withMessage("Language with code $languageCode not found")
       }
 
-      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, languageReferenceCode.code).orElseThrow {
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, languageReferenceCode.code).orElseThrow {
         EntityNotFoundException.withMessage("Secondary language with code $languageCode not found for [$prisonerNumber]")
       }
 
       offenderLanguageRepository.delete(offenderLanguage)
     } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
+      throw processLockError(e, prisonerNumber, "OFFENDER_LANGUAGES")
     }
   }
 

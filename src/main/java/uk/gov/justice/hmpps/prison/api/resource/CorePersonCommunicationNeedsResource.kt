@@ -42,7 +42,7 @@ class CorePersonCommunicationNeedsResource(
     ApiResponse(responseCode = "404", description = "Offender not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "Get core person record physical attributes of a prisoner", description = "Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+  @Operation(summary = "Get core person record communication needs of a prisoner", description = "Requires the PRISON_API__PRISONER_PROFILE__RW role.")
   @GetMapping("/{offenderNo}/core-person-record/communication-needs")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   fun getCommunicationNeeds(

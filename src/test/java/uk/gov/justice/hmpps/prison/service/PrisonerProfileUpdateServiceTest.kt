@@ -1124,15 +1124,6 @@ class PrisonerProfileUpdateServiceTest {
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
     }
-
-    @Test
-    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
-        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
-
-      assertThatThrownBy { prisonerProfileUpdateService.getCommunicationNeeds(PRISONER_NUMBER) }
-        .isInstanceOf(DatabaseRowLockedException::class.java)
-    }
   }
 
   @Nested
@@ -1147,10 +1138,10 @@ class PrisonerProfileUpdateServiceTest {
     internal fun `creates or updates language preferences - empty list`() {
       val booking = mock<OffenderBooking>()
       val languageReferenceCode = LanguageReferenceCode("ENG", "English")
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookId(booking.bookingId)).thenReturn(emptyList())
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(emptyList())
 
       prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request)
 
@@ -1166,10 +1157,10 @@ class PrisonerProfileUpdateServiceTest {
         OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("ITA", "Italian")).build(),
         OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("SPA", "Spanish")).build(),
       )
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookId(booking.bookingId)).thenReturn(offenderLanguages)
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(offenderLanguages)
 
       prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request)
 
@@ -1179,7 +1170,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request) }
@@ -1189,7 +1180,11 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      val languageReferenceCode = LanguageReferenceCode("ENG", "English")
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy { prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request) }
@@ -1210,10 +1205,10 @@ class PrisonerProfileUpdateServiceTest {
     internal fun `adds secondary language`() {
       val booking = mock<OffenderBooking>()
       val languageReferenceCode = LanguageReferenceCode("SPA", "Spanish")
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
         .thenReturn(Optional.empty())
 
       prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request)
@@ -1226,10 +1221,10 @@ class PrisonerProfileUpdateServiceTest {
       val booking = mock<OffenderBooking>()
       val languageReferenceCode = LanguageReferenceCode("SPA", "Spanish")
       val offenderLanguage = OffenderLanguage.builder().code("SPA").build()
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
         .thenReturn(Optional.of(offenderLanguage))
 
       prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request)
@@ -1239,7 +1234,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request) }
@@ -1249,7 +1244,11 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      val languageReferenceCode = LanguageReferenceCode("SPA", "Spanish")
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy { prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request) }
@@ -1264,10 +1263,10 @@ class PrisonerProfileUpdateServiceTest {
       val booking = mock<OffenderBooking>()
       val languageReferenceCode = LanguageReferenceCode("SPA", "Spanish")
       val offenderLanguage = OffenderLanguage.builder().code("SPA").build()
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCode(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
         .thenReturn(Optional.of(offenderLanguage))
 
       prisonerProfileUpdateService.deleteSecondaryLanguage(PRISONER_NUMBER, "SPA")
@@ -1277,7 +1276,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when there isn't a booking for the offender`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.deleteSecondaryLanguage(PRISONER_NUMBER, "SPA") }
@@ -1287,7 +1286,11 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws DatabaseRowLockedException when database row lock times out`() {
-      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsIdForUpdate(PRISONER_NUMBER))
+      val languageReferenceCode = LanguageReferenceCode("SPA", "Spanish")
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy { prisonerProfileUpdateService.deleteSecondaryLanguage(PRISONER_NUMBER, "SPA") }
