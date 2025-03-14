@@ -1,19 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.model.calculation
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.hmpps.prison.api.model.Alert
-import java.time.LocalDate
 
-data class Person(
-
+@Schema(description = "The prisoner to be calculated as part of a bulk calculation")
+data class CalculablePrisoner(
   @Schema(description = "Prisoner Identifier", example = "A1234AA", requiredMode = Schema.RequiredMode.REQUIRED)
   var prisonerNumber: String,
-
-  var dateOfBirth: LocalDate,
-
-  var lastName: String,
-
-  var agencyId: String,
-
-  val alerts: List<Alert>,
+  @Schema(description = "The booking ID")
+  val bookingId: Long,
 )
