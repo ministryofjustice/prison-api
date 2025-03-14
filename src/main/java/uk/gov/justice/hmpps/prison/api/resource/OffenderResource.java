@@ -154,7 +154,7 @@ public class OffenderResource {
     @Operation(summary = "Full details about the current state of an offender. Requires GLOBAL_SEARCH, VIEW_PRISONER_DATA or a user token with valid offender access")
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     public InmateDetail getOffender(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true, false);
@@ -506,7 +506,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Return a list of addresses for a given offender, most recent first.", description = "Requires offender to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @Tag(name = "integration-api")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/{offenderNo}/addresses")
     @SlowReportQuery
     public List<AddressDto> getAddressesByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull String offenderNo) {
@@ -699,7 +699,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceDetail.class))})})
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @Tag(name = "integration-api")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/{offenderNo}/sentences")
     public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo);
@@ -712,7 +712,7 @@ public class OffenderResource {
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details")
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}/booking/latest/sentence-summary")
-    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }

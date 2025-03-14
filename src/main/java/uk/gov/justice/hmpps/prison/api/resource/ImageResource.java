@@ -48,7 +48,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")})
     @Operation(summary = "Image data (as bytes).", description = "Requires role VIEW_PRISONER_DATA.")
     @Tag(name = "integration-api")
-    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','PRISON_API__HMPPS_INTEGRATION_API')")
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     public ResponseEntity<byte[]> getImageData(
         @PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId,
@@ -65,7 +65,7 @@ public class ImageResource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Image details related to offender.", description = "Requires role VIEW_PRISONER_DATA.")
     @Tag(name = "integration-api")
-    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','PRISON_API__HMPPS_INTEGRATION_API')")
     @GetMapping("/offenders/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {

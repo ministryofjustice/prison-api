@@ -15,50 +15,15 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelopeVersion2
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculablePrisoner
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess
-import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService
-import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeServiceVersion2
+import uk.gov.justice.hmpps.prison.service.CalculablePrisonerService
 
 @RestController
 @Tag(name = "prison")
 @Validated
 @RequestMapping(value = ["/api/prison"], produces = ["application/json"])
-class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeService, private val sentenceEnvelopeServiceVersion2: SentenceEnvelopeServiceVersion2) {
-
-  @ApiResponses(
-    ApiResponse(responseCode = "200", description = "OK"),
-    ApiResponse(
-      responseCode = "400",
-      description = "Invalid request.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-    ApiResponse(
-      responseCode = "404",
-      description = "Requested resource not found.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-    ApiResponse(
-      responseCode = "500",
-      description = "Unrecoverable error occurred whilst processing request.",
-      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
-    ),
-  )
-  @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences at a particular establishment (paged response)")
-  @VerifyAgencyAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
-  @GetMapping("/{agencyId}/booking/latest/paged/calculable-sentence-envelope")
-  fun getCalculableSentenceEnvelopeByEstablishment(
-    @PathVariable
-    @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
-    agencyId: String,
-    @RequestParam(value = "page", defaultValue = "0", required = false)
-    @Parameter(description = "The page number to retrieve of the paged results (starts at zero)")
-    page: Int,
-    @RequestParam(value = "size", defaultValue = "200", required = false)
-    @Parameter(description = "Requested limit of the page size (i.e. the number of bookings in response)")
-    size: Int,
-  ): Page<CalculableSentenceEnvelope> = sentenceEnvelopeService.getCalculableSentenceEnvelopeByEstablishment(agencyId, page, size)
+class PrisonResource(private val calculablePrisonerService: CalculablePrisonerService) {
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -80,8 +45,8 @@ class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeServic
   )
   @Operation(summary = "Details of the the person to be calculated at a particular establishment (paged response)")
   @VerifyAgencyAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
-  @GetMapping("/{agencyId}/booking/latest/paged/calculable-sentence-envelope/v2")
-  fun getCalculableSentenceEnvelopeByEstablishmentV2(
+  @GetMapping("/{agencyId}/booking/latest/paged/calculable-prisoner")
+  fun getCalculablePrisonerEnvelopeByEstablishment(
     @PathVariable
     @Parameter(description = "The identifier of the establishment(prison) to get the active bookings for", required = true)
     agencyId: String,
@@ -91,5 +56,5 @@ class PrisonResource(private val sentenceEnvelopeService: SentenceEnvelopeServic
     @RequestParam(value = "size", defaultValue = "200", required = false)
     @Parameter(description = "Requested limit of the page size (i.e. the number of bookings in response)")
     size: Int,
-  ): Page<CalculableSentenceEnvelopeVersion2> = sentenceEnvelopeServiceVersion2.getCalculableSentenceEnvelopeByEstablishment(agencyId, page, size)
+  ): Page<CalculablePrisoner> = calculablePrisonerService.getCalculablePrisonerEnvelopeByEstablishment(agencyId, page, size)
 }
