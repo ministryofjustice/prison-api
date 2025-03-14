@@ -479,7 +479,7 @@ public class BookingResource {
     @Operation(summary = "Offence history.", description = "All Offences recorded for this offender.")
     @Tag(name = "integration-api")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION','PRISON_API__HMPPS_INTEGRATION_API')")
     @SlowReportQuery
     public List<OffenceHistoryDetail> getOffenceHistory(
         @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo,
@@ -584,7 +584,7 @@ public class BookingResource {
     @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @Tag(name = "integration-api")
     @GetMapping("/{bookingId}/reasonable-adjustments")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA","PRISON_API__HMPPS_INTEGRATION_API"})
     public ReasonableAdjustments getReasonableAdjustments(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes
@@ -756,7 +756,7 @@ public class BookingResource {
     @Operation(summary = "Balances visit orders and privilege visit orders for offender.", description = "Balances visit orders and privilege visit orders for offender.")
     @Tag(name = "integration-api")
     @GetMapping("/offenderNo/{offenderNo}/visit/balances")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER"})
+    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER", "PRISON_API__HMPPS_INTEGRATION_API"})
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
         @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
