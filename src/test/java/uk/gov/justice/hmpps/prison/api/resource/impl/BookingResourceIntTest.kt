@@ -232,7 +232,7 @@ class BookingResourceIntTest : ResourceTest() {
       webTestClient.get().uri("/api/bookings/v2?prisonId=LEI")
         .headers(setAuthorisation("WAI_USER", listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
         .expectStatus().isOk
-        .expectBody().jsonPath("totalElements").isEqualTo(27)
+        .expectBody().jsonPath("totalElements").isEqualTo(28)
     }
 
     @Test
