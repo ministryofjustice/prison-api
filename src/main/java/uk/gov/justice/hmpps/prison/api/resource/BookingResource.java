@@ -73,15 +73,13 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelope;
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculableSentenceEnvelopeVersion2;
+import uk.gov.justice.hmpps.prison.api.model.calculation.CalculablePrisoner;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
-import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
@@ -99,8 +97,7 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
 import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
-import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeService;
-import uk.gov.justice.hmpps.prison.service.SentenceEnvelopeServiceVersion2;
+import uk.gov.justice.hmpps.prison.service.CalculablePrisonerService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
@@ -135,8 +132,7 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
-    private final SentenceEnvelopeService sentenceEnvelopeService;
-    private final SentenceEnvelopeServiceVersion2 sentenceEnvelopeServiceVersion2;
+    private final CalculablePrisonerService calculablePrisonerService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
 
     @ApiResponses({
@@ -906,28 +902,5 @@ public class BookingResource {
     @PostMapping("/court-event-outcomes")
     public List<CourtEventOutcome> getCourtEventOutcomes(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds) {
         return bookingService.getOffenderCourtEventOutcomes(bookingIds);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @Operation(summary = "Details of the active sentence envelope, a combination of the person information, the active booking and calculable sentences for offenders")
-    @ProgrammaticAuthorisation("Access is checked in service for legacy reasons")
-    @GetMapping("/latest/calculable-sentence-envelope")
-    public List<CalculableSentenceEnvelope> getCalculableSentenceEnvelopeByOffenderNos(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
-        return sentenceEnvelopeService.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
-    }
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @Operation(summary = "Details of the of the prisoner to be calculated")
-    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    @GetMapping("/latest/calculable-sentence-envelope/v2")
-    public List<CalculableSentenceEnvelopeVersion2> getCalculableSentenceEnvelopeByOffenderNosV2(@RequestParam(value = "offenderNo") @Parameter(description = "Filter by a list of offender numbers") final Set<String> offenderNumbers) {
-        return sentenceEnvelopeServiceVersion2.getCalculableSentenceEnvelopeByOffenderNumbers(offenderNumbers);
     }
 }
