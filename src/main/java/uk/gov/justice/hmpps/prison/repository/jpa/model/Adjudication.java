@@ -86,7 +86,7 @@ public class Adjudication extends AuditableEntity {
     @JoinColumn(name = "INTERNAL_LOCATION_ID", nullable = false)
     private AgencyInternalLocation internalLocation;
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @NotFound(action = IGNORE)
     @JoinColumnsOrFormulas(value = {
         @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + AdjudicationIncidentType.TYPE + "'", referencedColumnName = "domain")),
