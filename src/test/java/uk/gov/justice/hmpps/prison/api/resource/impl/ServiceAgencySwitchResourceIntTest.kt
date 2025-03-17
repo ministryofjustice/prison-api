@@ -5,6 +5,8 @@ import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType
@@ -83,11 +85,12 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         }
     }
 
-    @Test
-    fun `should return a list of prisons for the service`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO"])
+    fun `should return a list of prisons for the service`(role: String) {
       webTestClient.get()
         .uri("/api/service-prisons/SOME_SERVICE")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf(role)))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
