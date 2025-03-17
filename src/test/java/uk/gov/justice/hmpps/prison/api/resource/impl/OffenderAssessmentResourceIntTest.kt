@@ -248,7 +248,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
           .expectBody()
-          .jsonPath("$.length()").isEqualTo(24)
+          .jsonPath("$.length()").isEqualTo(25)
       }
     }
   }
