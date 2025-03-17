@@ -86,7 +86,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_SERVICE_AGENCY_SWITCHES__RO"])
+    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO"])
     fun `should return a list of prisons for the service`(role: String) {
       webTestClient.get()
         .uri("/api/service-prisons/SOME_SERVICE")
