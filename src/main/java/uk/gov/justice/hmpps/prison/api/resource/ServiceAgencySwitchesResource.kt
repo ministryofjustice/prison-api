@@ -32,7 +32,7 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(summary = "Retrieve a list of prisons switched on for the service code")
-  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'SERVICE_AGENCY_SWITCHES__RO')")
+  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
   @GetMapping("/{serviceCode}")
   fun getServicePrisons(
     @PathVariable
