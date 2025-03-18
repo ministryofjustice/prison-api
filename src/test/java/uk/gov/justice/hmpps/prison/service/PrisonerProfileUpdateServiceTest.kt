@@ -1208,7 +1208,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, "SPA", "SEC"))
         .thenReturn(Optional.empty())
 
       prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request)
@@ -1224,7 +1224,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, "SPA", "SEC"))
         .thenReturn(Optional.of(offenderLanguage))
 
       prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request)
@@ -1248,7 +1248,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, "SPA", "SEC"))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy { prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(PRISONER_NUMBER, request) }
@@ -1266,7 +1266,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, "SPA", "SEC"))
         .thenReturn(Optional.of(offenderLanguage))
 
       prisonerProfileUpdateService.deleteSecondaryLanguage(PRISONER_NUMBER, "SPA")
@@ -1290,7 +1290,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.of(booking))
       whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
-      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, "SPA"))
+      whenever(offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, "SPA", "SEC"))
         .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
 
       assertThatThrownBy { prisonerProfileUpdateService.deleteSecondaryLanguage(PRISONER_NUMBER, "SPA") }
