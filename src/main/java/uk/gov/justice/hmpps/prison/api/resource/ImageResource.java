@@ -87,12 +87,18 @@ public class ImageResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "IMAGE_UPLOAD role required to access endpoint", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "PRISON_API__PRISONER_PROFILE__RW role required to access endpoint", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "The offender number could not be found or has no bookings.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "DEV USE ONLY *** Upload a new image for a prisoner.", description = "Requires ROLE_IMAGE_UPLOAD, write scope and a user in the token.")
-    @PreAuthorize("hasRole('IMAGE_UPLOAD') and hasAuthority('SCOPE_write')")
-    @PostMapping(value = "/offenders/{offenderNo}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE, produces = MediaType.APPLICATION_JSON_VALUE)
+    @Operation(
+        summary = "Upload a new image for a prisoner.",
+        description = "Requires PRISON_API__PRISONER_PROFILE__RW. Additionally creates a thumbnail and scales the image to 427 x 570 (3:4)."
+    )
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @PostMapping(value = "/offenders/{offenderNo}",
+        consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
+        produces = MediaType.APPLICATION_JSON_VALUE
+    )
     public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,
         @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file
