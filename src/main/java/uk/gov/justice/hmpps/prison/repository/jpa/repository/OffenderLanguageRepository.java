@@ -18,9 +18,7 @@ public interface OffenderLanguageRepository extends CrudRepository<OffenderLangu
     @Query("SELECT ol from OffenderLanguage ol where ol.offenderBookId = :bookingId")
     List<OffenderLanguage> findByOffenderBookIdForUpdate(Long bookingId);
 
-    Optional<OffenderLanguage> findByOffenderBookIdAndCode(Long bookingId, String code);
-
     @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT ol from OffenderLanguage ol where ol.offenderBookId = :bookingId and ol.code = :code")
-    Optional<OffenderLanguage> findByOffenderBookIdAndCodeForUpdate(Long bookingId, String code);
+    @Query("SELECT ol from OffenderLanguage ol where ol.offenderBookId = :bookingId and ol.code = :code and ol.type = :type")
+    Optional<OffenderLanguage> findByOffenderBookIdAndCodeAndTypeForUpdate(Long bookingId, String code, String type);
 }
