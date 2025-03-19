@@ -143,7 +143,7 @@ class ImageResourceIntTest : ResourceTest() {
     @Test
     fun putImageReturnsNotFoundForInvalidOffender() {
       webTestClient.post().uri("/api/images/offenders/A9999XX")
-        .headers(setClientAuthorisation(listOf("ROLE_IMAGE_UPLOAD")))
+        .headers(setClientAuthorisation(listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .body(generateMultiPartFormRequestWeb())
         .exchange()
         .expectStatus().isNotFound
@@ -152,7 +152,7 @@ class ImageResourceIntTest : ResourceTest() {
     @Test
     fun putImageUploadsAndStoresScaledImages() {
       webTestClient.post().uri("/api/images/offenders/A1234AI")
-        .headers(setAuthorisation("ITAG_USER", listOf("ROLE_IMAGE_UPLOAD")))
+        .headers(setAuthorisation("ITAG_USER", listOf("PRISON_API__PRISONER_PROFILE__RW")))
         .body(generateMultiPartFormRequestWeb())
         .exchange()
         .expectStatus().isOk
