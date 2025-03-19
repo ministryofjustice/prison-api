@@ -414,7 +414,7 @@ class PrisonerProfileUpdateService(
         EntityNotFoundException.withMessage("Language with code ${request.language} not found")
       }
 
-      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, languageReferenceCode.code).getOrNull()?.apply {
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, languageReferenceCode.code, SEC_LANGUAGE_TYPE).getOrNull()?.apply {
         readSkill = if (request.canRead) "Y" else "N"
         writeSkill = if (request.canWrite) "Y" else "N"
         speakSkill = if (request.canSpeak) "Y" else "N"
@@ -448,7 +448,7 @@ class PrisonerProfileUpdateService(
         EntityNotFoundException.withMessage("Language with code $languageCode not found")
       }
 
-      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeForUpdate(booking.bookingId, languageReferenceCode.code).orElseThrow {
+      val offenderLanguage = offenderLanguageRepository.findByOffenderBookIdAndCodeAndTypeForUpdate(booking.bookingId, languageReferenceCode.code, SEC_LANGUAGE_TYPE).orElseThrow {
         EntityNotFoundException.withMessage("Secondary language with code $languageCode not found for [$prisonerNumber]")
       }
 
