@@ -11,10 +11,10 @@ import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
-
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
@@ -22,7 +22,6 @@ import java.time.Month;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.tuple;
 import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
@@ -312,5 +311,41 @@ public class MovementsRepositoryTest {
     public void canHandleNoLatestArrivalDate() {
         final var arrivalDate = repository.getLatestArrivalDate("Z0020XY");
         assertThat(arrivalDate).isEmpty();
+    }
+
+    @Test
+    public void canRetrieveLatestArrivalDatesBulk() {
+        final var offenderNumbers = List.of("Z0018ZZ", "Z0019ZZ", "Z0024ZZ");
+
+        final var latestArrivalDates = repository.getLatestArrivalDates(offenderNumbers);
+        assertThat(latestArrivalDates).containsExactlyInAnyOrder(
+            new OffenderLatestArrivalDate("Z0018ZZ", LocalDate.of(2012, 7, 5)),
+            new OffenderLatestArrivalDate("Z0019ZZ", LocalDate.of(2011, 11, 7)),
+            new OffenderLatestArrivalDate("Z0024ZZ", LocalDate.of(2017, 7, 16))
+        );
+    }
+
+    @Test
+    public void canHandleArrivalDatesBulkNotFound() {
+        final var offenderNumbers = List.of("Z0024ZZ", "Z0020XY");
+
+        final var latestArrivalDates = repository.getLatestArrivalDates(offenderNumbers);
+        assertThat(latestArrivalDates).containsExactly(
+            new OffenderLatestArrivalDate("Z0024ZZ", LocalDate.of(2017, 7, 16))
+        );
+    }
+
+    @Test
+    public void canHandleArrivalDatesEmptyList() {
+        final List<String> offenderNumbers = List.of();
+
+        final var latestArrivalDates = repository.getLatestArrivalDates(offenderNumbers);
+        assertThat(latestArrivalDates).isEmpty();
+    }
+
+    @Test
+    public void canHandleArrivalDatesNullList() {
+        final var latestArrivalDates = repository.getLatestArrivalDates(null);
+        assertThat(latestArrivalDates).isEmpty();
     }
 }
