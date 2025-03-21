@@ -14,6 +14,8 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReceptionDto;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDateDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovementDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
@@ -49,6 +51,7 @@ public class MovementsRepository extends RepositoryBase {
     private final RowMapper<CourtEventDto> COURT_EVENT_MAPPER = new DataClassByColumnRowMapper<>(CourtEventDto.class);
     private final RowMapper<TransferEventDto> OFFENDER_TRANSFER_MAPPER = new DataClassRowMapper<>(TransferEventDto.class);
     private final RowMapper<ReleaseEventDto> OFFENDER_RELEASE_MAPPER = new DataClassByColumnRowMapper<>(ReleaseEventDto.class);
+    private final RowMapper<OffenderLatestArrivalDateDto> OFFENDER_LATEST_ARRIVAL_DATE_MAPPER = new DataClassByColumnRowMapper<>(OffenderLatestArrivalDateDto.class);
 
     private static final String MOVEMENT_DATE_CLAUSE = " AND OEM.MOVEMENT_DATE = :movementDate";
 
@@ -253,5 +256,19 @@ public class MovementsRepository extends RepositoryBase {
         );
 
         return results.stream().findFirst();
+    }
+
+    public List<OffenderLatestArrivalDate> getLatestArrivalDates(final List<String> offenderNumbers) {
+        if(offenderNumbers == null || offenderNumbers.isEmpty()) {
+            return List.of();
+        }
+
+        List<OffenderLatestArrivalDateDto> results = jdbcTemplate.query(
+            MovementsRepositorySql.GET_LATEST_ARRIVAL_DATES.getSql(),
+            createParams("offenderNumbers", offenderNumbers),
+            OFFENDER_LATEST_ARRIVAL_DATE_MAPPER
+        );
+
+        return results.stream().map(OffenderLatestArrivalDateDto::toOffenderLatestArrivalDate).toList();
     }
 }

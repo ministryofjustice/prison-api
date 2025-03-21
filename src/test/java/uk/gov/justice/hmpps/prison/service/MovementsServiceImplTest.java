@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
@@ -928,5 +929,24 @@ public class MovementsServiceImplTest {
         assertThat(latestArrivalDate).isEqualTo(Optional.of(arrivalDate));
 
         verify(movementsRepository).getLatestArrivalDate(offenderNumber);
+    }
+
+    @Test
+    public void testGetLatestArrivalDates() {
+        final var offenderNumbers = List.of("Z0019ZZ", "Z0024ZZ");
+        final var latestArrivalDates = List.of(
+            new OffenderLatestArrivalDate("Z0019ZZ", LocalDate.of(2011, 11, 7)),
+            new OffenderLatestArrivalDate("Z0024ZZ", LocalDate.of(2017, 7, 16))
+        );
+
+        when(movementsRepository.getLatestArrivalDates(List.of("Z0019ZZ"))).thenReturn(List.of(
+            latestArrivalDates.getFirst()
+        ));
+        when(movementsRepository.getLatestArrivalDates(List.of("Z0024ZZ"))).thenReturn(List.of(
+            latestArrivalDates.getLast()
+        ));
+
+        final var result = movementsService.getLatestArrivalDates(offenderNumbers);
+        assertThat(result).isEqualTo(latestArrivalDates);
     }
 }

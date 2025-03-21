@@ -1407,6 +1407,72 @@ class MovementResourceTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("POST /api/movements/offenders/latest-arrival-date")
+  inner class GetLatestArrivalDates {
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.post()
+        .uri("/api/movements/offenders/latest-arrival-date")
+        .bodyValue(listOf("Z0018ZZ", "Z0019ZZ", "Z0024ZZ"))
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return latest arrival dates`() {
+      webTestClient.post()
+        .uri("/api/movements/offenders/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .bodyValue(listOf("Z0018ZZ", "Z0019ZZ", "Z0024ZZ"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+            [
+              {
+                "offenderNo": "Z0018ZZ",
+                "latestArrivalDate": "2012-07-05"
+              },
+              {
+                "offenderNo": "Z0019ZZ",
+                "latestArrivalDate": "2011-11-07"
+              },
+              {
+                "offenderNo": "Z0024ZZ",
+                "latestArrivalDate": "2017-07-16"
+              }
+            ]     
+          """.trimIndent(),
+        )
+    }
+
+    @Test
+    fun `should return when no movements`() {
+      webTestClient.post()
+        .uri("/api/movements/offenders/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .bodyValue(listOf("Z0020XY"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `should return when offender not found`() {
+      webTestClient.post()
+        .uri("/api/movements/offenders/latest-arrival-date")
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .bodyValue(listOf("Z0099ZZ"))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+  }
+
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
 
   data class MovementParameters(

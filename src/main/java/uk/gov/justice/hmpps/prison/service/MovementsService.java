@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
@@ -48,11 +49,13 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
 
 import static com.google.common.base.MoreObjects.firstNonNull;
+import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.lang3.StringUtils.stripToNull;
 import static org.apache.commons.lang3.StringUtils.upperCase;
@@ -468,5 +471,14 @@ public class MovementsService {
 
     public Optional<LocalDate> getLatestArrivalDate(final String offenderNumber) {
         return movementsRepository.getLatestArrivalDate(offenderNumber);
+    }
+
+    public List<OffenderLatestArrivalDate> getLatestArrivalDates(final List<String> offenderNumbers) {
+        return Lists.partition(offenderNumbers, maxBatchSize)
+            .stream()
+            .map(movementsRepository::getLatestArrivalDates)
+            .flatMap(List::stream)
+            .sorted(comparing(OffenderLatestArrivalDate::getOffenderNo))
+            .toList();
     }
 }
