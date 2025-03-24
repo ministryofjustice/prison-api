@@ -29,6 +29,7 @@ import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
+import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOut;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto;
@@ -303,4 +304,16 @@ public class MovementResource {
         return ResponseEntity.ok(arrivalDate.orElse(null));
     }
 
+    @Operation(summary = "Get the dates of the latest arrival into prison for multiple offenders")
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @PostMapping("/offenders/latest-arrival-date")
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    public ResponseEntity<List<OffenderLatestArrivalDate>> getLatestArrivalDate(
+        @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers
+    ) {
+        List<OffenderLatestArrivalDate> latestArrivalDates = movementsService.getLatestArrivalDates(offenderNumbers);
+        return ResponseEntity.ok(latestArrivalDates);
+    }
 }
