@@ -824,7 +824,8 @@ class PrisonerProfileUpdateServiceTest {
       offenderId = 0,
       prisonerNumber = PRISONER_NUMBER,
       firstName = FIRST_NAME,
-      middleName = MIDDLE_NAME,
+      middleName1 = MIDDLE_NAME_1,
+      middleName2 = MIDDLE_NAME_2,
       lastName = LAST_NAME,
       dateOfBirth = BIRTH_DATE,
       nameType = ReferenceDataValue(NAME_TYPE.domain, NAME_TYPE.code, NAME_TYPE.description),
@@ -841,7 +842,8 @@ class PrisonerProfileUpdateServiceTest {
         .rootOffenderId(ROOT_OFFENDER_ID)
         .aliasOffenderId(ALIAS_OFFENDER_ID)
         .firstName("OLD_${FIRST_NAME}")
-        .middleName("OLD_${MIDDLE_NAME}")
+        .middleName("OLD_${MIDDLE_NAME_1}")
+        .middleName2("OLD_${MIDDLE_NAME_2}")
         .lastName("OLD_${LAST_NAME}")
         .lastNameKey("OLD_${LAST_NAME}")
         .lastNameSoundex("OLD_${LAST_NAME_SOUNDEX}")
@@ -872,7 +874,8 @@ class PrisonerProfileUpdateServiceTest {
     inner class CreateAlias {
       private val request = CreateAlias(
         firstName = FIRST_NAME,
-        middleName = MIDDLE_NAME,
+        middleName1 = MIDDLE_NAME_1,
+        middleName2 = MIDDLE_NAME_2,
         lastName = LAST_NAME,
         dateOfBirth = BIRTH_DATE,
         nameType = NAME_TYPE.code,
@@ -975,7 +978,7 @@ class PrisonerProfileUpdateServiceTest {
         assertThat(newAlias.lastNameAlphaKey).isEqualTo(LAST_NAME_ALPHA)
         assertThat(newAlias.lastNameSoundex).isEqualTo(LAST_NAME_SOUNDEX)
         assertThat(newAlias.firstName).isEqualTo(FIRST_NAME)
-        assertThat(newAlias.middleName).isEqualTo(MIDDLE_NAME)
+        assertThat(newAlias.middleName).isEqualTo(MIDDLE_NAME_1)
         assertThat(newAlias.birthDate).isEqualTo(BIRTH_DATE)
         assertThat(newAlias.gender).isEqualTo(GENDER)
         assertThat(newAlias.title).isEqualTo(TITLE)
@@ -994,7 +997,8 @@ class PrisonerProfileUpdateServiceTest {
 
       private val request = UpdateAlias(
         firstName = FIRST_NAME,
-        middleName = MIDDLE_NAME,
+        middleName1 = MIDDLE_NAME_1,
+        middleName2 = MIDDLE_NAME_2,
         lastName = LAST_NAME,
         dateOfBirth = BIRTH_DATE,
         nameType = NAME_TYPE.code,
@@ -1081,7 +1085,7 @@ class PrisonerProfileUpdateServiceTest {
 
       private fun assertExistingAliasUpdated() {
         assertThat(existingAlias.firstName).isEqualTo(FIRST_NAME)
-        assertThat(existingAlias.middleName).isEqualTo(MIDDLE_NAME)
+        assertThat(existingAlias.middleName).isEqualTo(MIDDLE_NAME_1)
         assertThat(existingAlias.lastName).isEqualTo(LAST_NAME)
         assertThat(existingAlias.lastNameKey).isEqualTo(LAST_NAME)
         assertThat(existingAlias.lastNameAlphaKey).isEqualTo(LAST_NAME_ALPHA)
@@ -1307,7 +1311,8 @@ class PrisonerProfileUpdateServiceTest {
     const val BRITISH_NATIONALITY_CODE = "BRIT"
     const val DRUID_RELIGION_CODE = "DRU"
     const val FIRST_NAME = "JOHN"
-    const val MIDDLE_NAME = "MIDDLEONE"
+    const val MIDDLE_NAME_1 = "MIDDLEONE"
+    const val MIDDLE_NAME_2 = "MIDDLETWO"
     const val LAST_NAME = "SMITH"
     const val LAST_NAME_ALPHA = "S"
     const val LAST_NAME_SOUNDEX = "S530"

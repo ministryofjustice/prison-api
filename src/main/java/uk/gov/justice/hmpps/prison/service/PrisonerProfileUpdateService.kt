@@ -235,7 +235,8 @@ class PrisonerProfileUpdateService(
 
       val newFirstName = request.firstName.trim().uppercase()
       val newLastName = request.lastName.trim().uppercase()
-      val newMiddleName = request.middleName?.trim()?.uppercase()
+      val newMiddleName1 = request.middleName1?.trim()?.uppercase()
+      val newMiddleName2 = request.middleName2?.trim()?.uppercase()
 
       val newAlias = Offender.builder()
         .nomsId(oldWorkingName.nomsId)
@@ -246,7 +247,8 @@ class PrisonerProfileUpdateService(
         .lastNameAlphaKey(newLastName.take(1))
         .lastNameSoundex(Soundex().soundex(newLastName))
         .firstName(newFirstName)
-        .middleName(newMiddleName)
+        .middleName(newMiddleName1)
+        .middleName2(newMiddleName2)
         .birthDate(request.dateOfBirth)
         .gender(gender(request.sex)?.getOrThrow())
         .title(title(request.title)?.getOrThrow())
@@ -283,11 +285,13 @@ class PrisonerProfileUpdateService(
 
       val newFirstName = request.firstName.trim().uppercase()
       val newLastName = request.lastName.trim().uppercase()
-      val newMiddleName = request.middleName?.trim()?.uppercase()
+      val newMiddleName1 = request.middleName1?.trim()?.uppercase()
+      val newMiddleName2 = request.middleName2?.trim()?.uppercase()
 
       val a = aliasToUpdate.apply {
         firstName = newFirstName
-        middleName = newMiddleName
+        middleName = newMiddleName1
+        middleName2 = newMiddleName2
         lastName = newLastName
         lastNameKey = newLastName
         lastNameAlphaKey = newLastName.take(1)
@@ -315,7 +319,8 @@ class PrisonerProfileUpdateService(
     offenderId = id,
     isWorkingName = isWorkingName,
     firstName = firstName,
-    middleName = middleName,
+    middleName1 = middleName,
+    middleName2 = middleName2,
     lastName = lastName,
     dateOfBirth = birthDate,
     nameType = aliasNameType?.toReferenceDataValue(),
