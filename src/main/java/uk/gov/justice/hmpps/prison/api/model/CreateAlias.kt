@@ -16,10 +16,15 @@ data class CreateAlias(
   @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "First name is not valid")
   val firstName: String,
 
-  @Schema(description = "Prisoner's middle name.", example = "Middleone")
+  @Schema(description = "Prisoner's first middle name.", example = "Middleone")
   @field:Size(max = 35)
-  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name is not valid")
-  val middleName: String? = null,
+  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name 1 is not valid")
+  val middleName1: String? = null,
+
+  @Schema(description = "Prisoner's second middle name.", example = "Middletwo")
+  @field:Size(max = 35)
+  @field:Pattern(regexp = "^[A-Z|a-z ,.'-]+$", message = "Middle name 2 is not valid")
+  val middleName2: String? = null,
 
   @Schema(description = "Prisoner's last name", example = "Smith", requiredMode = REQUIRED)
   @field:Size(max = 35)
