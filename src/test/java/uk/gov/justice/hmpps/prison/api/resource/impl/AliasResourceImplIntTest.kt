@@ -107,7 +107,8 @@ class AliasResourceImplIntTest : ResourceTest() {
 
         with(offenderRepository.findById(newAlias.offenderId).get()) {
           assertThat(firstName).isEqualTo("JOHN")
-          assertThat(middleName).isEqualTo("MIDDLENAME")
+          assertThat(middleName).isEqualTo("MIDDLEONE")
+          assertThat(middleName2).isEqualTo("MIDDLETWO")
           assertThat(lastName).isEqualTo("SMITH")
           assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
           assertThat(gender.code).isEqualTo("M")
@@ -140,7 +141,8 @@ class AliasResourceImplIntTest : ResourceTest() {
         with(offenderRepository.findLinkedToLatestBookingForUpdate("A1074AA").get()) {
           assertThat(id).isEqualTo(newAlias.offenderId)
           assertThat(firstName).isEqualTo("JOHN")
-          assertThat(middleName).isEqualTo("MIDDLENAME")
+          assertThat(middleName).isEqualTo("MIDDLEONE")
+          assertThat(middleName2).isEqualTo("MIDDLETWO")
           assertThat(lastName).isEqualTo("SMITH")
           assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
           assertThat(gender.code).isEqualTo("M")
@@ -171,6 +173,7 @@ class AliasResourceImplIntTest : ResourceTest() {
           assertThat(id).isEqualTo(newAlias.offenderId)
           assertThat(firstName).isEqualTo("JOHN")
           assertThat(middleName).isNull()
+          assertThat(middleName2).isNull()
           assertThat(lastName).isEqualTo("SMITH")
           assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
           assertThat(gender.code).isEqualTo("M")
@@ -269,21 +272,40 @@ class AliasResourceImplIntTest : ResourceTest() {
         }
 
         @Nested
-        @DisplayName("Middle name")
-        inner class MiddleName {
+        @DisplayName("Middle name 1")
+        inner class MiddleName1 {
 
           @Test
           internal fun `first middle name must only contain valid characters`() {
-            expectBadRequest(createRequest(middleName = "@@@"))
+            expectBadRequest(createRequest(middleName1 = "@@@"))
               .jsonPath("$.developerMessage")
-              .isEqualTo("Field: middleName - Middle name is not valid")
+              .isEqualTo("Field: middleName1 - Middle name 1 is not valid")
           }
 
           @Test
           internal fun `first middle can not be greater than 35 characters`() {
-            expectBadRequest(createRequest(middleName = "A".repeat(36)))
+            expectBadRequest(createRequest(middleName1 = "A".repeat(36)))
               .jsonPath("$.developerMessage")
-              .isEqualTo("Field: middleName - Value is too long: max length is 35")
+              .isEqualTo("Field: middleName1 - Value is too long: max length is 35")
+          }
+        }
+
+        @Nested
+        @DisplayName("Middle name 2")
+        inner class MiddleName2 {
+
+          @Test
+          internal fun `second middle name must only contain valid characters`() {
+            expectBadRequest(createRequest(middleName2 = "@@@"))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName2 - Middle name 2 is not valid")
+          }
+
+          @Test
+          internal fun `second middle can not be greater than 35 characters`() {
+            expectBadRequest(createRequest(middleName2 = "A".repeat(36)))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName2 - Value is too long: max length is 35")
           }
         }
       }
@@ -291,7 +313,8 @@ class AliasResourceImplIntTest : ResourceTest() {
 
     private fun createRequest(
       firstName: String = "John",
-      middleName: String? = "Middlename",
+      middleName1: String? = "Middleone",
+      middleName2: String? = "Middletwo",
       lastName: String = "Smith",
       title: String? = "MR",
       dateOfBirth: LocalDate = LocalDate.parse("1990-01-02"),
@@ -300,7 +323,8 @@ class AliasResourceImplIntTest : ResourceTest() {
       nameType: String? = "CN",
     ) = UpdateAlias(
       firstName,
-      middleName,
+      middleName1,
+      middleName2,
       lastName,
       dateOfBirth,
       sex,
@@ -388,7 +412,8 @@ class AliasResourceImplIntTest : ResourceTest() {
 
         with(offenderRepository.findById(-1073L).get()) {
           assertThat(firstName).isEqualTo("JOHN")
-          assertThat(middleName).isEqualTo("MIDDLENAME")
+          assertThat(middleName).isEqualTo("MIDDLEONE")
+          assertThat(middleName2).isEqualTo("MIDDLETWO")
           assertThat(lastName).isEqualTo("SMITH")
           assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
           assertThat(gender.code).isEqualTo("M")
@@ -414,6 +439,7 @@ class AliasResourceImplIntTest : ResourceTest() {
         with(offenderRepository.findById(-1073L).get()) {
           assertThat(firstName).isEqualTo("JOHN")
           assertThat(middleName).isNull()
+          assertThat(middleName2).isNull()
           assertThat(lastName).isEqualTo("SMITH")
           assertThat(birthDate).isEqualTo(LocalDate.of(1990, 1, 1))
           assertThat(gender.code).isEqualTo("M")
@@ -512,21 +538,40 @@ class AliasResourceImplIntTest : ResourceTest() {
         }
 
         @Nested
-        @DisplayName("Middle name")
+        @DisplayName("Middle name 1")
         inner class MiddleName {
 
           @Test
           internal fun `first middle name must only contain valid characters`() {
-            expectBadRequest(updateRequest(middleName = "@@@"))
+            expectBadRequest(updateRequest(middleName1 = "@@@"))
               .jsonPath("$.developerMessage")
-              .isEqualTo("Field: middleName - Middle name is not valid")
+              .isEqualTo("Field: middleName1 - Middle name 1 is not valid")
           }
 
           @Test
           internal fun `first middle can not be greater than 35 characters`() {
-            expectBadRequest(updateRequest(middleName = "A".repeat(36)))
+            expectBadRequest(updateRequest(middleName1 = "A".repeat(36)))
               .jsonPath("$.developerMessage")
-              .isEqualTo("Field: middleName - Value is too long: max length is 35")
+              .isEqualTo("Field: middleName1 - Value is too long: max length is 35")
+          }
+        }
+
+        @Nested
+        @DisplayName("Middle name 2")
+        inner class MiddleName2 {
+
+          @Test
+          internal fun `second middle name must only contain valid characters`() {
+            expectBadRequest(updateRequest(middleName2 = "@@@"))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName2 - Middle name 2 is not valid")
+          }
+
+          @Test
+          internal fun `second middle can not be greater than 35 characters`() {
+            expectBadRequest(updateRequest(middleName2 = "A".repeat(36)))
+              .jsonPath("$.developerMessage")
+              .isEqualTo("Field: middleName2 - Value is too long: max length is 35")
           }
         }
       }
@@ -534,7 +579,8 @@ class AliasResourceImplIntTest : ResourceTest() {
 
     private fun updateRequest(
       firstName: String = "John",
-      middleName: String? = "Middlename",
+      middleName1: String? = "Middleone",
+      middleName2: String? = "Middletwo",
       lastName: String = "Smith",
       title: String? = "MR",
       dateOfBirth: LocalDate = LocalDate.parse("1990-01-02"),
@@ -543,7 +589,8 @@ class AliasResourceImplIntTest : ResourceTest() {
       nameType: String? = "CN",
     ) = UpdateAlias(
       firstName,
-      middleName,
+      middleName1,
+      middleName2,
       lastName,
       dateOfBirth,
       sex,
@@ -568,7 +615,8 @@ class AliasResourceImplIntTest : ResourceTest() {
       """
         {
           "firstName": "John",
-          "middleName": "Middlename",
+          "middleName1": "Middleone",
+          "middleName2": "Middletwo",
           "lastName": "Smith",
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
@@ -584,7 +632,8 @@ class AliasResourceImplIntTest : ResourceTest() {
       """
         {
           "firstName": "John",
-          "middleName": "Middlename",
+          "middleName1": "Middleone",
+          "middleName2": "Middletwo",
           "lastName": "Smith",
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
@@ -625,7 +674,8 @@ class AliasResourceImplIntTest : ResourceTest() {
       """
         {
           "firstName": "John",
-          "middleName": "Middlename",
+          "middleName1": "Middleone",
+          "middleName2": "Middletwo",
           "lastName": "Smith",
           "dateOfBirth": "1990-01-01",
           "nameType": "CN",
