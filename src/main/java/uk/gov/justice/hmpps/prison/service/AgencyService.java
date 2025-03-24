@@ -255,7 +255,7 @@ public class AgencyService {
 
         final var rawLocations = agencyRepository.getAgencyLocations(agencyId, allEventLocationUsages, orderBy, order);
 
-        return LocationProcessor.processLocations(rawLocations);
+        return LocationProcessor.processLocations(rawLocations).stream().distinct().toList();
     }
 
     public List<LocationSummary> getAgencyEventLocationsBooked(final String agencyId, @NotNull final LocalDate bookedOnDay, final TimeSlot bookedOnPeriod) {

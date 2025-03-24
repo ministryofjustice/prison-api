@@ -11,6 +11,7 @@ import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus.OK
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes
+import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 
@@ -178,7 +179,8 @@ class AgencyResourceTest : ResourceTest() {
 
     assertThatJsonFileAndStatus(getResponse, 200, "new_agency_address.json")
 
-    val addressId = (Gson().fromJson<Map<*, *>>(response.body, MutableMap::class.java)["addressId"] as Double?)!!.toInt()
+    val addressId =
+      (Gson().fromJson<Map<*, *>>(response.body, MutableMap::class.java)["addressId"] as Double?)!!.toInt()
 
     val updateBody = mapOf(
       "addressType" to "BUS",
@@ -735,5 +737,21 @@ class AgencyResourceTest : ResourceTest() {
       AgencyEstablishmentType.builder().code("CNOMIS").description("C-NOMIS Establishment").build(),
       AgencyEstablishmentType.builder().code("IM").description("Closed Young Offender Institute (Male)").build(),
     )
+  }
+
+  @Test
+  fun testGetEventLocationsForAPrison() {
+    val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
+    val httpEntity = createHttpEntity(token, null)
+
+    val response = testRestTemplate.exchange(
+      "/api/agencies/LEI/eventLocations",
+      GET,
+      httpEntity,
+      object : ParameterizedTypeReference<List<Location>>() {
+      },
+    )
+
+    assertThat(response.body.size).isEqualTo(14)
   }
 }
