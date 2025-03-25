@@ -31,6 +31,7 @@ import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
@@ -187,6 +188,63 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.updateBirthCountryOfCurrentAlias(
           PRISONER_NUMBER,
           BIRTH_COUNTRY_CODE,
+        )
+      }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
+  @Nested
+  inner class UpdateEthnicityOfCurrentAlias {
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER)).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateEthnicityOfCurrentAlias(
+          PRISONER_NUMBER,
+          PRISONER_ETHNICITY_CODE,
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `updates ethnicity`() {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(offender))
+      whenever(ethnicityRepository.findById(Pk(ETHNICITY, PRISONER_ETHNICITY_CODE)))
+        .thenReturn(Optional.of(PRISONER_ETHNICITY))
+
+      prisonerProfileUpdateService.updateEthnicityOfCurrentAlias(
+        PRISONER_NUMBER,
+        PRISONER_ETHNICITY_CODE,
+      )
+
+      verify(offender).ethnicity = PRISONER_ETHNICITY
+    }
+
+    @ParameterizedTest
+    @MethodSource("uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateServiceTest#nullOrBlankStrings")
+    internal fun `updates null or blank ethnicity to null`(ethnicityCode: String?) {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+        .thenReturn(Optional.of(offender))
+
+      prisonerProfileUpdateService.updateEthnicityOfCurrentAlias(PRISONER_NUMBER, ethnicityCode)
+
+      verify(offender).ethnicity = null
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateEthnicityOfCurrentAlias(
+          PRISONER_NUMBER,
+          PRISONER_ETHNICITY_CODE,
         )
       }
         .isInstanceOf(DatabaseRowLockedException::class.java)
@@ -831,7 +889,7 @@ class PrisonerProfileUpdateServiceTest {
       nameType = ReferenceDataValue(NAME_TYPE.domain, NAME_TYPE.code, NAME_TYPE.description),
       title = ReferenceDataValue(TITLE.domain, TITLE.code, TITLE.description),
       sex = ReferenceDataValue(GENDER.domain, GENDER.code, GENDER.description),
-      ethnicity = ReferenceDataValue(ETHNICITY.domain, ETHNICITY.code, ETHNICITY.description),
+      ethnicity = ReferenceDataValue(PRISONER_ETHNICITY.domain, PRISONER_ETHNICITY.code, PRISONER_ETHNICITY.description),
       isWorkingName = true,
     )
 
@@ -864,7 +922,7 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
       whenever(nameTypeRepository.findById(NAME_TYPE.primaryKey)).thenReturn(Optional.of(NAME_TYPE))
       whenever(genderRepository.findById(GENDER.primaryKey)).thenReturn(Optional.of(GENDER))
-      whenever(ethnicityRepository.findById(ETHNICITY.primaryKey)).thenReturn(Optional.of(ETHNICITY))
+      whenever(ethnicityRepository.findById(PRISONER_ETHNICITY.primaryKey)).thenReturn(Optional.of(PRISONER_ETHNICITY))
       whenever(titleRepository.findById(TITLE.primaryKey)).thenReturn(Optional.of(TITLE))
       whenever(offenderRepository.save(aliasCaptor.capture()))
         .thenAnswer { aliasCaptor.firstValue.also { it.id = NEW_OFFENDER_ID } }
@@ -881,7 +939,7 @@ class PrisonerProfileUpdateServiceTest {
         nameType = NAME_TYPE.code,
         title = TITLE.code,
         sex = GENDER.code,
-        ethnicity = ETHNICITY.code,
+        ethnicity = PRISONER_ETHNICITY.code,
         isWorkingName = true,
       )
 
@@ -943,7 +1001,7 @@ class PrisonerProfileUpdateServiceTest {
 
       @Test
       internal fun `throws exception when ethnicity is not valid`() {
-        whenever(ethnicityRepository.findById(ETHNICITY.primaryKey)).thenReturn(Optional.empty())
+        whenever(ethnicityRepository.findById(PRISONER_ETHNICITY.primaryKey)).thenReturn(Optional.empty())
 
         assertThatThrownBy { prisonerProfileUpdateService.createAlias(PRISONER_NUMBER, request) }
           .isInstanceOf(EntityNotFoundException::class.java)
@@ -982,7 +1040,7 @@ class PrisonerProfileUpdateServiceTest {
         assertThat(newAlias.birthDate).isEqualTo(BIRTH_DATE)
         assertThat(newAlias.gender).isEqualTo(GENDER)
         assertThat(newAlias.title).isEqualTo(TITLE)
-        assertThat(newAlias.ethnicity).isEqualTo(ETHNICITY)
+        assertThat(newAlias.ethnicity).isEqualTo(PRISONER_ETHNICITY)
         assertThat(newAlias.birthPlace).isEqualTo(BIRTH_PLACE)
         assertThat(newAlias.birthCountry).isEqualTo(BIRTH_COUNTRY)
         assertThat(newAlias.aliasNameType).isEqualTo(NAME_TYPE)
@@ -1004,7 +1062,7 @@ class PrisonerProfileUpdateServiceTest {
         nameType = NAME_TYPE.code,
         title = TITLE.code,
         sex = GENDER.code,
-        ethnicity = ETHNICITY.code,
+        ethnicity = PRISONER_ETHNICITY.code,
       )
 
       @Test
@@ -1058,7 +1116,7 @@ class PrisonerProfileUpdateServiceTest {
 
       @Test
       internal fun `throws exception when ethnicity is not valid`() {
-        whenever(ethnicityRepository.findById(ETHNICITY.primaryKey)).thenReturn(Optional.empty())
+        whenever(ethnicityRepository.findById(PRISONER_ETHNICITY.primaryKey)).thenReturn(Optional.empty())
 
         assertThatThrownBy { prisonerProfileUpdateService.updateAlias(OFFENDER_ID, request) }
           .isInstanceOf(EntityNotFoundException::class.java)
@@ -1094,7 +1152,7 @@ class PrisonerProfileUpdateServiceTest {
         assertThat(existingAlias.aliasNameType).isEqualTo(NAME_TYPE)
         assertThat(existingAlias.title).isEqualTo(TITLE)
         assertThat(existingAlias.gender).isEqualTo(GENDER)
-        assertThat(existingAlias.ethnicity).isEqualTo(ETHNICITY)
+        assertThat(existingAlias.ethnicity).isEqualTo(PRISONER_ETHNICITY)
       }
     }
   }
@@ -1326,7 +1384,8 @@ class PrisonerProfileUpdateServiceTest {
 
     val GENDER = Gender("M", "Male")
 
-    val ETHNICITY = Ethnicity("W1", "White British")
+    const val PRISONER_ETHNICITY_CODE = "W1"
+    val PRISONER_ETHNICITY = Ethnicity("W1", "White British")
 
     val TITLE = Title("MR", "Mr.")
 

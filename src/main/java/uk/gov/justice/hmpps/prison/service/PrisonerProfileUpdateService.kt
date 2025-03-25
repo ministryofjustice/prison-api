@@ -102,6 +102,17 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
+  fun updateEthnicityOfCurrentAlias(prisonerNumber: String, ethnicity: String?) {
+    try {
+      offenderRepository.findLinkedToLatestBookingForUpdate(prisonerNumber)
+        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+        .let { it.ethnicity = ethnicity(ethnicity)?.getOrThrow() }
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "OFFENDERS")
+    }
+  }
+
+  @Transactional
   fun updateNationalityOfLatestBooking(
     prisonerNumber: String,
     nationality: String?,

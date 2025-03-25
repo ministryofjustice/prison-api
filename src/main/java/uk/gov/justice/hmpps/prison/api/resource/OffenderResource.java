@@ -67,6 +67,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthCountry;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
+import uk.gov.justice.hmpps.prison.api.model.UpdateEthnicity;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
@@ -107,12 +108,10 @@ import uk.gov.justice.hmpps.prison.service.enteringandleaving.DischargeToHospita
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.PrisonerCreationService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerService;
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
-
 import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
-
 import static org.springframework.format.annotation.DateTimeFormat.ISO.DATE;
 import static org.springframework.http.HttpStatus.NO_CONTENT;
 
@@ -1052,4 +1051,21 @@ public class OffenderResource {
             updateSmokerStatus
         );
     }
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "The ethnicity has been updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update the prisoner's ethnicity on the current alias. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PutMapping("/{offenderNo}/ethnicity")
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ResponseStatus(NO_CONTENT)
+    @ProxyUser
+    public void updateEthnicity(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @RequestBody @NotNull @Valid final UpdateEthnicity updateEthnicity
+    ) {
+        prisonerProfileUpdateService.updateEthnicityOfCurrentAlias(prisonerNumber, updateEthnicity.getEthnicity());
+    }
+
 }
