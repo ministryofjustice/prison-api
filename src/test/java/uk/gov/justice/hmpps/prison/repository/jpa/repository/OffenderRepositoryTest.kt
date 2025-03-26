@@ -13,6 +13,7 @@ import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
+import java.time.LocalDate
 
 @DataJpaTest
 @ActiveProfiles("test")
@@ -106,6 +107,42 @@ class OffenderRepositoryTest {
     @Test
     fun `returns empty when offender id not found`() {
       assertThat(repository.findByIdForUpdate(-999)).isEmpty()
+    }
+  }
+
+  @Nested
+  inner class findByNomsId {
+    @Test
+    fun `retrieves the aliases`() {
+      val aliases = repository.findByNomsId("A1234AL")
+
+      assertThat(aliases).hasSize(2)
+      assertThat(aliases.map { it.offenderId }).containsExactlyInAnyOrder(-1012L, -1013L)
+      assertThat(aliases.firstOrNull { it.offenderId == -1012L }?.isWorkingName).isTrue()
+      assertThat(aliases.firstOrNull { it.offenderId == -1013L }?.isWorkingName).isFalse()
+    }
+
+    @Test
+    fun `populates all the alias fields`() {
+      with(repository.findByNomsId("A1072AA").first()) {
+        assertThat(prisonerNumber).isEqualTo("A1072AA")
+        assertThat(offenderId).isEqualTo(-1072)
+        assertThat(isWorkingName).isTrue()
+        assertThat(firstName).isEqualTo("OLD FIRST NAME")
+        assertThat(middleName1).isEqualTo("OLD MIDDLE NAME")
+        assertThat(middleName2).isEqualTo("OLD SECOND MIDDLE NAME")
+        assertThat(lastName).isEqualTo("OLD LAST NAME")
+        assertThat(dateOfBirth).isEqualTo(LocalDate.of(2000, 12, 1))
+        assertThat(nameType?.code).isEqualTo("CN")
+        assertThat(title?.code).isEqualTo("MR")
+        assertThat(sex?.code).isEqualTo("M")
+        assertThat(ethnicity?.code).isEqualTo("W1")
+      }
+    }
+
+    @Test
+    fun `returns empty when offender id not found`() {
+      assertThat(repository.findByNomsId("???")).isEmpty()
     }
   }
 }
