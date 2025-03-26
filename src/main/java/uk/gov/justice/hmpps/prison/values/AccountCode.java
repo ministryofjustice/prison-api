@@ -27,11 +27,11 @@ public enum AccountCode {
         return Arrays.stream(AccountCode.values()).filter(v -> v.codeName.equals(codeName.toLowerCase())).findFirst();
     }
 
-    public static String codeForNameOrEmpty(final String codeName) {
-        return byCodeName(codeName).map(code -> code.code).orElse("");
+    public static Optional<String> codeForNameOrEmpty(final String codeName) {
+        return byCodeName(codeName).map(code -> code.code);
     }
 
     public static boolean exists(String codeName) {
-       return !StringUtils.isEmpty(codeForNameOrEmpty(codeName));
+       return codeForNameOrEmpty(codeName).isPresent();
     }
 }

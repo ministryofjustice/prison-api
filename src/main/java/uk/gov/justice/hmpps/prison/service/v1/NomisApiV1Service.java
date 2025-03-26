@@ -310,11 +310,9 @@ public class NomisApiV1Service {
     }
 
     public List<AccountTransaction> getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
-
-        final var accountType = codeForNameOrEmpty(accountCode);
-        if (StringUtils.isEmpty(accountType)) {
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid account_code supplied. Should be one of cash, spends or savings");
-        }
+        final var accountType = codeForNameOrEmpty(accountCode).orElseThrow(
+            () -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid account_code supplied. Should be one of cash, spends or savings")
+        );
 
         return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType, fromDate, toDate)
                 .stream()
@@ -342,7 +340,7 @@ public class NomisApiV1Service {
                 .toList();
 
         if (response.size() == 1) {
-            return response.get(0);
+            return response.getFirst();
         }
         if (response.isEmpty()) {
             throw EntityNotFoundException.withId(uniqueClientId);
