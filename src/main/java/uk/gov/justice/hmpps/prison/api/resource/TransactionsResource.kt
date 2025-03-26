@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RequestParam
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.service.AccountTransaction
+import uk.gov.justice.hmpps.prison.service.PrisonerTransaction
 import uk.gov.justice.hmpps.prison.service.TransactionsService
 import java.time.LocalDate
 
@@ -99,11 +99,11 @@ class TransactionsResource(private val transactionsService: TransactionsService)
       description = "To date for transactions",
       example = "2019-05-01",
     ) toDate: LocalDate?,
-  ): AccountTransactions = AccountTransactions(transactionsService.getAccountTransactions(prisonId, nomsId, accountCode, fromDate ?: LocalDate.now(), toDate))
+  ): PrisonerTransactions = PrisonerTransactions(transactionsService.getAccountTransactions(prisonId, nomsId, accountCode, fromDate ?: LocalDate.now(), toDate))
 }
 
 @Schema(description = "Account Transactions")
-data class AccountTransactions(
+data class PrisonerTransactions(
   @Schema(description = "List of account transactions")
-  val transactions: List<AccountTransaction>,
+  val transactions: List<PrisonerTransaction>,
 )

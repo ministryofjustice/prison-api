@@ -26,7 +26,7 @@ class TransactionsService(
     accountCode: String,
     fromDate: LocalDate,
     toDate: LocalDate?,
-  ): List<AccountTransaction> {
+  ): List<PrisonerTransaction> {
     val accountType = AccountCode.codeForNameOrEmpty(accountCode).orElseThrow {
       HttpClientErrorException(
         HttpStatus.BAD_REQUEST,
@@ -44,7 +44,7 @@ class TransactionsService(
       toDate,
     )
       .map {
-        AccountTransaction(
+        PrisonerTransaction(
           id = "${it.transactionId}-${it.transactionEntrySequence}",
           type = it.transactionType?.toCodeDescription(),
           description = it.entryDescription,
@@ -59,7 +59,7 @@ class TransactionsService(
 fun TransactionType.toCodeDescription(): CodeDescription = CodeDescription.safeNullBuild(type, description)
 
 @JsonInclude(Include.NON_NULL)
-data class AccountTransaction(
+data class PrisonerTransaction(
   @Schema(description = "Transaction ID", requiredMode = RequiredMode.REQUIRED, example = "204564839-3")
   val id: String,
 
