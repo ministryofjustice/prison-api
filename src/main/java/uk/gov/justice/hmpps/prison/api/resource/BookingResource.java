@@ -132,7 +132,6 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
-    private final CalculablePrisonerService calculablePrisonerService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
 
     @ApiResponses({
