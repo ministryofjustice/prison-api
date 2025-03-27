@@ -227,6 +227,8 @@ class PrisonerProfileUpdateService(
     }
   }
 
+  fun getAliases(prisonerNumber: String): List<CorePersonRecordAlias> = offenderRepository.findByNomsId(prisonerNumber)
+
   @Transactional
   fun createAlias(prisonerNumber: String, request: CreateAlias): CorePersonRecordAlias {
     try {

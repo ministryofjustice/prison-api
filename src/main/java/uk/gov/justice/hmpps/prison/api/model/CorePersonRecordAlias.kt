@@ -2,6 +2,10 @@ package uk.gov.justice.hmpps.prison.api.model
 
 import com.fasterxml.jackson.annotation.JsonInclude
 import io.swagger.v3.oas.annotations.media.Schema
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender.SEX
+import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
 import java.time.LocalDate
 
 @Schema(description = "Core Person Record Alias - DTO for use in returning alias data for the Core Person Record proxy")
@@ -43,4 +47,38 @@ data class CorePersonRecordAlias(
 
   @Schema(description = "Ethnicity")
   val ethnicity: ReferenceDataValue? = null,
-)
+) {
+  constructor(
+    prisonerNumber: String,
+    offenderId: Long,
+    workingNameBookingId: Long?,
+    firstName: String,
+    middleName1: String?,
+    middleName2: String?,
+    lastName: String,
+    dateOfBirth: LocalDate,
+    nameTypeCode: String?,
+    nameTypeDescription: String?,
+    titleCode: String?,
+    titleDescription: String?,
+    sexCode: String?,
+    sexDescription: String?,
+    ethnicityCode: String?,
+    ethnicityDescription: String?,
+  ) : this(
+    prisonerNumber,
+    offenderId,
+    isWorkingName = workingNameBookingId != null,
+    firstName,
+    middleName1,
+    middleName2,
+    lastName,
+    dateOfBirth,
+    nameType = referenceDataValue(NAME_TYPE, nameTypeCode, nameTypeDescription),
+    title = referenceDataValue(TITLE, titleCode, titleDescription),
+    sex = referenceDataValue(SEX, sexCode, sexDescription),
+    ethnicity = referenceDataValue(ETHNICITY, ethnicityCode, ethnicityDescription),
+  )
+}
+
+private fun referenceDataValue(domain: String, code: String?, description: String?) = if (code == null || description == null) null else ReferenceDataValue(domain, code, description)

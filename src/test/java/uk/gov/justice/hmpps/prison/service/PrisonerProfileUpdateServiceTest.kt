@@ -816,7 +816,7 @@ class PrisonerProfileUpdateServiceTest {
   }
 
   @Nested
-  inner class CreateAndUpdateAlias {
+  inner class Aliases {
 
     private lateinit var existingAlias: Offender
 
@@ -868,6 +868,16 @@ class PrisonerProfileUpdateServiceTest {
       whenever(titleRepository.findById(TITLE.primaryKey)).thenReturn(Optional.of(TITLE))
       whenever(offenderRepository.save(aliasCaptor.capture()))
         .thenAnswer { aliasCaptor.firstValue.also { it.id = NEW_OFFENDER_ID } }
+    }
+
+    @Nested
+    inner class GetAliases {
+      @Test
+      internal fun `can retrieve list of aliases`() {
+        whenever(offenderRepository.findByNomsId(PRISONER_NUMBER)).thenReturn(listOf(expectedResponse))
+
+        assertThat(prisonerProfileUpdateService.getAliases(PRISONER_NUMBER)).containsExactly(expectedResponse)
+      }
     }
 
     @Nested
