@@ -10,7 +10,7 @@
     "currency": "GBP",
     "penceAmount": 100,
     "accountType": "REG",
-    "postingType": "CR",
+    "postingType": "DR",
     "offenderNo": "A1234AI",
     "agencyId": "LEI"
   }
