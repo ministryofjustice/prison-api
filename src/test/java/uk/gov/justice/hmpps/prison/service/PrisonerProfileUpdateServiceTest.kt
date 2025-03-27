@@ -1138,6 +1138,12 @@ class PrisonerProfileUpdateServiceTest {
       interpreterRequired = true,
     )
 
+    private val requestToBlankSpokenPreference = CorePersonLanguagePreferencesRequest(
+      preferredSpokenLanguageCode = null,
+      preferredWrittenLanguageCode = "ENG",
+      interpreterRequired = null,
+    )
+
     @Test
     internal fun `creates or updates language preferences - empty list`() {
       val booking = mock<OffenderBooking>()
@@ -1167,6 +1173,25 @@ class PrisonerProfileUpdateServiceTest {
       whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(offenderLanguages)
 
       prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request)
+
+      verify(offenderLanguageRepository).deleteAll(offenderLanguages)
+      verify(offenderLanguageRepository).saveAll(any<List<OffenderLanguage>>())
+    }
+
+    @Test
+    internal fun `blanks existing language preference`() {
+      val booking = mock<OffenderBooking>()
+      val languageReferenceCode = LanguageReferenceCode("ENG", "English")
+      val offenderLanguages = listOf(
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("ITA", "Italian")).build(),
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("SPA", "Spanish")).build(),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(offenderLanguages)
+
+      prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, requestToBlankSpokenPreference)
 
       verify(offenderLanguageRepository).deleteAll(offenderLanguages)
       verify(offenderLanguageRepository).saveAll(any<List<OffenderLanguage>>())

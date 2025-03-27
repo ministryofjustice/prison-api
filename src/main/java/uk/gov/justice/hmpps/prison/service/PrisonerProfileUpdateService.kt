@@ -353,13 +353,13 @@ class PrisonerProfileUpdateService(
       val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
         .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
-      val preferredWrittenLanguageReferenceCode = request.preferredWrittenLanguageCode?.let {
+      val preferredWrittenLanguageReferenceCode = request.preferredWrittenLanguageCode?.takeIf { it.isNotBlank() }?.let {
         languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.preferredWrittenLanguageCode)).orElseThrow(
           { EntityNotFoundException.withMessage("Preferred written language with code ${request.preferredWrittenLanguageCode} not found") },
         )
       }
 
-      val preferredSpokenLanguageReferenceCode = request.preferredSpokenLanguageCode?.let {
+      val preferredSpokenLanguageReferenceCode = request.preferredSpokenLanguageCode?.takeIf { it.isNotBlank() }?.let {
         languageCodeRepository.findById(Pk(LANGUAGE_REF_DOMAIN, request.preferredSpokenLanguageCode)).orElseThrow(
           { EntityNotFoundException.withMessage("Preferred spoken language with code ${request.preferredSpokenLanguageCode} not found") },
         )
@@ -384,7 +384,7 @@ class PrisonerProfileUpdateService(
           .offenderBookId(booking.bookingId)
           .code(preferredSpokenLanguageReferenceCode.code)
           .type(PREF_SPEAK_LANGUAGE_TYPE)
-          .interpreterRequestedFlag(if (request.interpreterRequired) "Y" else "N")
+          .interpreterRequestedFlag(if (request.interpreterRequired == true) "Y" else "N")
           .preferredWriteFlag("N")
           .readSkill("N")
           .writeSkill("N")
@@ -477,9 +477,9 @@ class PrisonerProfileUpdateService(
     .filter { it.type.equals(PREF_WRITE_LANGUAGE_TYPE, ignoreCase = true) && it.referenceCode != null }
     .maxByOrNull { it.referenceCode.description }
 
-  private fun getInterpreterRequired(languages: List<OffenderLanguage>): Boolean = languages
+  private fun getInterpreterRequired(languages: List<OffenderLanguage>): Boolean? = languages
     .filter { it.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) && it.referenceCode != null }
-    .maxByOrNull { it.referenceCode.description }?.interpreterRequestedFlag.equals("Y", ignoreCase = true)
+    .maxByOrNull { it.referenceCode.description }?.interpreterRequestedFlag?.equals("Y", ignoreCase = true)
 
   private fun getSecondaryLanguages(languages: List<OffenderLanguage>): List<CorePersonSecondaryLanguage> = languages
     .filter { it.type.equals(SEC_LANGUAGE_TYPE, ignoreCase = true) }
