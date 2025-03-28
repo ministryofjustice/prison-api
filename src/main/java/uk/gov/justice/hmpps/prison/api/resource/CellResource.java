@@ -73,17 +73,4 @@ public class CellResource {
         @Parameter(description = "Assignment date (2020-03-24)", example = "2020-03-24", required = true) final LocalDate assignmentDate) {
         return bedAssignmentHistoryService.getBedAssignmentsHistoryByDateForAgency(agencyId, assignmentDate);
     }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get details of a location.")
-    @GetMapping("/{locationId}/attributes")
-    @Deprecated(forRemoval = true)
-    @ReferenceData(description = "Cell Attributes only")
-    public OffenderCell getCellAttributes(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId) {
-        return agencyService.getCellAttributes(locationId);
-    }
 }

@@ -7,10 +7,8 @@ import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
@@ -26,13 +24,11 @@ public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
-    private static final String API_IEP_LEVELS_URL = API_REF_PREFIX + "{agencyId}/iepLevels";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;
-    private List<IepLevel> iepLevels;
 
     private void dispatchPagedListRequest(final String resourcePath, final Long offset, final Long limit, final Object... params) {
         init();
@@ -46,11 +42,9 @@ public class AgencySteps extends CommonSteps {
             httpEntity = createEntity();
         }
 
-        final var url = resourcePath;
-
         try {
             final var response = restTemplate.exchange(
-                    url,
+                resourcePath,
                     HttpMethod.GET,
                     httpEntity,
                     new ParameterizedTypeReference<List<Agency>>() {
@@ -88,52 +82,6 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
-    private void dispatchBookedLocationsRequest(final String resourcePath, final String agencyId, final String bookedOnDay, final TimeSlot timeSlot) {
-        init();
-
-        var urlModifier = "?bookedOnDay=" + bookedOnDay;
-        if (timeSlot != null) {
-            urlModifier += "&timeSlot=" + timeSlot.name();
-        }
-        final var url = resourcePath + urlModifier;
-
-        try {
-            final var response = restTemplate.exchange(
-                    url,
-                    HttpMethod.GET,
-                    createEntity(),
-                    new ParameterizedTypeReference<List<Location>>() {
-                    },
-                    agencyId);
-
-            locations = response.getBody();
-
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchIepLevelsRequest(final String agencyId) {
-        init();
-
-
-        final var uriBuilder = UriComponentsBuilder.fromPath(API_IEP_LEVELS_URL);
-
-
-        final var uri = uriBuilder.build(agencyId);
-
-        try {
-            final var response = restTemplate.exchange(uri, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<IepLevel>>() {
-                    });
-
-            iepLevels = response.getBody();
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     private void dispatchObjectRequest(final String agencyId, final Boolean activeOnly) {
         init();
 
@@ -157,10 +105,10 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
-    private void dispatchObjectRequestForCaseload(final String resourcePath, final String caseload) {
+    private void dispatchObjectRequestForCaseload(final String caseload) {
         init();
         try {
-            final var response = restTemplate.exchange(resourcePath, HttpMethod.GET, createEntity(),
+            final var response = restTemplate.exchange(AgencySteps.API_CASELOAD_URL, HttpMethod.GET, createEntity(),
                     new ParameterizedTypeReference<List<Agency>>() {
                     }, caseload);
 
@@ -235,24 +183,9 @@ public class AgencySteps extends CommonSteps {
     }
 
     public void getAgenciesByCaseload(final String caseload) {
-        dispatchObjectRequestForCaseload(API_CASELOAD_URL, caseload);
+        dispatchObjectRequestForCaseload(caseload);
     }
 
-    public void aRequestIsMadeToRetrieveIepLevels(final String agencyId) {
-        dispatchIepLevelsRequest(agencyId);
-    }
 
-    public void verifyIepLevelsList(final List<IepLevel> expected) {
-        final var expectedIterator = expected.iterator();
-        final var actualIterator = iepLevels.iterator();
-        while (expectedIterator.hasNext()) {
-            final var expectedThis = expectedIterator.next();
-            final var actualThis = actualIterator.next();
-            assertThat(actualThis.getIepLevel()).isEqualTo(expectedThis.getIepLevel());
-            assertThat(actualThis.getIepDescription()).isEqualTo(expectedThis.getIepDescription());
-            assertThat(actualThis.getSequence()).isEqualTo(expectedThis.getSequence());
-            assertThat(actualThis.isDefaultLevel()).isEqualTo(expectedThis.isDefaultLevel());
-        }
-        assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
-    }
+
 }

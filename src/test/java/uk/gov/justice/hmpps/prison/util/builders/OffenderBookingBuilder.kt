@@ -19,7 +19,6 @@ class OffenderBookingBuilder(
   var cellLocation: String? = null,
   var imprisonmentStatus: String = "SENT03",
   var iepLevel: String? = null,
-  var iepLevelComment: String = "iep level comment",
   var voBalance: Int? = null,
   var pvoBalance: Int? = null,
   var programProfiles: List<OffenderProgramProfileBuilder> = emptyList(),

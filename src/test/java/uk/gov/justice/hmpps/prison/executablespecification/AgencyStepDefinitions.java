@@ -6,7 +6,6 @@ import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
 import org.springframework.beans.factory.annotation.Autowired;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 
@@ -107,14 +106,5 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.verifyResourceNotFound();
     }
 
-    @When("^a request is submitted to retrieve IEP levels for agency \"([^\"]*)\"$")
-    public void aRequestIsMadeToRetrieveIepLevels(final String agencyId) throws Throwable {
-        agencySteps.aRequestIsMadeToRetrieveIepLevels(agencyId);
-    }
 
-    @Then("^the returned IEP levels are as follows:$")
-    public void IepLevelsAreReturnedAsFollows(final DataTable table) throws Throwable {
-        final List<IepLevel> expected = table.asList(IepLevel.class);
-        agencySteps.verifyIepLevelsList(expected);
-    }
 }
