@@ -32,7 +32,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.AgencyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
@@ -220,18 +219,6 @@ public class AgencyResource {
         @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute
     ) {
         return agencyService.getReceptionsWithCapacityInAgency(agencyId, attribute);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active IEP levels for agency.", description = "Do not use, use incentives API", deprecated = true, hidden = true)
-    @ReferenceData(description = "Agency data is considered non-sensitive")
-    @GetMapping("/{agencyId}/iepLevels")
-    public List<IepLevel> getAgencyIepLevels(@PathVariable("agencyId") @Parameter(description = "agencyId", required = true) final String agencyId) {
-        return agencyService.getAgencyIepLevels(agencyId);
     }
 
     @ApiResponses({

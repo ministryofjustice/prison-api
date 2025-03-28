@@ -14,7 +14,6 @@ import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
-import uk.gov.justice.hmpps.prison.api.model.IepLevel;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
@@ -46,7 +45,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AvailablePrisonIepLevelRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.support.StatusFilter;
 import uk.gov.justice.hmpps.prison.service.support.AlphaNumericComparator;
@@ -82,7 +80,6 @@ public class AgencyService {
 
     private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final AgencyRepository agencyRepository;
-    private final AvailablePrisonIepLevelRepository availablePrisonIepLevelRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
@@ -269,19 +266,6 @@ public class AgencyService {
         final var processedLocations = LocationProcessor.processLocationSummaries(locations);
         return processedLocations.stream()
             .sorted(LOCATION_DESCRIPTION_COMPARATOR)
-            .toList();
-    }
-
-    public List<IepLevel> getAgencyIepLevels(final String prisonId) {
-        return availablePrisonIepLevelRepository.findByAgencyLocation_IdAndActive(prisonId, true)
-            .stream().map(
-                iep -> IepLevel.builder()
-                    .iepLevel(iep.getIepLevel().getCode())
-                    .iepDescription(iep.getIepLevel().getDescription())
-                    .sequence(iep.getIepLevel().getListSequence())
-                    .defaultLevel(iep.isDefaultIep())
-                    .build()
-            ).sorted(Comparator.comparing(IepLevel::getSequence))
             .toList();
     }
 

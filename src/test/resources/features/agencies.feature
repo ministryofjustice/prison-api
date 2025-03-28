@@ -103,11 +103,3 @@ Feature: Agencies
       | 1901       | OTHER-OTHERCELL    | Other Cell         | LEI-OTHER-OTHERCELL    | OCCUR         |
       | 1900       | OTHER-PRISONERSCEL | Prisoner's Cell    | LEI-OTHER-PRISONERSCEL | OCCUR         |
 
-  Scenario: Retrieve IEP levels for an agency
-    When a request is submitted to retrieve IEP levels for agency "LEI"
-    Then the returned IEP levels are as follows:
-      | iepLevel | iepDescription | sequence | defaultLevel |
-      | BAS      | Basic          | 1        | false        |
-      | ENT      | Entry          | 2        | true         |
-      | STD      | Standard       | 3        | false        |
-      | ENH      | Enhanced       | 4        | false        |
