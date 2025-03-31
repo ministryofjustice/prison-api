@@ -24,7 +24,7 @@ import java.math.RoundingMode;
 public class CreateTransaction {
 
     @NotNull
-    @Schema(description = "Valid transaction type for the prison_id", example = "CANT", allowableValues = "CANT,REFND,PHONE,MRPR,MTDS,DTDS,CASHD,RELA,RELS")
+    @Schema(description = "Valid transaction type for the prison_id", example = "CANT", allowableValues = {"CANT", "REFND", "PHONE", "MRPR", "MTDS", "DTDS", "CASHD", "RELA", "RELS"})
     private String type;
 
     @Size(max = 240)
