@@ -52,10 +52,10 @@ public class RequestToUpdateAddress {
     @Schema(description = "Comment", example = "This is a comment text")
     private String comment;
 
-    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "true")
     private boolean primary;
 
-    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "N")
+    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "false")
     private boolean noFixedAddress;
 
     @Schema(description = "Date Added", example = "2005-05-12")
