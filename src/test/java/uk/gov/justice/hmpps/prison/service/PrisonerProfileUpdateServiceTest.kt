@@ -26,6 +26,7 @@ import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
+import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
@@ -548,6 +549,145 @@ class PrisonerProfileUpdateServiceTest {
           PRISONER_NUMBER,
           request,
           USERNAME,
+        )
+      }
+        .isInstanceOf(DatabaseRowLockedException::class.java)
+    }
+  }
+
+  @Nested
+  inner class UpdateSexualOrientationOfLatestBooking {
+
+    @BeforeEach
+    internal fun setUp() {
+      whenever(profileTypeRepository.findByTypeAndCategory(eq(SEXUAL_ORIENTATION_PROFILE_TYPE_CODE), any()))
+        .thenReturn(Optional.of(SEXUAL_ORIENTATION_PROFILE_TYPE))
+      whenever(profileCodeRepository.findById(ProfileCode.PK(SEXUAL_ORIENTATION_PROFILE_TYPE, SEXUAL_ORIENTATION_HETERO_CODE)))
+        .thenReturn(Optional.of(SEXUAL_ORIENTATION_HETERO))
+    }
+
+    @ParameterizedTest
+    @ValueSource(strings = ["HET", "het"])
+    internal fun `updates sexual orientation`(orientationCode: String) {
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, SEXUAL_ORIENTATION_PROFILE_TYPE)).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(mutableListOf(offenderProfileDetail))
+      whenever(offenderProfileDetail.code).thenReturn(SEXUAL_ORIENTATION_NOT_DISCLOSED)
+
+      prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+        PRISONER_NUMBER,
+        UpdateSexualOrientation(SEXUAL_ORIENTATION_HETERO_CODE),
+      )
+
+      verify(offenderProfileDetail).setProfileCode(SEXUAL_ORIENTATION_HETERO)
+    }
+
+    @Test
+    internal fun `adds sexual orientation when missing`() {
+      val profileDetails = mutableListOf<OffenderProfileDetail>()
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
+        .thenReturn(Optional.empty())
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+
+      prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+        PRISONER_NUMBER,
+        UpdateSexualOrientation(
+          SEXUAL_ORIENTATION_HETERO_CODE,
+        ),
+      )
+
+      assertThat(booking.profileDetails).hasSize(1)
+      with(booking.profileDetails[0]) { assertThat(code).isEqualTo(SEXUAL_ORIENTATION_HETERO) }
+    }
+
+    @Test
+    internal fun `removes sexual orientation`() {
+      val otherNationalitiesProfileDetail: OffenderProfileDetail = mock()
+      val profileDetails = mutableListOf(offenderProfileDetail)
+
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, SEXUAL_ORIENTATION_PROFILE_TYPE))
+        .thenReturn(Optional.of(offenderProfileDetail))
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(booking.profileDetails).thenReturn(profileDetails)
+      whenever(offenderProfileDetail.code).thenReturn(SEXUAL_ORIENTATION_HETERO)
+
+      prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(PRISONER_NUMBER, UpdateSexualOrientation(sexualOrientation = null))
+
+      assertThat(profileDetails).isEmpty()
+    }
+
+    @Test
+    internal fun `throws exception when there isn't a booking for the offender`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSexualOrientation(
+            SEXUAL_ORIENTATION_HETERO_CODE,
+          ),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching SEXO profile type`() {
+      whenever(
+        profileTypeRepository.findByTypeAndCategory(
+          eq(SEXUAL_ORIENTATION_PROFILE_TYPE_CODE),
+          any(),
+        ),
+      ).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSexualOrientation(SEXUAL_ORIENTATION_HETERO_CODE),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Resource with id [${SEXUAL_ORIENTATION_PROFILE_TYPE_CODE}] not found.")
+    }
+
+    @Test
+    internal fun `throws exception if there isn't a matching profile code for sexual orientation`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(
+          Optional.of(booking),
+        )
+      whenever(profileCodeRepository.findById(ProfileCode.PK(SEXUAL_ORIENTATION_PROFILE_TYPE, SEXUAL_ORIENTATION_HETERO_CODE)))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSexualOrientation(SEXUAL_ORIENTATION_HETERO_CODE),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Profile Code for $SEXUAL_ORIENTATION_PROFILE_TYPE_CODE and $SEXUAL_ORIENTATION_HETERO_CODE not found")
+    }
+
+    @Test
+    internal fun `throws DatabaseRowLockedException when database row lock times out`() {
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any()))
+        .thenThrow(CannotAcquireLockException("", Exception("ORA-30006")))
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+          PRISONER_NUMBER,
+          UpdateSexualOrientation(SEXUAL_ORIENTATION_HETERO_CODE),
         )
       }
         .isInstanceOf(DatabaseRowLockedException::class.java)
@@ -1396,6 +1536,16 @@ class PrisonerProfileUpdateServiceTest {
       ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, DRUID_RELIGION_CODE), "Druid", true, true, null, null)
     val ZOROASTRIAN_RELIGION =
       ProfileCode(ProfileCode.PK(RELIGION_PROFILE_TYPE, "ZORO"), "Zoroastrian", true, true, null, null)
+
+    const val SEXUAL_ORIENTATION_PROFILE_TYPE_CODE = "SEXO"
+    val SEXUAL_ORIENTATION_PROFILE_TYPE =
+      ProfileType(SEXUAL_ORIENTATION_PROFILE_TYPE_CODE, "PI", "Sexual Orientation", false, true, "CODE", true, null, null)
+    const val SEXUAL_ORIENTATION_HETERO_CODE = "HET"
+    const val SEXUAL_ORIENTATION_NOT_DISCLOSED_CODE = "ND"
+    val SEXUAL_ORIENTATION_HETERO =
+      ProfileCode(ProfileCode.PK(SEXUAL_ORIENTATION_PROFILE_TYPE, SEXUAL_ORIENTATION_HETERO_CODE), "Heterosexual / Straight", true, true, null, null)
+    val SEXUAL_ORIENTATION_NOT_DISCLOSED =
+      ProfileCode(ProfileCode.PK(SEXUAL_ORIENTATION_PROFILE_TYPE, SEXUAL_ORIENTATION_NOT_DISCLOSED_CODE), "Not Disclosed", true, true, null, null)
 
     const val SMOKER_PROFILE_TYPE_CODE = "SMOKE"
     val SMOKER_PROFILE_TYPE =

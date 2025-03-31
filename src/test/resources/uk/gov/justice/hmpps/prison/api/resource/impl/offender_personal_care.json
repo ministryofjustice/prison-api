@@ -119,6 +119,11 @@
       "type": "NATIO",
       "question": "Multiple Nationalities - Add Details",
       "resultValue": "Spaniard"
+    },
+    {
+      "type": "SEXO",
+      "question": "Sexual Orientation",
+      "resultValue": "Not Disclosed"
     }
   ],
   "physicalMarks": [
