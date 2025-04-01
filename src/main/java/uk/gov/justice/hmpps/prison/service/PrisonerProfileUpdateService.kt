@@ -18,6 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
+import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
@@ -132,6 +133,23 @@ class PrisonerProfileUpdateService(
       // Profile details are updated by the OFFENDER_BELIEFS_T1 trigger
       updateBeliefHistory(prisonerNumber, latestBooking, profileCode, request, user)
     }
+  }
+
+  @Transactional
+  fun updateSexualOrientationOfLatestBooking(prisonerNumber: String, request: UpdateSexualOrientation) {
+    val profileType = profileTypeRepository.profileType(SEXUAL_ORIENTATION_PROFILE_TYPE).getOrThrow()
+    val profileCode = when (request.sexualOrientation) {
+      null -> null
+      else -> profileCode(profileType, request.sexualOrientation)
+        ?: throw EntityNotFoundException.withMessage(
+          "Sexual orientation profile code with code %s not found",
+          request.sexualOrientation,
+        )
+    }
+
+    val latestBooking = latestBooking(prisonerNumber)
+
+    updateProfileDetailsOfBooking(latestBooking, prisonerNumber, profileType, profileCode?.id?.code)
   }
 
   @Transactional
@@ -672,6 +690,7 @@ class PrisonerProfileUpdateService(
     const val NATIONALITY_PROFILE_TYPE = "NAT"
     const val OTHER_NATIONALITIES_PROFILE_TYPE = "NATIO"
     const val RELIGION_PROFILE_TYPE = "RELF"
+    const val SEXUAL_ORIENTATION_PROFILE_TYPE = "SEXO"
     const val SMOKER_PROFILE_TYPE = "SMOKE"
     const val HAIR_PROFILE_TYPE = "HAIR"
     const val FACIAL_HAIR_PROFILE_TYPE = "FACIAL_HAIR"

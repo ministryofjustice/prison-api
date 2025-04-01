@@ -69,6 +69,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
+import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
@@ -1030,6 +1031,26 @@ public class OffenderResource {
             prisonerNumber,
             updateReligion,
             hmppsAuthenticationHolder.getUsername()
+        );
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "204", description = "The sexual orientation has been updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Update the prisoner's sexual orientation on the latest booking. Requires the PRISON_API__PRISONER_PROFILE__RW role.")
+    @PutMapping("/{offenderNo}/sexual-orientation")
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @ResponseStatus(NO_CONTENT)
+    @ProxyUser
+    public void updateSexualOrientation(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @RequestBody @NotNull @Valid final UpdateSexualOrientation updateSexualOrientation
+    ) {
+        prisonerProfileUpdateService.updateSexualOrientationOfLatestBooking(
+            prisonerNumber,
+            updateSexualOrientation
         );
     }
 
