@@ -63,13 +63,13 @@ public class AddressDto {
     @Schema(description = "Comment", example = "This is a comment text")
     private String comment;
 
-    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Primary Address", example = "true")
     private Boolean primary;
 
-    @Schema(requiredMode = REQUIRED, description = "Mail Address", example = "Y")
+    @Schema(requiredMode = REQUIRED, description = "Mail Address", example = "true")
     private Boolean mail;
 
-    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "N")
+    @Schema(requiredMode = REQUIRED, description = "No Fixed Address", example = "false")
     private Boolean noFixedAddress;
 
     @Schema(description = "Date Added", example = "2005-05-12")

@@ -28,10 +28,10 @@ public class OffenderRestriction {
     @Schema(description = "Restriction comment text")
     private String comment;
 
-    @Schema(requiredMode = REQUIRED, description = "code of restriction type")
+    @Schema(requiredMode = REQUIRED, description = "code of restriction type", example = "ACC")
     private String restrictionType;
 
-    @Schema(requiredMode = REQUIRED, description = "description of restriction type")
+    @Schema(requiredMode = REQUIRED, description = "description of restriction type", example = "Access Requirements")
     @NotBlank
     private String restrictionTypeDescription;
 
