@@ -750,7 +750,6 @@ class BookingResourceIntTest : ResourceTest() {
         String::class.java,
         "A1234AA",
       )
-      println(response)
       assertThatJsonFileAndStatus(response, 200, "offender_personal_care.json")
     }
   }

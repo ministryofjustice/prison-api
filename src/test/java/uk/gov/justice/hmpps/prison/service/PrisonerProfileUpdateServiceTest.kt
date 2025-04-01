@@ -607,7 +607,6 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `removes sexual orientation`() {
-      val otherNationalitiesProfileDetail: OffenderProfileDetail = mock()
       val profileDetails = mutableListOf(offenderProfileDetail)
 
       whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(PRISONER_NUMBER, SEXUAL_ORIENTATION_PROFILE_TYPE))

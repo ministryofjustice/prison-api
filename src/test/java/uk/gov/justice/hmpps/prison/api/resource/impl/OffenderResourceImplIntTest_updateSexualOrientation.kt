@@ -93,7 +93,7 @@ class OffenderResourceImplIntTest_updateSexualOrientation : ResourceTest() {
   open inner class HappyPath {
     @DisplayName("should update sexual orientation")
     @ParameterizedTest(name = "{0}")
-    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceImplIntTest_updateSmokerStatus#prisonersUnderTest")
+    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.OffenderResourceImplIntTest_updateSexualOrientation#prisonersUnderTest")
     @Transactional(readOnly = true)
     open fun `should update sexual orientation`(prisonerId: String, id: Long) {
       webTestClient.put()
