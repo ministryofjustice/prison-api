@@ -46,6 +46,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -79,6 +80,7 @@ class PrisonerProfileUpdateService(
   private val staffUserAccountRepository: StaffUserAccountRepository,
   private val offenderLanguageRepository: OffenderLanguageRepository,
   private val languageCodeRepository: ReferenceCodeRepository<LanguageReferenceCode>,
+  private val offenderIdentifierRepository: OffenderIdentifierRepository,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -286,6 +288,8 @@ class PrisonerProfileUpdateService(
         offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
           .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
           .also { it.offender = newAlias }
+
+        offenderIdentifierRepository.moveIdentifiersToNewAlias(oldWorkingName.id, newAlias.id)
       }
 
       return newAlias.toCorePersonRecordAlias(isWorkingName = request.isWorkingName)
