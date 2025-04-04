@@ -49,6 +49,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -74,6 +75,7 @@ class PrisonerProfileUpdateServiceTest {
   private val staffUserAccountRepository: StaffUserAccountRepository = mock()
   private val offenderLanguageRepository: OffenderLanguageRepository = mock()
   private val languageCodeRepository: ReferenceCodeRepository<LanguageReferenceCode> = mock()
+  private val offenderIdentifierRepository: OffenderIdentifierRepository = mock()
   private val offender: Offender = mock()
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
@@ -95,6 +97,7 @@ class PrisonerProfileUpdateServiceTest {
       staffUserAccountRepository,
       offenderLanguageRepository,
       languageCodeRepository,
+      offenderIdentifierRepository,
     )
 
   @Nested
@@ -1050,6 +1053,7 @@ class PrisonerProfileUpdateServiceTest {
         assertNewAliasSaved()
         assertThat(alias).isEqualTo(expectedResponse.copy(offenderId = NEW_OFFENDER_ID, isWorkingName = true))
         verify(booking).offender = aliasCaptor.firstValue
+        verify(offenderIdentifierRepository).moveIdentifiersToNewAlias(OFFENDER_ID, NEW_OFFENDER_ID)
       }
 
       @Test
