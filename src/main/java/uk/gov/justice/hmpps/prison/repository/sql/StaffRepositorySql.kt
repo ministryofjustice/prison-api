@@ -19,6 +19,24 @@ enum class StaffRepositorySql(val sql: String) {
     """,
   ),
 
+  FIND_STAFF_BY_STAFF_ID_IN(
+    """
+        SELECT SM.STAFF_ID,
+        SM.FIRST_NAME,
+        SM.LAST_NAME,
+        SM.STATUS,
+        SM.SEX_CODE GENDER,
+        SM.BIRTHDATE DATE_OF_BIRTH,
+        (SELECT TI.TAG_IMAGE_ID
+        FROM TAG_IMAGES TI
+        WHERE TI.IMAGE_OBJECT_ID = SM.STAFF_ID
+        AND TI.IMAGE_OBJECT_TYPE = 'STAFF'
+        AND TI.ACTIVE_FLAG = 'Y') THUMBNAIL_ID
+        FROM STAFF_MEMBERS SM
+        WHERE SM.STAFF_ID IN (:staffIds)
+    """,
+  ),
+
   FIND_STAFF_BY_PERSONNEL_IDENTIFIER(
     """
         SELECT SM.STAFF_ID,

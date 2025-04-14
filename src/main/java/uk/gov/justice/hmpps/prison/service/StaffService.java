@@ -61,6 +61,10 @@ public class StaffService {
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 
+    public List<StaffDetail> getStaffDetails(final List<Long> staffIds) {
+        return staffRepository.findByStaffIdIn(staffIds);
+    }
+
     public List<String> getStaffEmailAddresses(@NotNull final Long staffId) {
         checkStaffExists(staffId);
 

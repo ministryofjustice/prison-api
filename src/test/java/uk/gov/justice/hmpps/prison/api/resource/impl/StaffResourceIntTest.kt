@@ -29,6 +29,18 @@ class StaffResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `Find staff details by ids`() {
+      webTestClient.post()
+        .uri("/api/staff")
+        .bodyValue(listOf(-1, -2, -3))
+        .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(3)
+    }
+
+    @Test
     fun `Find staff member using staff id that does not exist`() {
       webTestClient.get()
         .uri("/api/staff/-9999")

@@ -54,6 +54,17 @@ public class StaffRepository extends RepositoryBase {
         return Optional.ofNullable(staffDetail).map(StaffDetailDto::toStaffDetail);
     }
 
+    public List<StaffDetail> findByStaffIdIn(final List<Long> staffIds) {
+        Validate.notEmpty(staffIds, "A staff id is required in order to retrieve staff details.");
+
+        final var sql = StaffRepositorySql.FIND_STAFF_BY_STAFF_ID_IN.getSql();
+
+        return jdbcTemplate.query(sql, createParams("staffIds", staffIds), STAFF_DETAIL_ROW_MAPPER)
+            .stream()
+            .map(StaffDetailDto::toStaffDetail)
+            .toList();
+    }
+
 
     public Optional<StaffDetail> findStaffByPersonnelIdentifier(final String idType, final String id) {
         Validate.notBlank(idType, "An id type is required.");
