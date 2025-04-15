@@ -13,6 +13,7 @@ generic-service:
 
   ingress:
     host: prison-api-dev.prison.service.justice.gov.uk
+    className: modsec-non-prod
 
   allowlist:
     groups:
