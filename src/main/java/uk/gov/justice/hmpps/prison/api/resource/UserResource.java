@@ -80,10 +80,11 @@ public class UserResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of locations accessible to current user.", description = "List of locations accessible to current user.")
+    @Operation(summary = "List of locations accessible to current user.", description = "Deprecated - Use /locations/prison/{prisonId}/residential-first-level instead in the locations-inside-prison-api", deprecated = true)
     @ProgrammaticAuthorisation("Returns information about the current user only")
     @GetMapping("/me/locations")
     @SlowReportQuery
+    @Deprecated(forRemoval = true)
     public List<Location> getMyLocations(
         @RequestParam(value = "include-non-residential-locations", required = false, defaultValue = "false") @Parameter(description = "Indicates non residential locations should be included") final boolean includeNonRes) {
         return locationService.getUserLocations(hmppsAuthenticationHolder.getUsername(), includeNonRes);
