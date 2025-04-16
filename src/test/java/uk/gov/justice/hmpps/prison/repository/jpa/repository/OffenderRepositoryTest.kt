@@ -117,7 +117,7 @@ class OffenderRepositoryTest {
       val aliases = repository.findByNomsId("A1234AL")
 
       assertThat(aliases).hasSize(2)
-      assertThat(aliases.map { it.offenderId }).containsExactlyInAnyOrder(-1012L, -1013L)
+      assertThat(aliases.map { it.offenderId }).containsExactly(-1013L, -1012L)
       assertThat(aliases.firstOrNull { it.offenderId == -1012L }?.isWorkingName).isTrue()
       assertThat(aliases.firstOrNull { it.offenderId == -1013L }?.isWorkingName).isFalse()
     }

@@ -71,6 +71,7 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
     LEFT JOIN Gender s ON s.code = o.gender.code
     LEFT JOIN Ethnicity e ON e.code = o.ethnicity.code
     WHERE o.nomsId = :nomsId
+    ORDER BY o.createDate DESC
     """,
   )
   fun findByNomsId(nomsId: String): List<CorePersonRecordAlias>
