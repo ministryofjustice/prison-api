@@ -32,7 +32,7 @@ class CopyPreviousBookingSPService(val copyBookData: CopyBookData) : CopyPreviou
       .addValue("p_old_book_id", previousBooking.bookingId)
       .addValue("p_new_book_id", booking.bookingId)
     copyBookData.execute(params).also {
-      it["p_return_text"]?.run { log.info("Copy booking data returned text: $this")}
+      it["p_return_text"]?.run { log.info("Copy booking data returned text: $this") }
     }
   }
 
