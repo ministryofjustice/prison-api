@@ -39,9 +39,6 @@ data class PrisonerSearchDetails(
   @Schema(description = "Prison ID", example = "MDI")
   val agencyId: String? = null,
 
-  @Schema(description = "List of alert details for the active booking")
-  val alerts: List<Alert>? = null,
-
   @Schema(description = "Cell or location of the prisoner")
   val assignedLivingUnit: AssignedLivingUnit? = null,
 
@@ -102,6 +99,9 @@ data class PrisonerSearchDetails(
   @Schema(description = "Last Movement time", example = "2024-12-01 12:23:34")
   val lastMovementTime: LocalDateTime? = null,
 
+  @Schema(description = "Time of transfer into the current or most recent prison", example = "2024-12-01 12:23:34")
+  val lastAdmissionTime: LocalDateTime? = null,
+
   @Schema(description = "Legal Status", example = "REMAND")
   val legalStatus: LegalStatus? = null,
 
@@ -117,7 +117,7 @@ data class PrisonerSearchDetails(
   @Schema(description = "The prisoner's convicted status", example = "Convicted")
   val convictedStatus: String? = null,
 
-  @Schema(description = "Date prisoner was received into the prison.", example = "1980-01-01")
+  @Schema(description = "Date prisoner was first received into prison in their current or most recent term.", example = "2023-01-01")
   val receptionDate: LocalDate? = null,
 
   @Schema(description = "current prison or outside with last movement information.", example = "Outside - released from Leeds")

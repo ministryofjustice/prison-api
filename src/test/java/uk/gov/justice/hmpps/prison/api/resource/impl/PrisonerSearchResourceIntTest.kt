@@ -5,11 +5,9 @@ import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
-import uk.gov.justice.hmpps.prison.api.model.Alert
 import uk.gov.justice.hmpps.prison.api.model.Email
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark
@@ -17,13 +15,9 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation
 import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
-import uk.gov.justice.hmpps.prison.service.InmateService
 import java.time.LocalDate
 
 class PrisonerSearchResourceIntTest : ResourceTest() {
-
-  @Autowired
-  private lateinit var inmateService: InmateService
 
   @Nested
   @DisplayName("GET /api/prisoner-search/offenders/{offenderNo}")
@@ -83,10 +77,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(lastName).isEqualTo("ANDERSON")
             assertThat(dateOfBirth).isEqualTo("1998-08-28")
             assertThat(agencyId).isEqualTo("LEI")
-            assertThat(alerts).extracting(Alert::getAlertId, Alert::getAlertType, Alert::getAlertCode).containsExactlyInAnyOrder(
-              tuple(1L, "H", "HA"),
-              tuple(2L, "X", "XTACT"),
-            )
             with(assignedLivingUnit!!) {
               assertThat(agencyId).isEqualTo("LEI")
               assertThat(locationId).isEqualTo(-19)
@@ -127,15 +117,16 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
+              assertThat(additionalDaysAwarded).isNull()
             }
-            assertThat(sentenceDetail?.additionalDaysAwarded).isNull()
             assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
             assertThat(status).isEqualTo("ACTIVE IN")
             assertThat(lastMovementTypeCode).isEqualTo("ADM")
             assertThat(lastMovementReasonCode).isEqualTo("24")
-            assertThat(lastMovementTime).isEqualTo("2018-10-01T17:00:00")
+            assertThat(lastMovementTime).isEqualTo("2018-10-01T17:00")
+            assertThat(lastAdmissionTime).isEqualTo("2018-10-02T11:00")
             assertThat(legalStatus).isEqualTo(LegalStatus.SENTENCED)
             assertThat(recall).isTrue()
             assertThat(imprisonmentStatus).isEqualTo("SENT")
@@ -360,18 +351,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               Email("prisoner@home.com"),
               Email("prisoner@backup.com"),
             )
-          }
-        }
-    }
-
-    @Test
-    fun `should return alerts in the same order as the Inmate Service`() {
-      val inmateServiceAlerts = inmateService.findOffender("A1179MT", true, false).alerts
-
-      webTestClient.getPrisonerSearchDetails("A1179MT")
-        .consumeWith { response ->
-          with(response.responseBody!!) {
-            assertThat(alerts).containsExactlyElementsOf(inmateServiceAlerts)
           }
         }
     }

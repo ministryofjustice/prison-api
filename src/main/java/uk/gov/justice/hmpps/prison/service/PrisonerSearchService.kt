@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
+import java.time.LocalDateTime
 import java.util.Optional
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as OffenderIdentifierModel
 
@@ -40,7 +41,6 @@ class PrisonerSearchService(
           lastName = it.lastName,
           dateOfBirth = it.dateOfBirth,
           agencyId = it.agencyId,
-          alerts = it.alerts?.sortedBy { it.alertId },
           assignedLivingUnit = it.assignedLivingUnit,
           religion = it.religion,
           physicalAttributes = it.physicalAttributes,
@@ -60,6 +60,7 @@ class PrisonerSearchService(
           lastMovementTypeCode = it.lastMovementTypeCode,
           lastMovementReasonCode = it.lastMovementReasonCode,
           lastMovementTime = findLastMovementTime(booking?.externalMovements, it.lastMovementTypeCode, it.lastMovementReasonCode),
+          lastAdmissionTime = findLastAdmissionTime(offender),
           legalStatus = it.legalStatus,
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
@@ -89,6 +90,15 @@ class PrisonerSearchService(
   }
     ?.maxByOrNull { em -> em.movementTime }
     ?.movementTime
+
+  private fun findLastAdmissionTime(offender: Offender): LocalDateTime? {
+    val lastPeriod = offender.getPrisonerInPrisonSummary().prisonPeriod.lastOrNull()
+    return if (lastPeriod == null) {
+      null
+    } else {
+      lastPeriod.transfers?.lastOrNull()?.dateInToPrison ?: lastPeriod.entryDate
+    }
+  }
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }
