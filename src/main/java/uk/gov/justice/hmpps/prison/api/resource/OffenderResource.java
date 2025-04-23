@@ -152,7 +152,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Full details about the current state of an offender. Requires GLOBAL_SEARCH, VIEW_PRISONER_DATA or a user token with valid offender access")
+    @Operation(summary = "Full details about the current state of an offender", description = "Requires GLOBAL_SEARCH, VIEW_PRISONER_DATA or a user token with valid offender access")
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
@@ -170,21 +170,21 @@ public class OffenderResource {
         summary = "Summary of the different periods this prisoner has been in prison.",
         description = """
             This is a summary of the different periods this prisoner has been in prison grouped by booking.
-                        
+
             It includes the dates of each period, the prison and the reason for the movement. Each booking is divided into periods of time spent in prison separated by periods when the were out either via a release or a temporary absence (periods at court are not included).
-                        
+
             The periods are ordered by date ascending, therefore the final period will be their last time in prison. For each period the prison admitted into and optionally released from will be listed. These can be different if there has been transfers in between the dates.
-                        
+
             Transfers are also listed separately.
-                        
-                        
+
+
             **Example response:**
             #### Booking 47828A
             Has 2 periods of temporary absence. In the second absence they return to a different prison. They are eventually released.
-                        
+
             #### Booking 47829A
             The person is still is prison but has been transferred to a 2nd prison.
-                        
+
             There are a number of transfers during this booking.
             ```
             {
@@ -294,7 +294,7 @@ public class OffenderResource {
               ]
             }
             ```
-                        
+
             """)
     @GetMapping("/{offenderNo}/prison-timeline")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
@@ -779,7 +779,7 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Military record created.", content = {}),
+        @ApiResponse(responseCode = "201", description = "Military record created."),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create military record for prisoner", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),

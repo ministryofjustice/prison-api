@@ -180,7 +180,7 @@ public class ScheduleResource {
         return schedulesService.getCountActivities(agencyId, fromDate, toDate, timeSlots, attendanceCounts);
     }
 
-    @Operation
+    @Operation(summary = "Requires role VIEW_ACTIVITIES")
     @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @PostMapping("/{agencyId}/appointments")
     @SlowReportQuery
