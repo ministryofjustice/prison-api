@@ -117,8 +117,8 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(nonDtoReleaseDateType).isEqualTo(NonDtoReleaseDateType.ARD)
               assertThat(confirmedReleaseDate).isEqualTo("2018-04-19") // TODO test where OFFENDER_RELEASE_DETAILS.RELEASE_DATE is null, this should be null and NOT default to AUTO_RELEASE_DATE
               assertThat(releaseDate).isEqualTo("2018-04-19")
-              assertThat(additionalDaysAwarded).isNull()
             }
+            assertThat(sentenceDetail?.additionalDaysAwarded).isNull()
             assertThat(mostSeriousOffence).isNull()
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
