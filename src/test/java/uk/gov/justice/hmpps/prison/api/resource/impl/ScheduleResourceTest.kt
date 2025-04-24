@@ -160,7 +160,8 @@ class ScheduleResourceTest : ResourceTest() {
             "locationDescription":"Medical Centre",
             "locationId":-29,
             "createUserId":"SA",
-            "agencyId":"LEI"
+            "agencyId":"LEI",
+            "eventStatus":"SCH"
           },
           {
             "id": -31,
@@ -175,7 +176,8 @@ class ScheduleResourceTest : ResourceTest() {
             "locationDescription":"Visiting Room",
             "locationId":-28,
             "createUserId":"SA",
-            "agencyId":"LEI"
+            "agencyId":"LEI",
+            "eventStatus":"SCH"
           },
           {
             "id":-33,
@@ -190,7 +192,8 @@ class ScheduleResourceTest : ResourceTest() {
             "locationDescription":"Visiting Room",
             "locationId":-28,
             "createUserId":"SA",
-            "agencyId":"LEI"
+            "agencyId":"LEI",
+            "eventStatus":"CANC"
           }
         ]
           """.trimIndent(),
