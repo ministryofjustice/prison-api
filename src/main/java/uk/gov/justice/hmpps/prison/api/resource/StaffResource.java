@@ -52,6 +52,7 @@ public class StaffResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Retrieve details for multiple staff members using ids.", description = "Client should have ROLE_STAFF_SEARCH to make use of this endpoint.")
     @VerifyStaffAccess(overrideRoles = {"STAFF_SEARCH"})
     @PostMapping
     public List<StaffDetail> getStaffDetails(@RequestBody @NotEmpty List<Long> staffIds) {
