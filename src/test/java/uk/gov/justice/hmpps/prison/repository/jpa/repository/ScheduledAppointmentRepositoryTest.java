@@ -27,7 +27,8 @@ public class ScheduledAppointmentRepositoryTest {
         final var date = LocalDate.of(2017, 1, 2);
         final var appointments = scheduledAppointmentRepository.findByAgencyIdAndEventDateAndLocationId("LEI", date, -28L);
 
-        final var scheduledAppointment = ScheduledAppointment
+        assertThat(appointments).containsExactly(
+            ScheduledAppointment
                 .builder()
                 .eventId(-31L)
                 .offenderNo("A1234AB")
@@ -42,9 +43,26 @@ public class ScheduledAppointmentRepositoryTest {
                 .locationId(-28L)
                 .agencyId("LEI")
                 .createUserId("SA")
-                .build();
-
-        assertThat(appointments).containsOnly(scheduledAppointment);
+                .eventStatus("SCH")
+                .build(),
+            ScheduledAppointment
+                .builder()
+                .eventId(-33L)
+                .offenderNo("A1234AB")
+                .firstName("GILLIAN")
+                .lastName("ANDERSON")
+                .eventDate(date)
+                .startTime(LocalDateTime.parse("2017-01-02T19:30"))
+                .endTime(LocalDateTime.parse("2017-01-02T20:30"))
+                .appointmentTypeDescription("Medical - Dentist")
+                .appointmentTypeCode("MEDE")
+                .locationDescription("Visiting Room")
+                .locationId(-28L)
+                .agencyId("LEI")
+                .createUserId("SA")
+                .eventStatus("CANC")
+                .build()
+            );
     }
 
     @Test
@@ -55,7 +73,7 @@ public class ScheduledAppointmentRepositoryTest {
         assertThat(appointments).containsExactly(
                 ScheduledAppointment
                         .builder()
-                        .eventId(-31L)
+                        .eventId(-30L)
                         .offenderNo("A1234AB")
                         .firstName("GILLIAN")
                         .lastName("ANDERSON")
@@ -68,6 +86,7 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-29L)
                         .agencyId("LEI")
                         .createUserId("SA")
+                        .eventStatus("SCH")
                         .build(),
                 ScheduledAppointment
                         .builder()
@@ -84,6 +103,7 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-28L)
                         .agencyId("LEI")
                         .createUserId("SA")
+                        .eventStatus("SCH")
                         .build(),
                 ScheduledAppointment
                         .builder()
@@ -100,6 +120,7 @@ public class ScheduledAppointmentRepositoryTest {
                         .locationId(-28L)
                         .agencyId("LEI")
                         .createUserId("SA")
+                        .eventStatus("CANC")
                         .build()
         );
     }

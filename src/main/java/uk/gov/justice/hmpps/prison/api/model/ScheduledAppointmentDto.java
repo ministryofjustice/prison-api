@@ -55,6 +55,9 @@ public class ScheduledAppointmentDto {
 
     @Schema(description = "Agency the appointment belongs to")
     private String agencyId;
+
+    @Schema(description = "The event status for this appointment, one of SCH (scheduled), COMP (completed), EXP (expired) or CANC (cancelled)")
+    private String eventStatus;
 }
 
 
