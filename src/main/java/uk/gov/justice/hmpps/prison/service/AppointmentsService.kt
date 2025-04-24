@@ -356,6 +356,7 @@ class AppointmentsService(
           .locationId(scheduledAppointment.locationId)
           .createUserId(scheduledAppointment.createUserId)
           .agencyId(scheduledAppointment.agencyId)
+          .eventStatus(scheduledAppointment.eventStatus)
           .build()
       }
 
