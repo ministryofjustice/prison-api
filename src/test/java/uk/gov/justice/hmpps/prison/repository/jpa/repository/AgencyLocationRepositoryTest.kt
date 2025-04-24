@@ -40,7 +40,7 @@ class AgencyLocationRepositoryTest {
       .active(false)
       .build()
     val agencies = repository.findAll(expected)
-    assertThat(agencies).extracting("id").containsExactlyInAnyOrder("ZZGHI")
+    assertThat(agencies).extracting("id").containsExactlyInAnyOrder("ZZGHI", "*ALL*")
   }
 
   @Test
