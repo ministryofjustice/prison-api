@@ -64,5 +64,11 @@
     "description": "Ghost",
     "agencyType": "INST",
     "active": false
+  },
+  {
+    "agencyId": "*ALL*",
+    "description": "Dummy Entry For Service Switching",
+    "agencyType": "INST",
+    "active": false
   }
 ]

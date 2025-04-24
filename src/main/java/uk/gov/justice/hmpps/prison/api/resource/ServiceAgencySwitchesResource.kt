@@ -18,6 +18,7 @@ import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.PrisonDetails
+import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.ServiceAgencySwitchesService
 
 @RestController
@@ -31,7 +32,13 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "404", description = "The service code does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "Retrieve a list of prisons switched on for the service code")
+  @Operation(
+    summary = "Retrieve a list of prisons switched on for the service code",
+    description = """Returns a list of prisons switched on for the service code.
+      A special prisonId of `*ALL*` is used to designate that the service is switched on for all prisons.
+      Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO.
+    """,
+  )
   @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
   @GetMapping("/{serviceCode}")
   fun getServicePrisons(
@@ -39,6 +46,35 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
   ): List<PrisonDetails> = service.getServicePrisons(serviceCode)
+
+  @ApiResponses(
+    ApiResponse(responseCode = "204", description = "Service is switched on for the service code and prison id."),
+    ApiResponse(responseCode = "401", description = "A valid auth token was not presented", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "403", description = "The auth token does not have the necessary role", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "404", description = "The service code does not exist or the service is not switched on for the prison.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+  )
+  @Operation(
+    summary = "Returns if the service is switched on for the specified service code / prison id.",
+    description = """Returns 204 if the service is switched on for the service code / prison id combination.
+    If the service is not switched on then 404 is returned.
+    This endpoint also takes into account the special `*ALL*` prison id - if the service code has a prison entry of
+    `*ALL*` then the service is deemed to be switched on for all prisons and will therefore return 204 irrespective of the
+    prison id that is passed in.
+    Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO.
+  """,
+  )
+  @PreAuthorize("hasAnyRole('PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
+  @GetMapping("/{serviceCode}/prison/{prisonId}")
+  @ResponseStatus(HttpStatus.NO_CONTENT)
+  fun checkServicePrison(
+    @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table", example = "ACTIVITY") @PathVariable serviceCode: String,
+    @Parameter(description = "The id of the prison", example = "MDI") @PathVariable prisonId: String,
+  ) {
+    if (!service.checkServiceSwitchedOnForPrison(serviceCode, prisonId)) {
+      throw EntityNotFoundException("Service $serviceCode not turned on for prison $prisonId")
+    }
+  }
 
   @ApiResponses(
     ApiResponse(responseCode = "201", description = "Created"),
