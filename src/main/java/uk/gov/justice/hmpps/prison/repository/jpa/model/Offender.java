@@ -454,7 +454,7 @@ public class Offender extends AuditableEntity {
 
     private void outward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateOutOfPrison(m.getMovementTime());
-        md.setReasonOutOfPrison(m.getMovementReason().getDescription());
+        md.setReasonOutOfPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
         md.setOutwardType(m.getMovementType().getCode());
         md.setReleaseFromPrisonId(Optional.ofNullable(m.getFromAgency()).map(AgencyLocation::getId).orElse(null));
     }
