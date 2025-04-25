@@ -6,5 +6,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity
 
 interface ExternalServiceRepository : CrudRepository<ExternalServiceEntity, String> {
   fun existsByServiceNameAndServiceAgencySwitchesIdAgencyLocationIdIn(serviceName: String, prisonIds: Collection<String>): Boolean
-  fun existsByServiceNameAndServiceAgencySwitchesIdAgencyLocationId(serviceName: String, prisonId: String): Boolean = existsByServiceNameAndServiceAgencySwitchesIdAgencyLocationIdIn(serviceName, setOf(prisonId, ALL_PRISONS))
+  fun checkServicePrisonAndAll(serviceName: String, prisonId: String): Boolean = existsByServiceNameAndServiceAgencySwitchesIdAgencyLocationIdIn(serviceName, setOf(prisonId, ALL_PRISONS))
 }
