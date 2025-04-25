@@ -389,7 +389,7 @@ public class Offender extends AuditableEntity {
                     .builder()
                     .dateOutOfPrison(transfer.getMovementTime())
                     .dateInToPrison(admission.map(ExternalMovement::getMovementTime).orElse(null))
-                    .transferReason(transfer.getMovementReason().getDescription())
+                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(admission.map(ExternalMovement::getToAgency).map(AgencyLocation::getId).orElse(null))
                     .build();
@@ -401,7 +401,7 @@ public class Offender extends AuditableEntity {
                     .builder()
                     .dateOutOfPrison(courtOrTapMovement.map(ExternalMovement::getMovementTime).orElse(null))
                     .dateInToPrison(transfer.getMovementTime())
-                    .transferReason(transfer.getMovementReason().getDescription())
+                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(Optional.ofNullable(transfer.getToAgency()).map(AgencyLocation::getId).orElse(null))
                     .build();
@@ -461,7 +461,7 @@ public class Offender extends AuditableEntity {
 
     private void inward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateInToPrison(m.getMovementTime());
-        md.setReasonInToPrison(m.getMovementReason().getDescription());
+        md.setReasonInToPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
         md.setInwardType(m.getMovementType().getCode());
         md.setAdmittedIntoPrisonId(Optional.ofNullable(m.getToAgency()).map(AgencyLocation::getId).orElse(null));
     }
