@@ -446,7 +446,7 @@ public class Offender extends AuditableEntity {
 
     private List<String> getAdmissionPrisons(List<ExternalMovement> externalMovements) {
         return externalMovements.stream()
-            .filter(m -> m.getMovementType().getCode().equals("ADM"))
+            .filter(m -> m.getMovementType().getCode().equals("ADM") && m.getToAgency() != null)
             .map(m -> m.getToAgency().getId())
             .distinct()
             .toList();
