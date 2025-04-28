@@ -1,6 +1,6 @@
 version: 2.1
 orbs:
-  hmpps: ministryofjustice/hmpps@10
+  hmpps: ministryofjustice/hmpps@11
 executor: &executor
   executor:
     name: hmpps/java
