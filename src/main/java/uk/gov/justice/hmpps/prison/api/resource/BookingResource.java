@@ -506,7 +506,8 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
+    @Operation(description = "Use /{bookingId}/personal-care-needs/{domain} to get Personal Care Needs",
+        deprecated = true, hidden = true)
     @GetMapping("/{bookingId}/personal-care-needs")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PersonalCareNeeds getPersonalCareNeeds(
@@ -514,6 +515,24 @@ public class BookingResource {
         @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
     ) {
         return healthService.getPersonalCareNeeds(bookingId, problemTypes);
+    }
+
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
+    @GetMapping("/{bookingId}/personal-care-needs/{domain}")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public PersonalCareNeeds getPersonalCareNeedsByDomain(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain
+    ) {
+        List<ReferenceCode> problemTypes = referenceDomainService.getReferenceCodesByDomain(domain);
+        List<String> problemTypesString = problemTypes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+        return healthService.getPersonalCareNeeds(bookingId, problemTypesString);
     }
 
     @ApiResponses({
@@ -576,12 +595,14 @@ public class BookingResource {
         return offenderMilitaryRecordService.getMilitaryRecords(bookingId);
     }
 
+    @Deprecated()
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
+    @Operation(description = "Use /{bookingId}/reasonable-adjustments/{domain} to get Reasonable Adjustments",
+    deprecated = true, hidden = true)
     @Tag(name = "integration-api")
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA","PRISON_API__HMPPS_INTEGRATION_API"})
