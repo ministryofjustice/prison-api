@@ -98,6 +98,16 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     @Test
+    fun personalCareNeedsByDomain() {
+      val bookingId = -1
+      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(listOf(createPersonalCareNeeds()))
+      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs/HEALTH", GET, requestEntity, String::class.java)
+      assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds.json")
+      verify(inmateRepository).findPersonalCareNeeds(bookingId.toLong(), setOf("DISAB", "MATSTAT"))
+    }
+
+    @Test
     fun personalCareNeeds_missingProblemType() {
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
       val responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs", GET, requestEntity, String::class.java)
@@ -274,6 +284,22 @@ class BookingResourceImplIntTest : ResourceTest() {
     )
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/bookings/-1/reasonable-adjustments?type=WHEELCHR_ACC&type=PEEP", GET, requestEntity, String::class.java)
+    assertThatJsonFileAndStatus(responseEntity, 200, "reasonableadjustment.json")
+    verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodes)
+  }
+
+  @Test
+  fun reasonableAdjustmentByDomain() {
+    val bookingId = -1
+    val treatmentCodes = listOf("WHEELCHR_ACC", "PEEP")
+    `when`(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodes)).thenReturn(
+      listOf(
+        ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Wheelchair accessibility", -202L),
+        ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Some other description", -202L),
+      ),
+    )
+    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/reasonable-adjustments/HEALTH_TREAT", GET, requestEntity, String::class.java)
     assertThatJsonFileAndStatus(responseEntity, 200, "reasonableadjustment.json")
     verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodes)
   }

@@ -1455,6 +1455,14 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH when client calls Reasonable Adjustments By Domain`() {
+      webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments/HEALTH_TREAT")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
+
+    @Test
     fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
       webTestClient.get().uri("/api/bookings/-3/reasonable-adjustments?type=WHEELCHR_ACC&type=PEEP")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
