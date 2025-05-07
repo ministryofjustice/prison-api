@@ -14,6 +14,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustment
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.InmateRepository
@@ -36,9 +37,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
+import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
+import java.util.stream.Collectors
 
 class BookingResourceImplIntTest : ResourceTest() {
   @MockitoBean
@@ -52,6 +55,9 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var offenderMilitaryRecordRepository: OffenderMilitaryRecordRepository
+
+  @MockitoBean
+  private lateinit var referenceDomainService: ReferenceDomainService
 
   @DisplayName("GET /api/bookings/{bookingId}/personal-care-needs")
   @Nested
@@ -100,11 +106,68 @@ class BookingResourceImplIntTest : ResourceTest() {
     @Test
     fun personalCareNeedsByDomain() {
       val bookingId = -1
-      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(listOf(createPersonalCareNeeds()))
+      val referenceCodesByDomain: List<ReferenceCode> = listOf(
+        ReferenceCode.builder().code("DISAB").domain("domain").description("Description 1").activeFlag("Y").build(),
+        ReferenceCode.builder().code("MATSTAT").domain("domain").description("Description 2").activeFlag("Y").build(),
+      )
+      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH")).thenReturn(referenceCodesByDomain)
+      referenceCodesByDomain.stream().map<String?> { obj: ReferenceCode? -> obj!!.code }
+        .collect(Collectors.toList())
+      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(
+        listOf(createPersonalCareNeeds()),
+      )
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs/HEALTH", GET, requestEntity, String::class.java)
+      val responseEntity =
+        testRestTemplate.exchange("/api/bookings/-1/personal-care-needs/HEALTH", GET, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds.json")
       verify(inmateRepository).findPersonalCareNeeds(bookingId.toLong(), setOf("DISAB", "MATSTAT"))
+    }
+
+    @Test
+    fun reasonableAdjustmentByDomain() {
+      val bookingId = -1
+      val referenceCodesByDomain: List<ReferenceCode> = listOf(
+        ReferenceCode.builder().code("WHEELCHR_ACC").domain("domain").description("Description 1").activeFlag("Y")
+          .build(),
+        ReferenceCode.builder().code("PEEP").domain("domain").description("Description 2").activeFlag("Y").build(),
+      )
+      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH_TREAT")).thenReturn(referenceCodesByDomain)
+      val treatmentCodeStrings: MutableList<String?> =
+        referenceCodesByDomain.stream().map<String?> { obj: ReferenceCode? -> obj!!.code }
+          .collect(Collectors.toList())
+      `when`(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodeStrings)).thenReturn(
+        listOf(
+          ReasonableAdjustment(
+            "WHEELCHR_ACC",
+            "abcd",
+            LocalDate.of(2010, 6, 21),
+            null,
+            "LEI",
+            "Leeds (HMP)",
+            "Wheelchair accessibility",
+            -202L,
+          ),
+          ReasonableAdjustment(
+            "PEEP",
+            "efgh",
+            LocalDate.of(2010, 6, 21),
+            null,
+            "LEI",
+            "Leeds (HMP)",
+            "Some other description",
+            -202L,
+          ),
+        ),
+      )
+      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
+      val responseEntity = testRestTemplate.exchange(
+        "/api/bookings/-1/reasonable-adjustments/HEALTH_TREAT",
+        GET,
+        requestEntity,
+        String::class.java,
+      )
+      assertThatJsonFileAndStatus(responseEntity, 200, "reasonableadjustment.json")
+      verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodeStrings)
     }
 
     @Test
@@ -284,22 +347,6 @@ class BookingResourceImplIntTest : ResourceTest() {
     )
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/bookings/-1/reasonable-adjustments?type=WHEELCHR_ACC&type=PEEP", GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "reasonableadjustment.json")
-    verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodes)
-  }
-
-  @Test
-  fun reasonableAdjustmentByDomain() {
-    val bookingId = -1
-    val treatmentCodes = listOf("WHEELCHR_ACC", "PEEP")
-    `when`(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodes)).thenReturn(
-      listOf(
-        ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Wheelchair accessibility", -202L),
-        ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Some other description", -202L),
-      ),
-    )
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/reasonable-adjustments/HEALTH_TREAT", GET, requestEntity, String::class.java)
     assertThatJsonFileAndStatus(responseEntity, 200, "reasonableadjustment.json")
     verify(inmateRepository).findReasonableAdjustments(bookingId.toLong(), treatmentCodes)
   }
