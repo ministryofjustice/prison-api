@@ -109,9 +109,9 @@
       "problemCode": "ND",
       "problemStatus": "ON",
       "problemDescription": "No Disability",
-      "commentText": null,
+      "commentText": "Comment",
       "startDate": "2010-06-22",
-      "endDate": null
+      "endDate": "2110-06-22"
     }
   ],
   "sentenceDetail": {
