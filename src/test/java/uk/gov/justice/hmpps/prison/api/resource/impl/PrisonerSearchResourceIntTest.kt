@@ -163,7 +163,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                 type = "PREF_SPEAK",
                 code = "POL",
                 readSkill = "N",
-                writeSkill = "N",
+                writeSkill = null,
                 speakSkill = "N",
                 interpreterRequested = false,
               ),

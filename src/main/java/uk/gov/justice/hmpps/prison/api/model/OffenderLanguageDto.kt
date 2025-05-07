@@ -18,11 +18,11 @@ data class OffenderLanguageDto(
     |R	Refused""",
     allowableValues = ["Y", "N", "A", "D", "G", "P", "R"],
   )
-  val readSkill: String,
+  val readSkill: String?,
   @Schema(description = "The level of writing skill, see description for readSkill")
-  val writeSkill: String,
+  val writeSkill: String?,
   @Schema(description = "The level of speaking skill, see description for readSkill")
-  val speakSkill: String,
+  val speakSkill: String?,
   @Schema(description = "Whether interpreter requested")
   val interpreterRequested: Boolean,
 )
