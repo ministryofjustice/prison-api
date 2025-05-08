@@ -92,7 +92,7 @@ public class ImageResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(
         summary = "Upload a new image for a prisoner.",
-        description = "Requires PRISON_API__PRISONER_PROFILE__RW. Additionally creates a thumbnail and scales the image to 427 x 570 (3:4)."
+        description = "Requires PRISON_API__PRISONER_PROFILE__RW. Additionally scales the image to 480 x 600 and creates a thumbnail 240 x 300 (4:5 aspect ratio)."
     )
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @PostMapping(value = "/offenders/{offenderNo}",
