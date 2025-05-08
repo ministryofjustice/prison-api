@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service
 
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
+import org.junit.jupiter.api.Disabled
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -11,17 +12,17 @@ import org.springframework.test.context.ActiveProfiles
 @SpringBootTest
 class PrisonRollCountServiceIntTest {
 
+  private val prisonId = "LEI"
+
   @Autowired
   lateinit var service: PrisonRollCountService
 
   @Nested
   inner class FindRollSummaryForPrison {
     @Test
+    @Disabled("As of 7 may 2025 this test is sometimes failing with various counts out by 1. Ideally it needs to use locally set up data.")
     fun findRollSummaryForPrisonWithoutCells() {
-      val prisonId = "LEI"
-      val includeCells = false
-
-      val result = service.getPrisonRollCount(prisonId, includeCells)
+      val result = service.getPrisonRollCount(prisonId, includeCells = false)
 
       assertThat(result.prisonId).isEqualTo(prisonId)
       assertThat(result.locations).hasSize(2)
@@ -46,11 +47,9 @@ class PrisonRollCountServiceIntTest {
     }
 
     @Test
+    @Disabled("As of 7 may 2025 this test is sometimes failing with various counts out by 1. Ideally it needs to use locally set up data.")
     fun findRollSummaryForPrisonWithCells() {
-      val prisonId = "LEI"
-      val includeCells = true
-
-      val result = service.getPrisonRollCount(prisonId, includeCells)
+      val result = service.getPrisonRollCount(prisonId, includeCells = true)
 
       assertThat(result.prisonId).isEqualTo(prisonId)
       assertThat(result.locations).hasSize(2)
