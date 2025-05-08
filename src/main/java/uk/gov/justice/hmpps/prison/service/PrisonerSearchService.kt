@@ -3,12 +3,14 @@ package uk.gov.justice.hmpps.prison.service
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.LocalDateTime
@@ -21,6 +23,8 @@ class PrisonerSearchService(
   private val offenderRepository: OffenderRepository,
   private val offenderTransformer: OffenderTransformer,
   private val inmateService: InmateService,
+  private val healthService: HealthService,
+  private val offenderLanguageRepository: OffenderLanguageRepository,
 ) {
 
   @Transactional
@@ -76,9 +80,26 @@ class PrisonerSearchService(
           phones = offender.rootOffender.phones.map(AddressTransformer::translate),
           emailAddresses = offender.rootOffender.emailAddresses.map(AddressTransformer::translate),
           allConvictedOffences = it.offenceHistory,
+          personalCareNeeds = it.personalCareNeeds,
+          languages = findLanguages(it.bookingId),
         )
       }
   }
+
+  private fun findLanguages(bookingId: Long?): List<OffenderLanguageDto>? = bookingId
+    ?.let {
+      offenderLanguageRepository.findByOffenderBookId(bookingId)
+        .map {
+          OffenderLanguageDto(
+            type = it.type,
+            code = it.code,
+            readSkill = it.readSkill,
+            writeSkill = it.writeSkill,
+            speakSkill = it.speakSkill,
+            interpreterRequested = it.interpreterRequestedFlag == "Y",
+          )
+        }
+    }
 
   private fun findLastMovementTime(
     externalMovements: List<ExternalMovement>?,
@@ -111,6 +132,10 @@ class PrisonerSearchService(
         csra = it.firstOrNull { it.isCellSharingAlertFlag }?.classification
         categoryCode = it.firstOrNull { "CATEGORY" == it.assessmentCode }?.classificationCode
       }
+      personalCareNeeds = healthService.getPersonalCareNeeds(
+        bookingId,
+        listOf("DISAB", "MATSTAT", "PHY", "PSYCH", "SC"),
+      ).getPersonalCareNeeds()
     }
     ?: let { offenderTransformer.transformWithoutBooking(offender) }
 

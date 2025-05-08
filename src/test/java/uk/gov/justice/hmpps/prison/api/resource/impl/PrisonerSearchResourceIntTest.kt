@@ -10,6 +10,8 @@ import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Email
 import uk.gov.justice.hmpps.prison.api.model.LegalStatus
+import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
+import uk.gov.justice.hmpps.prison.api.model.PersonalCareNeed
 import uk.gov.justice.hmpps.prison.api.model.PhysicalMark
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation
@@ -135,6 +137,45 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(receptionDate).isEqualTo(LocalDate.now().toString())
             assertThat(locationDescription).isEqualTo("Leeds")
             assertThat(latestLocationId).isEqualTo("LEI")
+            assertThat(personalCareNeeds).containsExactly(
+              PersonalCareNeed(
+                -202L,
+                "DISAB",
+                "ND",
+                "ON",
+                "No Disability",
+                "Comment",
+                LocalDate.parse("2010-06-22"),
+                LocalDate.parse("2110-06-22"),
+                null,
+              ),
+            )
+            assertThat(languages).containsExactly(
+              OffenderLanguageDto(
+                type = "PRIM",
+                code = "ENG",
+                readSkill = "P",
+                writeSkill = "P",
+                speakSkill = "P",
+                interpreterRequested = false,
+              ),
+              OffenderLanguageDto(
+                type = "PREF_SPEAK",
+                code = "POL",
+                readSkill = "N",
+                writeSkill = null,
+                speakSkill = "N",
+                interpreterRequested = false,
+              ),
+              OffenderLanguageDto(
+                type = "PREF_WRITE",
+                code = "POL",
+                readSkill = "N",
+                writeSkill = "N",
+                speakSkill = "N",
+                interpreterRequested = true,
+              ),
+            )
           }
         }
     }
