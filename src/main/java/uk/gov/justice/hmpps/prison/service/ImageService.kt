@@ -42,11 +42,11 @@ class ImageService(
 
   @Transactional
   fun putImageForOffender(offenderNumber: String, receivedImage: InputStream): ImageDetail {
-    // Uses a 4:3 aspect ratio - will distort square photos! Compact cameras and phones use 4:3 for portrait.
-    val fullWidth = 427
-    val fullHeight = 570
-    val thumbWidth = 150
-    val thumbHeight = 200
+    // Uses a 4:5 aspect ratio - will distort square photos!
+    val fullWidth = 480
+    val fullHeight = 600
+    val thumbWidth = 240
+    val thumbHeight = 300
     val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(offenderNumber)
       ?: throw EntityNotFoundException.withMessage("There are no bookings for $offenderNumber")
 
