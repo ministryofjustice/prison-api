@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier.OffenderIdentifierPK;
 
 import java.util.List;
+import java.util.Optional;
 
 @Repository
 public interface OffenderIdentifierRepository extends CrudRepository<OffenderIdentifier, OffenderIdentifierPK> {
@@ -23,4 +24,11 @@ public interface OffenderIdentifierRepository extends CrudRepository<OffenderIde
     List<OffenderIdentifier> findOffenderIdentifiersByOffender_NomsId(final String NomsId);
 
     List<OffenderIdentifier> findByIdentifierTypeAndIdentifier(final String type, final String id);
+
+    @Query("""
+        select oi from OffenderIdentifier oi
+        where oi.offender.nomsId = :prisonerNumber
+        and oi.offenderIdentifierPK.offenderIdSeq = :offenderIdSeq
+    """)
+    Optional<OffenderIdentifier> findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(final String prisonerNumber, final Long offenderIdSeq);
 }
