@@ -109,7 +109,7 @@ class OffenderIdentityServiceTest {
   @Test
   fun `getOffenderIdentifier returns a single identifier`() {
     whenever(
-      offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(
+      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
         eq("ABC123"),
         eq(1L),
       ),
@@ -124,7 +124,7 @@ class OffenderIdentityServiceTest {
   @Test
   fun `getOffenderIdentifier throws exception when identifier not found`() {
     whenever(
-      offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(
+      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
         any(),
         anyLong(),
       ),
@@ -166,7 +166,7 @@ class OffenderIdentityServiceTest {
   @Test
   fun `updateOffenderIdentifier updates an existing identifier`() {
     whenever(
-      offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(
+      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
         eq("ABC123"),
         eq(1L),
       ),
@@ -184,7 +184,7 @@ class OffenderIdentityServiceTest {
   @Test
   fun `updateOffenderIdentifier throws exception when identifier not found`() {
     whenever(
-      offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(
+      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
         any(),
         anyLong(),
       ),

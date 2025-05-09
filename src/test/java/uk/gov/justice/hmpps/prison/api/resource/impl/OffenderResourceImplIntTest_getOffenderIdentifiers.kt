@@ -73,7 +73,7 @@ class OffenderResourceImplIntTest_getOffenderIdentifiers : ResourceTest() {
   }
 
   private fun stubRepositoryCallForGetIdentifier() {
-    whenever(offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(anyString(), anyLong())).thenReturn(
+    whenever(offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(anyString(), anyLong())).thenReturn(
       Optional.of(
         JpaOffenderIdentifier.builder()
           .offenderIdentifierPK(OffenderIdentifierPK(1L, 1L))
@@ -131,7 +131,7 @@ class OffenderResourceImplIntTest_getOffenderIdentifiers : ResourceTest() {
   }
 
   private fun stubRepositoryCallForUpdateIdentifier() {
-    whenever(offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(anyString(), anyLong())).thenReturn(
+    whenever(offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(anyString(), anyLong())).thenReturn(
       Optional.of(
         JpaOffenderIdentifier.builder()
           .offenderIdentifierPK(OffenderIdentifierPK(1L, 1L))
