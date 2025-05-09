@@ -104,13 +104,13 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun personalCareNeedsByDomain() {
+    fun getAllpersonalCareNeeds() {
       val bookingId = -1
       val referenceCodesByDomain: List<ReferenceCode> = listOf(
         ReferenceCode.builder().code("DISAB").domain("domain").description("Description 1").activeFlag("Y").build(),
         ReferenceCode.builder().code("MATSTAT").domain("domain").description("Description 2").activeFlag("Y").build(),
       )
-      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH")).thenReturn(referenceCodesByDomain)
+      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH_PBLM")).thenReturn(referenceCodesByDomain)
       referenceCodesByDomain.stream().map<String?> { obj: ReferenceCode? -> obj!!.code }
         .collect(Collectors.toList())
       `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(
@@ -124,7 +124,7 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun reasonableAdjustmentByDomain() {
+    fun getAllReasonableAdjustments() {
       val bookingId = -1
       val referenceCodesByDomain: List<ReferenceCode> = listOf(
         ReferenceCode.builder().code("WHEELCHR_ACC").domain("domain").description("Description 1").activeFlag("Y")
