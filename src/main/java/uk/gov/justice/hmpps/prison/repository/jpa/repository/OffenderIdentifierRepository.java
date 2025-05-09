@@ -30,5 +30,5 @@ public interface OffenderIdentifierRepository extends CrudRepository<OffenderIde
         where oi.offender.nomsId = :prisonerNumber
         and oi.offenderIdentifierPK.offenderIdSeq = :offenderIdSeq
     """)
-    Optional<OffenderIdentifier> findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(final String prisonerNumber, final Long offenderIdSeq);
+    Optional<OffenderIdentifier> findByPrisonerNumberAndOffenderIdSeq(final String prisonerNumber, final Long offenderIdSeq);
 }

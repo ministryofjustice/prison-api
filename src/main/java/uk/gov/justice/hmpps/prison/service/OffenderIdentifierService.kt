@@ -18,7 +18,7 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
   }
 
   fun getOffenderIdentifier(prisonerNumber: String, offenderIdSeq: Long): Identifier {
-    val offenderIdentifier = offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(prisonerNumber, offenderIdSeq)
+    val offenderIdentifier = offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(prisonerNumber, offenderIdSeq)
       .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for prisoner $prisonerNumber with sequence $offenderIdSeq not found") }
     return transformOffenderIdentifier(offenderIdentifier)
   }
@@ -51,7 +51,7 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
 
   @Transactional
   fun updateOffenderIdentifier(prisonerNumber: String, offenderIdSeq: Long, offenderIdentifierRequest: OffenderIdentifierUpdateRequest) {
-    val offenderIdentifier = offenderIdentifierRepository.findByOffender_NomsIdAndOffenderIdentifierPK_OffenderIdSeq(prisonerNumber, offenderIdSeq)
+    val offenderIdentifier = offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(prisonerNumber, offenderIdSeq)
       .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for prisoner $prisonerNumber with sequence $offenderIdSeq not found") }
 
     val existingIdentifiers = offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(prisonerNumber)

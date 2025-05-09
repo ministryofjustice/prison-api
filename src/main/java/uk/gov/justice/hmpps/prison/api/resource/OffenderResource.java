@@ -987,7 +987,6 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Prisoner not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @VerifyOffenderAccess
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @Operation(summary = "Add identifiers for the prisoner")
     @PostMapping("/{offenderNo}/offender-identifiers")
@@ -1006,7 +1005,6 @@ public class OffenderResource {
         @ApiResponse(responseCode = "404", description = "Identifier not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
-    @VerifyOffenderAccess
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @Operation(summary = "Update an existing identifier for the prisoner")
     @PutMapping("/{offenderNo}/offender-identifiers/{offenderIdSeq}")
