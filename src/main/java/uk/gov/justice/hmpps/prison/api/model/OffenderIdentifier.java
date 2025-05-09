@@ -54,4 +54,7 @@ public class OffenderIdentifier {
 
     @Schema(description = "Root Offender ID", example = "654321")
     private Long rootOffenderId;
+
+    @Schema(description = "Identifier sequence", example = "123456")
+    private Long offenderIdSeq;
 }

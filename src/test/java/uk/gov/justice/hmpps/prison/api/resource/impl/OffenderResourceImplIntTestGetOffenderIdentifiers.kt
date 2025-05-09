@@ -7,15 +7,11 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
-import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff
-import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
 import java.time.LocalDate
 import java.time.LocalDateTime
 
 class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
-  private val staffUserAccount = StaffUserAccount.builder().username("johnsmith").staff(Staff.builder().firstName("John").lastName("Smith").build())
-
   private fun stubRepositoryCall() {
     whenever(offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(ArgumentMatchers.anyString())).thenReturn(
       listOf(
@@ -29,6 +25,7 @@ class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
           rootOffenderId = 123
           offender = Offender().apply {
             id = 123
+            offenderIdentifierPK = OffenderIdentifier.OffenderIdentifierPK().apply { offenderIdSeq = 1 }
             rootOffender = Offender().apply { id = 123 }
             addBooking(OffenderBooking().apply { bookingId = 1001 })
             nomsId = "A1234BC"
@@ -45,6 +42,7 @@ class OffenderResourceImplIntTestGetOffenderIdentifiers : ResourceTest() {
           rootOffenderId = 123
           offender = Offender().apply {
             id = 321
+            offenderIdentifierPK = OffenderIdentifier.OffenderIdentifierPK().apply { offenderIdSeq = 2 }
             rootOffender = Offender().apply { id = 123 }
             addBooking(OffenderBooking().apply { bookingId = 1001 })
             nomsId = "A1234BC"

@@ -150,6 +150,7 @@ class PrisonerSearchService(
     this.createDateTime,
     this.offender.id,
     this.rootOffenderId,
+    this.offenderIdentifierPK.offenderIdSeq,
   )
 }
 

@@ -13,6 +13,7 @@ data class OffenderIdentifierDto(
   val whenCreated: LocalDateTime,
   val offenderId: Long,
   val rootOffenderId: Long,
+  val offenderIdSeq: Long,
 ) {
   fun toOffenderIdentifier() = OffenderIdentifier(
     this.type,
@@ -25,5 +26,6 @@ data class OffenderIdentifierDto(
     this.whenCreated,
     this.offenderId,
     this.rootOffenderId,
+    this.offenderIdSeq,
   )
 }
