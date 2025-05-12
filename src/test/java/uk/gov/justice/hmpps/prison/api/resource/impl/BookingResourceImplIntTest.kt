@@ -118,7 +118,7 @@ class BookingResourceImplIntTest : ResourceTest() {
       )
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
       val responseEntity =
-        testRestTemplate.exchange("/api/bookings/-1/personal-care-needs/HEALTH", GET, requestEntity, String::class.java)
+        testRestTemplate.exchange("/api/bookings/-1/personal-care-needs/all", GET, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds.json")
       verify(inmateRepository).findPersonalCareNeeds(bookingId.toLong(), setOf("DISAB", "MATSTAT"))
     }
@@ -161,7 +161,7 @@ class BookingResourceImplIntTest : ResourceTest() {
       )
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
       val responseEntity = testRestTemplate.exchange(
-        "/api/bookings/-1/reasonable-adjustments/HEALTH_TREAT",
+        "/api/bookings/-1/reasonable-adjustments/all",
         GET,
         requestEntity,
         String::class.java,
