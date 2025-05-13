@@ -7,6 +7,7 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
 import org.mockito.Mockito.`when`
+import org.mockito.kotlin.whenever
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
@@ -110,10 +111,8 @@ class BookingResourceImplIntTest : ResourceTest() {
         ReferenceCode.builder().code("DISAB").domain("domain").description("Description 1").activeFlag("Y").build(),
         ReferenceCode.builder().code("MATSTAT").domain("domain").description("Description 2").activeFlag("Y").build(),
       )
-      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH_PBLM")).thenReturn(referenceCodesByDomain)
-      referenceCodesByDomain.stream().map<String?> { obj: ReferenceCode? -> obj!!.code }
-        .collect(Collectors.toList())
-      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(
+      whenever(referenceDomainService.getReferenceCodesByDomain("HEALTH_PBLM")).thenReturn(referenceCodesByDomain)
+      whenever(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(
         listOf(createPersonalCareNeeds()),
       )
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
@@ -131,11 +130,9 @@ class BookingResourceImplIntTest : ResourceTest() {
           .build(),
         ReferenceCode.builder().code("PEEP").domain("domain").description("Description 2").activeFlag("Y").build(),
       )
-      `when`(referenceDomainService.getReferenceCodesByDomain("HEALTH_TREAT")).thenReturn(referenceCodesByDomain)
-      val treatmentCodeStrings: MutableList<String?> =
-        referenceCodesByDomain.stream().map<String?> { obj: ReferenceCode? -> obj!!.code }
-          .collect(Collectors.toList())
-      `when`(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodeStrings)).thenReturn(
+      whenever(referenceDomainService.getReferenceCodesByDomain("HEALTH_TREAT")).thenReturn(referenceCodesByDomain)
+      val treatmentCodeStrings = referenceCodesByDomain.map { it.code }
+      whenever(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodeStrings)).thenReturn(
         listOf(
           ReasonableAdjustment(
             "WHEELCHR_ACC",

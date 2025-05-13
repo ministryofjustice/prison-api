@@ -110,7 +110,7 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-        public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
+    public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
                                                                          @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to return reference codes with their associated sub-codes.") final boolean withSubCodes,
                                                                          @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of domain records.") final Long pageOffset,
                                                                          @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of domain records returned.") final Long pageLimit,

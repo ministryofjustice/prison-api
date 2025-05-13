@@ -592,7 +592,6 @@ public class BookingResource {
         return offenderMilitaryRecordService.getMilitaryRecords(bookingId);
     }
 
-    @Deprecated()
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
