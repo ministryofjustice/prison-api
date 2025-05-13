@@ -62,6 +62,7 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
+import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
 import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
@@ -73,7 +74,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
-import uk.gov.justice.hmpps.prison.api.model.calculation.CalculablePrisoner;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
@@ -97,12 +97,13 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
 import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
-import uk.gov.justice.hmpps.prison.service.CalculablePrisonerService;
+import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import static java.util.Optional.ofNullable;
 import static org.springframework.http.HttpStatus.NOT_FOUND;
@@ -133,6 +134,9 @@ public class BookingResource {
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
+    private final ReferenceDomainService referenceDomainService;
+    private final String HEALTH_PROBLEM = "HEALTH_PBLM";
+    private final String HEALTH_TREATMENT = "HEALTH_TREAT";
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -511,6 +515,23 @@ public class BookingResource {
         return healthService.getPersonalCareNeeds(bookingId, problemTypes);
     }
 
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
+    @GetMapping("/{bookingId}/personal-care-needs/all")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
+    public PersonalCareNeeds getAllPersonalCareNeeds(
+        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId
+    ) {
+        List<ReferenceCode> referenceCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH_PROBLEM);
+        List<String> problemTypesString = referenceCodes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+        return healthService.getPersonalCareNeeds(bookingId, problemTypesString);
+    }
+
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -585,6 +606,23 @@ public class BookingResource {
         @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes
     ) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
+    }
+
+    @ApiResponses({
+            @ApiResponse(responseCode = "200", description = "OK"),
+            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
+    @Tag(name = "integration-api")
+    @GetMapping("/{bookingId}/reasonable-adjustments/all")
+    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA","PRISON_API__HMPPS_INTEGRATION_API"})
+    public ReasonableAdjustments getAllReasonableAdjustments(
+            @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId
+    ) {
+        List<ReferenceCode> treatmentCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH_TREATMENT);
+        List<String> treatmentCodeStrings = treatmentCodes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
+        return inmateService.getReasonableAdjustments(bookingId, treatmentCodeStrings);
     }
 
     @ApiResponses({
