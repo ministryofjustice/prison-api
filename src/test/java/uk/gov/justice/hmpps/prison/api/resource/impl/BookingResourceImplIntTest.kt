@@ -42,7 +42,6 @@ import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Optional
-import java.util.stream.Collectors
 
 class BookingResourceImplIntTest : ResourceTest() {
   @MockitoBean
