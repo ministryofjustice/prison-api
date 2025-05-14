@@ -135,7 +135,7 @@ public class BookingResource {
     private final OffenderFixedTermRecallService fixedTermRecallService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
     private final ReferenceDomainService referenceDomainService;
-    private final String HEALTH_PROBLEM = "HEALTH_PBLM";
+    private final String HEALTH = "HEALTH";
     private final String HEALTH_TREATMENT = "HEALTH_TREAT";
 
     @ApiResponses({
@@ -527,7 +527,7 @@ public class BookingResource {
     public PersonalCareNeeds getAllPersonalCareNeeds(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId
     ) {
-        List<ReferenceCode> referenceCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH_PROBLEM);
+        List<ReferenceCode> referenceCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH);
         List<String> problemTypesString = referenceCodes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
         return healthService.getPersonalCareNeeds(bookingId, problemTypesString);
     }
