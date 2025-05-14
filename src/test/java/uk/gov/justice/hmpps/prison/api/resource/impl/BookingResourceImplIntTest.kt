@@ -110,7 +110,7 @@ class BookingResourceImplIntTest : ResourceTest() {
         ReferenceCode.builder().code("DISAB").domain("domain").description("Description 1").activeFlag("Y").build(),
         ReferenceCode.builder().code("MATSTAT").domain("domain").description("Description 2").activeFlag("Y").build(),
       )
-      whenever(referenceDomainService.getReferenceCodesByDomain("HEALTH_PBLM")).thenReturn(referenceCodesByDomain)
+      whenever(referenceDomainService.getReferenceCodesByDomain("HEALTH")).thenReturn(referenceCodesByDomain)
       whenever(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(
         listOf(createPersonalCareNeeds()),
       )
