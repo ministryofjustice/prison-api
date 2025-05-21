@@ -135,12 +135,15 @@ data class PrisonerSearchDetails(
   @Schema(description = "Prisoner Email Addresses")
   val emailAddresses: List<Email>? = null,
 
-  @Schema(description = "Convicted offences for ALL bookings.")
+  @Schema(description = "Convicted offences for ALL bookings")
   val allConvictedOffences: List<OffenceHistoryDetail>? = null,
 
   @Schema(description = "Personal Care Needs. Specific types are selected for the prisoner profile : DISAB, MATSTAT, PHY, PSYCH, SC")
   val personalCareNeeds: List<PersonalCareNeed>? = null,
 
-  @Schema(description = "Languages spoken, read or written.")
+  @Schema(description = "Languages spoken, read or written")
   val languages: List<OffenderLanguageDto>? = null,
+
+  @Schema(description = "The prisoner's current facial image can be retrieved by plugging this id into the endpoint /api/images/{prisonerNumber}/data?imageId={imageId}", example = "341221")
+  val imageId: Long? = null,
 )

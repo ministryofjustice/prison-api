@@ -176,6 +176,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                 interpreterRequested = true,
               ),
             )
+            assertThat(imageId).isEqualTo(-2)
           }
         }
     }

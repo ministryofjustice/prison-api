@@ -82,6 +82,7 @@ class PrisonerSearchService(
           allConvictedOffences = it.offenceHistory,
           personalCareNeeds = it.personalCareNeeds,
           languages = findLanguages(it.bookingId),
+          imageId = it.facialImageId,
         )
       }
   }
@@ -136,6 +137,7 @@ class PrisonerSearchService(
         bookingId,
         listOf("DISAB", "MATSTAT", "PHY", "PSYCH", "SC"),
       ).getPersonalCareNeeds()
+      facialImageId = booking.latestFaceImage.toNullable()?.id
     }
     ?: let { offenderTransformer.transformWithoutBooking(offender) }
 
