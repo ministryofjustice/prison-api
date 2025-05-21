@@ -19,9 +19,9 @@ data class OffenderLanguageDto(
     allowableValues = ["Y", "N", "A", "D", "G", "P", "R"],
   )
   val readSkill: String?,
-  @Schema(description = "The level of writing skill, see description for readSkill")
+  @Schema(description = "The level of writing skill, see description for readSkill", allowableValues = ["Y", "N", "A", "D", "G", "P", "R"])
   val writeSkill: String?,
-  @Schema(description = "The level of speaking skill, see description for readSkill")
+  @Schema(description = "The level of speaking skill, see description for readSkill", allowableValues = ["Y", "N", "A", "D", "G", "P", "R"])
   val speakSkill: String?,
   @Schema(description = "Whether interpreter requested")
   val interpreterRequested: Boolean,

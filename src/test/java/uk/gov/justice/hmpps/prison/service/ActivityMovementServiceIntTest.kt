@@ -68,7 +68,7 @@ class ActivityMovementServiceIntTest : ResourceTest() {
     }
 
     @Test
-    internal fun `Activities and waitlist are cancelled`() {
+    fun `Activities and waitlist are cancelled`() {
       val testEndDate = LocalDate.of(2022, 10, 1)
       transferOutToCourt(offenderNo, "COURT1", true)
 
