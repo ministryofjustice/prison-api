@@ -13,7 +13,7 @@ services:
       - APPLICATION_AUTHENTICATION_UI_ALLOWLIST=0.0.0.0/0
 
   prison-api:
-    image: quay.io/hmpps/prison-api:latest
+    image: ghcr.io/ministryofjustice/prison-api
     container_name: prison-api
     depends_on:
       - hmpps-auth

@@ -1,7 +1,6 @@
 # Prison API server #
 [![repo standards badge](https://img.shields.io/badge/endpoint.svg?&style=flat&logo=github&url=https%3A%2F%2Foperations-engineering-reports.cloud-platform.service.justice.gov.uk%2Fapi%2Fv1%2Fcompliant_public_repositories%2Fprison-api)](https://operations-engineering-reports.cloud-platform.service.justice.gov.uk/public-report/prison-api "Link to report")
-[![CircleCI](https://circleci.com/gh/ministryofjustice/prison-api/tree/main.svg?style=svg)](https://circleci.com/gh/ministryofjustice/prison-api)
-[![Docker Repository on Quay](https://img.shields.io/badge/quay.io-repository-2496ED.svg?logo=docker)](https://quay.io/repository/hmpps/prison-api)
+[![Docker Repository on ghcr](https://img.shields.io/badge/ghcr.io-repository-2496ED.svg?logo=docker)](https://ghcr.io/ministryofjustice/prison-api)
 [![API docs](https://img.shields.io/badge/API_docs_-view-85EA2D.svg?logo=swagger)](https://prison-api-dev.prison.service.justice.gov.uk/swagger-ui/index.html)
 
 ### How do I get set up? ###
@@ -168,12 +167,12 @@ Build Docker image and run
 ```bash
 ./gradlew clean assemble
 
-docker build -t quay.io/hmpps/prison-api .
+docker build -t ghcr.io/ministryofjustice/prison-api .
 
 docker run -d -p 8888:8080             \
        -h prison-api                   \
        --name=prison-api               \
-    quay.io/hmpps/prison-api:latest
+    ghcr.io/ministryofjustice/prison-api
 ```
 
 ### Using Docker compose ###

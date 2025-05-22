@@ -6,7 +6,7 @@ generic-service:
   replicaCount: 8
 
   image:
-    repository: quay.io/hmpps/prison-api
+    repository: ghcr.io/ministryofjustice/prison-api
     tag: latest
     port: 8080
 
@@ -103,7 +103,7 @@ generic-service:
     SPRING_PROFILES_ACTIVE: "nomis"
 
   namespace_secrets:
-    application-insights:
+    prison-api-application-insights:
       APPLICATIONINSIGHTS_CONNECTION_STRING: "APPLICATIONINSIGHTS_CONNECTION_STRING"
     prison-api:
       SPRING_DATASOURCE_PASSWORD: "SPRING_DATASOURCE_PASSWORD"
