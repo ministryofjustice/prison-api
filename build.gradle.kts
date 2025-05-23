@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.38")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.4")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.5")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -30,7 +30,7 @@ dependencies {
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   implementation("commons-codec:commons-codec:1.18.0")
-  implementation("com.github.jsqlparser:jsqlparser:5.3")
+  implementation("com.github.jsqlparser:jsqlparser:5.1")
   implementation("org.ehcache:ehcache:3.10.8")
   runtimeOnly("com.zaxxer:HikariCP")
 
@@ -50,7 +50,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.4")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.5")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.5")
@@ -74,7 +74,7 @@ dependencies {
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.28") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.32")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.30")
   testImplementation("commons-beanutils:commons-beanutils:1.10.1")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.48.0")
 
