@@ -22,13 +22,13 @@ create table OFFENDER_VISIT_BALANCES
    );
 
 
-comment on table OFFENDER_VISIT_BALANCES is 'The counter of remaing visit order ';
+comment on table OFFENDER_VISIT_BALANCES is 'The count of remaining visit orders';
 
 comment on column OFFENDER_VISIT_BALANCES.OFFENDER_BOOK_ID is 'The Offender Book ID';
 
-comment on column OFFENDER_VISIT_BALANCES.REMAINING_VO is 'Number of remaing visit order';
+comment on column OFFENDER_VISIT_BALANCES.REMAINING_VO is 'Number of remaining visit orders';
 
-comment on column OFFENDER_VISIT_BALANCES.REMAINING_PVO is 'Number of remaing privileged visit order';
+comment on column OFFENDER_VISIT_BALANCES.REMAINING_PVO is 'Number of remaining privileged visit orders';
 
 comment on column OFFENDER_VISIT_BALANCES.CREATE_DATETIME is 'The timestamp when the record is created';
 
