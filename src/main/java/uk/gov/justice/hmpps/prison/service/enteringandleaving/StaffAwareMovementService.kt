@@ -11,7 +11,7 @@ abstract class StaffAwareMovementService(
   private val hmppsAuthenticationHolder: HmppsAuthenticationHolder,
 ) {
   internal fun getLoggedInStaff(): Result<StaffUserAccount> = hmppsAuthenticationHolder.username?. let {
-    staffUserAccountRepository.findByIdOrNull(hmppsAuthenticationHolder.username)
+    staffUserAccountRepository.findByIdOrNull(hmppsAuthenticationHolder.username!!)
       ?.let { Result.success(it) } ?: Result.failure(
       EntityNotFoundException.withId(hmppsAuthenticationHolder.username),
     )
