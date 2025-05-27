@@ -1,16 +1,16 @@
-name: Security veracode pipeline scan
+name: Security CodeQL actions scan
 on:
   workflow_dispatch:
   schedule:
     - cron: "27 7 * * MON-FRI" # Every weekday at 07:27 UTC
 jobs:
-  security-veracode-pipeline-scan:
+  security-codeql-actions-check:
     permissions:
       contents: read
       actions: read
       security-events: write
-    name: Project security veracode pipeline scan
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_veracode_pipeline_scan.yml@v2 # WORKFLOW_VERSION
+    name: Project security CodeQL actions scan
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/security_codeql_actions.yml@v2 # WORKFLOW_VERSION
     with:
       channel_id: ${{ vars.SECURITY_ALERTS_SLACK_CHANNEL_ID || 'NO_SLACK' }}
     secrets: inherit
