@@ -64,7 +64,7 @@ class PrisonerSearchService(
           lastMovementTypeCode = it.lastMovementTypeCode,
           lastMovementReasonCode = it.lastMovementReasonCode,
           lastMovementTime = findLastMovementTime(booking?.externalMovements, it.lastMovementTypeCode, it.lastMovementReasonCode),
-          lastAdmissionTime = findLastAdmissionTime(offender),
+          lastAdmissionTime = findLastAdmissionTime(booking?.externalMovements),
           legalStatus = it.legalStatus,
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
@@ -113,14 +113,10 @@ class PrisonerSearchService(
     ?.maxByOrNull { em -> em.movementTime }
     ?.movementTime
 
-  private fun findLastAdmissionTime(offender: Offender): LocalDateTime? {
-    val lastPeriod = offender.getPrisonerInPrisonSummary().prisonPeriod.lastOrNull()
-    return if (lastPeriod == null) {
-      null
-    } else {
-      lastPeriod.transfers?.lastOrNull()?.dateInToPrison ?: lastPeriod.entryDate
-    }
-  }
+  private fun findLastAdmissionTime(externalMovements: List<ExternalMovement>?): LocalDateTime? = externalMovements
+    ?.filter { it.movementType.code == "ADM" }
+    ?.maxByOrNull { it.movementTime }
+    ?.movementTime
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }
