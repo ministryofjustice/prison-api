@@ -53,6 +53,10 @@
         <appender-ref ref="consoleAppender"/>
     </logger>
 
+    <logger name="org.flywaydb.core.FlywayExecutor" additivity="false" level="WARN">
+        <appender-ref ref="consoleAppender"/>
+    </logger>
+
     <root level="INFO">
         <appender-ref ref="consoleAppender"/>
     </root>
