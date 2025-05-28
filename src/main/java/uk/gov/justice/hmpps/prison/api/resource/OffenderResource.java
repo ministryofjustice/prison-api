@@ -48,6 +48,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifierCreateRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifierUpdateRequest;
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -66,6 +67,7 @@ import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt;
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
+import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthCountry;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
 import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
@@ -102,6 +104,7 @@ import uk.gov.justice.hmpps.prison.service.OffenderIdentifierService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
+import uk.gov.justice.hmpps.prison.service.OffenderPhonesService;
 import uk.gov.justice.hmpps.prison.service.OffenderTransactionHistoryService;
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService;
 import uk.gov.justice.hmpps.prison.service.PrisonerTransferService;
@@ -148,6 +151,7 @@ public class OffenderResource {
     private final OffenderIdentifierService offenderIdentifierService;
     private final PrisonerProfileUpdateService prisonerProfileUpdateService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
+    private final OffenderPhonesService offenderPhonesService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -1127,5 +1131,53 @@ public class OffenderResource {
             prisonerNumber,
             updateSmokerStatus
         );
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to view prisoner phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
+    @Operation(summary = "Get phone numbers for a prisoner.")
+    @GetMapping("/{offenderNo}/phone-numbers")
+    public List<Telephone> getOffenderNumbers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber) {
+        return offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Phone number added."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to add phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Prisoner not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @Operation(summary = "Add a phone number for the prisoner")
+    @PostMapping("/{offenderNo}/phone-numbers")
+    @ProxyUser
+    public ResponseEntity<Void> addOffenderPhoneNumbers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+                                                       @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
+        offenderPhonesService.addOffenderPhoneNumber(prisonerNumber, offenderPhoneNumberRequest);
+        return ResponseEntity.status(HttpStatus.CREATED).build();
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "201", description = "Phone number updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Prisoner or phone number ID not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @Operation(summary = "Update a phone number for the prisoner")
+    @PutMapping("/{offenderNo}/phone-numbers/{phoneNumberId}")
+    @ProxyUser
+    public ResponseEntity<Void> updateOffenderPhoneNumber(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+                                                          @PathVariable("phoneNumberId") @Parameter(description = "The phone number ID", required = true) final Long phoneNumberId,
+                                                          @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
+        offenderPhonesService.updateOffenderPhoneNumber(prisonerNumber, phoneNumberId, offenderPhoneNumberRequest);
+        return ResponseEntity.status(HttpStatus.OK).build();
     }
 }
