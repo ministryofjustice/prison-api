@@ -139,21 +139,21 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
   }
 
   private companion object {
-    const val PRISONER_NUMBER = "A1234AI"
+    const val PRISONER_NUMBER = "A1238AI"
     const val GET_URL = "/api/offenders/${PRISONER_NUMBER}/phone-numbers"
     const val CREATE_URL = "/api/offenders/${PRISONER_NUMBER}/phone-numbers"
-    const val UPDATE_URL = "/api/offenders/${PRISONER_NUMBER}/phone-numbers/-16"
+    const val UPDATE_URL = "/api/offenders/${PRISONER_NUMBER}/phone-numbers/-19"
 
     data object PHONE_1 {
       const val TYPE = "HOME"
       const val NUMBER = "0114 878787"
-      const val ID = -16
+      const val ID = -19
     }
 
     data object PHONE_2 {
       const val TYPE = "MOB"
       const val NUMBER = "07878 787878"
-      const val ID = -17
+      const val ID = -20
     }
 
     const val INVALID_PHONE_NUMBER_TYPE_CREATION_REQUEST =
