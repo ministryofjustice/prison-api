@@ -39,8 +39,7 @@ class OffenderPhonesService(
       .phoneNo(offenderPhoneNumberRequest.phoneNumber)
       .phoneType(offenderPhoneNumberRequest.phoneNumberType).build()
 
-    offenderPhoneRepository.save(phone)
-    return phone
+    return offenderPhoneRepository.save(phone)
   }
 
   fun updateOffenderPhoneNumber(
@@ -63,9 +62,7 @@ class OffenderPhonesService(
 
     phoneToUpdate.phoneType = offenderPhoneNumberRequest.phoneNumberType
     phoneToUpdate.phoneNo = offenderPhoneNumberRequest.phoneNumber
-    offenderPhoneRepository.save(phoneToUpdate)
-
-    return phoneToUpdate
+    return offenderPhoneRepository.save(phoneToUpdate)
   }
 
   private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: Any) = orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))

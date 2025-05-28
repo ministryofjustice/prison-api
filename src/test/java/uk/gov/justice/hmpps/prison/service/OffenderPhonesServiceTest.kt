@@ -4,6 +4,7 @@ import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
@@ -28,7 +29,6 @@ class OffenderPhonesServiceTest {
     whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(
       Optional.of(OFFENDER),
     )
-
     whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER_NOT_FOUND)).thenReturn(Optional.empty())
 
     whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", VALID_PHONE_TYPE)).thenReturn(true)
@@ -50,6 +50,8 @@ class OffenderPhonesServiceTest {
     ).thenReturn(
       Optional.empty(),
     )
+
+    whenever(offenderPhoneRepository.save(any())).thenReturn(PHONE_NUMBER_ONE)
   }
 
   @Test
@@ -77,8 +79,8 @@ class OffenderPhonesServiceTest {
     )
 
     assertThat(createdPhone).isNotNull()
-    assertThat(createdPhone.phoneNo).isEqualTo(PhoneToCreate.NUMBER)
-    assertThat(createdPhone.phoneType).isEqualTo(PhoneToCreate.TYPE)
+    assertThat(createdPhone.phoneNo).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
+    assertThat(createdPhone.phoneType).isEqualTo(PHONE_NUMBER_ONE.phoneType)
   }
 
   @Test
@@ -120,8 +122,8 @@ class OffenderPhonesServiceTest {
     )
 
     assertThat(updatedPhone).isNotNull()
-    assertThat(updatedPhone.phoneNo).isEqualTo(PhoneToCreate.NUMBER)
-    assertThat(updatedPhone.phoneType).isEqualTo(PhoneToCreate.TYPE)
+    assertThat(updatedPhone.phoneNo).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
+    assertThat(updatedPhone.phoneType).isEqualTo(PHONE_NUMBER_ONE.phoneType)
   }
 
   @Test
