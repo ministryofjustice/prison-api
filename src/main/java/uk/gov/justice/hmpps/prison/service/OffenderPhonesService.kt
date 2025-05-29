@@ -25,7 +25,7 @@ class OffenderPhonesService(
   fun addOffenderPhoneNumber(
     prisonerNumber: String,
     offenderPhoneNumberRequest: OffenderPhoneNumberCreateRequest,
-  ): OffenderPhone {
+  ): Telephone {
     val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
 
@@ -33,28 +33,24 @@ class OffenderPhonesService(
       throw BadRequestException.withMessage("Phone number type ${offenderPhoneNumberRequest.phoneNumberType} is not valid")
     }
 
-    val phone = OffenderPhone
-      .builder()
-      .offender(offender)
-      .phoneNo(offenderPhoneNumberRequest.phoneNumber)
+    val phone = OffenderPhone.builder().offender(offender).phoneNo(offenderPhoneNumberRequest.phoneNumber)
       .phoneType(offenderPhoneNumberRequest.phoneNumberType).build()
 
-    return offenderPhoneRepository.save(phone)
+    return AddressTransformer.translate(offenderPhoneRepository.save(phone))
   }
 
   fun updateOffenderPhoneNumber(
     prisonerNumber: String,
     phoneNumberId: Long,
     offenderPhoneNumberRequest: OffenderPhoneNumberCreateRequest,
-  ): OffenderPhone {
-    val phoneToUpdate = offenderPhoneRepository.findByRootNomsIdAndPhoneId(prisonerNumber, phoneNumberId)
-      .orElseThrow(
-        EntityNotFoundException.withMessage(
-          "Phone number with prisoner number %s and phone ID %s not found",
-          prisonerNumber,
-          phoneNumberId,
-        ),
-      )
+  ): Telephone {
+    val phoneToUpdate = offenderPhoneRepository.findByRootNomsIdAndPhoneId(prisonerNumber, phoneNumberId).orElseThrow(
+      EntityNotFoundException.withMessage(
+        "Phone number with prisoner number %s and phone ID %s not found",
+        prisonerNumber,
+        phoneNumberId,
+      ),
+    )
 
     if (!referenceDomainService.isReferenceCodeActive("PHONE_USAGE", offenderPhoneNumberRequest.phoneNumberType)) {
       throw BadRequestException.withMessage("Phone number type ${offenderPhoneNumberRequest.phoneNumberType} is not valid")
@@ -62,7 +58,7 @@ class OffenderPhonesService(
 
     phoneToUpdate.phoneType = offenderPhoneNumberRequest.phoneNumberType
     phoneToUpdate.phoneNo = offenderPhoneNumberRequest.phoneNumber
-    return offenderPhoneRepository.save(phoneToUpdate)
+    return AddressTransformer.translate(offenderPhoneRepository.save(phoneToUpdate))
   }
 
   private inline fun <reified T> Optional<T>.orElseThrowNotFound(message: String, prisonerNumber: Any) = orElseThrow(EntityNotFoundException.withMessage(message, prisonerNumber))

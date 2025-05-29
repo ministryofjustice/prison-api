@@ -18,6 +18,6 @@ data class OffenderPhoneNumberCreateRequest(
 
   @Schema(description = "The phone number", example = "01234 567 890", requiredMode = Schema.RequiredMode.REQUIRED)
   @field:NotBlank
-  @field:Size(max = 20)
+  @field:Size(max = 40)
   val phoneNumber: String,
 )

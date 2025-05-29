@@ -1147,7 +1147,7 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Phone number added."),
+        @ApiResponse(responseCode = "200", description = "Phone number added."),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to add phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Prisoner not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -1157,14 +1157,13 @@ public class OffenderResource {
     @Operation(summary = "Add a phone number for the prisoner")
     @PostMapping("/{offenderNo}/phone-numbers")
     @ProxyUser
-    public ResponseEntity<Void> addOffenderPhoneNumbers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+    public Telephone addOffenderPhoneNumbers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
                                                        @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
-        offenderPhonesService.addOffenderPhoneNumber(prisonerNumber, offenderPhoneNumberRequest);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
+        return offenderPhonesService.addOffenderPhoneNumber(prisonerNumber, offenderPhoneNumberRequest);
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Phone number updated."),
+        @ApiResponse(responseCode = "200", description = "Phone number updated."),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Prisoner or phone number ID not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
@@ -1174,10 +1173,9 @@ public class OffenderResource {
     @Operation(summary = "Update a phone number for the prisoner")
     @PutMapping("/{offenderNo}/phone-numbers/{phoneNumberId}")
     @ProxyUser
-    public ResponseEntity<Void> updateOffenderPhoneNumber(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+    public Telephone updateOffenderPhoneNumber(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
                                                           @PathVariable("phoneNumberId") @Parameter(description = "The phone number ID", required = true) final Long phoneNumberId,
                                                           @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
-        offenderPhonesService.updateOffenderPhoneNumber(prisonerNumber, phoneNumberId, offenderPhoneNumberRequest);
-        return ResponseEntity.status(HttpStatus.OK).build();
+        return offenderPhonesService.updateOffenderPhoneNumber(prisonerNumber, phoneNumberId, offenderPhoneNumberRequest);
     }
 }

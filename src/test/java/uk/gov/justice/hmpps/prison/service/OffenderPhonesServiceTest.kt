@@ -79,8 +79,8 @@ class OffenderPhonesServiceTest {
     )
 
     assertThat(createdPhone).isNotNull()
-    assertThat(createdPhone.phoneNo).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
-    assertThat(createdPhone.phoneType).isEqualTo(PHONE_NUMBER_ONE.phoneType)
+    assertThat(createdPhone.number).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
+    assertThat(createdPhone.type).isEqualTo(PHONE_NUMBER_ONE.phoneType)
   }
 
   @Test
@@ -122,8 +122,8 @@ class OffenderPhonesServiceTest {
     )
 
     assertThat(updatedPhone).isNotNull()
-    assertThat(updatedPhone.phoneNo).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
-    assertThat(updatedPhone.phoneType).isEqualTo(PHONE_NUMBER_ONE.phoneType)
+    assertThat(updatedPhone.number).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
+    assertThat(updatedPhone.type).isEqualTo(PHONE_NUMBER_ONE.phoneType)
   }
 
   @Test

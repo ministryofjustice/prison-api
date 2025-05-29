@@ -66,10 +66,12 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
     }
 
     @Test
-    fun `Create - should return 201 if the request is valid`() {
+    fun `Create - should return 200 and the created number if the request is valid`() {
       webTestClient.post().uri(CREATE_URL).bodyValue(VALID_PHONE_NUMBER_CREATION_REQUEST)
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
-        .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isCreated()
+        .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isOk().expectBody()
+        .jsonPath(".phoneId").isNotEmpty().jsonPath(".type").isEqualTo("BUS").jsonPath(".number")
+        .isEqualTo("12345 678 902")
     }
 
     @Test
@@ -86,55 +88,70 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
     fun `Create - should return 400 with a missing phone number`() {
       expectInvalidRequest(webTestClient.post(), CREATE_URL, "{ \"phoneNumberType\": \"BUS\" }")
     }
+
+    @Test
+    fun `Create - should return 400 with an invalid phone number`() {
+      expectInvalidRequest(
+        webTestClient.post(),
+        CREATE_URL,
+        "{ \"phoneNumber\": \"11111111111111111111111111111111111111111\" }",
+      )
+    }
   }
 
   @Nested
   inner class PutOffenderNumber {
     @Test
-    fun `Create - should return 401 when user does not even have token`() {
+    fun `Update - should return 401 when user does not even have token`() {
       webTestClient.put().uri(UPDATE_URL).bodyValue(VALID_PHONE_NUMBER_CREATION_REQUEST).exchange()
         .expectStatus().isUnauthorized
     }
 
     @Test
-    fun `Create - should return 403 if the client does not have any roles`() {
+    fun `Update - should return 403 if the client does not have any roles`() {
       webTestClient.put().uri(UPDATE_URL).bodyValue(VALID_PHONE_NUMBER_CREATION_REQUEST)
         .headers(setClientAuthorisation(listOf())).header("Content-Type", APPLICATION_JSON_VALUE).exchange()
         .expectStatus().isForbidden
     }
 
     @Test
-    fun `Create - should return 403 if the client does not have the ROLE_PRISON_API__PRISONER_PROFILE__RW role`() {
+    fun `Update - should return 403 if the client does not have the ROLE_PRISON_API__PRISONER_PROFILE__RW role`() {
       webTestClient.put().uri(UPDATE_URL).bodyValue(VALID_PHONE_NUMBER_CREATION_REQUEST)
         .headers(setClientAuthorisation(listOf("EXAMPLE_ROLE"))).header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange().expectStatus().isForbidden
     }
 
     @Test
-    fun `Create - should return 200 if the request is valid`() {
+    fun `Update - should return 200 and updated number if the request is valid`() {
       webTestClient.put().uri(UPDATE_URL).bodyValue(VALID_PHONE_NUMBER_CREATION_REQUEST)
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
-        .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isOk()
+        .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isOk().expectBody()
+        .jsonPath(".phoneId").isNotEmpty().jsonPath(".type").isEqualTo("BUS").jsonPath(".number")
+        .isEqualTo("12345 678 902")
     }
 
     @Test
-    fun `Create - should return 400 with a missing phone number type`() {
+    fun `Update - should return 400 with a missing phone number type`() {
       expectInvalidRequest(webTestClient.put(), UPDATE_URL, "{ \"phoneNumber\": \"01234 567 890\" }")
     }
 
     @Test
-    fun `Create - should return 400 with an invalid phone number type`() {
+    fun `Update - should return 400 with an invalid phone number type`() {
       expectInvalidRequest(webTestClient.put(), UPDATE_URL, INVALID_PHONE_NUMBER_TYPE_CREATION_REQUEST)
     }
 
     @Test
-    fun `Create - should return 400 with a missing phone number`() {
+    fun `Update - should return 400 with a missing phone number`() {
       expectInvalidRequest(webTestClient.put(), UPDATE_URL, "{ \"phoneNumberType\": \"BUS\" }")
     }
 
     @Test
-    fun `Create - should return 400 with an invalid phone number`() {
-      expectInvalidRequest(webTestClient.put(), UPDATE_URL, "{ \"phoneNumber\": \"1111111111111111111111111\" }")
+    fun `Update - should return 400 with an invalid phone number`() {
+      expectInvalidRequest(
+        webTestClient.put(),
+        UPDATE_URL,
+        "{ \"phoneNumber\": \"11111111111111111111111111111111111111111\" }",
+      )
     }
   }
 
@@ -170,7 +187,7 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
       """
         {
           "phoneNumberType": "BUS",
-          "phoneNumber": "12345 678 901"
+          "phoneNumber": "12345 678 902"
         }
       """
   }
