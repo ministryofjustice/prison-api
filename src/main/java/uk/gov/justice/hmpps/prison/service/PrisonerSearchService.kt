@@ -114,7 +114,7 @@ class PrisonerSearchService(
     ?.movementTime
 
   private fun findLastAdmissionTime(externalMovements: List<ExternalMovement>?): LocalDateTime? = externalMovements
-    ?.filter { it.movementType.code == "ADM" }
+    ?.filter { it.movementType?.code == "ADM" }
     ?.maxByOrNull { it.movementTime }
     ?.movementTime
 
