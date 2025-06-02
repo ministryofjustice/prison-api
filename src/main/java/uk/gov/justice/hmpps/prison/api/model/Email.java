@@ -12,6 +12,8 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 public class Email {
+    @Schema(description = "Email address ID")
+    private long emailAddressId;
 
     @Schema(description = "Email")
     private String email;

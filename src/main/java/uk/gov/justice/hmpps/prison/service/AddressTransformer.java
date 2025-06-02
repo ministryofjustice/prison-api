@@ -81,6 +81,6 @@ public class AddressTransformer {
     }
 
     public static Email translate(final InternetAddress email) {
-        return Email.builder().email(email.getInternetAddress()).build();
+        return Email.builder().emailAddressId(email.getInternetAddressId()).email(email.getInternetAddress()).build();
     }
 }
