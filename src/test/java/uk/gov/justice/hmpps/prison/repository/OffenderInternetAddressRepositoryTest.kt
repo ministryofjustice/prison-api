@@ -10,7 +10,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest
 import org.springframework.context.annotation.Import
 import org.springframework.test.context.ActiveProfiles
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPhoneRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderInternetAddressRepository
 import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 
@@ -23,27 +23,25 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
   PersistenceConfigs::class,
 )
 @Slf4j
-@DisplayName("OffenderPhoneRepository")
-class OffenderPhoneRepositoryTest {
+@DisplayName("OffenderInternetAddressRepository")
+class OffenderInternetAddressRepositoryTest {
   @Autowired
-  private lateinit var repository: OffenderPhoneRepository
+  private lateinit var repository: OffenderInternetAddressRepository
 
   @Test
-  @DisplayName("Can get offender phones by prisoner number and phone ID")
-  fun canGetPhoneNumberForOffender() {
-    val phoneNumber = repository.findByRootNomsIdAndPhoneIdForUpdate(PRISONER_NUMBER, PhoneOne.ID)
-    assertThat(phoneNumber).isNotNull()
-    assertThat(phoneNumber.get().phoneNo).isEqualTo(PhoneOne.NUMBER)
-    assertThat(phoneNumber.get().phoneType).isEqualTo(PhoneOne.TYPE)
+  @DisplayName("Can get offender internet addresses by prisoner number and address ID")
+  fun canGetInternetAddressesForOffender() {
+    val internetAddress = repository.findByRootNomsIdAndInternetAddressIdForUpdate(PRISONER_NUMBER, AddressOne.ID)
+    assertThat(internetAddress).isNotNull()
+    assertThat(internetAddress.get().internetAddress).isEqualTo(AddressOne.INTERNET_ADDRESS)
   }
 
   private companion object {
-    const val PRISONER_NUMBER = "A1234AI"
+    const val PRISONER_NUMBER = "A1238AI"
 
-    data object PhoneOne {
-      const val TYPE = "HOME"
-      const val NUMBER = "0114 878787"
-      const val ID = -16L
+    data object AddressOne {
+      const val ID = -10L
+      const val INTERNET_ADDRESS = "prisoner@home.com"
     }
   }
 }

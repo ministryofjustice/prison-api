@@ -390,8 +390,8 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               Telephone(-17L, "07878 787878", "MOB", null),
             )
             assertThat(emailAddresses).containsExactlyInAnyOrder(
-              Email("prisoner@home.com"),
-              Email("prisoner@backup.com"),
+              Email(-7L, "prisoner@home.com"),
+              Email(-8L, "prisoner@backup.com"),
             )
           }
         }

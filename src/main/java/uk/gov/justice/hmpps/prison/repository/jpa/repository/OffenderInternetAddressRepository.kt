@@ -6,12 +6,12 @@ import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
 import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.CrudRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhone
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderInternetAddress
 import java.util.Optional
 
-interface OffenderPhoneRepository : CrudRepository<OffenderPhone, Long> {
+interface OffenderInternetAddressRepository : CrudRepository<OffenderInternetAddress, Long> {
   @Lock(LockModeType.PESSIMISTIC_WRITE)
   @QueryHints(value = [QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")])
-  @Query("Select offPhone from OffenderPhone offPhone where offPhone.offender.rootOffender.nomsId = :nomsId and offPhone.phoneId = :phoneId")
-  fun findByRootNomsIdAndPhoneIdForUpdate(nomsId: String, phoneId: Long?): Optional<OffenderPhone>
+  @Query("Select offInternetAddress from OffenderInternetAddress offInternetAddress where offInternetAddress.offender.rootOffender.nomsId = :nomsId and offInternetAddress.internetAddressId = :internetAddressId")
+  fun findByRootNomsIdAndInternetAddressIdForUpdate(nomsId: String, internetAddressId: Long?): Optional<OffenderInternetAddress>
 }

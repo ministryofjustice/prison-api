@@ -2,16 +2,20 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.hibernate.exception.LockTimeoutException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPhoneRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import java.sql.SQLException
 import java.util.Optional
 
 class OffenderPhonesServiceTest {
@@ -36,20 +40,27 @@ class OffenderPhonesServiceTest {
     whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", INVALID_PHONE_TYPE)).thenReturn(false)
 
     whenever(
-      offenderPhoneRepository.findByRootNomsIdAndPhoneId(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
         PRISONER_NUMBER,
         EXISTING_PHONE_ID,
       ),
     ).thenReturn(Optional.of(PHONE_NUMBER_ONE))
 
     whenever(
-      offenderPhoneRepository.findByRootNomsIdAndPhoneId(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
         PRISONER_NUMBER,
         PHONE_ID_NOT_FOUND,
       ),
     ).thenReturn(
       Optional.empty(),
     )
+
+    whenever(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
+        PRISONER_NUMBER_LOCKED_TABLE,
+        EXISTING_PHONE_ID,
+      ),
+    ).thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
     whenever(offenderPhoneRepository.save(any())).thenReturn(PHONE_NUMBER_ONE)
   }
@@ -142,6 +153,20 @@ class OffenderPhonesServiceTest {
   }
 
   @Test
+  fun `updateOffenderPhoneNumber throws exception when database table is locked`() {
+    assertThatThrownBy {
+      offenderPhonesService.updateOffenderPhoneNumber(
+        PRISONER_NUMBER_LOCKED_TABLE,
+        PHONE_NUMBER_ONE_ID,
+        OffenderPhoneNumberCreateRequest(
+          phoneNumberType = PhoneToCreate.TYPE,
+          phoneNumber = PhoneToCreate.NUMBER,
+        ),
+      )
+    }.isInstanceOf(DatabaseRowLockedException::class.java)
+  }
+
+  @Test
   fun `updateOffenderPhoneNumber throws exception when phone number type is not found`() {
     assertThatThrownBy {
       offenderPhonesService.updateOffenderPhoneNumber(
@@ -158,6 +183,8 @@ class OffenderPhonesServiceTest {
   private companion object {
     const val PRISONER_NUMBER = "A1234BC"
     const val PRISONER_NUMBER_NOT_FOUND = "A4321BC"
+    const val PRISONER_NUMBER_LOCKED_TABLE = "A1212BC"
+
     const val EXISTING_PHONE_ID = 54321L
     const val PHONE_ID_NOT_FOUND = 12345L
     const val VALID_PHONE_TYPE = "BUS"
