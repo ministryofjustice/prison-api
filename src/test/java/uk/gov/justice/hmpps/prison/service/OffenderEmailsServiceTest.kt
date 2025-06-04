@@ -2,16 +2,20 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.hibernate.exception.LockTimeoutException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
+import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.OffenderEmailAddressCreateRequest
+import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderInternetAddress
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderInternetAddressRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import java.sql.SQLException
 import java.util.Optional
 
 class OffenderEmailsServiceTest {
@@ -44,6 +48,13 @@ class OffenderEmailsServiceTest {
     ).thenReturn(
       Optional.empty(),
     )
+
+    whenever(
+      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressId(
+        PRISONER_NUMBER_LOCKED_TABLE,
+        EXISTING_INTERNET_ADDRESS_ID,
+      ),
+    ).thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
     whenever(offenderInternetAddressRepository.save(any())).thenReturn(INTERNET_ADDRESS_ONE)
   }
@@ -116,9 +127,23 @@ class OffenderEmailsServiceTest {
       .hasMessageContaining("Email address with prisoner number $PRISONER_NUMBER and email address ID $INTERNET_ADDRESS_ID_NOT_FOUND not found")
   }
 
+  @Test
+  fun `updateOffenderEmailAddress throws exception when database table is locked`() {
+    assertThatThrownBy {
+      offenderEmailsService.updateOffenderEmailAddress(
+        PRISONER_NUMBER_LOCKED_TABLE,
+        EXISTING_INTERNET_ADDRESS_ID,
+        OffenderEmailAddressCreateRequest(
+          emailAddress = EmailToCreate.EMAIL_ADDRESS,
+        ),
+      )
+    }.isInstanceOf(DatabaseRowLockedException::class.java)
+  }
+
   private companion object {
     const val PRISONER_NUMBER = "A1234BC"
     const val PRISONER_NUMBER_NOT_FOUND = "A4321BC"
+    const val PRISONER_NUMBER_LOCKED_TABLE = "A1212BC"
     const val EXISTING_INTERNET_ADDRESS_ID = 54321L
     const val INTERNET_ADDRESS_ID_NOT_FOUND = 12345L
     const val INTERNET_ADDRESS_ID_ONE = 54321L
