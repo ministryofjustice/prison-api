@@ -52,7 +52,7 @@ class OffenderPhonesService(
     }
 
     try {
-      val phoneToUpdate = offenderPhoneRepository.findByRootNomsIdAndPhoneId(prisonerNumber, phoneNumberId).orElseThrow(
+      val phoneToUpdate = offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(prisonerNumber, phoneNumberId).orElseThrow(
         EntityNotFoundException.withMessage(
           "Phone number with prisoner number %s and phone ID %s not found",
           prisonerNumber,

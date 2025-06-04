@@ -31,7 +31,7 @@ class OffenderInternetAddressRepositoryTest {
   @Test
   @DisplayName("Can get offender internet addresses by prisoner number and address ID")
   fun canGetInternetAddressesForOffender() {
-    val internetAddress = repository.findByRootNomsIdAndInternetAddressId(PRISONER_NUMBER, AddressOne.ID)
+    val internetAddress = repository.findByRootNomsIdAndInternetAddressIdForUpdate(PRISONER_NUMBER, AddressOne.ID)
     assertThat(internetAddress).isNotNull()
     assertThat(internetAddress.get().internetAddress).isEqualTo(AddressOne.INTERNET_ADDRESS)
   }

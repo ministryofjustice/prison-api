@@ -34,14 +34,14 @@ class OffenderEmailsServiceTest {
     whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER_NOT_FOUND)).thenReturn(Optional.empty())
 
     whenever(
-      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressId(
+      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressIdForUpdate(
         PRISONER_NUMBER,
         EXISTING_INTERNET_ADDRESS_ID,
       ),
     ).thenReturn(Optional.of(INTERNET_ADDRESS_ONE))
 
     whenever(
-      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressId(
+      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressIdForUpdate(
         PRISONER_NUMBER,
         INTERNET_ADDRESS_ID_NOT_FOUND,
       ),
@@ -50,7 +50,7 @@ class OffenderEmailsServiceTest {
     )
 
     whenever(
-      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressId(
+      offenderInternetAddressRepository.findByRootNomsIdAndInternetAddressIdForUpdate(
         PRISONER_NUMBER_LOCKED_TABLE,
         EXISTING_INTERNET_ADDRESS_ID,
       ),

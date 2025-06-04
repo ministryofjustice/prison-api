@@ -40,14 +40,14 @@ class OffenderPhonesServiceTest {
     whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", INVALID_PHONE_TYPE)).thenReturn(false)
 
     whenever(
-      offenderPhoneRepository.findByRootNomsIdAndPhoneId(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
         PRISONER_NUMBER,
         EXISTING_PHONE_ID,
       ),
     ).thenReturn(Optional.of(PHONE_NUMBER_ONE))
 
     whenever(
-      offenderPhoneRepository.findByRootNomsIdAndPhoneId(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
         PRISONER_NUMBER,
         PHONE_ID_NOT_FOUND,
       ),
@@ -56,7 +56,7 @@ class OffenderPhonesServiceTest {
     )
 
     whenever(
-      offenderPhoneRepository.findByRootNomsIdAndPhoneId(
+      offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(
         PRISONER_NUMBER_LOCKED_TABLE,
         EXISTING_PHONE_ID,
       ),

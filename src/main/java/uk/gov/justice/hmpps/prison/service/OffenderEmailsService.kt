@@ -47,7 +47,7 @@ class OffenderEmailsService(
   ): Email {
     try {
       val emailToUpdate =
-        offenderEmailsRepository.findByRootNomsIdAndInternetAddressId(prisonerNumber, emailAddressId).orElseThrow(
+        offenderEmailsRepository.findByRootNomsIdAndInternetAddressIdForUpdate(prisonerNumber, emailAddressId).orElseThrow(
           EntityNotFoundException.withMessage(
             "Email address with prisoner number %s and email address ID %s not found",
             prisonerNumber,

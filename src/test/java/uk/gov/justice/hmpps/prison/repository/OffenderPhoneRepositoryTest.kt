@@ -31,7 +31,7 @@ class OffenderPhoneRepositoryTest {
   @Test
   @DisplayName("Can get offender phones by prisoner number and phone ID")
   fun canGetPhoneNumberForOffender() {
-    val phoneNumber = repository.findByRootNomsIdAndPhoneId(PRISONER_NUMBER, PhoneOne.ID)
+    val phoneNumber = repository.findByRootNomsIdAndPhoneIdForUpdate(PRISONER_NUMBER, PhoneOne.ID)
     assertThat(phoneNumber).isNotNull()
     assertThat(phoneNumber.get().phoneNo).isEqualTo(PhoneOne.NUMBER)
     assertThat(phoneNumber.get().phoneType).isEqualTo(PhoneOne.TYPE)
