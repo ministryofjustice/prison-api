@@ -38,8 +38,9 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
       webTestClient.get().uri(GET_URL).headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
         .expectBody().jsonPath("$.length()").isEqualTo(2).jsonPath("[0].type").isEqualTo(PHONE_1.TYPE)
         .jsonPath("[0].number").isEqualTo(PHONE_1.NUMBER).jsonPath("[0].phoneId").isEqualTo(PHONE_1.ID)
-        .jsonPath("[1].type").isEqualTo(PHONE_2.TYPE).jsonPath("[1].number").isEqualTo(PHONE_2.NUMBER)
-        .jsonPath("[1].phoneId").isEqualTo(PHONE_2.ID)
+        .jsonPath("[0].ext").isEqualTo(PHONE_1.EXT).jsonPath("[1].type").isEqualTo(PHONE_2.TYPE).jsonPath("[1].number")
+        .isEqualTo(PHONE_2.NUMBER).jsonPath("[1].phoneId").isEqualTo(PHONE_2.ID).jsonPath("[1].ext")
+        .isEqualTo(PHONE_2.EXT)
     }
   }
 
@@ -71,7 +72,7 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isOk().expectBody()
         .jsonPath(".phoneId").isNotEmpty().jsonPath(".type").isEqualTo("BUS").jsonPath(".number")
-        .isEqualTo("12345 678 902")
+        .isEqualTo("12345 678 902").jsonPath(".ext").isEqualTo("123")
     }
 
     @Test
@@ -127,7 +128,7 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE).exchange().expectStatus().isOk().expectBody()
         .jsonPath(".phoneId").isNotEmpty().jsonPath(".type").isEqualTo("BUS").jsonPath(".number")
-        .isEqualTo("12345 678 902")
+        .isEqualTo("12345 678 902").jsonPath(".ext").isEqualTo("123")
     }
 
     @Test
@@ -164,12 +165,14 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
     data object PHONE_1 {
       const val TYPE = "HOME"
       const val NUMBER = "0114 878787"
+      const val EXT = "345"
       const val ID = -19
     }
 
     data object PHONE_2 {
       const val TYPE = "MOB"
       const val NUMBER = "07878 787878"
+      const val EXT = "543"
       const val ID = -20
     }
 
@@ -178,7 +181,8 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
       """
         {
           "phoneNumberType": "EXAMPLE_INVALID_TYPE",
-          "phoneNumber": "12345 678 901"
+          "phoneNumber": "12345 678 901",
+          "extension": "123"
         }
       """
 
@@ -187,7 +191,8 @@ class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
       """
         {
           "phoneNumberType": "BUS",
-          "phoneNumber": "12345 678 902"
+          "phoneNumber": "12345 678 902",
+          "extension": "123"
         }
       """
   }
