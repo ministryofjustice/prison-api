@@ -70,6 +70,9 @@ class OffenderPhonesServiceTest {
     val phoneNumbers = offenderPhonesService.getPhoneNumbersByOffenderNo(PRISONER_NUMBER)
     assertThat(phoneNumbers).hasSize(1)
     assertThat(phoneNumbers[0].phoneId).isEqualTo(PHONE_NUMBER_ONE_ID)
+    assertThat(phoneNumbers[0].number).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
+    assertThat(phoneNumbers[0].type).isEqualTo(PHONE_NUMBER_ONE.phoneType)
+    assertThat(phoneNumbers[0].ext).isEqualTo(PHONE_NUMBER_ONE.extNo)
   }
 
   @Test
@@ -86,12 +89,14 @@ class OffenderPhonesServiceTest {
       OffenderPhoneNumberCreateRequest(
         phoneNumberType = PhoneToCreate.TYPE,
         phoneNumber = PhoneToCreate.NUMBER,
+        extension = PhoneToCreate.EXTENSION,
       ),
     )
 
     assertThat(createdPhone).isNotNull()
     assertThat(createdPhone.number).isEqualTo(PHONE_NUMBER_ONE.phoneNo)
     assertThat(createdPhone.type).isEqualTo(PHONE_NUMBER_ONE.phoneType)
+    assertThat(createdPhone.ext).isEqualTo(PHONE_NUMBER_ONE.extNo)
   }
 
   @Test
@@ -194,11 +199,12 @@ class OffenderPhonesServiceTest {
     const val PHONE_NUMBER_ONE_ID = 54321L
     val PHONE_NUMBER_ONE =
       OffenderPhone.builder().phoneId(PHONE_NUMBER_ONE_ID).phoneType(VALID_PHONE_TYPE).phoneNo("01234 567 890")
-        .offender(Offender().apply { id = 123 }).build()
+        .extNo("123").offender(Offender().apply { id = 123 }).build()
 
     data object PhoneToCreate {
       const val TYPE = VALID_PHONE_TYPE_2
       const val NUMBER = "07878 787878"
+      const val EXTENSION = "123"
     }
 
     val OFFENDER = Offender().apply {

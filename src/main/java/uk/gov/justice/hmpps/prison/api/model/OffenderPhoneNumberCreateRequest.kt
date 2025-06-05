@@ -20,4 +20,13 @@ data class OffenderPhoneNumberCreateRequest(
   @field:NotBlank
   @field:Size(max = 40)
   val phoneNumber: String,
+
+  @Schema(
+    description = "The telephone extension",
+    example = "123",
+    requiredMode = Schema.RequiredMode.NOT_REQUIRED,
+    nullable = true,
+  )
+  @field:Size(max = 7)
+  val extension: String? = null,
 )

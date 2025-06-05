@@ -37,7 +37,7 @@ class OffenderPhonesService(
     }
 
     val phone = OffenderPhone.builder().offender(offender).phoneNo(offenderPhoneNumberRequest.phoneNumber)
-      .phoneType(offenderPhoneNumberRequest.phoneNumberType).build()
+      .phoneType(offenderPhoneNumberRequest.phoneNumberType).extNo(offenderPhoneNumberRequest.extension).build()
 
     return AddressTransformer.translate(offenderPhoneRepository.save(phone))
   }
@@ -52,16 +52,18 @@ class OffenderPhonesService(
     }
 
     try {
-      val phoneToUpdate = offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(prisonerNumber, phoneNumberId).orElseThrow(
-        EntityNotFoundException.withMessage(
-          "Phone number with prisoner number %s and phone ID %s not found",
-          prisonerNumber,
-          phoneNumberId,
-        ),
-      )
+      val phoneToUpdate =
+        offenderPhoneRepository.findByRootNomsIdAndPhoneIdForUpdate(prisonerNumber, phoneNumberId).orElseThrow(
+          EntityNotFoundException.withMessage(
+            "Phone number with prisoner number %s and phone ID %s not found",
+            prisonerNumber,
+            phoneNumberId,
+          ),
+        )
 
       phoneToUpdate.phoneType = offenderPhoneNumberRequest.phoneNumberType
       phoneToUpdate.phoneNo = offenderPhoneNumberRequest.phoneNumber
+      phoneToUpdate.extNo = offenderPhoneNumberRequest.extension
       return AddressTransformer.translate(offenderPhoneRepository.save(phoneToUpdate))
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber)
