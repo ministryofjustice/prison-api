@@ -26,7 +26,7 @@ jobs:
   helm_lint:
     strategy:
       matrix:
-        environments: ['dev', 'preprod', 'prod']
+        environments: [ 'dev', 'preprod', 'prod' ]
     name: helm lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
@@ -34,18 +34,18 @@ jobs:
       environment: ${{ matrix.environments }}
   gradle-verify:
     name: Run the tests
-    uses: ./.github/workflows/gradle_verify.yml # LOCAL_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
   gradle-test-integration:
     name: Run the integration tests
-    uses: ./.github/workflows/gradle_verify.yml # LOCAL_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
       gradle-command: './gradlew testIntegration'
       artifact-name: 'integration test results'
   gradle-test-cucumber:
     name: Run the cucumber tests
-    uses: ./.github/workflows/gradle_verify.yml # LOCAL_VERSION
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
       gradle-command: './gradlew testWithSchemaNomis'
@@ -69,7 +69,7 @@ jobs:
     name: Deploy to the dev environment
     if: github.ref == 'refs/heads/main'
     needs:
-    - build
+      - build
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
@@ -78,8 +78,8 @@ jobs:
   deploy_preprod:
     name: Deploy to the preprod environment
     needs:
-    - build
-    - deploy_dev
+      - build
+      - deploy_dev
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
@@ -88,8 +88,8 @@ jobs:
   deploy_prod:
     name: Deploy to the prod environment
     needs:
-    - build
-    - deploy_preprod
+      - build
+      - deploy_preprod
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
     with:
