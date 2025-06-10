@@ -378,6 +378,79 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/movements/booking/{bookingId}")
+  inner class GetMovementsForBooking {
+    @Test
+    fun `Get movements for booking`() {
+      webTestClient.get()
+        .uri("/api/movements/booking/{bookingId}", -47)
+        .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json(
+          """
+          [
+            {
+              "sequence": 1,
+              "fromAgency": "OUT",
+              "toAgency": "MDI",
+              "movementType": "TRN",
+              "directionCode": "IN",
+              "movementDateTime": "2000-08-16T00:00:00",
+              "movementReasonCode": "NOTR"
+            },
+            {
+              "sequence": 2,
+              "fromAgency": "MDI",
+              "toAgency": "COURT1",
+              "movementType": "TRN",
+              "directionCode": "OUT",
+              "movementDateTime": "2000-08-16T00:00:00",
+              "movementReasonCode": "NOTR"
+            },
+            {
+              "sequence": 3,
+              "fromAgency": "COURT1",
+              "toAgency": "MDI",
+              "movementType": "TRN",
+              "directionCode": "IN",
+              "movementDateTime": "2000-08-16T00:00:00",
+              "movementReasonCode": "NOTR"
+            },
+            {
+              "sequence": 4,
+              "fromAgency": "MDI",
+              "toAgency": "LEI",
+              "movementType": "TRN",
+              "directionCode": "OUT",
+              "movementDateTime": "2000-08-16T00:00:00",
+              "movementReasonCode": "NOTR"
+            },
+            {
+              "sequence": 5,
+              "fromAgency": "MDI",
+              "toAgency": "LEI",
+              "movementType": "TRN",
+              "directionCode": "IN",
+              "movementDateTime": "2000-08-16T00:00:00",
+              "movementReasonCode": "NOTR"
+            },
+            {
+              "sequence": 6,
+              "toAgency": "LEI",
+              "movementType": "TAP",
+              "directionCode": "IN",
+              "movementDateTime": "2018-01-01T00:00:00",
+              "movementReasonCode": "C3"
+            }
+          ]
+          """.trimIndent(),
+        )
+    }
+  }
+
+  @Nested
   @DisplayName("GET /api/movements/rollcount/{agencyId}/movements")
   inner class GetMovementRollcount {
 
@@ -1269,19 +1342,6 @@ class MovementResourceTest : ResourceTest() {
 
       assertThat(response.userMessage).isNotBlank()
     }
-
-    private fun getAgenciesAndTimes() = listOf(
-      MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
-      MovementParameters("MDI", "LEI", "2019-05-01T00:00:00", "2019-05-01T00:00:00", 0, 0, 0, 1),
-      MovementParameters("LEI", "MDI", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 3, 1, 1, 1),
-      MovementParameters("INVAL", "INVAL", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 0, 0, 0, 0),
-    )
-
-    private fun getAgenciesAndTimesValidation() = listOf(
-      MovementParameters("LEI", "MDI", "2019-05-01T17:00:00", "2019-05-01T11:00:00", 0, 0, 0, 0),
-      MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
-      MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
-    )
 
     private fun getScheduledMovements(
       courtEvents: Boolean,
