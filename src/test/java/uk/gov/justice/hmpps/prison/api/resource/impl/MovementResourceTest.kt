@@ -1343,6 +1343,21 @@ class MovementResourceTest : ResourceTest() {
       assertThat(response.userMessage).isNotBlank()
     }
 
+    @SuppressWarnings("unused")
+    private fun getAgenciesAndTimes() = listOf(
+      MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
+      MovementParameters("MDI", "LEI", "2019-05-01T00:00:00", "2019-05-01T00:00:00", 0, 0, 0, 1),
+      MovementParameters("LEI", "MDI", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 3, 1, 1, 1),
+      MovementParameters("INVAL", "INVAL", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 0, 0, 0, 0),
+    )
+
+    @SuppressWarnings("unused")
+    private fun getAgenciesAndTimesValidation() = listOf(
+      MovementParameters("LEI", "MDI", "2019-05-01T17:00:00", "2019-05-01T11:00:00", 0, 0, 0, 0),
+      MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
+      MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
+    )
+
     private fun getScheduledMovements(
       courtEvents: Boolean,
       releaseEvents: Boolean,
