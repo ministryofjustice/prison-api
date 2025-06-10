@@ -20,6 +20,7 @@ import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
+import uk.gov.justice.hmpps.prison.api.model.BookingMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
@@ -49,7 +50,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 import java.util.function.Predicate;
@@ -120,12 +120,28 @@ public class MovementsService {
             .collect(toList());
     }
 
-
     public List<Movement> getMovementsByOffender(final String offenderNumber, final List<String> movementTypes, final boolean allBookings, final LocalDate movementsAfter) {
         final var movements = movementsRepository.getMovementsByOffender(offenderNumber, movementTypes, allBookings, movementsAfter);
 
         return movements.stream()
             .map(this::mapMovementDescriptions)
+            .collect(toList());
+    }
+
+    public List<BookingMovement> getMovementsByBooking(final Long bookingId) {
+        final var movements = externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId);
+
+        return movements.stream()
+            .map(m -> new BookingMovement(
+                    m.getMovementSequence().intValue(),
+                    m.getFromAgency() == null ? null : m.getFromAgency().getId(),
+                    m.getToAgency() == null ? null : m.getToAgency().getId(),
+                    m.getMovementType() == null ? null : m.getMovementType().getCode(),
+                    m.getMovementDirection() == null ? null : m.getMovementDirection().name(),
+                    m.getMovementTime(),
+                    m.getMovementReasonCode()
+                )
+            )
             .collect(toList());
     }
 
@@ -431,9 +447,9 @@ public class MovementsService {
             .lastName(offender.getLastName())
             .dateOfBirth(offender.getBirthDate())
             .movementTime(movement.getMovementTime())
-            .toAgency(toAgency == null ? null: toAgency.getId())
-            .toAgencyDescription(toAgency == null ? null: toAgency.getDescription())
-            .toCity(toCity == null ? null: toCity.getDescription())
+            .toAgency(toAgency == null ? null : toAgency.getId())
+            .toAgencyDescription(toAgency == null ? null : toAgency.getDescription())
+            .toCity(toCity == null ? null : toCity.getDescription())
             .movementReason(movement.getMovementReason().getDescription())
             .movementReasonCode(movement.getMovementReason().getCode())
             .commentText(movement.getCommentText())

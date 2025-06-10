@@ -7,6 +7,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotEmpty;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -27,6 +29,7 @@ import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
+import uk.gov.justice.hmpps.prison.api.model.BookingMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
@@ -40,9 +43,6 @@ import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
-
-import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -157,6 +157,15 @@ public class MovementResource {
         @RequestParam(value = "allBookings", required = false, defaultValue = "false") @Parameter(description = "Returns all movements for this offender list from all bookings if true") final boolean allBookings,
         @RequestParam(value = "movementsAfter", required = false)  @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Filters movements that happened since this date") final LocalDate movementsAfter) {
         return movementsService.getMovementsByOffender(offenderNo, movementTypes, allBookings, movementsAfter);
+    }
+
+    @Operation(summary = "Get all movements (with sequence numbers) for booking")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    @GetMapping("/booking/{bookingId}")
+    public List<BookingMovement> getMovementsByBooking(
+        @PathVariable("bookingId") @Parameter(description = "The booking id", required = true) final Long bookingId
+    ) {
+        return movementsService.getMovementsByBooking(bookingId);
     }
 
     @ApiResponses({
