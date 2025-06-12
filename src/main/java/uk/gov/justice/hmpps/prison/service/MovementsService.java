@@ -139,7 +139,9 @@ public class MovementsService {
                     m.getMovementType() == null ? null : m.getMovementType().getCode(),
                     m.getMovementDirection() == null ? null : m.getMovementDirection().name(),
                     m.getMovementTime(),
-                    m.getMovementReasonCode()
+                    m.getMovementReasonCode(),
+                    m.getCreateDatetime(),
+                    m.getModifyDatetime()
                 )
             )
             .collect(toList());
