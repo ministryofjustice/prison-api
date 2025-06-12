@@ -30,7 +30,8 @@ dependencies {
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   implementation("commons-codec:commons-codec:1.18.0")
-  implementation("com.github.jsqlparser:jsqlparser:5.3")
+  // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
+  implementation("com.github.jsqlparser:jsqlparser:5.2")
   implementation("org.ehcache:ehcache:3.10.8")
   runtimeOnly("com.zaxxer:HikariCP")
 
@@ -71,10 +72,10 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.28") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.29") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.32")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.31")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.51.0")
 
