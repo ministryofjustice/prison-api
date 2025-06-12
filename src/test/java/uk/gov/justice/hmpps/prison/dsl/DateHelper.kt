@@ -1,8 +1,13 @@
 package uk.gov.justice.hmpps.prison.dsl
 
+import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.within
+import org.springframework.test.web.reactive.server.JsonPathAssertions
+import org.springframework.test.web.reactive.server.WebTestClient
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
+import java.time.temporal.ChronoUnit
 
 @Suppress("ktlint:standard:function-naming")
 // add more months when required
@@ -19,4 +24,8 @@ enum class TimePoints {
 
   @Suppress("ktlint:standard:enum-entry-name-case")
   midday,
+}
+
+fun JsonPathAssertions.isAboutNow(): WebTestClient.BodyContentSpec = this.value<String> {
+  assertThat(LocalDateTime.parse(it)).isCloseTo(LocalDateTime.now(), within(30, ChronoUnit.SECONDS))
 }

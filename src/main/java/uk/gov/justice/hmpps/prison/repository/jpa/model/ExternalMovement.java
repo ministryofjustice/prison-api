@@ -177,4 +177,12 @@ public class ExternalMovement extends AuditableEntity {
             ? "Outside - released from " + getFromAgency().getDescription()
             : "Outside - " + getMovementType().getDescription();
     }
+
+    public LocalDateTime getCreateDatetime() {
+        return super.getCreateDatetime();
+    }
+
+    public LocalDateTime getModifyDatetime() {
+        return super.getModifyDatetime();
+    }
 }
