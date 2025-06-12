@@ -10,6 +10,7 @@ import org.junit.jupiter.api.TestInstance
 import org.junit.jupiter.api.TestInstance.Lifecycle.PER_CLASS
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.MethodSource
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
@@ -25,6 +26,9 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderInReception
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
+import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
+import uk.gov.justice.hmpps.prison.dsl.isAboutNow
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import java.time.LocalDate
@@ -36,6 +40,10 @@ import java.time.temporal.ChronoUnit
 import java.util.Map.entry
 
 class MovementResourceTest : ResourceTest() {
+
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
+
   @Nested
   @DisplayName("GET api/movements")
   inner class Movements {
@@ -382,71 +390,48 @@ class MovementResourceTest : ResourceTest() {
   inner class GetMovementsForBooking {
     @Test
     fun `Get movements for booking`() {
+      lateinit var booking: OffenderBookingId
+
+      builder.build {
+        offender {
+          booking = booking(bookingInTime = LocalDateTime.parse("2025-05-18T08:00:00")) {
+            release(releaseTime = LocalDateTime.parse("2025-05-19T10:00:00"))
+            recall(recallTime = LocalDateTime.parse("2025-05-20T22:00:00"))
+          }
+        }
+      }
+
       webTestClient.get()
-        .uri("/api/movements/booking/{bookingId}", -47)
+        .uri("/api/movements/booking/{bookingId}", booking.bookingId)
         .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))
         .exchange()
         .expectStatus().isOk
         .expectBody()
-        .json(
-          """
-          [
-            {
-              "sequence": 1,
-              "fromAgency": "OUT",
-              "toAgency": "MDI",
-              "movementType": "TRN",
-              "directionCode": "IN",
-              "movementDateTime": "2000-08-16T00:00:00",
-              "movementReasonCode": "NOTR"
-            },
-            {
-              "sequence": 2,
-              "fromAgency": "MDI",
-              "toAgency": "COURT1",
-              "movementType": "TRN",
-              "directionCode": "OUT",
-              "movementDateTime": "2000-08-16T00:00:00",
-              "movementReasonCode": "NOTR"
-            },
-            {
-              "sequence": 3,
-              "fromAgency": "COURT1",
-              "toAgency": "MDI",
-              "movementType": "TRN",
-              "directionCode": "IN",
-              "movementDateTime": "2000-08-16T00:00:00",
-              "movementReasonCode": "NOTR"
-            },
-            {
-              "sequence": 4,
-              "fromAgency": "MDI",
-              "toAgency": "LEI",
-              "movementType": "TRN",
-              "directionCode": "OUT",
-              "movementDateTime": "2000-08-16T00:00:00",
-              "movementReasonCode": "NOTR"
-            },
-            {
-              "sequence": 5,
-              "fromAgency": "MDI",
-              "toAgency": "LEI",
-              "movementType": "TRN",
-              "directionCode": "IN",
-              "movementDateTime": "2000-08-16T00:00:00",
-              "movementReasonCode": "NOTR"
-            },
-            {
-              "sequence": 6,
-              "toAgency": "LEI",
-              "movementType": "TAP",
-              "directionCode": "IN",
-              "movementDateTime": "2018-01-01T00:00:00",
-              "movementReasonCode": "C3"
-            }
-          ]
-          """.trimIndent(),
-        )
+        .jsonPath("size()").isEqualTo("3")
+        .jsonPath("[0].sequence").isEqualTo(1)
+        .jsonPath("[0].fromAgency").isEqualTo("OUT")
+        .jsonPath("[0].toAgency").isEqualTo("MDI")
+        .jsonPath("[0].movementType").isEqualTo("ADM")
+        .jsonPath("[0].directionCode").isEqualTo("IN")
+        .jsonPath("[0].movementDateTime").isEqualTo("2025-05-18T08:00:00")
+        .jsonPath("[0].movementReasonCode").isEqualTo("N")
+        .jsonPath("[0].createdDateTime").isAboutNow()
+        .jsonPath("[1].sequence").isEqualTo(2)
+        .jsonPath("[1].fromAgency").isEqualTo("MDI")
+        .jsonPath("[1].toAgency").isEqualTo("OUT")
+        .jsonPath("[1].movementType").isEqualTo("REL")
+        .jsonPath("[1].directionCode").isEqualTo("OUT")
+        .jsonPath("[1].movementDateTime").isEqualTo("2025-05-19T10:00:00")
+        .jsonPath("[1].movementReasonCode").isEqualTo("CR")
+        .jsonPath("[1].createdDateTime").isAboutNow()
+        .jsonPath("[2].sequence").isEqualTo(3)
+        .jsonPath("[2].fromAgency").isEqualTo("OUT")
+        .jsonPath("[2].toAgency").isEqualTo("MDI")
+        .jsonPath("[2].movementType").isEqualTo("ADM")
+        .jsonPath("[2].directionCode").isEqualTo("IN")
+        .jsonPath("[2].movementDateTime").isEqualTo("2025-05-20T22:00:00")
+        .jsonPath("[2].movementReasonCode").isEqualTo("24")
+        .jsonPath("[2].createdDateTime").isAboutNow()
     }
   }
 
@@ -1352,6 +1337,21 @@ class MovementResourceTest : ResourceTest() {
       val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
       return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
     }
+
+    @SuppressWarnings("unused")
+    private fun getAgenciesAndTimes() = listOf(
+      MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
+      MovementParameters("MDI", "LEI", "2019-05-01T00:00:00", "2019-05-01T00:00:00", 0, 0, 0, 1),
+      MovementParameters("LEI", "MDI", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 3, 1, 1, 1),
+      MovementParameters("INVAL", "INVAL", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 0, 0, 0, 0),
+    )
+
+    @SuppressWarnings("unused")
+    private fun getAgenciesAndTimesValidation() = listOf(
+      MovementParameters("LEI", "MDI", "2019-05-01T17:00:00", "2019-05-01T11:00:00", 0, 0, 0, 0),
+      MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
+      MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
+    )
 
     private fun getScheduledMovements(
       courtEvents: Boolean,

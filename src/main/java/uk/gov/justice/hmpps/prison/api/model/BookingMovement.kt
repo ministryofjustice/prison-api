@@ -1,61 +1,39 @@
-package uk.gov.justice.hmpps.prison.api.model;
+package uk.gov.justice.hmpps.prison.api.model
 
-import com.fasterxml.jackson.annotation.JsonInclude;
-import io.swagger.v3.oas.annotations.media.Schema;
-import jakarta.annotation.Nullable;
-import jakarta.validation.constraints.NotBlank;
-import lombok.Data;
-
-import java.time.LocalDateTime;
-
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.NOT_REQUIRED;
-import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
+import com.fasterxml.jackson.annotation.JsonInclude
+import io.swagger.v3.oas.annotations.media.Schema
+import java.time.LocalDateTime
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@Schema(description = "Movement")
-@Data
-public class BookingMovement {
+@Schema(description = "Movement DTO")
+data class BookingMovement(
+  @Schema(description = "Sequence number")
+  val sequence: Int?,
 
-    @Schema(description = "Sequence number")
-    private Integer sequence;
+  @Schema(description = "Agency travelling from")
+  val fromAgency: String?,
 
-    @Nullable
-    @Schema(requiredMode = NOT_REQUIRED, description = "Agency travelling from")
-    private String fromAgency;
+  @Schema(description = "Agency travelling to")
+  val toAgency: String?,
 
-    @Nullable
-    @Schema(requiredMode = NOT_REQUIRED, description = "Agency travelling to")
-    private String toAgency;
+  @Schema(
+    description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)",
+    allowableValues = ["ADM", "CRT", "REL", "TAP", "TRN"],
+  )
+  val movementType: String?,
 
-    @NotBlank
-    @Schema(requiredMode = REQUIRED, description = "ADM (admission), CRT (court), REL (release), TAP (temporary absence) or TRN (transfer)", example = "ADM", allowableValues = {"ADM", "CRT", "REL", "TAP", "TRN"})
-    private String movementType;
+  @Schema(description = "IN or OUT")
+  val directionCode: String?,
 
-    @Schema(requiredMode = REQUIRED, description = "IN or OUT")
-    @NotBlank
-    private String directionCode;
+  @Schema(description = "Movement timestamp")
+  val movementDateTime: LocalDateTime?,
 
-    @Schema(requiredMode = REQUIRED, description = "Movement timestamp")
-    private LocalDateTime movementDateTime;
+  @Schema(description = "Code of movement reason")
+  val movementReasonCode: String?,
 
-    @Schema(requiredMode = REQUIRED, description = "Code of movement reason")
-    private String movementReasonCode;
+  @Schema(description = "DB create timestamp")
+  val createdDateTime: LocalDateTime?,
 
-    public BookingMovement(
-        Integer sequence,
-        @NotBlank String fromAgency,
-        @NotBlank String toAgency,
-        @NotBlank String movementType,
-        @NotBlank String directionCode,
-        LocalDateTime movementTime,
-        String movementReasonCode
-    ) {
-        this.fromAgency = fromAgency;
-        this.toAgency = toAgency;
-        this.movementType = movementType;
-        this.directionCode = directionCode;
-        this.movementDateTime = movementTime;
-        this.movementReasonCode = movementReasonCode;
-        this.sequence = sequence;
-    }
-}
+  @Schema(description = "DB modify timestamp")
+  val modifiedDateTime: LocalDateTime?,
+)
