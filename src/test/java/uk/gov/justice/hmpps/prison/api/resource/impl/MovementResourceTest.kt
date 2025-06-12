@@ -1328,16 +1328,6 @@ class MovementResourceTest : ResourceTest() {
       assertThat(response.userMessage).isNotBlank()
     }
 
-    private fun getScheduledMovements(
-      courtEvents: Boolean,
-      releaseEvents: Boolean,
-      transferEvents: Boolean,
-    ): ResponseEntity<String?> {
-      val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
-      val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
-      return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
-    }
-
     @SuppressWarnings("unused")
     private fun getAgenciesAndTimes() = listOf(
       MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
@@ -1352,6 +1342,16 @@ class MovementResourceTest : ResourceTest() {
       MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
       MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
     )
+
+    private fun getScheduledMovements(
+      courtEvents: Boolean,
+      releaseEvents: Boolean,
+      transferEvents: Boolean,
+    ): ResponseEntity<String?> {
+      val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
+      val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
+      return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
+    }
 
     private fun getScheduledMovements(
       courtEvents: Boolean,
