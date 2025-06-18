@@ -47,9 +47,6 @@ import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEmailAddressCreateRequest;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifierCreateRequest;
-import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifierUpdateRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
@@ -103,7 +100,6 @@ import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
 import uk.gov.justice.hmpps.prison.service.OffenderBeliefService;
 import uk.gov.justice.hmpps.prison.service.OffenderDamageObligationService;
 import uk.gov.justice.hmpps.prison.service.OffenderEmailsService;
-import uk.gov.justice.hmpps.prison.service.OffenderIdentifierService;
 import uk.gov.justice.hmpps.prison.service.OffenderLocation;
 import uk.gov.justice.hmpps.prison.service.OffenderLocationService;
 import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
@@ -151,7 +147,6 @@ public class OffenderResource {
     private final ReleasePrisonerService releasePrisonerService;
     private final DischargeToHospitalService dischargeToHospitalService;
     private final OffenderBeliefService offenderBeliefService;
-    private final OffenderIdentifierService offenderIdentifierService;
     private final PrisonerProfileUpdateService prisonerProfileUpdateService;
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
     private final OffenderPhonesService offenderPhonesService;
@@ -955,74 +950,6 @@ public class OffenderResource {
     public List<Belief> getOffenderBeliefHistory(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
                                                  @RequestParam(value = "bookingId", required = false) final String bookingId) {
         return offenderBeliefService.getOffenderBeliefHistory(prisonerNumber, bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to view identifiers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'GLOBAL_SEARCH')")
-    @Operation(summary = "Get all identifiers for the prisoner (with or without alias identifiers)")
-    @GetMapping("/{offenderNo}/offender-identifiers")
-    public List<OffenderIdentifier> getAllOffenderIdentifiers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                              @RequestParam(value = "includeAliases", required = false) final boolean includeAliases) {
-
-        return offenderIdentifierService.getOffenderIdentifiers(prisonerNumber, includeAliases);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to view identifiers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'GLOBAL_SEARCH')")
-    @Operation(summary = "Get a single identifier for the prisoner by sequence")
-    @GetMapping("/{offenderNo}/offender-identifiers/{offenderIdSeq}")
-    public OffenderIdentifier getOffenderIdentifier(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                    @PathVariable("offenderIdSeq") @Parameter(description = "The identifier sequence", required = true) final Long offenderIdSeq) {
-
-        return offenderIdentifierService.getOffenderIdentifier(prisonerNumber, offenderIdSeq);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Identifiers added."),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to add identifiers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Prisoner not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
-    @Operation(summary = "Add identifiers for the prisoner")
-    @PostMapping("/{offenderNo}/offender-identifiers")
-    @ProxyUser
-    public ResponseEntity<Void> addOffenderIdentifiers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                           @RequestBody @NotNull @Valid final List<OffenderIdentifierCreateRequest> offenderIdentifierRequests) {
-
-        offenderIdentifierService.addOffenderIdentifiers(prisonerNumber, offenderIdentifierRequests);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "204", description = "Identifier updated."),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update identifiers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Identifier not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
-    })
-    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
-    @Operation(summary = "Update an existing identifier for the prisoner")
-    @PutMapping("/{offenderNo}/offender-identifiers/{offenderIdSeq}")
-    @ResponseStatus(NO_CONTENT)
-    @ProxyUser
-    public void updateOffenderIdentifier(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                       @PathVariable("offenderIdSeq") @Parameter(description = "The identifier sequence", required = true) final Long offenderIdSeq,
-                                                       @RequestBody @NotNull @Valid final OffenderIdentifierUpdateRequest offenderIdentifierRequest) {
-
-        offenderIdentifierService.updateOffenderIdentifier(prisonerNumber, offenderIdSeq, offenderIdentifierRequest);
     }
 
     @ApiResponses({

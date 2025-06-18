@@ -107,32 +107,32 @@ class OffenderIdentityServiceTest {
   }
 
   @Test
-  fun `getOffenderIdentifier returns a single identifier`() {
+  fun `getOffenderIdentifierForAlias returns a single identifier`() {
     whenever(
-      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
-        eq("ABC123"),
+      offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(
+        eq(1L),
         eq(1L),
       ),
     ).thenReturn(Optional.of(testIdentifier))
 
-    val identifier = offenderIdentifierService.getOffenderIdentifier("ABC123", 1L)
+    val identifier = offenderIdentifierService.getOffenderIdentifierForAlias(1L, 1L)
     assertThat(identifier.type).isEqualTo("NINO")
     assertThat(identifier.value).isEqualTo("IDENTIFIER")
     assertThat(identifier.offenderId).isEqualTo(123)
   }
 
   @Test
-  fun `getOffenderIdentifier throws exception when identifier not found`() {
+  fun `getOffenderIdentifierForAlias throws exception when identifier not found`() {
     whenever(
-      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
-        any(),
+      offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(
+        anyLong(),
         anyLong(),
       ),
     ).thenReturn(Optional.empty())
 
-    assertThatThrownBy { offenderIdentifierService.getOffenderIdentifier("ABC123", 1L) }
+    assertThatThrownBy { offenderIdentifierService.getOffenderIdentifierForAlias(1L, 1L) }
       .isInstanceOf(EntityNotFoundException::class.java)
-      .hasMessageContaining("Offender identifier for prisoner ABC123 with sequence 1 not found")
+      .hasMessageContaining("Offender identifier for alias (offenderId) 1 with sequence 1 not found")
   }
 
   @Test
@@ -164,36 +164,38 @@ class OffenderIdentityServiceTest {
   }
 
   @Test
-  fun `updateOffenderIdentifier updates an existing identifier`() {
+  fun `updateOffenderIdentifierForAlias updates an existing identifier`() {
+    val identifier: OffenderIdentifier = mock()
+    whenever(identifier.identifierType).thenReturn("NINO")
     whenever(
-      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
-        eq("ABC123"),
+      offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(
+        eq(testOffender.id),
         eq(1L),
       ),
-    ).thenReturn(Optional.of(testIdentifier))
-    whenever(offenderIdentifierRepository.save(any<OffenderIdentifier>()))
-      .thenReturn(testUpdatedIdentifier)
+    ).thenReturn(Optional.of(identifier))
+    whenever(offenderRepository.findById(testOffender.id)).thenReturn(Optional.of(testOffender))
     whenever(referenceDomainService.isReferenceCodeActive(any(), any())).thenReturn(true)
 
     val request = OffenderIdentifierUpdateRequest("UPDATED_IDENTIFIER", "COMMENT")
-    offenderIdentifierService.updateOffenderIdentifier("ABC123", 1L, request)
+    offenderIdentifierService.updateOffenderIdentifierForAlias(testOffender.id, 1L, request)
 
-    verify(offenderIdentifierRepository).save(any<OffenderIdentifier>())
+    verify(identifier).identifier = "UPDATED_IDENTIFIER"
+    verify(identifier).issuedAuthorityText = "COMMENT"
   }
 
   @Test
-  fun `updateOffenderIdentifier throws exception when identifier not found`() {
+  fun `updateOffenderIdentifierForAlias throws exception when identifier not found`() {
     whenever(
-      offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(
-        any(),
+      offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(
+        anyLong(),
         anyLong(),
       ),
     ).thenReturn(Optional.empty())
 
     val request = OffenderIdentifierUpdateRequest("UPDATED_IDENTIFIER", "COMMENT")
-    assertThatThrownBy { offenderIdentifierService.updateOffenderIdentifier("ABC123", 1L, request) }
+    assertThatThrownBy { offenderIdentifierService.updateOffenderIdentifierForAlias(1L, 1L, request) }
       .isInstanceOf(EntityNotFoundException::class.java)
-      .hasMessageContaining("Offender identifier for prisoner ABC123 with sequence 1 not found")
+      .hasMessageContaining("Offender identifier for alias (offenderId) 1 with sequence 1 not found")
   }
 
   @Nested

@@ -27,8 +27,8 @@ public interface OffenderIdentifierRepository extends CrudRepository<OffenderIde
 
     @Query("""
         select oi from OffenderIdentifier oi
-        where oi.offender.nomsId = :prisonerNumber
+        where oi.offenderIdentifierPK.offenderId = :offenderId
         and oi.offenderIdentifierPK.offenderIdSeq = :offenderIdSeq
     """)
-    Optional<OffenderIdentifier> findByPrisonerNumberAndOffenderIdSeq(final String prisonerNumber, final Long offenderIdSeq);
+    Optional<OffenderIdentifier> findByOffenderIdAndOffenderIdSeq(final Long offenderId, final Long offenderIdSeq);
 }
