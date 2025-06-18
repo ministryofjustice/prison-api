@@ -1023,6 +1023,25 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Nested
+    inner class GetAlias {
+      @Test
+      internal fun `can retrieve list an existing alias`() {
+        whenever(offenderRepository.findAliasById(OFFENDER_ID)).thenReturn(Optional.of(expectedResponse))
+
+        assertThat(prisonerProfileUpdateService.getAlias(OFFENDER_ID)).isEqualTo(expectedResponse)
+      }
+
+      @Test
+      internal fun `throws exception when there isn't an existing alias`() {
+        whenever(offenderRepository.findAliasById(OFFENDER_ID)).thenReturn(Optional.empty())
+
+        assertThatThrownBy { prisonerProfileUpdateService.getAlias(OFFENDER_ID) }
+          .isInstanceOf(EntityNotFoundException::class.java)
+          .hasMessage("Alias with offenderId 111111 not found")
+      }
+    }
+
+    @Nested
     inner class CreateAlias {
       private val request = CreateAlias(
         firstName = FIRST_NAME,

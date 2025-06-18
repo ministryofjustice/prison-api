@@ -58,6 +58,30 @@ class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpd
   ) = prisonerProfileUpdateService.getAliases(prisonerNumber)
 
   @ApiResponses(
+    ApiResponse(responseCode = "200", description = "Alias successfully returned."),
+    ApiResponse(
+      responseCode = "404",
+      description = "Requested resource not found.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  @Operation(
+    summary = "Retrieve a specific aliases for the prisoner. " +
+      "Requires the PRISON_API__PRISONER_PROFILE__RW role.",
+  )
+  @GetMapping("/aliases/{offenderId}")
+  @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+  @ResponseStatus(OK)
+  fun getAlias(
+    @PathVariable("offenderId") @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
+  ) = prisonerProfileUpdateService.getAlias(offenderId)
+
+  @ApiResponses(
     ApiResponse(responseCode = "201", description = "A new alias for the prisoner has been created."),
     ApiResponse(
       responseCode = "400",

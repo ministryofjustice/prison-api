@@ -75,4 +75,38 @@ interface OffenderRepository : JpaRepository<Offender, Long> {
     """,
   )
   fun findByNomsId(nomsId: String): List<CorePersonRecordAlias>
+
+  @Query(
+    """
+    SELECT new uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias(
+        o.nomsId,
+        o.id,
+        ob.bookingId,
+        o.firstName,
+        o.middleName,
+        o.middleName2,
+        o.lastName,
+        o.birthDate,
+        nt.code,
+        nt.description,
+        t.code,
+        t.description,
+        s.code,
+        s.description,
+        e.code,
+        e.description
+    )
+    FROM Offender o
+    LEFT JOIN OffenderBooking ob
+    ON o.id = ob.offender.id
+    AND ob.bookingSequence = 1
+    LEFT JOIN NameType nt ON nt.code = o.aliasNameType.code
+    LEFT JOIN Title t ON t.code = o.title.code
+    LEFT JOIN Gender s ON s.code = o.gender.code
+    LEFT JOIN Ethnicity e ON e.code = o.ethnicity.code
+    WHERE o.id = :offenderId
+    ORDER BY o.createDate DESC
+    """,
+  )
+  fun findAliasById(offenderId: Long): Optional<CorePersonRecordAlias>
 }

@@ -145,4 +145,43 @@ class OffenderRepositoryTest {
       assertThat(repository.findByNomsId("???")).isEmpty()
     }
   }
+
+  @Nested
+  inner class findAliasById {
+    @Test
+    fun `retrieves the alias`() {
+      val alias = repository.findAliasById(-1013L).orElseThrow()
+      val workingNameAlias = repository.findAliasById(-1012L).orElseThrow()
+
+      assertThat(alias.offenderId).isEqualTo(-1013L)
+      assertThat(alias.prisonerNumber).isEqualTo("A1234AL")
+      assertThat(alias.isWorkingName).isFalse()
+      assertThat(workingNameAlias.offenderId).isEqualTo(-1012L)
+      assertThat(workingNameAlias.prisonerNumber).isEqualTo("A1234AL")
+      assertThat(workingNameAlias.isWorkingName).isTrue()
+    }
+
+    @Test
+    fun `populates all the alias fields`() {
+      with(repository.findAliasById(-1072).orElseThrow()) {
+        assertThat(prisonerNumber).isEqualTo("A1072AA")
+        assertThat(offenderId).isEqualTo(-1072)
+        assertThat(isWorkingName).isTrue()
+        assertThat(firstName).isEqualTo("OLD FIRST NAME")
+        assertThat(middleName1).isEqualTo("OLD MIDDLE NAME")
+        assertThat(middleName2).isEqualTo("OLD SECOND MIDDLE NAME")
+        assertThat(lastName).isEqualTo("OLD LAST NAME")
+        assertThat(dateOfBirth).isEqualTo(LocalDate.of(2000, 12, 1))
+        assertThat(nameType?.code).isEqualTo("CN")
+        assertThat(title?.code).isEqualTo("MR")
+        assertThat(sex?.code).isEqualTo("M")
+        assertThat(ethnicity?.code).isEqualTo("W1")
+      }
+    }
+
+    @Test
+    fun `returns empty when offender id not found`() {
+      assertThat(repository.findAliasById(-999L)).isEmpty()
+    }
+  }
 }
