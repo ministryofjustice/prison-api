@@ -249,6 +249,9 @@ class PrisonerProfileUpdateService(
 
   fun getAliases(prisonerNumber: String): List<CorePersonRecordAlias> = offenderRepository.findByNomsId(prisonerNumber)
 
+  fun getAlias(offenderId: Long): CorePersonRecordAlias = offenderRepository.findAliasById(offenderId)
+    .orElseThrowNotFound("Alias with offenderId %s not found", "$offenderId")
+
   @Transactional
   fun createAlias(prisonerNumber: String, request: CreateAlias): CorePersonRecordAlias {
     try {

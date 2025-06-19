@@ -127,6 +127,97 @@ class AliasResourceImplIntTest : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /aliases/{offenderId}")
+  inner class GetAlias {
+    @Nested
+    @DisplayName("Authorisation checks")
+    inner class Authorisation {
+      @Test
+      fun `returns 401 without an auth token`() {
+        webTestClient.get()
+          .uri("api/aliases/-1072")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `returns 403 when client does not have any roles`() {
+        webTestClient.get()
+          .uri("api/aliases/-1072")
+          .headers(setClientAuthorisation(listOf()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
+        webTestClient.get()
+          .uri("api/aliases/-1072")
+          .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 200 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
+        webTestClient.get()
+          .uri("api/aliases/-1072")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .exchange()
+          .expectStatus().isOk
+      }
+    }
+
+    @Nested
+    @DisplayName("Happy path")
+    open inner class HappyPath {
+
+      @Test
+      open fun `should retrieve alias`() {
+        val alias = webTestClient.get()
+          .uri("api/aliases/-1072")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .exchange()
+          .expectStatus().isOk
+          .returnResult<CorePersonRecordAlias>()
+          .responseBody
+          .blockFirst()!!
+
+        assertThat(alias.offenderId).isEqualTo(-1072L)
+        assertThat(alias.prisonerNumber).isEqualTo("A1072AA")
+        assertThat(alias.isWorkingName).isTrue()
+      }
+
+      @Test
+      open fun `should populate all fields of alias`() {
+        val alias = webTestClient.get()
+          .uri("api/aliases/-1072")
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+          .exchange()
+          .expectStatus().isOk
+          .returnResult<CorePersonRecordAlias>()
+          .responseBody
+          .blockFirst()!!
+
+        with(alias) {
+          assertThat(prisonerNumber).isEqualTo("A1072AA")
+          assertThat(offenderId).isEqualTo(-1072)
+          assertThat(isWorkingName).isTrue()
+          assertThat(firstName).isEqualTo("OLD FIRST NAME")
+          assertThat(middleName1).isEqualTo("OLD MIDDLE NAME")
+          assertThat(middleName2).isEqualTo("OLD SECOND MIDDLE NAME")
+          assertThat(lastName).isEqualTo("OLD LAST NAME")
+          assertThat(dateOfBirth).isEqualTo(LocalDate.of(2000, 12, 1))
+          assertThat(nameType?.code).isEqualTo("CN")
+          assertThat(title?.code).isEqualTo("MR")
+          assertThat(sex?.code).isEqualTo("M")
+          assertThat(ethnicity?.code).isEqualTo("W1")
+        }
+      }
+    }
+  }
+
+  @Nested
   @DisplayName("POST /offender/{offenderNo}/aliases")
   inner class CreateAlias {
 

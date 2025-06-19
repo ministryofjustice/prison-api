@@ -11,15 +11,19 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as Identifier
 
 @Service
 @Transactional(readOnly = true)
-class OffenderIdentifierService(private val offenderIdentifierRepository: OffenderIdentifierRepository, private val offenderRepository: OffenderRepository, private val referenceDomainService: ReferenceDomainService) {
+class OffenderIdentifierService(
+  private val offenderIdentifierRepository: OffenderIdentifierRepository,
+  private val offenderRepository: OffenderRepository,
+  private val referenceDomainService: ReferenceDomainService,
+) {
   fun getOffenderIdentifiers(prisonerNumber: String, includeAliases: Boolean?): List<Identifier> {
     val offenderIdentifiers = offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(prisonerNumber)
     return offenderIdentifiers.filter { includeAliases == true || it.rootOffenderId == it.offender.id }.map(this::transformOffenderIdentifier)
   }
 
-  fun getOffenderIdentifier(prisonerNumber: String, offenderIdSeq: Long): Identifier {
-    val offenderIdentifier = offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(prisonerNumber, offenderIdSeq)
-      .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for prisoner $prisonerNumber with sequence $offenderIdSeq not found") }
+  fun getOffenderIdentifierForAlias(offenderId: Long, offenderIdSeq: Long): Identifier {
+    val offenderIdentifier = offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(offenderId, offenderIdSeq)
+      .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for alias (offenderId) $offenderId with sequence $offenderIdSeq not found") }
     return transformOffenderIdentifier(offenderIdentifier)
   }
 
@@ -50,9 +54,13 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
   }
 
   @Transactional
-  fun updateOffenderIdentifier(prisonerNumber: String, offenderIdSeq: Long, offenderIdentifierRequest: OffenderIdentifierUpdateRequest) {
-    val offenderIdentifier = offenderIdentifierRepository.findByPrisonerNumberAndOffenderIdSeq(prisonerNumber, offenderIdSeq)
-      .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for prisoner $prisonerNumber with sequence $offenderIdSeq not found") }
+  fun updateOffenderIdentifierForAlias(offenderId: Long, offenderIdSeq: Long, offenderIdentifierRequest: OffenderIdentifierUpdateRequest) {
+    val offenderIdentifier = offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(offenderId, offenderIdSeq)
+      .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for alias (offenderId) $offenderId with sequence $offenderIdSeq not found") }
+
+    val prisonerNumber = offenderRepository.findById(offenderId)
+      .map { it.nomsId }
+      .orElseThrow { EntityNotFoundException.withMessage("Offender with id $offenderId not found") }
 
     val existingIdentifiers = offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(prisonerNumber)
 
@@ -60,10 +68,10 @@ class OffenderIdentifierService(private val offenderIdentifierRepository: Offend
       throw BadRequestException.withMessage("Identifier ${offenderIdentifierRequest.identifier} is not valid")
     }
 
-    offenderIdentifier.identifier = offenderIdentifierRequest.identifier
-    offenderIdentifier.issuedAuthorityText = offenderIdentifierRequest.issuedAuthorityText
-
-    offenderIdentifierRepository.save(offenderIdentifier)
+    offenderIdentifier.let {
+      it.identifier = offenderIdentifierRequest.identifier
+      it.issuedAuthorityText = offenderIdentifierRequest.issuedAuthorityText?.ifBlank { null }
+    }
   }
 
   private fun validateIdentifier(prisonerNumber: String, identifierType: String, identifier: String, existingIdentifiers: List<OffenderIdentifier>): Boolean {
