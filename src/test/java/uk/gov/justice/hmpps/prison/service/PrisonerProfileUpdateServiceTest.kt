@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
+import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
@@ -29,13 +30,16 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.County
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
@@ -47,6 +51,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
@@ -66,6 +71,9 @@ class PrisonerProfileUpdateServiceTest {
   private val genderRepository: ReferenceCodeRepository<Gender> = mock()
   private val ethnicityRepository: ReferenceCodeRepository<Ethnicity> = mock()
   private val nameTypeRepository: ReferenceCodeRepository<NameType> = mock()
+  private val offenderAddressRepository: OffenderAddressRepository = mock()
+  private val cityRepository: ReferenceCodeRepository<City> = mock()
+  private val countyRepository: ReferenceCodeRepository<County> = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
@@ -80,6 +88,7 @@ class PrisonerProfileUpdateServiceTest {
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
   private val aliasCaptor = argumentCaptor<Offender>()
+  private val addressCaptor = argumentCaptor<OffenderAddress>()
 
   private val prisonerProfileUpdateService: PrisonerProfileUpdateService =
     PrisonerProfileUpdateService(
@@ -88,6 +97,9 @@ class PrisonerProfileUpdateServiceTest {
       genderRepository,
       ethnicityRepository,
       nameTypeRepository,
+      offenderAddressRepository,
+      cityRepository,
+      countyRepository,
       countryRepository,
       profileTypeRepository,
       profileCodeRepository,
@@ -1499,11 +1511,96 @@ class PrisonerProfileUpdateServiceTest {
     }
   }
 
+  @Nested
+  inner class CreateAddresss {
+
+    @Test
+    internal fun `creates address`() {
+      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
+      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
+      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
+      whenever(offenderAddressRepository.save(addressCaptor.capture()))
+        .thenAnswer { addressCaptor.firstValue.also { it.addressId = NEW_ADDRESS_ID } }
+
+      prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
+
+      verify(offenderAddressRepository).save(
+        OffenderAddress.builder()
+          .offender(offender)
+          .addressId(NEW_ADDRESS_ID)
+          .flat("1")
+          .premise("The Building")
+          .street("The Street")
+          .locality("The Locality")
+          .city(ADDRESS_CITY)
+          .county(ADDRESS_COUNTY)
+          .country(ADDRESS_COUNTRY)
+          .postalCode("A1 2BC")
+          .primaryFlag("Y")
+          .mailFlag("Y")
+          .noFixedAddressFlag("Y")
+          .startDate(LocalDate.parse("2021-01-01"))
+          .build(),
+      )
+    }
+
+    @Test
+    internal fun `throws exception when the offender cannot be found`() {
+      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA and existing booking not found")
+    }
+
+    @Test
+    internal fun `throws exception when the city cannot be found`() {
+      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
+      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
+
+      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("City with city code 1001 not found")
+    }
+
+    @Test
+    internal fun `throws exception when the county cannot be found`() {
+      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
+      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
+
+      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("County with county code S.YORKSHIRE not found")
+    }
+
+    @Test
+    internal fun `throws exception when the country cannot be found`() {
+      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
+      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
+
+      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.empty())
+
+      assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Country with country code ENG not found")
+    }
+  }
+
   private companion object {
     const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
     const val OFFENDER_ID = 111111L
     const val NEW_OFFENDER_ID = 222222L
+    const val NEW_ADDRESS_ID = 333333L
     const val BIRTH_PLACE = "SHEFFIELD"
     const val BRITISH_NATIONALITY_CODE = "BRIT"
     const val DRUID_RELIGION_CODE = "DRU"
@@ -1625,6 +1722,26 @@ class PrisonerProfileUpdateServiceTest {
     const val SHOESIZE_PROFILE_TYPE_CODE = "SHOESIZE"
     val SHOESIZE_PROFILE_TYPE =
       ProfileType(SHOESIZE_PROFILE_TYPE_CODE, "PA", "Shoe size", false, true, "TEXT", true, null, null)
+
+    val ADDRESS_REQUEST = CreateAddress(
+      flat = "1",
+      premise = "The Building",
+      street = "The Street",
+      locality = "The Locality",
+      townCode = "1001",
+      countyCode = "S.YORKSHIRE",
+      countryCode = "ENG",
+      postalCode = "A1 2BC",
+      primary = true,
+      mail = true,
+      noFixedAddress = true,
+      startDate = LocalDate.parse("2021-01-01"),
+      addressUsages = emptyList(),
+    )
+
+    val ADDRESS_CITY = City("1001", "Sheffield")
+    val ADDRESS_COUNTY = County("S.YORKSHIRE", "South Yorkshire")
+    val ADDRESS_COUNTRY = Country("ENG", "England")
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")
