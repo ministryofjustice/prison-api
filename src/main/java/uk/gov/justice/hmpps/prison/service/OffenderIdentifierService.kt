@@ -36,7 +36,7 @@ class OffenderIdentifierService(
 
     val newIdentifiers = offenderIdentifierRequests.mapIndexed { index, request ->
 
-      if (!validateIdentifier(prisonerNumber, request.identifierType, request.identifier, offender.identifiers)) {
+      if (!validateAddIdentifier(prisonerNumber, request.identifierType, request.identifier, offender.identifiers)) {
         throw BadRequestException.withMessage("Identifier ${request.identifier} is not valid")
       }
 
@@ -54,7 +54,7 @@ class OffenderIdentifierService(
   }
 
   @Transactional
-  fun updateOffenderIdentifierForAlias(offenderId: Long, offenderIdSeq: Long, offenderIdentifierRequest: OffenderIdentifierUpdateRequest) {
+  fun updateOffenderIdentifierForAlias(offenderId: Long, offenderIdSeq: Long, offenderIdentifierRequest: OffenderIdentifierUpdateRequest): Identifier {
     val offenderIdentifier = offenderIdentifierRepository.findByOffenderIdAndOffenderIdSeq(offenderId, offenderIdSeq)
       .orElseThrow { EntityNotFoundException.withMessage("Offender identifier for alias (offenderId) $offenderId with sequence $offenderIdSeq not found") }
 
@@ -64,7 +64,7 @@ class OffenderIdentifierService(
 
     val existingIdentifiers = offenderIdentifierRepository.findOffenderIdentifiersByOffender_NomsId(prisonerNumber)
 
-    if (!validateIdentifier(prisonerNumber, offenderIdentifier.identifierType, offenderIdentifierRequest.identifier, existingIdentifiers)) {
+    if (!validateUpdateIdentifier(prisonerNumber, offenderIdentifierRequest.identifier, offenderIdentifier, existingIdentifiers)) {
       throw BadRequestException.withMessage("Identifier ${offenderIdentifierRequest.identifier} is not valid")
     }
 
@@ -72,9 +72,16 @@ class OffenderIdentifierService(
       it.identifier = offenderIdentifierRequest.identifier
       it.issuedAuthorityText = offenderIdentifierRequest.issuedAuthorityText?.ifBlank { null }
     }
+
+    return transformOffenderIdentifier(offenderIdentifier)
   }
 
-  private fun validateIdentifier(prisonerNumber: String, identifierType: String, identifier: String, existingIdentifiers: List<OffenderIdentifier>): Boolean {
+  private fun validateAddIdentifier(
+    prisonerNumber: String,
+    identifierType: String,
+    identifier: String,
+    existingIdentifiers: List<OffenderIdentifier>,
+  ): Boolean {
     if (!referenceDomainService.isReferenceCodeActive("ID_TYPE", identifierType)) {
       throw BadRequestException.withMessage("Identifier type $identifierType is not valid")
     }
@@ -86,6 +93,27 @@ class OffenderIdentifierService(
     return when (identifierType) {
       "PNC" -> isValidPncFormat(identifier)
       "CRO" -> isValidCroFormat(identifier)
+      else -> {
+        // Add more validation logic for other identifier types if needed
+        true
+      }
+    }
+  }
+
+  private fun validateUpdateIdentifier(
+    prisonerNumber: String,
+    updatedValue: String,
+    existingIdentifier: OffenderIdentifier,
+    allExistingIdentifiers: List<OffenderIdentifier>,
+  ): Boolean {
+    val identifierType = existingIdentifier.identifierType
+    if (allExistingIdentifiers.any { it.identifier == updatedValue && it.identifierType == identifierType && !existingIdentifier.offenderIdentifierPK.equals(it.offenderIdentifierPK) }) {
+      throw BadRequestException.withMessage("${if (identifierType == "PNC") "PNC number" else "Identifier"} $updatedValue already exists for prisoner $prisonerNumber")
+    }
+
+    return when (identifierType) {
+      "PNC" -> isValidPncFormat(updatedValue)
+      "CRO" -> isValidCroFormat(updatedValue)
       else -> {
         // Add more validation logic for other identifier types if needed
         true
