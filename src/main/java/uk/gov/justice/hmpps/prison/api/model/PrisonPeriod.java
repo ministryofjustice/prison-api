@@ -35,6 +35,9 @@ public class PrisonPeriod {
     @Schema(description = "The ID of this booking", requiredMode = REQUIRED)
     private Long bookingId;
 
+    @Schema(description = "The order sequence of this booking", requiredMode = REQUIRED)
+    private Integer bookingSequence;
+
     @Schema(description = "Date they first entered prison in this booking", requiredMode = REQUIRED)
     private LocalDateTime entryDate;
     @Schema(description = "Date they were last released from prison in this booking if they have been released", requiredMode = NOT_REQUIRED)

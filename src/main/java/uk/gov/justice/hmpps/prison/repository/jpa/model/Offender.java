@@ -329,6 +329,7 @@ public class Offender extends AuditableEntity {
                     PrisonPeriod.builder()
                         .bookingId(e.getKey().getBookingId())
                         .bookNumber(e.getKey().getBookNumber())
+                        .bookingSequence(e.getKey().getBookingSequence())
                         .prisons(getAdmissionPrisons(e.getValue()))
                         .movementDates(buildMovements(e.getValue()))
                         .transfers(buildTransfers(
