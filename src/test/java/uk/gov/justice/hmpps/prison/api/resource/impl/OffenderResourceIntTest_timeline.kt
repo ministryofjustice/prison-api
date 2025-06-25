@@ -189,6 +189,7 @@ class OffenderResourceTimelineIntTest : ResourceTest() {
           .expectStatus().isOk.expectBody()
           .jsonPath("prisonPeriod[0].bookNumber").isNotEmpty
           .jsonPath("prisonPeriod[0].bookingId").isEqualTo(booking.bookingId)
+          .jsonPath("prisonPeriod[0].bookingSequence").isEqualTo(1)
           .jsonPath("prisonPeriod[0].entryDate").isEqualTo("2023-07-19T10:00:00")
       }
 
