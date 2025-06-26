@@ -54,12 +54,11 @@ public class PrisonerPrisonSchedule {
     @NotBlank
     private String eventStatus;
 
-    @Schema(requiredMode = REQUIRED, description = "Comment")
+    @Schema(description = "Comment")
     @Size(max = 4000)
     private String comment;
 
-    @Schema(requiredMode = REQUIRED, description = "Date and time at which event starts")
-    @NotNull
+    @Schema(description = "Date and time at which event starts")
     private LocalDateTime startTime;
 
     @Schema(description = "Date and time at which event ends")
