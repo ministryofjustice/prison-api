@@ -55,8 +55,8 @@ public class AddressTransformer {
                         .map(addressUsage ->
                                 AddressUsageDto.builder()
                                         .addressId(address.getAddressId())
-                                        .activeFlag(addressUsage.isActive())
-                                        .addressUsage(addressUsage.getAddressUsage())
+                                        .activeFlag(addressUsage.getActive())
+                                        .addressUsage(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getCode())
                                         .addressUsageDescription(addressUsage.getAddressUsageType() == null ? null : addressUsage.getAddressUsageType().getDescription())
                                         .build()).toList())
                 .phones(translatePhones(address.getPhones()))

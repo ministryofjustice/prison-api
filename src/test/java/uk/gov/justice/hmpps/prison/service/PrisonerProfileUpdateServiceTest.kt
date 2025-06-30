@@ -17,6 +17,8 @@ import org.mockito.kotlin.never
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
+import uk.gov.justice.hmpps.prison.api.model.AddressDto
+import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto
 import uk.gov.justice.hmpps.prison.api.model.CorePersonLanguagePreferencesRequest
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
@@ -30,6 +32,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
@@ -75,6 +78,7 @@ class PrisonerProfileUpdateServiceTest {
   private val cityRepository: ReferenceCodeRepository<City> = mock()
   private val countyRepository: ReferenceCodeRepository<County> = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
+  private val addressUsageRepository: ReferenceCodeRepository<AddressUsageType> = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
   private val profileDetailRepository: OffenderProfileDetailRepository = mock()
@@ -101,6 +105,7 @@ class PrisonerProfileUpdateServiceTest {
       cityRepository,
       countyRepository,
       countryRepository,
+      addressUsageRepository,
       profileTypeRepository,
       profileCodeRepository,
       profileDetailRepository,
@@ -1512,7 +1517,7 @@ class PrisonerProfileUpdateServiceTest {
   }
 
   @Nested
-  inner class CreateAddresss {
+  inner class CreateAddress {
 
     @Test
     internal fun `creates address`() {
@@ -1520,29 +1525,43 @@ class PrisonerProfileUpdateServiceTest {
       whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
       whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
       whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
+      whenever(addressUsageRepository.findById(AddressUsageType.pk("HOME"))).thenReturn(Optional.of(ADDRESS_USAGE_TYPE))
       whenever(offenderAddressRepository.save(addressCaptor.capture()))
         .thenAnswer { addressCaptor.firstValue.also { it.addressId = NEW_ADDRESS_ID } }
 
-      prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
+      val newAddress = prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
 
-      verify(offenderAddressRepository).save(
-        OffenderAddress.builder()
-          .offender(offender)
-          .addressId(NEW_ADDRESS_ID)
-          .flat("1")
-          .premise("The Building")
-          .street("The Street")
-          .locality("The Locality")
-          .city(ADDRESS_CITY)
-          .county(ADDRESS_COUNTY)
-          .country(ADDRESS_COUNTRY)
-          .postalCode("A1 2BC")
-          .primaryFlag("Y")
-          .mailFlag("Y")
-          .noFixedAddressFlag("Y")
-          .startDate(LocalDate.parse("2021-01-01"))
-          .build(),
-      )
+      val expectedAddress = AddressDto.builder()
+        .addressId(NEW_ADDRESS_ID)
+        .flat("1")
+        .premise("The Building")
+        .street("The Street")
+        .locality("The Locality")
+        .townCode(ADDRESS_CITY.code)
+        .town(ADDRESS_CITY.description)
+        .countyCode(ADDRESS_COUNTY.code)
+        .county(ADDRESS_COUNTY.description)
+        .countryCode(ADDRESS_COUNTRY.code)
+        .country(ADDRESS_COUNTRY.description)
+        .postalCode("A1 2BC")
+        .primary(true)
+        .mail(true)
+        .noFixedAddress(true)
+        .startDate(LocalDate.parse("2021-01-01"))
+        .addressUsages(
+          listOf(
+            AddressUsageDto.builder()
+              .addressId(NEW_ADDRESS_ID)
+              .addressUsage("HOME")
+              .addressUsageDescription("Home")
+              .activeFlag(true)
+              .build(),
+          ),
+        )
+        .phones(emptyList())
+        .build()
+
+      assertThat(newAddress).isEqualTo(expectedAddress)
     }
 
     @Test
@@ -1736,12 +1755,13 @@ class PrisonerProfileUpdateServiceTest {
       mail = true,
       noFixedAddress = true,
       startDate = LocalDate.parse("2021-01-01"),
-      addressUsages = emptyList(),
+      addressUsages = listOf("HOME"),
     )
 
     val ADDRESS_CITY = City("1001", "Sheffield")
     val ADDRESS_COUNTY = County("S.YORKSHIRE", "South Yorkshire")
     val ADDRESS_COUNTRY = Country("ENG", "England")
+    val ADDRESS_USAGE_TYPE = AddressUsageType("HOME", "Home")
 
     @JvmStatic
     private fun nullOrBlankStrings() = listOf(null, "", " ", "  ")

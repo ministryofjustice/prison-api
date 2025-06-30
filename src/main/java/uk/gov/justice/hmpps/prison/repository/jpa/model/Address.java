@@ -32,6 +32,7 @@ import java.time.LocalDate;
 import java.util.HashSet;
 import java.util.Set;
 
+import static jakarta.persistence.FetchType.LAZY;
 import static org.hibernate.annotations.NotFoundAction.IGNORE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType.ADDR_TYPE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
@@ -115,12 +116,11 @@ public abstract class Address extends AuditableEntity {
     })
     private Country country;
 
-    @OneToMany
-    @JoinColumn(name = "ADDRESS_ID")
+    @OneToMany(mappedBy = "id.address", cascade = CascadeType.ALL, fetch = LAZY, orphanRemoval = true)
     @Default
     private Set<AddressUsage> addressUsages = new HashSet<>();
 
-    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
+    @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = LAZY, orphanRemoval = true)
     @Where(clause = "OWNER_CLASS = '"+AddressPhone.PHONE_TYPE+"'")
     @Default
     @BatchSize(size = 200)
@@ -134,5 +134,11 @@ public abstract class Address extends AuditableEntity {
         phone.setAddress(this);
         phones.add(phone);
         return phone;
+    }
+
+    public AddressUsage addUsage(final AddressUsageType type, final Boolean active) {
+        AddressUsage usage = new AddressUsage(new AddressUsageId(this, type.getCode()), active, type);
+        addressUsages.add(usage);
+        return usage;
     }
 }

@@ -84,7 +84,7 @@ class OffenderResourceImplIntTest_createOffenderAddress : ResourceTest() {
   private companion object {
     const val PRISONER_NUMBER = "A1234AA"
     const val CREATE_URL = "/api/offenders/${PRISONER_NUMBER}/addresses"
-    const val REQUIRED_FIELDS = "\"countryCode\": \"ENG\", \"startDate\": \"2021-01-01\""
+    const val REQUIRED_FIELDS = "\"countryCode\": \"ENG\", \"startDate\": \"2021-01-01\", \"addressUsages\": []"
 
     const val VALID_ADDRESS_CREATION_REQUEST =
       // language=JSON
@@ -101,7 +101,8 @@ class OffenderResourceImplIntTest_createOffenderAddress : ResourceTest() {
           "primary": true,
           "mail": true,
           "noFixedAddress": true,
-          "startDate": "2021-01-01"
+          "startDate": "2021-01-01",
+          "addressUsages": ["HOME"]
         } 
       """
 
@@ -117,6 +118,6 @@ class OffenderResourceImplIntTest_createOffenderAddress : ResourceTest() {
 
     val INVALID_ADDRESS__TOWN_CODE_INVALID = "{\"townCode\":\"INVALID\",$REQUIRED_FIELDS}"
     val INVALID_ADDRESS__COUNTY_CODE_INVALID = "{\"countyCode\":\"INVALID\",$REQUIRED_FIELDS}"
-    val INVALID_ADDRESS__COUNTRY_CODE_INVALID = "{\"countryCode\":\"INVALID\", \"startDate\": \"2021-01-01\"}"
+    val INVALID_ADDRESS__COUNTRY_CODE_INVALID = "{\"countryCode\":\"INVALID\", \"startDate\": \"2021-01-01\", \"addressUsages\": []}"
   }
 }

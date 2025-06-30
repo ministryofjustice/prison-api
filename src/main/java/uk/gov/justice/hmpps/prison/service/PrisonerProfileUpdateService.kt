@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
@@ -81,6 +82,7 @@ class PrisonerProfileUpdateService(
   private val cityRepository: ReferenceCodeRepository<City>,
   private val countyRepository: ReferenceCodeRepository<County>,
   private val countryRepository: ReferenceCodeRepository<Country>,
+  private val addressUsageRepository: ReferenceCodeRepository<AddressUsageType>,
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
   private val profileDetailRepository: OffenderProfileDetailRepository,
@@ -379,6 +381,9 @@ class PrisonerProfileUpdateService(
     fun lookupCountry(countryCode: String): Country = countryRepository.findById(Country.pk(countryCode))
       .orElseThrowNotFound("Country with country code %s not found", countryCode)
 
+    fun lookupAddressUsage(usage: String): AddressUsageType = addressUsageRepository.findById(AddressUsageType.pk(usage))
+      .orElseThrowNotFound("Address usage type with code %s not found", usage)
+
     val newAddressBuilder = OffenderAddress.builder()
       .offender(offender)
       .flat(request.flat)
@@ -390,16 +395,19 @@ class PrisonerProfileUpdateService(
       .mailFlag(if (request.mail == true) "Y" else "N")
       .noFixedAddressFlag(if (request.noFixedAddress == true) "Y" else "N")
       .startDate(request.startDate)
+      .endDate(request.endDate)
       .country(lookupCountry(request.countryCode))
 
     if (request.townCode != null) newAddressBuilder.city(lookupCity(request.townCode))
     if (request.countyCode != null) newAddressBuilder.county(lookupCounty(request.countyCode))
 
-    // TODO: set the address usages
+    val newAddress = newAddressBuilder.build()
 
-    val newAddress = newAddressBuilder.build().let { addressRepository.save(it) }
+    request.addressUsages.forEach {
+      newAddress.addUsage(lookupAddressUsage(it), true)
+    }
 
-    return AddressTransformer.translate(newAddress)
+    return AddressTransformer.translate(addressRepository.save(newAddress))
   }
 
   @Transactional

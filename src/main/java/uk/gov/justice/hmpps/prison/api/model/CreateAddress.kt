@@ -36,22 +36,25 @@ data class CreateAddress(
   @field:Size(max = 12)
   val countryCode: String,
 
-  @Schema(description = "Postal Code", example = "LI1 5TH")
+  @Schema(description = "Postal code", example = "LI1 5TH")
   @field:Size(max = 12)
   val postalCode: String? = null,
 
-  @Schema(description = "Primary Address", example = "true")
+  @Schema(description = "Primary address", example = "true")
   val primary: Boolean? = null,
 
-  @Schema(description = "Mail Address", example = "true")
+  @Schema(description = "Mail address", example = "true")
   val mail: Boolean? = null,
 
-  @Schema(description = "No Fixed Address", example = "false")
+  @Schema(description = "No fixed address", example = "false")
   val noFixedAddress: Boolean? = null,
 
-  @Schema(description = "Date Added", example = "2005-05-12")
+  @Schema(description = "Date address is in use from", example = "2005-05-12")
   val startDate: LocalDate,
 
-  @Schema(description = "Address Usages", example = "HOME")
+  @Schema(description = "Date address is in use to", example = "2005-05-12")
+  val endDate: LocalDate? = null,
+
+  @Schema(description = "Address usages", example = "HOME")
   val addressUsages: Collection<String>,
 )
