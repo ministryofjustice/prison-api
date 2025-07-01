@@ -32,13 +32,13 @@ open class AddressUsageId(
 @Table(name = "ADDRESS_USAGES")
 open class AddressUsage(
   @EmbeddedId
-  val id: AddressUsageId?,
+  open val id: AddressUsageId?,
 
   @Column(name = "ACTIVE_FLAG")
   @Convert(converter = YesNoConverter::class)
-  val active: Boolean,
+  open val active: Boolean,
 
-  @ManyToOne(fetch = FetchType.LAZY)
+  @ManyToOne
   @NotFound(action = NotFoundAction.IGNORE)
   @JoinColumnsOrFormulas(
     value = [
@@ -46,7 +46,7 @@ open class AddressUsage(
       JoinColumnOrFormula(column = JoinColumn(name = "ADDRESS_USAGE", referencedColumnName = "code", nullable = false, insertable = false, updatable = false)),
     ],
   )
-  val addressUsageType: AddressUsageType?,
+  open val addressUsageType: AddressUsageType?,
 ) : Serializable {
 
   override fun equals(other: Any?): Boolean {

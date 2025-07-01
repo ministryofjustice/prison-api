@@ -372,6 +372,8 @@ class PrisonerProfileUpdateService(
     val offender = offenderRepository.findLinkedToLatestBooking(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
+    val existingAddresses = addressRepository.findByOffenderId(offender.id)
+
     fun lookupCity(cityCode: String): City = cityRepository.findById(City.pk(cityCode))
       .orElseThrowNotFound("City with city code %s not found", cityCode)
 
@@ -405,6 +407,14 @@ class PrisonerProfileUpdateService(
 
     request.addressUsages.forEach {
       newAddress.addUsage(lookupAddressUsage(it), true)
+    }
+
+    if (request.primary == true) {
+      existingAddresses.filter { it.primaryFlag == "Y" }.forEach { it.primaryFlag = "N" }
+    }
+
+    if (request.mail == true) {
+      existingAddresses.filter { it.mailFlag == "Y" }.forEach { it.mailFlag = "N" }
     }
 
     return AddressTransformer.translate(addressRepository.save(newAddress))

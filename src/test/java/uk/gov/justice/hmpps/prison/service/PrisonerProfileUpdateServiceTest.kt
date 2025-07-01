@@ -1519,16 +1519,21 @@ class PrisonerProfileUpdateServiceTest {
   @Nested
   inner class CreateAddress {
 
-    @Test
-    internal fun `creates address`() {
+    @BeforeEach
+    fun setUp() {
+      whenever(offender.id).thenReturn(OFFENDER_ID)
       whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
       whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
       whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
       whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
       whenever(addressUsageRepository.findById(AddressUsageType.pk("HOME"))).thenReturn(Optional.of(ADDRESS_USAGE_TYPE))
+      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(emptyList())
       whenever(offenderAddressRepository.save(addressCaptor.capture()))
         .thenAnswer { addressCaptor.firstValue.also { it.addressId = NEW_ADDRESS_ID } }
+    }
 
+    @Test
+    internal fun `creates address`() {
       val newAddress = prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
 
       val expectedAddress = AddressDto.builder()
@@ -1565,6 +1570,30 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
+    internal fun `updates existing primary addresses`() {
+      val primaryAddress: OffenderAddress = mock()
+
+      whenever(primaryAddress.primaryFlag).thenReturn("Y")
+      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(listOf(primaryAddress))
+
+      prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
+
+      verify(primaryAddress).primaryFlag = "N"
+    }
+
+    @Test
+    internal fun `updates existing mail addresses`() {
+      val primaryAddress: OffenderAddress = mock()
+
+      whenever(primaryAddress.mailFlag).thenReturn("Y")
+      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(listOf(primaryAddress))
+
+      prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST)
+
+      verify(primaryAddress).mailFlag = "N"
+    }
+
+    @Test
     internal fun `throws exception when the offender cannot be found`() {
       whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
@@ -1576,10 +1605,6 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when the city cannot be found`() {
-      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
-      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
-
       whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
@@ -1589,10 +1614,6 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when the county cannot be found`() {
-      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
-      whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
-
       whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
@@ -1602,10 +1623,6 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when the country cannot be found`() {
-      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
-      whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
-
       whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }
