@@ -37,6 +37,7 @@ import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
+import uk.gov.justice.hmpps.prison.api.model.CreateAddress;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
@@ -1156,5 +1157,21 @@ public class OffenderResource {
                                                @PathVariable("emailAddressId") @Parameter(description = "The email address ID", required = true) final Long emailAddressId,
                                                @RequestBody @NotNull @Valid final OffenderEmailAddressCreateRequest offenderEmailAddressCreateRequest) {
         return offenderEmailsService.updateOffenderEmailAddress(prisonerNumber, emailAddressId, offenderEmailAddressCreateRequest);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Address added."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to add email addresses", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Prisoner not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @Operation(summary = "Add an address for the prisoner")
+    @PostMapping("/{offenderNo}/addresses")
+    @ProxyUser
+    public AddressDto addOffenderAddress(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+                                         @RequestBody @NotNull @Valid final CreateAddress createAddressRequest) {
+        return prisonerProfileUpdateService.createAddress(prisonerNumber, createAddressRequest);
     }
 }

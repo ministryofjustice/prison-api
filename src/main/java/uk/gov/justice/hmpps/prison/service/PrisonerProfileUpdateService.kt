@@ -6,6 +6,7 @@ import org.springframework.dao.CannotAcquireLockException
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.model.AddressDto
 import uk.gov.justice.hmpps.prison.api.model.CorePersonCommunicationNeeds
 import uk.gov.justice.hmpps.prison.api.model.CorePersonLanguagePreferences
 import uk.gov.justice.hmpps.prison.api.model.CorePersonLanguagePreferencesRequest
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributesRequest
 import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguage
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
+import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
@@ -21,8 +23,11 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
+import uk.gov.justice.hmpps.prison.repository.jpa.model.County
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Ethnicity.ETHNICITY
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
@@ -31,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.NameType.NAME_TYPE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBelief
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
@@ -44,6 +50,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
@@ -71,7 +78,11 @@ class PrisonerProfileUpdateService(
   private val genderRepository: ReferenceCodeRepository<Gender>,
   private val ethnicityRepository: ReferenceCodeRepository<Ethnicity>,
   private val nameTypeRepository: ReferenceCodeRepository<NameType>,
+  private val addressRepository: OffenderAddressRepository,
+  private val cityRepository: ReferenceCodeRepository<City>,
+  private val countyRepository: ReferenceCodeRepository<County>,
   private val countryRepository: ReferenceCodeRepository<Country>,
+  private val addressUsageRepository: ReferenceCodeRepository<AddressUsageType>,
   private val profileTypeRepository: ProfileTypeRepository,
   private val profileCodeRepository: ProfileCodeRepository,
   private val profileDetailRepository: OffenderProfileDetailRepository,
@@ -355,6 +366,59 @@ class PrisonerProfileUpdateService(
     sex = gender?.toReferenceDataValue(),
     ethnicity = ethnicity?.toReferenceDataValue(),
   )
+
+  @Transactional
+  fun createAddress(prisonerNumber: String, request: CreateAddress): AddressDto {
+    val offender = offenderRepository.findLinkedToLatestBooking(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+
+    val existingAddresses = addressRepository.findByOffenderId(offender.id)
+
+    fun lookupCity(cityCode: String): City = cityRepository.findById(City.pk(cityCode))
+      .orElseThrowNotFound("City with city code %s not found", cityCode)
+
+    fun lookupCounty(countyCode: String): County = countyRepository.findById(County.pk(countyCode))
+      .orElseThrowNotFound("County with county code %s not found", countyCode)
+
+    fun lookupCountry(countryCode: String): Country = countryRepository.findById(Country.pk(countryCode))
+      .orElseThrowNotFound("Country with country code %s not found", countryCode)
+
+    fun lookupAddressUsage(usage: String): AddressUsageType = addressUsageRepository.findById(AddressUsageType.pk(usage))
+      .orElseThrowNotFound("Address usage type with code %s not found", usage)
+
+    val newAddressBuilder = OffenderAddress.builder()
+      .offender(offender)
+      .flat(request.flat)
+      .premise(request.premise)
+      .street(request.street)
+      .locality(request.locality)
+      .postalCode(request.postalCode)
+      .primaryFlag(if (request.primary == true) "Y" else "N")
+      .mailFlag(if (request.mail == true) "Y" else "N")
+      .noFixedAddressFlag(if (request.noFixedAddress == true) "Y" else "N")
+      .startDate(request.startDate)
+      .endDate(request.endDate)
+      .country(lookupCountry(request.countryCode))
+
+    if (request.townCode != null) newAddressBuilder.city(lookupCity(request.townCode))
+    if (request.countyCode != null) newAddressBuilder.county(lookupCounty(request.countyCode))
+
+    val newAddress = newAddressBuilder.build()
+
+    request.addressUsages.forEach {
+      newAddress.addUsage(lookupAddressUsage(it), true)
+    }
+
+    if (request.primary == true) {
+      existingAddresses.filter { it.primaryFlag == "Y" }.forEach { it.primaryFlag = "N" }
+    }
+
+    if (request.mail == true) {
+      existingAddresses.filter { it.mailFlag == "Y" }.forEach { it.mailFlag = "N" }
+    }
+
+    return AddressTransformer.translate(addressRepository.save(newAddress))
+  }
 
   @Transactional
   fun getCommunicationNeeds(prisonerNumber: String): CorePersonCommunicationNeeds {

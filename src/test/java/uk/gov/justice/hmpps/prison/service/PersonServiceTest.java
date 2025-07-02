@@ -14,6 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.DeprecatedPersonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsage;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
@@ -84,8 +85,7 @@ public class PersonServiceTest {
                     .build())
             )
             .addressUsages(Set.of(
-                AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
-                AddressUsage.builder().active(true).addressUsage("HDC").build()
+                new AddressUsage(null, true, new AddressUsageType("HDC", "HDC address"))
             ))
             .endDate(null)
                     .build(),
@@ -159,12 +159,6 @@ public class PersonServiceTest {
                         .activeFlag(true)
                         .addressUsage("HDC")
                         .addressUsageDescription("HDC address")
-                        .build(),
-                    AddressUsageDto.builder()
-                        .addressId(-15L)
-                        .activeFlag(true)
-                        .addressUsage("HDC")
-                        .addressUsageDescription(null)
                         .build()
                     )
                 )

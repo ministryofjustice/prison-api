@@ -90,8 +90,7 @@ public class OffenderAddressServiceImplTest {
                             .extNo(null)
                             .build()))
                         .addressUsages(Set.of(
-                                AddressUsage.builder().active(true).addressUsage("HDC").addressUsageType(new AddressUsageType("HDC", "HDC address")).build(),
-                                AddressUsage.builder().active(true).addressUsage("HDC").build()
+                            new AddressUsage(null, true, new AddressUsageType("HDC", "HDC address"))
                         ))
                         .build(),
             OffenderAddress.builder()
@@ -166,12 +165,6 @@ public class OffenderAddressServiceImplTest {
                                 .activeFlag(true)
                                 .addressUsage("HDC")
                                 .addressUsageDescription("HDC address")
-                                .build(),
-                            AddressUsageDto.builder()
-                                .addressId(-15L)
-                                .activeFlag(true)
-                                .addressUsage("HDC")
-                                .addressUsageDescription(null)
                                 .build()
                         )
                     )

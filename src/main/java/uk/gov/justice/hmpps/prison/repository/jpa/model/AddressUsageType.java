@@ -15,4 +15,8 @@ public class AddressUsageType extends ReferenceCode {
     public AddressUsageType(final String code, final String description) {
         super(ADDRESS_TYPE, code, description);
     }
+
+    public static ReferenceCode.Pk pk(final String code) {
+        return new ReferenceCode.Pk(ADDRESS_TYPE, code);
+    }
 }
