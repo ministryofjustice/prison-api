@@ -1522,7 +1522,7 @@ class PrisonerProfileUpdateServiceTest {
     @BeforeEach
     fun setUp() {
       whenever(offender.id).thenReturn(OFFENDER_ID)
-      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
       whenever(cityRepository.findById(City.pk("1001"))).thenReturn(Optional.of(ADDRESS_CITY))
       whenever(countyRepository.findById(County.pk("S.YORKSHIRE"))).thenReturn(Optional.of(ADDRESS_COUNTY))
       whenever(countryRepository.findById(Country.pk("ENG"))).thenReturn(Optional.of(ADDRESS_COUNTRY))
@@ -1595,7 +1595,7 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when the offender cannot be found`() {
-      whenever(offenderRepository.findLinkedToLatestBooking(PRISONER_NUMBER))
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER))
         .thenReturn(Optional.empty())
 
       assertThatThrownBy { prisonerProfileUpdateService.createAddress(PRISONER_NUMBER, ADDRESS_REQUEST) }

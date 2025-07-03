@@ -369,7 +369,7 @@ class PrisonerProfileUpdateService(
 
   @Transactional
   fun createAddress(prisonerNumber: String, request: CreateAddress): AddressDto {
-    val offender = offenderRepository.findLinkedToLatestBooking(prisonerNumber)
+    val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
 
     val existingAddresses = addressRepository.findByOffenderId(offender.id)
