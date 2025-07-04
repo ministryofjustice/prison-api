@@ -543,6 +543,21 @@ class ScheduleResourceTest : ResourceTest() {
           )
         }
     }
+
+    @Test
+    fun `Date parameter is required`() {
+      webTestClient.post()
+        .uri("/api/schedules/LEI/externalTransfers")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .body(BodyInserters.fromValue(listOf("A1234AC")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage")
+        .value<String> {
+          assertThat(it).contains("Required request parameter 'date' for method parameter type LocalDate is not present")
+        }
+    }
   }
 
   @Nested
