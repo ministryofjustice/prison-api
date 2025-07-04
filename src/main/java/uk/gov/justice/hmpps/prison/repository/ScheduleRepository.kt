@@ -189,9 +189,9 @@ class ScheduleRepository : RepositoryBase() {
   }
 
   fun getExternalTransfers(
-    agencyId: String?,
-    offenderNumbers: List<String>?,
-    date: LocalDate?,
+    agencyId: String,
+    offenderNumbers: List<String>,
+    date: LocalDate,
   ): List<PrisonerSchedule> {
     val schedules = jdbcTemplate.query(
       ScheduleRepositorySql.GET_EXTERNAL_TRANSFERS.sql + ScheduleRepositorySql.AND_OFFENDER_NUMBERS.sql,
