@@ -16,7 +16,7 @@ class ActivityMovementService(
 ) {
 
   fun endActivitiesAndWaitlist(booking: OffenderBooking, fromAgency: AgencyLocation, endDate: LocalDate, endReason: String) {
-    if (!serviceAgencySwitchesService.checkServiceSwitchedOnForPrison("ACTIVITY", fromAgency.id)) {
+    if (!serviceAgencySwitchesService.checkServiceSwitchedOnForAgency("ACTIVITY", fromAgency.id)) {
       offenderProgramProfileRepository.endActivitiesForBookingAtPrison(booking, fromAgency, endDate, endReason)
       offenderProgramProfileRepository.endWaitListActivitiesForBookingAtPrison(booking, fromAgency, endDate, endReason)
     }

@@ -39,4 +39,4 @@ data class ServiceAgencySwitch(
   override fun hashCode(): Int = this.javaClass.hashCode()
 }
 
-const val ALL_PRISONS = "*ALL*"
+const val ALL_AGENCIES = "*ALL*"

@@ -22,18 +22,18 @@ class ActivityMovementServiceTest {
 
   @Test
   fun `should end offender program profiles`() {
-    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForPrison(anyString(), anyString()))
+    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForAgency(anyString(), anyString()))
       .thenReturn(false)
 
     service.endActivitiesAndWaitlist(booking, prison, LocalDate.now(), "some_reason")
 
-    verify(serviceAgencySwitchesService).checkServiceSwitchedOnForPrison("ACTIVITY", prison.id)
+    verify(serviceAgencySwitchesService).checkServiceSwitchedOnForAgency("ACTIVITY", prison.id)
     verify(offenderProgramProfileRepository).endActivitiesForBookingAtPrison(booking, prison, LocalDate.now(), "some_reason")
   }
 
   @Test
   fun `should end waitlist`() {
-    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForPrison(anyString(), anyString()))
+    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForAgency(anyString(), anyString()))
       .thenReturn(false)
 
     service.endActivitiesAndWaitlist(booking, prison, LocalDate.now(), "some_reason")
@@ -43,7 +43,7 @@ class ActivityMovementServiceTest {
 
   @Test
   fun `should not end offender program profiles or waitlist in prison switched on for DPS`() {
-    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForPrison(anyString(), anyString()))
+    whenever(serviceAgencySwitchesService.checkServiceSwitchedOnForAgency(anyString(), anyString()))
       .thenReturn(true)
 
     service.endActivitiesAndWaitlist(booking, prison, LocalDate.now(), "some_reason")
