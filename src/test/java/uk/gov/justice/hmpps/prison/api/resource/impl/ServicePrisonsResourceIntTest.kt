@@ -10,7 +10,7 @@ import org.junit.jupiter.params.provider.ValueSource
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.MediaType
-import uk.gov.justice.hmpps.prison.api.resource.AgencyDetails
+import uk.gov.justice.hmpps.prison.api.model.PrisonDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ALL_AGENCIES
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalServiceEntity
@@ -21,7 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ServiceAgencySwitchesRepository
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 
-class ServiceAgencySwitchResourceIntTest : ResourceTest() {
+class ServicePrisonsResourceIntTest : ResourceTest() {
 
   @Autowired
   private lateinit var externalServiceRepository: ExternalServiceRepository
@@ -59,11 +59,11 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  inner class GetAgencySwitches {
+  inner class GetServicePrisons {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.get()
-        .uri("/api/agency-switches/MDI")
+        .uri("/api/service-prisons/MDI")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -72,7 +72,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return forbidden without a valid role`() {
       webTestClient.get()
-        .uri("/api/agency-switches/MDI")
+        .uri("/api/service-prisons/MDI")
         .headers(setAuthorisation(listOf("ROLE_INVALID")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -82,7 +82,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return not found if service does not exist`() {
       webTestClient.get()
-        .uri("/api/agency-switches/INVALID")
+        .uri("/api/service-prisons/INVALID")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -94,38 +94,38 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
 
     @ParameterizedTest
     @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO"])
-    fun `should return a list of agencies for the service`(role: String) {
+    fun `should return a list of prisons for the service`(role: String) {
       webTestClient.get()
-        .uri("/api/agency-switches/SOME_SERVICE")
+        .uri("/api/service-prisons/SOME_SERVICE")
         .headers(setAuthorisation(listOf(role)))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
-        .expectBody().jsonPath("$[*]").value<List<AgencyDetails>> {
-          assertThat(it).extracting("agencyId").containsExactlyInAnyOrder("LEI", "MDI")
+        .expectBody().jsonPath("$[*]").value<List<PrisonDetails>> {
+          assertThat(it).extracting("prisonId").containsExactlyInAnyOrder("LEI", "MDI")
         }
     }
 
     @Test
-    fun `should return the dummy all agency for the service`() {
+    fun `should return the dummy all prison for the service`() {
       webTestClient.get()
-        .uri("/api/agency-switches/OTHER_SERVICE")
+        .uri("/api/service-prisons/OTHER_SERVICE")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
-        .expectBody().jsonPath("$[*]").value<List<AgencyDetails>> {
-          assertThat(it).extracting("agencyId").containsExactlyInAnyOrder("*ALL*")
+        .expectBody().jsonPath("$[*]").value<List<PrisonDetails>> {
+          assertThat(it).extracting("prisonId").containsExactlyInAnyOrder("*ALL*")
         }
     }
   }
 
   @Nested
-  inner class CheckServiceAgency {
+  inner class CheckServicePrison {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.get()
-        .uri("/api/agency-switches/OTHER_SERVICES/agency/MDI")
+        .uri("/api/service-prisons/OTHER_SERVICES/prison/MDI")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -134,7 +134,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return forbidden without a valid role`() {
       webTestClient.get()
-        .uri("/api/agency-switches/OTHER_SERVICES/agency/MDI")
+        .uri("/api/service-prisons/OTHER_SERVICES/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_INVALID")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -144,33 +144,33 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return not found if service does not exist`() {
       webTestClient.get()
-        .uri("/api/agency-switches/INVALID_SERVICE/agency/MDI")
+        .uri("/api/service-prisons/INVALID_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").value<String> {
-          assertThat(it).contains("Service INVALID_SERVICE not turned on for agency MDI")
+          assertThat(it).contains("Service INVALID_SERVICE not turned on for prison MDI")
         }
     }
 
     @Test
     fun `should return not found if service not switched on`() {
       webTestClient.get()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/SYI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/SYI")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
         .expectBody().jsonPath("userMessage").value<String> {
-          assertThat(it).contains("Service SOME_SERVICE not turned on for agency SYI")
+          assertThat(it).contains("Service SOME_SERVICE not turned on for prison SYI")
         }
     }
 
     @Test
     fun `should return no content if service switched on`() {
       webTestClient.get()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -178,9 +178,9 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return no content if service switched on and agency wildcarded`() {
+    fun `should return no content if service switched on and prison wildcarded`() {
       webTestClient.get()
-        .uri("/api/agency-switches/OTHER_SERVICE/agency/SYI")
+        .uri("/api/service-prisons/OTHER_SERVICE/prison/SYI")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -189,11 +189,11 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  inner class CreateServiceAgency {
+  inner class CreateServicePrison {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.post()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -202,7 +202,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return forbidden without a valid role`() {
       webTestClient.post()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .headers(setAuthorisation(listOf("ROLE_INVALID")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -212,7 +212,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return not found if service does not exist`() {
       webTestClient.post()
-        .uri("/api/agency-switches/INVALID/agency/BXI")
+        .uri("/api/service-prisons/INVALID/prison/BXI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -223,9 +223,9 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return not found if agency does not exist`() {
+    fun `should return not found if prison does not exist`() {
       webTestClient.post()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/INVALID")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/INVALID")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -236,29 +236,29 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return conflict if agency already active for a service`() {
+    fun `should return conflict if prison already active for a service`() {
       webTestClient.post()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isEqualTo(409)
         .expectBody()
         .jsonPath("userMessage").value<String> {
-          assertThat(it).contains("Agency MDI is already active for service SOME_SERVICE")
+          assertThat(it).contains("Prison MDI is already active for service SOME_SERVICE")
         }
     }
 
     @Test
-    fun `should return ok if agency added to the service`() {
+    fun `should return ok if prison added to the service`() {
       webTestClient.post()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isCreated
         .expectBody()
-        .jsonPath("agencyId").isEqualTo("BXI")
+        .jsonPath("prisonId").isEqualTo("BXI")
 
       val switch = serviceAgencySwitchesRepository.findByIdExternalServiceEntity(someService).firstOrNull { it.id.agencyLocation.id == "BXI" }
       assertThat(switch).isNotNull
@@ -266,11 +266,11 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  inner class RemoveServiceAgency {
+  inner class RemoveServicePrison {
     @Test
     fun `should return unauthorised without an auth token`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -279,7 +279,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return forbidden without a valid role`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .headers(setAuthorisation(listOf("ROLE_INVALID")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -289,7 +289,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     @Test
     fun `should return not found if service does not exist`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/INVALID/agency/MDI")
+        .uri("/api/service-prisons/INVALID/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -300,9 +300,9 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return not found if agency does not exist`() {
+    fun `should return not found if prison does not exist`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/INVALID")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/INVALID")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -313,9 +313,9 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return ok if agency already inactive for a service`() {
+    fun `should return ok if prison already inactive for a service`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/BXI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
@@ -323,9 +323,9 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `should return ok if agency removed from the service`() {
+    fun `should return ok if prison removed from the service`() {
       webTestClient.delete()
-        .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
+        .uri("/api/service-prisons/SOME_SERVICE/prison/MDI")
         .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
