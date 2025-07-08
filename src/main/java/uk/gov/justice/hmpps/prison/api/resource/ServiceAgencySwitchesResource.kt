@@ -68,7 +68,7 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
   @PreAuthorize("hasAnyRole('PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
   @GetMapping("/{serviceCode}/agency/{agencyId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  fun checkServicePrison(
+  fun checkServiceAgency(
     @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table", example = "ACTIVITY") @PathVariable serviceCode: String,
     @Parameter(description = "The id of the agency", example = "MDI") @PathVariable agencyId: String,
   ) {
@@ -81,8 +81,8 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "201", description = "Created"),
     ApiResponse(responseCode = "401", description = "A valid auth token was not presented", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "403", description = "The auth token does not have the necessary role", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "404", description = "The service code or prison does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "409", description = "The prison is already active for the service", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "404", description = "The service code or agency does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "409", description = "The agency is already active for the service", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(summary = "Activates an agency for the given service")
@@ -102,14 +102,14 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "204", description = "OK"),
     ApiResponse(responseCode = "401", description = "A valid auth token was not presented", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "403", description = "The auth token does not have the necessary role", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
-    ApiResponse(responseCode = "404", description = "The service code or prison does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "404", description = "The service code or agency does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(summary = "Deactivates an agency for the given service")
   @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
   @DeleteMapping("/{serviceCode}/agency/{agencyId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
-  fun removeServicePrison(
+  fun removeServiceAgency(
     @PathVariable
     @Parameter(description = "The code of the service from the EXTERNAL_SERVICES table")
     serviceCode: String,
