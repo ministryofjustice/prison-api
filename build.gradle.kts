@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.0-beta"
-  kotlin("plugin.spring") version "2.1.21"
-  kotlin("plugin.jpa") version "2.1.21"
-  kotlin("plugin.lombok") version "2.1.21"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.1"
+  kotlin("plugin.spring") version "2.2.0"
+  kotlin("plugin.jpa") version "2.2.0"
+  kotlin("plugin.lombok") version "2.2.0"
 }
 
 configurations {
@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.38")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.6")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.7")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -51,7 +51,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.6")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.7")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.5")
@@ -72,12 +72,12 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.29") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.31") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.31")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.51.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.50.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.38")
 }
