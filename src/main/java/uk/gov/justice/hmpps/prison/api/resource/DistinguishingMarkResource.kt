@@ -23,6 +23,7 @@ import org.springframework.web.multipart.MultipartFile
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkDetails
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.core.ProxyUser
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.DistinguishingMarkService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
@@ -184,6 +185,7 @@ class DistinguishingMarkResource(
     consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
+  @ProxyUser
   fun updateImage(
     @PathVariable("photoId") @Parameter(
       description = "The id of the image",
@@ -232,6 +234,7 @@ class DistinguishingMarkResource(
     consumes = [MediaType.MULTIPART_FORM_DATA_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
+  @ProxyUser
   fun addMarkPhoto(
     @PathVariable("prisonerNumber") @Parameter(
       description = "Prisoner unique reference",
@@ -285,6 +288,7 @@ class DistinguishingMarkResource(
     consumes = [MediaType.APPLICATION_JSON_VALUE],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
+  @ProxyUser
   fun updateMark(
     @PathVariable("prisonerNumber") @Parameter(
       description = "Prisoner unique reference",
@@ -334,6 +338,7 @@ class DistinguishingMarkResource(
     value = ["/{prisonerNumber}/distinguishing-mark"],
     produces = [MediaType.APPLICATION_JSON_VALUE],
   )
+  @ProxyUser
   fun createMark(
     @PathVariable("prisonerNumber") @Parameter(
       description = "Prisoner unique reference",
