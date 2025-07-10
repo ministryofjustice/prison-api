@@ -24,6 +24,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.ImageDetail;
+import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BadRequestException;
 import uk.gov.justice.hmpps.prison.service.ImageService;
@@ -99,6 +100,7 @@ public class ImageResource {
         consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
         produces = MediaType.APPLICATION_JSON_VALUE
     )
+    @ProxyUser
     public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,
         @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file
