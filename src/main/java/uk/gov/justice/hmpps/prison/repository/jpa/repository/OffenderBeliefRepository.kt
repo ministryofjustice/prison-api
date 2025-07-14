@@ -13,7 +13,7 @@ interface OffenderBeliefRepository : CrudRepository<OffenderBelief, Long> {
     SELECT
     belief
     FROM OffenderBelief belief
-    WHERE belief.booking.offender.nomsId = :prisonerNumber
+    WHERE belief.rootOffender.nomsId = :prisonerNumber
     AND (:bookingId IS NULL OR belief.booking.bookingId = :bookingId)
     ORDER BY belief.startDate DESC, belief.createDatetime DESC
   """,
