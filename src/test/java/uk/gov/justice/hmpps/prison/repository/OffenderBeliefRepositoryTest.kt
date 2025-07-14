@@ -30,7 +30,7 @@ class OffenderBeliefRepositoryTest {
   /*
    * Test data added to migration SQL files R__8_8__OFFENDER_BELIEFS.sql, R__3_6_1__OFFENDER_BOOKINGS.sql, R__1_15__OFFENDERS.sql
    * offender B1101BB
-   * has 3 beliefs across 2 bookings (-101 and -102)
+   * has 4 beliefs across 3 bookings (-101, -102 and -103) and 2 aliases (offenders -101 and -102)
    */
   @Autowired
   private lateinit var repository: OffenderBeliefRepository
@@ -39,11 +39,11 @@ class OffenderBeliefRepositoryTest {
   @DisplayName("can get belief history")
   fun canGetBeliefHistory() {
     val beliefs = repository.getOffenderBeliefHistory("B1101BB", null)
-    Assertions.assertThat(beliefs).hasSize(3)
+    Assertions.assertThat(beliefs).hasSize(4)
       .extracting<ProfileCode, RuntimeException>(OffenderBelief::beliefCode)
       .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
       .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }
-      .containsExactly("MORM", "SCIE", "RC")
+      .containsExactly("BUDD", "MORM", "SCIE", "RC")
   }
 
   @Test
