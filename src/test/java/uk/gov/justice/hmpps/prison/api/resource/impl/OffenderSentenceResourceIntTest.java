@@ -1,10 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
+import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.HttpMethod;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 
+import static net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson;
 import static org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHOD;
 import static org.springframework.test.context.jdbc.SqlMergeMode.MergeMode.MERGE;
 
@@ -43,20 +45,17 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(1);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isTrue();
+                .node("[0].isRecallable").isEqualTo(true);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("STANDARD");
+                .node("[0].sentenceClassification").isEqualTo("STANDARD");
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceCalculationType")
-                .isEqualTo("ADIMP_ORA");
+                .node("[0].sentenceCalculationType").isEqualTo("ADIMP_ORA");
     }
 
     @Test
@@ -73,20 +72,17 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(1);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isTrue();
+                .node("[0].isRecallable").isEqualTo(true);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("RECALL");
+                .node("[0].sentenceClassification").isEqualTo("RECALL");
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceCalculationType")
-                .isEqualTo("FTR_ORA");
+                .node("[0].sentenceCalculationType").isEqualTo("FTR_ORA");
     }
 
     @Test
@@ -103,20 +99,17 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(1);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isFalse();
+                .node("[0].isRecallable").isEqualTo(false);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("FINE");
+                .node("[0].sentenceClassification").isEqualTo("FINE");
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceCalculationType")
-                .isEqualTo("A/FINE");
+                .node("[0].sentenceCalculationType").isEqualTo("A/FINE");
     }
 
     @Test
@@ -133,20 +126,17 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(1);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isTrue();
+                .node("[0].isRecallable").isEqualTo(true);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("EXTENDED");
+                .node("[0].sentenceClassification").isEqualTo("EXTENDED");
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceCalculationType")
-                .isEqualTo("CUR_ORA");
+                .node("[0].sentenceCalculationType").isEqualTo("CUR_ORA");
     }
 
     @Test
@@ -163,32 +153,26 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(3);
         
         // First sentence - Standard Determinate
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isTrue();
+                .node("[0].isRecallable").isEqualTo(true);
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("STANDARD");
+                .node("[0].sentenceClassification").isEqualTo("STANDARD");
         
         // Second sentence - Life sentence
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[1].isRecallable")
-                .isTrue();
+                .node("[1].isRecallable").isEqualTo(true);
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[1].sentenceClassification")
-                .isEqualTo("INDETERMINATE");
+                .node("[1].sentenceClassification").isEqualTo("INDETERMINATE");
         
         // Third sentence - Fine
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[2].isRecallable")
-                .isFalse();
+                .node("[2].isRecallable").isEqualTo(false);
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[2].sentenceClassification")
-                .isEqualTo("FINE");
+                .node("[2].sentenceClassification").isEqualTo("FINE");
     }
 
     @Test
@@ -205,16 +189,14 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         assertThatStatus(response, 200);
         assertThatJson(response.getBody())
-                .extractingJsonPathArrayValue("$")
+                .isArray()
                 .hasSize(1);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathBooleanValue("$[0].isRecallable")
-                .isFalse();
+                .node("[0].isRecallable").isEqualTo(false);
         
         assertThatJson(response.getBody())
-                .extractingJsonPathStringValue("$[0].sentenceClassification")
-                .isEqualTo("UNKNOWN");
+                .node("[0].sentenceClassification").isNull();
     }
 
     @Test
