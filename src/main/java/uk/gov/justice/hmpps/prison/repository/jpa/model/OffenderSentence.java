@@ -28,6 +28,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Getter
@@ -136,23 +137,30 @@ public class OffenderSentence extends AuditableEntity {
         return id.sequence;
     }
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
-        var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
+        var sentenceDate = Optional.ofNullable(courtOrder)
+            .map(CourtOrder::getCourtDate)
+            .orElse(null);
 
         return OffenderSentenceAndOffences.builder()
             .bookingId(id.offenderBookingId)
             .sentenceSequence(id.sequence)
             .lineSequence(lineSequence)
-            .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
-            .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
-            .courtDescription(courtCase == null || sentenceDate == null ? null :
-                courtCase.getCourtEvents() == null ? null :
-                    courtCase.getCourtEvents()
-                        .stream()
-                        .filter(val -> val.getEventDate().equals(sentenceDate))
-                        .findAny()
-                        .map(CourtEvent::getCourtLocation)
-                        .map(AgencyLocation::getDescription)
-                        .orElse(null))
+            .caseSequence(Optional.ofNullable(courtCase)
+                .map(OffenderCourtCase::getCaseSeq)
+                .orElse(null))
+            .caseReference(Optional.ofNullable(courtCase)
+                .map(OffenderCourtCase::getCaseInfoNumber)
+                .orElse(null))
+            .courtDescription(Optional.ofNullable(courtCase)
+                .filter(cc -> sentenceDate != null)
+                .map(OffenderCourtCase::getCourtEvents)
+                .orElse(List.of())
+                .stream()
+                .filter(val -> val.getEventDate().equals(sentenceDate))
+                .findAny()
+                .map(CourtEvent::getCourtLocation)
+                .map(AgencyLocation::getDescription)
+                .orElse(null))
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())
@@ -164,21 +172,23 @@ public class OffenderSentence extends AuditableEntity {
             .fineAmount(fineAmount)
             .isRecallable(recallable)
             .sentenceClassification(sentenceClassification)
-            .terms(terms == null ? null : terms
-                .stream()
-                .map(term -> OffenderSentenceTerm.builder()
-                    .years(term.getYears() == null ? 0 : term.getYears())
-                    .months(term.getMonths() == null ? 0 : term.getMonths())
-                    .weeks(term.getWeeks() == null ? 0 : term.getWeeks())
-                    .days(term.getDays() == null ? 0 : term.getDays())
-                    .code(term.getSentenceTermCode())
-                    .build())
-                .toList())
-            .offences(offenderSentenceCharges == null ? null : offenderSentenceCharges
-                .stream()
-                .map(OffenderSentenceCharge::getOffenderCharge)
-                .map(OffenderCharge::getOffenceDetail)
-                .toList())
+            .terms(Optional.ofNullable(terms)
+                .map(termList -> termList.stream()
+                    .map(term -> OffenderSentenceTerm.builder()
+                        .years(Optional.ofNullable(term.getYears()).orElse(0))
+                        .months(Optional.ofNullable(term.getMonths()).orElse(0))
+                        .weeks(Optional.ofNullable(term.getWeeks()).orElse(0))
+                        .days(Optional.ofNullable(term.getDays()).orElse(0))
+                        .code(term.getSentenceTermCode())
+                        .build())
+                    .toList())
+                .orElse(null))
+            .offences(Optional.ofNullable(offenderSentenceCharges)
+                .map(charges -> charges.stream()
+                    .map(OffenderSentenceCharge::getOffenderCharge)
+                    .map(OffenderCharge::getOffenceDetail)
+                    .toList())
+                .orElse(null))
 
             .build();
     }

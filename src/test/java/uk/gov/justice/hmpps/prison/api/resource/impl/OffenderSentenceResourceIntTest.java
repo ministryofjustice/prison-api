@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl;
 
-import net.javacrumbs.jsonunit.assertj.JsonAssertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
 import org.springframework.http.HttpMethod;
