@@ -69,7 +69,7 @@ public class SentenceCalcType extends AuditableEntity {
 
     @Column(name = "IS_RECALLABLE")
     @Convert(converter = YesNoConverter.class)
-    private boolean recallable;
+    private Boolean recallable;
 
     @Column(name = "SENTENCE_CLASSIFICATION")
     private String sentenceClassification;
