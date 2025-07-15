@@ -23,7 +23,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-1/sentences-and-offences",
+                "/api/offender-sentences/booking/-9001/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -38,7 +38,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-2/sentences-and-offences",
+                "/api/offender-sentences/booking/-9002/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -65,7 +65,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-3/sentences-and-offences",
+                "/api/offender-sentences/booking/-9003/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -92,7 +92,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-4/sentences-and-offences",
+                "/api/offender-sentences/booking/-9004/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -109,7 +109,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
                 .node("[0].sentenceClassification").isEqualTo("FINE");
         
         assertThatJson(response.getBody())
-                .node("[0].sentenceCalculationType").isEqualTo("A/FINE");
+                .node("[0].sentenceCalculationType").isString().isEqualTo("29");
     }
 
     @Test
@@ -119,7 +119,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-5/sentences-and-offences",
+                "/api/offender-sentences/booking/-9005/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -136,7 +136,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
                 .node("[0].sentenceClassification").isEqualTo("EXTENDED");
         
         assertThatJson(response.getBody())
-                .node("[0].sentenceCalculationType").isEqualTo("CUR_ORA");
+                .node("[0].sentenceCalculationType").isEqualTo("ADIMP");
     }
 
     @Test
@@ -146,7 +146,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-6/sentences-and-offences",
+                "/api/offender-sentences/booking/-9006/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -182,7 +182,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
         final var httpEntity = createHttpEntity(token, null);
 
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/-7/sentences-and-offences",
+                "/api/offender-sentences/booking/-9007/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
@@ -196,7 +196,7 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
                 .node("[0].isRecallable").isEqualTo(false);
         
         assertThatJson(response.getBody())
-                .node("[0].sentenceClassification").isNull();
+                .node("[0].sentenceClassification").isAbsent();
     }
 
     @Test
@@ -205,9 +205,9 @@ public class OffenderSentenceResourceIntTest extends ResourceTest {
 
         final var httpEntity = createHttpEntity(token, null);
 
-        // Using a booking ID that the user doesn't have access to
+        // Using a booking ID that exists but user doesn't have access to (booking -13 is in agency 'OUT')
         final var response = testRestTemplate.exchange(
-                "/api/offender-sentences/booking/999999/sentences-and-offences",
+                "/api/offender-sentences/booking/-13/sentences-and-offences",
                 HttpMethod.GET,
                 httpEntity,
                 String.class);
