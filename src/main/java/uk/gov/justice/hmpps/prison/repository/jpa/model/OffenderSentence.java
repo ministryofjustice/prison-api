@@ -20,6 +20,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.With;
 import org.hibernate.annotations.BatchSize;
+import org.hibernate.type.YesNoConverter;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 
@@ -123,6 +124,13 @@ public class OffenderSentence extends AuditableEntity {
     @BatchSize(size = 1000)
     private List<OffenderSentenceCharge> offenderSentenceCharges;
 
+    @Column(name = "IS_RECALLABLE")
+    @Convert(converter = YesNoConverter.class)
+    private boolean recallable;
+
+    @Column(name = "SENTENCE_CLASSIFICATION")
+    private String sentenceClassification;
+
     public Integer getSequence() {
         return id.sequence;
     }
@@ -153,6 +161,8 @@ public class OffenderSentence extends AuditableEntity {
             .sentenceStartDate(sentenceStartDate)
             .sentenceEndDate(sentenceEndDate)
             .fineAmount(fineAmount)
+            .isRecallable(recallable)
+            .sentenceClassification(sentenceClassification)
             .terms(terms == null ? null : terms
                 .stream()
                 .map(term -> OffenderSentenceTerm.builder()
