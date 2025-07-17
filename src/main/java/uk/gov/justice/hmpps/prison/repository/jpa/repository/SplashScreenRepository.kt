@@ -1,10 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
+import org.springframework.data.jpa.repository.JpaRepository
 import org.springframework.data.jpa.repository.Query
-import org.springframework.data.repository.CrudRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SplashScreen
 
-interface SplashScreenRepository : CrudRepository<SplashScreen, Long> {
+interface SplashScreenRepository : JpaRepository<SplashScreen, Long> {
   fun findByModuleName(moduleName: String): SplashScreen?
 
   @Query("SELECT s FROM SplashScreen s LEFT JOIN FETCH s.conditions WHERE s.moduleName = :moduleName")

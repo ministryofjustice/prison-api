@@ -19,7 +19,7 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.RequestSplashConditionUpdate
+import uk.gov.justice.hmpps.prison.api.model.RequestSplashCondition
 import uk.gov.justice.hmpps.prison.api.model.RequestSplashScreenCreateOrUpdate
 import uk.gov.justice.hmpps.prison.api.model.SplashConditionDto
 import uk.gov.justice.hmpps.prison.api.model.SplashScreenDto
@@ -169,6 +169,30 @@ class SplashScreenResource(private val splashScreenService: SplashScreenService)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "404", description = "Not Found", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+  )
+  @Operation(
+    summary = "Get conditions by type and value for a splash screen",
+    description = "Returns a condition of the specified type for a splash screen. Requires PRISON_API__SPLASH_SCREEN__RO.",
+  )
+  @PreAuthorize("hasAnyRole('PRISON_API__SPLASH_SCREEN__RO', 'PRISON_API__SPLASH_SCREEN__RW')")
+  @GetMapping("/{moduleName}/condition/{conditionType}/{conditionValue}")
+  fun getConditionsByTypeAndValue(
+    @PathVariable
+    @Parameter(description = "Module name", example = "OIDCHOLO")
+    moduleName: String,
+    @PathVariable
+    @Parameter(description = "Condition type", example = "CASELOAD")
+    conditionType: String,
+    @PathVariable
+    @Parameter(description = "Condition value", example = "MDI")
+    conditionValue: String,
+  ): SplashConditionDto = splashScreenService.getConditionsByTypeAndValue(moduleName, conditionType, conditionValue)
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "400", description = "Bad Request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "401", description = "Unauthorized", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "403", description = "Forbidden", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
@@ -187,7 +211,7 @@ class SplashScreenResource(private val splashScreenService: SplashScreenService)
     moduleName: String,
     @RequestBody
     @Parameter(description = "Condition details")
-    conditionDto: RequestSplashConditionUpdate,
+    conditionDto: RequestSplashCondition,
   ): SplashScreenDto = splashScreenService.addCondition(moduleName, conditionDto)
 
   @ApiResponses(

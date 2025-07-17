@@ -8,7 +8,7 @@ import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.model.BlockAccessType
-import uk.gov.justice.hmpps.prison.api.model.RequestSplashConditionUpdate
+import uk.gov.justice.hmpps.prison.api.model.RequestSplashCondition
 import uk.gov.justice.hmpps.prison.api.model.RequestSplashScreenCreateOrUpdate
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SplashCondition
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SplashScreen
@@ -85,7 +85,7 @@ class SplashScreenResourceIntTest : ResourceTest() {
     splashConditionRepository.save(
       SplashCondition(
         splashScreen = splashScreen2,
-        conditionType = "USER_ROLE",
+        conditionType = "CASELOAD",
         conditionValue = "ADJUDICATIONS_REVIEWER",
         blockAccess = false,
       ),
@@ -208,7 +208,7 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .jsonPath("blockedText").doesNotExist()
         .jsonPath("blockAccessType").isEqualTo(BlockAccessType.NO)
         .jsonPath("conditions[*].conditionType").value<List<String>> {
-          assertThat(it).containsExactly("USER_ROLE")
+          assertThat(it).containsExactly("CASELOAD")
         }
         .jsonPath("conditions[*].conditionValue").value<List<String>> {
           assertThat(it).containsExactly("ADJUDICATIONS_REVIEWER")
@@ -357,7 +357,7 @@ class SplashScreenResourceIntTest : ResourceTest() {
             blockedText = "Blocked",
             blockAccessType = BlockAccessType.NO,
             conditions = listOf(
-              RequestSplashConditionUpdate(
+              RequestSplashCondition(
                 conditionType = "CASELOAD",
                 conditionValue = "BXI",
                 blockAccess = false,
@@ -369,6 +369,7 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isCreated
         .expectBody()
+        .jsonPath("splashId").isNotEmpty
         .jsonPath("moduleName").isEqualTo("NEW_MODULE")
         .jsonPath("functionName").isEqualTo("AFUNCTION")
         .jsonPath("warningText").isEqualTo("Warning")
@@ -542,9 +543,9 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .uri("/api/splash-screen/OIDCHOLO/condition")
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(
-          RequestSplashConditionUpdate(
-            conditionType = "USER_ROLE",
-            conditionValue = "VISIT_SCHEDULER",
+          RequestSplashCondition(
+            conditionType = "CASELOAD",
+            conditionValue = "MDI",
             blockAccess = false,
           ),
         )
@@ -560,9 +561,9 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf("ROLE_INVALID")))
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(
-          RequestSplashConditionUpdate(
-            conditionType = "USER_ROLE",
-            conditionValue = "VISIT_SCHEDULER",
+          RequestSplashCondition(
+            conditionType = "CASELOAD",
+            conditionValue = "MDI",
             blockAccess = false,
           ),
         )
@@ -578,9 +579,9 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RW")))
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(
-          RequestSplashConditionUpdate(
-            conditionType = "USER_ROLE",
-            conditionValue = "VISIT_SCHEDULER",
+          RequestSplashCondition(
+            conditionType = "CASELOAD",
+            conditionValue = "MDI",
             blockAccess = false,
           ),
         )
@@ -599,7 +600,7 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RW")))
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(
-          RequestSplashConditionUpdate(
+          RequestSplashCondition(
             conditionType = "CASELOAD",
             conditionValue = "MDI",
             blockAccess = false,
@@ -620,9 +621,9 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RW")))
         .contentType(MediaType.APPLICATION_JSON)
         .bodyValue(
-          RequestSplashConditionUpdate(
-            conditionType = "USER_ROLE",
-            conditionValue = "VISIT_SCHEDULER",
+          RequestSplashCondition(
+            conditionType = "CASELOAD",
+            conditionValue = "BXI",
             blockAccess = false,
           ),
         )
@@ -631,17 +632,20 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .expectStatus().isOk
         .expectBody()
         .jsonPath("moduleName").isEqualTo("OIDCHOLO")
+        .jsonPath("conditions[*].splashConditionId").value<List<Long>> {
+          assertThat(it).isNotNull
+        }
         .jsonPath("conditions[*].conditionType").value<List<String>> {
-          assertThat(it).contains("USER_ROLE")
+          assertThat(it).contains("CASELOAD")
         }
         .jsonPath("conditions[*].conditionValue").value<List<String>> {
-          assertThat(it).contains("VISIT_SCHEDULER")
+          assertThat(it).contains("BXI")
         }
 
       // Verify condition was added to the database
       val splashScreen = splashScreenRepository.findByModuleName("OIDCHOLO")
       val conditions = splashConditionRepository.findBySplashScreen(splashScreen!!)
-      assertThat(conditions.filter { it.conditionType == "USER_ROLE" && it.conditionValue == "VISIT_SCHEDULER" }).hasSize(1)
+      assertThat(conditions.filter { it.conditionType == "CASELOAD" && it.conditionValue == "BXI" }).hasSize(1)
     }
   }
 
@@ -855,6 +859,68 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .expectBody()
         .jsonPath("$").isArray
         .jsonPath("$").isEmpty
+    }
+  }
+
+  @Nested
+  inner class GetConditionsByTypeAndValue {
+    @Test
+    fun `should return unauthorised without an auth token`() {
+      webTestClient.get()
+        .uri("/api/splash-screen/OIDCHOLO/condition/CASELOAD/MDI")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `should return forbidden without a valid role`() {
+      webTestClient.get()
+        .uri("/api/splash-screen/OIDCHOLO/condition/CASELOAD/MDI")
+        .headers(setAuthorisation(listOf("ROLE_INVALID")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isForbidden
+    }
+
+    @Test
+    fun `should return not found if module name does not exist`() {
+      webTestClient.get()
+        .uri("/api/splash-screen/INVALID/condition/CASELOAD/MDI")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Splash screen not found for module: INVALID")
+        }
+    }
+
+    @Test
+    fun `should return conditions of specified type`() {
+      webTestClient.get()
+        .uri("/api/splash-screen/OIDCHOLO/condition/CASELOAD/MDI")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("conditionType").isEqualTo("CASELOAD")
+        .jsonPath("conditionValue").isEqualTo("MDI")
+        .jsonPath("blockAccess").isEqualTo("false")
+    }
+
+    @Test
+    fun `should return 404 if no conditions of specified type`() {
+      webTestClient.get()
+        .uri("/api/splash-screen/OIDCHOLO/condition/CASELOAD/HLI")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").value<String> {
+          assertThat(it).contains("Condition not found")
+        }
     }
   }
 }

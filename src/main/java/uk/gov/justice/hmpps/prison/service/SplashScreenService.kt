@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.service
 
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Service
-import uk.gov.justice.hmpps.prison.api.model.RequestSplashConditionUpdate
+import uk.gov.justice.hmpps.prison.api.model.RequestSplashCondition
 import uk.gov.justice.hmpps.prison.api.model.RequestSplashScreenCreateOrUpdate
 import uk.gov.justice.hmpps.prison.api.model.SplashConditionDto
 import uk.gov.justice.hmpps.prison.api.model.SplashScreenDto
@@ -33,64 +33,61 @@ class SplashScreenService(
   fun getSplashScreensByCondition(conditionType: String, conditionValue: String): List<SplashScreenDto> = splashScreenRepository.findByConditionTypeAndValue(conditionType, conditionValue)
     .map { mapToDto(it) }
 
-  fun createSplashScreen(moduleName: String, splashScreenDto: RequestSplashScreenCreateOrUpdate): SplashScreenDto {
+  fun createSplashScreen(moduleName: String, createRequest: RequestSplashScreenCreateOrUpdate): SplashScreenDto {
     // Check if the module name already exists
     if (splashScreenRepository.findByModuleName(moduleName) != null) {
       throw ConflictingRequestException("Splash screen with module name $moduleName already exists")
     }
 
     // Find or create the function if provided
-    val function = splashScreenDto.functionName?.let { functionName ->
+    val function = createRequest.functionName?.let { functionName ->
       splashScreenFunctionRepository.findByFunctionName(functionName)
         ?: throw EntityNotFoundException("Function not found: $functionName")
     }
 
     // Create the splash screen
-    val splashScreen = SplashScreen(
-      moduleName = moduleName,
-      function = function,
-      warningText = splashScreenDto.warningText,
-      blockedText = splashScreenDto.blockedText,
-      blockAccessType = splashScreenDto.blockAccessType,
+    return mapToDto(
+      splashScreenRepository.saveAndFlush(
+        SplashScreen(
+          moduleName = moduleName,
+          function = function,
+          warningText = createRequest.warningText,
+          blockedText = createRequest.blockedText,
+          blockAccessType = createRequest.blockAccessType,
+        ).apply {
+          createRequest.conditions.forEach {
+            addCondition(
+              conditionType = it.conditionType,
+              conditionValue = it.conditionValue,
+              blockAccess = it.blockAccess,
+            )
+          }
+        },
+      ),
     )
-
-    splashScreenDto.conditions.forEach {
-      splashScreen.addCondition(
-        conditionType = it.conditionType,
-        conditionValue = it.conditionValue,
-        blockAccess = it.blockAccess,
-      )
-    }
-    val savedSplashScreen = splashScreenRepository.save(splashScreen)
-
-    return mapToDto(splashScreenRepository.findByModuleNameWithConditions(moduleName)!!)
   }
 
-  fun updateSplashScreen(moduleName: String, splashScreenDto: RequestSplashScreenCreateOrUpdate): SplashScreenDto {
+  fun updateSplashScreen(moduleName: String, updateRequest: RequestSplashScreenCreateOrUpdate): SplashScreenDto {
     val splashScreen = splashScreenRepository.findByModuleName(moduleName)
       ?: throw EntityNotFoundException("Splash screen not found for module: $moduleName")
 
     // Find function if provided and different from the current
-    val function = if (splashScreenDto.functionName != null &&
-      (splashScreen.function == null || splashScreenDto.functionName != splashScreen.function.functionName)
+    val function = if (updateRequest.functionName != null &&
+      (splashScreen.function == null || updateRequest.functionName != splashScreen.function!!.functionName)
     ) {
-      splashScreenFunctionRepository.findByFunctionName(splashScreenDto.functionName)
-        ?: throw EntityNotFoundException("Function not found: ${splashScreenDto.functionName}")
+      splashScreenFunctionRepository.findByFunctionName(updateRequest.functionName)
+        ?: throw EntityNotFoundException("Function not found: ${updateRequest.functionName}")
     } else {
       splashScreen.function
     }
 
     // Update the splash screen
-    val updatedSplashScreen = splashScreen.copy(
-      function = function,
-      warningText = splashScreenDto.warningText ?: splashScreen.warningText,
-      blockedText = splashScreenDto.blockedText ?: splashScreen.blockedText,
-      blockAccessType = splashScreenDto.blockAccessType,
-    )
+    splashScreen.function = function
+    splashScreen.warningText = updateRequest.warningText ?: splashScreen.warningText
+    splashScreen.blockedText = updateRequest.blockedText ?: splashScreen.blockedText
+    splashScreen.blockAccessType = updateRequest.blockAccessType
 
-    splashScreenRepository.save(updatedSplashScreen)
-
-    return mapToDto(splashScreenRepository.findByModuleNameWithConditions(moduleName)!!)
+    return mapToDto(splashScreen)
   }
 
   fun deleteSplashScreen(moduleName: String) {
@@ -101,7 +98,7 @@ class SplashScreenService(
     splashScreenRepository.delete(splashScreen)
   }
 
-  fun addCondition(moduleName: String, conditionDto: RequestSplashConditionUpdate): SplashScreenDto {
+  fun addCondition(moduleName: String, conditionDto: RequestSplashCondition): SplashScreenDto {
     val splashScreen = splashScreenRepository.findByModuleName(moduleName)
       ?: throw EntityNotFoundException("Splash screen not found for module: $moduleName")
 
@@ -115,9 +112,12 @@ class SplashScreenService(
       throw ConflictingRequestException("Condition already exists for this splash screen")
     }
 
-    createCondition(splashScreen, conditionDto)
-
-    return mapToDto(splashScreenRepository.findByModuleNameWithConditions(moduleName)!!)
+    splashScreen.addCondition(
+      conditionType = conditionDto.conditionType,
+      conditionValue = conditionDto.conditionValue,
+      blockAccess = conditionDto.blockAccess,
+    )
+    return mapToDto(splashScreenRepository.saveAndFlush(splashScreen))
   }
 
   fun updateCondition(
@@ -136,28 +136,20 @@ class SplashScreenService(
     ) ?: throw EntityNotFoundException("Condition not found")
 
     // Update the condition
-    val updatedCondition = condition.copy(
-      blockAccess = blockAccess,
-    )
+    condition.blockAccess = blockAccess
 
-    splashConditionRepository.save(updatedCondition)
-
-    return mapToDto(splashScreenRepository.findByModuleNameWithConditions(moduleName)!!)
+    return mapToDto(splashScreen)
   }
 
   fun removeCondition(moduleName: String, conditionType: String, conditionValue: String): SplashScreenDto {
     val splashScreen = splashScreenRepository.findByModuleName(moduleName)
       ?: throw EntityNotFoundException("Splash screen not found for module: $moduleName")
 
-    val condition = splashConditionRepository.findBySplashScreenAndConditionTypeAndConditionValue(
-      splashScreen,
-      conditionType,
-      conditionValue,
-    ) ?: throw EntityNotFoundException("Condition not found")
+    if (!splashScreen.removeCondition(conditionType, conditionValue)) {
+      throw EntityNotFoundException("Condition not found")
+    }
 
-    splashConditionRepository.delete(condition)
-
-    return mapToDto(splashScreenRepository.findByModuleNameWithConditions(moduleName)!!)
+    return mapToDto(splashScreen)
   }
 
   fun getConditionsByType(moduleName: String, conditionType: String): List<SplashConditionDto> {
@@ -168,15 +160,17 @@ class SplashScreenService(
       .map { mapToDto(it) }
   }
 
-  private fun createCondition(splashScreen: SplashScreen, conditionDto: RequestSplashConditionUpdate): SplashCondition {
-    val condition = SplashCondition(
-      splashScreen = splashScreen,
-      conditionType = conditionDto.conditionType,
-      conditionValue = conditionDto.conditionValue,
-      blockAccess = conditionDto.blockAccess,
-    )
+  fun getConditionsByTypeAndValue(moduleName: String, conditionType: String, conditionValue: String): SplashConditionDto {
+    val splashScreen = splashScreenRepository.findByModuleName(moduleName)
+      ?: throw EntityNotFoundException("Splash screen not found for module: $moduleName")
 
-    return splashConditionRepository.save(condition)
+    val condition = splashConditionRepository.findBySplashScreenAndConditionTypeAndConditionValue(
+      splashScreen,
+      conditionType,
+      conditionValue,
+    ) ?: throw EntityNotFoundException("Condition not found")
+
+    return mapToDto(condition)
   }
 
   private fun mapToDto(splashScreen: SplashScreen): SplashScreenDto = SplashScreenDto(

@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Schema(description = "Splash Screen Condition")
-data class RequestSplashConditionUpdate(
+data class RequestSplashCondition(
   @Schema(description = "Condition type", example = "CASELOAD")
   val conditionType: String,
 

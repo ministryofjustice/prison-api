@@ -29,17 +29,17 @@ data class SplashScreen(
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "FUNCTION_NAME")
-  val function: SplashScreenFunction? = null,
+  var function: SplashScreenFunction? = null,
 
   @Column(name = "WARNING_TEXT")
-  val warningText: String? = null,
+  var warningText: String? = null,
 
   @Column(name = "BLOCKED_TEXT")
-  val blockedText: String? = null,
+  var blockedText: String? = null,
 
   @Enumerated(EnumType.STRING)
   @Column(name = "BLOCK_ACCESS_CODE", nullable = false)
-  val blockAccessType: BlockAccessType = BlockAccessType.NO,
+  var blockAccessType: BlockAccessType = BlockAccessType.NO,
 
   @OneToMany(mappedBy = "splashScreen", cascade = [jakarta.persistence.CascadeType.ALL], fetch = FetchType.LAZY, orphanRemoval = true)
   val conditions: MutableList<SplashCondition> = mutableListOf(),
@@ -53,6 +53,15 @@ data class SplashScreen(
 
   fun addCondition(conditionType: String, conditionValue: String, blockAccess: Boolean) {
     conditions.add(SplashCondition(splashScreen = this, conditionType = conditionType, conditionValue = conditionValue, blockAccess = blockAccess))
+  }
+
+  fun removeCondition(conditionType: String, conditionValue: String): Boolean {
+    val condition = conditions.firstOrNull { it.conditionType == conditionType && it.conditionValue == conditionValue }
+    return if (condition != null) {
+      conditions.remove(condition)
+    } else {
+      false
+    }
   }
 
   override fun hashCode(): Int = javaClass.hashCode()

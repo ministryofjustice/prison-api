@@ -23,5 +23,5 @@ data class RequestSplashScreenCreateOrUpdate(
   val blockAccessType: BlockAccessType = BlockAccessType.NO,
 
   @Schema(description = "List of conditions for this splash screen")
-  val conditions: List<RequestSplashConditionUpdate> = emptyList(),
+  val conditions: List<RequestSplashCondition> = emptyList(),
 )

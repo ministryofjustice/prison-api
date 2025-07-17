@@ -43,17 +43,27 @@ data class SplashCondition(
 
   @Convert(converter = YesNoConverter::class)
   @Column(name = "BLOCK_ACCESS_YORN", nullable = false)
-  val blockAccess: Boolean = false,
+  var blockAccess: Boolean = false,
 
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
     other as SplashCondition
-    return splashConditionId == other.splashConditionId
+
+    if (splashScreen != other.splashScreen) return false
+    if (conditionType != other.conditionType) return false
+    if (conditionValue != other.conditionValue) return false
+
+    return true
   }
 
-  override fun hashCode(): Int = javaClass.hashCode()
+  override fun hashCode(): Int {
+    var result = splashScreen.hashCode()
+    result = 31 * result + conditionType.hashCode()
+    result = 31 * result + conditionValue.hashCode()
+    return result
+  }
 
-  override fun toString(): String = "SplashCondition(splashConditionId=$splashConditionId, conditionType=$conditionType, conditionValue=$conditionValue)"
+  override fun toString(): String = "SplashCondition(splashScreen=$splashScreen, conditionType='$conditionType', conditionValue='$conditionValue', blockAccess=$blockAccess)"
 }
