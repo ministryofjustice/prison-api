@@ -14,6 +14,8 @@ import org.hibernate.Hibernate
 import org.hibernate.annotations.JoinColumnOrFormula
 import org.hibernate.annotations.JoinColumnsOrFormulas
 import org.hibernate.annotations.JoinFormula
+import org.hibernate.annotations.NotFound
+import org.hibernate.annotations.NotFoundAction
 import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.time.LocalDate
@@ -32,6 +34,7 @@ data class OffenderBelief(
 
   @ManyToOne
   @JoinColumn(name = "OFFENDER_BOOK_ID", nullable = false)
+  @NotFound(action = NotFoundAction.IGNORE)
   val booking: OffenderBooking,
 
   @ManyToOne(optional = false, fetch = FetchType.LAZY)
