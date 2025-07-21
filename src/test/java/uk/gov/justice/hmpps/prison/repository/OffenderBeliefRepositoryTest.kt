@@ -30,7 +30,7 @@ class OffenderBeliefRepositoryTest {
   /*
    * Test data added to migration SQL files R__8_8__OFFENDER_BELIEFS.sql, R__3_6_1__OFFENDER_BOOKINGS.sql, R__1_15__OFFENDERS.sql
    * offender B1101BB
-   * has 4 beliefs across 3 bookings (-101, -102 and -103) and 2 aliases (offenders -101 and -102)
+   * has 5 beliefs across 3 bookings (-101, -102 and -103) and 2 aliases (offenders -101 and -102), one having a non-existent booking id which can happen but should not cause any problems
    */
   @Autowired
   private lateinit var repository: OffenderBeliefRepository
