@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.3"
   kotlin("plugin.spring") version "2.2.0"
   kotlin("plugin.jpa") version "2.2.0"
   kotlin("plugin.lombok") version "2.2.0"
@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.38")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.7")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.10")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
