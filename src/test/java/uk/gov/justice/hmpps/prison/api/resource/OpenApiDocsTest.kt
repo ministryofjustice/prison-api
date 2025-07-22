@@ -74,11 +74,11 @@ class OpenApiDocsTest : ResourceTest() {
       .exchange()
       .expectStatus().isOk
       .expectBody()
-      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.example").isEqualTo("2021-07-05T10:35:17")
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.type").isEqualTo("string")
-      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.pattern")
-      .isEqualTo("""^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}:\d{2}${'$'}""")
-      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").doesNotExist()
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").isEqualTo("date-time")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.description").isEqualTo("Movement date time")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.pattern").doesNotExist()
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.example").doesNotExist()
   }
 
   @Test
