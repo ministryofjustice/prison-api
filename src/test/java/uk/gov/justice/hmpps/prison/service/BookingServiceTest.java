@@ -1203,8 +1203,12 @@ public class BookingServiceTest {
                             .category("CAT")
                             .calculationType("CALC")
                             .description("Calc description")
+                            .recallable(true)
+                            .sentenceClassification("STANDARD")
                             .build()
                     )
+                    .recallable(true)
+                    .sentenceClassification("STANDARD")
                     .courtOrder(
                         CourtOrder.builder()
                             .courtDate(LocalDate.of(2021, 1, 1))
@@ -1290,6 +1294,8 @@ public class BookingServiceTest {
                         .indicators(List.of("INDICATOR"))
                         .build()
                 ))
+                .isRecallable(true)
+                .sentenceClassification("STANDARD")
                 .build()
         );
     }
