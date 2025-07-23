@@ -25,7 +25,7 @@ import uk.gov.justice.hmpps.prison.api.model.v1.Image;
 import uk.gov.justice.hmpps.prison.api.model.v1.InternalLocation;
 import uk.gov.justice.hmpps.prison.api.model.v1.Language;
 import uk.gov.justice.hmpps.prison.api.model.v1.LegalCase;
-import uk.gov.justice.hmpps.prison.api.model.v1.Location;
+import uk.gov.justice.hmpps.prison.api.model.v1.OffenderLocation;
 import uk.gov.justice.hmpps.prison.api.model.v1.Offender;
 import uk.gov.justice.hmpps.prison.api.model.v1.OffenderAlias;
 import uk.gov.justice.hmpps.prison.api.model.v1.OffenderIdentifier;
@@ -88,14 +88,14 @@ public class NomisApiV1Service {
     private final CoreV1Repository coreV1Repository;
     private final VisitV1Repository visitV1Repository;
 
-    public Location getLatestBookingLocation(final String nomsId) {
+    public OffenderLocation getLatestBookingLocation(final String nomsId) {
         return bookingV1Repository.getLatestBooking(nomsId)
                 .map(this::buildLocation)
                 .orElseThrow(EntityNotFoundException.withId(nomsId));
     }
 
-    private Location buildLocation(final BookingSP l) {
-        return Location.builder()
+    private OffenderLocation buildLocation(final BookingSP l) {
+        return OffenderLocation.builder()
                 .establishment(CodeDescription.safeNullBuild(l.getAgyLocId(), l.getAgyLocDesc()))
                 .housingLocation(StringUtils.isNotBlank(l.getHousingLocation()) ? new InternalLocation(l.getHousingLocation(), l.getHousingLevels()) : null)
                 .build();

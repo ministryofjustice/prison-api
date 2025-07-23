@@ -37,7 +37,7 @@ import uk.gov.justice.hmpps.prison.api.model.v1.Events;
 import uk.gov.justice.hmpps.prison.api.model.v1.Hold;
 import uk.gov.justice.hmpps.prison.api.model.v1.Image;
 import uk.gov.justice.hmpps.prison.api.model.v1.LiveRoll;
-import uk.gov.justice.hmpps.prison.api.model.v1.Location;
+import uk.gov.justice.hmpps.prison.api.model.v1.OffenderLocation;
 import uk.gov.justice.hmpps.prison.api.model.v1.Offender;
 import uk.gov.justice.hmpps.prison.api.model.v1.OffenderIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.v1.PaymentResponse;
@@ -106,7 +106,7 @@ public class NomisApiV1Resource {
     @Operation(summary = "Current Location of the offender", description = "The levels shows the type of each level of the location address as defined on the Agency Details tab in Maintain Agency Locations screen (OUMAGLOC).<br/><br/>Since the offender's location can change often and is fairly sensitive (and therefore should not automatically be exposed to all services), this information is not included in the general offender information call.")
     @GetMapping("/offenders/{noms_id}/location")
     @SlowReportQuery
-    public Location getLatestBookingLocation(@PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms ID", example = "A1417AE", required = true) @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
+    public OffenderLocation getLatestBookingLocation(@PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms ID", example = "A1417AE", required = true) @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
         return service.getLatestBookingLocation(nomsId);
     }
 

@@ -46,7 +46,7 @@ public class Booking {
     private boolean bookingActive;
 
     @Schema(name = "location", description = "Location of Offender")
-    private Location location;
+    private OffenderLocation location;
 
     @JsonIgnore
     private boolean latestBooking;

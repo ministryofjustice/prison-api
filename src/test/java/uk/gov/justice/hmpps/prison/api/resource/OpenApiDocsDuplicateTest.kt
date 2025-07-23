@@ -11,10 +11,7 @@ class OpenApiDocsDuplicateTest {
     val duplicates = findAnnotatedClasses(
       Schema::class.java,
       arrayOf("uk.gov.justice.hmpps.prison.api"),
-    ).filter {
-      // This incorrectly displays the new Location schema in the v1 API but don't want to break possible codegen used by external parties
-      it != uk.gov.justice.hmpps.prison.api.model.v1.Location::class.java
-    }.map {
+    ).map {
       val schema = it.annotations.find { it is Schema } as Schema
       schema.name.ifEmpty { it.simpleName }
     }

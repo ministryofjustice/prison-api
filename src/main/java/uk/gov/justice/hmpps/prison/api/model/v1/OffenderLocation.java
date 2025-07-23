@@ -16,7 +16,7 @@ import lombok.NoArgsConstructor;
 @JsonPropertyOrder({"establishment", "housing_location"})
 @Builder
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class Location {
+public class OffenderLocation {
 
     @Schema(description = "Establishment", example = "{code: 'BMI', desc: 'BIRMINGHAM (HMP)'}")
     private CodeDescription establishment;
