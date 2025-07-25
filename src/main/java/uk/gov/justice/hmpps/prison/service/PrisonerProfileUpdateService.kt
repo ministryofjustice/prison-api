@@ -191,12 +191,12 @@ class PrisonerProfileUpdateService(
         CorePersonPhysicalAttributes(
           height = attributes.heightCentimetres,
           weight = attributes.weightKgs,
-          hair = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code,
-          face = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code,
-          facialHair = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code,
-          build = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code,
-          leftEyeColour = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code,
-          rightEyeColour = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code,
+          hair = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+          face = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+          facialHair = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+          build = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+          leftEyeColour = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+          rightEyeColour = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
           shoeSize = booking.profileDetails.find { it.id.type.type == SHOESIZE_PROFILE_TYPE }?.profileCode,
         )
       } ?: CorePersonPhysicalAttributes()
@@ -352,6 +352,12 @@ class PrisonerProfileUpdateService(
     description = description,
   )
 
+  private fun ProfileCode.toReferenceDataValue() = ReferenceDataValue(
+    domain = id.type.type,
+    code = id.code,
+    description = description,
+  )
+
   private fun Offender.toCorePersonRecordAlias(isWorkingName: Boolean) = CorePersonRecordAlias(
     prisonerNumber = nomsId,
     offenderId = id,
@@ -430,8 +436,8 @@ class PrisonerProfileUpdateService(
     return CorePersonCommunicationNeeds(
       prisonerNumber,
       languagePreferences = CorePersonLanguagePreferences(
-        preferredSpokenLanguage = getFirstPreferredSpokenLanguage(languages)?.referenceCode,
-        preferredWrittenLanguage = getFirstPreferredWrittenLanguage(languages)?.referenceCode,
+        preferredSpokenLanguage = getFirstPreferredSpokenLanguage(languages)?.referenceCode?.toReferenceDataValue(),
+        preferredWrittenLanguage = getFirstPreferredWrittenLanguage(languages)?.referenceCode?.toReferenceDataValue(),
         interpreterRequired = getInterpreterRequired(languages),
       ),
       secondaryLanguages = getSecondaryLanguages(languages),
@@ -576,7 +582,7 @@ class PrisonerProfileUpdateService(
     .filter { it.type.equals(SEC_LANGUAGE_TYPE, ignoreCase = true) }
     .map {
       CorePersonSecondaryLanguage(
-        language = it.referenceCode,
+        language = it.referenceCode.toReferenceDataValue(),
         canRead = it.readSkill.equals("Y", ignoreCase = true),
         canWrite = it.writeSkill.equals("Y", ignoreCase = true),
         canSpeak = it.speakSkill.equals("Y", ignoreCase = true),

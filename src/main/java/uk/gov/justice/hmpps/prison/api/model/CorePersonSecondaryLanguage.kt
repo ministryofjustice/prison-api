@@ -1,12 +1,11 @@
 package uk.gov.justice.hmpps.prison.api.model
 
 import io.swagger.v3.oas.annotations.media.Schema
-import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 
 @Schema(description = "Secondary language information")
 data class CorePersonSecondaryLanguage(
   @Schema(description = "Language reference code")
-  val language: LanguageReferenceCode,
+  val language: ReferenceDataValue,
 
   @Schema(description = "Reading proficiency")
   val canRead: Boolean,
