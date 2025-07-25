@@ -78,10 +78,14 @@ class PrisonerCreationService(
       validPncNumber?.let { newPrisoner.addIdentifier("PNC", it) }
       validCroNumber?.let { newPrisoner.addIdentifier("CRO", it) }
     }
-
-    return prisoner.takeIf { requestToCreate.booking != null }
-      ?.let { bookingIntoPrisonService.newBookingWithoutUpdateLock(it, null, requestToCreate.booking) }
-      ?: offenderTransformer.transformWithoutBooking(prisoner)
+    // need to save again so that the identifiers get a whenCreated date
+    return offenderRepository.save(prisoner).let { updatedPrisoner ->
+      if (requestToCreate.booking != null) {
+        bookingIntoPrisonService.newBookingWithoutUpdateLock(updatedPrisoner, null, requestToCreate.booking)
+      } else {
+        offenderTransformer.transformWithoutBooking(updatedPrisoner)
+      }
+    }
   }
 
   fun getNextPrisonerIdentifier(): PrisonerIdentifier {

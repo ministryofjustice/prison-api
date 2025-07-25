@@ -145,7 +145,7 @@ class PrisonerSearchService(
     this.issuedAuthorityText,
     this.issuedDate,
     this.caseloadType,
-    this.createDateTime,
+    this.createDatetime,
     this.offender.id,
     this.rootOffenderId,
     this.offenderIdentifierPK.offenderIdSeq,

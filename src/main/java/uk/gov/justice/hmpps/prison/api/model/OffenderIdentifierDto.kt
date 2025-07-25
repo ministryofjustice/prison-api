@@ -3,9 +3,9 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 data class OffenderIdentifierDto(
-  val type: String?,
-  val value: String?,
-  val offenderNo: String?,
+  val type: String,
+  val value: String,
+  val offenderNo: String,
   val bookingId: Long?,
   val issuedAuthorityText: String?,
   val issuedDate: LocalDate?,

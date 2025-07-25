@@ -59,7 +59,7 @@ class OffenderIdentifierResourceIntTest : ResourceTest() {
             issuedAuthorityText = "Court"
             issuedDate = LocalDate.parse("2015-01-01")
             caseloadType = "INST"
-            createDateTime = LocalDateTime.parse("2015-01-01T12:00:00")
+            createDatetime = LocalDateTime.parse("2015-01-01T12:00:00")
             rootOffenderId = 1
             offender = Offender().apply {
               id = 1
@@ -76,7 +76,7 @@ class OffenderIdentifierResourceIntTest : ResourceTest() {
             issuedAuthorityText = "Alias"
             issuedDate = LocalDate.parse("2015-01-01")
             caseloadType = "INST"
-            createDateTime = LocalDateTime.parse("2015-01-01T00:00:00")
+            createDatetime = LocalDateTime.parse("2015-01-01T00:00:00")
             rootOffenderId = 1
             offender = Offender().apply {
               id = 2
@@ -506,7 +506,7 @@ class OffenderIdentifierResourceIntTest : ResourceTest() {
       issuedAuthorityText = "Test"
       issuedDate = LocalDate.parse("2015-01-01")
       caseloadType = "INST"
-      createDateTime = LocalDateTime.parse("2015-01-01T12:00:00")
+      createDatetime = LocalDateTime.parse("2015-01-01T12:00:00")
       rootOffenderId = 1
       offender = Offender().apply {
         id = 1

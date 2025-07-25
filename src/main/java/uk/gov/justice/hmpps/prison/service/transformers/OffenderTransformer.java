@@ -125,16 +125,19 @@ public class OffenderTransformer {
             .dateOfBirth(offender.getBirthDate())
             .age(getAge(offender.getBirthDate(), LocalDate.now(clock)))
             .profileInformation(null)
-            .identifiers(offender.getLatestIdentifiers().stream().map(oi -> OffenderIdentifier.builder()
-                .offenderNo(offender.getNomsId())
-                .caseloadType(oi.getCaseloadType())
-                .type(oi.getIdentifierType())
-                .value(oi.getIdentifier())
-                .issuedDate(oi.getIssuedDate())
-                .whenCreated(oi.getCreateDateTime())
-                .issuedAuthorityText(oi.getIssuedAuthorityText())
-                .offenderId(oi.getOffender().getId())
-                .build()).toList())
+            .identifiers(offender.getLatestIdentifiers().stream().map(oi -> new OffenderIdentifier(
+                oi.getIdentifierType(),
+                oi.getIdentifier(),
+                offender.getNomsId(),
+                null,
+                oi.getIssuedAuthorityText(),
+                oi.getIssuedDate(),
+                oi.getCaseloadType(),
+                oi.getCreateDatetime(),
+                oi.getOffender().getId(),
+                oi.getRootOffenderId(),
+                oi.getOffenderIdentifierPK().getOffenderIdSeq()
+            )).toList())
             .physicalAttributes(PhysicalAttributes.builder()
                 .sexCode(offender.getGender().getCode())
                 .gender(offender.getGender().getDescription())

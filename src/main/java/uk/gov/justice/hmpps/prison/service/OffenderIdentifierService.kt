@@ -157,7 +157,7 @@ class OffenderIdentifierService(
   private fun transformOffenderIdentifier(identifier: OffenderIdentifier): Identifier = Identifier(
     identifier.identifierType, identifier.identifier, identifier.offender.nomsId,
     null, identifier.issuedAuthorityText,
-    identifier.issuedDate, identifier.caseloadType, identifier.createDateTime, identifier.offender.id,
+    identifier.issuedDate, identifier.caseloadType, identifier.createDatetime, identifier.offender.id,
     identifier.rootOffenderId, identifier.offenderIdentifierPK.offenderIdSeq,
   )
 

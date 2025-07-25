@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIdentifierRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import java.time.LocalDateTime
 import java.util.Optional
 
 class OffenderIdentityServiceTest {
@@ -44,32 +45,56 @@ class OffenderIdentityServiceTest {
       .identifierType("NINO")
       .identifier("IDENTIFIER")
       .rootOffenderId(123L)
-      .offender(Offender().apply { id = 123 })
+      .offender(
+        Offender().apply {
+          id = 123
+          nomsId = "ABC123"
+        },
+      )
       .offenderIdentifierPK(OffenderIdentifier.OffenderIdentifierPK(123, 1))
+      .createDatetime(LocalDateTime.now())
       .build()
 
     testIdentifierOnAlias = OffenderIdentifier.builder()
       .identifierType("NINO")
       .identifier("IDENTIFIER_ON_ALIAS")
       .rootOffenderId(543L)
-      .offender(Offender().apply { id = 543 })
+      .offender(
+        Offender().apply {
+          id = 543
+          nomsId = "ABC123"
+        },
+      )
       .offenderIdentifierPK(OffenderIdentifier.OffenderIdentifierPK(543, 2))
+      .createDatetime(LocalDateTime.now())
       .build()
 
     testPncIdentifier = OffenderIdentifier.builder()
       .identifierType("PNC")
       .identifier("96/346527V")
       .rootOffenderId(123L)
-      .offender(Offender().apply { id = 123 })
+      .offender(
+        Offender().apply {
+          id = 123
+          nomsId = "ABC123"
+        },
+      )
       .offenderIdentifierPK(OffenderIdentifier.OffenderIdentifierPK(123, 2))
+      .createDatetime(LocalDateTime.now())
       .build()
 
     testCroIdentifier = OffenderIdentifier.builder()
       .identifierType("CRO")
       .identifier("265416/21G")
       .rootOffenderId(123L)
-      .offender(Offender().apply { id = 123 })
+      .offender(
+        Offender().apply {
+          id = 123
+          nomsId = "ABC123"
+        },
+      )
       .offenderIdentifierPK(OffenderIdentifier.OffenderIdentifierPK(123, 2))
+      .createDatetime(LocalDateTime.now())
       .build()
 
     testUpdatedIdentifier = OffenderIdentifier.builder()
@@ -77,15 +102,24 @@ class OffenderIdentityServiceTest {
       .identifier("UPDATED_IDENTIFIER")
       .issuedAuthorityText("COMMENT")
       .rootOffenderId(123L)
-      .offender(Offender().apply { id = 123 })
+      .offender(
+        Offender().apply {
+          id = 123
+          nomsId = "ABC123"
+        },
+      )
       .offenderIdentifierPK(OffenderIdentifier.OffenderIdentifierPK(123, 1))
+      .createDatetime(LocalDateTime.now())
       .build()
 
     testOffender = Offender().apply {
       id = 123
       nomsId = "ABC123"
       rootOffenderId = 123
-      rootOffender = Offender().apply { id = 123 }
+      rootOffender = Offender().apply {
+        id = 123
+        nomsId = "ABC123"
+      }
       addBooking(OffenderBooking().apply { bookingId = 1001 })
       identifiers = mutableListOf(testIdentifier)
     }
@@ -267,6 +301,8 @@ class OffenderIdentityServiceTest {
     fun `updates an existing identifier`() {
       val identifier: OffenderIdentifier = mock()
       whenever(identifier.identifierType).thenReturn("NINO")
+      whenever(identifier.identifier).thenReturn("OLD_VALUE")
+      whenever(identifier.createDatetime).thenReturn(LocalDateTime.now())
       whenever(identifier.offender).thenReturn(testOffender)
       whenever(identifier.offenderIdentifierPK).thenReturn(testIdentifier.offenderIdentifierPK)
       whenever(
@@ -292,6 +328,8 @@ class OffenderIdentityServiceTest {
         listOf(testIdentifier),
       )
       whenever(identifier.identifierType).thenReturn("NINO")
+      whenever(identifier.identifier).thenReturn("OLD_VALUE")
+      whenever(identifier.createDatetime).thenReturn(LocalDateTime.now())
       whenever(identifier.offender).thenReturn(testOffender)
       whenever(identifier.offenderIdentifierPK).thenReturn(testIdentifier.offenderIdentifierPK)
       whenever(
