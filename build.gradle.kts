@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.3"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
   kotlin("plugin.spring") version "2.2.0"
   kotlin("plugin.jpa") version "2.2.0"
   kotlin("plugin.lombok") version "2.2.0"
@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.38")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.10")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.11")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -29,7 +29,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   developmentOnly("org.springframework.boot:spring-boot-devtools")
 
-  implementation("commons-codec:commons-codec:1.18.0")
+  implementation("commons-codec:commons-codec:1.19.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   implementation("com.github.jsqlparser:jsqlparser:5.2")
   implementation("org.ehcache:ehcache:3.10.8")
@@ -38,10 +38,10 @@ dependencies {
   implementation("io.swagger:swagger-annotations:1.6.16")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
 
-  implementation("org.apache.commons:commons-lang3:3.17.0")
-  implementation("commons-io:commons-io:2.19.0")
+  implementation("org.apache.commons:commons-lang3:3.18.0")
+  implementation("commons-io:commons-io:2.20.0")
   implementation("com.google.guava:guava:33.4.8-jre")
-  implementation("org.apache.commons:commons-text:1.13.1")
+  implementation("org.apache.commons:commons-text:1.14.0")
   implementation("com.oracle.database.jdbc:ojdbc10:19.27.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
@@ -51,7 +51,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.7")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.11")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.5")
