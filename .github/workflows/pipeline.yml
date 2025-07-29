@@ -36,6 +36,9 @@ jobs:
     name: Run the tests
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
+    with:
+      gradle-command: './gradlew assemble check'
+      upload-build-artifacts: true
   gradle-test-integration:
     name: Run the integration tests
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
@@ -65,6 +68,7 @@ jobs:
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
       push: ${{ inputs.push || true }}
       docker_multiplatform: true
+      download_build_artifacts: true
   deploy_dev:
     name: Deploy to the dev environment
     if: github.ref == 'refs/heads/main'
