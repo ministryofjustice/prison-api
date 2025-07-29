@@ -16,10 +16,10 @@ public interface OffenderImageRepository extends CrudRepository<OffenderImage, L
     List<OffenderImage> getImagesByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
 
     @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i join i.offenderBooking ob join ob.offender o where o.nomsId = :offenderNumber " +
-        "and ob.bookingSequence = 1 and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true)")
+        "and ob.bookingSequence = 1 and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true and i.fullSizeImage is not null)")
     Optional<OffenderImage> findLatestByOffenderNumber(@Param("offenderNumber") final String offenderNumber);
 
     @Query(value = "select oi from OffenderImage oi where oi.id = (SELECT max(i.id) FROM OffenderImage i where i.offenderBooking.bookingId = :bookingId " +
-        "and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true)")
+        "and i.viewType = 'FACE' and i.orientationType = 'FRONT' and i.imageType = 'OFF_BKG' and i.active = true and i.fullSizeImage is not null)")
     Optional<OffenderImage> findLatestByBookingId(@Param("bookingId") final Long bookingId);
 }

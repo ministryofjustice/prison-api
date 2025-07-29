@@ -628,12 +628,18 @@ public class OffenderBooking extends AuditableEntity {
         ).orElse(null);
     }
 
+    /**
+     * This filters out image table rows where the actual full size and thumbnail images are null.
+     * This is still possible even when active = Y.
+     * (note all rows in prod have either both full size and thumbnail images or neither)
+     */
     public Optional<OffenderImage> getLatestFaceImage() {
         return images.stream()
             .filter(OffenderImage::isActive)
             .filter(i -> "OFF_BKG".equals(i.getImageType()))
             .filter(i -> "FACE".equals(i.getViewType()))
             .filter(i -> "FRONT".equals(i.getOrientationType()))
+            .filter(i -> i.getFullSizeImage() != null)
             .max(Comparator.comparing(OffenderImage::getId));
     }
 

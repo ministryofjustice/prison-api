@@ -125,14 +125,13 @@ enum class BookingRepositorySql(val sql: String) {
         THEN 1 ELSE 0 END                              most_recent_active_booking,
         AL.description                                 agency_location_desc,
         AIL.DESCRIPTION                                internal_location_desc,
-        (
-                SELECT MAX(OI.OFFENDER_IMAGE_ID)
-                        FROM OFFENDER_IMAGES OI
-                        WHERE OI.ACTIVE_FLAG = 'Y'
-        AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
-        AND OI.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
-                AND OI.IMAGE_VIEW_TYPE = 'FACE'
-        AND OI.ORIENTATION_TYPE = 'FRONT'
+        (SELECT MAX(OI.OFFENDER_IMAGE_ID) FROM OFFENDER_IMAGES OI
+         WHERE OI.ACTIVE_FLAG = 'Y'
+           AND IMAGE_OBJECT_TYPE = 'OFF_BKG'
+           AND OI.OFFENDER_BOOK_ID = OB.OFFENDER_BOOK_ID
+           AND OI.IMAGE_VIEW_TYPE = 'FACE'
+           AND OI.ORIENTATION_TYPE = 'FRONT'
+           AND OI.FULL_SIZE_IMAGE IS NOT NULL
         )                                                 AS FACIAL_IMAGE_ID,
         COALESCE(ord.release_date, ord.auto_release_date) AS CONFIRMED_RELEASE_DATE,
         (  SELECT MIN(OST.START_DATE)

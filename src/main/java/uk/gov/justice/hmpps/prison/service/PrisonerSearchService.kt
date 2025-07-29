@@ -14,7 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.LocalDateTime
-import java.util.Optional
+import kotlin.jvm.optionals.getOrNull
 import uk.gov.justice.hmpps.prison.api.model.OffenderIdentifier as OffenderIdentifierModel
 
 @Component
@@ -29,8 +29,8 @@ class PrisonerSearchService(
 
   @Transactional
   fun getPrisonerDetails(offenderNo: String): PrisonerSearchDetails {
-    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).toNullable()
-    val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).toNullable()
+    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).getOrNull()
+    val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).getOrNull()
     if (offender == null) throw EntityNotFoundException.withId(offenderNo)
     return getInmateDetail(offender, booking)
       .let {
@@ -133,7 +133,7 @@ class PrisonerSearchService(
         bookingId,
         listOf("DISAB", "MATSTAT", "PHY", "PSYCH", "SC"),
       ).getPersonalCareNeeds()
-      facialImageId = booking.latestFaceImage.toNullable()?.id
+      facialImageId = booking.latestFaceImage.getOrNull()?.id
     }
     ?: let { offenderTransformer.transformWithoutBooking(offender) }
 
@@ -151,5 +151,3 @@ class PrisonerSearchService(
     this.offenderIdentifierPK.offenderIdSeq,
   )
 }
-
-private fun <T> Optional<T>.toNullable(): T? = orElse(null)
