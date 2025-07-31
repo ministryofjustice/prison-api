@@ -135,7 +135,7 @@ public class MovementsServiceImplTest {
         final var processedMovements = movementsService.getMovementsByOffenders(offenderNoList, null, true, false);
 
         assertThat(processedMovements).hasSize(1);
-        assertThat(processedMovements.get(0).getFromAgencyDescription()).isEmpty();
+        assertThat(processedMovements.getFirst().getFromAgencyDescription()).isEmpty();
 
         verify(movementsRepository).getMovementsByOffenders(offenderNoList, null, true, false);
     }
@@ -336,6 +336,7 @@ public class MovementsServiceImplTest {
                 new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
                     .movementType(MovementType.of(MovementType.TAP))
                     .movementReason(MovementReason.of(MovementReason.TRANSFER_VIA_TAP))
+                    .movementDate(LocalDate.of(2020, 1, 30))
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
                     .offenderBooking(OffenderBooking.builder()
                         .bookingId(-1L)
