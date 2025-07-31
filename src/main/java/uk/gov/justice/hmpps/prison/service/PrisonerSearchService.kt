@@ -110,13 +110,13 @@ class PrisonerSearchService(
     em.movementType?.code == lastMovementTypeCode &&
       em.movementReasonCode == lastMovementReasonCode
   }
-    ?.maxByOrNull { em -> em.movementTime }
-    ?.movementTime
+    ?.maxByOrNull { em -> em.movementDateTime }
+    ?.movementDateTime
 
   private fun findLastAdmissionTime(externalMovements: List<ExternalMovement>?): LocalDateTime? = externalMovements
     ?.filter { it.movementType?.code == "ADM" }
-    ?.maxByOrNull { it.movementTime }
-    ?.movementTime
+    ?.maxByOrNull { it.movementDateTime }
+    ?.movementDateTime
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }

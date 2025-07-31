@@ -388,8 +388,8 @@ public class Offender extends AuditableEntity {
                 var admission = findAdmissionForTransferOut(transfer, allAdmissions);
                 return TransferDetail
                     .builder()
-                    .dateOutOfPrison(transfer.getMovementTime())
-                    .dateInToPrison(admission.map(ExternalMovement::getMovementTime).orElse(null))
+                    .dateOutOfPrison(transfer.getMovementDateTime())
+                    .dateInToPrison(admission.map(ExternalMovement::getMovementDateTime).orElse(null))
                     .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(admission.map(ExternalMovement::getToAgency).map(AgencyLocation::getId).orElse(null))
@@ -400,8 +400,8 @@ public class Offender extends AuditableEntity {
                 var courtOrTapMovement = findMovementToCourtOrTapForAdmissionIn(transfer, allTapAndCourtOutMovements);
                 return TransferDetail
                     .builder()
-                    .dateOutOfPrison(courtOrTapMovement.map(ExternalMovement::getMovementTime).orElse(null))
-                    .dateInToPrison(transfer.getMovementTime())
+                    .dateOutOfPrison(courtOrTapMovement.map(ExternalMovement::getMovementDateTime).orElse(null))
+                    .dateInToPrison(transfer.getMovementDateTime())
                     .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(Optional.ofNullable(transfer.getToAgency()).map(AgencyLocation::getId).orElse(null))
@@ -454,14 +454,14 @@ public class Offender extends AuditableEntity {
     }
 
     private void outward(final ExternalMovement m, final SignificantMovement md) {
-        md.setDateOutOfPrison(m.getMovementTime());
+        md.setDateOutOfPrison(m.getMovementDateTime());
         md.setReasonOutOfPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
         md.setOutwardType(m.getMovementType().getCode());
         md.setReleaseFromPrisonId(Optional.ofNullable(m.getFromAgency()).map(AgencyLocation::getId).orElse(null));
     }
 
     private void inward(final ExternalMovement m, final SignificantMovement md) {
-        md.setDateInToPrison(m.getMovementTime());
+        md.setDateInToPrison(m.getMovementDateTime());
         md.setReasonInToPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
         md.setInwardType(m.getMovementType().getCode());
         md.setAdmittedIntoPrisonId(Optional.ofNullable(m.getToAgency()).map(AgencyLocation::getId).orElse(null));

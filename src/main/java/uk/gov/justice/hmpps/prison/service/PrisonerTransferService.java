@@ -36,7 +36,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepo
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
@@ -61,7 +60,6 @@ public class PrisonerTransferService {
     public static final String PSY_HOSP_FROM_PRISON = "S48MHA";
 
     private final OffenderBookingRepository offenderBookingRepository;
-    private final OffenderRepository offenderRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ExternalMovementRepository externalMovementRepository;
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
@@ -267,7 +265,7 @@ public class PrisonerTransferService {
             if (bookingId != null) {
                 externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(bookingId, true).forEach(
                     movement -> {
-                        if (movementTime.isBefore(movement.getMovementTime())) {
+                        if (movementTime.isBefore(movement.getMovementDateTime())) {
                             throw new BadRequestException("Movement cannot be before the previous active movement");
                         }
                     }

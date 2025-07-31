@@ -76,6 +76,7 @@ internal class CaseNoteMovementServiceTest {
       }
       movement = ExternalMovement().apply {
         offenderBooking = booking
+        movementDate = LocalDate.parse("2020-01-01")
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = toPrison
@@ -179,6 +180,7 @@ internal class CaseNoteMovementServiceTest {
       }
       movement = ExternalMovement().apply {
         offenderBooking = booking
+        movementDate = LocalDate.parse("2020-01-01")
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out
@@ -198,6 +200,7 @@ internal class CaseNoteMovementServiceTest {
       }
       movement = ExternalMovement().apply {
         offenderBooking = booking
+        movementDate = LocalDate.parse("2020-01-01")
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out

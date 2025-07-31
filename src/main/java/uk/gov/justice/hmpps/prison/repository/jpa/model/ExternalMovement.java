@@ -33,7 +33,6 @@ import java.time.LocalDateTime;
 import static jakarta.persistence.EnumType.STRING;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.City.CITY;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason.REASON;
-import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE;
 
 @Data
@@ -172,17 +171,15 @@ public class ExternalMovement extends AuditableEntity {
     @Nullable
     private Long fromAddressId;
 
-    public String calculateReleaseLocationDescription() {
-        return REL.getCode().equals(getMovementType().getCode())
-            ? "Outside - released from " + getFromAgency().getDescription()
-            : "Outside - " + getMovementType().getDescription();
-    }
-
     public LocalDateTime getCreateDatetime() {
         return super.getCreateDatetime();
     }
 
     public LocalDateTime getModifyDatetime() {
         return super.getModifyDatetime();
+    }
+
+    public LocalDateTime getMovementDateTime() {
+        return movementDate.atTime(movementTime.toLocalTime());
     }
 }

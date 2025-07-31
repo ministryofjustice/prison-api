@@ -14,13 +14,13 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
+import uk.gov.justice.hmpps.prison.api.model.BookingMovement;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
-import uk.gov.justice.hmpps.prison.api.model.BookingMovement;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
@@ -138,7 +138,7 @@ public class MovementsService {
                     m.getToAgency() == null ? null : m.getToAgency().getId(),
                     m.getMovementType() == null ? null : m.getMovementType().getCode(),
                     m.getMovementDirection() == null ? null : m.getMovementDirection().name(),
-                    m.getMovementTime(),
+                    m.getMovementDateTime(),
                     m.getMovementReasonCode(),
                     m.getCreateDatetime(),
                     m.getModifyDatetime()
@@ -448,7 +448,7 @@ public class MovementsService {
             .firstName(offender.getFirstName())
             .lastName(offender.getLastName())
             .dateOfBirth(offender.getBirthDate())
-            .movementTime(movement.getMovementTime())
+            .movementTime(movement.getMovementDateTime())
             .toAgency(toAgency == null ? null : toAgency.getId())
             .toAgencyDescription(toAgency == null ? null : toAgency.getDescription())
             .toCity(toCity == null ? null : toCity.getDescription())
@@ -480,7 +480,7 @@ public class MovementsService {
             fromCityDescription,
             toCityDescription,
             m.getMovementTime().toLocalTime(),
-            m.getMovementTime(),
+            m.getMovementDateTime(),
             description,
             m.getMovementType() != null ? m.getMovementType().getCode() : "",
             m.getMovementReason() != null ? m.getMovementReason().getDescription() : "",

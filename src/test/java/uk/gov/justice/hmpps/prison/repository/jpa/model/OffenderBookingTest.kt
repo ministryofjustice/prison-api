@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.ADM
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.REL
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TAP
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TRN
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class OffenderBookingTest {
@@ -108,6 +109,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("B", "Recall"))
+              .movementDate(LocalDate.of(2019, 1, 4))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("WWI").build())
               .build(),
@@ -117,7 +119,8 @@ class OffenderBookingTest {
               .movementType(MovementType("TRN", "Admission"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("NOTR", "Transfer"))
-              .movementTime(LocalDateTime.of(2019, 1, 5, 9, 30))
+              .movementDate(LocalDate.of(2018, 1, 4))
+              .movementTime(LocalDateTime.of(2018, 1, 4, 9, 30))
               .fromAgency(AgencyLocation.builder().id("WWI").build())
               .toAgency(AgencyLocation.builder().id("BXI").build())
               .build(),
@@ -127,6 +130,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("INT", "Transfer"))
+              .movementDate(LocalDate.of(2019, 1, 5))
               .movementTime(LocalDateTime.of(2019, 1, 5, 10, 30))
               .fromAgency(AgencyLocation.builder().id("WWI").build())
               .toAgency(AgencyLocation.builder().id("BXI").build())
@@ -137,6 +141,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("BXI").build())
               .build(),
@@ -154,6 +159,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("25", "Awaiting Sentence"))
+              .movementDate(LocalDate.of(2020, 1, 4))
               .movementTime(LocalDateTime.of(2020, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -163,6 +169,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Temp Ab"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C4", "Wedding"))
+              .movementDate(LocalDate.of(2020, 1, 15))
               .movementTime(LocalDateTime.of(2020, 1, 15, 9, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -172,6 +179,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Temp Ab"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C4", "Wedding"))
+              .movementDate(LocalDate.of(2020, 1, 15))
               .movementTime(LocalDateTime.of(2020, 1, 15, 15, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -181,6 +189,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("BL", "Bailed"))
+              .movementDate(LocalDate.of(2020, 2, 28))
               .movementTime(LocalDateTime.of(2020, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -197,6 +206,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("B", "Recall"))
+              .movementDate(LocalDate.of(2021, 1, 4))
               .movementTime(LocalDateTime.of(2021, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -206,6 +216,7 @@ class OffenderBookingTest {
               .movementType(MovementType("CRT", "Court"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CRT", "Court Appearance"))
+              .movementDate(LocalDate.of(2021, 1, 15))
               .movementTime(LocalDateTime.of(2021, 1, 15, 9, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -215,6 +226,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("TRNCRT", "Transfer via Court"))
+              .movementDate(LocalDate.of(2021, 1, 15))
               .movementTime(LocalDateTime.of(2021, 1, 15, 15, 30))
               .toAgency(AgencyLocation.builder().id("FSI").build())
               .build(),
@@ -224,6 +236,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("HP", "Hospital"))
+              .movementDate(LocalDate.of(2021, 2, 28))
               .movementTime(LocalDateTime.of(2021, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("FSI").build())
               .build(),
@@ -268,6 +281,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
               .build(),
           )
@@ -284,6 +298,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.parse("2019-02-28T16:30"))
               .build(),
           )
@@ -313,6 +328,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Temp Ab"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C4", "Wedding"))
+              .movementDate(LocalDate.of(2019, 1, 3))
               .movementTime(LocalDateTime.parse("2019-01-03T09:30"))
               .build(),
           )
@@ -321,6 +337,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Temp Ab"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C4", "Wedding"))
+              .movementDate(LocalDate.of(2019, 1, 3))
               .movementTime(LocalDateTime.parse("2019-01-03T14:30"))
               .build(),
           )
@@ -330,6 +347,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("B", "Recall"))
+              .movementDate(LocalDate.of(2019, 1, 4))
               .movementTime(LocalDateTime.parse("2019-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("WWI").build())
               .build(),
@@ -339,6 +357,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.parse("2019-02-28T15:30"))
               .build(),
           )
@@ -354,6 +373,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("25", "Awaiting Sentence"))
+              .movementDate(LocalDate.of(2020, 1, 4))
               .movementTime(LocalDateTime.parse("2020-01-04T09:30"))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -386,6 +406,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("B", "Recall"))
+              .movementDate(LocalDate.of(2019, 1, 4))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -395,6 +416,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TRN", "Transfer"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("NOTR", "Transfer"))
+              .movementDate(LocalDate.of(2019, 1, 5))
               .movementTime(LocalDateTime.of(2019, 1, 5, 12, 15))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("WWI").build())
@@ -405,6 +427,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("INT", "Transfer"))
+              .movementDate(LocalDate.of(2019, 1, 7))
               .movementTime(LocalDateTime.of(2019, 1, 7, 10, 0))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("WWI").build())
@@ -415,6 +438,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("CR", "Conditional Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("WWI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())
@@ -447,6 +471,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("I", "In"))
+              .movementDate(LocalDate.of(2018, 1, 4))
               .movementTime(LocalDateTime.of(2018, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -456,6 +481,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("AR", "Actual Release"))
+              .movementDate(LocalDate.of(2018, 2, 28))
               .movementTime(LocalDateTime.of(2018, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())
@@ -476,6 +502,7 @@ class OffenderBookingTest {
               .movementType(MovementType("ADM", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("I", "In"))
+              .movementDate(LocalDate.of(2019, 1, 4))
               .movementTime(LocalDateTime.of(2019, 1, 4, 9, 30))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -485,6 +512,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Temporary Absence"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("C5", "C5"))
+              .movementDate(LocalDate.of(2019, 1, 7))
               .movementTime(LocalDateTime.of(2019, 1, 7, 12, 15))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -494,6 +522,7 @@ class OffenderBookingTest {
               .movementType(MovementType("TAP", "Admission"))
               .movementDirection(MovementDirection.IN)
               .movementReason(MovementReason("C5", "C5"))
+              .movementDate(LocalDate.of(2019, 1, 5))
               .movementTime(LocalDateTime.of(2019, 1, 5, 10, 0))
               .toAgency(AgencyLocation.builder().id("MDI").build())
               .build(),
@@ -503,6 +532,7 @@ class OffenderBookingTest {
               .movementType(MovementType("REL", "Release"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("AR", "Actual Release"))
+              .movementDate(LocalDate.of(2019, 2, 28))
               .movementTime(LocalDateTime.of(2019, 2, 28, 15, 30))
               .fromAgency(AgencyLocation.builder().id("MDI").build())
               .toAgency(AgencyLocation.builder().id("OUT").build())

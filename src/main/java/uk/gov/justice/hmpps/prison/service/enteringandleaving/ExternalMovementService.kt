@@ -214,7 +214,7 @@ class ExternalMovementService(
   fun getMovementDateTime(movementTime: LocalDateTime?, booking: OffenderBooking?): Result<LocalDateTime> {
     val now = LocalDateTime.now()
     return movementTime?.let {
-      return if (movementTime.isAfter(now)) {
+      if (movementTime.isAfter(now)) {
         failure(BadRequestException("Movement cannot be done in the future"))
       } else if (booking?.hasMovementsAfter(movementTime) == true) {
         failure(BadRequestException("Movement cannot be before the previous active movement"))
@@ -232,7 +232,7 @@ class ExternalMovementService(
     ?: false
 
   private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) = externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
-    movementTime.isBefore(it.movementTime)
+    movementTime.isBefore(it.movementDateTime)
   }
 
   private fun OffenderBooking.addExternalMovementIn(

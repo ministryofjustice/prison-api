@@ -34,7 +34,7 @@ class CaseNoteMovementService(
       typeCode = "TRANSFER",
       subTypeCode = "FROMTOL",
       note = "Offender admitted to ${transferMovement.toAgency.description} for reason: ${transferMovement.movementReason.description} from ${transferMovement.fromAgency.description}.",
-      movementTime = transferMovement.movementTime,
+      movementTime = transferMovement.movementDateTime,
     )
   }
 
@@ -44,7 +44,7 @@ class CaseNoteMovementService(
       typeCode = "PRISON",
       subTypeCode = "RELEASE",
       note = releaseNoteText(movement.movementReason, movement.fromAgency, movement.toAgency),
-      movementTime = movement.movementTime,
+      movementTime = movement.movementDateTime,
     )
   }
 
