@@ -119,8 +119,8 @@ class OffenderBookingTest {
               .movementType(MovementType("TRN", "Admission"))
               .movementDirection(MovementDirection.OUT)
               .movementReason(MovementReason("NOTR", "Transfer"))
-              .movementDate(LocalDate.of(2018, 1, 4))
-              .movementTime(LocalDateTime.of(2018, 1, 4, 9, 30))
+              .movementDate(LocalDate.of(2019, 1, 5))
+              .movementTime(LocalDateTime.of(2019, 1, 5, 9, 30))
               .fromAgency(AgencyLocation.builder().id("WWI").build())
               .toAgency(AgencyLocation.builder().id("BXI").build())
               .build(),
