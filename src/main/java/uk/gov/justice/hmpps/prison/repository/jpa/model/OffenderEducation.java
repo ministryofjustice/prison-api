@@ -9,7 +9,6 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.Where;
-import uk.gov.justice.hmpps.prison.repository.converter.YesNoToBooleanConverter;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -22,6 +21,8 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.type.YesNoConverter;
+
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.ArrayList;
@@ -71,7 +72,7 @@ public class OffenderEducation {
     private String school;
 
     @Column(name = "SPECIAL_EDUCATION_FLAG")
-    @Convert(converter = YesNoToBooleanConverter.class)
+    @Convert(converter = YesNoConverter.class)
     private Boolean isSpecialEducation;
 
     @ManyToOne(fetch = FetchType.LAZY)
