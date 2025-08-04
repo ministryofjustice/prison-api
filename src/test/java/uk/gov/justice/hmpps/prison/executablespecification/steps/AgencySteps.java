@@ -8,7 +8,6 @@ import org.springframework.http.HttpMethod;
 import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
@@ -23,7 +22,6 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
-    private static final String API_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/locations";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
     private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
@@ -130,13 +128,6 @@ public class AgencySteps extends CommonSteps {
     @Step("Submit request for all agencies")
     public void getAllAgencies() {
         dispatchPagedListRequest(API_REF_PREFIX, 0L, 1000L);
-    }
-
-    @Step("Submit request for agency locations")
-    public void getLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
-        final var headers = buildSortHeaders(sortFields, sortOrder);
-
-        dispatchListRequest(API_LOCATIONS_URL, agencyId, eventType, headers);
     }
 
     @Step("Submit request for any event locations")

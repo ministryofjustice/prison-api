@@ -65,24 +65,9 @@ public class AgencyStepDefinitions extends AbstractStepDefinitions {
         agencySteps.verifyField(field, value);
     }
 
-    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\"$")
-    public void requestSubmittedToRetrieveLocations(final String agencyId, final String eventType) throws Throwable {
-        agencySteps.getLocations(agencyId, eventType, null, null);
-    }
-
-    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\"$")
-    public void aRequestIsSubmittedToRetrieveLocationCodesForAgency(final String agencyId) throws Throwable {
-        agencySteps.getLocations(agencyId, null, null, null);
-    }
-
     @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" for any events$")
     public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyForAnyEvents(final String agencyId) throws Throwable {
         agencySteps.getLocationsForAnyEvents(agencyId);
-    }
-
-    @When("^a request is submitted to retrieve location codes for agency \"([^\"]*)\" and event type \"([^\"]*)\" sorted by \"([^\"]*)\" in \"([^\"]*)\" order$")
-    public void aRequestIsSubmittedToRetrieveLocationCodesForAgencyAndEventTypeSortedByInOrder(final String agencyId, final String eventType, final String sortFields, final String sortOrder) throws Throwable {
-        agencySteps.getLocations(agencyId, eventType, sortFields, parseSortOrder(sortOrder));
     }
 
     @Then("^the returned agency locations are as follows:$")

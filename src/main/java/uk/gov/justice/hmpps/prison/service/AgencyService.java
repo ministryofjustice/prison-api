@@ -229,17 +229,6 @@ public class AgencyService {
         }
     }
 
-    public List<Location> getAgencyLocations(final String agencyId, final String eventType, final String sortFields, final Order sortOrder) {
-        // If no sort fields defined, sort in ascending order of user description then description (by default)
-        final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
-        final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
-
-        final List<String> eventTypes = StringUtils.isBlank(eventType) ? Collections.emptyList() : Collections.singletonList(eventType);
-        final var rawLocations = agencyRepository.getAgencyLocations(agencyId, eventTypes, orderBy, order);
-
-        return LocationProcessor.processLocations(rawLocations);
-    }
-
     public List<Location> getAgencyEventLocations(final String agencyId, final String sortFields, final Order sortOrder) {
         final var orderBy = StringUtils.defaultIfBlank(sortFields, "userDescription,description");
         final var order = ObjectUtils.defaultIfNull(sortOrder, Order.ASC);
