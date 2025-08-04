@@ -19,23 +19,6 @@ enum class CaseNoteRepositorySql(val sql: String) {
     """,
   ),
 
-  GROUP_BY_TYPES_AND_STAFF(
-    """
-      SELECT /*+ index(OCS, OFFENDER_CASE_NOTES_X04) */
-        STAFF_ID,
-        CASE_NOTE_TYPE,
-        CASE_NOTE_SUB_TYPE,
-        COUNT(*) NUM_CASE_NOTES,
-        MAX(OCS.CONTACT_TIME) LATEST_CASE_NOTE
-      FROM OFFENDER_CASE_NOTES OCS
-      WHERE OCS.AUDIT_TIMESTAMP between :fromDate and :toDate
-        AND STAFF_ID IN (:staffIds)
-        AND CASE_NOTE_TYPE = COALESCE(:type, CASE_NOTE_TYPE)
-        AND CASE_NOTE_SUB_TYPE = COALESCE(:subType, CASE_NOTE_SUB_TYPE)
-      GROUP BY STAFF_ID, CASE_NOTE_TYPE, CASE_NOTE_SUB_TYPE
-    """,
-  ),
-
   GET_CASE_NOTE_TYPES_WITH_SUB_TYPES_BY_CASELOAD_TYPE(
     """
       SELECT WKS.WORK_TYPE CODE,

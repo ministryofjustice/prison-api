@@ -7,9 +7,6 @@ import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
@@ -25,11 +22,9 @@ import static org.assertj.core.api.Assertions.assertThat;
 public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
     private static final String API_REQUEST_FOR_CASENOTE_SUMMARY = API_PREFIX + "case-notes/summary";
-    private static final String API_REQUEST_FOR_CASENOTE_STAFF_USAGE = API_PREFIX + "case-notes/staff-usage";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
     private static final String OFFENDER_NOS_QUERY_PARAM_PREFIX = "&offenderNo=";
-    private static final String STAFF_IDS_QUERY_PARAM_PREFIX = "&staffId=";
     private static final String CASENOTE_TYPE_QUERY_PARAM_PREFIX = "&type=";
     private static final String CASENOTE_SUBTYPE_QUERY_PARAM_PREFIX = "&subType=";
     private static final String CASENOTE_STAFF_ID_QUERY_PARAM_PREFIX = "&staffId=";
@@ -37,8 +32,6 @@ public class CaseNoteSteps extends CommonSteps {
 
     private List<CaseNoteUsage> caseNoteUsageList;
     private CaseNoteUsage caseNoteUsage;
-    private List<CaseNoteStaffUsage> caseNoteStaffUsageList;
-    private CaseNoteStaffUsage caseNoteStaffUsage;
 
     @Step("Initialisation")
     public void init() {
@@ -55,19 +48,9 @@ public class CaseNoteSteps extends CommonSteps {
         dispatchGetCaseNoteUsageByBookingIdRequest(bookingIds, type, subType, fromDate, toDate);
     }
 
-    @Step("Get case note staff usage")
-    public void getCaseNoteStaffUsage(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
-        dispatchGetCaseNoteStaffUsageRequest(staffIds, type, subType, fromDate, toDate);
-    }
-
     @Step("Verify case note usage response property value")
     public void verifyCaseNoteUsagePropertyValue(final String propertyName, final String expectedValue) throws Exception {
         verifyPropertyValue(caseNoteUsage, propertyName, expectedValue);
-    }
-
-    @Step("Verify case note staff usage response property value")
-    public void verifyCaseNoteStaffUsagePropertyValue(final String propertyName, final String expectedValue) throws Exception {
-        verifyPropertyValue(caseNoteStaffUsage, propertyName, expectedValue);
     }
 
     @Step("Verify case note usage size")
@@ -138,36 +121,6 @@ public class CaseNoteSteps extends CommonSteps {
 
             caseNoteUsageList = response.getBody();
             caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchGetCaseNoteStaffUsageRequest(final String staffIds, final String type, final String subType, final String fromDate, final String toDate) {
-        init();
-        final var ids = Arrays.stream(staffIds.split(",")).map(Integer::parseInt).toList();
-        final var requestBody = new CaseNoteStaffUsageRequest(
-            null,
-            ids,
-            null,
-            StringUtils.isEmpty(fromDate) ? null : LocalDate.parse(fromDate),
-            StringUtils.isEmpty(toDate) ? null : LocalDate.parse(toDate),
-            StringUtils.trimToNull(type),
-            StringUtils.trimToNull(subType)
-        );
-
-        try {
-            final var response = restTemplate.exchange(
-                API_REQUEST_FOR_CASENOTE_STAFF_USAGE,
-                HttpMethod.POST,
-                createEntity(requestBody),
-                new ParameterizedTypeReference<List<CaseNoteStaffUsage>>() {
-                });
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            caseNoteStaffUsageList = response.getBody();
-            caseNoteStaffUsage = caseNoteStaffUsageList.isEmpty() ? null : caseNoteStaffUsageList.get(0);
         } catch (final PrisonApiClientException ex) {
             setErrorResponse(ex.getErrorResponse());
         }
