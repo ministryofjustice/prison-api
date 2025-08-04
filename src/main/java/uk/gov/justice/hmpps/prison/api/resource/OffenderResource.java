@@ -70,7 +70,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthCountry;
 import uk.gov.justice.hmpps.prison.api.model.UpdateBirthPlace;
-import uk.gov.justice.hmpps.prison.api.model.UpdateCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation;
@@ -674,29 +673,6 @@ public class OffenderResource {
     public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
         try {
             return caseNoteService.createCaseNote(offenderNo, body, hmppsAuthenticationHolder.getUsername());
-        } catch (EntityNotFoundException e) {
-            throw EntityNotFoundException.withId(offenderNo);
-        }
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Case Note amendment processed successfully. Updated case note is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. amendment text not provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to amend case note.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Resource not found", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Amend offender case note.", description = "Requires offender to be in caseload", hidden = true)
-    @VerifyOffenderAccess
-    @PutMapping("/{offenderNo}/case-notes/{caseNoteId}")
-    @HasWriteScope
-    @ProxyUser
-    public CaseNote updateOffenderCaseNote(
-        @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
-        @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true, example = "1212134") final Long caseNoteId,
-        @RequestBody @Parameter(required = true) final UpdateCaseNote body
-    ) {
-        try {
-            return caseNoteService.updateCaseNote(offenderNo, caseNoteId, hmppsAuthenticationHolder.getUsername(), body.getText());
         } catch (EntityNotFoundException e) {
             throw EntityNotFoundException.withId(offenderNo);
         }
