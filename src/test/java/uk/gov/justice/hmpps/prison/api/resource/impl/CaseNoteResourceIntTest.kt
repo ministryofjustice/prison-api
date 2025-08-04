@@ -8,7 +8,6 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
@@ -19,28 +18,6 @@ import java.time.LocalDateTime
 class CaseNoteResourceIntTest : ResourceTest() {
   @MockitoBean
   private lateinit var offenderCaseNoteRepository: OffenderCaseNoteRepository
-
-  @Nested
-  @DisplayName("POST /case-notes/staff-usage")
-  inner class StaffUsagePost {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.post().uri("api/case-notes/staff-usage")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.post().uri("api/case-notes/staff-usage")
-        .headers(setClientAuthorisation(emptyList()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(CaseNoteStaffUsageRequest.builder().build()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-  }
 
   @Nested
   @DisplayName("GET /case-notes/usage")
@@ -57,28 +34,6 @@ class CaseNoteResourceIntTest : ResourceTest() {
     fun `should return 403 when does not have override role`() {
       webTestClient.get().uri("api/case-notes/usage")
         .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /case-notes/usage")
-  inner class UsagePost {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.post().uri("api/case-notes/usage")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.post().uri("api/case-notes/usage")
-        .headers(setClientAuthorisation(emptyList()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue(CaseNoteStaffUsageRequest.builder().build()))
         .exchange()
         .expectStatus().isForbidden
     }

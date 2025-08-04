@@ -20,16 +20,12 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageRequest;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
 import java.time.LocalDate;
@@ -43,19 +39,6 @@ import java.util.List;
 public class CaseNoteResource {
 
     private final CaseNoteService caseNoteService;
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(
-        deprecated = true,
-        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/staff-usage"
-    )
-    @PostMapping("/staff-usage")
-    @SlowReportQuery
-    @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsageSummaryByPost(@RequestBody @Parameter(required = true) final CaseNoteStaffUsageRequest request) {
-        return caseNoteService.getCaseNoteStaffUsage(request.getType(), request.getSubType(), request.getStaffIds(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
-    }
 
     @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
@@ -80,19 +63,6 @@ public class CaseNoteResource {
         @RequestParam(value = "subType", required = false) @Parameter(description = "Case note sub-type.") final String subType
     ) {
         return caseNoteService.getCaseNoteUsage(type, subType, offenderNo, staffId, agencyId, fromDate, toDate, ObjectUtils.defaultIfNull(numMonths, 1));
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})
-    @Operation(
-        deprecated = true,
-        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
-    )
-    @PostMapping("/usage")
-    @SlowReportQuery
-    @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
-    public List<CaseNoteUsage> getCaseNoteUsageSummaryByPost(@RequestBody @Parameter(required = true) final CaseNoteUsageRequest request) {
-        return caseNoteService.getCaseNoteUsage(request.getType(), request.getSubType(), request.getOffenderNos(), request.getStaffId(), request.getAgencyId(), request.getFromDate(), request.getToDate(), ObjectUtils.defaultIfNull(request.getNumMonths(), 1));
     }
 
     @ApiResponses({

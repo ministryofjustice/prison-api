@@ -7,8 +7,6 @@ import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
@@ -36,9 +34,6 @@ public class CaseNoteRepository extends RepositoryBase {
 
     private static final RowMapper<CaseNoteUsageDto> CASE_NOTE_USAGE_MAPPER =
         new DataClassByColumnRowMapper<>(CaseNoteUsageDto.class);
-
-    private static final RowMapper<CaseNoteStaffUsageDto> CASE_NOTE_STAFF_USAGE_MAPPER =
-        new DataClassByColumnRowMapper<>(CaseNoteStaffUsageDto.class);
 
     public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
 
@@ -72,19 +67,6 @@ public class CaseNoteRepository extends RepositoryBase {
                 "staffId", new SqlParameterValue(Types.INTEGER, staffId)),
             CASE_NOTE_USAGE_MAPPER);
         return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
-    }
-
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate) {
-
-        final var usage = jdbcTemplate.query(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_STAFF.getSql(),
-            createParams("staffIds", staffIds,
-                "type", type,
-                "subType", subType,
-                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate))),
-            CASE_NOTE_STAFF_USAGE_MAPPER);
-        return usage.stream().map(CaseNoteStaffUsageDto::toCaseNoteStaffUsage).collect(Collectors.toList());
-
     }
 
     @Cacheable("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag")

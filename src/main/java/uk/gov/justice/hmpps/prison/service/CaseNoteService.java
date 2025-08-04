@@ -19,7 +19,6 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteStaffUsage;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
@@ -257,18 +256,6 @@ public class CaseNoteService {
     }
 
     private record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {}
-
-    public List<CaseNoteStaffUsage> getCaseNoteStaffUsage(final String type, final String subType, @NotEmpty final List<Integer> staffIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
-        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-
-        final List<CaseNoteStaffUsage> caseNoteStaffUsage = new ArrayList<>();
-        Lists.partition(staffIds, maxBatchSize).forEach(staffIdList ->
-                caseNoteStaffUsage.addAll(
-                        caseNoteRepository.getCaseNoteStaffUsage(type, subType, staffIdList, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse())
-                )
-        );
-        return caseNoteStaffUsage;
-    }
 
     private static class DeriveDates {
         private LocalDate fromDateToUse;
