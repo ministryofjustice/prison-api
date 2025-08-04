@@ -57,18 +57,12 @@ public class CaseNoteMovementServiceImplTest {
     @Mock
     private BookingService bookingService;
 
-    @Mock
-    private HmppsAuthenticationHolder hmppsAuthenticationHolder;
-
-    @Mock
-    private MaximumTextSizeValidator maximumTextSizeValidator;
-
     private CaseNoteService caseNoteService;
 
     @BeforeEach
     public void setUp() {
         caseNoteService = new CaseNoteService(repository, offenderCaseNoteRepository, new CaseNoteTransformer(staffUserAccountRepository, "yyyy/MM/dd HH:mm:ss"),
-            hmppsAuthenticationHolder, bookingService, 10, maximumTextSizeValidator, offenderBookingRepository, staffUserAccountRepository, caseNoteTypeReferenceCodeRepository, caseNoteSubTypeReferenceCodeRepository);
+            bookingService, 10, offenderBookingRepository, staffUserAccountRepository, caseNoteTypeReferenceCodeRepository, caseNoteSubTypeReferenceCodeRepository);
     }
 
     @Test
@@ -85,81 +79,5 @@ public class CaseNoteMovementServiceImplTest {
         final var threeMonthsAgo = LocalDate.now().minusMonths(3);
 
         verify(offenderCaseNoteRepository).findCaseNoteTypesByBookingsAndDates(bookingIds, "TYPE", "SUBTYPE", threeMonthsAgo, tomorrow);
-    }
-
-    @Test
-    public void testCaseNoteAmendmentRestriction() {
-        final var author = Staff.builder().staffId(1L).firstName("Ted").lastName("Black").build();
-        when(offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(1L, 1L))
-            .thenReturn(Optional.of(OffenderCaseNote
-                .builder()
-                .agencyLocation(AgencyLocation.builder().id("LEI").build())
-                .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                .id(1L)
-                .caseNoteText("Hello")
-                .type(new CaseNoteType("KA", "Keyworker"))
-                .subType(new CaseNoteSubType("KS", "Keyworker Session"))
-                .author(author)
-                .build()));
-
-        final var otherStaff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
-        when(staffUserAccountRepository.findById("staff2")).thenReturn(Optional.of(StaffUserAccount.builder().username("staff2").staff(otherStaff).build()));
-
-        assertThatThrownBy(() -> caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text"))
-                .isInstanceOf(org.springframework.security.access.AccessDeniedException.class);
-
-    }
-
-    @Test
-    public void testCaseNoteAmendedSizeExceedsMaximum() {
-        final var author = Staff.builder().staffId(1L).firstName("Ted").lastName("Black").build();
-        when(offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(1L, 1L))
-            .thenReturn(Optional.of(OffenderCaseNote
-                .builder()
-                .agencyLocation(AgencyLocation.builder().id("LEI").build())
-                .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                .id(1L)
-                .caseNoteText("Hello")
-                .type(new CaseNoteType("KA", "Keyworker"))
-                .subType(new CaseNoteSubType("KS", "Keyworker Session"))
-                .author(author)
-                .build()));
-
-        final var otherStaff = Staff.builder().staffId(2L).firstName("Other").lastName("Staff").build();
-        when(staffUserAccountRepository.findById("staff2")).thenReturn(Optional.of(StaffUserAccount.builder().username("staff2").staff(otherStaff).build()));
-
-        when(hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
-        when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(false);
-        when(maximumTextSizeValidator.getMaximumAnsiEncodingSize()).thenReturn(100);
-
-        assertThatThrownBy(() -> caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text"))
-            .isInstanceOf(org.springframework.web.client.HttpClientErrorException.class)
-            .hasMessageContaining("Length should not exceed 31 characters");
-
-        verify(maximumTextSizeValidator).isValid(ArgumentMatchers.contains("update text"), ArgumentMatchers.isNull());
-
-    }
-
-    @Test
-    public void testThatTheCaseNoteAmendmentRestrictions_AreIgnoredGivenTheCorrectRole() {
-        final var author = Staff.builder().staffId(1L).firstName("Ted").lastName("Black").build();
-        when(offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(1L, 1L))
-                .thenReturn(Optional.of(OffenderCaseNote
-                        .builder()
-                        .agencyLocation(AgencyLocation.builder().id("LEI").build())
-                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
-                        .id(1L)
-                        .caseNoteText("Hello")
-                        .type(new CaseNoteType("KA", "Keyworker"))
-                        .subType(new CaseNoteSubType("KS", "Keyworker Session"))
-                        .author(author)
-                        .build()));
-
-        when(staffUserAccountRepository.findById("staff2")).thenReturn(Optional.of(StaffUserAccount.builder().username("staff2").staff(author).build()));
-
-        when(hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN")).thenReturn(true);
-        when(maximumTextSizeValidator.isValid(anyString(), any())).thenReturn(true);
-
-        caseNoteService.updateCaseNote(1L, 1L, "staff2", "update text");
     }
 }

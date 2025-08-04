@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
@@ -11,12 +10,10 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
-import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
@@ -38,7 +35,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRep
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
-import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -48,7 +44,6 @@ import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-import static java.lang.String.format;
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
 import static java.util.stream.Collectors.maxBy;
@@ -63,9 +58,7 @@ public class CaseNoteService {
     private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final BookingService bookingService;
-    private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final int maxBatchSize;
-    private final MaximumTextSizeValidator maximumTextSizeValidator;
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
@@ -74,10 +67,8 @@ public class CaseNoteService {
     public CaseNoteService(final CaseNoteRepository caseNoteRepository,
                            final OffenderCaseNoteRepository offenderCaseNoteRepository,
                            final CaseNoteTransformer transformer,
-                           final HmppsAuthenticationHolder hmppsAuthenticationHolder,
                            final BookingService bookingService,
                            @Value("${batch.max.size:1000}") final int maxBatchSize,
-                           final MaximumTextSizeValidator maximumTextSizeValidator,
                            final OffenderBookingRepository offenderBookingRepository,
                            final StaffUserAccountRepository staffUserAccountRepository,
                            final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository,
@@ -87,9 +78,7 @@ public class CaseNoteService {
         this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
         this.bookingService = bookingService;
-        this.hmppsAuthenticationHolder = hmppsAuthenticationHolder;
         this.maxBatchSize = maxBatchSize;
-        this.maximumTextSizeValidator = maximumTextSizeValidator;
         this.offenderBookingRepository = offenderBookingRepository;
         this.caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository;
         this.caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository;
@@ -134,45 +123,10 @@ public class CaseNoteService {
     }
 
     @Transactional
-    public CaseNote updateCaseNote(final Long bookingId, final Long caseNoteId, final String username, @NotBlank(message = "{caseNoteTextBlank}") final String newCaseNoteText) {
-        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
-                .orElseThrow(EntityNotFoundException.withId(caseNoteId));
-
-        // Verify that user attempting to amend case note is same one who created it.
-        final var userDetail = staffUserAccountRepository.findById(username).orElseThrow(EntityNotFoundException.withId(username));
-        final var bypassCaseNoteAmendmentRestriction = hmppsAuthenticationHolder.isOverrideRole("CASE_NOTE_ADMIN");
-
-        if (!bypassCaseNoteAmendmentRestriction && !caseNote.getAuthor().equals(userDetail.getStaff())) {
-            throw new AccessDeniedException("User not authorised to amend case note.");
-        }
-
-        final var appendedText = caseNote.createAppendedText(newCaseNoteText, username);
-
-        if (!maximumTextSizeValidator.isValid(appendedText, null)) {
-
-            final var spaceLeft = maximumTextSizeValidator.getMaximumAnsiEncodingSize() - (caseNote.getCaseNoteText().length() + (appendedText.length() - newCaseNoteText.length()));
-
-            final var errorMessage = spaceLeft <= 0 ?
-                    "Amendments can no longer be made due to the maximum character limit being reached" :
-                    format("Length should not exceed %d characters", spaceLeft);
-
-            throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
-        }
-        caseNote.setCaseNoteText(appendedText);
-        return transformer.transform(caseNote);
-    }
-
-    @Transactional
     @VerifyOffenderAccess(overrideRoles = {"ADD_CASE_NOTES"})
     public CaseNote createCaseNote(String offenderNo, @NotNull @Valid @CaseNoteTypeSubTypeValid NewCaseNote caseNote, String username) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return createCaseNote(latestBookingByOffenderNo.getBookingId(), caseNote, username);
-    }
-
-    @Transactional
-    public CaseNote updateCaseNote(String offenderNo, Long caseNoteId, String username, @NotBlank(message = "{caseNoteTextBlank}") String newCaseNoteText) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return updateCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId, username, newCaseNoteText);
     }
 
     public CaseNoteCount getCaseNoteCount(final Long bookingId, final String type, final String subType, final LocalDate fromDate, final LocalDate toDate) {

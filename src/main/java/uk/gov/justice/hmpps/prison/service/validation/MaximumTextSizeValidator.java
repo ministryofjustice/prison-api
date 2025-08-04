@@ -19,8 +19,4 @@ public class MaximumTextSizeValidator implements ConstraintValidator<MaximumText
 
         return Utf8.encodedLength(value) <= MAX_VARCHAR_BYTES;
     }
-
-    public int getMaximumAnsiEncodingSize() {
-        return MAX_VARCHAR_BYTES;
-    }
 }
