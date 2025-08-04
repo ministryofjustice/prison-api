@@ -40,27 +40,6 @@ class CaseNoteResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /case-notes/usage")
-  inner class UsagePost {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.post().uri("api/case-notes/usage")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.post().uri("api/case-notes/usage")
-        .headers(setClientAuthorisation(emptyList()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .exchange()
-        .expectStatus().isForbidden
-    }
-  }
-
-  @Nested
   @DisplayName("POST /case-notes/usage-by-types")
   inner class UsageByTypes {
 
