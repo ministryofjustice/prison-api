@@ -13,8 +13,6 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffenceDto;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AwardDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResultDto;
@@ -44,7 +42,6 @@ import static java.util.stream.Collectors.toList;
 @Repository
 public class AdjudicationsRepository extends RepositoryBase {
 
-    private final RowMapper<AwardDto> rowMapper = new DataClassByColumnRowMapper<>(AwardDto.class);
     private final RowMapper<AgencyDto> agencyMapper = new DataClassByColumnRowMapper<>(AgencyDto.class);
     private final RowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
     private final RowMapper<AdjudicationOffenceDto> offenceMapper = new DataClassByColumnRowMapper<>(AdjudicationOffenceDto.class);
@@ -54,12 +51,6 @@ public class AdjudicationsRepository extends RepositoryBase {
     private final RowMapper<SanctionDto> sanctionMapper = new DataClassByColumnRowMapper<>(SanctionDto.class);
 
     private final RowMapper<OffenderAdjudicationHearingDto> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearingDto.class);
-
-
-    public List<Award> findAwards(final long bookingId) {
-        final var awards = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_AWARDS.getSql(), createParams("bookingId", bookingId), rowMapper);
-        return awards.stream().map(AwardDto::toAward).collect(toList());
-    }
 
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
         final var adjudications = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),

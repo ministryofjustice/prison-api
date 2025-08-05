@@ -66,37 +66,6 @@ public class AdjudicationsRepositoryTest {
     private AdjudicationsRepository repository;
 
     @Test
-    public void testGetDetailsMultiple() {
-
-        final var awards = repository.findAwards(-3L);
-
-        assertThat(awards).asList()
-            .hasSize(2)
-            .extracting("sanctionCode", "sanctionCodeDescription", "limit", "months", "days", "comment", "status", "statusDescription", "effectiveDate")
-            .contains(tuple("FORFEIT", "Forfeiture of Privileges", null, null, 30, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 8)),
-                tuple("STOP_PCT", "Stoppage of Earnings (%)", BigDecimal.valueOf(2020L, 2), 4, 5, "test comment", "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
-    }
-
-    @Test
-    public void testGetDetailsInvalidBookingId() {
-        final var awards = repository.findAwards(1001L);
-        assertThat(awards.isEmpty()).isTrue();
-    }
-
-    @Test
-    public void testGetDetailsMultiple2() {
-
-        val awards = repository.findAwards(-1L);
-
-        assertThat(awards).asList()
-            .hasSize(2)
-            .extracting("sanctionCode", "sanctionCodeDescription", "limit", "months", "days", "comment", "status", "statusDescription", "effectiveDate")
-            .contains(tuple("ADA", "Additional Days Added", null, null, null, "Some Comment Text", "SUSPENDED", "Suspended", LocalDate.of(2016, 10, 17)),
-                tuple("CC", "Cellular Confinement", null, null, 15, null, "IMMEDIATE", "Immediate", LocalDate.of(2016, 11, 9)));
-    }
-
-
-    @Test
     public void findAdjudicationOffences() {
 
         var offences = repository.findAdjudicationOffences("A1181GG");

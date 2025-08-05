@@ -73,7 +73,6 @@ import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
 import uk.gov.justice.hmpps.prison.api.model.VisitSummary;
 import uk.gov.justice.hmpps.prison.api.model.VisitWithVisitors;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
@@ -128,7 +127,6 @@ public class BookingResource {
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final FinanceService financeService;
     private final ContactService contactService;
-    private final AdjudicationService adjudicationService;
     private final ImageService imageService;
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
@@ -726,25 +724,6 @@ public class BookingResource {
             subType,
             fromDate,
             toDate);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender adjudications summary (awards and sanctions).",
-        description = "Deprecated - use Adjudications API to get adjudications, requires VIEW_ADJUDICATIONS",
-        deprecated = true, hidden = true)
-    @GetMapping("/{bookingId}/adjudications")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
-    public AdjudicationSummary getAdjudicationSummary(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @RequestParam(value = "awardCutoffDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only awards ending on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate awardCutoffDate,
-        @RequestParam(value = "adjudicationCutoffDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only proved adjudications ending on or after this date (in YYYY-MM-DD format) will be counted.") final LocalDate adjudicationCutoffDate
-    ) {
-        return adjudicationService.getAdjudicationSummary(bookingId,
-            awardCutoffDate, adjudicationCutoffDate);
     }
 
     @ApiResponses({
