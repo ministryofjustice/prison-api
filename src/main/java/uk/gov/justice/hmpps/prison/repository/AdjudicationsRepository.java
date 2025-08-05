@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import com.google.common.collect.Lists;
 import lombok.val;
 import org.springframework.jdbc.core.RowMapper;
 import org.springframework.jdbc.core.SqlParameterValue;
@@ -9,17 +8,10 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffenceDto;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingDto;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResultDto;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearingDto;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.SanctionDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -31,8 +23,6 @@ import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Map;
-import java.util.Optional;
 import java.util.Set;
 
 import static java.util.Comparator.comparing;
@@ -45,10 +35,6 @@ public class AdjudicationsRepository extends RepositoryBase {
     private final RowMapper<AgencyDto> agencyMapper = new DataClassByColumnRowMapper<>(AgencyDto.class);
     private final RowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
     private final RowMapper<AdjudicationOffenceDto> offenceMapper = new DataClassByColumnRowMapper<>(AdjudicationOffenceDto.class);
-    private final RowMapper<AdjudicationDetailDto> detailMapper = new DataClassByColumnRowMapper<>(AdjudicationDetailDto.class);
-    private final RowMapper<HearingDto> hearingMapper = new DataClassByColumnRowMapper<>(HearingDto.class);
-    private final RowMapper<HearingResultDto> resultMapper = new DataClassByColumnRowMapper<>(HearingResultDto.class);
-    private final RowMapper<SanctionDto> sanctionMapper = new DataClassByColumnRowMapper<>(SanctionDto.class);
 
     private final RowMapper<OffenderAdjudicationHearingDto> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearingDto.class);
 
@@ -66,69 +52,6 @@ public class AdjudicationsRepository extends RepositoryBase {
             agencyMapper);
         return agencies.stream().map(AgencyDto::toAgency).collect(toList());
     }
-
-
-    public Optional<AdjudicationDetail> findAdjudicationDetails(final String offenderNumber,
-                                                                final long adjudicationNumber) {
-
-        val details = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_ADJUDICATION.getSql(),
-            createParams(
-                "offenderNo", offenderNumber,
-                "adjudicationNo", adjudicationNumber),
-            detailMapper);
-
-        return details.stream().map(detail -> populateDetails(adjudicationNumber, detail)).findFirst();
-    }
-
-    private AdjudicationDetail populateDetails(final long adjudicationNumber, final AdjudicationDetailDto detail) {
-
-        val hearings = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_HEARINGS.getSql(), createParams("adjudicationNo", adjudicationNumber), hearingMapper);
-
-        val hearingIds = Lists.transform(hearings, HearingDto::getOicHearingId);
-
-        val results = getResults(hearingIds);
-
-        val sanctions = getSanctions(hearingIds);
-
-        val populatedHearings = hearings.stream().map(hearing ->
-                populateHearing(
-                    hearing,
-                    results.getOrDefault(hearing.getOicHearingId(), List.of()),
-                    sanctions.getOrDefault(hearing.getOicHearingId(), List.of())))
-            .collect(toList());
-
-        return detail.toAdjudicationDetail().toBuilder().hearings(populatedHearings).build();
-    }
-
-    private Hearing populateHearing(final HearingDto hearing, final List<HearingResultDto> results, final List<SanctionDto> sanctions) {
-
-        val sanctionsByResult = sanctions.stream().map(SanctionDto::toSanction).collect(groupingBy(Sanction::getResultSeq));
-
-        val populatedResults = results.stream().map(result ->
-                result.toHearingResult().toBuilder()
-                    .sanctions(sanctionsByResult.getOrDefault(result.getResultSeq(), List.of()))
-                    .build())
-            .collect(toList());
-
-        return hearing.toHearing().toBuilder().results(populatedResults).build();
-    }
-
-    private Map<Long, List<SanctionDto>> getSanctions(List<Long> hearingIds) {
-        return hearingIds.isEmpty()
-            ? Map.of()
-            : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_SANCTIONS.getSql(), createParams("hearingIds", hearingIds), sanctionMapper)
-            .stream()
-            .collect(groupingBy(SanctionDto::getOicHearingId));
-    }
-
-    private Map<Long, List<HearingResultDto>> getResults(List<Long> hearingIds) {
-        return hearingIds.isEmpty()
-            ? Map.of()
-            : jdbcTemplate.query(AdjudicationsRepositorySql.FIND_RESULTS.getSql(), createParams("hearingIds", hearingIds), resultMapper)
-            .stream()
-            .collect(groupingBy(HearingResultDto::getOicHearingId));
-    }
-
 
     public Page<Adjudication> findAdjudications(final AdjudicationSearchCriteria criteria) {
 
