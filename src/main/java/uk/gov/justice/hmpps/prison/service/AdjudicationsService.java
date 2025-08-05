@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.service;
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
 import lombok.extern.slf4j.Slf4j;
-import org.apache.commons.lang3.tuple.Pair;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -11,10 +10,6 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationCreationResponseData;
 import uk.gov.justice.hmpps.prison.api.model.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.NewAdjudication;
-import uk.gov.justice.hmpps.prison.api.model.OicHearingRequest;
-import uk.gov.justice.hmpps.prison.api.model.OicHearingResponse;
-import uk.gov.justice.hmpps.prison.api.model.OicHearingResultDto;
-import uk.gov.justice.hmpps.prison.api.model.OicHearingResultRequest;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAdjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Adjudication;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationActionCode;
@@ -25,32 +20,23 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationOffenceType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AdjudicationParty;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearing.OicHearingStatus;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OicHearingResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationOffenceTypeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AdjudicationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OicHearingResultRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.service.transformers.AdjudicationsTransformer;
 
 import jakarta.persistence.EntityManager;
 import jakarta.validation.Valid;
-import jakarta.validation.ValidationException;
 import jakarta.validation.constraints.NotNull;
 
-import java.util.Comparator;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.Objects;
-import java.util.Optional;
 import java.util.function.Function;
 import java.util.stream.Collectors;
 
@@ -72,8 +58,6 @@ public class AdjudicationsService {
     private final AgencyInternalLocationRepository internalLocationRepository;
     private final TelemetryClient telemetryClient;
     private final EntityManager entityManager;
-    private final OicHearingRepository oicHearingRepository;
-    private final OicHearingResultRepository oicHearingResultRepository;
     @Value("${batch.max.size:1000}")
     private final int batchSize;
 
@@ -89,9 +73,7 @@ public class AdjudicationsService {
         final TelemetryClient telemetryClient,
         final EntityManager entityManager,
         @Value("${batch.max.size:1000}") final int batchSize,
-        final AdjudicationsPartyService adjudicationsPartyService,
-        final OicHearingRepository oicHearingRepository,
-        final OicHearingResultRepository oicHearingResultRepository) {
+        final AdjudicationsPartyService adjudicationsPartyService) {
         this.adjudicationsRepository = adjudicationsRepository;
         this.adjudicationsOffenceTypeRepository = adjudicationsOffenceTypeRepository;
         this.staffUserAccountRepository = staffUserAccountRepository;
@@ -104,8 +86,6 @@ public class AdjudicationsService {
         this.entityManager = entityManager;
         this.batchSize = batchSize;
         this.adjudicationsPartyService = adjudicationsPartyService;
-        this.oicHearingRepository = oicHearingRepository;
-        this.oicHearingResultRepository = oicHearingResultRepository;
     }
 
     private List<AdjudicationOffenceType> offenceCodesFrom(List<String> suppliedOffenceCodes) {
@@ -247,193 +227,6 @@ public class AdjudicationsService {
                 numbers -> adjudicationsRepository.findByParties_AdjudicationNumberIn(numbers).stream()
             ).map(AdjudicationsTransformer::transformToDto)
             .toList();
-    }
-
-    @Transactional
-    public OicHearingResponse createOicHearing(final Long adjudicationNumber, final OicHearingRequest oicHearingRequest) {
-        adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
-
-        oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
-
-        final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
-        final var hearingTime = oicHearingRequest.getDateTimeOfHearing();
-
-        final var oicHearing = OicHearing.builder()
-            .eventStatus(OicHearingStatus.SCH)
-            .oicHearingType(oicHearingRequest.getOicHearingType())
-            .adjudicationNumber(adjudicationNumber)
-            .hearingDate(hearingDate)
-            .hearingTime(hearingTime)
-            .scheduleDate(hearingDate)
-            .scheduleTime(hearingTime)
-            .internalLocationId(oicHearingRequest.getHearingLocationId()).build();
-
-        final var savedOicHearing = oicHearingRepository.save(oicHearing);
-
-        return OicHearingResponse.builder()
-            .oicHearingId(savedOicHearing.getOicHearingId())
-            .dateTimeOfHearing(savedOicHearing.getHearingTime())
-            .hearingLocationId(savedOicHearing.getInternalLocationId())
-            .build();
-    }
-
-    @Transactional
-    public void amendOicHearing(final Long adjudicationNumber, final long oicHearingId, final OicHearingRequest oicHearingRequest) {
-        final var hearingToAmend = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
-        oicHearingLocationValidation(oicHearingRequest.getHearingLocationId());
-
-        final var hearingDate = oicHearingRequest.getDateTimeOfHearing().toLocalDate();
-        final var hearingTime = oicHearingRequest.getDateTimeOfHearing();
-
-        hearingToAmend.setHearingDate(hearingDate);
-        hearingToAmend.setHearingTime(hearingTime);
-        hearingToAmend.setOicHearingType(oicHearingRequest.getOicHearingType());
-        hearingToAmend.setInternalLocationId(oicHearingRequest.getHearingLocationId());
-        hearingToAmend.setCommentText(oicHearingRequest.getCommentText());
-
-        Optional.ofNullable(oicHearingRequest.getAdjudicator()).ifPresentOrElse(
-            adjudicator ->    {
-                final var staff = staffUserAccountRepository.findByUsername(adjudicator)
-                    .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
-
-                hearingToAmend.setAdjudicator(staff.getStaff());
-            }, () -> hearingToAmend.setAdjudicator(null));
-
-        oicHearingRepository.save(hearingToAmend);
-    }
-
-    @Transactional
-    public void deleteOicHearing(final Long adjudicationNumber, final long oicHearingId) {
-        final var hearingToDelete = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
-        oicHearingRepository.delete(hearingToDelete);
-    }
-
-    @Transactional(readOnly = true)
-    public List<OicHearingResultDto> getOicHearingResults(
-        final Long adjudicationNumber,
-        final Long oicHearingId) {
-
-        // Perform validation first, will throw exceptions if not valid id's
-        getWithValidationChecks(adjudicationNumber, oicHearingId);
-
-        return oicHearingResultRepository.findByOicHearingId(oicHearingId)
-            .stream().sorted(Comparator.comparing(OicHearingResult::getResultSeq))
-            .map(it ->
-                OicHearingResultDto.builder()
-                    .findingCode(it.getFindingCode())
-                    .pleaFindingCode(it.getPleaFindingCode())
-                    .build()
-            ).toList();
-    }
-
-    @Transactional
-    public OicHearingResultDto createOicHearingResult(
-        final Long adjudicationNumber,
-        final Long oicHearingId,
-        final OicHearingResultRequest oicHearingResultRequest) {
-
-        final var pair = getWithValidationChecks(adjudicationNumber, oicHearingId);
-        final var oicHearing = pair.getLeft();
-        final var adjudication = pair.getRight();
-
-        if (oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L)).isPresent()) {
-            throw new ValidationException(format("Hearing result for hearing id %d already exist for adjudication number %d", oicHearingId, adjudicationNumber));
-        }
-
-        Optional.ofNullable(oicHearingResultRequest.getAdjudicator()).ifPresent(adjudicator -> {
-            final var staff = staffUserAccountRepository.findByUsername(adjudicator)
-                .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
-
-            oicHearing.setAdjudicator(staff.getStaff());
-            oicHearingRepository.save(oicHearing);
-        });
-
-
-        Long oicOffenceId;
-        try {
-            oicOffenceId = adjudication.getOffenderParty().orElseThrow(EntityNotFoundException.withId(adjudicationNumber)).getCharges().getFirst().getOffenceType().getOffenceId();
-        } catch (Exception e) {
-            throw EntityNotFoundException.withMessage(format("OicOffenceId not found for adjudicationNumber %d and oicHearingId %d", adjudicationNumber, oicHearingId), e.getMessage());
-        }
-
-        final var oicHearingResult = oicHearingResultRepository.save(OicHearingResult.builder()
-            .oicHearingId(oicHearingId)
-            .chargeSeq(1L)
-            .resultSeq(1L)
-            .pleaFindingCode(oicHearingResultRequest.getPleaFindingCode())
-            .findingCode(oicHearingResultRequest.getFindingCode())
-            .agencyIncidentId(adjudication.getAgencyIncidentId())
-            .oicOffenceId(oicOffenceId)
-            .build());
-
-
-        return OicHearingResultDto.builder()
-            .findingCode(oicHearingResult.getFindingCode())
-            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
-            .build();
-    }
-
-    @Transactional
-    public OicHearingResultDto amendOicHearingResult(
-        final Long adjudicationNumber,
-        final Long oicHearingId,
-        final OicHearingResultRequest oicHearingResultRequest) {
-
-        final var oicHearing = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
-
-        final var oicHearingResult = oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L))
-            .orElseThrow(new EntityNotFoundException(format("No hearing result found for hearing id %d and adjudication number %d", oicHearingId, adjudicationNumber)));
-
-        Optional.ofNullable(oicHearingResultRequest.getAdjudicator()).ifPresent(adjudicator -> {
-            final var staff = staffUserAccountRepository.findByUsername(adjudicator)
-                .orElseThrow(() -> new EntityNotFoundException(format("Adjudicator not found for username %s", adjudicator)));
-
-            oicHearing.setAdjudicator(staff.getStaff());
-            oicHearingRepository.save(oicHearing);
-        });
-
-        oicHearingResult.setPleaFindingCode(oicHearingResultRequest.getPleaFindingCode());
-        oicHearingResult.setFindingCode(oicHearingResultRequest.getFindingCode());
-        oicHearingResultRepository.save(oicHearingResult);
-
-        return OicHearingResultDto.builder()
-            .findingCode(oicHearingResult.getFindingCode())
-            .pleaFindingCode(oicHearingResult.getPleaFindingCode())
-            .build();
-    }
-
-    @Transactional
-    public void deleteOicHearingResult(
-        final Long adjudicationNumber,
-        final Long oicHearingId) {
-
-        final var oicHearing = getWithValidationChecks(adjudicationNumber, oicHearingId).getLeft();
-
-        final var oicHearingResult = oicHearingResultRepository.findById(new OicHearingResult.PK(oicHearingId, 1L))
-            .orElseThrow(new EntityNotFoundException(format("No hearing result found for hearing id %d and adjudication number %d", oicHearingId, adjudicationNumber)));
-
-        oicHearing.setAdjudicator(null);
-        oicHearingRepository.save(oicHearing);
-        oicHearingResultRepository.delete(oicHearingResult);
-    }
-
-    private void oicHearingLocationValidation(final Long hearingLocationId){
-        internalLocationRepository.findOneByLocationId(hearingLocationId)
-            .orElseThrow(() -> new ValidationException(format("Invalid hearing location id %d", hearingLocationId)));
-    }
-
-    private Pair<OicHearing, Adjudication> getWithValidationChecks(final Long adjudicationNumber, final long hearingId){
-        final var adjudication = adjudicationsRepository.findByParties_AdjudicationNumber(adjudicationNumber)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find adjudication number %d", adjudicationNumber)));
-
-        final var hearing = oicHearingRepository.findById(hearingId)
-            .orElseThrow(EntityNotFoundException.withMessage(format("Could not find oic hearingId %d for adjudication number %d", hearingId, adjudicationNumber)));
-
-        if(!Objects.equals(hearing.getAdjudicationNumber(), adjudicationNumber))
-            throw new ValidationException(format("oic hearingId %d is not linked to adjudication number %d", hearingId, adjudicationNumber));
-
-        return Pair.of(hearing, adjudication);
     }
 
     private void addOffenceCharges(AdjudicationParty adjudicationPartyToUpdate, List<AdjudicationOffenceType> offenceCodes) {
