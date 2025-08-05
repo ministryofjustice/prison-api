@@ -10,8 +10,6 @@ import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSummary;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Award;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -19,8 +17,6 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AdjudicationsRepository;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
 import uk.gov.justice.hmpps.prison.repository.LocationRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.util.CalcDateRanges;
 
@@ -28,7 +24,6 @@ import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.HashMap;
 import java.util.List;
-import java.util.Objects;
 import java.util.Set;
 import java.util.function.Function;
 import java.util.stream.Collectors;
@@ -57,11 +52,6 @@ public class AdjudicationService {
         this.locationRepository = locationRepository;
         this.batchSize = batchSize;
     }
-
-    @Value("${api.cutoff.adjudication.months:3}")
-    private int adjudicationCutoffDefault;
-    @Value("${api.cutoff.award.months:0}")
-    private int awardCutoffDefault;
 
     public AdjudicationDetail findAdjudication(final String offenderNo, final long adjudicationNo) {
         return repository.findAdjudicationDetails(offenderNo, adjudicationNo)
@@ -138,46 +128,6 @@ public class AdjudicationService {
             .collect(toList());
     }
 
-    /**
-     * Get awards that have not expired, i.e. the end date is today or later, and
-     * count proved adjudications which expired on or later than the from date.
-     */
-    public AdjudicationSummary getAdjudicationSummary(final Long bookingId, final LocalDate awardCutoffDateParam,
-                                                      final LocalDate adjudicationCutoffDateParam) {
-        val list = repository.findAwards(bookingId);
-        int adjudicationCount = getAdjudicationCount(awardCutoffDateParam, adjudicationCutoffDateParam, list);
-        return AdjudicationSummary.builder().awards(list).adjudicationCount(adjudicationCount).build();
-    }
-
-    private int getAdjudicationCount(LocalDate awardCutoffDateParam, LocalDate adjudicationCutoffDateParam, List<Award> list) {
-        val today = LocalDate.now();
-        var awardCutoffDate = awardCutoffDateParam;
-        if (awardCutoffDate == null) {
-            awardCutoffDate = today.plus(-awardCutoffDefault, ChronoUnit.MONTHS);
-        }
-        var adjudicationCutoffDate = adjudicationCutoffDateParam;
-        if (adjudicationCutoffDate == null) {
-            adjudicationCutoffDate = today.plus(-adjudicationCutoffDefault, ChronoUnit.MONTHS);
-        }
-        val iterator = list.iterator();
-        var adjudicationCount = 0;
-        Award previous = null;
-
-        while (iterator.hasNext()) {
-            val current = iterator.next();
-            val endDate = calculateEndDate(current);
-
-            if (!adjudicationCutoffDate.isAfter(endDate) && changed(previous, current)) {
-                adjudicationCount++;
-                previous = current;
-            }
-            if (awardCutoffDate.isAfter(endDate)) {
-                iterator.remove();
-            }
-        }
-        return adjudicationCount;
-    }
-
     public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
                                                                               final LocalDate fromDate,
                                                                               final LocalDate toDate,
@@ -207,22 +157,5 @@ public class AdjudicationService {
         }
 
         return hearings;
-    }
-
-    private LocalDate calculateEndDate(final Award award) {
-        var endDate = award.getEffectiveDate();
-        if (award.getMonths() != null) {
-            endDate = endDate.plusMonths(award.getMonths());
-        }
-        if (award.getDays() != null) {
-            endDate = endDate.plusDays(award.getDays());
-        }
-        return endDate;
-    }
-
-    private boolean changed(final Award previous, final Award current) {
-        return previous == null || !Objects.equals(previous.getHearingId(), current.getHearingId());
-        // Note we only consider the hearing id, not the sequence number as we only
-        // expect at most one proved adjudication in the sequence list
     }
 }
