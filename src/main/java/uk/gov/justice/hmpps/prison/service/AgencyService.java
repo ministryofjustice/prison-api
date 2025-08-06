@@ -23,13 +23,11 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
-import uk.gov.justice.hmpps.prison.api.model.RequestToUpdatePhone;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyAddress;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
@@ -40,7 +38,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.County;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyAddressRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
@@ -85,7 +82,6 @@ public class AgencyService {
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
     private final ReferenceCodeRepository<CourtType> courtTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
-    private final AddressPhoneRepository addressPhoneRepository;
     private final AgencyAddressRepository agencyAddressRepository;
 
     private final ReferenceCodeRepository<AddressType> addressTypeReferenceCodeRepository;
@@ -442,56 +438,5 @@ public class AgencyService {
             .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
 
         agency.removeAddress(agencyAddress);
-    }
-
-    @Transactional
-    public Telephone createAgencyAddressPhone(final String agencyId, final Long addressId, final RequestToUpdatePhone requestToUpdatePhone) {
-        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-
-        final var agencyAddress = agency.getAddresses().stream()
-            .filter(a -> a.getAddressId().equals(addressId))
-            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
-
-        final var phone = AddressPhone.builder()
-            .phoneNo(requestToUpdatePhone.getNumber())
-            .extNo(requestToUpdatePhone.getExt())
-            .phoneType(requestToUpdatePhone.getType())
-            .build();
-
-        return AddressTransformer.translate(addressPhoneRepository.save(agencyAddress.addPhone(phone)));
-    }
-
-    @Transactional
-    public Telephone updateAgencyAddressPhone(final String agencyId, final Long addressId, final Long phoneId, final RequestToUpdatePhone requestToUpdatePhone) {
-        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-
-        final var agencyAddress = agency.getAddresses().stream()
-            .filter(a -> a.getAddressId().equals(addressId))
-            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
-
-        final var addressPhone = agencyAddress.getPhones().stream()
-            .filter(p -> p.getPhoneId().equals(phoneId))
-            .findFirst().orElseThrow(EntityNotFoundException.withId(phoneId));
-
-        addressPhone.setPhoneNo(requestToUpdatePhone.getNumber());
-        addressPhone.setExtNo(requestToUpdatePhone.getExt());
-        addressPhone.setPhoneType(requestToUpdatePhone.getType());
-
-        return AddressTransformer.translate(addressPhone);
-    }
-
-    @Transactional
-    public void deleteAgencyAddressPhone(final String agencyId, final Long addressId, final Long phoneId) {
-        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-
-        final var agencyAddress = agency.getAddresses().stream()
-            .filter(a -> a.getAddressId().equals(addressId))
-            .findFirst().orElseThrow(EntityNotFoundException.withId(addressId));
-
-        final var addressPhone = agencyAddress.getPhones().stream()
-            .filter(p -> p.getPhoneId().equals(phoneId))
-            .findFirst().orElseThrow(EntityNotFoundException.withId(phoneId));
-
-        agencyAddress.removePhone(addressPhone);
     }
 }
