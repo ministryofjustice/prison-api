@@ -37,18 +37,3 @@ Feature: Offenders Adjudications
     Given a user has a token name of "PRISON_API_USER"
     When I view the adjudications of offender with offender display number of "Does Not Exist"
     Then resource not found response is received from adjudication API
-
-  Scenario: A staff user views adjudication details for an existing offender
-    Given a user has a token name of "PRISON_API_USER"
-    When I view the adjudication details of offender display number of "A1181HH" with a adjudication number of "-7"
-    Then the adjudication details are found
-
-  Scenario: A staff user views adjudication details for an existing offender using a client token
-    Given a user has a token name of "VIEW_PRISONER_DATA"
-    When I view the adjudication details of offender display number of "A1181HH" with a adjudication number of "-7"
-    Then the adjudication details are found
-
-  Scenario: A user fails to find adjudication details as offender does not exist
-    Given a user has a token name of "PRISON_API_USER"
-    When I view the adjudication details of offender display number of "Does not exist" with a adjudication number of "-7"
-    Then resource not found response is received from adjudication API

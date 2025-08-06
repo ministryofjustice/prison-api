@@ -13,10 +13,8 @@ import org.springframework.web.util.UriComponentsBuilder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.net.URI;
@@ -36,7 +34,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class OffenderAdjudicationSteps extends CommonSteps {
 
-    private AdjudicationDetail detail;
     private List<Adjudication> adjudications;
     private List<AdjudicationOffence> offences;
     private List<Agency> agencies;
@@ -71,32 +68,6 @@ public class OffenderAdjudicationSteps extends CommonSteps {
         }
     }
 
-    @Step("Retrieve adjudication detail")
-    public void findAdjudicationDetails(final String offenderNumber, final String adjudicationNo) {
-
-        init();
-
-        try {
-
-            URI uri = UriComponentsBuilder.fromPath(API_PREFIX)
-                    .path("offenders/{offenderNumber}/adjudications/{adjudicationNumber}")
-                    .build(offenderNumber, adjudicationNo);
-
-            final var responseEntity = restTemplate.exchange(uri,
-                    HttpMethod.GET,
-                    createEntity(null),
-                    AdjudicationDetail.class);
-
-            assertThat(responseEntity.getStatusCode()).isEqualTo(HttpStatus.OK);
-            detail = responseEntity.getBody();
-
-
-        } catch (PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-
     public void verifyAdjudications(final List<AdjudicationRow> expected) {
         final var found = adjudications.stream()
             .map(adj -> AdjudicationRow.builder().
@@ -119,15 +90,6 @@ public class OffenderAdjudicationSteps extends CommonSteps {
     public void verifyAgencies(List<String> expectedAgencyIds) {
         final var found = agencies.stream().map(Agency::getAgencyId).collect(toSet());
         assertThat(found).containsExactlyInAnyOrderElementsOf(Set.copyOf(expectedAgencyIds));
-    }
-
-    public void verifyAdjudicationDetails() {
-        verifyNoError();
-        assertThat(detail).isNotNull();
-        assertThat(detail.getAdjudicationNumber()).isEqualTo(-7);
-
-        List<Hearing> hearings = detail.getHearings();
-        assertThat(hearings).extracting(Hearing::getOicHearingId).containsExactly(-1L, -2L);
     }
 
     private String commaSeparated(final Adjudication adjudication, final Function<AdjudicationCharge, String> extractor) {

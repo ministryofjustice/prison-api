@@ -16,16 +16,11 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Hearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.HearingResult;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.Sanction;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
-import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
@@ -140,18 +135,6 @@ public class AdjudicationsRepositoryTest {
         assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3003)).isNotEmpty();
     }
 
-    @Sql(scripts = {"/sql/incident_no_suspect.sql"},
-        executionPhase = ExecutionPhase.BEFORE_TEST_METHOD,
-        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    @Sql(scripts = {"/sql/incident_no_suspect_cleanup.sql"},
-        executionPhase = ExecutionPhase.AFTER_TEST_METHOD,
-        config = @SqlConfig(transactionMode = TransactionMode.ISOLATED))
-    @Test
-    public void adjudicationFoundWithoutSuspectCode() {
-        val result = repository.findAdjudicationDetails("A1183SH", -3003);
-        assertThat(result).isPresent();
-    }
-
     @Test
     public void filterByStartDate() {
 
@@ -243,157 +226,6 @@ public class AdjudicationsRepositoryTest {
                     "51:2C",
                     "Detains any person against his will - detention against will of prison officer grade",
                     "NOT_PROVEN"))));
-    }
-
-    @Test
-    public void findAdjudicationDetails() {
-
-        val results = repository.findAdjudicationDetails("A1181HH", -7);
-
-
-        assertThat(results.get()).isEqualTo(
-            AdjudicationDetail.builder()
-                .adjudicationNumber(-7L)
-                .incidentTime(LocalDateTime.of(1999, 6, 25, 0, 0))
-                .agencyId("MDI")
-                .internalLocationId(-41)
-                .incidentDetails("mKSouDOCmKSouDO")
-                .reportNumber(-4L)
-                .reportType("Miscellaneous")
-                .reporterFirstName("JO")
-                .reporterLastName("O'BRIEN")
-                .reportTime(LocalDateTime.of(2019, 8, 25, 0, 3))
-                .hearing(
-                    Hearing.builder()
-                        .oicHearingId(-1L)
-                        .hearingType("Governor's Hearing Adult")
-                        .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                        .internalLocationId(-1000L)
-                        .heardByFirstName("TEST")
-                        .heardByLastName("USER")
-                        .otherRepresentatives("Other folk")
-                        .comment("A Comment")
-                        .result(HearingResult.builder()
-                            .oicOffenceCode("51:2D")
-                            .offenceType("Prison Rule 51")
-                            .offenceDescription("Detains any person against his will - detention against will of staff (not prison offr)")
-                            .plea("Unfit to Plea or Attend")
-                            .finding("Charge Proved")
-                            .oicHearingId(-1)
-                            .resultSeq(1L)
-                            .sanction(Sanction.builder()
-                                .sanctionType("Stoppage of Earnings (%)")
-                                .sanctionDays(21L)
-                                .sanctionMonths(null)
-                                .compensationAmount(50L)
-                                .effectiveDate(LocalDateTime.of(2017, 11, 7, 0, 0))
-                                .status("Immediate")
-                                .statusDate(LocalDateTime.of(2017, 11, 8, 0, 0))
-                                .comment(null)
-                                .sanctionSeq(1L)
-                                .consecutiveSanctionSeq(1L)
-                                .oicHearingId(-1)
-                                .resultSeq(1L)
-                                .build())
-                            .build())
-                        .build())
-                .hearing(Hearing.builder()
-                    .oicHearingId(-2L)
-                    .hearingType("Governor's Hearing Adult")
-                    .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                    .internalLocationId(-1001L)
-                    .heardByFirstName("CA")
-                    .heardByLastName("USER")
-                    .otherRepresentatives("Some Other folk")
-                    .comment("B Comment")
-                    .result(HearingResult.builder()
-                        .oicOffenceCode("51:2C")
-                        .offenceType("Prison Rule 51")
-                        .offenceDescription("Detains any person against his will - detention against will of prison officer grade")
-                        .plea("Not guilty")
-                        .finding("Charge Proved")
-                        .oicHearingId(-2L)
-                        .resultSeq(1L)
-                        .sanction(Sanction.builder()
-                            .sanctionType("Cellular Confinement")
-                            .sanctionDays(7L)
-                            .sanctionMonths(1L)
-                            .compensationAmount(null)
-                            .effectiveDate(LocalDateTime.of(2017, 11, 07, 0, 0))
-                            .status("Immediate")
-                            .statusDate(null)
-                            .comment(null)
-                            .sanctionSeq(2L)
-                            .consecutiveSanctionSeq(2L)
-                            .oicHearingId(-2L)
-                            .resultSeq(1L)
-                            .build())
-                        .build())
-                    .result(HearingResult.builder()
-                        .oicOffenceCode("51:1J")
-                        .offenceType("Prison Rule 51")
-                        .offenceDescription("Commits any assault - assault on prison officer")
-                        .plea("Not guilty")
-                        .finding("Charge Proved")
-                        .oicHearingId(-2L)
-                        .resultSeq(2L)
-                        .sanction(
-                            Sanction.builder()
-                                .sanctionType("Forfeiture of Privileges")
-                                .sanctionDays(7L)
-                                .sanctionMonths(null)
-                                .compensationAmount(null)
-                                .effectiveDate(LocalDateTime.of(2017, 11, 8, 0, 0))
-                                .status("Immediate")
-                                .statusDate(null)
-                                .comment("LOTV")
-                                .sanctionSeq(3L)
-                                .consecutiveSanctionSeq(1L)
-                                .oicHearingId(-2)
-                                .resultSeq(2L)
-                                .build())
-                        .build())
-                    .build())
-                .build());
-    }
-
-    @Test
-    public void findAdjudicationDetailsWithoutSanctions() {
-
-        val results = repository.findAdjudicationDetails("A1179MT", -8);
-
-        assertThat(results.get()).isEqualTo(AdjudicationDetail.builder()
-            .adjudicationNumber(-8L)
-            .incidentTime(LocalDateTime.of(1999, 6, 25, 0, 0))
-            .agencyId("MDI")
-            .internalLocationId(-41L)
-            .incidentDetails("mKSouDOCmKSouDO")
-            .reportNumber(-5L)
-            .reportType("Miscellaneous")
-            .reporterFirstName("JO")
-            .reporterLastName("O'BRIEN")
-            .reportTime(LocalDateTime.of(2019, 8, 25, 0, 3))
-            .hearing(Hearing.builder()
-                .oicHearingId(-3L)
-                .hearingType("Governor's Hearing Adult")
-                .hearingTime(LocalDateTime.of(2015, 1, 2, 14, 0))
-                .internalLocationId(-1001L)
-                .heardByFirstName("CA")
-                .heardByLastName("USER")
-                .otherRepresentatives("Some Other folk")
-                .comment("B Comment")
-                .result(HearingResult.builder()
-                    .oicOffenceCode("51:2C")
-                    .offenceType("Prison Rule 51")
-                    .offenceDescription("Detains any person against his will - detention against will of prison officer grade")
-                    .plea("Not guilty")
-                    .finding("Charge Proved")
-                    .oicHearingId(-3L)
-                    .resultSeq(1L)
-                    .build())
-
-                .build())
-            .build());
     }
 
     @Test

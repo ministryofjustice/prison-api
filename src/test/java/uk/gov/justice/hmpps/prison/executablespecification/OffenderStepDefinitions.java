@@ -29,19 +29,9 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
         adjudicationSteps.findAdjudications(offenderNumber, Map.of("agencyId", location, "offenceId", offence));
     }
 
-    @When("^I view the adjudication details of offender display number of \"([^\"]*)\" with a adjudication number of \"([^\"]*)\"$")
-    public void viewAdjudication(final String offenderNumber, final String adjudicationNumber) {
-        adjudicationSteps.findAdjudicationDetails(offenderNumber, adjudicationNumber);
-    }
-
     @Then("^the adjudication results are:$")
     public void adjudicationResultIsAsFollows(final List<AdjudicationRow> list) {
         adjudicationSteps.verifyAdjudications(list);
-    }
-
-    @Then("^the adjudication details are found$")
-    public void detailsAreCorrect() {
-        adjudicationSteps.verifyAdjudicationDetails();
     }
 
     @And("^the associated offences for this offender are: \"([^\"]*)\"$")
@@ -58,5 +48,4 @@ public class OffenderStepDefinitions extends AbstractStepDefinitions {
     public void verifyResourceNotFoundForAdjudicationApi() {
         adjudicationSteps.verifyResourceNotFound();
     }
-
 }

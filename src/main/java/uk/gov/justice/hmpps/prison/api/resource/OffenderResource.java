@@ -74,7 +74,6 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateNationality;
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation;
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationDetail;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchResponse;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
@@ -558,20 +557,6 @@ public class OffenderResource {
                 .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
                 .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                 .build());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = AdjudicationDetail.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Return a specific adjudication",
-        description = "Deprecated - use Adjudications API to get adjudications, requires VIEW_ADJUDICATIONS",
-        deprecated = true, hidden = true)
-    @GetMapping("/{offenderNo}/adjudications/{adjudicationNo}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VIEW_ADJUDICATIONS"})
-    public AdjudicationDetail getAdjudication(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo, @PathVariable("adjudicationNo") @Parameter(description = "adjudicationNo", required = true) final long adjudicationNo) {
-        return adjudicationService.findAdjudication(offenderNo, adjudicationNo);
     }
 
     @ApiResponses({
