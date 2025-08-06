@@ -50,65 +50,6 @@ public class ReferenceDomainService {
         return Objects.isNull(order) ? Order.ASC : order;
     }
 
-    @Transactional
-    public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
-        referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false).ifPresent(p -> {
-            throw new EntityAlreadyExistsException(domain + "/" + code);
-        });
-
-        final var data = referenceData.toBuilder()
-                .activeFlag(referenceData.getActiveFlag() == null ? "Y" : referenceData.getActiveFlag())
-                .systemDataFlag(referenceData.getSystemDataFlag() == null ? "Y" : referenceData.getSystemDataFlag())
-                .listSeq(referenceData.getListSeq() == null ? 1 : referenceData.getListSeq())
-                .build();
-
-        if ("Y".equalsIgnoreCase(data.getActiveFlag())) {
-            data.setExpiredDate(null);
-        }
-        if (referenceData.getExpiredDate() == null && "N".equalsIgnoreCase(data.getActiveFlag())) {
-            data.setExpiredDate(LocalDate.now());
-        }
-
-        if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceDataRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
-        }
-
-        referenceDataRepository.insertReferenceCode(domain, code, data);
-
-        return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
-                .orElseThrow(new EntityNotFoundException(domain + "/" + code));
-    }
-
-    @Transactional
-    public ReferenceCode updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
-
-        final var previousRef = referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false).orElseThrow(new EntityNotFoundException(domain + "/" + code));
-
-        final var data = referenceData.toBuilder()
-                .activeFlag(referenceData.getActiveFlag() == null ? previousRef.getActiveFlag() : referenceData.getActiveFlag())
-                .systemDataFlag(referenceData.getSystemDataFlag() == null ? previousRef.getSystemDataFlag() : referenceData.getSystemDataFlag())
-                .listSeq(referenceData.getListSeq() == null ? previousRef.getListSeq() : referenceData.getListSeq())
-                .expiredDate(referenceData.getExpiredDate() == null ? previousRef.getExpiredDate() : referenceData.getExpiredDate())
-                .build();
-
-        if ("Y".equalsIgnoreCase(data.getActiveFlag())) {
-            data.setExpiredDate(null);
-        }
-
-        if (data.getExpiredDate() == null && "N".equalsIgnoreCase(data.getActiveFlag()) && previousRef.getExpiredDate() == null) {
-            data.setExpiredDate(LocalDate.now());
-        }
-
-        if (data.getParentCode() != null || data.getParentDomain() != null) {
-            referenceDataRepository.getReferenceCodeByDomainAndCode(data.getParentDomain(), data.getParentCode(), false).orElseThrow(new EntityNotFoundException(data.getParentDomain() + "/" + data.getParentCode()));
-        }
-
-        referenceDataRepository.updateReferenceCode(domain, code, data);
-
-        return referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false)
-                .orElseThrow(new EntityNotFoundException(domain + "/" + code));
-    }
-
     public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         verifyReferenceDomain(domain);
 

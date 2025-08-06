@@ -10,7 +10,6 @@ import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 import static org.assertj.core.api.Assertions.assertThat;
@@ -75,11 +74,9 @@ public class ReferenceDomainsSteps extends CommonSteps {
     public void verifySubCodeDomain(final int index, final String expectedSubCodeDomain) {
         final var refCode = referenceCodes.get(index);
 
-        refCode.getSubCodes().forEach(sc -> {
-            assertThat(sc.getDomain())
-                    .as("Check domain for sub-code [%s] of code [%s]", sc.getCode(), refCode.getCode())
-                    .isEqualTo(expectedSubCodeDomain);
-        });
+        refCode.getSubCodes().forEach(sc -> assertThat(sc.getDomain())
+                .as("Check domain for sub-code [%s] of code [%s]", sc.getCode(), refCode.getCode())
+                .isEqualTo(expectedSubCodeDomain));
     }
 
     @Step("Verify domains for sub-codes of specific reference code item")
@@ -107,26 +104,22 @@ public class ReferenceDomainsSteps extends CommonSteps {
     @Step("Verify item contains sub-code with description")
     public void verifyItemContainsSubCodeWithDescription(final String itemDescription, final String expectedSubCodeDescription) {
         final var item = referenceCodes.stream().filter(it -> it.getDescription().equals(itemDescription)).findFirst();
-        assertThat(item).isPresent().withFailMessage(format("Item %s not found", itemDescription));
+        assertThat(item).withFailMessage(format("Item %s not found", itemDescription)).isPresent();
         assertThat(item.get().getSubCodes()).extracting(ReferenceCodeInfo::getDescription).contains(expectedSubCodeDescription);
     }
 
     @Step("Verify domain for all returned reference code items")
     public void verifyDomain(final String expectedDomain) {
-        referenceCodes.forEach(rc -> {
-            assertThat(rc.getDomain())
-                    .as("Check domain for code [%s]", rc.getCode())
-                    .isEqualTo(expectedDomain);
-        });
+        referenceCodes.forEach(rc -> assertThat(rc.getDomain())
+                .as("Check domain for code [%s]", rc.getCode())
+                .isEqualTo(expectedDomain));
     }
 
     @Step("Verify parent domain for all returned reference code items")
     public void verifyParentDomain(final String expectedParentDomain) {
-        referenceCodes.forEach(rc -> {
-            assertThat(rc.getParentDomain())
-                    .as("Check parent domain for code [%s]", rc.getCode())
-                    .isEqualTo(expectedParentDomain);
-        });
+        referenceCodes.forEach(rc -> assertThat(rc.getParentDomain())
+                .as("Check parent domain for code [%s]", rc.getCode())
+                .isEqualTo(expectedParentDomain));
     }
 
     @Step("Verify code for specific reference code item")
@@ -156,40 +149,32 @@ public class ReferenceDomainsSteps extends CommonSteps {
 
     @Step("Verify no sub codes for any reference code item")
     public void verifyNoSubCodes() {
-        referenceCodes.forEach(rc -> {
-            assertThat(rc.getSubCodes())
-                    .as("Check code [%s] has no sub-codes", rc.getCode())
-                    .isNullOrEmpty();
-        });
+        referenceCodes.forEach(rc -> assertThat(rc.getSubCodes())
+                .as("Check code [%s] has no sub-codes", rc.getCode())
+                .isNullOrEmpty());
     }
 
     @Step("Verify at least one or more sub codes for every reference code item")
     public void verifyAlwaysSubCodes() {
-        referenceCodes.forEach(rc -> {
-            assertThat(rc.getSubCodes())
-                    .as("Check code [%s] has one or more sub-codes", rc.getCode())
-                    .isNotEmpty();
-        });
+        referenceCodes.forEach(rc -> assertThat(rc.getSubCodes())
+                .as("Check code [%s] has one or more sub-codes", rc.getCode())
+                .isNotEmpty());
     }
 
     @Step("Verify at least one or more sub codes for every non-excepted reference code item")
     public void verifyAlwaysSubCodesExcept(final String exceptedCodes) {
         final var exceptedCodesList = csv2list(exceptedCodes);
 
-        referenceCodes.stream().filter(rc -> !exceptedCodesList.contains(rc.getCode())).forEach(rc -> {
-            assertThat(rc.getSubCodes())
-                    .as("Check code [%s] has no sub-codes", rc.getCode())
-                    .isNotEmpty();
-        });
+        referenceCodes.stream().filter(rc -> !exceptedCodesList.contains(rc.getCode())).forEach(rc -> assertThat(rc.getSubCodes())
+                .as("Check code [%s] has no sub-codes", rc.getCode())
+                .isNotEmpty());
     }
 
     @Step("Verify no parent domain for any reference code item")
     public void verifyNoParentDomain() {
-        referenceCodes.forEach(rc -> {
-            assertThat(rc.getParentDomain())
-                    .as("Check code [%s] has no parent domain", rc.getCode())
-                    .isNull();
-        });
+        referenceCodes.forEach(rc -> assertThat(rc.getParentDomain())
+                .as("Check code [%s] has no parent domain", rc.getCode())
+                .isNull());
     }
 
     @Step("Verify list of reference code item codes")
@@ -211,11 +196,9 @@ public class ReferenceDomainsSteps extends CommonSteps {
     public void verifySubCodeDomain(final String expectedSubCodeDomain) {
         referenceCodes.forEach(rc -> {
             if (Objects.nonNull(rc.getSubCodes())) {
-                rc.getSubCodes().forEach(sc -> {
-                    assertThat(sc.getDomain())
-                            .as("Check domain for sub-code [%s] of code [%s]", sc.getCode(), rc.getCode())
-                            .isEqualTo(expectedSubCodeDomain);
-                });
+                rc.getSubCodes().forEach(sc -> assertThat(sc.getDomain())
+                        .as("Check domain for sub-code [%s] of code [%s]", sc.getCode(), rc.getCode())
+                        .isEqualTo(expectedSubCodeDomain));
             }
         });
     }
@@ -234,7 +217,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
         }
 
         if (Objects.nonNull(withSubCodes)) {
-            urlModifier = "?withSubCodes=" + withSubCodes.toString();
+            urlModifier = "?withSubCodes=" + withSubCodes;
         }
 
         final var url = resourcePath + urlModifier;
@@ -262,7 +245,7 @@ public class ReferenceDomainsSteps extends CommonSteps {
         var urlModifier = "";
 
         if (Objects.nonNull(withSubCodes)) {
-            urlModifier = "?withSubCodes=" + withSubCodes.toString();
+            urlModifier = "?withSubCodes=" + withSubCodes;
         }
 
         final var url = resourcePath + urlModifier;

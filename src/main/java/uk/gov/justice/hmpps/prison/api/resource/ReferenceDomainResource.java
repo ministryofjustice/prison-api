@@ -128,36 +128,6 @@ public class ReferenceDomainResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "201", description = "Created", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ReferenceCode.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Creates a reference code")
-    @PostMapping("/domains/{domain}/codes/{code}")
-    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    public ReferenceCode createReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
-                                             @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code,
-                                             @RequestBody @Valid @NotNull @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
-        return referenceDomainService.createReferenceCode(domain, code, referenceData);
-    }
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Updated", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ReferenceCode.class))}),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Updates a reference code")
-    @PutMapping("/domains/{domain}/codes/{code}")
-    @PreAuthorize("hasAnyRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    public ReferenceCode updateReferenceCode(@Size(max = 12) @NotNull @PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
-                                             @Size(max = 12) @NotNull @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code,
-                                             @Valid @NotNull @RequestBody @Parameter(description = "Reference Information", required = true) final ReferenceCodeInfo referenceData) {
-        return referenceDomainService.updateReferenceCode(domain, code, referenceData);
-    }
-
-    @ApiResponses({
             @ApiResponse(responseCode = "200", description = "OK"),
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
