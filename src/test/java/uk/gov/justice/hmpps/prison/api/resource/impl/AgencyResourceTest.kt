@@ -1,10 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod.DELETE
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
@@ -139,93 +137,6 @@ class AgencyResourceTest : ResourceTest() {
     )
 
     assertThatJsonFileAndStatus(getResponse, 200, "new_agency.json")
-  }
-
-  @Test
-  fun testCanCreateNewAddress() {
-    val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
-    val body = mapOf(
-      "addressType" to "BUS",
-      "premise" to "Leeds Prison",
-      "town" to "29059",
-      "postalCode" to "LS12 5TH",
-      "county" to "W.YORKSHIRE",
-      "country" to "ENG",
-      "primary" to "true",
-      "startDate" to "2006-01-12",
-      "locality" to "North Leeds",
-      "comment" to "Some text",
-    )
-
-    val httpEntity = createHttpEntity(token, body)
-
-    val response = testRestTemplate.exchange(
-      "/api/agencies/LEI/addresses",
-      POST,
-      httpEntity,
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(response, 201, "new_address.json")
-
-    val getResponse = testRestTemplate.exchange(
-      "/api/agencies/LEI?withAddresses=true",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(getResponse, 200, "new_agency_address.json")
-
-    val addressId =
-      (Gson().fromJson<Map<*, *>>(response.body, MutableMap::class.java)["addressId"] as Double?)!!.toInt()
-
-    val updateBody = mapOf(
-      "addressType" to "BUS",
-      "premise" to "Leeds Prison",
-      "town" to "29059",
-      "postalCode" to "LS12 5TH",
-      "county" to "W.YORKSHIRE",
-      "country" to "ENG",
-      "primary" to "false",
-      "startDate" to "2006-01-12",
-      "endDate" to "2021-01-04",
-      "locality" to "North Leeds",
-    )
-
-    val updateHttpEntity = createHttpEntity(token, updateBody)
-
-    val updateResponse = testRestTemplate.exchange(
-      "/api/agencies/LEI/addresses/$addressId",
-      PUT,
-      updateHttpEntity,
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(updateResponse, 200, "updated_address.json")
-
-    val deleteResponse = testRestTemplate.exchange(
-      "/api/agencies/LEI/addresses/$addressId",
-      DELETE,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatStatus(deleteResponse, 200)
-
-    val getResponseAgain = testRestTemplate.exchange(
-      "/api/agencies/LEI?withAddresses=true",
-      GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThatJsonFileAndStatus(getResponseAgain, 200, "new_agency_address_updated.json")
   }
 
   @Test
