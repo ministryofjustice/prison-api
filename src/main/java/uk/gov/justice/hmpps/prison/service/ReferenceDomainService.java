@@ -50,20 +50,6 @@ public class ReferenceDomainService {
         return Objects.isNull(order) ? Order.ASC : order;
     }
 
-    public Page<ReferenceCode> getAlertTypes(final String orderBy, final Order order, final long offset, final long limit) {
-        return referenceDataRepository.getReferenceCodesByDomain(
-            ReferenceDomain.ALERT.getDomain(), true,
-            getDefaultOrderBy(orderBy), getDefaultOrder(order),
-            offset, limit);
-    }
-
-    public Page<ReferenceCode> getCaseNoteSources(final String orderBy, final Order order, final long offset, final long limit) {
-        return referenceDataRepository.getReferenceCodesByDomain(
-                ReferenceDomain.CASE_NOTE_SOURCE.getDomain(), false,
-                getDefaultOrderBy(orderBy), getDefaultOrder(order),
-                offset, limit);
-    }
-
     @Transactional
     public ReferenceCode createReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceData) {
         referenceDataRepository.getReferenceCodeByDomainAndCode(domain, code, false).ifPresent(p -> {
@@ -205,12 +191,6 @@ public class ReferenceDomainService {
                         .build())
                 .sorted(Comparator.comparing(ReferenceCode::getDescription))
                 .collect(Collectors.toList());
-    }
-
-    public List<ReferenceCode> getReferenceCodeByDomainAndDescription(final String domain, final String description, final boolean wildcard) {
-        verifyReferenceDomain(domain);
-
-        return referenceDataRepository.getReferenceCodeByDomainAndDescription(domain, description, wildcard);
     }
 
     public List<uk.gov.justice.hmpps.prison.api.model.ReferenceDomain> getAllDomains() {

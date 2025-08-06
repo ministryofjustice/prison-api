@@ -125,55 +125,6 @@ class ReferenceDataResourceTest : ResourceTest() {
       .isEqualTo("""{"activeFlag":"Y","code":"ROTL","description":"Release on Temporary Licence","domain":"ADDRESS_TYPE","listSeq":8,"subCodes":[],"systemDataFlag":"N"}""")
   }
 
-  @Test
-  fun testReadDomainReverseLookupNoWildcard() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-
-    val response = testRestTemplate.exchange(
-      "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}",
-      HttpMethod.GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {},
-      "CITY",
-      "Leeds",
-    )
-
-    assertThatJsonFileAndStatus(response, 200, "single_ref_data_reverse_lookup.json")
-  }
-
-  @Test
-  fun testReadDomainReverseLookupNoWildcardCaseInsensitive() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-
-    val response = testRestTemplate.exchange(
-      "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}",
-      HttpMethod.GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {},
-      "CITY",
-      "leeds",
-    )
-
-    assertThatJsonFileAndStatus(response, 200, "single_ref_data_reverse_lookup.json")
-  }
-
-  @Test
-  fun testReadDomainReverseLookupWithWildcard() {
-    val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
-
-    val response = testRestTemplate.exchange(
-      "/api/reference-domains/domains/{domain}/reverse-lookup?description={searchWord}&wildcard={wildcard}",
-      HttpMethod.GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {},
-      "COUNTY",
-      "yorkshire",
-      "true",
-    )
-
-    assertThatJsonFileAndStatus(response, 200, "multiple_ref_data_reverse_lookup.json")
-  }
-
   @Nested
   @DisplayName("GET /domains")
   internal inner class GetDomainsTest {
