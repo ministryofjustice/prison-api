@@ -9,14 +9,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,9 +23,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
-import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.AgencyPrisonerPayProfile;
@@ -38,7 +34,6 @@ import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
-import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAddress;
 import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
@@ -326,60 +321,6 @@ public class AgencyResource {
     @GetMapping("/{agencyId}/establishment-types")
     public AgencyEstablishmentTypes getAgencyEstablishmentTypes(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
         return agencyService.getEstablishmentTypes(agencyId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to create a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create an address", description = "Requires MAINTAIN_REF_DATA")
-    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    @PostMapping("/{agencyId}/addresses")
-    @ResponseStatus(HttpStatus.CREATED)
-    public AddressDto createAgencyAddress(
-        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
-    ) {
-
-        return agencyService.createAgencyAddress(agencyId, requestToUpdateAddress);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Update an existing address", description = "Requires MAINTAIN_REF_DATA")
-    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    @PutMapping("/{agencyId}/addresses/{addressId}")
-    public AddressDto updateAgencyAddress(
-        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId,
-        @RequestBody @Valid @NotNull RequestToUpdateAddress requestToUpdateAddress
-    ) {
-
-        return agencyService.updateAgencyAddress(agencyId, addressId, requestToUpdateAddress);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to delete a agency address", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Delete an existing address", description = "Requires MAINTAIN_REF_DATA")
-    @PreAuthorize("hasRole('MAINTAIN_REF_DATA') and hasAuthority('SCOPE_write')")
-    @ProxyUser
-    @DeleteMapping("/{agencyId}/addresses/{addressId}")
-    public void deleteAgencyAddress(
-        @PathVariable @Parameter(description = "The ID of the agency", required = true) @Size(max = 12, min = 2, message = "Agency ID must be between 2 and 12") final String agencyId,
-        @PathVariable @Parameter(description = "The ID of the address", required = true) final Long addressId
-    ) {
-        agencyService.deleteAgencyAddress(agencyId, addressId);
     }
 
     @ApiResponses({
