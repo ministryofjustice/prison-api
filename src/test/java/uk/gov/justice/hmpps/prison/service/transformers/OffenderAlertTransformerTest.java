@@ -23,7 +23,6 @@ import java.util.stream.Stream;
 import static org.assertj.core.api.Assertions.assertThat;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.mapSortProperties;
 import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.transformForBooking;
-import static uk.gov.justice.hmpps.prison.service.transformers.OffenderAlertTransformer.transformForOffender;
 
 class OffenderAlertTransformerTest {
     private static OffenderAlert anAlert() {
@@ -138,113 +137,6 @@ class OffenderAlertTransformerTest {
         assertThat(alert.isActive()).isFalse();
         assertThat(alert.getDateCreated()).isEqualTo("2020-01-30");
         assertThat(alert.getDateExpires()).isNull();
-
-    }
-
-    @Nested
-    @DisplayName("transformForOffender")
-    class TransformForOffender {
-        @Test
-        @DisplayName("will transform core alert data")
-        void willTransformCoreAlertData() {
-            assertCoreDataIsCopied(OffenderAlertTransformer::transformForOffender);
-        }
-
-        @Test
-        @DisplayName("even bad alert data is copied as best we can")
-        void evenBadAlertDataIsCopiedAsBestWeCan() {
-            assertBadCoreDataStillIsCopied(OffenderAlertTransformer::transformForOffender);
-        }
-
-        @Test
-        @DisplayName("date created is actually the alert date NOT the created date")
-        void dateCreatedIsActuallyTheAlertDateNOTTheCreatedDate() {
-            final var alert = anAlert()
-                .toBuilder()
-                .alertDate(LocalDate.parse("2020-01-30"))
-                .createDatetime(LocalDateTime.parse("2021-04-30T12:00"))
-                .build();
-
-            assertThat(transformForOffender(alert).getDateCreated()).isEqualTo("2020-01-30");
-        }
-
-        @Test
-        @DisplayName("expired is true when expiry date is present and is today or in the past")
-        void expiredIsTrueWhenExpiryDateIsPresentAndIsTodayOrInThePast() {
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(null).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(false);
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(LocalDate.now().plusDays(1)).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(false);
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(LocalDate.now().plusYears(999)).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(false);
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(LocalDate.now()).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(true);
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(LocalDate.now().minusDays(1)).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(true);
-
-            assertThat(transformForOffender(anAlert().toBuilder().expiryDate(LocalDate.now().minusYears(999)).build()))
-                .extracting(Alert::isExpired)
-                .isEqualTo(true);
-
-        }
-
-        @Test
-        @DisplayName("bookingId is copied")
-        void bookingIdIsCopied() {
-            final var offenderBooking = OffenderBooking
-                .builder()
-                .bookingId(99L)
-                .offender(Offender.builder().nomsId("A1234JK").build())
-                .build();
-            final var offenderAlert = anAlert().toBuilder().offenderBooking(offenderBooking).build();
-
-            assertThat(transformForOffender(offenderAlert))
-                .extracting(Alert::getBookingId)
-                .isEqualTo(99L);
-        }
-
-        @Test
-        @DisplayName("offender number is copied")
-        void offenderNumberIsCopied() {
-            final var offenderBooking = OffenderBooking
-                .builder()
-                .bookingId(99L)
-                .offender(Offender.builder().nomsId("A1234JK").build())
-                .build();
-            final var offenderAlert = anAlert().toBuilder().offenderBooking(offenderBooking).build();
-
-            assertThat(transformForOffender(offenderAlert))
-                .extracting(Alert::getOffenderNo)
-                .isEqualTo("A1234JK");
-        }
-
-        @Test
-        @DisplayName("detailed information about who last updated or created the event is copied")
-        void detailedInformationAboutWhoLastUpdatedOrCreatedTheEventIsCopied() {
-            assertThat(transformForOffender(anAlert()))
-                .extracting(Alert::getAddedByFirstName)
-                .isEqualTo("JANE");
-            assertThat(transformForOffender(anAlert()))
-                .extracting(Alert::getAddedByLastName)
-                .isEqualTo("BUBBLES");
-            assertThat(transformForOffender(anAlert()))
-                .extracting(Alert::getExpiredByFirstName)
-                .isEqualTo("JACK");
-            assertThat(transformForOffender(anAlert()))
-                .extracting(Alert::getExpiredByLastName)
-                .isEqualTo("MATES");
-        }
-
 
     }
 

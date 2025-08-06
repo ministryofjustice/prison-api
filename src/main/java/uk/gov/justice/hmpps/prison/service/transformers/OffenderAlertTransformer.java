@@ -28,15 +28,6 @@ public class OffenderAlertTransformer {
         "active", "status"
     );
 
-    public static Alert transformForOffender(final OffenderAlert offenderAlert) {
-        return transformForBooking(offenderAlert)
-            .toBuilder()
-            .offenderNo(offenderAlert.getOffenderBooking().getOffender().getNomsId())
-            .bookingId(offenderAlert.getOffenderBooking()
-                .getBookingId())
-            .build();
-    }
-
     public static Alert transformForBooking(final OffenderAlert offenderAlert) {
         return transform(offenderAlert)
             .toBuilder()

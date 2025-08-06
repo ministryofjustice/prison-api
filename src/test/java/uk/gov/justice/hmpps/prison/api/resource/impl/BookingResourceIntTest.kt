@@ -24,8 +24,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAlertRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import java.time.Clock
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
@@ -39,12 +37,6 @@ class BookingResourceIntTest : ResourceTest() {
 
   @Autowired
   private lateinit var bookingRepository: BookingRepository
-
-  @Autowired
-  private lateinit var alertRepository: OffenderAlertRepository
-
-  @Autowired
-  private lateinit var offenderBookingRepository: OffenderBookingRepository
 
   @TestConfiguration
   internal class TestClock {
