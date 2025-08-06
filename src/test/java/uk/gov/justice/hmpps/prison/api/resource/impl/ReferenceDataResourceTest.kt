@@ -1,97 +1,16 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
-import org.assertj.core.api.Assertions
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.MediaType
-import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.web.util.UriBuilder
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 
 class ReferenceDataResourceTest : ResourceTest() {
-  @Autowired
-  private lateinit var jdbcTemplate: JdbcTemplate
-
-  @Test
-  fun testCreateANewSubReferenceType() {
-    try {
-      val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
-      val httpEntity = createHttpEntity(
-        token,
-        """{    "description": "TASK_TEST1",    "expiredDate": "2018-07-19",    "activeFlag": "N",    "listSeq": 88,    "parentCode": "GEN",    "parentDomain": "TASK_TYPE"}""",
-      )
-
-      val response = testRestTemplate.exchange(
-        "/api/reference-domains/domains/{domain}/codes/{code}",
-        HttpMethod.POST,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-        "TASK_SUBTYPE",
-        "TEST1",
-      )
-
-      assertThatStatus<String>(response, 200)
-      JsonAssertions.assertThatJson(response.body.orEmpty())
-        .isEqualTo("""{domain:"TASK_SUBTYPE",code:"TEST1",description:"TASK_TEST1",parentDomain:"TASK_TYPE",parentCode:"GEN",activeFlag:"N",listSeq:88,systemDataFlag:"Y",expiredDate:"2018-07-19","subCodes":[]}""")
-    } finally {
-      val deleteSql = "DELETE FROM REFERENCE_CODES WHERE domain = ? and code = ?"
-      Assertions.assertThat(jdbcTemplate.update(deleteSql, "TASK_SUBTYPE", "TEST1")).isEqualTo(1)
-    }
-  }
-
-  @Test
-  fun testUpdateASubReferenceTypeToActive() {
-    val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
-
-    val httpEntity = createHttpEntity(
-      token,
-      """{    "description": "Amended Type",    "activeFlag": "Y",    "systemDataFlag": "N",    "listSeq": 999,    "parentCode": "ATR",    "parentDomain": "TASK_TYPE"}""",
-    )
-
-    val response = testRestTemplate.exchange(
-      "/api/reference-domains/domains/{domain}/codes/{code}",
-      HttpMethod.PUT,
-      httpEntity,
-      object : ParameterizedTypeReference<String>() {},
-      "TASK_SUBTYPE",
-      "ATRCC",
-    )
-
-    assertThatStatus<String>(response, 200)
-
-    JsonAssertions.assertThatJson(response.body.orEmpty())
-      .isEqualTo("{domain:\"TASK_SUBTYPE\",code:\"ATRCC\",description:\"Amended Type\",parentDomain:\"TASK_TYPE\",parentCode:\"ATR\",activeFlag:\"Y\",listSeq:999,systemDataFlag:\"N\",\"subCodes\":[]}")
-  }
-
-  @Test
-  fun testUpdateASubReferenceTypeToInactive() {
-    val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
-
-    val httpEntity = createHttpEntity(
-      token,
-      """{    "description": "Alcohol Rehab - community -changed",    "activeFlag": "N",    "systemDataFlag": "Y",    "expiredDate": "2019-07-19",    "listSeq": 10,    "parentCode": "ATR",    "parentDomain": "TASK_TYPE"}""",
-    )
-
-    val response = testRestTemplate.exchange(
-      "/api/reference-domains/domains/{domain}/codes/{code}",
-      HttpMethod.PUT,
-      httpEntity,
-      object : ParameterizedTypeReference<String>() {},
-      "TASK_SUBTYPE",
-      "AREH-C",
-    )
-
-    assertThatStatus<String>(response, 200)
-
-    JsonAssertions.assertThatJson(response.body.orEmpty())
-      .isEqualTo("""{domain:"TASK_SUBTYPE",code:"AREH-C",description:"Alcohol Rehab - community -changed",parentDomain:"TASK_TYPE",parentCode:"ATR",activeFlag:"N",listSeq:10,expiredDate: "2019-07-19",systemDataFlag:"Y","subCodes":[]}""")
-  }
-
   @Test
   fun testReadDomainInformation() {
     val token = authTokenHelper.getToken(AuthToken.NORMAL_USER)
@@ -169,9 +88,6 @@ class ReferenceDataResourceTest : ResourceTest() {
     @Test
     @DisplayName("will return details of a domain")
     fun willReturnDetailsOfADomain() {
-      val domainAt = "$[?(@.domain == '%s')]"
-      val domainPropertyAt = "$[?(@.domain == '%s')].%s"
-
       webTestClient.get()
         .uri("/api/reference-domains/domains")
         .headers(setAuthorisation(listOf("ROLE_SYSTEM")))
@@ -180,13 +96,13 @@ class ReferenceDataResourceTest : ResourceTest() {
         .expectStatus()
         .isOk()
         .expectBody()
-        .jsonPath(domainAt, "ETHNICITY").isNotEmpty()
-        .jsonPath(domainAt, "SKL_SUB_TYPE").isNotEmpty()
-        .jsonPath(domainPropertyAt, "ETHNICITY", "description").isEqualTo("Ethnicity")
-        .jsonPath(domainPropertyAt, "ETHNICITY", "domainStatus").isEqualTo("ACTIVE")
-        .jsonPath(domainPropertyAt, "ETHNICITY", "ownerCode").isEqualTo("ADMIN")
-        .jsonPath(domainPropertyAt, "ETHNICITY", "applnCode").isEqualTo("OMS")
-        .jsonPath(domainPropertyAt, "SKL_SUB_TYPE", "parentDomain").isEqualTo("STAFF_SKILLS")
+        .jsonPath("$[?(@.domain == 'ETHNICITY')]").isNotEmpty()
+        .jsonPath("$[?(@.domain == 'SKL_SUB_TYPE')]").isNotEmpty()
+        .jsonPath("$[?(@.domain == 'ETHNICITY')].description").isEqualTo("Ethnicity")
+        .jsonPath("$[?(@.domain == 'ETHNICITY')].domainStatus").isEqualTo("ACTIVE")
+        .jsonPath("$[?(@.domain == 'ETHNICITY')].ownerCode").isEqualTo("ADMIN")
+        .jsonPath("$[?(@.domain == 'ETHNICITY')].applnCode").isEqualTo("OMS")
+        .jsonPath("$[?(@.domain == 'SKL_SUB_TYPE')].parentDomain").isEqualTo("STAFF_SKILLS")
     }
   }
 
@@ -239,9 +155,6 @@ class ReferenceDataResourceTest : ResourceTest() {
     @Test
     @DisplayName("will return details of a domain code")
     fun willReturnDetailsOfADomainCode() {
-      val codeAt = "$[?(@.code == '%s')]"
-      val codePropertyAt = "$[?(@.code == '%s')].%s"
-
       webTestClient.get()
         .uri { builder: UriBuilder ->
           builder.path("/api/reference-domains/domains/{domain}/codes").build("VISIT_TYPE")
@@ -252,11 +165,11 @@ class ReferenceDataResourceTest : ResourceTest() {
         .expectStatus()
         .isOk()
         .expectBody()
-        .jsonPath(codeAt, "SCON").isNotEmpty()
-        .jsonPath(codePropertyAt, "SCON", "domain").isEqualTo("VISIT_TYPE")
-        .jsonPath(codePropertyAt, "SCON", "description").isEqualTo("Social Contact")
-        .jsonPath(codePropertyAt, "SCON", "activeFlag").isEqualTo("Y")
-        .jsonPath(codePropertyAt, "SCON", "systemDataFlag").isEqualTo("N")
+        .jsonPath("$[?(@.code == 'SCON')]").isNotEmpty()
+        .jsonPath("$[?(@.code == 'SCON')].domain").isEqualTo("VISIT_TYPE")
+        .jsonPath("$[?(@.code == 'SCON')].description").isEqualTo("Social Contact")
+        .jsonPath("$[?(@.code == 'SCON')].activeFlag").isEqualTo("Y")
+        .jsonPath("$[?(@.code == 'SCON')].systemDataFlag").isEqualTo("N")
     }
   }
 

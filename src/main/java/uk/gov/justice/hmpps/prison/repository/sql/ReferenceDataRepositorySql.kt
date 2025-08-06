@@ -30,27 +30,6 @@ enum class ReferenceDataRepositorySql(val sql: String) {
     """,
   ),
 
-  CREATE_REFERENCE_CODE(
-    """
-        INSERT INTO REFERENCE_CODES (DOMAIN, CODE, DESCRIPTION, PARENT_CODE, PARENT_DOMAIN, LIST_SEQ, ACTIVE_FLAG, SYSTEM_DATA_FLAG, EXPIRED_DATE)
-        VALUES (:domain, :code, :description, :parentCode, :parentDomain, :listSeq, :activeFlag, :systemDataFlag, :expiredDate)
-    """,
-  ),
-
-  UPDATE_REFERENCE_CODE(
-    """
-        UPDATE REFERENCE_CODES
-                SET DESCRIPTION = :description,
-        PARENT_CODE = :parentCode,
-        PARENT_DOMAIN = :parentDomain,
-        LIST_SEQ = :listSeq,
-        ACTIVE_FLAG = :activeFlag,
-        SYSTEM_DATA_FLAG = :systemDataFlag,
-        EXPIRED_DATE = :expiredDate
-                WHERE DOMAIN = :domain AND CODE = :code
-    """,
-  ),
-
   FIND_REFERENCE_CODES_BY_DOMAIN_HAVING_SUB_CODES(
     """
         SELECT RC1.CODE,

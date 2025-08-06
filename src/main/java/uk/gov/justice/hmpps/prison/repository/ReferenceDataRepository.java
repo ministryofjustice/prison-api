@@ -102,41 +102,6 @@ public class ReferenceDataRepository extends RepositoryBase {
         return Optional.ofNullable(referenceCode).map(ReferenceCodeDto::toReferenceCode);
     }
 
-
-    @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
-    public void insertReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
-        final var sql = ReferenceDataRepositorySql.CREATE_REFERENCE_CODE.getSql();
-        jdbcTemplate.update(sql, createParams(
-                "domain", domain,
-                "code", code,
-                "description", referenceCode.getDescription(),
-                "parentCode", referenceCode.getParentCode(),
-                "parentDomain", referenceCode.getParentDomain(),
-                "expiredDate", DateTimeConverter.toDate(referenceCode.getExpiredDate()),
-                "activeFlag", referenceCode.getActiveFlag(),
-                "systemDataFlag", referenceCode.getSystemDataFlag(),
-                "listSeq", referenceCode.getListSeq())
-        );
-    }
-
-
-    @CacheEvict(value = "referenceCodeByDomainAndCode", allEntries = true)
-    public void updateReferenceCode(final String domain, final String code, final ReferenceCodeInfo referenceCode) {
-        final var sql = ReferenceDataRepositorySql.UPDATE_REFERENCE_CODE.getSql();
-        jdbcTemplate.update(sql, createParams(
-                "domain", domain,
-                "code", code,
-                "description", referenceCode.getDescription(),
-                "parentCode", referenceCode.getParentCode(),
-                "parentDomain", referenceCode.getParentDomain(),
-                "expiredDate", DateTimeConverter.toDate(referenceCode.getExpiredDate()),
-                "activeFlag", referenceCode.getActiveFlag(),
-                "systemDataFlag", referenceCode.getSystemDataFlag(),
-                "listSeq", referenceCode.getListSeq())
-        );
-    }
-
-
     @Cacheable("referenceCodesByDomain")
     public Page<ReferenceCode> getReferenceCodesByDomain(final String domain, final boolean withSubCodes, final String orderBy, final Order order, final long offset, final long limit) {
         final Page<ReferenceCode> page;
