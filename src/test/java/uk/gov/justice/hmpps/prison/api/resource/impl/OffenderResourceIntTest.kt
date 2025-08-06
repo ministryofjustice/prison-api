@@ -101,20 +101,6 @@ class OffenderResourceIntTest : ResourceTest() {
       )
       assertThatJsonFileAndStatus(response, 200, "sentence.json")
     }
-
-    @Test
-    fun testCanRetrieveAlertsForOffenderWithViewDataRole() {
-      val token = authTokenHelper.getToken(VIEW_PRISONER_DATA)
-      val httpEntity = createHttpEntity(token, null)
-      val response = testRestTemplate.exchange(
-        "/api/offenders/{nomsId}/alerts/v2",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
-        OFFENDER_NUMBER,
-      )
-      assertThatJsonFileAndStatus(response, 200, "alerts.json")
-    }
   }
 
   @Nested

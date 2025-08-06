@@ -16,7 +16,6 @@ import org.springdoc.core.annotations.ParameterObject;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
-import org.springframework.data.domain.Sort.Direction;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -35,7 +34,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress;
 import uk.gov.justice.hmpps.prison.api.model.Email;
@@ -92,7 +90,6 @@ import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
-import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.MovementsService;
 import uk.gov.justice.hmpps.prison.service.OffenderAddressService;
@@ -129,7 +126,6 @@ public class OffenderResource {
 
     private final IncidentService incidentService;
     private final InmateService inmateService;
-    private final InmateAlertService alertService;
     private final OffenderAddressService addressService;
     private final AdjudicationService adjudicationService;
     private final CaseNoteService caseNoteService;
@@ -557,56 +553,6 @@ public class OffenderResource {
                 .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
                 .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                 .build());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts",
-        deprecated = true
-    )
-    @GetMapping("/{offenderNo}/bookings/latest/alerts")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
-    public List<Alert> getAlertsForLatestBookingByOffenderNo(
-        @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
-        @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
-        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId", "bookingId", "alertType", "alertCode", "comment", "dateCreated", "dateExpires", "active"})) final String sort,
-        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
-    ) {
-        return alertService.getAlertsForLatestBookingForOffender(
-            offenderNo,
-            alertCodes,
-            sort,
-            Direction.fromString(direction));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts",
-        deprecated = true
-    )
-    @GetMapping("/{offenderNo}/alerts/v2")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "CREATE_CATEGORISATION", "APPROVE_CATEGORISATION"})
-    public List<Alert> getAlertsForAllBookingByOffenderNo(
-        @PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number", required = true, example = "A1234AA") @NotNull final String offenderNo,
-        @RequestParam(value = "alertCodes", required = false) @Parameter(description = "Comma separated list of alertCodes to filter by", example = "XA,RSS") final String alertCodes,
-        @RequestParam(value = "sort", defaultValue = "alertType", required = false) @Parameter(description = "Comma separated list of one or more Alert fields", schema = @Schema(implementation = String.class, allowableValues = {"alertId", "bookingId", "alertType", "alertCode", "comment", "dateCreated", "dateExpires", "active"})) final String sort,
-        @RequestParam(value = "direction", defaultValue = "ASC", required = false) @Parameter(description = "Sort order", example = "DESC") final String direction
-    ) {
-        return alertService.getAlertsForAllBookingsForOffender(
-            offenderNo,
-            alertCodes,
-            sort,
-            Direction.fromString(direction));
     }
 
     @ApiResponses({
