@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import uk.gov.justice.hmpps.prison.service.StaffService
+import uk.gov.justice.hmpps.prison.service.support.ReferenceDomain.CASE_NOTE_SOURCE
 
 @ActiveProfiles("test")
 @SpringBootTest(properties = ["spring.cache.type=jcache"])
@@ -115,11 +116,11 @@ class CacheConfigIntTest {
 
     @Test
     fun `test domain that exist is added to cache`() {
-      val types = referenceDomainService.getCaseNoteSources(null, null, 0, 10)
+      val types = referenceDomainService.getReferenceCodesByDomain(CASE_NOTE_SOURCE.getDomain(), false, null, null, 0, 10)
       assertThat(types?.items).isNotEmpty
 
       // calling twice should only result in one call to the repository
-      referenceDomainService.getCaseNoteSources(null, null, 0, 10)
+      referenceDomainService.getReferenceCodesByDomain(CASE_NOTE_SOURCE.getDomain(), false, null, null, 0, 10)
 
       verify(referenceDataRepository).getReferenceCodesByDomain("NOTE_SOURCE", false, "code", ASC, 0, 10)
     }

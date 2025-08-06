@@ -2,9 +2,6 @@ Feature: Reference Domains
 
   Acceptance Criteria
   A logged on staff user can obtain:
-    - a list of all alert types with alert codes (active and/or inactive).
-    - a list of all case note sources.
-    - a list of case note types (with sub-types) that have been used for creation of offender case notes.
     - a list of reference code items for a specified domain, with or without sub-codes.
     - a single reference code item for a specified domain and code, with or without sub-codes.
   Reference codes without sub-codes are excluded from response when reference codes with sub-codes have been requested.
@@ -17,23 +14,6 @@ Feature: Reference Domains
 
   Background:
     Given a user has authenticated with the API
-
-  Scenario: Retrieve all alert types with alert codes
-    When request submitted to retrieve all alert types with alert codes
-    Then "14" reference code items are returned
-    And domain for all returned items is "ALERT"
-    And codes of returned items are "A,C,H,L,M,O,P,R,S,T,TEST,V,W,X"
-    And there are one or more sub codes for every returned item
-    And domain for all returned item sub-codes is "ALERT_CODE"
-
-  Scenario: Retrieve all case note sources
-    When request submitted to retrieve all case note sources
-    Then "4" reference code items are returned
-    And domain for all returned items is "NOTE_SOURCE"
-    And codes of returned items are "AUTO,COMM,EXT,INST"
-    And descriptions of returned items are "System,Community,External,Prison"
-    And there is no parent domain for any returned item
-    And there are no sub codes for any returned item
 
   Scenario: Retrieve reference codes, without sub-codes, for a domain that does not exist
     When request submitted to retrieve all reference codes, without sub-codes, for domain "UNKNOWN"

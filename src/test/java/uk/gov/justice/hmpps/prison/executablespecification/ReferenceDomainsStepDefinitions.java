@@ -13,8 +13,6 @@ import java.util.List;
 /**
  * BDD step definitions for reference domains endpoints:
  * <ul>
- * <li>/reference-domains/alertTypes</li>
- * <li>/reference-domains/caseNoteSources</li>
  * <li>/reference-domains/domains/{domain}</li>
  * <li>/reference-domains/domains/{domain}/codes/{code}</li>
  * </ul>
@@ -24,23 +22,13 @@ public class ReferenceDomainsStepDefinitions extends AbstractStepDefinitions {
     @Autowired
     private ReferenceDomainsSteps referenceDomains;
 
-    @When("^request submitted to retrieve all alert types with alert codes$")
-    public void requestSubmittedToRetrieveAllAlertTypesWithAlertCodes() throws Throwable {
-        referenceDomains.getAllAlertTypes();
-    }
-
-    @When("^request submitted to retrieve all case note sources$")
-    public void requestSubmittedToRetrieveAllCaseNoteSources() throws Throwable {
-        referenceDomains.getAllSources();
-    }
-
     @Then("^\"([^\"]*)\" reference code items are returned$")
-    public void caseNoteSourcesAreReturned(final String expectedCount) throws Throwable {
+    public void countReferenceCodeItemsAreReturned(final String expectedCount) throws Throwable {
         referenceDomains.verifyResourceRecordsReturned(Long.parseLong(expectedCount));
     }
 
     @Then("^some reference code items are returned$")
-    public void someCaseNoteSourcesAreReturned() throws Throwable {
+    public void someReferenceCodeItemsAreReturned() throws Throwable {
         referenceDomains.verifySomeResourceRecordsReturned();
     }
 
