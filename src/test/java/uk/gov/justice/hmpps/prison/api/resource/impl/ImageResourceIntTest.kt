@@ -162,6 +162,19 @@ class ImageResourceIntTest : ResourceTest() {
         .jsonPath("$.imageType").isEqualTo("OFF_BKG")
     }
 
+    @Test
+    fun putImageUploadsWhenFirstImage() {
+      webTestClient.post().uri("/api/images/offenders/A1179MT")
+        .headers(setAuthorisation("ITAG_USER", listOf("PRISON_API__PRISONER_PROFILE__RW")))
+        .body(generateMultiPartFormRequestWeb())
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.imageId").value<Int> { assertThat(it).isGreaterThan(0) }
+        .jsonPath("$.captureDate").value<String> { assertAfterYesterday(it) }
+        .jsonPath("$.imageType").isEqualTo("OFF_BKG")
+    }
+
     private fun assertAfterYesterday(it: String) {
       assertThat(LocalDate.parse(it)).isAfter(LocalDate.now().minusDays(1))
     }
