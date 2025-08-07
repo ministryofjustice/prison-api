@@ -25,17 +25,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType
-import uk.gov.justice.hmpps.prison.repository.jpa.model.DisciplinaryAction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryBranch
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryDischarge
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MilitaryRank
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderMilitaryRecord
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
-import uk.gov.justice.hmpps.prison.repository.jpa.model.WarZone
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
@@ -439,38 +433,6 @@ class BookingResourceImplIntTest : ResourceTest() {
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
     val responseEntity = testRestTemplate.exchange("/api/bookings/-1/events", GET, requestEntity, String::class.java)
     assertThatJsonFileAndStatus(responseEntity, 200, "events.json")
-  }
-
-  @Test
-  fun militaryRecords() {
-    `when`(offenderMilitaryRecordRepository.findAllByBookingId(ArgumentMatchers.anyLong())).thenReturn(
-      listOf(
-        OffenderMilitaryRecord.builder()
-          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 1))
-          .startDate(LocalDate.parse("2000-01-01"))
-          .endDate(LocalDate.parse("2020-10-17"))
-          .militaryDischarge(MilitaryDischarge("DIS", "Dishonourable"))
-          .warZone(WarZone("AFG", "Afghanistan"))
-          .militaryBranch(MilitaryBranch("ARM", "Army"))
-          .description("left")
-          .unitNumber("auno")
-          .enlistmentLocation("Somewhere")
-          .militaryRank(MilitaryRank("LCPL_RMA", "Lance Corporal  (Royal Marines)"))
-          .serviceNumber("asno")
-          .disciplinaryAction(DisciplinaryAction("CM", "Court Martial"))
-          .dischargeLocation("Sheffield")
-          .build(),
-        OffenderMilitaryRecord.builder()
-          .bookingAndSequence(OffenderMilitaryRecord.BookingAndSequence(OffenderBooking.builder().bookingId(-1L).build(), 2))
-          .startDate(LocalDate.parse("2001-01-01"))
-          .militaryBranch(MilitaryBranch("NAV", "Navy"))
-          .description("second record")
-          .build(),
-      ),
-    )
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/bookings/-1/military-records", GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "military_records.json")
   }
 
   @Nested
