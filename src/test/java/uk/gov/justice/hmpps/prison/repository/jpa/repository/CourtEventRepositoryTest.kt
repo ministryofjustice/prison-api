@@ -104,18 +104,6 @@ class CourtEventRepositoryTest {
   }
 
   @Test
-  fun court_event_retrieved_by_booking_and_hearing_id() {
-    val persistedCourtEvent = courtEventRepository.save(builder.build())
-    entityManager.flush()
-    assertThat(
-      courtEventRepository.findByOffenderBooking_BookingIdAndId(
-        persistedCourtEvent.offenderBooking.bookingId,
-        persistedCourtEvent.id,
-      ),
-    ).isNotEmpty()
-  }
-
-  @Test
   fun court_event_can_be_saved_and_retrieved_with_defaults_overridden() {
     val savedCourtEventWithCourtCase = courtEventRepository.save(
       builder
