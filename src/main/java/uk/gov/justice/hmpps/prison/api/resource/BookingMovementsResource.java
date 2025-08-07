@@ -75,21 +75,6 @@ public class BookingMovementsResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Court hearing created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearing.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a prison to court hearing for an offender.", description = "Schedules a prison to court hearing for an offender. Requires role COURT_HEARING_MAINTAINER and scope write")
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{bookingId}/prison-to-court-hearings")
-    @ProxyUser
-    @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId,
-                                      @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
-        return courtHearingsService.scheduleHearing(bookingId, hearing);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearings.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
