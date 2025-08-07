@@ -93,33 +93,6 @@ public class CourtHearingsService {
         return courtHearing;
     }
 
-    @Transactional
-    public CourtHearing scheduleHearing(final Long bookingId, final PrisonToCourtHearing hearing) {
-        checkHearingIsInFuture(hearing.getCourtHearingDateTime());
-
-        final var offenderBooking = activeOffenderBookingFor(bookingId);
-
-        checkPrisonLocationSameAsOffenderBooking(hearing.getFromPrisonLocation(), offenderBooking);
-
-        final var courtEvent = CourtEvent.builder()
-                .courtLocation(getActiveCourtFor(hearing.getToCourtLocation()))
-                .courtEventType(eventTypeRepository.findById(COURT).orElseThrow())
-                .directionCode("OUT")
-                .eventDate(hearing.getCourtHearingDateTime().toLocalDate())
-                .eventStatus(eventStatusRepository.findById(SCHEDULED_APPROVED).orElseThrow())
-                .offenderBooking(offenderBooking)
-                .startTime(hearing.getCourtHearingDateTime())
-                .commentText(hearing.getComments())
-                .build();
-
-        final var courtHearing = toCourtHearing(courtEventRepository.save(courtEvent));
-
-        log.debug("created court hearing id '{}' for  booking id '{}', offender id '{} and noms id '{}, location '{}', datetime '{}''",
-                courtHearing.getId(), offenderBooking.getBookingId(), offenderBooking.getOffender().getId(), offenderBooking.getOffender().getNomsId(), courtHearing.getLocation().getAgencyId(), courtHearing.getDateTime());
-
-        return courtHearing;
-    }
-
     /**
      * Returns all court hearings for a given booking ID for the given date range.
      */
