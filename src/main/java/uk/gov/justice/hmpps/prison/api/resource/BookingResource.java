@@ -583,18 +583,6 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Military Records", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
-    @GetMapping("/{bookingId}/military-records")
-    public MilitaryRecords getMilitaryRecords(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
-        return offenderMilitaryRecordService.getMilitaryRecords(bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Reasonable Adjustment Information", description = "Reasonable Adjustment Information. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @Tag(name = "integration-api")
     @GetMapping("/{bookingId}/reasonable-adjustments")
