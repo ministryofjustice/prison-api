@@ -318,6 +318,26 @@ public class BookingRepository extends RepositoryBase {
         return activities.stream().map(ScheduledEventDto::toScheduledEvent).collect(Collectors.toList());
     }
 
+    public void lockReleaseDetails(final Long bookingId) {
+        final var sql = BookingRepositorySql.LOCK_RELEASE_DETAILS.getSql() + conditionalSqlService.getWaitClause();
+        try {
+            jdbcTemplate.queryForObject(
+                sql,
+                createParams(
+                    "bookingId", bookingId
+                ), Integer.class);
+        } catch (EmptyResultDataAccessException e) {
+            // no results returned is OK
+        } catch (UncategorizedSQLException e) {
+            log.error("Error getting lock", e);
+            if (e.getCause().getMessage().contains("ORA-30006")) {
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_RELEASE_DETAILS lock for (bookingId=" + bookingId + ") after " + conditionalSqlService.getLockWaitTime() + " seconds");
+            } else {
+                throw e;
+            }
+        }
+    }
+
     public void lockAttendance(final Long bookingId, final Long activityId) {
         final var sql = BookingRepositorySql.LOCK_ATTENDANCE.getSql() + conditionalSqlService.getWaitClause();
         try {
