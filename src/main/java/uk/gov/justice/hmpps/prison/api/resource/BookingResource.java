@@ -412,18 +412,6 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Offender sentence adjustments.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
-    @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    @GetMapping("/{bookingId}/sentenceAdjustments")
-    public SentenceAdjustmentDetail getBookingSentenceAdjustments(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
-        return bookingService.getBookingSentenceAdjustments(bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offender account balances.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/balances")
