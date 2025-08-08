@@ -13,10 +13,8 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
 import uk.gov.justice.hmpps.prison.repository.SentenceCalculationRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderReleaseDetailsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 
 import java.time.Clock;
@@ -122,11 +120,6 @@ public class OffenderDatesService {
 
         return offenderBooking.getSentenceCalcDates(Optional.of(sentenceCalculation));
     }
-
-
-
-
-
 
     public OffenderCalculatedKeyDates getOffenderKeyDates(Long bookingId) {
         final var offenderBooking = offenderBookingRepository.findById(bookingId).orElseThrow(EntityNotFoundException.withId(bookingId));
