@@ -331,7 +331,7 @@ public class BookingRepository extends RepositoryBase {
         } catch (UncategorizedSQLException e) {
             log.error("Error getting lock", e);
             if (e.getCause().getMessage().contains("ORA-30006")) {
-                throw new DatabaseRowLockedException("Failed to get OFFENDER_RELEAES_DETAILS lock for (bookingId=" + bookingId + ") after " + conditionalSqlService.getLockWaitTime() + " seconds");
+                throw new DatabaseRowLockedException("Failed to get OFFENDER_RELEASE_DETAILS lock for (bookingId=" + bookingId + ") after " + conditionalSqlService.getLockWaitTime() + " seconds");
             } else {
                 throw e;
             }

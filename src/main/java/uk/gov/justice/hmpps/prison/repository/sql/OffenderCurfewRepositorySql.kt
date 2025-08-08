@@ -177,7 +177,7 @@ enum class OffenderCurfewRepositorySql(val sql: String) {
 
   GET_OFFENDER_CURFEW_LOCK_BY_BOOKING_ID(
     """
-        SELECT * FROM OFFENDER_CURFEWS
+        SELECT 1 FROM OFFENDER_CURFEWS
         WHERE OFFENDER_BOOK_ID = :bookingId AND APPROVAL_STATUS IS NULL
         FOR UPDATE
   """,

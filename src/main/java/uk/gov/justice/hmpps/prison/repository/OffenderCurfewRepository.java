@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository;
 import lombok.extern.slf4j.Slf4j;
 import lombok.val;
 import org.jetbrains.annotations.NotNull;
+import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.jdbc.UncategorizedSQLException;
 import org.springframework.jdbc.core.BeanPropertyRowMapper;
 import org.springframework.jdbc.core.RowMapper;
@@ -235,6 +236,12 @@ public class OffenderCurfewRepository extends RepositoryBase {
             "HDC_STATUS_REASONS");
     }
 
+    public void findByBookingIdWithLock(long bookingId) {
+        getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK_BY_BOOKING_ID,
+            createParams("bookingId", bookingId),
+            "OFFENDER_CURFEWS");
+    }
+
     private void getLock(OffenderCurfewRepositorySql lockSql, MapSqlParameterSource map, String tableName) {
         try {
             jdbcTemplate.query(lockSql.getSql() + conditionalSqlService.getWaitClause(), map, rs -> {
@@ -247,11 +254,5 @@ public class OffenderCurfewRepository extends RepositoryBase {
                 throw e;
             }
         }
-    }
-
-    public void findByBookingIdWithLock(long bookingId) {
-        getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK_BY_BOOKING_ID,
-            createParams("bookingId", bookingId),
-            "OFFENDER_CURFEWS");
     }
 }

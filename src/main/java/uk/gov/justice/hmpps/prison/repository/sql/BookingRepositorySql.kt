@@ -423,8 +423,8 @@ enum class BookingRepositorySql(val sql: String) {
 
   LOCK_RELEASE_DETAILS(
     """
-      SELECT * FROM OFFENDER_RELEASE_DETAILS 
-      WHERE OFFENDER_BOOK_ID = :bookingId 
+      SELECT 1 FROM OFFENDER_RELEASE_DETAILS 
+      WHERE OFFENDER_BOOK_ID = :bookingId
       FOR UPDATE
     """,
   ),
