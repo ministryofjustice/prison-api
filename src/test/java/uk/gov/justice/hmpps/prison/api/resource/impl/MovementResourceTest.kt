@@ -599,34 +599,6 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/movements/rollcount/{agencyId}/enroute")
-  inner class RollcountEnroute {
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/movements/rollcount/LEI/enroute")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("api/movements/rollcount/LEI/enroute")
-        .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun testGetRollcountByAgencyEnroute() {
-      webTestClient.get().uri("/api/movements/rollcount/LEI/enroute")
-        .headers(setClientAuthorisation(listOf("ESTABLISHMENT_ROLL")))
-        .exchange()
-        .expectBody()
-        .jsonPath("$").isEqualTo("2")
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/movements/{agencyId}/in/{isoDate}")
   inner class MovementsInByDateOnly {
     @Test
