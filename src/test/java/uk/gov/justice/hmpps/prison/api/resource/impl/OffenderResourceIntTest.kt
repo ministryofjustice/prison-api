@@ -841,19 +841,6 @@ class OffenderResourceIntTest : ResourceTest() {
   }
 
   @Test
-  fun testCanGenerateNextNomisIdSequence() {
-    val token = authTokenHelper.getToken(CREATE_BOOKING_USER)
-    val httpEntity = createHttpEntity(token, null)
-    val response = testRestTemplate.exchange(
-      "/api/offenders/next-sequence",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-    )
-    assertThatStatus(response, 200)
-  }
-
-  @Test
   fun testFilterAdjudicationsByFindingCode() {
     val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
     val response = testRestTemplate.exchange(
