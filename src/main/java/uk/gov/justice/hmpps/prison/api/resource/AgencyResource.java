@@ -253,18 +253,6 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of agencies for caseload.", description = "List of agencies for caseload.")
-    @ReferenceData(description = "Agency data is considered non-sensitive")
-    @GetMapping("/caseload/{caseload}")
-    public List<Agency> getAgenciesByCaseload(@PathVariable("caseload") @Parameter(required = true) final String caseload) {
-        return agencyService.getAgenciesByCaseload(caseload);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "List of prison contact details.", description = """
         <p>List of prison contact details.</p>
         <p>DEPRECATED. This endpoint is quite slow as it currently retrieves address and telephone information for each prison separately.

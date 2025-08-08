@@ -23,7 +23,6 @@ public class AgencySteps extends CommonSteps {
     private static final String API_REF_PREFIX = API_PREFIX + "agencies/";
     public static final String API_AGENCY_URL = API_REF_PREFIX + "{agencyId}";
     private static final String API_EVENT_LOCATIONS_URL = API_REF_PREFIX + "{agencyId}/eventLocations";
-    private static final String API_CASELOAD_URL = API_REF_PREFIX + "caseload/{caseload}";
     private List<Agency> agencies;
     private Agency agency;
     private List<Location> locations;
@@ -103,20 +102,6 @@ public class AgencySteps extends CommonSteps {
         }
     }
 
-    private void dispatchObjectRequestForCaseload(final String caseload) {
-        init();
-        try {
-            final var response = restTemplate.exchange(AgencySteps.API_CASELOAD_URL, HttpMethod.GET, createEntity(),
-                    new ParameterizedTypeReference<List<Agency>>() {
-                    }, caseload);
-
-            agencies = response.getBody();
-            buildResourceData(response);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
     @Override
     protected void init() {
         super.init();
@@ -172,11 +157,4 @@ public class AgencySteps extends CommonSteps {
         }
         assertThat(actualIterator.hasNext()).as("Too many actual events").isFalse();
     }
-
-    public void getAgenciesByCaseload(final String caseload) {
-        dispatchObjectRequestForCaseload(caseload);
-    }
-
-
-
 }
