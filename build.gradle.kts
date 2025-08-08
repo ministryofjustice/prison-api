@@ -21,7 +21,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.38")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.4.11")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.5.0-beta")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
