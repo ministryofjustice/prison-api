@@ -83,19 +83,6 @@ public class SchedulesService {
         return getPrisonerSchedules(date, timeSlot, sortFields, sortOrder, prisoners);
     }
 
-    @Deprecated
-    public List<PrisonerSchedule> getLocationGroupEventsByLocationId(final String agencyId, final List<Long> locationIds, final LocalDate date,
-                                                                     final TimeSlot timeSlot, final String sortFields, final Order sortOrder) {
-
-        final var inmates = inmateService.findInmatesByLocation(
-                hmppsAuthenticationHolder.getUsername(),
-                agencyId,
-                locationIds);
-
-        return getPrisonerSchedules(date, timeSlot, sortFields, sortOrder, inmates);
-    }
-
-
     private List<PrisonerSchedule> getPrisonerSchedules(LocalDate date, TimeSlot timeSlot, String sortFields, Order sortOrder, List<InmateDto> prisoners) {
         if (prisoners.isEmpty()) {
             return Collections.emptyList();
