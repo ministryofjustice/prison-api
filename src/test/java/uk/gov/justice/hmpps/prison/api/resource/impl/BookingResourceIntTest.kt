@@ -1883,41 +1883,6 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("GET /api/bookings/{bookingId}/sentenceAdjustments")
-  inner class GetBookingSentenceAdjustments {
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 if does not have override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
-        .headers(setClientAuthorisation(listOf()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `should return success when has ROLE_GLOBAL_SEARCH override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
-        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `should return success when has ROLE_VIEW_PRISONER_DATA override role`() {
-      webTestClient.get().uri("api/bookings/-1/sentenceAdjustments")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .exchange()
-        .expectStatus().isOk
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/bookings/{bookingId}/visits/prisons")
   inner class GetBookingVisitsPrisons {
     @Test

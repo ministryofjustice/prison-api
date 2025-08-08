@@ -255,12 +255,6 @@ public class BookingService {
             sentenceDetail.getConfirmedReleaseDate());
     }
 
-    public SentenceAdjustmentDetail getBookingSentenceAdjustments(final Long bookingId) {
-        return offenderBookingRepository.findById(bookingId)
-            .map(OffenderBooking::getSentenceAdjustmentDetail)
-            .orElseThrow(EntityNotFoundException.withId(bookingId));
-    }
-
     private SentenceCalcDates getSentenceCalcDates(final Long bookingId) {
         final var optSentenceCalcDates = bookingRepository.getBookingSentenceCalcDates(bookingId);
 
