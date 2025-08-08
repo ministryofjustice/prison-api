@@ -51,6 +51,8 @@ class OffenderDatesServiceTest {
     sentenceCalculationRepository,
     offenderBookingRepository,
     staffUserAccountRepository,
+    offenderCurfewRepository,
+    bookingRepository,
     telemetryClient,
     clock,
   )

@@ -417,7 +417,15 @@ enum class BookingRepositorySql(val sql: String) {
         SELECT 1 FROM OFFENDER_COURSE_ATTENDANCES 
         WHERE EVENT_ID = :eventId
           AND OFFENDER_BOOK_ID = :bookingId
-        FOR UPDATE  
+        FOR UPDATE
+    """,
+  ),
+
+  LOCK_RELEASE_DETAILS(
+    """
+      SELECT * FROM OFFENDER_RELEASE_DETAILS 
+      WHERE OFFENDER_BOOK_ID = :bookingId 
+      FOR UPDATE
     """,
   ),
 

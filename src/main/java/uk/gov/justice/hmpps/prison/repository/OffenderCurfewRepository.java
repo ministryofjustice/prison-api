@@ -249,4 +249,9 @@ public class OffenderCurfewRepository extends RepositoryBase {
         }
     }
 
+    public void findByBookingIdWithLock(long bookingId) {
+        getLock(OffenderCurfewRepositorySql.GET_OFFENDER_CURFEW_LOCK_BY_BOOKING_ID,
+            createParams("bookingId", bookingId),
+            "OFFENDER_CURFEWS");
+    }
 }
