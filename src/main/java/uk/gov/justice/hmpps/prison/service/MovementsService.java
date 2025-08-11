@@ -196,11 +196,6 @@ public class MovementsService {
 
     }
 
-    public int getEnRouteOffenderCount(final String agencyId, final LocalDate date) {
-        final var defaultedDate = date == null ? LocalDate.now() : date;
-        return movementsRepository.getEnRouteMovementsOffenderCount(agencyId, defaultedDate);
-    }
-
     public List<OffenderIn> getOffendersIn(final String agencyId, final LocalDate date) {
         return movementsRepository.getOffendersIn(agencyId, date);
     }

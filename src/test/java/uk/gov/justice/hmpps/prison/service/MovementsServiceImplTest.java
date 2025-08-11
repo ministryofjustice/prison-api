@@ -171,16 +171,6 @@ public class MovementsServiceImplTest {
     }
 
     @Test
-    public void testGetEnRouteOffenderMovements_Count() {
-        when(movementsRepository.getEnRouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12))).thenReturn(5);
-
-        final var count = movementsService.getEnRouteOffenderCount("LEI", LocalDate.of(2015, 9, 12));
-        assertThat(count).isEqualTo(5);
-
-        verify(movementsRepository).getEnRouteMovementsOffenderCount("LEI", LocalDate.of(2015, 9, 12));
-    }
-
-    @Test
     public void testGetOffenders_OutToday() {
         final var timeOut = LocalTime.now();
         final List<OffenderMovement> singleOffender = ImmutableList.of(
