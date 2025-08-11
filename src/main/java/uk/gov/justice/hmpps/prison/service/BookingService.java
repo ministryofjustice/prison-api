@@ -560,19 +560,6 @@ public class BookingService {
         return sentenceRepository.getMainOffenceDetails(bookingId);
     }
 
-    public List<OffenceDetail> getMainOffenceDetails(final Set<Long> bookingIds) {
-
-        final List<OffenceDetail> results = new ArrayList<>();
-        if (!CollectionUtils.isEmpty(bookingIds)) {
-            final var batch = Lists.partition(new ArrayList<>(bookingIds), maxBatchSize);
-            batch.forEach(bookingBatch -> {
-                final var offences = sentenceRepository.getMainOffenceDetails(bookingBatch);
-                results.addAll(offences);
-            });
-        }
-        return results;
-    }
-
     public List<OffenceHistoryDetail> getOffenceHistory(final String offenderNo, final boolean convictionsOnly) {
         return sentenceRepository.getOffenceHistory(offenderNo, convictionsOnly);
     }
