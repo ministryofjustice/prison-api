@@ -980,19 +980,6 @@ class BookingResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun offenceHistoryForBookings() {
-    val token = validToken(listOf("ROLE_VIEW_PRISONER_DATA"))
-    val httpEntity = createHttpEntity(token, listOf(-59, -7, -3))
-    val response = testRestTemplate.exchange(
-      "/api/bookings/offence-history",
-      POST,
-      httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
-    )
-    assertThatJsonFileAndStatus(response, 200, "offence-history-by-bookingids.json")
-  }
-
   @Nested
   @DisplayName("GET /api/bookings/{bookingId}/secondary-languages")
   inner class SecondaryLanguages {

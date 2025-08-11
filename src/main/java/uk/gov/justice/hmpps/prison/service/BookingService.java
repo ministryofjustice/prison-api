@@ -41,7 +41,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonDetails;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerBookingSummary;
 import uk.gov.justice.hmpps.prison.api.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
@@ -62,7 +61,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
@@ -76,7 +74,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
@@ -92,7 +89,6 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.CourtCaseTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 import uk.gov.justice.hmpps.prison.service.transformers.PropertyContainerTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
@@ -138,7 +134,6 @@ public class BookingService {
     private final BookingRepository bookingRepository;
     private final CourtEventRepository courtEventRepository;
     private final OffenderBookingRepository offenderBookingRepository;
-    private final OffenderChargeRepository offenderChargeRepository;
     private final VisitInformationRepository visitInformationRepository;
     private final VisitorRepository visitorRepository;
     private final VisitVisitorRepository visitVisitorRepository;
@@ -154,14 +149,12 @@ public class BookingService {
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
     private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
-    private final OffenderChargeTransformer offenderChargeTransformer;
     private final int maxBatchSize;
 
 
     public BookingService(final BookingRepository bookingRepository,
                           final CourtEventRepository courtEventRepository,
                           final OffenderBookingRepository offenderBookingRepository,
-                          final OffenderChargeRepository offenderChargeRepository,
                           final VisitorRepository visitorRepository,
                           final VisitInformationRepository visitInformationRepository,
                           final VisitVisitorRepository visitVisitorRepository,
@@ -177,13 +170,11 @@ public class BookingService {
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
-                          final OffenderChargeTransformer offenderChargeTransformer,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
         this.courtEventRepository = courtEventRepository;
         this.offenderBookingRepository = offenderBookingRepository;
-        this.offenderChargeRepository = offenderChargeRepository;
         this.visitInformationRepository = visitInformationRepository;
         this.visitorRepository = visitorRepository;
         this.visitVisitorRepository = visitVisitorRepository;
@@ -199,7 +190,6 @@ public class BookingService {
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
-        this.offenderChargeTransformer = offenderChargeTransformer;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -579,15 +569,6 @@ public class BookingService {
 
     public List<OffenceHistoryDetail> getActiveOffencesForBooking(final Long bookingId, final boolean convictionsOnly) {
         return sentenceRepository.getActiveOffencesForBooking(bookingId, convictionsOnly);
-    }
-
-    public List<OffenceHistoryDetail> getActiveOffencesForBookings(final Set<Long> bookingIds) {
-        List<OffenderCharge> offenderCharges = offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds,"A","A");
-        return offenderCharges.stream()
-            // Rule copied from SentenceRepositorySql with comment "Avoid dups from merges (from NART team)"
-            .filter(oc -> !"SYS".equals(oc.getCreateUserId()) || !"MERGE".equals(oc.getAuditModuleName()))
-            .map(offenderChargeTransformer::convert)
-            .collect(toList());
     }
 
     public List<ScheduledEvent> getEventsToday(final Long bookingId) {

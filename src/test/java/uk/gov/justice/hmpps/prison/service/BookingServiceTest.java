@@ -18,7 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
@@ -26,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
@@ -45,7 +43,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventOutcome;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceIndicator;
@@ -62,7 +59,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalcType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
@@ -70,7 +66,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderFinePaymentRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRestrictionRepository;
@@ -83,7 +78,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitVisitorReposit
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitorRepository;
 import uk.gov.justice.hmpps.prison.service.support.PayableAttendanceOutcomeDto;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransformer;
-import uk.gov.justice.hmpps.prison.service.transformers.OffenderChargeTransformer;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -117,8 +111,6 @@ public class BookingServiceTest {
     @Mock
     private OffenderBookingRepository offenderBookingRepository;
     @Mock
-    private OffenderChargeRepository offenderChargeRepository;
-    @Mock
     private VisitInformationRepository visitInformationRepository;
     @Mock
     private VisitorRepository visitorRepository;
@@ -148,8 +140,6 @@ public class BookingServiceTest {
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     @Mock
     private CaseLoadService caseLoadService;
-    @Mock
-    private OffenderChargeTransformer offenderChargeTransformer;
 
     private BookingService bookingService;
 
@@ -158,7 +148,6 @@ public class BookingServiceTest {
         bookingService = new BookingService(
             bookingRepository,
             courtEventRepository,offenderBookingRepository,
-            offenderChargeRepository,
             visitorRepository,
             visitInformationRepository,
             visitVisitorRepository,
@@ -174,7 +163,6 @@ public class BookingServiceTest {
             offenderSentenceRepository,
             offenderFinePaymentRepository,
             offenderRestrictionRepository,
-            offenderChargeTransformer,
             10);
     }
 
@@ -1398,19 +1386,6 @@ public class BookingServiceTest {
             assertThat(summary.getStartDateTime()).isNull();
             assertThat(summary.getHasVisits()).isFalse();
         }
-    }
-
-    @Test
-    public void getActiveOffencesForBookings() {
-        final var bookingIds = Set.of(2L, 4L, 9L);
-        final var charges = List.of(new OffenderCharge());
-
-        when(offenderChargeRepository.findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A", "A")).thenReturn(charges);
-        List<OffenceHistoryDetail> offenceHistoryDetails = bookingService.getActiveOffencesForBookings(bookingIds);
-
-        verify(offenderChargeRepository).findByOffenderBooking_BookingIdInAndChargeStatusAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A", "A");
-        assertThat(offenceHistoryDetails).isNotNull();
-        assertThat(offenceHistoryDetails).hasSize(charges.size());
     }
 
     @Test
