@@ -43,14 +43,6 @@ public class InmateAlertService {
         return alerts;
     }
 
-    public List<Alert> getInmateAlertsByOffenderNos(final List<String> offenderNos, final boolean latestOnly, final String orderByField, final Order order) {
-
-        final var alerts = inmateAlertRepository.getAlertsByOffenderNos(null, offenderNos, latestOnly,  orderByField, order);
-        alerts.forEach(alert -> alert.setExpired(isExpiredAlert(alert)));
-        log.info("Returning {} matching Alerts for Offender Numbers {}", alerts.size(), offenderNos);
-        return alerts;
-    }
-
     private boolean isExpiredAlert(final Alert alert) {
         var expiredAlert = false;
 

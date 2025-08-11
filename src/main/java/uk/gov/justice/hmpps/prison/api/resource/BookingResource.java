@@ -37,7 +37,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Account;
-import uk.gov.justice.hmpps.prison.api.model.Alert;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
@@ -51,7 +50,6 @@ import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.Keyworker;
-import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
@@ -65,7 +63,6 @@ import uk.gov.justice.hmpps.prison.api.model.ReasonableAdjustments;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SecondaryLanguage;
-import uk.gov.justice.hmpps.prison.api.model.SentenceAdjustmentDetail;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch;
@@ -81,7 +78,6 @@ import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.VisitInformationFilter;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
-import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
@@ -91,11 +87,9 @@ import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
 import uk.gov.justice.hmpps.prison.service.HealthService;
 import uk.gov.justice.hmpps.prison.service.ImageService;
-import uk.gov.justice.hmpps.prison.service.InmateAlertService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
-import uk.gov.justice.hmpps.prison.service.OffenderMilitaryRecordService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
 import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
@@ -123,7 +117,6 @@ public class BookingResource {
     private final InmateService inmateService;
     private final HealthService healthService;
     private final CaseNoteService caseNoteService;
-    private final InmateAlertService inmateAlertService;
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final FinanceService financeService;
     private final ContactService contactService;
@@ -131,7 +124,6 @@ public class BookingResource {
     private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
-    private final OffenderMilitaryRecordService offenderMilitaryRecordService;
     private final ReferenceDomainService referenceDomainService;
     private final String HEALTH = "HEALTH";
     private final String HEALTH_TREATMENT = "HEALTH_TREAT";
@@ -298,18 +290,6 @@ public class BookingResource {
             .outcomeComment(body.getOutcomeComment())
             .build());
         return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @Operation(
-        summary = "Deprecated - Please use the alerts api for access to alerts (eg https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html)",
-        description = "Replace with https://alerts-api-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html#/prisoner-alerts-controller/retrievePrisonerAlerts_1",
-        deprecated = true
-    )
-    @PostMapping("/offenderNo/alerts")
-    @SlowReportQuery
-    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION')")
-    public List<Alert> getAlertsByOffenderNos(@RequestBody @NotEmpty(message = "A minimum of one offender number is required") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos) {
-        return inmateAlertService.getInmateAlertsByOffenderNos(offenderNos, true, "bookingId,alertId", Order.ASC);
     }
 
     @ApiResponses({
