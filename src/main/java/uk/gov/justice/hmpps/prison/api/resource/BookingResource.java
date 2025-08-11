@@ -428,19 +428,6 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get Offender main offence detail.", description = "Post version to allow specifying a large number of bookingIds. Requires role VIEW_PRISONER_DATA")
-    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    @PostMapping("/mainOffence")
-    @SlowReportQuery
-    public List<OffenceDetail> getMainOffence(@RequestBody @Parameter(description = "The bookingIds to identify the offenders", required = true) final Set<Long> bookingIds) {
-        return bookingService.getMainOffenceDetails(bookingIds);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Offence history.", description = "All Offences recorded for this offender.")
     @Tag(name = "integration-api")
     @GetMapping("/offenderNo/{offenderNo}/offenceHistory")

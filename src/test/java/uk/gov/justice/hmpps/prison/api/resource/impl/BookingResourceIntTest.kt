@@ -817,60 +817,6 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Nested
-  @DisplayName("POST /api/bookings/mainOffence")
-  inner class MainOffence {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.post().uri("/api/bookings/mainOffence")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue("[-1, -7]")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `returns 403 when client does not have authorized role`() {
-      webTestClient.post().uri("/api/bookings/mainOffence")
-        .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue("[-1, -7]")
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun offenceHistory_post() {
-      webTestClient.post().uri("/api/bookings/mainOffence")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .bodyValue("[-1, -7]")
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("length()").isEqualTo(3)
-        .jsonPath("[*].bookingId").value<List<Int>> { assertThat(it).containsOnly(-1, -7) }
-        .jsonPath("[0].offenceDescription").isEqualTo("Cause another to use a vehicle where the seat belt is not securely fastened to the anchorage point.")
-        .jsonPath("[1].offenceDescription").isEqualTo("Cause the carrying of a mascot etc on motor vehicle in position likely to cause injury")
-        .jsonPath("[2].offenceDescription").isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
-        .jsonPath("$[*].offenceCode").value<List<String>> { assertThat(it).containsExactlyElementsOf(listOf("RC86360", "RC86355", "RV98011")) }
-        .jsonPath("$[*].statuteCode").value<List<String>> { assertThat(it).containsOnly("RC86", "RV98") }
-    }
-
-    @Test
-    fun offenceHistory_post_no_offences() {
-      webTestClient.post().uri("/api/bookings/mainOffence")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .bodyValue("[-98, -99]")
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("length()").isEqualTo(0)
-    }
-  }
-
-  @Nested
   @DisplayName("GET /api/bookings/offenderNo/{offenderNo}/offenceHistory")
   inner class OffenderOffenceHistory {
 
