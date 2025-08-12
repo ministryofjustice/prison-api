@@ -11,8 +11,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType;
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
@@ -329,19 +327,6 @@ public class AgencyService {
             throw EntityNotFoundException.withMessage(format("No cell details found for location id %s", locationId));
         }
         return offenderCell;
-    }
-
-    public AgencyEstablishmentTypes getEstablishmentTypes(final String agencyId) {
-        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-        return AgencyEstablishmentTypes.builder().agencyId(agencyId).establishmentTypes(
-                agency.getEstablishmentTypes()
-                    .stream()
-                    .map(establishment -> AgencyEstablishmentType.builder()
-                        .code(establishment.getEstablishmentType().getCode())
-                        .description(establishment.getEstablishmentType().getDescription())
-                        .build())
-                    .collect(toList()))
-            .build();
     }
 
     private OffenderCell transform(final AgencyInternalLocation cell) {

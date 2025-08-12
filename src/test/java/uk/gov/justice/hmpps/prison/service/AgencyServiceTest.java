@@ -12,12 +12,9 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyEstablishmentType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishment;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationEstablishmentId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.HousingAttributeReferenceCode;
@@ -33,7 +30,6 @@ import static java.util.Collections.emptyList;
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.isA;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -161,33 +157,6 @@ public class AgencyServiceTest {
         when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
-    }
-
-    @Test
-    public void shouldReturnAllEstablishmentTypesForMoorland() {
-        final var agencyLocation = AgencyLocation.builder()
-            .id("MDI")
-            .description("Moorland")
-            .type(AgencyLocationType.PRISON_TYPE)
-            .build();
-        final var establishmentType = new AgencyEstablishmentType("IM", "Closed Young Offender Institute (Male)");
-        when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder()
-                .id("MDI")
-                .establishmentTypes(List.of(new AgencyLocationEstablishment(new AgencyLocationEstablishmentId(agencyLocation.getId(), establishmentType.getCode()), agencyLocation, establishmentType)))
-                .build()));
-
-        final var establishmentTypes = service.getEstablishmentTypes("MDI");
-
-        assertThat(establishmentTypes.getAgencyId()).isEqualTo("MDI");
-        assertThat(establishmentTypes.getEstablishmentTypes()).extracting("code").containsExactly("IM");
-        assertThat(establishmentTypes.getEstablishmentTypes()).extracting("description").containsExactly("Closed Young Offender Institute (Male)");
-    }
-
-    @Test
-    public void shouldFailForEstablishmentTypesWhenAgencyNotFound() {
-        when(agencyLocationRepository.findById(anyString())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.getEstablishmentTypes("unknown")).isInstanceOf(EntityNotFoundException.class).hasMessage("Resource with id [unknown] not found.");
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {

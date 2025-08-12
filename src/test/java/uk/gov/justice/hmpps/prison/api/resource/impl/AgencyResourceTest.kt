@@ -6,9 +6,6 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
-import org.springframework.http.HttpStatus.OK
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentType
-import uk.gov.justice.hmpps.prison.api.model.AgencyEstablishmentTypes
 import uk.gov.justice.hmpps.prison.api.model.Location
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
@@ -553,29 +550,6 @@ class AgencyResourceTest : ResourceTest() {
       },
     )
     assertThatJsonFileAndStatus(response, 200, "reception_with_capacity.json")
-  }
-
-  @Test
-  fun testEstablishmentTypesForMoorlandPrison() {
-    val token = authTokenHelper.getToken(NORMAL_USER)
-
-    val httpEntity = createHttpEntity(token, null)
-
-    val response = testRestTemplate.exchange(
-      "/api/agencies/MDI/establishment-types",
-      GET,
-      httpEntity,
-      object : ParameterizedTypeReference<AgencyEstablishmentTypes>() {
-      },
-    )
-
-    assertThat(response.statusCode).isEqualTo(OK)
-    assertThat(response.body!!.agencyId).isEqualTo("MDI")
-    assertThat(response.body!!.establishmentTypes).containsExactlyInAnyOrder(
-      AgencyEstablishmentType.builder().code("CM").description("Closed (Male)").build(),
-      AgencyEstablishmentType.builder().code("CNOMIS").description("C-NOMIS Establishment").build(),
-      AgencyEstablishmentType.builder().code("IM").description("Closed Young Offender Institute (Male)").build(),
-    )
   }
 
   @Test
