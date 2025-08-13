@@ -17,7 +17,7 @@ generic-service:
     modsecurity_snippet: |
       SecRuleEngine On
       # team here grants access to the OpenSearch logs to delve into the cause of the blockage
-      SecDefaultAction "phase:2,pass,log,tag:github_team=dps-tech"
+      SecDefaultAction "phase:2,pass,log,tag:github_team=syscon-devs,tag:namespace={{ .Release.Namespace }}"
       # Default is only GET HEAD POST OPTIONS so need to include PUT etc.
       SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
       # Missing User Agent Header
