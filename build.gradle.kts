@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.4"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.5"
   kotlin("plugin.spring") version "2.2.0"
   kotlin("plugin.jpa") version "2.2.0"
   kotlin("plugin.lombok") version "2.2.0"
@@ -42,7 +42,7 @@ dependencies {
   implementation("commons-io:commons-io:2.20.0")
   implementation("com.google.guava:guava:33.4.8-jre")
   implementation("org.apache.commons:commons-text:1.14.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.27.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.28.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   compileOnly("org.projectlombok:lombok:1.18.38")
@@ -51,7 +51,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.4.11")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.5")
@@ -77,7 +77,7 @@ dependencies {
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.31")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.50.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.52.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.38")
 }
