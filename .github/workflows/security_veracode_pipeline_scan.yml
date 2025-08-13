@@ -12,6 +12,9 @@ jobs:
       upload-build-artifacts: true
       build-artifact-name: 'build-results'
       upload-test-artifacts: false
+    permissions:
+      contents: read
+      actions: read
   security-veracode-pipeline-scan:
     permissions:
       contents: read
