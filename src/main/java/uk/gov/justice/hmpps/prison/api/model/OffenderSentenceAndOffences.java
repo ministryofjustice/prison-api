@@ -69,6 +69,12 @@ public class OffenderSentenceAndOffences {
 
     @Schema(description = "The amount of fine related to the sentence and offence")
     private Double fineAmount;
+    
+    @Schema(description = "Whether this sentence type is recallable")
+    private Boolean isRecallable;
+    
+    @Schema(description = "Sentence classification: STANDARD, EXTENDED, INDETERMINATE, RECALL, DTO, FINE, OTHER")
+    private String sentenceClassification;
 
     @JsonIgnore
     public boolean isAFine() { return A_FINE_TYPE.equals(sentenceCalculationType); }
