@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.5"
-  kotlin("plugin.spring") version "2.2.0"
-  kotlin("plugin.jpa") version "2.2.0"
-  kotlin("plugin.lombok") version "2.2.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+  kotlin("plugin.spring") version "2.2.10"
+  kotlin("plugin.jpa") version "2.2.10"
+  kotlin("plugin.lombok") version "2.2.10"
 }
 
 configurations {
@@ -54,9 +54,9 @@ dependencies {
   testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
-  testImplementation("io.rest-assured:rest-assured:5.5.5")
-  testImplementation("io.rest-assured:json-schema-validator:5.5.5")
-  testImplementation("io.rest-assured:spring-mock-mvc:5.5.5")
+  testImplementation("io.rest-assured:rest-assured:5.5.6")
+  testImplementation("io.rest-assured:json-schema-validator:5.5.6")
+  testImplementation("io.rest-assured:spring-mock-mvc:5.5.6")
   testImplementation("org.springframework.security:spring-security-test")
   testImplementation("com.google.code.gson:gson:2.13.1")
   testImplementation("org.mockito:mockito-inline:5.2.0")
