@@ -201,8 +201,7 @@ enum class ScheduleRepositorySql(val sql: String) {
         WHERE OIS.TO_INTERNAL_LOCATION_ID = :locationId
         AND OIS.EVENT_TYPE = 'APP'
         AND OIS.EVENT_STATUS <> 'CANC'
-        AND OIS.EVENT_DATE >= TRUNC(COALESCE(:fromDate, OIS.EVENT_DATE))
-        AND TRUNC(OIS.EVENT_DATE) <= COALESCE(:toDate, OIS.EVENT_DATE)
+        AND OIS.EVENT_DATE between COALESCE(:fromDate, OIS.EVENT_DATE) AND COALESCE(:toDate, OIS.EVENT_DATE)
     """,
   ),
 
