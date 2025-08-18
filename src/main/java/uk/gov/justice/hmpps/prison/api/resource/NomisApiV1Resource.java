@@ -115,11 +115,17 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Legal cases for each booking and charges within each legal case.", description = "Returns all the bookings, the legal cases for each booking and charges within each legal case.<br/>" +
-            "The ordering is as follows:<ul>" +
-            "<li><strong>bookings</strong>: Current or latest booking first, others in descending order of booking date</li>" +
-            "<li><strong>legal_cases</strong>: Active cases followed by inactive cases, further ordered by begin_date, latest first</li>" +
-            "<li><strong>charges</strong>: Most serious active charge first, then remaining active charges, followed by inactive charges</li></ul>")
+    @Operation(summary = "Legal cases for each booking and charges within each legal case.",
+        description = """
+            Returns all the bookings, the legal cases for each booking and charges within each legal case.<br/>
+            The ordering is as follows:<ul>
+            <li><strong>bookings</strong>: Current or latest booking first, others in descending order of booking date</li>
+            <li><strong>legal_cases</strong>: Active cases followed by inactive cases, further ordered by begin_date, latest first</li>
+            <li><strong>charges</strong>: Most serious active charge first, then remaining active charges, followed by inactive charges</li></ul>
+
+            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
+"""
+    )
     @GetMapping("/offenders/{noms_id}/charges")
     @SlowReportQuery
     public Bookings getBookings(@PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms ID", example = "A1417AE", required = true) @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
@@ -205,13 +211,17 @@ public class NomisApiV1Resource {
                     "<li>Offender never at prison - The offender has never been at the specified prison</li></ul>", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "409", description = "Duplicate Post - A transaction already exists with the client_unique_ref provided.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Record transaction at previous Prison.", description = "<p>Post a financial transaction to Nomis to a prison that the offender is no longer at.</p>" +
-            "<p>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid. Only Transaction types with a usage of R (Receipt) are valid." +
-            "Transaction Types are maintained via the Maintain Transaction Types screen (OCMTRANS).</p>" +
-            "<p>Transaction is posted to the specified prison.  if the account has been closed at this prison then it is re-opened first.</p>" +
-            "<p>If the offender has been transferred to another prison then the funds are transferred to this prison.</p>" +
-            "<p>If the account was previously closed then it will be closed again.</p>" +
-            "<p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>")
+    @Operation(summary = "Record transaction at previous Prison.", description = """
+            <p>Post a financial transaction to Nomis to a prison that the offender is no longer at.</p>
+            <p>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid. Only Transaction types with a usage of R (Receipt) are valid.
+            Transaction Types are maintained via the Maintain Transaction Types screen (OCMTRANS).</p>
+            <p>Transaction is posted to the specified prison.  if the account has been closed at this prison then it is re-opened first.</p>
+            <p>If the offender has been transferred to another prison then the funds are transferred to this prison.</p>
+            <p>If the account was previously closed then it will be closed again.</p>
+            <p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>
+
+            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.")
+            """)
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
     @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -288,7 +298,13 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "404", description = "Offender Not Found - No offender matching the specified offender_id has been found on nomis.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "409", description = "Offender not in specified prison", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get holds.", description = "Gets every hold on an offender’s account or just the hold identified by the client_unique_ref")
+    @Operation(summary = "Get holds.",
+        description = """
+            Gets every hold on an offender’s account or just the hold identified by the client_unique_ref.
+
+            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
+          """
+    )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/holds")
     @SlowReportQuery
     public List<Hold> getHolds(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName, @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId, @Pattern(regexp = NOMS_ID_REGEX_PATTERN) @NotNull @PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms Id", example = "A1417AE", required = true) final String nomsId, @Pattern(regexp = CLIENT_UNIQUE_REF_PATTERN) @Size(max = 64) @RequestParam(value = "client_unique_ref", required = false) @Parameter(name = "client_unique_ref", description = "Client unique reference") final String clientUniqueRef) {

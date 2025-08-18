@@ -172,7 +172,10 @@ public class OffenderSentenceResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "423", description = "Curfew or HDC status in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
     })
-    @Operation(summary = "Clear the HDC approval status")
+    @Operation(
+        summary = "Clear the HDC approval status",
+        description = "PGP: unused as of 12/08/2025. Left as complements the method above to set the approval status.  The put version called from licences."
+    )
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
