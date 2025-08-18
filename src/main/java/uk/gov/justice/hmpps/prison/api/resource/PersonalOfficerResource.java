@@ -20,7 +20,11 @@ public class PersonalOfficerResource {
 
     private final PersonalOfficerService personalOfficerService;
 
-    @Operation(hidden = true, summary = "Retrieve all allocations for a given agency")
+    @Operation(
+        hidden = true,
+        summary = "Retrieve all allocations for a given agency",
+        description = "PGP: unused as of 12/08/2025. Created for keyworker-api to perform migrations."
+    )
     @GetMapping("/{agencyId}/allocation-history")
     @PreAuthorize("hasRole('ROLE_ALLOCATIONS__RO')")
     public List<PersonalOfficer> getAllocationHistory(@PathVariable("agencyId") final String agencyId) {

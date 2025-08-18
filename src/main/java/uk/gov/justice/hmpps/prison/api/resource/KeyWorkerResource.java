@@ -75,7 +75,10 @@ public class KeyWorkerResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All allocations in specified agency.", description = "All allocations in specified agency.")
+    @Operation(
+        summary = "All allocations in specified agency.",
+        description = "PGP: unused as of 12/08/2025. Referenced by keyworker API and used very infrequently to migrate allocations at prison level."
+    )
     @GetMapping("/{agencyId}/allocationHistory")
     @VerifyAgencyAccess(overrideRoles = {"KEY_WORKER"})
     public ResponseEntity<List<OffenderKeyWorker>> getAllocationHistory(@PathVariable("agencyId") @Parameter(description = "The agency (prison) identifier.", required = true) final String agencyId, @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of allocationHistory records.") final Long pageOffset, @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of allocationHistory records returned.") final Long pageLimit) {
