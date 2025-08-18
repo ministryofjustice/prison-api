@@ -8,8 +8,6 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -22,18 +20,13 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
-import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
-import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
-import uk.gov.justice.hmpps.prison.service.CaseLoadService;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.LocationService;
 import uk.gov.justice.hmpps.prison.service.UserService;
 
@@ -133,21 +126,5 @@ public class UserResource {
     @PostMapping("/list")
     public List<UserDetail> getUserDetailsList(@RequestBody @Parameter(description = "The required usernames (mandatory)", required = true) final Set<String> usernames) {
         return userService.getUserListByUsernames(usernames);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "No New Users", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
-        @ApiResponse(responseCode = "201", description = "New Users Enabled", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseloadUpdate.class))}),
-    })
-    @Operation(summary = "Add the NWEB caseload to specified caseload.", description = "Requires role MAINTAIN_ACCESS_ROLES or MAINTAIN_ACCESS_ROLES_ADMIN")
-    @PutMapping("/add/default/{caseload}")
-    @PreAuthorize("hasAnyRole('MAINTAIN_ACCESS_ROLES','MAINTAIN_ACCESS_ROLES_ADMIN')")
-    @ProxyUser
-    public ResponseEntity<CaseloadUpdate> addApiAccessForCaseload(@PathVariable("caseload") @Parameter(description = "The caseload (equates to prison) id to add all active users to default API caseload (NWEB)", required = true) final String caseload) {
-        final var caseloadUpdate = userService.addDefaultCaseloadForPrison(caseload);
-        if (caseloadUpdate.getNumUsersEnabled() > 0) {
-            return ResponseEntity.status(HttpStatus.CREATED).body(caseloadUpdate);
-        }
-        return ResponseEntity.ok().body(caseloadUpdate);
     }
 }

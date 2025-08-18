@@ -1,6 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -159,30 +159,6 @@ class UserResourceTest : ResourceTest() {
         .jsonPath("$[*].username").value<List<String>> {
           assertThat(it).containsExactlyInAnyOrderElementsOf(listOf("JBRIEN", "RENEGADE"))
         }
-    }
-  }
-
-  @Nested
-  @DisplayName("PUT /api/users/add/default/{caseload}")
-  inner class AddDefaultCaseLoad {
-    @Test
-    fun `should add default caseload for current user`() {
-      webTestClient.put()
-        .uri("/api/users/add/default/MDI")
-        .headers(setClientAuthorisation(listOf("ROLE_MAINTAIN_ACCESS_ROLES")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .json("""{ "caseload":"MDI", "numUsersEnabled":0 }""")
-    }
-
-    @Test
-    fun `should return forbidden when wrong role`() {
-      webTestClient.put()
-        .uri("/api/users/add/default/MDI")
-        .headers(setClientAuthorisation(listOf("ROLE_OTHER")))
-        .exchange()
-        .expectStatus().isForbidden
     }
   }
 

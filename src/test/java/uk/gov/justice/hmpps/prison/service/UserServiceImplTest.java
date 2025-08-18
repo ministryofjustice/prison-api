@@ -8,7 +8,6 @@ import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
 import java.util.stream.Collectors;
@@ -26,14 +25,11 @@ import static org.mockito.Mockito.when;
 @ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
     private static final String API_CASELOAD_ID = "NWEB";
-    private static final String ROLE_CODE = "A_ROLE";
 
     @Mock
     private UserRepository userRepository;
     @Mock
     private UserCaseloadRoleRepository userCaseloadRoleRepository;
-    @Mock
-    private UserCaseloadRepository userCaseloadRepository;
     @Mock
     private CaseLoadService caseLoadService;
 
@@ -41,7 +37,7 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void init() {
-        userService = new UserService(caseLoadService, userRepository, userCaseloadRoleRepository, userCaseloadRepository, API_CASELOAD_ID, 100);
+        userService = new UserService(caseLoadService, userRepository, userCaseloadRoleRepository, API_CASELOAD_ID, 100);
     }
 
     @Test
