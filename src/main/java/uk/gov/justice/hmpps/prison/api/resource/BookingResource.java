@@ -240,7 +240,14 @@ public class BookingResource {
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Update offender attendance and pay.", description = "Requires role PAY")
+    @Operation(
+        summary = "Update offender attendance and pay.",
+        description = """
+            Requires role PAY.
+
+            PGP: unused as of 12/08/2025. Left as we have a very similar endpoint below that takes a bookingId anyway.
+            """
+    )
     @PreAuthorize("hasRole('PAY')")
     @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @ProxyUser

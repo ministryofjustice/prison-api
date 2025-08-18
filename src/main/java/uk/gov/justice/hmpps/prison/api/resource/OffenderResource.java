@@ -761,7 +761,10 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "All scheduled events for offender.", description = "All scheduled events for offender.")
+    @Operation(
+        summary = "All scheduled events for offender.",
+        description = "PGP: unused as of 12/08/2025. Left as all the other events endpoints are still used, so doesn't make sense just to remove this one."
+    )
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/events")
     public List<ScheduledEvent> getEvents(
