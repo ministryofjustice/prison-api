@@ -10,11 +10,9 @@ import uk.gov.justice.hmpps.prison.api.model.AddressDto;
 import uk.gov.justice.hmpps.prison.api.model.AddressUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
-import uk.gov.justice.hmpps.prison.repository.DeprecatedPersonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsage;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country;
@@ -37,10 +35,6 @@ import static org.mockito.Mockito.when;
 
 @ExtendWith(MockitoExtension.class)
 public class PersonServiceTest {
-
-    @Mock
-    private DeprecatedPersonRepository deprecatedPersonRepository;
-
     @Mock
     private PersonRepository personRepository;
 
@@ -48,7 +42,7 @@ public class PersonServiceTest {
 
     @BeforeEach
     void setUp() {
-        personService = new PersonService(deprecatedPersonRepository, personRepository);
+        personService = new PersonService(personRepository);
     }
 
     @Test
