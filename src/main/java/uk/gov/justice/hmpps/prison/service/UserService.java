@@ -7,17 +7,12 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.CaseLoad;
-import uk.gov.justice.hmpps.prison.api.model.CaseloadUpdate;
 import uk.gov.justice.hmpps.prison.api.model.UserDetail;
 import uk.gov.justice.hmpps.prison.api.model.UserRole;
 import uk.gov.justice.hmpps.prison.repository.UserRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseload;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.UserCaseloadId;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
@@ -41,7 +36,6 @@ public class UserService {
 
     private final CaseLoadService caseLoadService;
     private final UserCaseloadRoleRepository userCaseloadRoleRepository;
-    private final UserCaseloadRepository userCaseloadRepository;
     private final UserRepository userRepository;
     private final String apiCaseloadId;
     private final int maxBatchSize;
@@ -49,12 +43,10 @@ public class UserService {
     public UserService(final CaseLoadService caseLoadService,
                        final UserRepository userRepository,
                        final UserCaseloadRoleRepository userCaseloadRoleRepository,
-                       final UserCaseloadRepository userCaseloadRepository,
                        @Value("${application.caseload.id:NWEB}") final String apiCaseloadId,
                        @Value("${batch.max.size:1000}") final int maxBatchSize) {
         this.caseLoadService = caseLoadService;
         this.userRepository = userRepository;
-        this.userCaseloadRepository = userCaseloadRepository;
         this.userCaseloadRoleRepository = userCaseloadRoleRepository;
         this.apiCaseloadId = apiCaseloadId;
         this.maxBatchSize = maxBatchSize;
@@ -113,32 +105,5 @@ public class UserService {
             .stream().map(r -> allRoles ? r.transform() : r.transformWithoutCaseload())
             .sorted(Comparator.comparing(UserRole::getRoleCode))
             .toList();
-    }
-
-    private void addDpsCaseloadToUser(final String username) {
-        userCaseloadRepository.save(UserCaseload.builder().id(UserCaseloadId.builder().username(username).caseload(apiCaseloadId).build()).startDate(LocalDate.now()).build());
-    }
-
-    @Transactional
-    public CaseloadUpdate addDefaultCaseloadForPrison(final String caseloadId) {
-        final var users = userRepository.findAllUsersWithCaseload(caseloadId, apiCaseloadId);
-
-        log.debug("Found {} users with caseload {} that do not have {} caseload", users.size(), caseloadId, apiCaseloadId);
-        final List<UserDetail> caseloadsAdded = new ArrayList<>();
-        users.forEach(user -> {
-            final var username = user.getUsername();
-            try {
-                addDpsCaseloadToUser(username);
-                caseloadsAdded.add(user);
-            } catch (final Exception e) {
-                log.error("Failed to add {} caseload to user {}", apiCaseloadId, username);
-            }
-        });
-
-        log.debug("{} users API enabled for caseload {}", caseloadsAdded.size(), caseloadId);
-        return CaseloadUpdate.builder()
-                .caseload(caseloadId)
-                .numUsersEnabled(caseloadsAdded.size())
-                .build();
     }
 }
