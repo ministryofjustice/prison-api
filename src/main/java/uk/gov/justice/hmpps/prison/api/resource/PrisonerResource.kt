@@ -43,7 +43,13 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     ApiResponse(responseCode = "404", description = "Requested resource not found.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "List of offenders matching specified criteria.", description = "List of offenders matching specified criteria. Requires GLOBAL_SEARCH role.")
+  @Operation(
+    summary = "List of offenders matching specified criteria.",
+    description = """Requires GLOBAL_SEARCH role.
+
+       PGP: unused as of 12/08/2025. Left as equivalent to POST version below.
+    """,
+  )
   @GetMapping
   @PreAuthorize("hasRole('GLOBAL_SEARCH')")
   @SlowReportQuery
