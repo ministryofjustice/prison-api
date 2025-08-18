@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.api.resource
 
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
-import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
@@ -14,7 +13,6 @@ import org.springframework.web.bind.annotation.DeleteMapping
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
-import org.springframework.web.bind.annotation.PutMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.ResponseStatus
@@ -101,32 +99,4 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
       required = true,
     ) appointmentId: @NotNull Long,
   ): ScheduledEvent = appointmentsService.getBookingAppointment(appointmentId)
-
-  @Operation(summary = "Change an appointment's comment.", description = "Requires role GLOBAL_APPOINTMENT")
-  @ApiResponses(
-    ApiResponse(responseCode = "204", description = "The appointment's comment has been set."),
-    ApiResponse(responseCode = "403", description = "The client is not authorised for this operation"),
-    ApiResponse(responseCode = "404", description = "The appointment was not found."),
-    ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis)"),
-  )
-  @PreAuthorize("hasRole('GLOBAL_APPOINTMENT') and hasAuthority('SCOPE_write')")
-  @PutMapping(path = ["/{appointmentId}/comment"])
-  @ResponseStatus(HttpStatus.NO_CONTENT)
-  fun updateAppointmentComment(
-    @PathVariable("appointmentId") @Parameter(
-      description = "The appointment's unique identifier.",
-      required = true,
-    ) appointmentId: @NotNull Long,
-    @RequestBody(required = false) @Parameter(
-      description = "The comment. May be empty or null",
-      allowEmptyValue = true,
-    ) updateComment: UpdateComment?,
-  ) {
-    appointmentsService.updateComment(appointmentId, updateComment?.getCommentOrNull())
-  }
-}
-
-@Schema(description = "The text of the comment to update")
-class UpdateComment(val comment: String?) {
-  fun getCommentOrNull(): String? = if (comment.isNullOrBlank()) null else comment
 }

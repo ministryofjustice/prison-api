@@ -197,22 +197,6 @@ class AppointmentsService(
     }
   }
 
-  @Transactional
-  fun updateComment(appointmentId: Long, comment: String?) {
-    try {
-      val appointment = offenderIndividualScheduleRepository.findWithLockById(appointmentId)
-        .orElseThrow(
-          EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId),
-        )
-      if (EventClass.INT_MOV != appointment.eventClass || "APP" != appointment.eventType) {
-        throw EntityNotFoundException.withMessage("An appointment with id %s does not exist.", appointmentId)
-      }
-      appointment.comment = comment
-    } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, appointmentId)
-    }
-  }
-
   private fun processLockError(e: CannotAcquireLockException, appointmentId: Long): Exception {
     log.error("Error getting lock", e)
     return if (true == e.cause?.message?.contains("ORA-30006")) {
