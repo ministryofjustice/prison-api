@@ -79,7 +79,10 @@ public class CellResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Get details of a location.")
+    @Operation(
+        summary = "Get details of a location.",
+        description = "PGP: unused as of 12/08/2025. Still referenced by digital-prison-services though. Remove once https://dsdmoj.atlassian.net/browse/CDPS-1590 completed."
+    )
     @GetMapping("/{locationId}/attributes")
     @Deprecated(forRemoval = true)
     @ReferenceData(description = "Cell Attributes only")
