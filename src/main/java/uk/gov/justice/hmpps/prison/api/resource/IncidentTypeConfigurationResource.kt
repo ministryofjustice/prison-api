@@ -30,7 +30,10 @@ class IncidentTypeConfigurationResource(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Returns incident type configuration data sets for incident reports",
-    description = "No additional role required",
+    description = """No additional role required.
+
+        PGP: unused as of 12/08/2025. Fairly new endpoint for incident reporting configuration.
+      """,
     responses = [
       ApiResponse(
         responseCode = "200",

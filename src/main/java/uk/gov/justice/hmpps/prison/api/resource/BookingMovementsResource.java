@@ -150,7 +150,14 @@ public class BookingMovementsResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Schedules a future prison to prison move for an offender.", description = "Schedules a future prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.")
+    @Operation(
+        summary = "Schedules a future prison to prison move for an offender.",
+        description = """
+            Schedules a future prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
+
+            PGP: unused as of 12/08/2025. Left as still referenced by hmpps-book-secure-move-api.
+            """
+    )
     @ResponseStatus(HttpStatus.CREATED)
     @PostMapping("/{bookingId}/prison-to-prison")
     @ProxyUser
@@ -167,7 +174,14 @@ public class BookingMovementsResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Cancels a scheduled prison to prison move for an offender.", description = "Cancels a scheduled prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write")
+    @Operation(
+        summary = "Cancels a scheduled prison to prison move for an offender.",
+        description = """
+            Cancels a scheduled prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
+
+            PGP: unused as of 12/08/2025. Left as still referenced by hmpps-book-secure-move-api and complements the booking endpoint above.
+            """
+    )
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
     @ProxyUser
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")

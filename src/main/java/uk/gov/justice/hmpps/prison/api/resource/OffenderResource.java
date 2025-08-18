@@ -401,7 +401,9 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "*** ALPHA *** transfer a prisoner to a court with the option to release the prisoners bed, requires the TRANSFER_PRISONER_ALPHA role")
+    @Operation(
+        summary = "*** ALPHA *** transfer a prisoner to a court with the option to release the prisoners bed, requires the TRANSFER_PRISONER_ALPHA role",
+    description = "PGP: unused as of 12/08/2025. Left so we have a full set of endpoints to create releases/transfer/tap/court move.")
     @PutMapping("/{offenderNo}/court-transfer-out")
     @PreAuthorize("hasRole('TRANSFER_PRISONER_ALPHA') and hasAuthority('SCOPE_write')")
     @ProxyUser

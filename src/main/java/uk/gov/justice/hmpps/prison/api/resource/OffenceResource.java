@@ -117,7 +117,14 @@ public class OffenceResource {
     }
 
     @PostMapping("/link-to-schedule")
-    @Operation(summary = "Link offence to schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @Operation(
+        summary = "Link offence to schedule",
+        description = """
+            Requires UPDATE_OFFENCE_SCHEDULES role.
+
+            PGP: unused as of 12/08/2025. Looks to be used very infrequently and still referenced by hmpps-manage-offences-api
+            """
+    )
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Offences linked to schedules successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
@@ -130,7 +137,14 @@ public class OffenceResource {
     }
 
     @PostMapping("/unlink-from-schedule")
-    @Operation(summary = "Unlink offence from schedule", description = "Requires UPDATE_OFFENCE_SCHEDULES role")
+    @Operation(
+        summary = "Unlink offence from schedule",
+        description = """
+            Requires UPDATE_OFFENCE_SCHEDULES role.
+
+            PGP: unused as of 12/08/2025. Looks to be used very infrequently and still referenced by hmpps-manage-offences-api
+            """
+    )
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "Offences unlinked from schedules successfully"),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.")
