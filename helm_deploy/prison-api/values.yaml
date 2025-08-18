@@ -38,24 +38,31 @@ generic-service:
       SecRuleRemoveById 932140
       # attack-protocol is 921 range
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/.*comment/"
+      SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/text/"
       SecRuleUpdateTargetById 930100 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 930100 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 930100 "!ARGS:/text/"
       SecRuleUpdateTargetById 930110 "!ARGS:/.*comment/"
+      SecRuleUpdateTargetById 930110 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 930110 "!ARGS:/text/"
       # attack-rce is 932 range
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/.*comment/"
+      SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/text/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
       # attack-injection-php is 933 range
       SecRuleUpdateTargetByTag "attack-injection-php" "!ARGS:/.*comment/"
+      SecRuleUpdateTargetByTag "attack-injection-php" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-injection-php" "!ARGS:/text/"
       SecRuleUpdateTargetById 933210 "!ARGS:/.*description/"
       # attack-xss is 941 range
       SecRuleUpdateTargetByTag "attack-xss" "!ARGS:/.*comment/"
+      SecRuleUpdateTargetByTag "attack-xss" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-xss" "!ARGS:/text/"
       # attack-sqli is 942 range
       SecRuleUpdateTargetByTag "attack-sqli" "!ARGS:/.*comment/"
+      SecRuleUpdateTargetByTag "attack-sqli" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-sqli" "!ARGS:/text/"
       SecRuleUpdateTargetById 942100 "!ARGS:/.*description/"
       SecRuleUpdateTargetById 942130 "!ARGS:/.*description/"
