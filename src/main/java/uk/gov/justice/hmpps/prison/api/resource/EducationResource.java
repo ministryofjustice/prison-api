@@ -41,7 +41,10 @@ public class EducationResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "A list of offender educations.", description = "A list of offender educations.")
+    @Operation(
+        summary = "A list of offender educations.",
+        description = "PGP: unused as of 12/08/2025. Left to complement the POST version below."
+    )
     @GetMapping("/prisoner/{offenderNo}")
     @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     public Page<Education> getPrisonerEducations(
