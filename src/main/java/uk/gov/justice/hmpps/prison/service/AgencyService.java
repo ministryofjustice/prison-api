@@ -17,8 +17,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.api.model.RequestToCreateAgency;
-import uk.gov.justice.hmpps.prison.api.model.RequestToUpdateAgency;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.api.support.Page;
@@ -28,7 +26,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocationProfile;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
@@ -70,7 +67,6 @@ public class AgencyService {
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceDomainService referenceDomainService;
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeReferenceCodeRepository;
-    private final ReferenceCodeRepository<CourtType> courtTypeReferenceCodeRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
 
     public Agency getAgency(final String agencyId, @NotNull final StatusFilter filter, final String agencyType, final boolean withAddresses, final boolean skipFormatLocation, boolean withAreas) {
@@ -91,39 +87,6 @@ public class AgencyService {
             return AgencyTransformer.transformWithAddresses(agency, skipFormatLocation);
         }
         return AgencyTransformer.transform(agency, skipFormatLocation, withAreas);
-    }
-
-
-    @Transactional
-    public Agency updateAgency(final String agencyId, final RequestToUpdateAgency agencyToUpdate) {
-        final var agency = agencyLocationRepository.findById(agencyId).orElseThrow(EntityNotFoundException.withId(agencyId));
-
-        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToUpdate.getAgencyType())).orElseThrow(BadRequestException.withMessage(format("Agency Type [%s] not found", agencyToUpdate.getAgencyType())));
-
-        if (agencyLocationType.isCourt() && StringUtils.isBlank(agencyToUpdate.getCourtType())) {
-            throw new EntityNotFoundException("Courts require a court type");
-        }
-
-        final var courtType = agencyToUpdate.getCourtType() != null ? courtTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(CourtType.JURISDICTION, agencyToUpdate.getCourtType())).orElseThrow(BadRequestException.withMessage(format("Court Type [%s] not found", agencyToUpdate.getCourtType()))) : null;
-        return AgencyTransformer.transform(AgencyTransformer.update(agency, agencyToUpdate, agencyLocationType, courtType), true, false);
-    }
-
-    @Transactional
-    public Agency createAgency(final RequestToCreateAgency agencyToCreate) {
-        agencyLocationRepository.findById(agencyToCreate.getAgencyId())
-            .ifPresent(p -> {
-                throw new EntityAlreadyExistsException(format("Agency with ID %s already exists", agencyToCreate.getAgencyId()));
-            });
-
-        final var agencyLocationType = agencyLocationTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(AgencyLocationType.AGY_LOC_TYPE, agencyToCreate.getAgencyType())).orElseThrow(BadRequestException.withMessage(format("Agency Type [%s] not found", agencyToCreate.getAgencyType())));
-
-        if (agencyLocationType.isCourt() && StringUtils.isBlank(agencyToCreate.getCourtType())) {
-            throw new EntityNotFoundException("Courts require a court type");
-        }
-        final var courtType = agencyToCreate.getCourtType() != null ? courtTypeReferenceCodeRepository.findById(new uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk(CourtType.JURISDICTION, agencyToCreate.getCourtType())).orElseThrow(BadRequestException.withMessage(format("Court Type [%s] not found", agencyToCreate.getCourtType()))) : null;
-
-        final var agencyLocation = agencyLocationRepository.save(AgencyTransformer.build(agencyToCreate, agencyLocationType, courtType));
-        return AgencyTransformer.transform(agencyLocation, true, false);
     }
 
     public List<Agency> getAgenciesByType(final String agencyType,
