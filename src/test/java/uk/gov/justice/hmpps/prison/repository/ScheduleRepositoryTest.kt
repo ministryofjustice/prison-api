@@ -126,9 +126,9 @@ class ScheduleRepositoryTest {
     @Test
     fun testGetLocationAppointmentsForSameDay() {
       val date = LocalDate.parse("2017-08-15")
-      val fromDate = LocalDate.parse("2017-08-15")
+      val toDate = LocalDate.parse("2017-08-15")
       val results: List<PrisonerSchedule> =
-        repository.getLocationAppointments(-29L, date, fromDate, null, null)
+        repository.getLocationAppointments(-29L, date, toDate, null, null)
       assertThat(results).hasSize(1)
       assertThat(results[0].startTime.toString()).isEqualTo("2017-08-15T14:30")
     }
@@ -136,9 +136,9 @@ class ScheduleRepositoryTest {
     @Test
     fun testGetLocationDifferentDaysUpperMatching() {
       val date = LocalDate.parse("2017-08-12")
-      val fromDate = LocalDate.parse("2017-08-15")
+      val toDate = LocalDate.parse("2017-08-15")
       val results: List<PrisonerSchedule> =
-        repository.getLocationAppointments(-29L, date, fromDate, null, null)
+        repository.getLocationAppointments(-29L, date, toDate, null, null)
       assertThat(results).hasSize(1)
       assertThat(results[0].startTime.toString()).isEqualTo("2017-08-15T14:30")
     }
@@ -146,9 +146,9 @@ class ScheduleRepositoryTest {
     @Test
     fun testGetLocationDifferentDaysLowerMatching() {
       val date = LocalDate.parse("2017-08-15")
-      val fromDate = LocalDate.parse("2017-08-17")
+      val toDate = LocalDate.parse("2017-08-17")
       val results: List<PrisonerSchedule> =
-        repository.getLocationAppointments(-29L, date, fromDate, null, null)
+        repository.getLocationAppointments(-29L, date, toDate, null, null)
       assertThat(results).hasSize(1)
       assertThat(results[0].startTime.toString()).isEqualTo("2017-08-15T14:30")
     }
@@ -156,9 +156,9 @@ class ScheduleRepositoryTest {
     @Test
     fun testGetLocationAppointmentsForDifferentDays() {
       val date = LocalDate.parse("2017-08-15")
-      val fromDate = LocalDate.parse("2017-09-16")
+      val toDate = LocalDate.parse("2017-09-15")
       val results: List<PrisonerSchedule> =
-        repository.getLocationAppointments(-29L, date, fromDate, null, null)
+        repository.getLocationAppointments(-29L, date, toDate, null, null)
       assertThat(results).hasSize(2)
       assertThat(results[0].startTime.toString()).isEqualTo("2017-09-15T14:30")
       assertThat(results[1].startTime.toString()).isEqualTo("2017-08-15T14:30")
