@@ -55,19 +55,6 @@ public class UserRepository extends RepositoryBase {
         jdbcTemplate.update(sql, createParams("caseLoadId", caseLoadId, "username", username));
     }
 
-    public List<UserDetail> findAllUsersWithCaseload(final String caseloadId, final String missingCaseloadId) {
-        Validate.notBlank(caseloadId, "An caseload id is required.");
-
-        final var sql = UserRepositorySql.FIND_ACTIVE_STAFF_USERS_WITH_ACCESSIBLE_CASELOAD.getSql();
-
-        final var users = jdbcTemplate.query(
-            sql,
-            createParams("caseloadId", caseloadId, "missingCaseloadId", missingCaseloadId),
-            USER_DETAIL_ROW_MAPPER);
-        return users.stream().map(UserDetailDto::toUserDetail).collect(Collectors.toList());
-    }
-
-
     public List<UserDetail> getUserListByUsernames(final List<String> usernames) {
 
         final var sql = UserRepositorySql.FIND_USERS_BY_USERNAMES.getSql();
