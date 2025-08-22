@@ -109,7 +109,10 @@ tasks {
     maxHeapSize = "2048m"
   }
 
+  val test by testing.suites.existing(JvmTestSuite::class)
   register<Test>("testIntegration") {
+    testClassesDirs = files(test.map { it.sources.output.classesDirs })
+    classpath = files(test.map { it.sources.runtimeClasspath })
     useJUnitPlatform {
       include("**/*IntTest*")
     }
@@ -118,6 +121,8 @@ tasks {
   }
 
   register<Test>("testWithSchemaNomis") {
+    testClassesDirs = files(test.map { it.sources.output.classesDirs })
+    classpath = files(test.map { it.sources.runtimeClasspath })
     environment(mapOf("api.db.target" to "nomis", "cucumber.filter.tags" to "not(@wip or @broken)"))
     useJUnitPlatform {
       include("**/executablespecification/*")
@@ -127,6 +132,8 @@ tasks {
   }
 
   register<Test>("testWithSchemaNomisOracle") {
+    testClassesDirs = files(test.map { it.sources.output.classesDirs })
+    classpath = files(test.map { it.sources.runtimeClasspath })
     environment(mapOf("api.db.target" to "nomis", "api.db.dialect" to "oracle", "cucumber.filter.tags" to "not(@wip or @broken)"))
     useJUnitPlatform {
       include("**/executablespecification/*")
