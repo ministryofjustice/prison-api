@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.6"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "8.3.7"
   kotlin("plugin.spring") version "2.2.10"
   kotlin("plugin.jpa") version "2.2.10"
   kotlin("plugin.lombok") version "2.2.10"
@@ -32,11 +32,11 @@ dependencies {
   implementation("commons-codec:commons-codec:1.19.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   implementation("com.github.jsqlparser:jsqlparser:5.2")
-  implementation("org.ehcache:ehcache:3.10.8")
+  implementation("org.ehcache:ehcache:3.11.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.9")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
 
   implementation("org.apache.commons:commons-lang3:3.18.0")
   implementation("commons-io:commons-io:2.20.0")
