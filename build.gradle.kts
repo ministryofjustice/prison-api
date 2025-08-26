@@ -15,6 +15,7 @@ configurations {
 }
 
 ext["hibernate.version"] = "6.5.3.Final"
+val jsqlParserVersion = "5.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
@@ -31,7 +32,7 @@ dependencies {
 
   implementation("commons-codec:commons-codec:1.19.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
-  implementation("com.github.jsqlparser:jsqlparser:5.2")
+  implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.11.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
@@ -72,10 +73,10 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.31") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.32") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.31")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.36")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.52.0")
 
