@@ -15,4 +15,10 @@ data class ImprisonmentStatusHistoryDto(
 
   @Schema(description = "The agency the status was set by")
   val agencyId: String,
+
+  @Schema(description = "Booking Identifier (internal) the status is associated with", example = "12312312", required = true)
+  val bookingId: Long,
+
+  @Schema(description = "Book Number (Prison) / Prison Number (Probation) the status is associated with", example = "B45232", required = true)
+  val bookNumber: String,
 )
