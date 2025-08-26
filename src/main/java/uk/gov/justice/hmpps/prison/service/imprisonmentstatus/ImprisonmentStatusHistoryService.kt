@@ -19,6 +19,8 @@ class ImprisonmentStatusHistoryService(
         status = it.imprisonmentStatus.status,
         effectiveDate = it.effectiveDate,
         agencyId = it.agyLocId,
+        bookingId = it.offenderBooking.bookingId,
+        bookNumber = it.offenderBooking.bookNumber,
       )
     }
 }
