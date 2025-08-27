@@ -1,0 +1,34 @@
+[
+  {
+    "bookingId": -9001,
+    "sentenceSequence": 1,
+    "caseSequence": 1,
+    "caseReference": "TEST001",
+    "sentenceStatus": "A",
+    "sentenceCategory": "2003",
+    "sentenceCalculationType": "ADIMP_ORA",
+    "sentenceTypeDescription": "ORA CJA03 Standard Determinate Sentence",
+    "sentenceDate": "2020-01-01",
+    "sentenceStartDate": "2020-01-01",
+    "terms": [],
+    "offences": [],
+    "isRecallable": true,
+    "sentenceClassification": "STANDARD"
+  },
+  {
+    "bookingId": -9001,
+    "sentenceSequence": 2,
+    "caseSequence": 1,
+    "caseReference": "TEST001",
+    "sentenceStatus": "A",
+    "sentenceCategory": "2003",
+    "sentenceCalculationType": "FTR_ORA",
+    "sentenceTypeDescription": "ORA 28 Day Fixed Term Recall",
+    "sentenceDate": "2020-01-01",
+    "sentenceStartDate": "2020-01-01",
+    "terms": [],
+    "offences": [],
+    "isRecallable": true,
+    "sentenceClassification": "RECALL"
+  }
+]
