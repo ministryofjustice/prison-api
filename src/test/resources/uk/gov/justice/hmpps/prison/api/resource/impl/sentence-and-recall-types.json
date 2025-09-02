@@ -1,0 +1,24 @@
+{
+  "-2": [
+    {
+      "sentenceType": "FTR_ORA",
+      "recallType": "FIXED_TERM_RECALL_28"
+    }
+  ],
+  "-20": [
+    {
+      "sentenceType": "ADIMP_ORA",
+      "recallType": "NONE"
+    },
+    {
+      "sentenceType": "ADIMP_ORA",
+      "recallType": "NONE"
+    }
+  ],
+  "-5": [
+    {
+      "sentenceType": "FTR_ORA",
+      "recallType": "FIXED_TERM_RECALL_28"
+    }
+  ]
+}

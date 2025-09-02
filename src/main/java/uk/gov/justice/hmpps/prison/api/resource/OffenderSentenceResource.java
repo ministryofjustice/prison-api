@@ -34,6 +34,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
+import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
@@ -42,6 +43,8 @@ import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
 
 import java.util.List;
+import java.util.Map;
+import java.util.Set;
 
 @Slf4j
 @RestController
@@ -227,6 +230,17 @@ public class OffenderSentenceResource {
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(summary = "Sentence and recall types")
+    @Tag(name = "integration-api")
+    @PostMapping("/bookings/sentence-and-recall-types")
+    @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
+    public Map<Long, List<SentenceTypeRecallType>> getSentenceAndOffenceDetails(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final Set<Long> bookingIds) {
+        return bookingService.getSentenceAndRecallTypes(bookingIds);
     }
 
     private void validateOffenderList(final List<?> offenderList) {

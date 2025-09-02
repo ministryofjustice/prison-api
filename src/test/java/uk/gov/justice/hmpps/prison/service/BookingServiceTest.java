@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service;
 
+import com.google.common.collect.Sets;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -26,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetailDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
+import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -1147,6 +1149,53 @@ public class BookingServiceTest {
                 .build()
         );
     }
+
+    @Test
+    void getSentenceAndOffenceDetailsForBookingIds_withMinimalData() {
+        Set<Long> bookingIds = Sets.newHashSet(1L, 8L, 3L);
+        when(offenderSentenceRepository.findByOffenderBooking_BookingIdInAndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingIds, "%AGG%", "LICENCE"))
+            .thenReturn(
+                List.of(OffenderSentence.builder()
+                    .id(new OffenderSentence.PK(8L, 1))
+                    .offenderBooking(OffenderBooking.builder().bookingId(8L).build())
+                    .status("A")
+                    .calculationType(SentenceCalcType.builder().calculationType(SentenceTypeRecallType.FTR.name()).build()
+                    ).build(),
+                    OffenderSentence.builder()
+                        .id(new OffenderSentence.PK(3L, 1))
+                        .offenderBooking(OffenderBooking.builder().bookingId(3L).build())
+                        .status("A")
+                        .calculationType(SentenceCalcType.builder().calculationType(SentenceTypeRecallType.ADIMP.name()).build()
+                        ).build(),
+                    OffenderSentence.builder()
+                        .id(new OffenderSentence.PK(3L, 2))
+                        .offenderBooking(OffenderBooking.builder().bookingId(3L).build())
+                        .status("A")
+                        .calculationType(SentenceCalcType.builder().calculationType(SentenceTypeRecallType.FTR_SCH15.name()).build()
+                        ).build(),
+                    OffenderSentence.builder()
+                        .id(new OffenderSentence.PK(1L, 1))
+                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                        .status("A")
+                        .calculationType(SentenceCalcType.builder().calculationType(SentenceTypeRecallType.LR_LASPO_AR.name()).build()
+                        ).build(),
+                    OffenderSentence.builder()
+                        .id(new OffenderSentence.PK(1L, 2))
+                        .offenderBooking(OffenderBooking.builder().bookingId(1L).build())
+                        .status("I")
+                        .calculationType(SentenceCalcType.builder().calculationType(SentenceTypeRecallType.EDS21.name()).build()
+                        ).build()
+                )
+            );
+
+        final var sentencesAndOffences = bookingService.getSentenceAndRecallTypes(bookingIds);
+
+        assertThat(sentencesAndOffences.size()).isEqualTo(3);
+        assertThat(sentencesAndOffences.keySet()).containsExactlyInAnyOrder(1L, 8L, 3L);
+        assertThat(sentencesAndOffences.get(1L)).containsExactly(SentenceTypeRecallType.LR_LASPO_AR);
+        assertThat(sentencesAndOffences.get(3L)).containsExactly(SentenceTypeRecallType.ADIMP, SentenceTypeRecallType.FTR_SCH15);
+        assertThat(sentencesAndOffences.get(8L)).containsExactly(SentenceTypeRecallType.FTR);
+   }
 
     @Test
     void getOffenderFinePayments() {
