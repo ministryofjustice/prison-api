@@ -39,7 +39,7 @@ enum class SentenceTypeRecallType(
   //endregion
 
   //region Fine, BOTUS and DTO Sentences
-  AFINE(sentenceType = "A/FINE"),
+  AFINE("A/FINE"),
   DTO("DTO"),
   DTO_ORA("DTO_ORA"),
   BOTUS("BOTUS"),
@@ -48,17 +48,17 @@ enum class SentenceTypeRecallType(
   //region Standard Recall Sentences
   LR("LR", STANDARD_RECALL),
   LR_ORA("LR_ORA", STANDARD_RECALL),
-  LR_SEC91_ORA("", STANDARD_RECALL),
-  LRSEC250_ORA("", STANDARD_RECALL),
-  LR_EDS18("", STANDARD_RECALL),
-  LR_EDS21("", STANDARD_RECALL),
-  LR_EDSU18("", STANDARD_RECALL),
-  LR_LASPO_AR("", STANDARD_RECALL),
-  LR_LASPO_DR("", STANDARD_RECALL),
-  LR_SEC236A("", STANDARD_RECALL),
-  LR_SOPC18("", STANDARD_RECALL),
-  LR_SOPC21("", STANDARD_RECALL),
-  LR_YOI_ORA("", STANDARD_RECALL),
+  LR_SEC91_ORA("LR_SEC91_ORA", STANDARD_RECALL),
+  LRSEC250_ORA("LRSEC250_ORA", STANDARD_RECALL),
+  LR_EDS18("LR_EDS18", STANDARD_RECALL),
+  LR_EDS21("LR_EDS21", STANDARD_RECALL),
+  LR_EDSU18("LR_EDSU18", STANDARD_RECALL),
+  LR_LASPO_AR("LR_LASPO_AR", STANDARD_RECALL),
+  LR_LASPO_DR("LR_LASPO_DR", STANDARD_RECALL),
+  LR_SEC236A("LR_SEC236A", STANDARD_RECALL),
+  LR_SOPC18("LR_SOPC18", STANDARD_RECALL),
+  LR_SOPC21("LR_SOPC21", STANDARD_RECALL),
+  LR_YOI_ORA("LR_YOI_ORA", STANDARD_RECALL),
   //endregion
 
   //region Fixed Term Recall Sentences
@@ -83,7 +83,7 @@ enum class SentenceTypeRecallType(
   IPP("IPP"),
   LEGACY("LEGACY"),
   LIFE("LIFE"),
-  LIFE_IPP(sentenceType = "LIFE/IPP"),
+  LIFE_IPP("LIFE/IPP"),
   MLP("MLP"),
   SEC272("SEC272"),
   SEC275("SEC275"),
@@ -91,7 +91,7 @@ enum class SentenceTypeRecallType(
   SEC94("SEC94"),
   ZMD("ZMD"),
   SEC93("SEC93"),
-  TWENTY(sentenceType = "20"),
+  TWENTY("20"),
   //endregion
 
   //region Indeterminate Recall Sentences
