@@ -16,7 +16,6 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
@@ -45,6 +44,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
+import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -94,7 +94,6 @@ import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -112,6 +111,8 @@ import static java.lang.String.format;
 import static java.time.LocalDate.now;
 import static java.util.Comparator.naturalOrder;
 import static java.util.Comparator.nullsLast;
+import static java.util.stream.Collectors.groupingBy;
+import static java.util.stream.Collectors.mapping;
 import static java.util.stream.Collectors.toList;
 import static org.apache.commons.text.WordUtils.capitalizeFully;
 import static org.springframework.http.HttpStatus.BAD_REQUEST;
@@ -695,6 +696,12 @@ public class BookingService {
         return offenderSentences.stream()
             .map(OffenderSentence::getSentenceAndOffenceDetail)
             .toList();
+    }
+
+    public Map<Long, List<SentenceTypeRecallType>> getSentenceAndRecallTypes(final Set<Long> bookingIds) {
+        final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingIdInAndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingIds, "%AGG%", "LICENCE");
+        return offenderSentences.stream().filter(sentence -> "A".equals(sentence.getStatus()))
+            .collect(groupingBy(OffenderSentence::getBookingId, mapping(OffenderSentence::getSentenceTypeRecallType, toList())));
     }
 
     public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
