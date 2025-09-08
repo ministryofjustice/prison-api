@@ -238,6 +238,7 @@ public class MovementsService {
 
         checkTransferParametersAndThrowIfIncorrect(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
 
+        long timing1 = System.currentTimeMillis();
         final List<CourtEvent> listOfCourtEvents = courtEvents ?
             movementsRepository.getCourtEvents(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -247,6 +248,7 @@ public class MovementsService {
                 .collect(toList()) :
             List.of();
 
+        long timing2 = System.currentTimeMillis();
         final List<ReleaseEvent> listOfReleaseEvents = releaseEvents ?
             movementsRepository.getOffenderReleases(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -255,10 +257,12 @@ public class MovementsService {
                 .collect(toList()) :
             List.of();
 
+        long timing3 = System.currentTimeMillis();
         final List<TransferEvent> listOfTransferEvents = transferEvents ?
             getTransferEvents(agencyIds, fromDateTime, toDateTime) :
             List.of();
 
+        long timing4 = System.currentTimeMillis();
         final List<MovementSummary> listOfMovements = movements ?
             movementsRepository.getCompletedMovementsForAgencies(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -268,6 +272,14 @@ public class MovementsService {
                 .collect(toList()) :
             List.of();
 
+        long timing5 = System.currentTimeMillis();
+        log.info("getTransferMovementsForAgencies({},{},{},{},{},{},{}) timings ms are COURT_EVENTS {}, OFFENDER_RELEASE_DETAILS {}, OFFENDER_IND_SCHEDULES {}, OFFENDER_EXTERNAL_MOVEMENTS {}",
+            agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements,
+            timing2 - timing1,
+            timing3 - timing2,
+            timing4 - timing3,
+            timing5 - timing4
+        );
         return TransferSummary.builder()
             .courtEvents(listOfCourtEvents)
             .releaseEvents(listOfReleaseEvents)
