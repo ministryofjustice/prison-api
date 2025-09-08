@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,9 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -76,7 +79,7 @@ public class MovementsService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     private final int maxBatchSize;
-
+    private final TelemetryClient telemetryClient;
 
     public MovementsService(final MovementsRepository movementsRepository,
                             final ExternalMovementRepository externalMovementRepository,
@@ -86,7 +89,8 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
-                            @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                            @Value("${batch.max.size:1000}") final int maxBatchSize,
+                            final TelemetryClient telemetryClient) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.courtEventRepository = courtEventRepository;
@@ -96,6 +100,7 @@ public class MovementsService {
         this.movementReasonRepository = movementReasonRepository;
         this.movementTypeAndReasonRepository = movementTypeAndReasonRepository;
         this.maxBatchSize = maxBatchSize;
+        this.telemetryClient = telemetryClient;
     }
 
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
