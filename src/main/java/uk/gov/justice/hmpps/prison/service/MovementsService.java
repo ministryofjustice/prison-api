@@ -273,13 +273,20 @@ public class MovementsService {
             List.of();
 
         long timing5 = System.currentTimeMillis();
-        log.info("getTransferMovementsForAgencies({},{},{},{},{},{},{}) timings ms are COURT_EVENTS {}, OFFENDER_RELEASE_DETAILS {}, OFFENDER_IND_SCHEDULES {}, OFFENDER_EXTERNAL_MOVEMENTS {}",
-            agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements,
-            timing2 - timing1,
-            timing3 - timing2,
-            timing4 - timing3,
-            timing5 - timing4
-        );
+        Map<String, String> telemetryMap = new HashMap<>();
+        telemetryMap.put("agencyIds", agencyIds.toString());
+        telemetryMap.put("fromDateTime", fromDateTime.toString());
+        telemetryMap.put("toDateTime", toDateTime.toString());
+        telemetryMap.put("courtEvents", String.valueOf(courtEvents));
+        telemetryMap.put("releaseEvents", String.valueOf(releaseEvents));
+        telemetryMap.put("transferEvents", String.valueOf(transferEvents));
+        telemetryMap.put("movements", String.valueOf(movements));
+        telemetryMap.put("COURT_EVENTS", String.valueOf(timing2 - timing1));
+        telemetryMap.put("OFFENDER_RELEASE_DETAILS", String.valueOf(timing3 - timing2));
+        telemetryMap.put("OFFENDER_IND_SCHEDULES", String.valueOf(timing4 - timing3));
+        telemetryMap.put("OFFENDER_EXTERNAL_MOVEMENTS", String.valueOf(timing5 - timing4));
+        telemetryClient.trackEvent("getTransferMovementsForAgencies", telemetryMap, null);
+
         return TransferSummary.builder()
             .courtEvents(listOfCourtEvents)
             .releaseEvents(listOfReleaseEvents)

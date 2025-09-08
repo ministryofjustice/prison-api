@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
+import com.microsoft.applicationinsights.TelemetryClient;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -80,6 +81,8 @@ public class MovementsServiceImplTest {
     private ReferenceCodeRepository<MovementReason> movementReasonRepository;
     @Mock
     private MovementTypeAndReasonRepository movementTypeAndReasonRepository;
+    @Mock
+    private TelemetryClient telemetryClient;
 
     private MovementsService movementsService;
 
@@ -94,7 +97,8 @@ public class MovementsServiceImplTest {
             movementReasonRepository,
             offenderBookingRepository,
             movementTypeAndReasonRepository,
-            1);
+            1,
+            telemetryClient);
     }
 
     @Test
