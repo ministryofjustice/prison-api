@@ -234,12 +234,8 @@ class PrisonerProfilePersonServiceTest {
   @Test
   fun `getPerson propagates NoSuchElementException when offender isn't found by offenderAddressService`() {
     whenever(offenderAddressService.getAddressesByOffenderNo(prisonerNumber))
-      .thenThrow(NoSuchElementException("test"))
+      .thenThrow(EntityNotFoundException("test"))
 
-    val ex = assertThrows<NoSuchElementException> {
-      service.getPerson(prisonerNumber)
-    }
-
-    assertThat(ex.message).isEqualTo("test")
+    assertEntityNotFound { service.getPerson(prisonerNumber) }
   }
 }
