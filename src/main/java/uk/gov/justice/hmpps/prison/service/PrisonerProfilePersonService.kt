@@ -32,9 +32,15 @@ class PrisonerProfilePersonService(
       }
     }
 
+    val addresses = try {
+      offenderAddressService.getAddressesByOffenderNo(prisonerNumber)
+    } catch (ex: NoSuchElementException) {
+      throw EntityNotFoundException("Prisoner with prisonerNumber $prisonerNumber not found")
+    }
+
     return FullPersonDto(
       aliases = prisonerProfileUpdateService.getAliases(prisonerNumber),
-      addresses = offenderAddressService.getAddressesByOffenderNo(prisonerNumber),
+      addresses = addresses,
       phones = offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber),
       emails = offenderEmailsService.getEmailsByPrisonerNumber(prisonerNumber),
       militaryRecord = militaryRecord,
