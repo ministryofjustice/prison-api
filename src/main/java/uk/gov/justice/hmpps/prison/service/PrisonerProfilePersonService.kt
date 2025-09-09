@@ -28,7 +28,7 @@ class PrisonerProfilePersonService(
         is EntityNotFoundException,
         is CannotAcquireLockException,
         is DatabaseRowLockedException,
-          -> null
+        -> null
         else -> throw ex
       }
     }

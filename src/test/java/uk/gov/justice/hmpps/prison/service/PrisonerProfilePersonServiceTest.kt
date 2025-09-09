@@ -7,10 +7,20 @@ import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
-import java.time.LocalDate
-import uk.gov.justice.hmpps.prison.api.model.*
+import uk.gov.justice.hmpps.prison.api.model.AddressDto
+import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
+import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
+import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail
+import uk.gov.justice.hmpps.prison.api.model.Email
+import uk.gov.justice.hmpps.prison.api.model.FullPersonDto
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
+import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
+import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
+import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import java.time.LocalDate
 import java.time.LocalDateTime
 
 class PrisonerProfilePersonServiceTest {
@@ -63,7 +73,7 @@ class PrisonerProfilePersonServiceTest {
 
   private val email = Email(
     1L,
-    "test@example.com"
+    "test@example.com",
   )
 
   private val militaryRecord = MilitaryRecord(
@@ -92,7 +102,7 @@ class PrisonerProfilePersonServiceTest {
   private val referenceDataValue = ReferenceDataValue(
     domain = "DM",
     code = "CD",
-    description = "DESC"
+    description = "DESC",
   )
 
   private val physicalAttributes = CorePersonPhysicalAttributes(
@@ -133,7 +143,7 @@ class PrisonerProfilePersonServiceTest {
     emails = listOf(email),
     militaryRecord = MilitaryRecords(listOf(militaryRecord)),
     physicalAttributes = physicalAttributes,
-    distinguishingMarks = listOf(distinguishingMark)
+    distinguishingMarks = listOf(distinguishingMark),
   )
 
   @BeforeEach
