@@ -28,4 +28,4 @@ data class FullPersonDto(
   @Schema(description = "List of distinguishing marks for the person")
   val distinguishingMarks: List<DistinguishingMark>,
 
-  )
+)
