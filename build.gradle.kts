@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.0"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.0.1"
   kotlin("plugin.spring") version "2.2.10"
   kotlin("plugin.jpa") version "2.2.10"
   kotlin("plugin.lombok") version "2.2.10"
@@ -19,10 +19,10 @@ val jsqlParserVersion = "5.2"
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.38")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.38")
+  annotationProcessor("org.projectlombok:lombok:1.18.40")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.40")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.5.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:1.6.0-beta4")
   implementation("org.springframework.boot:spring-boot-starter-aop")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -33,11 +33,11 @@ dependencies {
   implementation("commons-codec:commons-codec:1.19.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
-  implementation("org.ehcache:ehcache:3.11.0")
+  implementation("org.ehcache:ehcache:3.11.1")
   runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.11")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:2.8.13")
 
   implementation("org.apache.commons:commons-lang3:3.18.0")
   implementation("commons-io:commons-io:2.20.0")
@@ -46,13 +46,13 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc10:19.28.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  compileOnly("org.projectlombok:lombok:1.18.38")
+  compileOnly("org.projectlombok:lombok:1.18.40")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.5.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:1.6.0-beta4")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux")
   testImplementation("io.rest-assured:rest-assured:5.5.6")
@@ -73,14 +73,14 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.32") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.33") {
     exclude(group = "io.swagger.core.v3")
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.36")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.52.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.38")
+  testCompileOnly("org.projectlombok:lombok:1.18.40")
 }
 
 java {

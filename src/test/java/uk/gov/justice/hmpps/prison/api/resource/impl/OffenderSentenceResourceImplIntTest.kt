@@ -825,6 +825,40 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
   }
 
+  @Nested
+  @DisplayName("POST /api/offender-sentences/bookings/sentence-and-recall-types")
+  inner class OffenderSentenceAndRecallTypes {
+
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings/sentence-and-recall-types")
+        .exchange().expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns bad request when no booking ids are provided`() {
+      webTestClient.post().uri("/api/offender-sentences/bookings/sentence-and-recall-types")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Malformed request")
+    }
+
+    @Test
+    fun sentenceAndRecallTypesWithOffenceInformation() {
+      webTestClient.post()
+        .uri("/api/offender-sentences/bookings/sentence-and-recall-types")
+        .headers(setAuthorisation("RO_USER", listOf("ROLE_VIEW_PRISONER_DATA")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("[ -20, -2, -5 ]")
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("sentence-and-recall-types.json".readFile())
+    }
+  }
+
   internal fun String.readFile(): String = this@OffenderSentenceResourceImplIntTest::class.java.getResource(this)!!.readText()
 }
 
