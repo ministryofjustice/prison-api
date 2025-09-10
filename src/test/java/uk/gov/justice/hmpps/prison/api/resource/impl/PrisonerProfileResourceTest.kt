@@ -19,13 +19,13 @@ import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.service.PrisonerProfilePersonService
 import java.time.LocalDate
 
-class PrisonerProfileResourceIntTest : ResourceTest() {
+class PrisonerProfileResourceTest : ResourceTest() {
 
   @MockitoSpyBean
   lateinit var prisonerProfilePersonService: PrisonerProfilePersonService
 
   @Nested
-  @DisplayName("GET /offenders/{offenderNo}/full-person")
+  @DisplayName("GET /offenders/{offenderNo}/profile-summary")
   inner class GetFullPerson {
 
     @Nested
@@ -35,7 +35,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `returns 401 without an auth token`() {
         webTestClient.get()
-          .uri("api/offenders/A1072AA/full-person")
+          .uri("api/offenders/A1072AA/profile-summary")
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -43,7 +43,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 when client does not have any roles`() {
         webTestClient.get()
-          .uri("api/offenders/A1072AA/full-person")
+          .uri("api/offenders/A1072AA/profile-summary")
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().isForbidden
@@ -52,7 +52,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `returns 403 when supplied roles do not include PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.get()
-          .uri("api/offenders/A1072AA/full-person")
+          .uri("api/offenders/A1072AA/profile-summary")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .exchange()
           .expectStatus().isForbidden
@@ -61,7 +61,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `returns 200 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
         webTestClient.get()
-          .uri("api/offenders/A1072AA/full-person")
+          .uri("api/offenders/A1072AA/profile-summary")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .exchange()
           .expectStatus().isOk
@@ -75,7 +75,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `should retrieve full person data`() {
         val person = webTestClient.get()
-          .uri("api/offenders/A1234AL/full-person")
+          .uri("api/offenders/A1234AL/profile-summary")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .exchange()
           .expectStatus().isOk
@@ -94,7 +94,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
       @Test
       fun `returns 404 when prisoner does not exist`() {
         webTestClient.get()
-          .uri("api/offenders/XXXX/full-person")
+          .uri("api/offenders/XXXX/profile-summary")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .exchange()
           .expectStatus().isNotFound
@@ -108,7 +108,7 @@ class PrisonerProfileResourceIntTest : ResourceTest() {
           .whenever(prisonerProfilePersonService).getPerson("A1072AA")
 
         webTestClient.get()
-          .uri("api/offenders/A1072AA/full-person")
+          .uri("api/offenders/A1072AA/profile-summary")
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .exchange()
           .expectStatus().isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR)
