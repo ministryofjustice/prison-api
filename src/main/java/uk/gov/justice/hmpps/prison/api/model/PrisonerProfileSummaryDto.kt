@@ -5,7 +5,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 
 @Schema(description = "Person - DTO for use in returning all person data for use in the Core Person Record proxy")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class FullPersonDto(
+data class PrisonerProfileSummaryDto(
 
   @Schema(description = "List of aliases for the person")
   val aliases: List<CorePersonRecordAlias>,

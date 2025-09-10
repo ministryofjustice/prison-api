@@ -13,9 +13,9 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMark
 import uk.gov.justice.hmpps.prison.api.model.DistinguishingMarkImageDetail
 import uk.gov.justice.hmpps.prison.api.model.Email
-import uk.gov.justice.hmpps.prison.api.model.FullPersonDto
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecord
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
+import uk.gov.justice.hmpps.prison.api.model.PrisonerProfileSummaryDto
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.Telephone
@@ -136,7 +136,7 @@ class PrisonerProfilePersonServiceTest {
     assertThat(ex.message).isEqualTo("test")
   }
 
-  private val fullPerson = FullPersonDto(
+  private val fullPerson = PrisonerProfileSummaryDto(
     aliases = listOf(alias),
     addresses = listOf(address),
     phones = listOf(phone),

@@ -2,7 +2,7 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.stereotype.Service
-import uk.gov.justice.hmpps.prison.api.model.FullPersonDto
+import uk.gov.justice.hmpps.prison.api.model.PrisonerProfileSummaryDto
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 
 @Service
@@ -14,7 +14,7 @@ class PrisonerProfilePersonService(
   private val offenderMilitaryRecordService: OffenderMilitaryRecordService,
   private val distinguishingMarkService: DistinguishingMarkService,
 ) {
-  fun getPerson(prisonerNumber: String): FullPersonDto {
+  fun getPerson(prisonerNumber: String): PrisonerProfileSummaryDto {
     val militaryRecord = try {
       offenderMilitaryRecordService.getMilitaryRecords(prisonerNumber)
     } catch (e: EntityNotFoundException) {
@@ -39,7 +39,7 @@ class PrisonerProfilePersonService(
       throw EntityNotFoundException("Prisoner with prisonerNumber $prisonerNumber not found")
     }
 
-    return FullPersonDto(
+    return PrisonerProfileSummaryDto(
       aliases = prisonerProfileUpdateService.getAliases(prisonerNumber),
       addresses = addresses,
       phones = offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber),

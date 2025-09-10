@@ -19,10 +19,10 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.service.PrisonerProfilePersonService
 
 @RestController
-@Tag(name = "Full-person")
+@Tag(name = "Prisoner-profile")
 @Validated
 @RequestMapping(value = ["\${api.base.path}"], produces = ["application/json"])
-class FullPersonResource(private val prisonerProfilePersonService: PrisonerProfilePersonService) {
+class PrisonerProfileResource(private val prisonerProfilePersonService: PrisonerProfilePersonService) {
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "Person successfully returned."),
     ApiResponse(
@@ -37,10 +37,12 @@ class FullPersonResource(private val prisonerProfilePersonService: PrisonerProfi
     ),
   )
   @Operation(
-    summary = "Retrieve all data on a person for use with the prisoner profile." +
+    summary = "Temporary endpoint simulating the Core Person Record service. For use with the prisoner profile. " +
+      "Retrieves a prisoner profile summary containing aliases, addresses, phone numbers, " +
+      "email addresses, military records, physical attributes, and distinguishing marks. " +
       "Requires the PRISON_API__PRISONER_PROFILE__RW role.",
   )
-  @GetMapping("/offenders/{offenderNo}/full-person")
+  @GetMapping("/offenders/{offenderNo}/profile-summary")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ResponseStatus(OK)
   fun getAliases(

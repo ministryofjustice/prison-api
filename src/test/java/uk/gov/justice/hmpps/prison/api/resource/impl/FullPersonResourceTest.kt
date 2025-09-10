@@ -13,13 +13,13 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.returnResult
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
-import uk.gov.justice.hmpps.prison.api.model.FullPersonDto
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords
+import uk.gov.justice.hmpps.prison.api.model.PrisonerProfileSummaryDto
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.service.PrisonerProfilePersonService
 import java.time.LocalDate
 
-class FullPersonResourceIntTest : ResourceTest() {
+class PrisonerProfileResourceIntTest : ResourceTest() {
 
   @MockitoSpyBean
   lateinit var prisonerProfilePersonService: PrisonerProfilePersonService
@@ -79,7 +79,7 @@ class FullPersonResourceIntTest : ResourceTest() {
           .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
           .exchange()
           .expectStatus().isOk
-          .returnResult<FullPersonDto>()
+          .returnResult<PrisonerProfileSummaryDto>()
           .responseBody
           .blockFirst()
 
@@ -118,7 +118,7 @@ class FullPersonResourceIntTest : ResourceTest() {
     }
   }
 
-  private val expectedPerson = FullPersonDto(
+  private val expectedPerson = PrisonerProfileSummaryDto(
     aliases = listOf(
       CorePersonRecordAlias(
         prisonerNumber = "A1234AL",
