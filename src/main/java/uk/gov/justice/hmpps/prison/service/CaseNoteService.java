@@ -19,7 +19,6 @@ import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
@@ -29,7 +28,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.PrisonerCaseNoteTypeAndSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
@@ -39,14 +37,12 @@ import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
-import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
 import static java.util.stream.Collectors.counting;
 import static java.util.stream.Collectors.groupingBy;
-import static java.util.stream.Collectors.maxBy;
 
 @Service
 @Validated
@@ -177,19 +173,6 @@ public class CaseNoteService {
             caseNoteUsage.addAll(caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, null, staffId, type, subType));
         }
         return caseNoteUsage;
-    }
-
-    public List<CaseNoteUsageByBookingId> getCaseNoteUsageByBookingId(final String type, final String subType, @NotEmpty final List<Long> bookingIds, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
-        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-
-        final var filteredListOfCaseNotes = offenderCaseNoteRepository.findCaseNoteTypesByBookingsAndDates(bookingIds, type, subType, deriveDates.getFromDateToUse(), deriveDates.getToDateToUse());
-        final var counts = filteredListOfCaseNotes.stream().collect(groupingBy(cn -> new CaseNoteTypesAndSubTypes(cn.bookingId(), cn.type(), cn.subType()), counting()));
-        final var latest = filteredListOfCaseNotes.stream().collect(groupingBy(cn -> new CaseNoteTypesAndSubTypes(cn.bookingId(), cn.type(), cn.subType()), maxBy(Comparator.comparing(PrisonerCaseNoteTypeAndSubType::occurrenceDateTime))));
-
-        return counts
-            .entrySet().stream()
-            .map(s -> new CaseNoteUsageByBookingId(s.getKey().bookingId, s.getKey().type, s.getKey().subType, s.getValue(), latest.get(s.getKey()).orElseThrow().occurrenceDateTime()))
-            .toList();
     }
 
     public List<CaseNoteTypeCount> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
