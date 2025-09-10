@@ -22,6 +22,7 @@ import java.time.LocalDate;
 @ToString(of = {"code", "description"})
 @With
 public class OffenceResult extends AuditableEntity {
+    public static String RECALL_COURT_RESULT_OUTCOME = "1501";
 
     @Id
     @Column(name = "RESULT_CODE")

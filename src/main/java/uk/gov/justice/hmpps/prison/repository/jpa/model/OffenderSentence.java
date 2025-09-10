@@ -168,7 +168,16 @@ public class OffenderSentence extends AuditableEntity {
                 .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
                 .toList())
-
+            .revocationDates(offenderSentenceCharges == null ? null : offenderSentenceCharges
+                .stream()
+                .map(OffenderSentenceCharge::getOffenderCharge)
+                .flatMap(it -> it.getCourtEventCharges().stream())
+                .filter(it -> it.getResultCodeOne().getCode().equals(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
+                .map(it -> it.getEventAndCharge().getCourtEvent().getEventDate())
+                .distinct()
+                .sorted()
+                .toList()
+            )
             .build();
     }
 
