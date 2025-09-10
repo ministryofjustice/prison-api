@@ -1,0 +1,36 @@
+{
+  "-2": [
+    {
+      "sentenceType": "FTR_ORA",
+      "recallType": {
+        "recallName": "FIXED_TERM_RECALL_28",
+        "isFixedTermRecall": true
+      }
+    }
+  ],
+  "-20": [
+    {
+      "sentenceType": "ADIMP_ORA",
+      "recallType": {
+        "recallName": "NONE",
+        "isFixedTermRecall": false
+      }
+    },
+    {
+      "sentenceType": "ADIMP_ORA",
+      "recallType": {
+        "recallName": "NONE",
+        "isFixedTermRecall": false
+      }
+    }
+  ],
+  "-5": [
+    {
+      "sentenceType": "FTR_ORA",
+      "recallType": {
+        "recallName": "FIXED_TERM_RECALL_28",
+        "isFixedTermRecall": true
+      }
+    }
+  ]
+}

@@ -22,11 +22,11 @@ import lombok.With;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerm;
+import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 @Getter
 @Entity
@@ -170,5 +170,12 @@ public class OffenderSentence extends AuditableEntity {
                 .toList())
 
             .build();
+    }
+
+    public Long getBookingId() {
+        return getOffenderBooking().getBookingId();
+    }
+    public SentenceTypeRecallType getSentenceTypeRecallType() {
+        return SentenceTypeRecallType.from(calculationType.getCalculationType());
     }
 }

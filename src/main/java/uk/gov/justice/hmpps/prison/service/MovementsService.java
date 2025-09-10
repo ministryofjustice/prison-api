@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
+import com.microsoft.applicationinsights.TelemetryClient;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -50,7 +51,9 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.function.Predicate;
 
@@ -76,7 +79,7 @@ public class MovementsService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     private final int maxBatchSize;
-
+    private final TelemetryClient telemetryClient;
 
     public MovementsService(final MovementsRepository movementsRepository,
                             final ExternalMovementRepository externalMovementRepository,
@@ -86,7 +89,8 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
-                            @Value("${batch.max.size:1000}") final int maxBatchSize) {
+                            @Value("${batch.max.size:1000}") final int maxBatchSize,
+                            final TelemetryClient telemetryClient) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.courtEventRepository = courtEventRepository;
@@ -96,6 +100,7 @@ public class MovementsService {
         this.movementReasonRepository = movementReasonRepository;
         this.movementTypeAndReasonRepository = movementTypeAndReasonRepository;
         this.maxBatchSize = maxBatchSize;
+        this.telemetryClient = telemetryClient;
     }
 
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
@@ -238,6 +243,7 @@ public class MovementsService {
 
         checkTransferParametersAndThrowIfIncorrect(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
 
+        long timing1 = System.currentTimeMillis();
         final List<CourtEvent> listOfCourtEvents = courtEvents ?
             movementsRepository.getCourtEvents(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -247,6 +253,7 @@ public class MovementsService {
                 .collect(toList()) :
             List.of();
 
+        long timing2 = System.currentTimeMillis();
         final List<ReleaseEvent> listOfReleaseEvents = releaseEvents ?
             movementsRepository.getOffenderReleases(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -255,10 +262,12 @@ public class MovementsService {
                 .collect(toList()) :
             List.of();
 
+        long timing3 = System.currentTimeMillis();
         final List<TransferEvent> listOfTransferEvents = transferEvents ?
             getTransferEvents(agencyIds, fromDateTime, toDateTime) :
             List.of();
 
+        long timing4 = System.currentTimeMillis();
         final List<MovementSummary> listOfMovements = movements ?
             movementsRepository.getCompletedMovementsForAgencies(agencyIds, fromDateTime, toDateTime).stream()
                 .map(event -> event.toBuilder()
@@ -267,6 +276,21 @@ public class MovementsService {
                     .build())
                 .collect(toList()) :
             List.of();
+
+        long timing5 = System.currentTimeMillis();
+        Map<String, String> telemetryMap = new HashMap<>();
+        telemetryMap.put("agencyIds", agencyIds.toString());
+        telemetryMap.put("fromDateTime", fromDateTime.toString());
+        telemetryMap.put("toDateTime", toDateTime.toString());
+        telemetryMap.put("courtEvents", String.valueOf(courtEvents));
+        telemetryMap.put("releaseEvents", String.valueOf(releaseEvents));
+        telemetryMap.put("transferEvents", String.valueOf(transferEvents));
+        telemetryMap.put("movements", String.valueOf(movements));
+        telemetryMap.put("COURT_EVENTS", String.valueOf(timing2 - timing1));
+        telemetryMap.put("OFFENDER_RELEASE_DETAILS", String.valueOf(timing3 - timing2));
+        telemetryMap.put("OFFENDER_IND_SCHEDULES", String.valueOf(timing4 - timing3));
+        telemetryMap.put("OFFENDER_EXTERNAL_MOVEMENTS", String.valueOf(timing5 - timing4));
+        telemetryClient.trackEvent("getTransferMovementsForAgencies", telemetryMap, null);
 
         return TransferSummary.builder()
             .courtEvents(listOfCourtEvents)
