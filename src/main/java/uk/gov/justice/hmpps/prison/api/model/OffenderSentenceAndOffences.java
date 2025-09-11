@@ -9,6 +9,7 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -69,6 +70,9 @@ public class OffenderSentenceAndOffences {
 
     @Schema(description = "The amount of fine related to the sentence and offence")
     private Double fineAmount;
+
+    @Schema(description = "The revocation dates for when this sentences has been recalled")
+    private List<LocalDate> revocationDates;
 
     @JsonIgnore
     public boolean isAFine() { return A_FINE_TYPE.equals(sentenceCalculationType); }

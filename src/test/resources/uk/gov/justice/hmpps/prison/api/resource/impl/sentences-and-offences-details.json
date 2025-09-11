@@ -42,7 +42,10 @@
         ]
       }
     ],
-    "fineAmount": 100.15
+    "fineAmount": 100.15,
+    "revocationDates": [
+      "2017-06-21"
+    ]
   },
   {
     "bookingId": -20,

@@ -43,6 +43,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventOutcome;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
@@ -57,6 +58,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentence.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSentenceCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Person;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer;
@@ -84,6 +86,7 @@ import uk.gov.justice.hmpps.prison.service.transformers.OffenderBookingTransform
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -1050,7 +1053,7 @@ public class BookingServiceTest {
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
-                    .id(new OffenderSentence.PK(-98L, 2))
+                    .id(new PK(-98L, 2))
                     .lineSequence(5L)
                     .consecutiveToSentenceSequence(1)
                     .status("A")
@@ -1081,6 +1084,18 @@ public class BookingServiceTest {
                                         Statute.builder().code("STA").build()
                                     )
                                     .build())
+                                .courtEventCharges(
+                                    List.of(
+                                        CourtEventCharge.builder()
+                                            .courtEvent(CourtEvent.builder()
+                                                .eventDate(LocalDate.of(2025, 1, 1))
+                                                .build())
+                                            .offenderCharge(OffenderCharge.builder()
+                                                .resultCodeOne(new OffenceResult().withCode(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
+                                                .build())
+                                            .build()
+                                    )
+                                )
                                 .build()
                             )
                             .build()
@@ -1146,6 +1161,7 @@ public class BookingServiceTest {
                         .indicators(List.of("INDICATOR"))
                         .build()
                 ))
+                .revocationDates(List.of(LocalDate.of(2025, 1, 1)))
                 .build()
         );
     }
