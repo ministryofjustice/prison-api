@@ -184,25 +184,21 @@ class PrisonerProfileUpdateService(
 
   @Transactional
   fun getPhysicalAttributes(prisonerNumber: String): CorePersonPhysicalAttributes {
-    try {
-      val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
-        .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
-      return booking.latestPhysicalAttributes?.let { attributes ->
-        CorePersonPhysicalAttributes(
-          height = attributes.heightCentimetres,
-          weight = attributes.weightKgs,
-          hair = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          face = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          facialHair = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          build = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          leftEyeColour = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          rightEyeColour = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
-          shoeSize = booking.profileDetails.find { it.id.type.type == SHOESIZE_PROFILE_TYPE }?.profileCode,
-        )
-      } ?: CorePersonPhysicalAttributes()
-    } catch (e: CannotAcquireLockException) {
-      throw processLockError(e, prisonerNumber, "OFFENDERS")
-    }
+    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
+    return booking.latestPhysicalAttributes?.let { attributes ->
+      CorePersonPhysicalAttributes(
+        height = attributes.heightCentimetres,
+        weight = attributes.weightKgs,
+        hair = booking.profileDetails.find { it.id.type.type == HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        face = booking.profileDetails.find { it.id.type.type == FACE_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        facialHair = booking.profileDetails.find { it.id.type.type == FACIAL_HAIR_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        build = booking.profileDetails.find { it.id.type.type == BUILD_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        leftEyeColour = booking.profileDetails.find { it.id.type.type == L_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        rightEyeColour = booking.profileDetails.find { it.id.type.type == R_EYE_C_PROFILE_TYPE }?.code?.toReferenceDataValue(),
+        shoeSize = booking.profileDetails.find { it.id.type.type == SHOESIZE_PROFILE_TYPE }?.profileCode,
+      )
+    } ?: CorePersonPhysicalAttributes()
   }
 
   @Transactional

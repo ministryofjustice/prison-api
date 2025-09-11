@@ -134,7 +134,7 @@ class PrisonerProfilePersonServiceTest {
     assertThat(ex.message).isEqualTo("test")
   }
 
-  private val fullPerson = PrisonerProfileSummaryDto(
+  private val expectedPerson = PrisonerProfileSummaryDto(
     aliases = listOf(alias),
     addresses = listOf(address),
     phones = listOf(phone),
@@ -156,62 +156,48 @@ class PrisonerProfilePersonServiceTest {
   }
 
   @Test
-  fun `getPerson returns a full person`() {
-    val result = service.getPerson(prisonerNumber)
-    assertThat(result).isEqualTo(fullPerson)
+  fun `getPrisonerProfileSummary returns a full person`() {
+    val result = service.getPrisonerProfileSummary(prisonerNumber)
+    assertThat(result).isEqualTo(expectedPerson)
   }
 
   @Test
-  fun `getPerson handles when military records aren't available`() {
-    whenever(offenderMilitaryRecordService.getMilitaryRecords(prisonerNumber))
-      .thenThrow(EntityNotFoundException("test"))
-
-    val result = service.getPerson(prisonerNumber)
-    val expected = fullPerson.copy(militaryRecord = null)
-
-    assertThat(result).isEqualTo(expected)
-  }
-
-  @Test
-  fun `getPerson handles when physical attributes aren't available due to EntityNotFoundException`() {
-    whenever(prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber))
-      .thenThrow(EntityNotFoundException("test"))
-
-    val result = service.getPerson(prisonerNumber)
-    val expected = fullPerson.copy(physicalAttributes = null)
-
-    assertThat(result).isEqualTo(expected)
-  }
-
-  @Test
-  fun `getPerson propagates EntityNotFoundException when offender isn't found by prisonerProfileUpdateService`() {
+  fun `getPrisonerProfileSummary propagates EntityNotFoundException when offender isn't found by prisonerProfileUpdateService`() {
     whenever(prisonerProfileUpdateService.getAliases(prisonerNumber))
       .thenThrow(EntityNotFoundException("test"))
 
-    assertEntityNotFound { service.getPerson(prisonerNumber) }
+    assertEntityNotFound { service.getPrisonerProfileSummary(prisonerNumber) }
   }
 
   @Test
-  fun `getPerson propagates EntityNotFoundException when offender isn't found by offenderEmailsService`() {
+  fun `getPrisonerProfileSummary propagates EntityNotFoundException when offender isn't found by offenderMilitaryRecordService`() {
+    whenever(offenderMilitaryRecordService.getMilitaryRecords(prisonerNumber))
+      .thenThrow(EntityNotFoundException("test"))
+
+    assertEntityNotFound { service.getPrisonerProfileSummary(prisonerNumber) }
+  }
+
+  @Test
+  fun `getPrisonerProfileSummary propagates EntityNotFoundException when offender isn't found by offenderEmailsService`() {
     whenever(offenderEmailsService.getEmailsByPrisonerNumber(prisonerNumber))
       .thenThrow(EntityNotFoundException("test"))
 
-    assertEntityNotFound { service.getPerson(prisonerNumber) }
+    assertEntityNotFound { service.getPrisonerProfileSummary(prisonerNumber) }
   }
 
   @Test
-  fun `getPerson propagates EntityNotFoundException when offender isn't found by offenderPhonesService`() {
+  fun `getPrisonerProfileSummary propagates EntityNotFoundException when offender isn't found by offenderPhonesService`() {
     whenever(offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber))
       .thenThrow(EntityNotFoundException("test"))
 
-    assertEntityNotFound { service.getPerson(prisonerNumber) }
+    assertEntityNotFound { service.getPrisonerProfileSummary(prisonerNumber) }
   }
 
   @Test
-  fun `getPerson propagates NoSuchElementException when offender isn't found by offenderAddressService`() {
+  fun `getPrisonerProfileSummary propagates NoSuchElementException when offender isn't found by offenderAddressService`() {
     whenever(offenderAddressService.getAddressesByOffenderNo(prisonerNumber))
       .thenThrow(EntityNotFoundException("test"))
 
-    assertEntityNotFound { service.getPerson(prisonerNumber) }
+    assertEntityNotFound { service.getPrisonerProfileSummary(prisonerNumber) }
   }
 }

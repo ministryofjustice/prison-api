@@ -45,7 +45,7 @@ class PrisonerProfileResource(private val prisonerProfilePersonService: Prisoner
   @GetMapping("/offenders/{offenderNo}/profile-summary")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ResponseStatus(OK)
-  fun getAliases(
+  fun getPrisonerProfileSummary(
     @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) prisonerNumber: String,
-  ) = prisonerProfilePersonService.getPerson(prisonerNumber)
+  ) = prisonerProfilePersonService.getPrisonerProfileSummary(prisonerNumber)
 }

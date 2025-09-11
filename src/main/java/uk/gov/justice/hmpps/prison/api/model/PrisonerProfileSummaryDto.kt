@@ -23,10 +23,10 @@ data class PrisonerProfileSummaryDto(
   val emails: List<Email>,
 
   @Schema(description = "Military record for the person")
-  val militaryRecord: MilitaryRecords?,
+  val militaryRecord: MilitaryRecords,
 
   @Schema(description = "Physical attributes for the person")
-  val physicalAttributes: CorePersonPhysicalAttributes?,
+  val physicalAttributes: CorePersonPhysicalAttributes,
 
   @Schema(description = "List of distinguishing marks for the person")
   val distinguishingMarks: List<DistinguishingMark>,

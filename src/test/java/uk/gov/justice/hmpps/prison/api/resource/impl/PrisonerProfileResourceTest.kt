@@ -105,7 +105,7 @@ class PrisonerProfileResourceTest : ResourceTest() {
       @Test
       fun `returns 500 when an unexpected error occurs`() {
         doThrow(RuntimeException("Unexpected error"))
-          .whenever(prisonerProfilePersonService).getPerson("A1072AA")
+          .whenever(prisonerProfilePersonService).getPrisonerProfileSummary("A1072AA")
 
         webTestClient.get()
           .uri("api/offenders/A1072AA/profile-summary")
