@@ -29,10 +29,6 @@ public interface OffenderCaseNoteRepository extends
         List<Long> bookingIds, List<String> types, LocalDate cutoffDate
     );
 
-    Long countOffenderCaseNoteByOffenderBooking_BookingIdAndTypeCodeAndSubTypeCodeAndOccurrenceDateIsBetween(
-        Long bookingId, String type, String subType, LocalDate fromDate, LocalDate toDate
-    );
-
     @NotNull
     @EntityGraph(type = EntityGraphType.FETCH, value = "case-note-with-author")
     Page<OffenderCaseNote> findAll(@Nullable Specification<OffenderCaseNote> spec, @NotNull Pageable pageable);
