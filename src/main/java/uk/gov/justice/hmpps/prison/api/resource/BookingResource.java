@@ -40,7 +40,6 @@ import uk.gov.justice.hmpps.prison.api.model.Account;
 import uk.gov.justice.hmpps.prison.api.model.Alias;
 import uk.gov.justice.hmpps.prison.api.model.Assessment;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteCount;
 import uk.gov.justice.hmpps.prison.api.model.ContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
@@ -81,7 +80,6 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AppointmentsService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.service.BookingService;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.ContactService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.FinanceService;
@@ -116,7 +114,6 @@ public class BookingResource {
     private final BookingService bookingService;
     private final InmateService inmateService;
     private final HealthService healthService;
-    private final CaseNoteService caseNoteService;
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
     private final FinanceService financeService;
     private final ContactService contactService;
@@ -637,30 +634,6 @@ public class BookingResource {
     @GetMapping("/{bookingId}/contacts")
     public ContactDetail getContacts(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return contactService.getContacts(bookingId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Count of case notes", description = "Count of case notes")
-    @GetMapping("/{bookingId}/caseNotes/{type}/{subType}/count")
-    @SlowReportQuery
-    @VerifyBookingAccess(overrideRoles = {"VIEW_CASE_NOTES"})
-    public CaseNoteCount getCaseNoteCount(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
-        @PathVariable("type") @Parameter(description = "Case note type.", required = true) final String type,
-        @PathVariable("subType") @Parameter(description = "Case note sub-type.", required = true) final String subType,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered.") final LocalDate toDate
-    ) {
-        return caseNoteService.getCaseNoteCount(
-            bookingId,
-            type,
-            subType,
-            fromDate,
-            toDate);
     }
 
     @ApiResponses({

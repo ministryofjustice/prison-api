@@ -2,17 +2,13 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers.any
-import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyList
-import org.mockito.ArgumentMatchers.anyString
 import org.mockito.Mockito.verify
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageByBookingId
 import uk.gov.justice.hmpps.prison.api.resource.CaseNoteResource
 import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import java.time.LocalDateTime
@@ -20,15 +16,6 @@ import java.time.LocalDateTime
 class CaseNoteResourceTest {
   private val caseNoteService = mock<CaseNoteService>()
   private val caseNoteResource = CaseNoteResource(caseNoteService)
-
-  @Test
-  fun getCaseNoteUsageByBookingId() {
-    val usage = listOf(CaseNoteUsageByBookingId(-16L, "OBSERVE", "OBS_GEN", 1L, LocalDateTime.parse("2017-05-13T12:00")))
-    val bookingIds = listOf(2L, 3L, 4L)
-    whenever(caseNoteService.getCaseNoteUsageByBookingId(anyString(), anyString(), anyList(), any(), any(), anyInt())).thenReturn(usage)
-    assertThat(caseNoteResource.getCaseNoteSummaryByBookingId(bookingIds, 2, null, null, "BOB", "SMITH")).isEqualTo(usage)
-    verify(caseNoteService).getCaseNoteUsageByBookingId("BOB", "SMITH", bookingIds, null, null, 2)
-  }
 
   @Test
   fun getCaseNoteUsageByBookingIdTypeAndDate() {

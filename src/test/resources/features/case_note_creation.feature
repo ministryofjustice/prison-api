@@ -62,17 +62,3 @@ Feature: Case Note Usage
     Examples:
       | offenderNo | type    | subType | fromDate   | toDate     | count | latestNote       |
       | A1234AB    | COMMS   | COM_OUT | 2017-04-11 |            | 1     | 2017-05-06T17:11 |
-
-  Scenario Outline: Get case note usage by booking id for a list of offenders and date ranges
-    When case note usage by booking id between "<fromDate>" and "<toDate>" is requested of booking Id "<bookingId>" for case note type "<type>" and sub-type "<subType>"
-    Then case note usage response "numCaseNotes" is "<count>"
-    And case note usage response "latestCaseNote" is "<latestNote>"
-
-    Examples:
-      | bookingId | type    | subType | fromDate   | toDate     | count | latestNote       |
-      | -1        | CHAP    | FAMMAR  |            | 2017-03-25 | 1     | 2017-03-25T14:35 |
-      | -2        | APP     | OUTCOME | 2017-04-11 |            | 1     | 2017-04-11T18:42 |
-      | -3        | OBSERVE | OBS_GEN | 2016-01-01 | 2017-08-13 | 8     | 2017-08-13T12:00 |
-      | -3        | OBSERVE | OBS_GEN | 2017-07-01 | 2019-01-01 | 4     | 2017-08-13T12:00 |
-      | -3        | OBSERVE | OBS_GEN | 2016-01-01 | 2017-07-31 | 6     | 2017-07-31T12:00 |
-      | -3        | OBSERVE | OBS_GEN | 2017-08-01 | 2017-08-31 | 2     | 2017-08-13T12:00 |

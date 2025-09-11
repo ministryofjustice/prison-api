@@ -40,11 +40,6 @@ public class CaseNoteStepDefinitions extends AbstractStepDefinitions {
         caseNote.getCaseNoteUsage(offenderNos, null, null, type, subType, fromDate, toDate);
     }
 
-    @When("^case note usage by booking id between \"([^\"]*)\" and \"([^\"]*)\" is requested of booking Id \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
-    public void caseNoteUsageByBookingIdBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String type, final String subType) throws Throwable {
-        caseNote.getCaseNoteUsageByBookingId(offenderNos, type, subType, fromDate, toDate);
-    }
-
     @When("^case note usage between \"([^\"]*)\" and \"([^\"]*)\" is requested of offender No \"([^\"]*)\" with staff Id \"([^\"]*)\" for case note type \"([^\"]*)\" and sub-type \"([^\"]*)\"$")
     public void caseNoteUsageBetweenAndIsRequestedOfOffenderNoForCaseNoteTypeAndSubType(final String fromDate, final String toDate, final String offenderNos, final String staffId, final String type, final String subType) throws Throwable {
         caseNote.getCaseNoteUsage(offenderNos, staffId, null, type, subType, fromDate, toDate);
