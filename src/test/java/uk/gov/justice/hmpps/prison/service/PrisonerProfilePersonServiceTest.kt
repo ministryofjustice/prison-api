@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
-import org.springframework.dao.CannotAcquireLockException
 import uk.gov.justice.hmpps.prison.api.model.AddressDto
 import uk.gov.justice.hmpps.prison.api.model.CorePersonPhysicalAttributes
 import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
@@ -19,7 +18,6 @@ import uk.gov.justice.hmpps.prison.api.model.PrisonerProfileSummaryDto
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.Telephone
-import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import java.time.LocalDate
 import java.time.LocalDateTime
 
@@ -170,28 +168,6 @@ class PrisonerProfilePersonServiceTest {
 
     val result = service.getPerson(prisonerNumber)
     val expected = fullPerson.copy(militaryRecord = null)
-
-    assertThat(result).isEqualTo(expected)
-  }
-
-  @Test
-  fun `getPerson handles when physical attributes aren't available due to DatabaseRowLockedException`() {
-    whenever(prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber))
-      .thenThrow(DatabaseRowLockedException("test"))
-
-    val result = service.getPerson(prisonerNumber)
-    val expected = fullPerson.copy(physicalAttributes = null)
-
-    assertThat(result).isEqualTo(expected)
-  }
-
-  @Test
-  fun `getPerson handles when physical attributes aren't available due to CannotAcquireLockException`() {
-    whenever(prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber))
-      .thenThrow(CannotAcquireLockException("test"))
-
-    val result = service.getPerson(prisonerNumber)
-    val expected = fullPerson.copy(physicalAttributes = null)
 
     assertThat(result).isEqualTo(expected)
   }

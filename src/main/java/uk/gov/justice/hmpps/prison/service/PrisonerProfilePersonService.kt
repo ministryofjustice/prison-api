@@ -1,9 +1,7 @@
 package uk.gov.justice.hmpps.prison.service
 
-import org.springframework.dao.CannotAcquireLockException
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.api.model.PrisonerProfileSummaryDto
-import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 
 @Service
 class PrisonerProfilePersonService(
@@ -23,14 +21,8 @@ class PrisonerProfilePersonService(
 
     val physicalAttributes = try {
       prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber)
-    } catch (ex: Exception) {
-      when (ex) {
-        is EntityNotFoundException,
-        is CannotAcquireLockException,
-        is DatabaseRowLockedException,
-        -> null
-        else -> throw ex
-      }
+    } catch (ex: EntityNotFoundException) {
+      null
     }
 
     val addresses = try {
