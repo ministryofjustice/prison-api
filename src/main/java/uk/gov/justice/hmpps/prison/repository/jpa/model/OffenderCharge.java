@@ -149,6 +149,10 @@ public class OffenderCharge extends AuditableEntity {
     @Column(name = "CREATE_USER_ID")
     private String createUserId;
 
+    @OneToMany(mappedBy = "eventAndCharge.offenderCharge", fetch = FetchType.LAZY)
+    @Default
+    private List<CourtEventCharge> courtEventCharges = new ArrayList<>();
+
     public boolean isActive() {
         return ACTIVE.equals(chargeStatus);
     }

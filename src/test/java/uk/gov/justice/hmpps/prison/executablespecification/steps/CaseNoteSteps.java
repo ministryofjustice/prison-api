@@ -1,7 +1,5 @@
 package uk.gov.justice.hmpps.prison.executablespecification.steps;
 
-import com.google.common.base.Splitter;
-import lombok.Data;
 import net.serenitybdd.annotations.Step;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.core.ParameterizedTypeReference;
@@ -10,7 +8,6 @@ import org.springframework.http.HttpStatus;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.test.PrisonApiClientException;
 
-import java.time.LocalDate;
 import java.util.Arrays;
 import java.util.List;
 
@@ -21,7 +18,6 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class CaseNoteSteps extends CommonSteps {
     private static final String API_REQUEST_FOR_CASENOTE_USAGE = API_PREFIX + "case-notes/usage";
-    private static final String API_REQUEST_FOR_CASENOTE_SUMMARY = API_PREFIX + "case-notes/summary";
     private static final String FROM_DATE_QUERY_PARAM_PREFIX = "&fromDate=";
     private static final String TO_DATE_QUERY_PARAM_PREFIX = "&toDate=";
     private static final String OFFENDER_NOS_QUERY_PARAM_PREFIX = "&offenderNo=";
@@ -41,11 +37,6 @@ public class CaseNoteSteps extends CommonSteps {
     @Step("Get case note usage")
     public void getCaseNoteUsage(final String offenderNos, final String staffId, final String agencyId, final String type, final String subType, final String fromDate, final String toDate) {
         dispatchGetCaseNoteUsageRequest(offenderNos, staffId, agencyId, type, subType, fromDate, toDate);
-    }
-
-    @Step("Get case note summary by booking id")
-    public void getCaseNoteUsageByBookingId(final String bookingIds, final String type, final String subType, final String fromDate, final String toDate) {
-        dispatchGetCaseNoteUsageByBookingIdRequest(bookingIds, type, subType, fromDate, toDate);
     }
 
     @Step("Verify case note usage response property value")
@@ -91,29 +82,6 @@ public class CaseNoteSteps extends CommonSteps {
                 url,
                 HttpMethod.GET,
                 createEntity(),
-                new ParameterizedTypeReference<List<CaseNoteUsage>>() {
-                });
-
-            assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
-
-            caseNoteUsageList = response.getBody();
-            caseNoteUsage = caseNoteUsageList.isEmpty() ? null : caseNoteUsageList.get(0);
-        } catch (final PrisonApiClientException ex) {
-            setErrorResponse(ex.getErrorResponse());
-        }
-    }
-
-    private void dispatchGetCaseNoteUsageByBookingIdRequest(final String bookingIds, final String type, final String subType, final String fromDate, final String toDate) {
-        init();
-
-        final var queryBuilder = new StringBuilder();
-        Splitter.on(',').split(bookingIds).forEach(bookingId -> queryBuilder.append("&bookingId=").append(bookingId));
-        setQueryParams(type, subType, fromDate, toDate, queryBuilder);
-        final var urlModifier = "?" + queryBuilder.substring(1);
-        final var url = API_REQUEST_FOR_CASENOTE_SUMMARY + urlModifier;
-
-        try {
-            final var response = restTemplate.exchange(url, HttpMethod.GET, createEntity(),
                 new ParameterizedTypeReference<List<CaseNoteUsage>>() {
                 });
 

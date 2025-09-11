@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import java.io.Serializable;
 import java.time.LocalDate;
 import java.util.List;
+import java.util.Objects;
 
 @Getter
 @Entity
@@ -168,7 +169,17 @@ public class OffenderSentence extends AuditableEntity {
                 .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
                 .toList())
-
+            .revocationDates(offenderSentenceCharges == null ? null : offenderSentenceCharges
+                .stream()
+                .map(OffenderSentenceCharge::getOffenderCharge)
+                .flatMap(it -> it.getCourtEventCharges().stream())
+                .filter(it -> it.getResultCodeOne() != null && it.getResultCodeOne().getCode() != null && it.getResultCodeOne().getCode().equals(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
+                .map(it -> it.getEventAndCharge() != null && it.getEventAndCharge().getCourtEvent() != null && it.getEventAndCharge().getCourtEvent().getEventDate() != null ? it.getEventAndCharge().getCourtEvent().getEventDate() : null)
+                .filter(Objects::nonNull)
+                .distinct()
+                .sorted()
+                .toList()
+            )
             .build();
     }
 
