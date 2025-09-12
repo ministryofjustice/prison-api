@@ -36,4 +36,18 @@ public interface CourtEventChargeRepository extends CrudRepository<CourtEventCha
        """
     )
     List<CourtEventCharge> findByOffender(String offenderId);
+
+    @Query("""
+        select cec
+            from CourtEventCharge cec
+            join fetch cec.eventAndCharge eac
+            join fetch eac.courtEvent ce
+            join fetch eac.offenderCharge oc
+       left join fetch cec.resultCodeOne rco
+            where oc.id in :offenderChargeIds
+            and rco.code in :resultCodes
+            and exists (select id from CourtEvent where id = ce.id)
+       """
+    )
+    List<CourtEventCharge> findByChargeAndOutcome(List<Long> offenderChargeIds, List<String> resultCodes);
 }

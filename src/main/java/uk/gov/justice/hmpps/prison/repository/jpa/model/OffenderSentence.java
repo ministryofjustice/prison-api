@@ -15,6 +15,7 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
+import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -26,6 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 
 import java.io.Serializable;
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
@@ -122,14 +124,15 @@ public class OffenderSentence extends AuditableEntity {
 
     @OneToMany(fetch = FetchType.LAZY, mappedBy = "offenderSentence")
     @BatchSize(size = 1000)
-    private List<OffenderSentenceCharge> offenderSentenceCharges;
+    @Default
+    private List<OffenderSentenceCharge> offenderSentenceCharges = new ArrayList<>();
 
     public Integer getSequence() {
         return id.sequence;
     }
-    public OffenderSentenceAndOffences getSentenceAndOffenceDetail() {
+    public OffenderSentenceAndOffences getSentenceAndOffenceDetail(List<CourtEventCharge> recallCourtEvents) {
         var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
-
+        var offenderChargeIds =  offenderSentenceCharges != null ? offenderSentenceCharges.stream().map(it -> it.getOffenderCharge().getId()).toList() : List.of();
         return OffenderSentenceAndOffences.builder()
             .bookingId(id.offenderBookingId)
             .sentenceSequence(id.sequence)
@@ -169,12 +172,10 @@ public class OffenderSentence extends AuditableEntity {
                 .map(OffenderSentenceCharge::getOffenderCharge)
                 .map(OffenderCharge::getOffenceDetail)
                 .toList())
-            .revocationDates(offenderSentenceCharges == null ? null : offenderSentenceCharges
+            .revocationDates(recallCourtEvents == null ? null : recallCourtEvents
                 .stream()
-                .map(OffenderSentenceCharge::getOffenderCharge)
-                .flatMap(it -> it.getCourtEventCharges().stream())
-                .filter(it -> it.getResultCodeOne() != null && it.getResultCodeOne().getCode() != null && it.getResultCodeOne().getCode().equals(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
-                .map(it -> it.getEventAndCharge() != null && it.getEventAndCharge().getCourtEvent() != null && it.getEventAndCharge().getCourtEvent().getEventDate() != null ? it.getEventAndCharge().getCourtEvent().getEventDate() : null)
+                .filter(it -> offenderChargeIds.contains(it.getEventAndCharge().getOffenderCharge().getId()))
+                .map(it -> it.getEventAndCharge().getCourtEvent() != null && it.getEventAndCharge().getCourtEvent().getEventDate() != null ? it.getEventAndCharge().getCourtEvent().getEventDate() : null)
                 .filter(Objects::nonNull)
                 .distinct()
                 .sorted()
