@@ -194,7 +194,7 @@ class PrisonerProfilePersonServiceTest {
   }
 
   @Test
-  fun `getPrisonerProfileSummary propagates NoSuchElementException when offender isn't found by offenderAddressService`() {
+  fun `getPrisonerProfileSummary propagates EntityNotFoundException when offender isn't found by offenderAddressService`() {
     whenever(offenderAddressService.getAddressesByOffenderNo(prisonerNumber))
       .thenThrow(EntityNotFoundException("test"))
 
