@@ -68,6 +68,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Statute;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderContactPersonsRepository;
@@ -145,6 +146,8 @@ public class BookingServiceTest {
     private CaseloadToAgencyMappingService caseloadToAgencyMappingService;
     @Mock
     private CaseLoadService caseLoadService;
+    @Mock
+    private CourtEventChargeRepository courtEventChargeRepository;
 
     private BookingService bookingService;
 
@@ -168,6 +171,7 @@ public class BookingServiceTest {
             offenderSentenceRepository,
             offenderFinePaymentRepository,
             offenderRestrictionRepository,
+            courtEventChargeRepository,
             10);
     }
 
@@ -1015,6 +1019,7 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withMinimalData() {
         final var bookingId = -1L;
+        when(courtEventChargeRepository.findByChargeAndOutcome(any(), eq(List.of(OffenceResult.RECALL_COURT_RESULT_OUTCOME)))).thenReturn(new ArrayList<>());
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
@@ -1030,6 +1035,8 @@ public class BookingServiceTest {
             OffenderSentenceAndOffences.builder()
                 .bookingId(-99L)
                 .sentenceSequence(1)
+                .offences(List.of())
+                .revocationDates(List.of())
                 .build()
         );
     }
@@ -1037,7 +1044,16 @@ public class BookingServiceTest {
     @Test
     void getSentenceAndOffenceDetails_withFullData() {
         final var bookingId = -1L;
-
+        final var recallEvents =  List.of(
+            CourtEventCharge.builder()
+                .courtEvent(CourtEvent.builder()
+                    .eventDate(LocalDate.of(2025, 1, 1))
+                    .build())
+                .offenderCharge(OffenderCharge.builder()
+                    .resultCodeOne(new OffenceResult().withCode(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
+                    .build())
+                .build()
+        );
         final var terms = List.of(
             SentenceTerm.builder()
                 .id(new SentenceTerm.PK(1L, 1, 1))
@@ -1050,6 +1066,7 @@ public class BookingServiceTest {
                 .sentenceTermCode("LI")
                 .build());
 
+        when(courtEventChargeRepository.findByChargeAndOutcome(any(), eq(List.of(OffenceResult.RECALL_COURT_RESULT_OUTCOME)))).thenReturn(recallEvents);
         when(offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE"))
             .thenReturn(
                 List.of(OffenderSentence.builder()
@@ -1084,18 +1101,6 @@ public class BookingServiceTest {
                                         Statute.builder().code("STA").build()
                                     )
                                     .build())
-                                .courtEventCharges(
-                                    List.of(
-                                        CourtEventCharge.builder()
-                                            .courtEvent(CourtEvent.builder()
-                                                .eventDate(LocalDate.of(2025, 1, 1))
-                                                .build())
-                                            .offenderCharge(OffenderCharge.builder()
-                                                .resultCodeOne(new OffenceResult().withCode(OffenceResult.RECALL_COURT_RESULT_OUTCOME))
-                                                .build())
-                                            .build()
-                                    )
-                                )
                                 .build()
                             )
                             .build()

@@ -60,6 +60,7 @@ import uk.gov.justice.hmpps.prison.repository.SentenceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyInternalLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Caseload;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.GlobalVisitorRestriction;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenceResult;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderContactPerson;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderFinePayment;
@@ -71,6 +72,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.RelationshipType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.KeyDateValues;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitInformation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.VisitVisitor;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventChargeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingFilter;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -150,8 +152,8 @@ public class BookingService {
     private final OffenderSentenceRepository offenderSentenceRepository;
     private final OffenderFinePaymentRepository offenderFinePaymentRepository;
     private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
+    private final CourtEventChargeRepository courtEventChargeRepository;
     private final int maxBatchSize;
-
 
     public BookingService(final BookingRepository bookingRepository,
                           final CourtEventRepository courtEventRepository,
@@ -171,6 +173,7 @@ public class BookingService {
                           final OffenderSentenceRepository offenderSentenceRepository,
                           final OffenderFinePaymentRepository offenderFinePaymentRepository,
                           final OffenderRestrictionRepository offenderRestrictionRepository,
+                          final CourtEventChargeRepository courtEventChargeRepository,
                           @Value("${batch.max.size:1000}")
                           final int maxBatchSize) {
         this.bookingRepository = bookingRepository;
@@ -191,6 +194,7 @@ public class BookingService {
         this.offenderSentenceRepository = offenderSentenceRepository;
         this.offenderFinePaymentRepository = offenderFinePaymentRepository;
         this.offenderRestrictionRepository = offenderRestrictionRepository;
+        this.courtEventChargeRepository = courtEventChargeRepository;
         this.maxBatchSize = maxBatchSize;
     }
 
@@ -693,8 +697,10 @@ public class BookingService {
 
     public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(final Long bookingId) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingId_AndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingId, "%AGG%", "LICENCE");
+        final var chargeIds = offenderSentences.stream().flatMap(it -> it.getOffenderSentenceCharges().stream().map(osc -> osc.getOffenderCharge().getId())).toList();
+        final var recallCourtEvents = courtEventChargeRepository.findByChargeAndOutcome(chargeIds, List.of(OffenceResult.RECALL_COURT_RESULT_OUTCOME));
         return offenderSentences.stream()
-            .map(OffenderSentence::getSentenceAndOffenceDetail)
+            .map(it -> it.getSentenceAndOffenceDetail(recallCourtEvents))
             .toList();
     }
 
