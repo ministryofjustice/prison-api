@@ -12,13 +12,17 @@ class PrisonerProfilePersonService(
   private val offenderMilitaryRecordService: OffenderMilitaryRecordService,
   private val distinguishingMarkService: DistinguishingMarkService,
 ) {
-  fun getPrisonerProfileSummary(prisonerNumber: String): PrisonerProfileSummaryDto = PrisonerProfileSummaryDto(
-    aliases = prisonerProfileUpdateService.getAliases(prisonerNumber),
-    addresses = offenderAddressService.getAddressesByOffenderNo(prisonerNumber),
-    phones = offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber),
-    emails = offenderEmailsService.getEmailsByPrisonerNumber(prisonerNumber),
-    militaryRecord = offenderMilitaryRecordService.getMilitaryRecords(prisonerNumber),
-    physicalAttributes = prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber),
-    distinguishingMarks = distinguishingMarkService.findMarksForLatestBooking(prisonerNumber),
-  )
+  fun getPrisonerProfileSummary(prisonerNumber: String): PrisonerProfileSummaryDto = try {
+    PrisonerProfileSummaryDto(
+      aliases = prisonerProfileUpdateService.getAliases(prisonerNumber),
+      addresses = offenderAddressService.getAddressesByOffenderNo(prisonerNumber),
+      phones = offenderPhonesService.getPhoneNumbersByOffenderNo(prisonerNumber),
+      emails = offenderEmailsService.getEmailsByPrisonerNumber(prisonerNumber),
+      militaryRecord = offenderMilitaryRecordService.getMilitaryRecords(prisonerNumber),
+      physicalAttributes = prisonerProfileUpdateService.getPhysicalAttributes(prisonerNumber),
+      distinguishingMarks = distinguishingMarkService.findMarksForLatestBooking(prisonerNumber),
+    )
+  } catch (ex: NoSuchElementException) {
+    throw EntityNotFoundException("Prisoner with prisonerNumber $prisonerNumber not found")
+  }
 }
