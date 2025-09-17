@@ -1368,6 +1368,57 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
+    internal fun `Does not recreate existing language preferences when there is no change`() {
+      val booking = mock<OffenderBooking>()
+      val languageReferenceCode = LanguageReferenceCode("ENG", "English")
+      val offenderLanguages = listOf(
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("ENG", "English")).interpreterRequestedFlag("Y").build(),
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("SPA", "Spanish")).build(),
+        OffenderLanguage.builder().type("PREF_WRITE").referenceCode(LanguageReferenceCode("FRE", "French")).build(),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(offenderLanguages)
+
+      prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request)
+
+      val expectedDeletes = listOf(
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("SPA", "Spanish")).build(),
+        OffenderLanguage.builder().type("PREF_WRITE").referenceCode(LanguageReferenceCode("FRE", "French")).build(),
+      )
+      val expectedSaves = listOf(
+        OffenderLanguage.builder().offenderBookId(booking.bookingId).type("PREF_WRITE").code("ENG").referenceCode(LanguageReferenceCode("ENG", "English")).speakSkill("N").readSkill("N").writeSkill("N").interpreterRequestedFlag("N").preferredWriteFlag("Y").build(),
+      )
+      verify(offenderLanguageRepository).deleteAll(expectedDeletes)
+      verify(offenderLanguageRepository).saveAll(expectedSaves)
+    }
+
+    @Test
+    internal fun `Updates existing language when interpreter requirement changes but language does not`() {
+      val booking = mock<OffenderBooking>()
+      val languageReferenceCode = LanguageReferenceCode("ENG", "English")
+      val offenderLanguages = listOf(
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("ENG", "English")).interpreterRequestedFlag("N").build(),
+        OffenderLanguage.builder().type("PREF_SPEAK").referenceCode(LanguageReferenceCode("SPA", "Spanish")).build(),
+        OffenderLanguage.builder().type("PREF_WRITE").referenceCode(LanguageReferenceCode("FRE", "French")).build(),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER))
+        .thenReturn(Optional.of(booking))
+      whenever(languageCodeRepository.findById(any())).thenReturn(Optional.of(languageReferenceCode))
+      whenever(offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId)).thenReturn(offenderLanguages)
+
+      prisonerProfileUpdateService.createOrUpdateLanguagePreferences(PRISONER_NUMBER, request)
+
+      val expectedSaves = listOf(
+        OffenderLanguage.builder().offenderBookId(booking.bookingId).type("PREF_SPEAK").code("ENG").referenceCode(LanguageReferenceCode("ENG", "English")).speakSkill("N").readSkill("N").writeSkill("N").interpreterRequestedFlag("Y").preferredWriteFlag("N").build(),
+        OffenderLanguage.builder().offenderBookId(booking.bookingId).type("PREF_WRITE").code("ENG").referenceCode(LanguageReferenceCode("ENG", "English")).speakSkill("N").readSkill("N").writeSkill("N").interpreterRequestedFlag("N").preferredWriteFlag("Y").build(),
+      )
+      verify(offenderLanguageRepository).deleteAll(offenderLanguages)
+      verify(offenderLanguageRepository).saveAll(expectedSaves)
+    }
+
+    @Test
     internal fun `blanks existing language preference`() {
       val booking = mock<OffenderBooking>()
       val languageReferenceCode = LanguageReferenceCode("ENG", "English")

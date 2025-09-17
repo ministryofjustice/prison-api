@@ -486,17 +486,20 @@ class PrisonerProfileUpdateService(
           .build()
       }
 
-      val existingPreferredLanguages = offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId).filter { language ->
+      val preferredLanguagesToSave = mutableListOf<OffenderLanguage>()
+      val preferredLanguagesToRemove = offenderLanguageRepository.findByOffenderBookIdForUpdate(booking.bookingId).filter { language ->
         language.type.equals(PREF_SPEAK_LANGUAGE_TYPE, ignoreCase = true) ||
           language.type.equals(PREF_WRITE_LANGUAGE_TYPE, ignoreCase = true)
-      }
-      val newPreferredLanguages = mutableListOf<OffenderLanguage>().apply {
-        preferredWrittenOffenderLanguage?.let { add(it) }
-        preferredSpokenOffenderLanguage?.let { add(it) }
+      }.toMutableList()
+
+      listOfNotNull(preferredSpokenOffenderLanguage, preferredWrittenOffenderLanguage).forEach { lang ->
+        if (!preferredLanguagesToRemove.removeIf { languageMatches(lang, it) }) {
+          preferredLanguagesToSave.add(lang)
+        }
       }
 
-      offenderLanguageRepository.deleteAll(existingPreferredLanguages)
-      offenderLanguageRepository.saveAll(newPreferredLanguages)
+      offenderLanguageRepository.deleteAll(preferredLanguagesToRemove)
+      offenderLanguageRepository.saveAll(preferredLanguagesToSave)
     } catch (e: CannotAcquireLockException) {
       throw processLockError(e, prisonerNumber, "OFFENDER_LANGUAGES")
     }
@@ -739,6 +742,12 @@ class PrisonerProfileUpdateService(
     nameTypeRepository.findByIdOrNull(Pk(NAME_TYPE, code))?.let { success(it) }
       ?: failure(EntityNotFoundException.withMessage("Name type $code not found"))
   }
+
+  private fun languageMatches(a: OffenderLanguage?, b: OffenderLanguage?): Boolean = a != null &&
+    b != null &&
+    a.referenceCode == b.referenceCode &&
+    a.type.equals(b.type) &&
+    a.interpreterRequestedFlag == b.interpreterRequestedFlag
 
   private fun processLockError(e: CannotAcquireLockException, prisonerNumber: String, table: String): Exception {
     log.error("Error getting lock", e)
