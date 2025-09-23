@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.iterable.ThrowingExtractor
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -57,6 +58,11 @@ class OffenderBookingRepositoryTest {
   @Autowired
   private lateinit var entityManager: TestEntityManager
 
+  @AfterEach
+  fun cleanup() {
+    repository.findById(-3L).get().militaryRecords.clear()
+  }
+
   @Test
   fun militaryRecords() {
     val booking = repository.findById(-1L).orElseThrow()
@@ -87,7 +93,7 @@ class OffenderBookingRepositoryTest {
 
   @Test
   fun saveMilitaryRecords() {
-    val booking = repository.findById(-2L).orElseThrow()
+    val booking = repository.findById(-3L).orElseThrow()
     val militaryRecords = booking.militaryRecords
     assertThat(militaryRecords).isEmpty()
     booking.add(
@@ -100,7 +106,7 @@ class OffenderBookingRepositoryTest {
     )
     repository.save(booking)
     entityManager.flush()
-    val persistedBooking = repository.findById(-2L).orElseThrow()
+    val persistedBooking = repository.findById(-3L).orElseThrow()
     assertThat(persistedBooking.militaryRecords).containsExactly(
       OffenderMilitaryRecord.builder()
         .bookingAndSequence(BookingAndSequence(booking, 1))
