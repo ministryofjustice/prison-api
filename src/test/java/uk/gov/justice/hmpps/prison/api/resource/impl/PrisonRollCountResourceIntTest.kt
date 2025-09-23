@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.test.json.JsonCompareMode
 
 @DisplayName("GET /api/prison/roll-count")
 class PrisonRollCountResourceIntTest : ResourceTest() {
@@ -95,7 +96,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             } 
           """.trimIndent(),
 
-          false,
+          JsonCompareMode.LENIENT,
         )
     }
 
@@ -199,7 +200,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             } 
           """.trimIndent(),
 
-          false,
+          JsonCompareMode.LENIENT,
         )
     }
 
@@ -472,7 +473,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             }   
           """.trimIndent(),
 
-          false,
+          JsonCompareMode.LENIENT,
         )
     }
 
@@ -493,7 +494,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             } 
           """.trimIndent(),
 
-          false,
+          JsonCompareMode.LENIENT,
         )
     }
 
@@ -514,7 +515,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             } 
           """.trimIndent(),
 
-          false,
+          JsonCompareMode.LENIENT,
         )
     }
   }

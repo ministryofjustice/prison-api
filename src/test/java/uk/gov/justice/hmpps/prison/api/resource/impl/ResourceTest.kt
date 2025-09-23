@@ -54,18 +54,18 @@ abstract class ResourceTest {
   protected val testDataContext: TestDataContext
     get() = TestDataContext(webTestClient, jwtAuthenticationHelper, dataLoader)
 
-  protected fun createHttpEntity(bearerToken: String?, body: Any?): HttpEntity<*> = createHttpEntity(bearerToken, body, emptyMap<String?, String>())
+  protected fun createHttpEntity(bearerToken: String?, body: Any?): HttpEntity<*> = createHttpEntity(bearerToken, body, emptyMap<String, String>())
 
-  protected fun createHttpEntity(authToken: AuthToken, body: Any?): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), body, emptyMap<String?, String>())
+  protected fun createHttpEntity(authToken: AuthToken, body: Any?): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), body, emptyMap<String, String>())
 
-  protected fun createEmptyHttpEntity(authToken: AuthToken): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, emptyMap<String?, String>())
+  protected fun createEmptyHttpEntity(authToken: AuthToken): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, emptyMap<String, String>())
 
-  protected fun createEmptyHttpEntity(authToken: AuthToken, additionalHeaders: Map<String?, String?>): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders)
+  protected fun createEmptyHttpEntity(authToken: AuthToken, additionalHeaders: Map<String, String?>): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders)
 
   protected fun createHttpEntity(
     bearerToken: String?,
     body: Any?,
-    additionalHeaders: Map<String?, String?> = emptyMap<String?, String>(),
+    additionalHeaders: Map<String, String?> = emptyMap<String, String>(),
     contentType: String = "application/json",
     accept: String = "application/json",
   ): HttpEntity<*> {
@@ -73,7 +73,7 @@ abstract class ResourceTest {
     headers.add("Authorization", "Bearer $bearerToken")
     headers.add("Content-Type", contentType)
     headers.add("Accept", accept)
-    additionalHeaders.forEach { (headerName: String?, headerValue: String?) -> headers.add(headerName, headerValue) }
+    additionalHeaders.forEach { (headerName: String, headerValue: String?) -> headers.add(headerName, headerValue) }
     return HttpEntity(body, headers)
   }
 
@@ -89,7 +89,7 @@ abstract class ResourceTest {
   protected fun createHttpEntityWithBearerAuthorisation(
     user: String?,
     roles: List<String>,
-    additionalHeaders: Map<String?, String?>?,
+    additionalHeaders: Map<String, String?>?,
   ): HttpEntity<*> {
     val jwt = createJwtAccessToken(user, roles)
     return createHttpEntity(jwt, null, additionalHeaders ?: java.util.Map.of())

@@ -109,6 +109,6 @@ class AgencyResourceTest : ResourceTest() {
       },
     )
 
-    assertThat(response.body.size).isEqualTo(14)
+    assertThat(response.body?.size).isEqualTo(14)
   }
 }

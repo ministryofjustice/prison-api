@@ -102,6 +102,12 @@ data class PrisonerSearchDetails(
   @Schema(description = "Time of transfer into the current or most recent prison", example = "2024-12-01 12:23:34")
   val lastAdmissionTime: LocalDateTime? = null,
 
+  @Schema(description = "The previous prison for the prisoner within the current term or booking, if any", example = "PVI")
+  val previousPrisonId: String? = null,
+
+  @Schema(description = "The date they left the previous prison", example = "2025-09-15T14:35:00")
+  val previousPrisonLeavingDate: LocalDateTime? = null,
+
   @Schema(description = "Legal Status", example = "REMAND")
   val legalStatus: LegalStatus? = null,
 
@@ -146,4 +152,7 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "The prisoner's current facial image can be retrieved by plugging this id into the endpoint /api/images/{prisonerNumber}/data?imageId={imageId}", example = "341221")
   val imageId: Long? = null,
+
+  @Schema(description = "true if the prisoner has a military record, i.e. any data in OFFENDER_MILITARY_RECORDS")
+  val militaryRecord: Boolean? = null,
 )

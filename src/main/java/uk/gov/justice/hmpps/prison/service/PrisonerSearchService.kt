@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
@@ -25,6 +26,7 @@ class PrisonerSearchService(
   private val inmateService: InmateService,
   private val healthService: HealthService,
   private val offenderLanguageRepository: OffenderLanguageRepository,
+  private val telemetryClient: TelemetryClient,
 ) {
 
   @Transactional
@@ -32,6 +34,29 @@ class PrisonerSearchService(
     val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).getOrNull()
     val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).getOrNull()
     if (offender == null) throw EntityNotFoundException.withId(offenderNo)
+
+    val lastTransfer = offender.getPrisonerInPrisonSummary()
+      .prisonPeriod
+      .find { it.bookingId == booking?.bookingId }
+      ?.transfers
+      ?.lastOrNull()
+
+    val (transferPrisonId, transferDate) = booking.getTransfer()
+
+    telemetryClient.trackEvent(
+      "getPrisonerDetails-previous-prison",
+      mapOf(
+        "offenderNo" to offenderNo,
+        "booking" to booking?.bookingId.toString(),
+        "recall" to booking.includesRecall().toString(),
+        "lastTransferPrisonId" to (lastTransfer?.fromPrisonId ?: ""),
+        "lastTransferDate" to lastTransfer?.dateOutOfPrison.toString(),
+        "previousReleasePrisonId" to (transferPrisonId ?: ""),
+        "previousReleaseDate" to transferDate.toString(),
+      ),
+      null,
+    )
+    // log.info("lastTransferPrisonId=${lastTransfer?.fromPrisonId} previousReleasePrisonId=${transferPrisonId} lastTransferDate=${lastTransfer?.dateOutOfPrison} previousReleaseDate=${transferDate}")
     return getInmateDetail(offender, booking)
       .let {
         PrisonerSearchDetails(
@@ -63,8 +88,14 @@ class PrisonerSearchService(
           status = it.status,
           lastMovementTypeCode = it.lastMovementTypeCode,
           lastMovementReasonCode = it.lastMovementReasonCode,
-          lastMovementTime = findLastMovementTime(booking?.externalMovements, it.lastMovementTypeCode, it.lastMovementReasonCode),
+          lastMovementTime = findLastMovementTime(
+            booking?.externalMovements,
+            it.lastMovementTypeCode,
+            it.lastMovementReasonCode,
+          ),
           lastAdmissionTime = findLastAdmissionTime(booking?.externalMovements),
+          previousPrisonId = transferPrisonId, // lastTransfer?.fromPrisonId,
+          previousPrisonLeavingDate = transferDate, // lastTransfer?.dateOutOfPrison,
           legalStatus = it.legalStatus,
           recall = it.recall,
           imprisonmentStatus = it.imprisonmentStatus,
@@ -83,6 +114,7 @@ class PrisonerSearchService(
           personalCareNeeds = it.personalCareNeeds,
           languages = findLanguages(it.bookingId),
           imageId = it.facialImageId,
+          militaryRecord = true == booking?.militaryRecords?.isNotEmpty(),
         )
       }
   }
@@ -117,6 +149,58 @@ class PrisonerSearchService(
     ?.filter { it.movementType?.code == "ADM" }
     ?.maxByOrNull { it.movementDateTime }
     ?.movementDateTime
+
+//  private fun findPreviousPrisonId2(externalMovements: List<ExternalMovement>?): String? =
+//    externalMovements
+//      ?.last { em -> em.movementType == MovementType.REL && em.toAgency.id == "OUT" }
+//      ?.fromAgency?.id
+
+//  private fun findPreviousPrisonId3(prisonerInPrisonSummary: PrisonerInPrisonSummary, lastPrisonId: String): String? =
+//    prisonerInPrisonSummary
+//      .prisonPeriod
+//      .find { it.bookingId == 1L }
+//        ?.transfers?.lastOrNull()?.fromPrisonId
+
+//  private fun findPreviousPrisonId(prisonerInPrisonSummary: PrisonerInPrisonSummary): String? {
+//    // If OUT and no transfers: get most recent prisonPeriod ("bookingSequence": 1) and movementDates  and use releaseFromPrisonId and dateOutOfPrison
+//    // If IN and transfers: get most recent prisonPeriod ("bookingSequence": 1), use last transfer fromPrisonId & dateOutOfPrison
+//    // If IN and no transfers: get most recent prisonPeriod ("bookingSequence": 1), and movementDates: no releaseFromPrisonId and dateOutOfPrison, so set null
+//    // If out and transfers(as no trn) :get most recent prisonPeriod ("bookingSequence": 1) and movementDates  and use releaseFromPrisonId and dateOutOfPrison
+//    // TAPs ??
+  // Recalls: last transfer could be within previous term ???
+//    return prisonerInPrisonSummary
+//      .prisonPeriod
+//      .find { it.bookingId == 1L }
+//      ?.movementDates
+//      ?.filterNot { it.inwardType == "TAP" || it.outwardType == "TAP" }
+//      ?.maxByOrNull { it.dateOutOfPrison }
+//      ?.releaseFromPrisonId
+//  }
+
+  private val transferCodes = arrayOf("REL", "TRN")
+
+  private fun OffenderBooking?.getTransfer(): Pair<String?, LocalDateTime?> {
+    val transfers = this?.externalMovements
+      ?.filter { transferCodes.contains(it.movementType?.code) }
+      ?.sortedBy { it.movementDateTime }
+
+    var transferPrisonId: String? = null
+    var transferDate: LocalDateTime? = null
+    if (this != null) {
+      val last = if (isActive) {
+        transfers?.lastOrNull { it.fromAgency.id != location.id }
+      } else {
+        transfers?.lastOrNull()
+      }
+      transferPrisonId = last?.fromAgency?.id
+      transferDate = last?.movementDateTime
+    }
+    return transferPrisonId to transferDate
+  }
+
+  private fun OffenderBooking?.includesRecall(): Boolean = this
+    ?.externalMovements
+    ?.firstOrNull { em -> em.movementType?.code == "ADM" && em.movementReasonCode == "L" } != null
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }
