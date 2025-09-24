@@ -35,11 +35,15 @@ class PrisonerSearchService(
     val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).getOrNull()
     if (offender == null) throw EntityNotFoundException.withId(offenderNo)
 
-    val lastTransfer = offender.getPrisonerInPrisonSummary()
-      .prisonPeriod
-      .find { it.bookingId == booking?.bookingId }
-      ?.transfers
-      ?.lastOrNull()
+    val lastTransfer = if (booking?.isActive == true) {
+      offender.getPrisonerInPrisonSummary()
+        .prisonPeriod
+        .find { it.bookingId == booking.bookingId }
+        ?.transfers
+        ?.lastOrNull()
+    } else {
+      null
+    }
 
     val (transferPrisonId, transferDate) = booking.getTransfer()
 
@@ -49,9 +53,10 @@ class PrisonerSearchService(
         "offenderNo" to offenderNo,
         "booking" to booking?.bookingId.toString(),
         "recall" to booking.includesRecall().toString(),
-        "lastTransferPrisonId" to (lastTransfer?.fromPrisonId ?: ""),
+        "active" to booking?.isActive.toString(),
+        "lastTransferPrisonId" to lastTransfer?.fromPrisonId.toString(),
         "lastTransferDate" to lastTransfer?.dateOutOfPrison.toString(),
-        "previousReleasePrisonId" to (transferPrisonId ?: ""),
+        "previousReleasePrisonId" to transferPrisonId.toString(),
         "previousReleaseDate" to transferDate.toString(),
       ),
       null,
@@ -190,7 +195,7 @@ class PrisonerSearchService(
       val last = if (isActive) {
         transfers?.lastOrNull { it.fromAgency.id != location.id }
       } else {
-        transfers?.lastOrNull()
+        null
       }
       transferPrisonId = last?.fromAgency?.id
       transferDate = last?.movementDateTime

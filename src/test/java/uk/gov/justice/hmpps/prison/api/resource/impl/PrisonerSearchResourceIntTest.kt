@@ -10,6 +10,7 @@ import org.mockito.kotlin.check
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.isNull
 import org.mockito.kotlin.verify
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.WebTestClient
@@ -22,13 +23,20 @@ import uk.gov.justice.hmpps.prison.api.model.PhysicalMark
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.api.model.ProfileInformation
 import uk.gov.justice.hmpps.prison.api.model.Telephone
+import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
+import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
+import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 class PrisonerSearchResourceIntTest : ResourceTest() {
 
   @MockitoSpyBean
   lateinit var telemetryClient: TelemetryClient
+
+  @Autowired
+  private lateinit var builder: NomisDataBuilder
 
   @Nested
   @DisplayName("GET /api/prisoner-search/offenders/{offenderNo}")
@@ -461,6 +469,44 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(recall).isEqualTo(false)
           }
         }
+    }
+
+    @Test
+    fun `should return correct location data when prisoner is INACTIVE OUT`() {
+      var offender: OffenderId? = null
+      var booking: OffenderBookingId? = null
+      try {
+        builder.build {
+          offender = offender {
+            booking = booking(prisonId = "SYI", bookingInTime = LocalDateTime.parse("2012-07-03T00:00")) {
+              transferOut(prisonId = "MDI", transferTime = LocalDateTime.parse("2012-07-04T00:00"))
+              transferIn(receiveTime = LocalDateTime.parse("2012-07-05T00:00"))
+              release(releaseTime = LocalDateTime.parse("2012-07-06T00:00"))
+            }
+          }
+        }
+        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+          .consumeWith { response ->
+            with(response.responseBody!!) {
+              assertThat(offenderNo).isEqualTo(offender.offenderNo)
+              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(status).isEqualTo("INACTIVE OUT")
+              assertThat(inOutStatus).isEqualTo("OUT")
+              assertThat(recall).isFalse()
+              assertThat(lastAdmissionTime).isEqualTo("2012-07-05T00:00")
+              assertThat(latestLocationId).isEqualTo("MDI")
+              assertThat(lastMovementTypeCode).isEqualTo("REL")
+              assertThat(lastMovementReasonCode).isEqualTo("CR")
+              assertThat(lastMovementTime).isEqualTo("2012-07-06T00:00")
+              assertThat(previousPrisonId).isNull()
+              assertThat(previousPrisonLeavingDate).isNull()
+            }
+          }
+      } finally {
+        offender?.run {
+          builder.deletePrisoner(offenderNo)
+        }
+      }
     }
 
     @Test
