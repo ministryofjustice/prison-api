@@ -32,6 +32,7 @@ interface BookingDsl {
     releaseTime: LocalDateTime = LocalDateTime.now().minusHours(1),
     movementReasonCode: String = "CR",
     commentText: String = "Conditional release",
+    toLocationCode: String = "OUT",
   )
 
   @MovementActionDslMarker
@@ -156,6 +157,7 @@ class BookingBuilderRepository(
     releaseTime: LocalDateTime,
     movementReasonCode: String,
     commentText: String,
+    toLocationCode: String,
   ) {
     releasePrisonerService.releasePrisoner(
       offenderNo,
@@ -164,6 +166,7 @@ class BookingBuilderRepository(
         .releaseTime(releaseTime)
         .movementReasonCode(movementReasonCode)
         .commentText(commentText)
+        .toLocationCode(toLocationCode)
         .build(),
     )
   }
@@ -357,12 +360,18 @@ class BookingBuilder(
     youthOffender = youthOffender,
   ).also { offenderBookingId = it }
 
-  override fun release(releaseTime: LocalDateTime, movementReasonCode: String, commentText: String) {
+  override fun release(
+    releaseTime: LocalDateTime,
+    movementReasonCode: String,
+    commentText: String,
+    toLocationCode: String,
+  ) {
     repository.release(
       offenderNo = offenderBookingId.offenderNo,
       releaseTime = releaseTime,
       movementReasonCode = movementReasonCode,
       commentText = commentText,
+      toLocationCode = toLocationCode,
     )
   }
 

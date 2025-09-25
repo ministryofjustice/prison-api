@@ -510,6 +510,51 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return correct location data when prisoner has been a restricted patient`() {
+      var offender: OffenderId? = null
+      var booking: OffenderBookingId? = null
+      val secureHospital = "ARNOLD"
+      try {
+        builder.build {
+          offender = offender {
+            booking = booking(prisonId = "SYI", bookingInTime = LocalDateTime.parse("2025-07-10T00:00")) {
+              release(
+                releaseTime = LocalDateTime.parse("2025-07-11T00:00"),
+                movementReasonCode = "HP",
+                toLocationCode = secureHospital,
+              )
+              recall(
+                recallTime = LocalDateTime.parse("2025-07-12T00:00"),
+                prisonId = "LEI",
+                movementReasonCode = "L",
+              )
+            }
+          }
+        }
+        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+          .consumeWith { response ->
+            with(response.responseBody!!) {
+              assertThat(offenderNo).isEqualTo(offender.offenderNo)
+              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(status).isEqualTo("ACTIVE IN")
+              assertThat(inOutStatus).isEqualTo("IN")
+              assertThat(lastAdmissionTime).isEqualTo("2025-07-12T00:00")
+              assertThat(latestLocationId).isEqualTo("LEI")
+              assertThat(lastMovementTypeCode).isEqualTo("ADM")
+              assertThat(lastMovementReasonCode).isEqualTo("L")
+              assertThat(lastMovementTime).isEqualTo("2025-07-12T00:00")
+              assertThat(previousPrisonId).isEqualTo("SYI")
+              assertThat(previousPrisonLeavingDate).isEqualTo("2025-07-11T00:00")
+            }
+          }
+      } finally {
+        offender?.run {
+          builder.deletePrisoner(offenderNo)
+        }
+      }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.getPrisonerSearchDetails("A1234DD")
         .consumeWith { response ->
