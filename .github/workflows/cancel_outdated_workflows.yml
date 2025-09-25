@@ -1,0 +1,13 @@
+name: Cancel outdated waiting workflows
+on:
+  workflow_dispatch:
+  schedule:
+    - cron: "5 4 * * MON-FRI" # Every weekday at 04:05 UTC
+jobs:
+  cancel-waiting-workflows:
+    permissions:
+      contents: read
+      actions: write
+    name: Cancel outdated waiting workflows
+    uses: ministryofjustice/hmpps-github-actions/.github/workflows/cancel_outdated_waiting_workflows.yml@v2 # WORKFLOW_VERSION
+    secrets: inherit
