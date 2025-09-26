@@ -8,6 +8,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.PRISON_TYPE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
@@ -30,7 +31,7 @@ class PrisonerSearchService(
   private val telemetryClient: TelemetryClient,
 ) {
   companion object {
-    private val transferCodes = arrayOf("REL", "TRN")
+    private val transferCodes = arrayOf("REL", "TRN", "CRT")
     private val recallCodes = arrayOf("B", "L", "Y", "24", "ELR")
   }
 
@@ -162,7 +163,10 @@ class PrisonerSearchService(
 
   private fun OffenderBooking?.getTransfer(): Pair<String?, LocalDateTime?> {
     val transfers = this?.externalMovements
-      ?.filter { transferCodes.contains(it.movementType?.code) }
+      ?.filter {
+        transferCodes.contains(it.movementType?.code) &&
+          it.movementDirection == MovementDirection.OUT
+      }
       ?.sortedBy { it.movementDateTime }
 
     var transferPrisonId: String? = null

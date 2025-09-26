@@ -241,7 +241,14 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(offenderId).isEqualTo(-1012)
-            assertThat(allIdentifiers).extracting("type", "value", "offenderNo", "issuedDate", "caseloadType", "offenderId")
+            assertThat(allIdentifiers).extracting(
+              "type",
+              "value",
+              "offenderNo",
+              "issuedDate",
+              "caseloadType",
+              "offenderId",
+            )
               .containsExactlyInAnyOrder(
                 tuple("NINO", "DR784343E", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1012L),
                 tuple("PNC", "2024/1234588L", "A1234AL", LocalDate.parse("2024-01-01"), "INST", -1012L),
@@ -277,7 +284,16 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(aliases).extracting("title", "firstName", "lastName", "dob", "gender", "raceCode", "ethnicity", "createDate")
+            assertThat(aliases).extracting(
+              "title",
+              "firstName",
+              "lastName",
+              "dob",
+              "gender",
+              "raceCode",
+              "ethnicity",
+              "createDate",
+            )
               .containsExactlyInAnyOrder(
                 tuple(
                   "Mr",
@@ -360,15 +376,73 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
-            assertThat(addresses).extracting("addressId", "addressType", "flat", "premise", "street", "locality", "town", "postalCode", "county", "startDate", "primary", "noFixedAddress")
+            assertThat(addresses).extracting(
+              "addressId",
+              "addressType",
+              "flat",
+              "premise",
+              "street",
+              "locality",
+              "town",
+              "postalCode",
+              "county",
+              "startDate",
+              "primary",
+              "noFixedAddress",
+            )
               .containsExactlyInAnyOrder(
                 // test data has a -13L which is filtered out as it is a non-primary no fixed address record
-                tuple(-11L, "Business Address", "Flat 1", "Brook Hamlets", "Mayfield Drive", "Nether Edge", "Sheffield", "B5", "South Yorkshire", LocalDate.parse("2015-10-01"), false, false),
-                tuple(-12L, "Home Address", null, "9", "Abbydale Road", null, "Sheffield", null, "South Yorkshire", LocalDate.parse("2014-07-01"), false, false),
-                tuple(-10L, "Home Address", null, null, null, null, null, null, null, LocalDate.parse("2017-03-01"), true, true),
+                tuple(
+                  -11L,
+                  "Business Address",
+                  "Flat 1",
+                  "Brook Hamlets",
+                  "Mayfield Drive",
+                  "Nether Edge",
+                  "Sheffield",
+                  "B5",
+                  "South Yorkshire",
+                  LocalDate.parse("2015-10-01"),
+                  false,
+                  false,
+                ),
+                tuple(
+                  -12L,
+                  "Home Address",
+                  null,
+                  "9",
+                  "Abbydale Road",
+                  null,
+                  "Sheffield",
+                  null,
+                  "South Yorkshire",
+                  LocalDate.parse("2014-07-01"),
+                  false,
+                  false,
+                ),
+                tuple(
+                  -10L,
+                  "Home Address",
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  null,
+                  LocalDate.parse("2017-03-01"),
+                  true,
+                  true,
+                ),
               )
             addresses?.first { it.addressId == -11L }?.phones.also {
-              assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(tuple("0114 2345345", "HOME", "345"))
+              assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(
+                tuple(
+                  "0114 2345345",
+                  "HOME",
+                  "345",
+                ),
+              )
             }
             addresses?.first { it.addressId == -12L }?.phones.also {
               assertThat(it).extracting("number", "type", "ext").containsExactlyInAnyOrder(
@@ -517,7 +591,10 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
       try {
         builder.build {
           offender = offender {
-            booking = booking(prisonId = "SYI", bookingInTime = LocalDateTime.parse("2025-07-10T00:00")) {
+            booking = booking(
+              prisonId = "SYI",
+              bookingInTime = LocalDateTime.parse("2025-07-10T00:00"),
+            ) {
               release(
                 releaseTime = LocalDateTime.parse("2025-07-11T00:00"),
                 movementReasonCode = "HP",
@@ -555,6 +632,54 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `should return correct location data when there is a transfer via court`() {
+      var offender: OffenderId? = null
+      var booking: OffenderBookingId? = null
+      try {
+        builder.build {
+          offender = offender {
+            booking = booking(
+              prisonId = "LEI",
+              bookingInTime = LocalDateTime.parse("2025-07-10T00:00"),
+            ) {
+              sendToCourt(
+                releaseTime = LocalDateTime.parse("2025-07-11T00:00"),
+                // toLocation = "",
+                shouldReleaseBed = true,
+                movementReasonCode = "CRT",
+              )
+              returnFromCourt(
+                prisonId = "SYI",
+                returnTime = LocalDateTime.parse("2025-07-12T00:00"),
+                movementReasonCode = "TRNCRT",
+              )
+            }
+          }
+        }
+        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+          .consumeWith { response ->
+            with(response.responseBody!!) {
+              assertThat(offenderNo).isEqualTo(offender.offenderNo)
+              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(status).isEqualTo("ACTIVE IN")
+              assertThat(inOutStatus).isEqualTo("IN")
+              assertThat(lastAdmissionTime).isEqualTo("2025-07-12T00:00")
+              assertThat(latestLocationId).isEqualTo("SYI")
+              assertThat(lastMovementTypeCode).isEqualTo("ADM")
+              assertThat(lastMovementReasonCode).isEqualTo("TRNCRT")
+              assertThat(lastMovementTime).isEqualTo("2025-07-12T00:00")
+              assertThat(previousPrisonId).isEqualTo("LEI")
+              assertThat(previousPrisonLeavingDate).isEqualTo("2025-07-11T00:00")
+            }
+          }
+      } finally {
+        offender?.run {
+          builder.deletePrisoner(offenderNo)
+        }
+      }
+    }
+
+    @Test
     fun `should return minimum details if no booking`() {
       webTestClient.getPrisonerSearchDetails("A1234DD")
         .consumeWith { response ->
@@ -567,7 +692,8 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         }
     }
 
-    private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) = get().uri("/api/prisoner-search/offenders/$offenderNo")
+    private fun WebTestClient.getPrisonerSearchDetails(offenderNo: String) = get()
+      .uri("/api/prisoner-search/offenders/$offenderNo")
       .headers(setAuthorisation(listOf("ROLE_PRISONER_INDEX")))
       .accept(APPLICATION_JSON)
       .exchange()
