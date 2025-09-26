@@ -1,12 +1,10 @@
 package uk.gov.justice.hmpps.prison.service
 
-import com.microsoft.applicationinsights.TelemetryClient
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType.PRISON_TYPE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -28,46 +26,15 @@ class PrisonerSearchService(
   private val inmateService: InmateService,
   private val healthService: HealthService,
   private val offenderLanguageRepository: OffenderLanguageRepository,
-  private val telemetryClient: TelemetryClient,
 ) {
-  companion object {
-    private val transferCodes = arrayOf("REL", "TRN", "CRT")
-    private val recallCodes = arrayOf("B", "L", "Y", "24", "ELR")
-  }
-
   @Transactional
   fun getPrisonerDetails(offenderNo: String): PrisonerSearchDetails {
     val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).getOrNull()
     val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).getOrNull()
     if (offender == null) throw EntityNotFoundException.withId(offenderNo)
 
-    val lastTransfer = if (booking?.isActive == true) {
-      offender.getPrisonerInPrisonSummary()
-        .prisonPeriod
-        .find { it.bookingId == booking.bookingId }
-        ?.transfers
-        ?.lastOrNull()
-    } else {
-      null
-    }
+    val (transferPrisonId, transferDate) = booking.getPreviousPrisonTransfer()
 
-    val (transferPrisonId, transferDate) = booking.getTransfer()
-
-    telemetryClient.trackEvent(
-      "getPrisonerDetails-previous-prison",
-      mapOf(
-        "offenderNo" to offenderNo,
-        "booking" to booking?.bookingId.toString(),
-        "prisonId" to booking?.location?.id.toString(),
-        "recall" to booking.includesRecall().toString(),
-        "active" to booking?.isActive.toString(),
-        "lastTransferPrisonId" to lastTransfer?.fromPrisonId.toString(),
-        "lastTransferDate" to lastTransfer?.dateOutOfPrison.toString(),
-        "previousReleasePrisonId" to transferPrisonId.toString(),
-        "previousReleaseDate" to transferDate.toString(),
-      ),
-      null,
-    )
     return getInmateDetail(offender, booking)
       .let {
         PrisonerSearchDetails(
@@ -161,31 +128,22 @@ class PrisonerSearchService(
     ?.maxByOrNull { it.movementDateTime }
     ?.movementDateTime
 
-  private fun OffenderBooking?.getTransfer(): Pair<String?, LocalDateTime?> {
-    val transfers = this?.externalMovements
-      ?.filter {
-        transferCodes.contains(it.movementType?.code) &&
-          it.movementDirection == MovementDirection.OUT
-      }
-      ?.sortedBy { it.movementDateTime }
-
+  private fun OffenderBooking?.getPreviousPrisonTransfer(): Pair<String?, LocalDateTime?> {
     var transferPrisonId: String? = null
     var transferDate: LocalDateTime? = null
-    if (this != null) {
-      val last = if (isActive) {
-        transfers?.lastOrNull { it.fromAgency.id != location.id && it.fromAgency.type == PRISON_TYPE }
-      } else {
-        null
-      }
+    if (this != null && isActive) {
+      val last = externalMovements
+        ?.filter {
+          it.movementDirection == MovementDirection.OUT
+        }
+        ?.sortedBy { it.movementDateTime }
+        ?.lastOrNull { it.fromAgency.id != location.id && it.fromAgency.isPrison }
+
       transferPrisonId = last?.fromAgency?.id
       transferDate = last?.movementDateTime
     }
     return transferPrisonId to transferDate
   }
-
-  private fun OffenderBooking?.includesRecall(): Boolean = this
-    ?.externalMovements
-    ?.firstOrNull { em -> em.movementType?.code == "ADM" && recallCodes.contains(em.movementReasonCode) } != null
 
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }
