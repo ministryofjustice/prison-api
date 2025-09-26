@@ -1,18 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.microsoft.applicationinsights.TelemetryClient
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.check
-import org.mockito.kotlin.eq
-import org.mockito.kotlin.isNull
-import org.mockito.kotlin.verify
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Email
@@ -31,10 +25,6 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 
 class PrisonerSearchResourceIntTest : ResourceTest() {
-
-  @MockitoSpyBean
-  lateinit var telemetryClient: TelemetryClient
-
   @Autowired
   private lateinit var builder: NomisDataBuilder
 
@@ -201,16 +191,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(militaryRecord).isTrue()
           }
         }
-      verify(telemetryClient).trackEvent(
-        eq("getPrisonerDetails-previous-prison"),
-        check {
-          assertThat(it["previousReleasePrisonId"]).isEqualTo("MDI")
-          assertThat(it["previousReleaseDate"]).isEqualTo("2018-10-02T10:50")
-          assertThat(it["lastTransferPrisonId"]).isEqualTo("MDI")
-          assertThat(it["lastTransferDate"]).isEqualTo("2018-10-02T10:50")
-        },
-        isNull(),
-      )
     }
 
     @Test
