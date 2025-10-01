@@ -35,7 +35,7 @@ class PrisonerSearchServiceTest {
 
   @Test
   fun `should handle a missing fromAgency`() {
-    val movementTimestamp = LocalDateTime.parse("2025-10-10T12:00")
+    val movementTimestamp = LocalDateTime.parse("2025-10-10T10:00")
     val result = OffenderBooking().apply {
       isActive = true
       location = AgencyLocation().apply {
@@ -56,6 +56,23 @@ class PrisonerSearchServiceTest {
           movementTime = movementTimestamp
           fromAgency = AgencyLocation().apply {
             id = "SWI"
+            type = AgencyLocationType.PRISON_TYPE
+          }
+        },
+        ExternalMovement().apply {
+          movementSequence = 3
+          movementDirection = MovementDirection.OUT
+          movementDate = LocalDate.parse("2025-12-12")
+          movementTime = LocalDateTime.parse("2025-12-12T12:00")
+          fromAgency = null
+        },
+        ExternalMovement().apply {
+          movementSequence = 4
+          movementDirection = MovementDirection.OUT
+          movementDate = LocalDate.parse("2025-12-14")
+          movementTime = LocalDateTime.parse("2025-12-14T14:00")
+          fromAgency = AgencyLocation().apply {
+            id = "MDI"
             type = AgencyLocationType.PRISON_TYPE
           }
         },
