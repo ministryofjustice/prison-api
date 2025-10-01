@@ -128,23 +128,6 @@ class PrisonerSearchService(
     ?.maxByOrNull { it.movementDateTime }
     ?.movementDateTime
 
-  private fun OffenderBooking?.getPreviousPrisonTransfer(): Pair<String?, LocalDateTime?> {
-    var transferPrisonId: String? = null
-    var transferDate: LocalDateTime? = null
-    if (this != null && isActive) {
-      val last = externalMovements
-        ?.filter {
-          it.movementDirection == MovementDirection.OUT
-        }
-        ?.sortedBy { it.movementDateTime }
-        ?.lastOrNull { it.fromAgency?.id != location.id && it.fromAgency?.isPrison == true }
-
-      transferPrisonId = last?.fromAgency?.id
-      transferDate = last?.movementDateTime
-    }
-    return transferPrisonId to transferDate
-  }
-
   private fun getInmateDetail(offender: Offender, booking: OffenderBooking?): InmateDetail = booking
     ?.let { offenderTransformer.transform(it) }
     ?.apply {
@@ -177,4 +160,21 @@ class PrisonerSearchService(
     this.rootOffenderId,
     this.offenderIdentifierPK.offenderIdSeq,
   )
+}
+
+internal fun OffenderBooking?.getPreviousPrisonTransfer(): Pair<String?, LocalDateTime?> {
+  var transferPrisonId: String? = null
+  var transferDate: LocalDateTime? = null
+  if (this != null && isActive) {
+    val last = externalMovements
+      ?.filter {
+        it.movementDirection == MovementDirection.OUT
+      }
+      ?.sortedBy { it.movementDateTime }
+      ?.lastOrNull { it.fromAgency?.id != location.id && it.fromAgency?.isPrison == true }
+
+    transferPrisonId = last?.fromAgency?.id
+    transferDate = last?.movementDateTime
+  }
+  return transferPrisonId to transferDate
 }

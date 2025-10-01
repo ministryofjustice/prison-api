@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -525,11 +526,19 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         }
     }
 
-    @Test
-    fun `should return correct location data when prisoner is INACTIVE OUT`() {
-      var offender: OffenderId? = null
-      var booking: OffenderBookingId? = null
-      try {
+    @Nested
+    inner class LocationTests {
+
+      private lateinit var offender: OffenderId
+      private lateinit var booking: OffenderBookingId
+
+      @AfterEach
+      fun cleanup() {
+        builder.deletePrisoner(offender.offenderNo)
+      }
+
+      @Test
+      fun `should return correct location data when prisoner is INACTIVE OUT`() {
         builder.build {
           offender = offender {
             booking = booking(prisonId = "SYI", bookingInTime = LocalDateTime.parse("2012-07-03T00:00")) {
@@ -539,11 +548,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             }
           }
         }
-        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+        webTestClient.getPrisonerSearchDetails(offender.offenderNo)
           .consumeWith { response ->
             with(response.responseBody!!) {
               assertThat(offenderNo).isEqualTo(offender.offenderNo)
-              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(bookingId).isEqualTo(booking.bookingId)
               assertThat(status).isEqualTo("INACTIVE OUT")
               assertThat(inOutStatus).isEqualTo("OUT")
               assertThat(recall).isFalse()
@@ -556,19 +565,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(previousPrisonLeavingDate).isNull()
             }
           }
-      } finally {
-        offender?.run {
-          builder.deletePrisoner(offenderNo)
-        }
       }
-    }
 
-    @Test
-    fun `should return correct location data when prisoner has been a restricted patient`() {
-      var offender: OffenderId? = null
-      var booking: OffenderBookingId? = null
-      val secureHospital = "ARNOLD"
-      try {
+      @Test
+      fun `should return correct location data when prisoner has been a restricted patient`() {
+        val secureHospital = "ARNOLD"
         builder.build {
           offender = offender {
             booking = booking(
@@ -588,11 +589,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             }
           }
         }
-        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+        webTestClient.getPrisonerSearchDetails(offender.offenderNo)
           .consumeWith { response ->
             with(response.responseBody!!) {
               assertThat(offenderNo).isEqualTo(offender.offenderNo)
-              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(bookingId).isEqualTo(booking.bookingId)
               assertThat(status).isEqualTo("ACTIVE IN")
               assertThat(inOutStatus).isEqualTo("IN")
               assertThat(lastAdmissionTime).isEqualTo("2025-07-12T00:00")
@@ -604,18 +605,10 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(previousPrisonLeavingDate).isEqualTo("2025-07-11T00:00")
             }
           }
-      } finally {
-        offender?.run {
-          builder.deletePrisoner(offenderNo)
-        }
       }
-    }
 
-    @Test
-    fun `should return correct location data when there is a transfer via court`() {
-      var offender: OffenderId? = null
-      var booking: OffenderBookingId? = null
-      try {
+      @Test
+      fun `should return correct location data when there is a transfer via court`() {
         builder.build {
           offender = offender {
             booking = booking(
@@ -636,11 +629,11 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             }
           }
         }
-        webTestClient.getPrisonerSearchDetails(offender!!.offenderNo)
+        webTestClient.getPrisonerSearchDetails(offender.offenderNo)
           .consumeWith { response ->
             with(response.responseBody!!) {
               assertThat(offenderNo).isEqualTo(offender.offenderNo)
-              assertThat(bookingId).isEqualTo(booking!!.bookingId)
+              assertThat(bookingId).isEqualTo(booking.bookingId)
               assertThat(status).isEqualTo("ACTIVE IN")
               assertThat(inOutStatus).isEqualTo("IN")
               assertThat(lastAdmissionTime).isEqualTo("2025-07-12T00:00")
@@ -652,10 +645,6 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(previousPrisonLeavingDate).isEqualTo("2025-07-11T00:00")
             }
           }
-      } finally {
-        offender?.run {
-          builder.deletePrisoner(offenderNo)
-        }
       }
     }
 
