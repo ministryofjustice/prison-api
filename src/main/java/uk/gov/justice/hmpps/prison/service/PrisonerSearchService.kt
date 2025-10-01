@@ -137,7 +137,7 @@ class PrisonerSearchService(
           it.movementDirection == MovementDirection.OUT
         }
         ?.sortedBy { it.movementDateTime }
-        ?.lastOrNull { it.fromAgency.id != location.id && it.fromAgency.isPrison }
+        ?.lastOrNull { it.fromAgency?.id != location.id && it.fromAgency?.isPrison == true }
 
       transferPrisonId = last?.fromAgency?.id
       transferDate = last?.movementDateTime
