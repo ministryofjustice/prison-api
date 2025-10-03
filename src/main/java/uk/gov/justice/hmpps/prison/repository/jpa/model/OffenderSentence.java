@@ -30,6 +30,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.Optional;
 
 @Getter
 @Entity
@@ -132,6 +133,16 @@ public class OffenderSentence extends AuditableEntity {
     }
     public OffenderSentenceAndOffences getSentenceAndOffenceDetail(List<CourtEventCharge> recallCourtEvents) {
         var sentenceDate = courtOrder == null ? null : courtOrder.getCourtDate();
+        var courtLocation = courtCase == null || sentenceDate == null ? Optional.<AgencyLocation>empty() :
+            courtCase.getCourtEvents() == null ? Optional.<AgencyLocation>empty() :
+                courtCase.getCourtEvents().stream()
+                .filter(val -> val.getEventDate().equals(sentenceDate))
+                .findAny()
+                .map(CourtEvent::getCourtLocation);
+
+        var courtDescription = courtLocation.isEmpty() ? null : courtLocation.map(AgencyLocation::getDescription).orElse(null);
+        var courtTypeCode = courtLocation.isEmpty() ? null : courtLocation.map(AgencyLocation::getCourtType).map(CourtType::getCodeOrNull).orElse(null);
+
         var offenderChargeIds =  offenderSentenceCharges != null ? offenderSentenceCharges.stream().map(it -> it.getOffenderCharge().getId()).toList() : List.of();
         return OffenderSentenceAndOffences.builder()
             .bookingId(id.offenderBookingId)
@@ -139,15 +150,8 @@ public class OffenderSentence extends AuditableEntity {
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
-            .courtDescription(courtCase == null || sentenceDate == null ? null :
-                courtCase.getCourtEvents() == null ? null :
-                    courtCase.getCourtEvents()
-                        .stream()
-                        .filter(val -> val.getEventDate().equals(sentenceDate))
-                        .findAny()
-                        .map(CourtEvent::getCourtLocation)
-                        .map(AgencyLocation::getDescription)
-                        .orElse(null))
+            .courtDescription(courtDescription)
+            .courtTypeCode(courtTypeCode)
             .consecutiveToSequence(consecutiveToSentenceSequence)
             .sentenceStatus(status)
             .sentenceCategory(calculationType.getCategory())
