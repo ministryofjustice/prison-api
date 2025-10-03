@@ -45,6 +45,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtOrder;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventOutcome;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.LegalCaseType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
@@ -1115,6 +1116,7 @@ public class BookingServiceTest {
                                     .courtLocation(
                                         AgencyLocation.builder()
                                             .description("A court")
+                                            .courtType(new CourtType("DCM", "District Court Martial"))
                                             .build()
                                     )
                                     .build())
@@ -1135,6 +1137,7 @@ public class BookingServiceTest {
                 .caseSequence(10)
                 .caseReference("XYZ789")
                 .courtDescription("A court")
+                .courtTypeCode("DCM")
                 .consecutiveToSequence(1)
                 .sentenceStatus("A")
                 .sentenceCategory("CAT")

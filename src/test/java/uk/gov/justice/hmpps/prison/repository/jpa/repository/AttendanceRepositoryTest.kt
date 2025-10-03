@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.InstanceOfAssertFactories
 import org.assertj.core.groups.Tuple
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -32,7 +33,7 @@ class AttendanceRepositoryTest {
       PageRequest.of(1, 4, Sort.Direction.ASC, "eventId"),
     )
     assertThat(activities.totalElements).isEqualTo(7)
-    assertThat(activities.content).asList().extracting(
+    assertThat(activities.content).asInstanceOf(InstanceOfAssertFactories.LIST).extracting(
       "eventId",
       "eventDate",
       "eventOutcome",
@@ -97,7 +98,7 @@ class AttendanceRepositoryTest {
       PageRequest.of(0, 4, Sort.Direction.ASC, "eventId"),
     )
     assertThat(activities.totalElements).isEqualTo(1)
-    assertThat(activities.content).asList().extracting(
+    assertThat(activities.content).asInstanceOf(InstanceOfAssertFactories.LIST).extracting(
       "eventId",
       "eventDate",
       "eventOutcome",

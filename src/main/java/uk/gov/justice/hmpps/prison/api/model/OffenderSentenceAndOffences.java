@@ -9,7 +9,6 @@ import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -40,6 +39,9 @@ public class OffenderSentenceAndOffences {
 
     @Schema(description = "Court description - a string describing the the court that the case was heard at")
     private String courtDescription;
+
+    @Schema(description = "Court type code - the type code belonging to the court that the case was heard at")
+    private String courtTypeCode;
 
     @Schema(description = "This sentence status: A = Active I = Inactive")
     private String sentenceStatus;
