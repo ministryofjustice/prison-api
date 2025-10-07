@@ -72,7 +72,7 @@ class ImageServiceImplTest {
   fun putImageForOffenderWithNoBooking() {
     whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_NUMBER))
       .thenReturn(Optional.empty())
-    assertThatThrownBy { service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData)) }
+    assertThatThrownBy { service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData), "GEN") }
       .isInstanceOf(EntityNotFoundException::class.java)
       .hasMessage("There are no bookings for %s", OFFENDER_NUMBER)
   }
@@ -96,7 +96,7 @@ class ImageServiceImplTest {
       .thenReturn(Optional.of(booking))
     whenever(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.empty())
     whenever(offenderImageRepository.save(newImage)).thenReturn(newImage)
-    val savedImage = service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData))
+    val savedImage = service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData), "GEN")
     assertThat(savedImage).isEqualTo(newImage.transform())
   }
 
@@ -132,7 +132,7 @@ class ImageServiceImplTest {
     whenever(offenderImageRepository.findLatestByBookingId(1L)).thenReturn(Optional.of(prevImage))
     whenever(offenderImageRepository.save(prevImage)).thenReturn(prevImage)
     whenever(offenderImageRepository.save(newImage)).thenReturn(newImage)
-    val savedImage = service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData))
+    val savedImage = service.putImageForOffender(OFFENDER_NUMBER, ByteArrayInputStream(imageData), "GEN")
     assertThat(savedImage).isEqualTo(newImage.transform())
   }
 

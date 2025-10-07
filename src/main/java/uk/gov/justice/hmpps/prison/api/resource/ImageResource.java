@@ -7,6 +7,7 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.Pattern;
 import lombok.AllArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -103,10 +104,11 @@ public class ImageResource {
     @ProxyUser
     public ImageDetail putImageMultiPart(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,
-        @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file
+        @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file,
+        @Parameter(description = "The source of the image, this should be either GEN for a file upload or DPS_WEBCAM for an webcam upload.", required = true) @RequestPart String imageSource
     )  {
         try {
-            return imageService.putImageForOffender(offenderNo, file.getInputStream());
+            return imageService.putImageForOffender(offenderNo, file.getInputStream(), imageSource);
         } catch (IOException e) {
             throw new BadRequestException("Image Data cannot be processed");
         }
