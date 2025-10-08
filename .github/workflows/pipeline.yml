@@ -26,7 +26,7 @@ jobs:
   helm_lint:
     strategy:
       matrix:
-        environments: [ 'dev', 'preprod', 'prod' ]
+        environments: ['dev', 'preprod', 'prod']
     name: helm lint
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/test_helm_lint.yml@v2 # WORKFLOW_VERSION
     secrets: inherit
@@ -47,6 +47,7 @@ jobs:
     with:
       gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
+      java-version: "25"
     needs:
       - app_version
   gradle-test-integration:
@@ -56,6 +57,7 @@ jobs:
     with:
       gradle-command: './gradlew testIntegration'
       artifact-name: 'integration test results'
+      java-version: "25"
   gradle-test-cucumber:
     name: Run the cucumber tests
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
@@ -63,6 +65,7 @@ jobs:
     with:
       gradle-command: './gradlew testWithSchemaNomis'
       artifact-name: 'cucumber test results'
+      java-version: "25"
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
