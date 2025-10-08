@@ -45,7 +45,7 @@ class ImageService(
     .map { if (fullSizeImage) it.fullSizeImage else it.thumbnailImage }
 
   @Transactional
-  fun putImageForOffender(offenderNumber: String, receivedImage: InputStream): ImageDetail {
+  fun putImageForOffender(offenderNumber: String, receivedImage: InputStream, imageSource: String): ImageDetail {
     // Uses a 4:5 aspect ratio - will distort square photos!
     val fullWidth = 480
     val fullHeight = 600
@@ -66,7 +66,7 @@ class ImageService(
         .viewType("FACE")
         .imageType("OFF_BKG")
         .active(true)
-        .sourceCode("GEN")
+        .sourceCode(imageSource)
         .offenderBooking(booking)
 
       // Set the previously active facial image for this bookingId to inactive

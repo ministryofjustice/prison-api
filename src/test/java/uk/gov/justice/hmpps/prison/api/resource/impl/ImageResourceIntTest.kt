@@ -179,8 +179,12 @@ class ImageResourceIntTest : ResourceTest() {
       assertThat(LocalDate.parse(it)).isAfter(LocalDate.now().minusDays(1))
     }
 
-    private fun generateMultiPartFormRequestWeb(): BodyInserters.MultipartInserter = LinkedMultiValueMap<String, FileSystemResource>()
+    private fun generateMultiPartFormRequestWeb() = LinkedMultiValueMap<String, FileSystemResource>()
       .apply { add("file", FileSystemResource(File(javaClass.getResource("/images/image.jpg")!!.file))) }
-      .let { BodyInserters.fromMultipartData(it) }
+      .let {
+        BodyInserters
+          .fromMultipartData(it)
+          .with("imageSource", "DPS_WEBCAM")
+      }
   }
 }
