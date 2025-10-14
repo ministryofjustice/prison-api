@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "9.1.3"
   kotlin("plugin.spring") version "2.2.20"
   kotlin("plugin.jpa") version "2.2.20"
   kotlin("plugin.lombok") version "2.2.20"
@@ -65,7 +65,7 @@ dependencies {
   testImplementation("org.powermock:powermock-module-junit4:2.0.9")
 
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:4.1.1")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.0.0")
 
   testImplementation("net.serenity-bdd:serenity-core:4.2.34")
   testImplementation("net.serenity-bdd:serenity-junit:4.2.34")
@@ -73,10 +73,10 @@ dependencies {
   testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.1")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.34") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.35") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.38")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.39")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.52.0")
 
