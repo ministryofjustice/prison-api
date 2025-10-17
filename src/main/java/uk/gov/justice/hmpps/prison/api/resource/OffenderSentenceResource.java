@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,6 +28,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.ApprovalStatus;
 import uk.gov.justice.hmpps.prison.api.model.BaseSentenceCalcDates;
+import uk.gov.justice.hmpps.prison.api.model.BookingSentenceAndRecallTypes;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
@@ -34,7 +36,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceTerms;
-import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
@@ -43,7 +44,6 @@ import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.curfews.OffenderCurfewService;
 
 import java.util.List;
-import java.util.Map;
 import java.util.Set;
 
 @Slf4j
@@ -233,13 +233,13 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
+        @ApiResponse(responseCode = "200", description = "Sentence and recall types for a set of bookings.", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema=@Schema(implementation = BookingSentenceAndRecallTypes.class)))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence and recall types")
     @Tag(name = "integration-api")
     @PostMapping("/bookings/sentence-and-recall-types")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    public Map<Long, List<SentenceTypeRecallType>> getSentenceAndOffenceDetails(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final Set<Long> bookingIds) {
+    public List<BookingSentenceAndRecallTypes> getSentenceAndOffenceDetails(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final Set<Long> bookingIds) {
         return bookingService.getSentenceAndRecallTypes(bookingIds);
     }
 

@@ -1,12 +1,14 @@
 package uk.gov.justice.hmpps.prison.api.model
 
 import com.fasterxml.jackson.annotation.JsonFormat
+import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.hmpps.prison.api.model.RecallType.FIXED_TERM_RECALL_14
 import uk.gov.justice.hmpps.prison.api.model.RecallType.FIXED_TERM_RECALL_28
 import uk.gov.justice.hmpps.prison.api.model.RecallType.STANDARD_RECALL
 import uk.gov.justice.hmpps.prison.api.model.RecallType.STANDARD_RECALL_255
 
 // These SentenceCalculationType values come from NOMIS - they map to offender_sentences.sentence_calc_type in NOMIS
+@Schema(description = "Describes a sentence type and it's associated recall type")
 @JsonFormat(shape = JsonFormat.Shape.OBJECT)
 enum class SentenceTypeRecallType(
   val sentenceType: String,

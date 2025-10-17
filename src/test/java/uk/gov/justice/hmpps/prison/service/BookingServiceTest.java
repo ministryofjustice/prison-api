@@ -17,6 +17,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
+import uk.gov.justice.hmpps.prison.api.model.BookingSentenceAndRecallTypes;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
@@ -1215,10 +1216,11 @@ public class BookingServiceTest {
         final var sentencesAndOffences = bookingService.getSentenceAndRecallTypes(bookingIds);
 
         assertThat(sentencesAndOffences.size()).isEqualTo(3);
-        assertThat(sentencesAndOffences.keySet()).containsExactlyInAnyOrder(1L, 8L, 3L);
-        assertThat(sentencesAndOffences.get(1L)).containsExactly(SentenceTypeRecallType.LR_LASPO_AR);
-        assertThat(sentencesAndOffences.get(3L)).containsExactly(SentenceTypeRecallType.ADIMP, SentenceTypeRecallType.FTR_SCH15);
-        assertThat(sentencesAndOffences.get(8L)).containsExactly(SentenceTypeRecallType.FTR);
+        assertThat(sentencesAndOffences).containsExactlyInAnyOrder(
+            new BookingSentenceAndRecallTypes(8L, List.of(SentenceTypeRecallType.FTR)),
+            new BookingSentenceAndRecallTypes(3, List.of(SentenceTypeRecallType.ADIMP, SentenceTypeRecallType.FTR_SCH15)),
+            new BookingSentenceAndRecallTypes(1, List.of(SentenceTypeRecallType.LR_LASPO_AR))
+        );
    }
 
     @Test
