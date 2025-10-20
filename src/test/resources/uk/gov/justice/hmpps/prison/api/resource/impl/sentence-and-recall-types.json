@@ -1,36 +1,49 @@
-{
-  "-2": [
-    {
-      "sentenceType": "FTR_ORA",
-      "recallType": {
-        "recallName": "FIXED_TERM_RECALL_28",
-        "isFixedTermRecall": true
+[
+  {
+    "bookingId": -2,
+    "sentenceTypeRecallTypes": [
+      {
+        "sentenceType": "FTR_ORA",
+        "recallType": {
+          "recallName": "FIXED_TERM_RECALL_28",
+          "isStandardRecall": false,
+          "isFixedTermRecall": true
+        }
       }
-    }
-  ],
-  "-20": [
-    {
-      "sentenceType": "ADIMP_ORA",
-      "recallType": {
-        "recallName": "NONE",
-        "isFixedTermRecall": false
+    ]
+  },
+  {
+    "bookingId": -20,
+    "sentenceTypeRecallTypes": [
+      {
+        "sentenceType": "ADIMP_ORA",
+        "recallType": {
+          "recallName": "NONE",
+          "isStandardRecall": false,
+          "isFixedTermRecall": false
+        }
+      },
+      {
+        "sentenceType": "ADIMP_ORA",
+        "recallType": {
+          "recallName": "NONE",
+          "isStandardRecall": false,
+          "isFixedTermRecall": false
+        }
       }
-    },
-    {
-      "sentenceType": "ADIMP_ORA",
-      "recallType": {
-        "recallName": "NONE",
-        "isFixedTermRecall": false
+    ]
+  },
+  {
+    "bookingId": -5,
+    "sentenceTypeRecallTypes": [
+      {
+        "sentenceType": "FTR_ORA",
+        "recallType": {
+          "recallName": "FIXED_TERM_RECALL_28",
+          "isStandardRecall": false,
+          "isFixedTermRecall": true
+        }
       }
-    }
-  ],
-  "-5": [
-    {
-      "sentenceType": "FTR_ORA",
-      "recallType": {
-        "recallName": "FIXED_TERM_RECALL_28",
-        "isFixedTermRecall": true
-      }
-    }
-  ]
-}
+    ]
+  }
+]

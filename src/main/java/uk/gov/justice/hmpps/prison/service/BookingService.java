@@ -21,6 +21,7 @@ import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
+import uk.gov.justice.hmpps.prison.api.model.BookingSentenceAndRecallTypes;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
@@ -44,7 +45,6 @@ import uk.gov.justice.hmpps.prison.api.model.SentenceCalcDates;
 import uk.gov.justice.hmpps.prison.api.model.SentenceCalculationSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary;
 import uk.gov.justice.hmpps.prison.api.model.SentenceSummary.PrisonTerm;
-import uk.gov.justice.hmpps.prison.api.model.SentenceTypeRecallType;
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance;
 import uk.gov.justice.hmpps.prison.api.model.VisitBalances;
 import uk.gov.justice.hmpps.prison.api.model.VisitDetails;
@@ -96,6 +96,7 @@ import uk.gov.justice.hmpps.prison.service.validation.AttendanceTypesValid;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Comparator;
 import java.util.HashMap;
@@ -704,10 +705,15 @@ public class BookingService {
             .toList();
     }
 
-    public Map<Long, List<SentenceTypeRecallType>> getSentenceAndRecallTypes(final Set<Long> bookingIds) {
+    public List<BookingSentenceAndRecallTypes> getSentenceAndRecallTypes(final Set<Long> bookingIds) {
         final var offenderSentences = offenderSentenceRepository.findByOffenderBooking_BookingIdInAndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(bookingIds, "%AGG%", "LICENCE");
-        return offenderSentences.stream().filter(sentence -> "A".equals(sentence.getStatus()))
+        final var map = offenderSentences.stream().filter(sentence -> "A".equals(sentence.getStatus()))
             .collect(groupingBy(OffenderSentence::getBookingId, mapping(OffenderSentence::getSentenceTypeRecallType, toList())));
+        final var result = new ArrayList<BookingSentenceAndRecallTypes>();
+        map.keySet().forEach(booking ->
+            result.add(new BookingSentenceAndRecallTypes(booking, map.get(booking)))
+        );
+        return result;
     }
 
     public List<OffenderFinePaymentDto> getOffenderFinePayments(final Long bookingId) {
