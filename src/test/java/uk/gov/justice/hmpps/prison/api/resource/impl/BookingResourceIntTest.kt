@@ -2032,16 +2032,43 @@ class BookingResourceIntTest : ResourceTest() {
   }
 
   @Test
-  fun courtEventOutcomes() {
+  fun `should return court event outcomes when no outcomeReasonCodes provided`() {
+    // Given
+    val bookingIds = setOf(-4L)
+
+    // When
     val response = testRestTemplate.exchange(
       "/api/bookings/court-event-outcomes",
       POST,
-      createHttpEntity(VIEW_PRISONER_DATA, setOf(-4)),
+      createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
       object : ParameterizedTypeReference<String?>() {},
     )
+
+    // Then
     assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
     val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
     assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].eventId").isEqualTo(-204)
+    assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
+    assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
+  }
+
+  @Test
+  fun `should return filtered court event outcomes when outcomeReasonCodes provided`() {
+    // Given
+    val bookingIds = setOf(-4L)
+    val outcomeReasonCodes = "1024"
+
+    // When
+    val response = testRestTemplate.exchange(
+      "/api/bookings/court-event-outcomes?outcomeReasonCodes=$outcomeReasonCodes",
+      POST,
+      createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
+      object : ParameterizedTypeReference<String?>() {},
+    )
+
+    // Then
+    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+    val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
     assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
     assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
   }

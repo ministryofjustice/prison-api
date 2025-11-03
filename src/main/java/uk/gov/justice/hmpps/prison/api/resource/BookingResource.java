@@ -820,13 +820,22 @@ public class BookingResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        }),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {
+            @Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))
+        })
     })
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    @Operation(summary = "Get court event outcome reason codes for active court cases for a booking")
+    @Operation(summary = "Get court event outcome reason codes for active court cases by booking and outcome reason")
     @PostMapping("/court-event-outcomes")
-    public List<CourtEventOutcome> getCourtEventOutcomes(@RequestBody @Parameter(description = "The booking ids", required = true) final Set<Long> bookingIds) {
-        return bookingService.getOffenderCourtEventOutcomes(bookingIds);
+    public List<CourtEventOutcome> getCourtEventOutcomes(
+        @RequestBody @Parameter(description = "The booking ids", required = true)
+        final Set<Long> bookingIds,
+        @RequestParam(name = "outcomeReasonCodes", required = false)
+        final Set<String> outcomeReasonCodes
+    ) {
+        return bookingService.getOffenderCourtEventOutcomes(bookingIds, outcomeReasonCodes);
     }
 }
