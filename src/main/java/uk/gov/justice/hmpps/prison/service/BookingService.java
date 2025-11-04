@@ -733,9 +733,11 @@ public class BookingService {
             .build());
     }
 
-    public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Set<Long> bookingIds) {
-        final var courtEvents = courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A");
-        return courtEvents.stream().map(event -> new CourtEventOutcome(event.getOffenderBooking().getBookingId(), event.getId(), event.getOutcomeReasonCode() != null ? event.getOutcomeReasonCode().getCode() : null)).toList();
+    public List<CourtEventOutcome> getOffenderCourtEventOutcomes(final Set<Long> bookingIds, Set<String> outcomeReasonCodes) {
+        if (outcomeReasonCodes==null || outcomeReasonCodes.isEmpty()) {
+            return courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A");
+        }
+        return courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", outcomeReasonCodes);
     }
 
     public OffenderContacts getOffenderContacts(final Long bookingId, boolean approvedVisitorOnly, boolean activeOnly) {

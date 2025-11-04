@@ -19,6 +19,7 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity;
 import uk.gov.justice.hmpps.prison.api.model.BookingSentenceAndRecallTypes;
 import uk.gov.justice.hmpps.prison.api.model.CourtCase;
+import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
 import uk.gov.justice.hmpps.prison.api.model.Location;
 import uk.gov.justice.hmpps.prison.api.model.OffenderFinePaymentDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderOffence;
@@ -103,6 +104,7 @@ import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -1249,30 +1251,80 @@ public class BookingServiceTest {
         );
     }
 
+
     @Test
-    public void getOffenderCourtEventOutcomes() {
+    void getOffenderCourtEventOutcomesWhenOutcomeCodesProvidedShouldFilterResults() {
+        // Given
+        final var bookingIds = Set.of(1L);
+        final var outcomeCodes = Set.of("4016");
+
+        final var courtEvent = new CourtEventOutcome(1L, 99L, "4016");
+        when(courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", outcomeCodes))
+            .thenReturn(List.of(courtEvent));
+
+        // When
+        final var results = bookingService.getOffenderCourtEventOutcomes(bookingIds, outcomeCodes);
+
+        // Then
+        assertThat(results).hasSize(1);
+        assertThat(results.getFirst().getOutcomeReasonCode()).isEqualTo("4016");
+        assertThat(results.getFirst().getBookingId()).isEqualTo(1L);
+
+        verify(courtEventRepository, never()).findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A");
+        verify(courtEventRepository).findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", outcomeCodes);
+    }
+
+    @Test
+    void getOffenderCourtEventOutcomesWhenNoOutcomeCodesShouldReturnResults() {
+        // Given
         final var bookingIds = Set.of(1L, 2L);
+        final var courtEvent1 = new CourtEventOutcome(1L, 54L, "4016");
+        final var courtEvent2 = new CourtEventOutcome(2L, 93L, "5011");
+        final var expectedEvents = List.of(courtEvent1, courtEvent2);
 
-        final var courtEvent1 = CourtEvent.builder()
-            .id(54L)
-            .offenderBooking(new OffenderBooking().withBookingId(1L))
-            .outcomeReasonCode(new OffenceResult().withCode("4016"))
-            .build();
-        final var courtEvent2 = CourtEvent.builder()
-            .id(93L)
-            .offenderBooking(new OffenderBooking().withBookingId(2L))
-            .outcomeReasonCode(new OffenceResult().withCode("5011"))
-            .build();
+        when(courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A")).thenReturn(expectedEvents);
 
-        final var courtEvents =  List.of(courtEvent1, courtEvent2);
-        when(courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A")).thenReturn(courtEvents);
-        final var courtEventOutcomes = bookingService.getOffenderCourtEventOutcomes(bookingIds);
+        // When
+        final var results = bookingService.getOffenderCourtEventOutcomes(bookingIds, null);
 
-        assertThat(courtEventOutcomes.size()).isEqualTo(2);
-        assertThat(courtEventOutcomes.get(0).getOutcomeReasonCode()).isEqualTo("4016");
-        assertThat(courtEventOutcomes.get(0).getBookingId()).isEqualTo(1L);
-        assertThat(courtEventOutcomes.get(1).getOutcomeReasonCode()).isEqualTo("5011");
-        assertThat(courtEventOutcomes.get(1).getBookingId()).isEqualTo(2L);
+        // Then
+        assertThat(results).hasSize(2);
+        assertThat(results.get(0).getOutcomeReasonCode()).isEqualTo("4016");
+        assertThat(results.get(0).getBookingId()).isEqualTo(1L);
+        assertThat(results.get(1).getOutcomeReasonCode()).isEqualTo("5011");
+        assertThat(results.get(1).getBookingId()).isEqualTo(2L);
+
+        verify(courtEventRepository).findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A");
+        verify(courtEventRepository, never()).findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", null);
+    }
+
+    @Test
+    void getOffenderCourtEventOutcomesWhenEmptyOutcomeCodeSetShouldReturnResults() {
+        // Given
+        final var bookingIds = Set.of(99L);
+        when(courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A")).thenReturn(List.of());
+
+        // When
+        bookingService.getOffenderCourtEventOutcomes(bookingIds, Set.of());
+
+        // Then
+        verify(courtEventRepository).findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A");
+        verify(courtEventRepository, never()).findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", null);
+    }
+
+    @Test
+    void getOffenderCourtEventOutcomesWhenNoResultsShouldReturnEmptyList() {
+        // Given
+        final var bookingIds = Set.of(99L);
+        when(courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A")).thenReturn(List.of());
+
+        // When
+        final var results = bookingService.getOffenderCourtEventOutcomes(bookingIds, null);
+
+        // Then
+        assertThat(results).isEmpty();
+        verify(courtEventRepository).findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A");
+        verify(courtEventRepository, never()).findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", null);
     }
 
     @Nested

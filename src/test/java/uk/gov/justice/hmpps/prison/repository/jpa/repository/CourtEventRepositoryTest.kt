@@ -16,6 +16,7 @@ import org.springframework.dao.DataAccessException
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
+import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEventCharge
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
@@ -238,19 +239,39 @@ class CourtEventRepositoryTest {
   }
 
   @Test
+  fun court_events_by_booking_id_and_outcome_reason_codes() {
+    val offenceResult = OffenceResult()
+      .withCode("4016")
+      .withDescription("Imprisonment")
+      .withDispositionCode("F")
+
+    offenceResultRepository.save(offenceResult)
+    val bookingIds = setOf(-2L)
+    val outcomeReasonCodes = setOf("4016")
+    val courtEvents =
+      courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(bookingIds, "A", outcomeReasonCodes)
+    assertThat(courtEvents.size).isEqualTo(2)
+    courtEvents.forEach { event: CourtEventOutcome ->
+      assertThat(event.bookingId).isEqualTo(-2L)
+      assertThat(event.outcomeReasonCode).isEqualTo(offenceResult.code)
+    }
+  }
+
+  @Test
   fun court_events_by_booking_id() {
     val offenceResult = OffenceResult()
       .withCode("4016")
       .withDescription("Imprisonment")
       .withDispositionCode("F")
+
     offenceResultRepository.save(offenceResult)
     val bookingIds = setOf(-2L)
     val courtEvents =
-      courtEventRepository.findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(bookingIds, "A")
+      courtEventRepository.findCourtEventOutcomesByBookingIdsAndCaseStatus(bookingIds, "A")
     assertThat(courtEvents.size).isEqualTo(2)
-    courtEvents.forEach { event: CourtEvent ->
-      assertThat(event.offenderBooking.bookingId).isEqualTo(-2L)
-      assertThat(event.outcomeReasonCode.code).isEqualTo(offenceResult.code)
+    courtEvents.forEach { event: CourtEventOutcome ->
+      assertThat(event.bookingId).isEqualTo(-2L)
+      assertThat(event.outcomeReasonCode).isEqualTo(offenceResult.code)
     }
   }
 

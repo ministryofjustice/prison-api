@@ -6,6 +6,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.CrudRepository;
 import org.springframework.data.repository.query.Param;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent;
+import uk.gov.justice.hmpps.prison.api.model.CourtEventOutcome;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -33,7 +34,35 @@ public interface CourtEventRepository extends CrudRepository<CourtEvent, Long>, 
 
     Optional<CourtEvent> findOneByOffenderBookingBookingIdAndParentCourtEventId(Long bookingId, Long parentCourtEventId);
 
-    List<CourtEvent> findByOffenderBooking_BookingIdInAndOffenderCourtCase_CaseStatus_Code(Set<Long> bookingIds, String caseStatusCode);
+    @Query("""
+    SELECT
+      e.offenderBooking.bookingId,
+      e.id,
+      e.outcomeReasonCode.code
+    FROM CourtEvent e
+    WHERE e.offenderBooking.bookingId IN :bookingIds
+      AND e.offenderCourtCase.caseStatus.code = :caseStatusCode
+      AND e.outcomeReasonCode.code IN :outcomeReasonCodes
+""")
+    List<CourtEventOutcome> findCourtEventOutcomesByBookingIdsAndCaseStatusAndOutcomeCodes(
+        @Param("bookingIds") Set<Long> bookingIds,
+        @Param("caseStatusCode") String caseStatusCode,
+        @Param("outcomeReasonCodes") Set<String> outcomeReasonCodes
+    );
+
+    @Query("""
+    SELECT
+      e.offenderBooking.bookingId,
+      e.id,
+      e.outcomeReasonCode.code
+    FROM CourtEvent e
+    WHERE e.offenderBooking.bookingId IN :bookingIds
+      AND e.offenderCourtCase.caseStatus.code = :caseStatusCode
+""")
+    List<CourtEventOutcome> findCourtEventOutcomesByBookingIdsAndCaseStatus(
+        @Param("bookingIds") Set<Long> bookingIds,
+        @Param("caseStatusCode") String caseStatusCode
+    );
 
     Optional<CourtEvent> findFirstByOffenderBooking_BookingIdAndStartTimeGreaterThanEqual(Long bookingId, LocalDateTime earliestTime, Sort sort);
 }
