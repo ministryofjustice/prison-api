@@ -247,6 +247,14 @@ class OffenderDatesResourceTest : ResourceTest() {
         assertThat(homeDetentionCurfewApprovedDate).isEqualTo(LocalDate.of(2021, 1, 2))
         assertThat(calculatedAt).isEqualTo(LocalDateTime.of(2017, 9, 2, 0, 0))
         assertThat(homeDetentionCurfewEligibilityDate).isEqualTo(LocalDate.of(2020, 12, 30))
+        assertThat(isHomeDetentionCurfewEligibilityDateOverridden).describedAs("isHomeDetentionCurfewEligibilityDateOverridden").isTrue()
+        assertThat(isConditionalReleaseDateOverridden).describedAs("isConditionalReleaseDateOverridden").isFalse()
+        assertThat(isLicenceExpiryDateOverridden).describedAs("isLicenceExpiryDateOverridden").isTrue()
+        assertThat(isSentenceExpiryDateOverridden).describedAs("isSentenceExpiryDateOverridden").isTrue()
+        assertThat(isNonParoleDateOverridden).describedAs("isNonParoleDateOverridden").isFalse()
+        assertThat(isAutomaticReleaseDateOverridden).describedAs("isAutomaticReleaseDateOverridden").isFalse()
+        assertThat(isTopupSupervisionExpiryDateOverridden).describedAs("isTopupSupervisionExpiryDateOverridden").isFalse()
+        assertThat(isParoleEligibilityDateOverridden).describedAs("isParoleEligibilityDateOverridden").isFalse()
       }
     }
   }
