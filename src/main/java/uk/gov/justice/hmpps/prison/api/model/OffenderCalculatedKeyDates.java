@@ -28,14 +28,70 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
     private String reasonCode;
     @Schema(description = "The date and time the calculation was recorded", example = "2017-10-31T01:30:00")
     private LocalDateTime calculatedAt;
+    @Schema(description = "Whether the HDCED was manually overridden as part of this calculation", example = "false")
+    private boolean isHomeDetentionCurfewEligibilityDateOverridden;
+    @Schema(description = "Whether the CRD was manually overridden as part of this calculation", example = "false")
+    private boolean isConditionalReleaseDateOverridden;
+    @Schema(description = "Whether the LED was manually overridden as part of this calculation", example = "false")
+    private boolean isLicenceExpiryDateOverridden;
+    @Schema(description = "Whether the SED was manually overridden as part of this calculation", example = "false")
+    private boolean isSentenceExpiryDateOverridden;
+    @Schema(description = "Whether the NPD was manually overridden as part of this calculation", example = "false")
+    private boolean isNonParoleDateOverridden;
+    @Schema(description = "Whether the ARD was manually overridden as part of this calculation", example = "false")
+    private boolean isAutomaticReleaseDateOverridden;
+    @Schema(description = "Whether the TUSED was manually overridden as part of this calculation", example = "false")
+    private boolean isTopupSupervisionExpiryDateOverridden;
+    @Schema(description = "Whether the PED was manually overridden as part of this calculation", example = "false")
+    private boolean isParoleEligibilityDateOverridden;
 
     @Builder(builderMethodName = "offenderCalculatedKeyDates")
-    public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate, LocalDate earlyTermDate, LocalDate midTermDate, LocalDate lateTermDate, LocalDate dtoPostRecallReleaseDate, LocalDate automaticReleaseDate, LocalDate conditionalReleaseDate, LocalDate paroleEligibilityDate, LocalDate nonParoleDate, LocalDate licenceExpiryDate, LocalDate postRecallReleaseDate, LocalDate sentenceExpiryDate, LocalDate topupSupervisionExpiryDate, LocalDate earlyRemovalSchemeEligibilityDate, LocalDate effectiveSentenceEndDate, String sentenceLength, LocalDate releaseOnTemporaryLicenceDate, String judiciallyImposedSentenceLength, String comment, String reasonCode, LocalDate homeDetentionCurfewApprovedDate, LocalDate tariffDate, LocalDate tariffExpiredRemovalSchemeEligibilityDate, LocalDate approvedParoleDate, LocalDateTime calculatedAt) {
+    public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
+                                      LocalDate earlyTermDate,
+                                      LocalDate midTermDate,
+                                      LocalDate lateTermDate,
+                                      LocalDate dtoPostRecallReleaseDate,
+                                      LocalDate automaticReleaseDate,
+                                      LocalDate conditionalReleaseDate,
+                                      LocalDate paroleEligibilityDate,
+                                      LocalDate nonParoleDate,
+                                      LocalDate licenceExpiryDate,
+                                      LocalDate postRecallReleaseDate,
+                                      LocalDate sentenceExpiryDate,
+                                      LocalDate topupSupervisionExpiryDate,
+                                      LocalDate earlyRemovalSchemeEligibilityDate,
+                                      LocalDate effectiveSentenceEndDate,
+                                      String sentenceLength,
+                                      LocalDate releaseOnTemporaryLicenceDate,
+                                      String judiciallyImposedSentenceLength,
+                                      String comment,
+                                      String reasonCode,
+                                      LocalDate homeDetentionCurfewApprovedDate,
+                                      LocalDate tariffDate,
+                                      LocalDate tariffExpiredRemovalSchemeEligibilityDate,
+                                      LocalDate approvedParoleDate,
+                                      LocalDateTime calculatedAt,
+                                      boolean isHomeDetentionCurfewEligibilityDateOverridden,
+                                      boolean isConditionalReleaseDateOverridden,
+                                      boolean isLicenceExpiryDateOverridden,
+                                      boolean isSentenceExpiryDateOverridden,
+                                      boolean isNonParoleDateOverridden,
+                                      boolean isAutomaticReleaseDateOverridden,
+                                      boolean isTopupSupervisionExpiryDateOverridden,
+                                      boolean isParoleEligibilityDateOverridden) {
         super(homeDetentionCurfewEligibilityDate, earlyTermDate, midTermDate, lateTermDate, dtoPostRecallReleaseDate, automaticReleaseDate, conditionalReleaseDate, paroleEligibilityDate, nonParoleDate, licenceExpiryDate, postRecallReleaseDate, sentenceExpiryDate, topupSupervisionExpiryDate, earlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate, sentenceLength, homeDetentionCurfewApprovedDate, tariffDate, tariffExpiredRemovalSchemeEligibilityDate, approvedParoleDate, releaseOnTemporaryLicenceDate);
         this.releaseOnTemporaryLicenceDate = releaseOnTemporaryLicenceDate;
         this.judiciallyImposedSentenceLength = judiciallyImposedSentenceLength;
         this.comment = comment;
         this.reasonCode = reasonCode;
         this.calculatedAt = calculatedAt;
+        this.isHomeDetentionCurfewEligibilityDateOverridden = isHomeDetentionCurfewEligibilityDateOverridden;
+        this.isConditionalReleaseDateOverridden = isConditionalReleaseDateOverridden;
+        this.isLicenceExpiryDateOverridden = isLicenceExpiryDateOverridden;
+        this.isSentenceExpiryDateOverridden = isSentenceExpiryDateOverridden;
+        this.isNonParoleDateOverridden = isNonParoleDateOverridden;
+        this.isAutomaticReleaseDateOverridden = isAutomaticReleaseDateOverridden;
+        this.isTopupSupervisionExpiryDateOverridden = isTopupSupervisionExpiryDateOverridden;
+        this.isParoleEligibilityDateOverridden = isParoleEligibilityDateOverridden;
     }
 }

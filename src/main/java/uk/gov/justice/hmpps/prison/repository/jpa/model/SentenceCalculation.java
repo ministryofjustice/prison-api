@@ -193,8 +193,16 @@ public class SentenceCalculation extends AuditableEntity {
         return sedOverridedDate != null ? sedOverridedDate : sedCalculatedDate;
     }
 
+    public boolean isSentenceExpiryDateOverridden() {
+        return sedOverridedDate != null && !sedOverridedDate.isEqual(sedCalculatedDate);
+    }
+
     public LocalDate getLicenceExpiryDate() {
         return ledOverridedDate != null ? ledOverridedDate : ledCalculatedDate;
+    }
+
+    public boolean isLicenceExpiryDateOverridden() {
+        return ledOverridedDate != null && !ledOverridedDate.isEqual(ledCalculatedDate);
     }
 
     public LocalDate getActualParoleDate() {
@@ -205,12 +213,24 @@ public class SentenceCalculation extends AuditableEntity {
         return ardOverridedDate != null ? ardOverridedDate : ardCalculatedDate;
     }
 
+    public boolean isAutomaticReleaseDateOverridden() {
+        return ardOverridedDate != null && !ardOverridedDate.isEqual(ardCalculatedDate);
+    }
+
     public LocalDate getConditionalReleaseDate() {
         return crdOverridedDate != null ? crdOverridedDate : crdCalculatedDate;
     }
 
+    public boolean isConditionalReleaseDateOverridden() {
+        return crdOverridedDate != null && !crdOverridedDate.isEqual(crdCalculatedDate);
+    }
+
     public LocalDate getNonParoleDate() {
         return npdOverridedDate != null ? npdOverridedDate : npdCalculatedDate;
+    }
+
+    public boolean isNonParoleDateOverridden() {
+        return npdOverridedDate != null && !npdOverridedDate.isEqual(npdCalculatedDate);
     }
 
     public LocalDate getPostRecallReleaseDate() {
@@ -223,6 +243,10 @@ public class SentenceCalculation extends AuditableEntity {
 
     public LocalDate getHomeDetentionCurfewEligibilityDate() {
         return hdcedOverridedDate != null ? hdcedOverridedDate : hdcedCalculatedDate;
+    }
+
+    public boolean isHomeDetentionCurfewEligibilityDateOverridden() {
+        return hdcedOverridedDate != null && !hdcedOverridedDate.isEqual(hdcedCalculatedDate);
     }
 
     public LocalDate getEarlyTermDate() {
@@ -241,8 +265,16 @@ public class SentenceCalculation extends AuditableEntity {
         return pedOverridedDate != null ? pedOverridedDate : pedCalculatedDate;
     }
 
+    public boolean isParoleEligibilityDateOverridden() {
+        return pedOverridedDate != null && !pedOverridedDate.isEqual(pedCalculatedDate);
+    }
+
     public LocalDate getTopupSupervisionExpiryDate() {
         return tusedOverridedDate != null ? tusedOverridedDate : tusedCalculatedDate;
+    }
+
+    public boolean isTopupSupervisionExpiryDateOverridden() {
+        return tusedOverridedDate != null && !tusedOverridedDate.isEqual(tusedCalculatedDate);
     }
 
     public LocalDate getTariffDate() {
