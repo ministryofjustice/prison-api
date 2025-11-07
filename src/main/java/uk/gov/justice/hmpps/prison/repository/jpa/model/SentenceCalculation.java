@@ -294,10 +294,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isOverridden(LocalDate calculatedDate, LocalDate overrideDate) {
-        if (calculatedDate == null && overrideDate != null) {
-            return true;
-        }
-        return overrideDate != null && !overrideDate.isEqual(calculatedDate);
+        return overrideDate != null && (calculatedDate == null || !overrideDate.isEqual(calculatedDate));
     }
 
     private KeyDateValues buildKeyDates() {
