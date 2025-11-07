@@ -1,16 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
-import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
-import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
-
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
@@ -19,6 +10,15 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import org.hibernate.type.YesNoConverter;
+import uk.gov.justice.hmpps.prison.service.support.NonDtoReleaseDate;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -194,7 +194,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isSentenceExpiryDateOverridden() {
-        return sedOverridedDate != null && !sedOverridedDate.isEqual(sedCalculatedDate);
+        return isOverridden(sedCalculatedDate, sedOverridedDate);
     }
 
     public LocalDate getLicenceExpiryDate() {
@@ -202,7 +202,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isLicenceExpiryDateOverridden() {
-        return ledOverridedDate != null && !ledOverridedDate.isEqual(ledCalculatedDate);
+        return isOverridden(ledCalculatedDate, ledOverridedDate);
     }
 
     public LocalDate getActualParoleDate() {
@@ -214,7 +214,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isAutomaticReleaseDateOverridden() {
-        return ardOverridedDate != null && !ardOverridedDate.isEqual(ardCalculatedDate);
+        return isOverridden(ardCalculatedDate, ardOverridedDate);
     }
 
     public LocalDate getConditionalReleaseDate() {
@@ -222,7 +222,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isConditionalReleaseDateOverridden() {
-        return crdOverridedDate != null && !crdOverridedDate.isEqual(crdCalculatedDate);
+        return isOverridden(crdCalculatedDate, crdOverridedDate);
     }
 
     public LocalDate getNonParoleDate() {
@@ -230,7 +230,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isNonParoleDateOverridden() {
-        return npdOverridedDate != null && !npdOverridedDate.isEqual(npdCalculatedDate);
+        return isOverridden(npdCalculatedDate, npdOverridedDate);
     }
 
     public LocalDate getPostRecallReleaseDate() {
@@ -246,7 +246,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isHomeDetentionCurfewEligibilityDateOverridden() {
-        return hdcedOverridedDate != null && !hdcedOverridedDate.isEqual(hdcedCalculatedDate);
+        return isOverridden(hdcedCalculatedDate, hdcedOverridedDate);
     }
 
     public LocalDate getEarlyTermDate() {
@@ -266,7 +266,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isParoleEligibilityDateOverridden() {
-        return pedOverridedDate != null && !pedOverridedDate.isEqual(pedCalculatedDate);
+        return isOverridden(pedCalculatedDate, pedOverridedDate);
     }
 
     public LocalDate getTopupSupervisionExpiryDate() {
@@ -274,7 +274,7 @@ public class SentenceCalculation extends AuditableEntity {
     }
 
     public boolean isTopupSupervisionExpiryDateOverridden() {
-        return tusedOverridedDate != null && !tusedOverridedDate.isEqual(tusedCalculatedDate);
+        return isOverridden(tusedCalculatedDate, tusedOverridedDate );
     }
 
     public LocalDate getTariffDate() {
@@ -291,6 +291,10 @@ public class SentenceCalculation extends AuditableEntity {
 
     public NonDtoReleaseDateType getNonDtoReleaseDateType() {
         return deriveNonDtoReleaseDate(buildKeyDates()).map(NonDtoReleaseDate::getReleaseDateType).orElse(null);
+    }
+
+    public boolean isOverridden(LocalDate calculatedDate, LocalDate overrideDate) {
+        return overrideDate != null && (calculatedDate == null || !overrideDate.isEqual(calculatedDate));
     }
 
     private KeyDateValues buildKeyDates() {
@@ -346,7 +350,8 @@ public class SentenceCalculation extends AuditableEntity {
                                 LocalDate conditionalReleaseDate, LocalDate conditionalReleaseOverrideDate,
                                 LocalDate nonParoleDate, LocalDate nonParoleOverrideDate,
                                 LocalDate postRecallReleaseDate, LocalDate postRecallReleaseOverrideDate,
-                                LocalDate actualParoleDate, LocalDate homeDetentionCurfewActualDate, LocalDate midTermDate,
+                                LocalDate actualParoleDate, LocalDate homeDetentionCurfewActualDate,
+                                LocalDate midTermDate,
                                 LocalDate confirmedReleaseDate) {
     }
 

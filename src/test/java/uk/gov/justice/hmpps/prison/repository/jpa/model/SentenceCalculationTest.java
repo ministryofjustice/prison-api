@@ -28,7 +28,7 @@ class SentenceCalculationTest {
             .pedCalculatedDate(LocalDate.of(2025, 8, 1))
             .pedOverridedDate(LocalDate.of(2025, 8, 2))
             .build();
-        
+
         assertThat(calc.isHomeDetentionCurfewEligibilityDateOverridden()).describedAs("isHomeDetentionCurfewEligibilityDateOverridden").isTrue();
         assertThat(calc.isConditionalReleaseDateOverridden()).describedAs("isConditionalReleaseDateOverridden").isTrue();
         assertThat(calc.isLicenceExpiryDateOverridden()).describedAs("isLicenceExpiryDateOverridden").isTrue();
@@ -74,13 +74,21 @@ class SentenceCalculationTest {
     void datesShouldNotBeOverriddenIfThereIsNoOverrideDate() {
         SentenceCalculation calc = SentenceCalculation.builder()
             .hdcedCalculatedDate(LocalDate.of(2025, 1, 1))
+            .hdcedOverridedDate(null)
             .crdCalculatedDate(LocalDate.of(2025, 2, 1))
+            .crdOverridedDate(null)
             .ledCalculatedDate(LocalDate.of(2025, 3, 1))
+            .ledOverridedDate(null)
             .sedCalculatedDate(LocalDate.of(2025, 4, 1))
+            .sedOverridedDate(null)
             .npdCalculatedDate(LocalDate.of(2025, 5, 1))
+            .npdOverridedDate(null)
             .ardCalculatedDate(LocalDate.of(2025, 6, 1))
+            .ardOverridedDate(null)
             .tusedCalculatedDate(LocalDate.of(2025, 7, 1))
+            .tusedOverridedDate(null)
             .pedCalculatedDate(LocalDate.of(2025, 8, 1))
+            .pedOverridedDate(null)
             .build();
 
         assertThat(calc.isHomeDetentionCurfewEligibilityDateOverridden()).describedAs("isHomeDetentionCurfewEligibilityDateOverridden").isFalse();
@@ -91,5 +99,50 @@ class SentenceCalculationTest {
         assertThat(calc.isAutomaticReleaseDateOverridden()).describedAs("isAutomaticReleaseDateOverridden").isFalse();
         assertThat(calc.isTopupSupervisionExpiryDateOverridden()).describedAs("isTopupSupervisionExpiryDateOverridden").isFalse();
         assertThat(calc.isParoleEligibilityDateOverridden()).describedAs("isParoleEligibilityDateOverridden").isFalse();
+    }
+
+    @Test
+    void datesShouldNotBeOverriddenIfThereIsNoDateAtAll() {
+        SentenceCalculation calc = SentenceCalculation.builder().build();
+
+        assertThat(calc.isHomeDetentionCurfewEligibilityDateOverridden()).describedAs("isHomeDetentionCurfewEligibilityDateOverridden").isFalse();
+        assertThat(calc.isConditionalReleaseDateOverridden()).describedAs("isConditionalReleaseDateOverridden").isFalse();
+        assertThat(calc.isLicenceExpiryDateOverridden()).describedAs("isLicenceExpiryDateOverridden").isFalse();
+        assertThat(calc.isSentenceExpiryDateOverridden()).describedAs("isSentenceExpiryDateOverridden").isFalse();
+        assertThat(calc.isNonParoleDateOverridden()).describedAs("isNonParoleDateOverridden").isFalse();
+        assertThat(calc.isAutomaticReleaseDateOverridden()).describedAs("isAutomaticReleaseDateOverridden").isFalse();
+        assertThat(calc.isTopupSupervisionExpiryDateOverridden()).describedAs("isTopupSupervisionExpiryDateOverridden").isFalse();
+        assertThat(calc.isParoleEligibilityDateOverridden()).describedAs("isParoleEligibilityDateOverridden").isFalse();
+    }
+
+    @Test
+    void datesShouldBeOverriddenIfThereIsOnlyAnOverrideDate() {
+        SentenceCalculation calc = SentenceCalculation.builder()
+            .hdcedCalculatedDate(null)
+            .hdcedOverridedDate(LocalDate.of(2025, 1, 1))
+            .crdCalculatedDate(null)
+            .crdOverridedDate(LocalDate.of(2025, 2, 1))
+            .ledCalculatedDate(null)
+            .ledOverridedDate(LocalDate.of(2025, 3, 1))
+            .sedCalculatedDate(null)
+            .sedOverridedDate(LocalDate.of(2025, 4, 1))
+            .npdCalculatedDate(null)
+            .npdOverridedDate(LocalDate.of(2025, 5, 1))
+            .ardCalculatedDate(null)
+            .ardOverridedDate(LocalDate.of(2025, 6, 1))
+            .tusedCalculatedDate(null)
+            .tusedOverridedDate(LocalDate.of(2025, 7, 1))
+            .pedCalculatedDate(null)
+            .pedOverridedDate(LocalDate.of(2025, 8, 1))
+            .build();
+
+        assertThat(calc.isHomeDetentionCurfewEligibilityDateOverridden()).describedAs("isHomeDetentionCurfewEligibilityDateOverridden").isTrue();
+        assertThat(calc.isConditionalReleaseDateOverridden()).describedAs("isConditionalReleaseDateOverridden").isTrue();
+        assertThat(calc.isLicenceExpiryDateOverridden()).describedAs("isLicenceExpiryDateOverridden").isTrue();
+        assertThat(calc.isSentenceExpiryDateOverridden()).describedAs("isSentenceExpiryDateOverridden").isTrue();
+        assertThat(calc.isNonParoleDateOverridden()).describedAs("isNonParoleDateOverridden").isTrue();
+        assertThat(calc.isAutomaticReleaseDateOverridden()).describedAs("isAutomaticReleaseDateOverridden").isTrue();
+        assertThat(calc.isTopupSupervisionExpiryDateOverridden()).describedAs("isTopupSupervisionExpiryDateOverridden").isTrue();
+        assertThat(calc.isParoleEligibilityDateOverridden()).describedAs("isParoleEligibilityDateOverridden").isTrue();
     }
 }
