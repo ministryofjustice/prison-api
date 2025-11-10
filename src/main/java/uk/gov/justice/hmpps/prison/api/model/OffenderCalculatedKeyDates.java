@@ -29,21 +29,21 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
     @Schema(description = "The date and time the calculation was recorded", example = "2017-10-31T01:30:00")
     private LocalDateTime calculatedAt;
     @Schema(description = "Whether the HDCED was manually overridden as part of this calculation", example = "false")
-    private boolean isHomeDetentionCurfewEligibilityDateOverridden;
+    private boolean homeDetentionCurfewEligibilityDateOverridden;
     @Schema(description = "Whether the CRD was manually overridden as part of this calculation", example = "false")
-    private boolean isConditionalReleaseDateOverridden;
+    private boolean conditionalReleaseDateOverridden;
     @Schema(description = "Whether the LED was manually overridden as part of this calculation", example = "false")
-    private boolean isLicenceExpiryDateOverridden;
+    private boolean licenceExpiryDateOverridden;
     @Schema(description = "Whether the SED was manually overridden as part of this calculation", example = "false")
-    private boolean isSentenceExpiryDateOverridden;
+    private boolean sentenceExpiryDateOverridden;
     @Schema(description = "Whether the NPD was manually overridden as part of this calculation", example = "false")
-    private boolean isNonParoleDateOverridden;
+    private boolean nonParoleDateOverridden;
     @Schema(description = "Whether the ARD was manually overridden as part of this calculation", example = "false")
-    private boolean isAutomaticReleaseDateOverridden;
+    private boolean automaticReleaseDateOverridden;
     @Schema(description = "Whether the TUSED was manually overridden as part of this calculation", example = "false")
-    private boolean isTopupSupervisionExpiryDateOverridden;
+    private boolean topupSupervisionExpiryDateOverridden;
     @Schema(description = "Whether the PED was manually overridden as part of this calculation", example = "false")
-    private boolean isParoleEligibilityDateOverridden;
+    private boolean paroleEligibilityDateOverridden;
 
     @Builder(builderMethodName = "offenderCalculatedKeyDates")
     public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
@@ -71,27 +71,27 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
                                       LocalDate tariffExpiredRemovalSchemeEligibilityDate,
                                       LocalDate approvedParoleDate,
                                       LocalDateTime calculatedAt,
-                                      boolean isHomeDetentionCurfewEligibilityDateOverridden,
-                                      boolean isConditionalReleaseDateOverridden,
-                                      boolean isLicenceExpiryDateOverridden,
-                                      boolean isSentenceExpiryDateOverridden,
-                                      boolean isNonParoleDateOverridden,
-                                      boolean isAutomaticReleaseDateOverridden,
-                                      boolean isTopupSupervisionExpiryDateOverridden,
-                                      boolean isParoleEligibilityDateOverridden) {
+                                      boolean homeDetentionCurfewEligibilityDateOverridden,
+                                      boolean conditionalReleaseDateOverridden,
+                                      boolean licenceExpiryDateOverridden,
+                                      boolean sentenceExpiryDateOverridden,
+                                      boolean nonParoleDateOverridden,
+                                      boolean automaticReleaseDateOverridden,
+                                      boolean topupSupervisionExpiryDateOverridden,
+                                      boolean paroleEligibilityDateOverridden) {
         super(homeDetentionCurfewEligibilityDate, earlyTermDate, midTermDate, lateTermDate, dtoPostRecallReleaseDate, automaticReleaseDate, conditionalReleaseDate, paroleEligibilityDate, nonParoleDate, licenceExpiryDate, postRecallReleaseDate, sentenceExpiryDate, topupSupervisionExpiryDate, earlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate, sentenceLength, homeDetentionCurfewApprovedDate, tariffDate, tariffExpiredRemovalSchemeEligibilityDate, approvedParoleDate, releaseOnTemporaryLicenceDate);
         this.releaseOnTemporaryLicenceDate = releaseOnTemporaryLicenceDate;
         this.judiciallyImposedSentenceLength = judiciallyImposedSentenceLength;
         this.comment = comment;
         this.reasonCode = reasonCode;
         this.calculatedAt = calculatedAt;
-        this.isHomeDetentionCurfewEligibilityDateOverridden = isHomeDetentionCurfewEligibilityDateOverridden;
-        this.isConditionalReleaseDateOverridden = isConditionalReleaseDateOverridden;
-        this.isLicenceExpiryDateOverridden = isLicenceExpiryDateOverridden;
-        this.isSentenceExpiryDateOverridden = isSentenceExpiryDateOverridden;
-        this.isNonParoleDateOverridden = isNonParoleDateOverridden;
-        this.isAutomaticReleaseDateOverridden = isAutomaticReleaseDateOverridden;
-        this.isTopupSupervisionExpiryDateOverridden = isTopupSupervisionExpiryDateOverridden;
-        this.isParoleEligibilityDateOverridden = isParoleEligibilityDateOverridden;
+        this.homeDetentionCurfewEligibilityDateOverridden = homeDetentionCurfewEligibilityDateOverridden;
+        this.conditionalReleaseDateOverridden = conditionalReleaseDateOverridden;
+        this.licenceExpiryDateOverridden = licenceExpiryDateOverridden;
+        this.sentenceExpiryDateOverridden = sentenceExpiryDateOverridden;
+        this.nonParoleDateOverridden = nonParoleDateOverridden;
+        this.automaticReleaseDateOverridden = automaticReleaseDateOverridden;
+        this.topupSupervisionExpiryDateOverridden = topupSupervisionExpiryDateOverridden;
+        this.paroleEligibilityDateOverridden = paroleEligibilityDateOverridden;
     }
 }
