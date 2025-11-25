@@ -13,9 +13,6 @@ data class CreateIncidentTypeConfigurationRequest(
   @Schema(description = "Active flag for incident type", example = "true", defaultValue = "true")
   val active: Boolean = true,
 
-  @Schema(description = "Starting code for the question set", example = "10000", required = true)
-  val startingQuestionCode: Long,
-
   @Schema(description = "Questions and answers for this incident type")
   val questions: List<QuestionRequest> = emptyList(),
 

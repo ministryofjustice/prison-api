@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.springframework.http.HttpStatus
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.GetMapping
 import org.springframework.web.bind.annotation.PathVariable
@@ -65,11 +66,12 @@ class IncidentTypeConfigurationResource(
   ): List<IncidentTypeConfiguration> = incidentReportConfigurationService.getIncidentTypeConfiguration(incidentType = incidentType)
 
   @PostMapping
+  @PreAuthorize("hasRole('PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create a new incident type configuration",
     responses = [
-      ApiResponse(responseCode = "201", description = "Created"),
+      ApiResponse(responseCode = "201", description = "Created incident type configuration"),
       ApiResponse(
         responseCode = "400",
         description = "Invalid request",
@@ -82,11 +84,12 @@ class IncidentTypeConfigurationResource(
   ): IncidentTypeConfiguration = incidentReportConfigurationService.createIncidentTypeConfiguration(request)
 
   @PutMapping("/{incidentTypeCode}")
+  @PreAuthorize("hasRole('PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW')")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Update an existing incident type configuration",
     responses = [
-      ApiResponse(responseCode = "200", description = "Updated"),
+      ApiResponse(responseCode = "200", description = "Updated existing incident type configuration"),
       ApiResponse(
         responseCode = "404",
         description = "Not found",
