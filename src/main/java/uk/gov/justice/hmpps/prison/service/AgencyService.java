@@ -283,15 +283,6 @@ public class AgencyService {
             .collect(toList());
     }
 
-    public OffenderCell getCellAttributes(@NotNull final Long locationId) {
-        final var agencyInternalLocation = agencyInternalLocationRepository.findOneByLocationId(locationId);
-        final var offenderCell = agencyInternalLocation.map(this::transform).orElse(null);
-        if (offenderCell == null) {
-            throw EntityNotFoundException.withMessage(format("No cell details found for location id %s", locationId));
-        }
-        return offenderCell;
-    }
-
     private OffenderCell transform(final AgencyInternalLocation cell) {
         final var attributes = cell.getProfiles()
             .stream()
