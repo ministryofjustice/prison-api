@@ -1,4 +1,3 @@
-version: '3.1'
 services:
   hmpps-auth:
     image: quay.io/hmpps/hmpps-auth:latest
