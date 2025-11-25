@@ -7,8 +7,6 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
-import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
-import uk.gov.justice.hmpps.prison.api.model.OffenderCellAttribute;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
 import uk.gov.justice.hmpps.prison.api.model.Telephone;
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository;
@@ -112,48 +110,6 @@ public class AgencyServiceTest {
 
         final var offenderCells = service.getReceptionsWithCapacityInAgency("LEI", "DO");
         assertThat(offenderCells).extracting("id").containsExactly(-1L);
-    }
-
-
-    @Test
-    public void shouldReturnCellWithAttributes() {
-        when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.of(
-                AgencyInternalLocation.builder()
-                        .locationId(-1L)
-                        .locationType("CELL")
-                        .description("LEI-1-1-01")
-                        .userDescription("LEI-1-1-01")
-                        .operationalCapacity(2)
-                        .currentOccupancy(1)
-                        .active(true)
-                        .profiles(buildAgencyInternalLocationProfiles())
-                        .build()));
-
-        final var offenderCell = service.getCellAttributes(-1L);
-        assertThat(offenderCell).isEqualTo(
-                OffenderCell.builder()
-                        .attributes(List.of(
-                                OffenderCellAttribute.builder()
-                                        .code("DO")
-                                        .description("Double Occupancy")
-                                        .build(),
-                                OffenderCellAttribute.builder()
-                                        .code("LC")
-                                        .description("Listener Cell")
-                                        .build()))
-                        .id(-1L)
-                        .capacity(2)
-                        .noOfOccupants(1)
-                        .description("LEI-1-1-01")
-                        .userDescription("LEI-1-1-01")
-                        .build());
-    }
-
-    @Test
-    public void shouldReturnCellWithAttributes_notFoundLivingUnit() {
-        when(agencyInternalLocationRepository.findOneByLocationId(anyLong())).thenReturn(Optional.empty());
-
-        assertThatThrownBy(() -> service.getCellAttributes(-19999999L)).isInstanceOf(EntityNotFoundException.class).hasMessage("No cell details found for location id -19999999");
     }
 
     private List<PrisonContactDetail> buildPrisonContactDetailsList() {

@@ -18,11 +18,8 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
-import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
-import uk.gov.justice.hmpps.prison.service.AgencyService;
 import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 
 import java.time.LocalDate;
@@ -36,11 +33,9 @@ import java.util.List;
 public class CellResource {
 
     private final BedAssignmentHistoryService bedAssignmentHistoryService;
-    private final AgencyService agencyService;
 
-    public CellResource(final BedAssignmentHistoryService bedAssignmentHistoryService, final AgencyService agencyService) {
+    public CellResource(final BedAssignmentHistoryService bedAssignmentHistoryService) {
         this.bedAssignmentHistoryService = bedAssignmentHistoryService;
-        this.agencyService = agencyService;
     }
 
     @ApiResponses({
@@ -72,21 +67,5 @@ public class CellResource {
         @DateTimeFormat(iso = ISO.DATE) @PathVariable("assignmentDate")
         @Parameter(description = "Assignment date (2020-03-24)", example = "2020-03-24", required = true) final LocalDate assignmentDate) {
         return bedAssignmentHistoryService.getBedAssignmentsHistoryByDateForAgency(agencyId, assignmentDate);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Get details of a location.",
-        description = "PGP: unused as of 12/08/2025. Still referenced by digital-prison-services though. Remove once https://dsdmoj.atlassian.net/browse/CDPS-1590 completed."
-    )
-    @GetMapping("/{locationId}/attributes")
-    @Deprecated(forRemoval = true)
-    @ReferenceData(description = "Cell Attributes only")
-    public OffenderCell getCellAttributes(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId) {
-        return agencyService.getCellAttributes(locationId);
     }
 }
