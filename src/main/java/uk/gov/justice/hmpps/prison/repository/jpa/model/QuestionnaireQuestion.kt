@@ -4,11 +4,11 @@ import jakarta.persistence.CascadeType
 import jakarta.persistence.Column
 import jakarta.persistence.Convert
 import jakarta.persistence.Entity
-import jakarta.persistence.GeneratedValue
+import jakarta.persistence.FetchType
 import jakarta.persistence.Id
 import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.OneToMany
-import jakarta.persistence.SequenceGenerator
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.type.YesNoConverter
@@ -21,9 +21,11 @@ import java.time.LocalDate
 data class QuestionnaireQuestion(
   @Id
   @Column(name = "QUESTIONNAIRE_QUE_ID")
-  @SequenceGenerator(name = "QUESTIONNAIRE_QUE_ID", sequenceName = "QUESTIONNAIRE_QUE_ID", allocationSize = 1)
-  @GeneratedValue(generator = "QUESTIONNAIRE_QUE_ID")
-  val id: Long = 0,
+  val code: Long,
+
+  @ManyToOne(fetch = FetchType.LAZY, optional = false)
+  @JoinColumn(name = "QUESTIONNAIRE_ID")
+  val questionnaire: Questionnaire,
 
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true)
   @JoinColumn(name = "QUESTIONNAIRE_QUE_ID", nullable = false)
@@ -58,11 +60,11 @@ data class QuestionnaireQuestion(
     if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
     other as QuestionnaireQuestion
 
-    return id == other.id
+    return code == other.code
   }
 
-  override fun hashCode(): Int = id.hashCode()
+  override fun hashCode(): Int = code.hashCode()
 
   @Override
-  override fun toString(): String = this::class.simpleName + "(id = $id ), question = $questionText)"
+  override fun toString(): String = this::class.simpleName + "(code = $code ), question = $questionText)"
 }
