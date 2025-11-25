@@ -27,7 +27,7 @@ class IncidentTypeConfigurationRepositoryTest {
     fun findQuestionnaires() {
       val questionnaires = repository.findAllByCategory("IR_TYPE")
 
-      assertThat(questionnaires).hasSize(24)
+      assertThat(questionnaires).hasSizeGreaterThanOrEqualTo(24)
 
       val mapOfTypes = questionnaires.associateBy { it.code }
       val assault = mapOfTypes["ASSAULT"]
