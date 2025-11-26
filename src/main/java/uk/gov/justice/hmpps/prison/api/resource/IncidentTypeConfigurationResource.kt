@@ -21,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.CreateIncidentTypeConfigurationRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.UpdateIncidentTypeConfigurationRequest
-import uk.gov.justice.hmpps.prison.core.ReferenceData
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
 import uk.gov.justice.hmpps.prison.service.IncidentReportConfigurationService
 
@@ -29,6 +28,7 @@ import uk.gov.justice.hmpps.prison.service.IncidentReportConfigurationService
 @Tag(name = "Incident Reports", description = "Configuration information for an incident report by type")
 @Validated
 @RequestMapping(value = ["/api/incidents/configuration"], produces = ["application/json"])
+@PreAuthorize("hasRole('PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW')")
 class IncidentTypeConfigurationResource(
   private val incidentReportConfigurationService: IncidentReportConfigurationService,
 ) {
@@ -59,14 +59,12 @@ class IncidentTypeConfigurationResource(
     ],
   )
   @SlowReportQuery
-  @ReferenceData(description = "NO role needed as only reading reference data")
   fun getQuestionnaires(
     @Schema(description = "Return configuration for incident type only")
     @RequestParam(name = "incident-type", required = false) incidentType: String? = null,
   ): List<IncidentTypeConfiguration> = incidentReportConfigurationService.getIncidentTypeConfiguration(incidentType = incidentType)
 
   @PostMapping
-  @PreAuthorize("hasRole('PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW')")
   @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Create a new incident type configuration",
@@ -84,7 +82,6 @@ class IncidentTypeConfigurationResource(
   ): IncidentTypeConfiguration = incidentReportConfigurationService.createIncidentTypeConfiguration(request)
 
   @PutMapping("/{incidentTypeCode}")
-  @PreAuthorize("hasRole('PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW')")
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Update an existing incident type configuration",
