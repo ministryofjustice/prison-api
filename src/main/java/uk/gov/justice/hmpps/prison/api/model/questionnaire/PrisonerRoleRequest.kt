@@ -18,7 +18,7 @@ data class PrisonerRoleRequest(
 ) {
   fun toEntity(questionnaire: Questionnaire, index: Int) = QuestionnaireOffenderRole(
     id = QuestionnaireOffenderRoleId(
-      questionnaireId = questionnaire.id,
+      questionnaire = questionnaire,
       offenderRole = prisonerRole.nomisCode,
     ),
     singleRole = singleRole,

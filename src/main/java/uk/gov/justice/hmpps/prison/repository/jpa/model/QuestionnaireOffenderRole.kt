@@ -5,6 +5,9 @@ import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.FetchType
+import jakarta.persistence.JoinColumn
+import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.type.YesNoConverter
@@ -15,8 +18,9 @@ import java.time.LocalDate
 @Embeddable
 data class QuestionnaireOffenderRoleId(
 
-  @Column(name = "QUESTIONNAIRE_ID", nullable = false)
-  val questionnaireId: Long,
+  @ManyToOne(fetch = FetchType.EAGER, optional = false)
+  @JoinColumn(name = "QUESTIONNAIRE_ID", nullable = false)
+  val questionnaire: Questionnaire,
 
   // Offender Role = IR_OFF_PART in Reference_Codes table
   @Column(name = "PARTICIPATION_ROLE", nullable = false)
@@ -60,5 +64,5 @@ data class QuestionnaireOffenderRole(
   override fun hashCode(): Int = id.hashCode()
 
   @Override
-  override fun toString(): String = this::class.simpleName + "(id = ${id.questionnaireId},  ${id.offenderRole} )"
+  override fun toString(): String = this::class.simpleName + "(id = ${id.questionnaire},  ${id.offenderRole} )"
 }

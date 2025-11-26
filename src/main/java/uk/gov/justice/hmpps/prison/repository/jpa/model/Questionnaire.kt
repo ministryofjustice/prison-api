@@ -50,7 +50,7 @@ data class Questionnaire(
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "questionnaire")
   val questions: MutableList<QuestionnaireQuestion> = mutableListOf(),
 
-  @OneToMany(mappedBy = "id.questionnaireId", cascade = [CascadeType.ALL], orphanRemoval = true)
+  @OneToMany(mappedBy = "id.questionnaire", cascade = [CascadeType.ALL], orphanRemoval = true)
   val offenderRoles: MutableList<QuestionnaireOffenderRole> = mutableListOf(),
 
   @Column(name = "EXPIRY_DATE")

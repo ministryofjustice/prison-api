@@ -81,7 +81,7 @@ class IncidentsResourceTest : ResourceTest() {
       @Test
       fun `returns success when client has a token`() {
         webTestClient.get().uri("/api/incidents/configuration")
-          .headers(setClientAuthorisation(listOf()))
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
           .exchange()
           .expectStatus().isOk
       }
@@ -89,6 +89,7 @@ class IncidentsResourceTest : ResourceTest() {
       @Test
       fun `returns 404 when incorrect incident type selected`() {
         webTestClient.get().uri("/api/incidents/configuration?incident-type=XXXX")
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
           .headers(setClientAuthorisation(listOf()))
           .exchange()
           .expectStatus().is4xxClientError
@@ -100,7 +101,7 @@ class IncidentsResourceTest : ResourceTest() {
       @Test
       fun `returns success when individual incident type selected`() {
         webTestClient.get().uri("/api/incidents/configuration?incident-type=ASSAULT")
-          .headers(setClientAuthorisation(listOf()))
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
           .exchange()
           .expectStatus().isOk
           .expectBody().json(
@@ -393,7 +394,7 @@ class IncidentsResourceTest : ResourceTest() {
       @Test
       fun `returns success when incident type update`() {
         val incidentType = webTestClient.get().uri("/api/incidents/configuration?incident-type=ASSAULT")
-          .headers(setClientAuthorisation(listOf()))
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
           .exchange()
           .expectStatus().isOk
           .expectBodyList(ParameterizedTypeReference.forType<IncidentTypeConfiguration>(IncidentTypeConfiguration::class.java))
