@@ -170,6 +170,8 @@ abstract class ResourceTest {
     Objects.requireNonNull(response.body),
   )
 
+  protected fun jsonString(any: Any) = objectMapper.writeValueAsString(any) as String
+
   protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(validToken(roles)) }
 
   protected fun setAuthorisation(username: String?, roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(createJwtAccessToken(username, roles)) }
