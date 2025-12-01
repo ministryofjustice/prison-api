@@ -96,6 +96,7 @@ class IncidentTypeConfigurationResource(
   )
   fun updateIncidentTypeConfiguration(
     @PathVariable incidentTypeCode: String,
+    @RequestParam(name = "resequenceQuestionnaires", required = false, defaultValue = "false") resequenceQuestionnaires: Boolean = false,
     @RequestBody request: UpdateIncidentTypeConfigurationRequest,
-  ): IncidentTypeConfiguration = incidentReportConfigurationService.updateIncidentTypeConfiguration(incidentTypeCode, request)
+  ): IncidentTypeConfiguration = incidentReportConfigurationService.updateIncidentTypeConfiguration(incidentTypeCode, request, resequenceQuestionnaires)
 }

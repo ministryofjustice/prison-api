@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -171,7 +172,7 @@ class IncidentsResourceTest : ResourceTest() {
             jsonString(
               CreateIncidentTypeConfigurationRequest(
                 incidentType = "NEW_TYPE_1",
-                incidentTypeDescription = "A new incident type",
+                incidentTypeDescription = "The new incident type",
                 questions = listOf(
                   QuestionRequest(
                     code = 500000,
@@ -252,7 +253,7 @@ class IncidentsResourceTest : ResourceTest() {
             """
           {
             "incidentType": "NEW_TYPE_1",
-            "incidentTypeDescription": "A new incident type",
+            "incidentTypeDescription": "The new incident type",
             "active": true,
             "questions": [
               {
@@ -466,6 +467,76 @@ class IncidentsResourceTest : ResourceTest() {
               """,
             JsonCompareMode.LENIENT,
           )
+      }
+
+      @Test
+      fun `can resequence the questionnaire order`() {
+        webTestClient.put().uri("/api/incidents/configuration/ASSAULT?resequenceQuestionnaires=true")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
+          .bodyValue(
+            jsonString(
+              UpdateIncidentTypeConfigurationRequest(
+                incidentTypeDescription = "ZZ Assault",
+                active = true,
+              ),
+            ),
+          )
+          .exchange()
+          .expectStatus().isOk
+          .expectBody().json(
+            """
+              {
+                "incidentType": "ASSAULT",
+                "incidentTypeDescription": "ZZ Assault",
+                "active": true
+              }
+              """,
+            JsonCompareMode.LENIENT,
+          )
+
+        assertThat(
+          webTestClient.get().uri("/api/incidents/configuration")
+            .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(object : ParameterizedTypeReference<List<IncidentTypeConfiguration>>() {})
+            .returnResult()
+            .responseBody!!.last().incidentTypeDescription,
+        ).isEqualTo("ZZ Assault")
+
+        webTestClient.put().uri("/api/incidents/configuration/ASSAULT?resequenceQuestionnaires=true")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
+          .bodyValue(
+            jsonString(
+              UpdateIncidentTypeConfigurationRequest(
+                incidentTypeDescription = "A1 Assault",
+              ),
+            ),
+          )
+          .exchange()
+          .expectStatus().isOk
+          .expectBody().json(
+            """
+              {
+                "incidentType": "ASSAULT",
+                "incidentTypeDescription": "A1 Assault",
+                "active": true
+              }
+              """,
+            JsonCompareMode.LENIENT,
+          )
+
+        assertThat(
+          webTestClient.get().uri("/api/incidents/configuration")
+            .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
+            .exchange()
+            .expectStatus().isOk
+            .expectBody(object : ParameterizedTypeReference<List<IncidentTypeConfiguration>>() {})
+            .returnResult()
+            .responseBody!!.first().incidentTypeDescription,
+        ).isEqualTo("A1 Assault")
       }
     }
   }

@@ -47,6 +47,9 @@ class IncidentReportConfigurationService(
       },
     )
 
+    // re-sequence the questionnaires
+    resequenceQuestionnaires()
+
     return questionnaire.toIncidentTypeConfiguration()
   }
 
@@ -54,6 +57,7 @@ class IncidentReportConfigurationService(
   fun updateIncidentTypeConfiguration(
     incidentTypeCode: String,
     request: UpdateIncidentTypeConfigurationRequest,
+    resequenceQuestionnaires: Boolean = false,
   ): IncidentTypeConfiguration {
     val questionnaire =
       questionnaireRepository.findOneByCategoryAndCode("IR_TYPE", incidentTypeCode) ?: throw EntityNotFoundException(incidentTypeCode)
@@ -82,6 +86,17 @@ class IncidentReportConfigurationService(
       questionnaire.mapAnswers(request.questions)
     }
 
-    return questionnaireRepository.save(questionnaire).toIncidentTypeConfiguration()
+    questionnaireRepository.saveAndFlush(questionnaire)
+    if (resequenceQuestionnaires) resequenceQuestionnaires()
+    return questionnaireRepository.findById(questionnaire.id).get().toIncidentTypeConfiguration()
   }
+
+  private fun resequenceQuestionnaires() = questionnaireRepository.findAllByCategory("IR_TYPE").sortedBy { it.description?.lowercase() }
+    .forEachIndexed { index, questionnaire ->
+      if (questionnaire.active) {
+        questionnaire.listSequence = index + 1
+      } else {
+        questionnaire.listSequence = 99
+      }
+    }
 }
