@@ -45,7 +45,7 @@ data class Questionnaire(
   val category: String = "IR_TYPE",
 
   @Column(name = "LIST_SEQ", nullable = false)
-  val listSequence: Int,
+  var listSequence: Int,
 
   @OneToMany(cascade = [CascadeType.ALL], orphanRemoval = true, mappedBy = "questionnaire")
   val questions: MutableList<QuestionnaireQuestion> = mutableListOf(),
