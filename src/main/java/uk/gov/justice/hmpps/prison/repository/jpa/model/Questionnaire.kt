@@ -82,7 +82,7 @@ data class Questionnaire(
     incidentTypeDescription = description,
     active = active,
     expiryDate = expiryDate,
-    prisonerRoles = offenderRoles.map { role ->
+    prisonerRoles = offenderRoles.sortedBy { it.listSequence }.map { role ->
       IncidentTypePrisonerRole(
         prisonerRole = role.id.offenderRole,
         singleRole = role.singleRole,
