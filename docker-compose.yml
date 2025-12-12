@@ -1,6 +1,6 @@
 services:
   hmpps-auth:
-    image: quay.io/hmpps/hmpps-auth:latest
+    image: ghcr.io/ministryofjustice/hmpps-auth:latest
     container_name: hmpps-auth
     ports:
       - "9090:8080"
