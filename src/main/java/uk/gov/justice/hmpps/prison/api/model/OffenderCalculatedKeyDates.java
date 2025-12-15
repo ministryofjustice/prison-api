@@ -44,6 +44,12 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
     private boolean topupSupervisionExpiryDateOverridden;
     @Schema(description = "Whether the PED was manually overridden as part of this calculation", example = "false")
     private boolean paroleEligibilityDateOverridden;
+    @Schema(description = "The user id of the person who performed the calculation", example = "USER1")
+    private String calculatedByUserId;
+    @Schema(description = "The first name of the person who performed the calculation", example = "First")
+    private String calculatedByFirstName;
+    @Schema(description = "The last name of the person who performed the calculation", example = "Last")
+    private String calculatedByLastName;
 
     @Builder(builderMethodName = "offenderCalculatedKeyDates")
     public OffenderCalculatedKeyDates(LocalDate homeDetentionCurfewEligibilityDate,
@@ -78,7 +84,10 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
                                       boolean nonParoleDateOverridden,
                                       boolean automaticReleaseDateOverridden,
                                       boolean topupSupervisionExpiryDateOverridden,
-                                      boolean paroleEligibilityDateOverridden) {
+                                      boolean paroleEligibilityDateOverridden,
+                                      String calculatedByUserId,
+                                      String calculatedByFirstName,
+                                      String calculatedByLastName) {
         super(homeDetentionCurfewEligibilityDate, earlyTermDate, midTermDate, lateTermDate, dtoPostRecallReleaseDate, automaticReleaseDate, conditionalReleaseDate, paroleEligibilityDate, nonParoleDate, licenceExpiryDate, postRecallReleaseDate, sentenceExpiryDate, topupSupervisionExpiryDate, earlyRemovalSchemeEligibilityDate, effectiveSentenceEndDate, sentenceLength, homeDetentionCurfewApprovedDate, tariffDate, tariffExpiredRemovalSchemeEligibilityDate, approvedParoleDate, releaseOnTemporaryLicenceDate);
         this.releaseOnTemporaryLicenceDate = releaseOnTemporaryLicenceDate;
         this.judiciallyImposedSentenceLength = judiciallyImposedSentenceLength;
@@ -93,5 +102,8 @@ public class OffenderCalculatedKeyDates extends OffenderKeyDates {
         this.automaticReleaseDateOverridden = automaticReleaseDateOverridden;
         this.topupSupervisionExpiryDateOverridden = topupSupervisionExpiryDateOverridden;
         this.paroleEligibilityDateOverridden = paroleEligibilityDateOverridden;
+        this.calculatedByUserId = calculatedByUserId;
+        this.calculatedByFirstName = calculatedByFirstName;
+        this.calculatedByLastName = calculatedByLastName;
     }
 }

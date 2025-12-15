@@ -258,6 +258,7 @@ class OffenderDatesServiceTest {
         .comments("Comments")
         .reasonCode("NEW")
         .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+        .recordedUser(StaffUserAccount.builder().username("DUMMY_USER").staff(Staff.builder().staffId(-99L).firstName("DUMMY").lastName("USER").build()).build())
         .build()
     whenever(sentenceCalculationRepository.findById(offenderSentCalcId))
       .thenReturn(
@@ -307,6 +308,7 @@ class OffenderDatesServiceTest {
             .comments("Comments")
             .reasonCode("NEW")
             .calculationDate(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+            .recordedUser(StaffUserAccount.builder().username("DUMMY_USER").staff(Staff.builder().staffId(-99L).firstName("DUMMY").lastName("USER").build()).build())
             .build(),
         ),
       )
@@ -443,6 +445,9 @@ class OffenderDatesServiceTest {
           .comment("Comments")
           .reasonCode("NEW")
           .calculatedAt(LocalDateTime.of(2021, 11, 8, 10, 0, 0))
+          .calculatedByUserId("DUMMY_USER")
+          .calculatedByFirstName("DUMMY")
+          .calculatedByLastName("USER")
           .build(),
       )
     }

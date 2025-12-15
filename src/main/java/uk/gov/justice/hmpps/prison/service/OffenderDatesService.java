@@ -169,6 +169,9 @@ public class OffenderDatesService {
             .comment(sentenceCalculation.getComments())
             .reasonCode(sentenceCalculation.getReasonCode())
             .calculatedAt(sentenceCalculation.getCalculationDate())
+            .calculatedByUserId(sentenceCalculation.getRecordedUser().getUsername())
+            .calculatedByFirstName(sentenceCalculation.getRecordedUser().getStaff().getFirstName())
+            .calculatedByLastName(sentenceCalculation.getRecordedUser().getStaff().getLastName())
             .build();
     }
 

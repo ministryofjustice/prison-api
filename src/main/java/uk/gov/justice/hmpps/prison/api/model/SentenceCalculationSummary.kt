@@ -17,4 +17,6 @@ data class SentenceCalculationSummary(
   val commentText: String? = null,
   val calculationReason: String,
   val calculatedByUserId: String,
+  val calculatedByFirstName: String,
+  val calculatedByLastName: String,
 )

@@ -347,6 +347,9 @@ public class BookingRepositoryTest {
         assertThat(sentenceCalculations.getFirst().getOffenderNo()).isEqualTo("Z0024ZZ");
         assertThat(sentenceCalculations.getFirst().getAgencyLocationId()).isEqualTo("LEI");
         assertThat(sentenceCalculations.getFirst().getCalculationReason()).isEqualTo("New Sentence");
+        assertThat(sentenceCalculations.getFirst().getCalculatedByUserId()).isEqualTo("PRISON_API_USER");
+        assertThat(sentenceCalculations.getFirst().getCalculatedByFirstName()).isEqualTo("PRISON");
+        assertThat(sentenceCalculations.getFirst().getCalculatedByLastName()).isEqualTo("USER");
     }
 
     @Test
