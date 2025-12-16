@@ -207,6 +207,9 @@ class OffenderDatesResourceTest : ResourceTest() {
         .jsonPath("[0].agencyDescription").isEqualTo("LEEDS")
         .jsonPath("[0].commentText").isEqualTo("Some Comment Text")
         .jsonPath("[0].calculationReason").isEqualTo("New Sentence")
+        .jsonPath("[0].calculatedByUserId").isEqualTo("PRISON_API_USER")
+        .jsonPath("[0].calculatedByFirstName").isEqualTo("PRISON")
+        .jsonPath("[0].calculatedByLastName").isEqualTo("USER")
     }
   }
 
@@ -255,6 +258,9 @@ class OffenderDatesResourceTest : ResourceTest() {
         assertThat(isAutomaticReleaseDateOverridden).describedAs("isAutomaticReleaseDateOverridden").isFalse()
         assertThat(isTopupSupervisionExpiryDateOverridden).describedAs("isTopupSupervisionExpiryDateOverridden").isFalse()
         assertThat(isParoleEligibilityDateOverridden).describedAs("isParoleEligibilityDateOverridden").isFalse()
+        assertThat(calculatedByUserId).describedAs("calculatedByUserId").isEqualTo("PRISON_API_USER")
+        assertThat(calculatedByFirstName).describedAs("calculatedByFirstName").isEqualTo("PRISON")
+        assertThat(calculatedByLastName).describedAs("calculatedByLastName").isEqualTo("USER")
       }
     }
   }

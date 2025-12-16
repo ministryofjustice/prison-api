@@ -1557,6 +1557,6 @@ public class BookingServiceTest {
     }
 
     private SentenceCalculationSummary sentenceCalculationSummary(final Long bookingId) {
-        return new SentenceCalculationSummary(bookingId, "ABC", "first name", "last name", "SYI", "Shrewsbury", 1, LocalDateTime.now(), 1L, "comment", "Adjust Sentence", "user");
+        return new SentenceCalculationSummary(bookingId, "ABC", "first name", "last name", "SYI", "Shrewsbury", 1, LocalDateTime.now(), 1L, "comment", "Adjust Sentence", "user", "First", "Last");
     }
 }

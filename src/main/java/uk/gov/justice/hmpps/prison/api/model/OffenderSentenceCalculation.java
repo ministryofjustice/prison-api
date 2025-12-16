@@ -48,4 +48,7 @@ public class OffenderSentenceCalculation {
     private LocalDate rotl;
     private LocalDate ersed;
     private String commentText;
+    private String calculatedByUserId;
+    private String calculatedByFirstName;
+    private String calculatedByLastName;
 }
