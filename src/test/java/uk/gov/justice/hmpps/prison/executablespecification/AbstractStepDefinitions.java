@@ -18,7 +18,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSte
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.KeyWorkerAllocatedOffendersSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
@@ -114,11 +113,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public PrisonContactDetailsSteps prison() {
             return new PrisonContactDetailsSteps();
-        }
-
-        @Bean
-        public KeyWorkerAllocatedOffendersSteps keyWorkerAllocatedOffenders() {
-            return new KeyWorkerAllocatedOffendersSteps();
         }
     }
 

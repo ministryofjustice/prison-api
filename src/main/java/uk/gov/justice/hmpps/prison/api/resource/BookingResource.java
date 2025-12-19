@@ -48,7 +48,6 @@ import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateBasicDetails;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
-import uk.gov.justice.hmpps.prison.api.model.Keyworker;
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment;
 import uk.gov.justice.hmpps.prison.api.model.OffenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenceHistoryDetail;
@@ -89,7 +88,6 @@ import uk.gov.justice.hmpps.prison.service.InmateService;
 import uk.gov.justice.hmpps.prison.service.NoContentException;
 import uk.gov.justice.hmpps.prison.service.OffenderFixedTermRecallService;
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService;
-import uk.gov.justice.hmpps.prison.service.keyworker.KeyWorkerAllocationService;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -118,7 +116,6 @@ public class BookingResource {
     private final FinanceService financeService;
     private final ContactService contactService;
     private final ImageService imageService;
-    private final KeyWorkerAllocationService keyworkerService;
     private final AppointmentsService appointmentsService;
     private final OffenderFixedTermRecallService fixedTermRecallService;
     private final ReferenceDomainService referenceDomainService;
@@ -689,21 +686,6 @@ public class BookingResource {
         final var bookingId = identifiers.getBookingId();
         return bookingService.getBookingVisitBalances(bookingId).orElseThrow(
             allowNoContent ? NoContentException.withId(bookingId) : EntityNotFoundException.withId(bookingId));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Key worker details.", description = "Key worker details. This should not be used - call keyworker API instead")
-    @GetMapping("/offenderNo/{offenderNo}/key-worker")
-    @Deprecated
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "KEY_WORKER"})
-    public Keyworker getKeyworkerByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo) {
-        final var offenderIdentifiers = bookingService.getOffenderIdentifiers(offenderNo, "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "KEY_WORKER").getBookingAndSeq()
-            .orElseThrow(EntityNotFoundException.withMessage("No bookings found for offender %s", offenderNo));
-        return keyworkerService.getKeyworkerDetailsByBooking(offenderIdentifiers.getBookingId());
     }
 
     @ApiResponses({
