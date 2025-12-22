@@ -1,22 +1,20 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
-import lombok.AllArgsConstructor;
-import lombok.EqualsAndHashCode;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.RequiredArgsConstructor;
-import lombok.Setter;
-import lombok.ToString;
-import org.hibernate.Hibernate;
-import org.hibernate.type.YesNoConverter;
-import jakarta.persistence.Convert;
-
 import jakarta.persistence.Column;
+import jakarta.persistence.Convert;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Id;
 import jakarta.persistence.IdClass;
 import jakarta.persistence.Inheritance;
+import lombok.AllArgsConstructor;
+import lombok.EqualsAndHashCode;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.ToString;
+import org.hibernate.Hibernate;
+import org.hibernate.type.YesNoConverter;
 import uk.gov.justice.hmpps.prison.api.model.RefCodeAndDescription;
 
 import java.io.Serializable;
@@ -24,14 +22,23 @@ import java.util.Objects;
 
 @Getter
 @Setter
-@RequiredArgsConstructor
-@AllArgsConstructor
 @Entity(name = "REFERENCE_CODES")
 @DiscriminatorColumn(name = "domain")
 @Inheritance
 @IdClass(ReferenceCode.Pk.class)
 @ToString(of = {"domain", "code", "description"})
 public abstract class ReferenceCode implements Serializable {
+
+    public ReferenceCode(String domain, String code, String description, Integer listSequence, boolean active) {
+        this.domain = domain;
+        this.code = code;
+        this.description = description;
+        this.listSequence = listSequence;
+        this.active = active;
+    }
+
+    public ReferenceCode() {
+    }
 
     @AllArgsConstructor
     @NoArgsConstructor
