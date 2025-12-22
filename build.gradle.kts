@@ -83,12 +83,8 @@ dependencies {
   testCompileOnly("org.projectlombok:lombok:1.18.42")
 }
 
-java {
-  sourceCompatibility = JavaVersion.VERSION_25
-  targetCompatibility = JavaVersion.VERSION_25
-}
-
 kotlin {
+  jvmToolchain(25)
   kotlinDaemonJvmArgs = listOf("-Xmx1g", "-Xms256m", "-XX:+UseParallelGC")
   compilerOptions {
     freeCompilerArgs.addAll("-Xjvm-default=all", "-Xwhen-guards", "-Xannotation-default-target=param-property")
