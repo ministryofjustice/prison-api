@@ -110,7 +110,6 @@ class PrisonRollCountService(
       .groupBy { it.offenderNo }
       .filter { it.value.size > 1 }
       .keys
-      .toList()
 
     return duplicateOffenderIds.sumOf { offenderId ->
       offenderMovements
