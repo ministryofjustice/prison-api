@@ -15,7 +15,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator
 import uk.gov.justice.hmpps.prison.util.SortAttribute
 import java.time.LocalDate
-import kotlin.compareTo
 
 @Service
 @Transactional(readOnly = true)
