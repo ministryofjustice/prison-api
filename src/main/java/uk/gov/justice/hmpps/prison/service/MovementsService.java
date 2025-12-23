@@ -186,6 +186,7 @@ public class MovementsService {
             .timeOut(offenderMovement.getMovementTime())
             .movementType(offenderMovement.getMovementType())
             .toAddress(offenderMovement.getToAddress())
+            .movementSequence(offenderMovement.getMovementSequence())
             .build();
     }
 

@@ -83,16 +83,43 @@ class PrisonRollCountService(
 
     val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
 
+    val doubleMoveCount = if (movementCount.getOut() > 1) getDoubleMoveCount(prisonId) else 0
+
     return PrisonRollSummaryInfo(
       unassignedIn = unassignedIn,
       rollSummary = PrisonRollSummary(
         prisonId = prisonId,
-        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut(),
+        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut() - doubleMoveCount,
         numCurrentPopulation = currentRoll,
         numOutToday = movementCount.getOut(),
         numArrivedToday = movementCount.getIn(),
       ),
     )
+  }
+
+  private fun getDoubleMoveCount(prisonId: String): Int {
+    var doubleMoveCount = 0
+    val offendersOut = movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null)
+
+    if (offendersOut.isNotEmpty()) {
+      val duplicateOffenderIds = offendersOut
+        .groupBy { it.offenderNo }
+        .filter { it.value.size > 1 }
+        .keys
+        .toList()
+
+      duplicateOffenderIds.forEach { offenderId ->
+        offendersOut.filter { it.movementType == "REL" }.forEach { movement ->
+          val previousMovement = offendersOut.find {
+            it.movementSequence?.toIntOrNull() == (movement.movementSequence?.toIntOrNull()?.minus(1)) &&
+              it.movementType == "CRT" &&
+              it.offenderNo == offenderId
+          }
+          if (previousMovement != null) doubleMoveCount++
+        }
+      }
+    }
+    return doubleMoveCount
   }
 }
 
