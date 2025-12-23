@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.MovementCount
+import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.PrisonRollCountSummaryRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonRollCountSummary
@@ -14,6 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocat
 import uk.gov.justice.hmpps.prison.util.NaturalOrderComparator
 import uk.gov.justice.hmpps.prison.util.SortAttribute
 import java.time.LocalDate
+import kotlin.compareTo
 
 @Service
 @Transactional(readOnly = true)
@@ -83,7 +85,9 @@ class PrisonRollCountService(
 
     val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
 
-    val doubleMoveCount = if (movementCount.getOut() > 1) getDoubleMoveCount(prisonId) else 0
+    val doubleMoveCount = if (movementCount.getOut() > 1) {
+      getDoubleMoveCount(movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null))
+    } else 0
 
     return PrisonRollSummaryInfo(
       unassignedIn = unassignedIn,
@@ -97,9 +101,8 @@ class PrisonRollCountService(
     )
   }
 
-  private fun getDoubleMoveCount(prisonId: String): Int {
+  private fun getDoubleMoveCount(offendersOut: List<OffenderMovement>): Int {
     var doubleMoveCount = 0
-    val offendersOut = movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null)
 
     if (offendersOut.isNotEmpty()) {
       val duplicateOffenderIds = offendersOut
