@@ -11,7 +11,7 @@ interface BookNumberGenerationService {
 @Service
 @Profile("nomis")
 class BookNumberGenerationSPService(val generateNewBookingNo: GenerateNewBookingNo) : BookNumberGenerationService {
-  override fun generateBookNumber(): String = generateNewBookingNo.executeFunction(String::class.java)
+  override fun generateBookNumber(): String = generateNewBookingNo.executeFunction(String::class.java)!!
 }
 
 @Service

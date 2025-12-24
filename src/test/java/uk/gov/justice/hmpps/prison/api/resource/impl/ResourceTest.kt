@@ -4,12 +4,15 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
-import org.springframework.boot.test.autoconfigure.orm.jpa.AutoConfigureTestEntityManager
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager
+import org.springframework.boot.jpa.test.autoconfigure.AutoConfigureTestEntityManager
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager
+import org.springframework.boot.resttestclient.TestRestTemplate
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate
+import org.springframework.boot.test.autoconfigure.json.AutoConfigureJson
 import org.springframework.boot.test.context.SpringBootTest
 import org.springframework.boot.test.context.SpringBootTest.WebEnvironment
 import org.springframework.boot.test.json.JsonContent
-import org.springframework.boot.test.web.client.TestRestTemplate
+import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.core.ResolvableType
 import org.springframework.http.HttpEntity
 import org.springframework.http.HttpHeaders
@@ -28,7 +31,10 @@ import java.util.function.Consumer
 
 @ActiveProfiles(value = ["test"])
 @SpringBootTest(webEnvironment = WebEnvironment.RANDOM_PORT, classes = [PrisonApiServer::class])
+@AutoConfigureTestRestTemplate
+@AutoConfigureWebTestClient
 @AutoConfigureTestEntityManager
+@AutoConfigureJson
 abstract class ResourceTest {
   @Autowired
   protected lateinit var dataLoader: DataLoaderRepository
@@ -125,11 +131,11 @@ abstract class ResourceTest {
     roles = roles,
   )
 
-  protected fun <T> assertThatStatus(response: ResponseEntity<T>, status: Int) {
+  protected fun <T : Any> assertThatStatus(response: ResponseEntity<T>, status: Int) {
     assertThatStatus(response, HttpStatusCode.valueOf(status))
   }
 
-  protected fun <T> assertThatStatus(response: ResponseEntity<T>, status: HttpStatusCode?) {
+  protected fun <T : Any> assertThatStatus(response: ResponseEntity<T>, status: HttpStatusCode?) {
     Assertions.assertThat(response.statusCode).withFailMessage(
       "Expecting status code value <%s> to be equal to <%s> but it was not.\nBody was\n%s",
       response.statusCode,
@@ -138,12 +144,12 @@ abstract class ResourceTest {
     ).isEqualTo(status)
   }
 
-  protected fun assertThatJsonFileAndStatus(response: ResponseEntity<String?>, status: Int, jsonFile: String?) {
+  protected fun assertThatJsonFileAndStatus(response: ResponseEntity<String>, status: Int, jsonFile: String?) {
     assertThatJsonFileAndStatus(response, HttpStatusCode.valueOf(status), jsonFile)
   }
 
   protected fun assertThatJsonFileAndStatus(
-    response: ResponseEntity<String?>,
+    response: ResponseEntity<String>,
     status: HttpStatusCode?,
     jsonFile: String?,
   ) {
@@ -152,22 +158,22 @@ abstract class ResourceTest {
     Assertions.assertThat(bodyAsJsonContent).isEqualToJson(jsonFile)
   }
 
-  protected fun assertThatJsonAndStatus(response: ResponseEntity<String?>, status: Int, json: String?) {
+  protected fun assertThatJsonAndStatus(response: ResponseEntity<String>, status: Int, json: String?) {
     assertThatStatus(response, status)
     JsonAssertions.assertThatJson(response.body).isEqualTo(json)
   }
 
-  protected fun assertThatOKResponseContainsJson(response: ResponseEntity<String?>, json: String?) {
+  protected fun assertThatOKResponseContainsJson(response: ResponseEntity<String>, json: String?) {
     assertThatStatus(response, 200)
     Assertions.assertThat(getBodyAsJsonContent<Any>(response)).isEqualToJson(json)
   }
 
-  protected fun <T> getBodyAsJsonContent(response: ResponseEntity<String?>): JsonContent<T> = JsonContent(
+  protected fun <T : Any> getBodyAsJsonContent(response: ResponseEntity<String>): JsonContent<T> = JsonContent(
     javaClass,
     ResolvableType.forType(
       String::class.java,
     ),
-    Objects.requireNonNull(response.body),
+    Objects.requireNonNull(response.body!!),
   )
 
   protected fun jsonString(any: Any) = objectMapper.writeValueAsString(any) as String

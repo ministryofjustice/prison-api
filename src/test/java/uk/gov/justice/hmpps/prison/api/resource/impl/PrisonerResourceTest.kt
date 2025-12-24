@@ -59,7 +59,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners?ofenderNo=A1476AE",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonAndStatus(response, OK.value(), "[]")
     }
@@ -71,7 +71,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_multiple.json")
     }
@@ -83,7 +83,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners?offenderNo=A1181MV&offenderNo=A1234AC&offenderNo=A1234AA&lastName=BATES",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }
@@ -95,7 +95,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, FORBIDDEN)
     }
@@ -143,7 +143,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_multiple.json")
     }
@@ -159,7 +159,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }
@@ -223,7 +223,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners/A1234AA/full-status",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_information_A1234AA.json")
     }
@@ -235,7 +235,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners/Z0023ZZ/full-status",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_information_Z0023ZZ.json")
     }
@@ -280,7 +280,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners/X1111XX/full-status",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, NOT_FOUND)
     }
@@ -292,7 +292,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners/A1234AA/full-status",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatStatus(response, FORBIDDEN)
     }
@@ -333,7 +333,7 @@ class PrisonerResourceTest : ResourceTest() {
         "/api/prisoners/A1234AC",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
     }

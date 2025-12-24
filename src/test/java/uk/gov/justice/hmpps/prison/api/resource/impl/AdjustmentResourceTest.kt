@@ -49,7 +49,7 @@ class AdjustmentResourceTest : ResourceTest() {
       "/api/adjustments/$BOOKING_ID/sentence-and-booking",
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
     assertThatJsonFileAndStatus(response, 200, "booking-and-sentence-adjustments.json")
   }

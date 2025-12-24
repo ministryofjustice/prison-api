@@ -17,7 +17,7 @@ class AgencyPrisonerPayProfileIntTest : ResourceTest() {
       "/api/agencies/LEI/pay-profile",
       HttpMethod.GET,
       requestEntity,
-      object : ParameterizedTypeReference<AgencyPrisonerPayProfile?>() {},
+      object : ParameterizedTypeReference<AgencyPrisonerPayProfile>() {},
     )
     assertThatStatus(responseEntity, 200)
     assertThat(responseEntity.body).isInstanceOf(AgencyPrisonerPayProfile::class.java)
@@ -47,7 +47,7 @@ class AgencyPrisonerPayProfileIntTest : ResourceTest() {
       "/api/agencies/SYI/pay-profile",
       HttpMethod.GET,
       requestEntity,
-      object : ParameterizedTypeReference<AgencyPrisonerPayProfile?>() {},
+      object : ParameterizedTypeReference<AgencyPrisonerPayProfile>() {},
     )
     assertThatStatus(responseEntity, 200)
     assertThat(responseEntity.body).isInstanceOf(AgencyPrisonerPayProfile::class.java)

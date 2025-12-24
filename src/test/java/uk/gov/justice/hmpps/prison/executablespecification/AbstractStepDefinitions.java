@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
 import org.apache.commons.lang3.StringUtils;
+import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.context.annotation.Bean;
@@ -36,6 +37,7 @@ import static org.springframework.boot.test.context.SpringBootTest.WebEnvironmen
 @ContextConfiguration
 @SpringBootTest(webEnvironment = RANDOM_PORT)
 @TestPropertySource({"/application-test.properties"})
+@AutoConfigureTestRestTemplate
 abstract class AbstractStepDefinitions {
     @TestConfiguration
     static class Config {

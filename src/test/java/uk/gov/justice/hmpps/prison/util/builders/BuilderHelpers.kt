@@ -1,16 +1,19 @@
 package uk.gov.justice.hmpps.prison.util.builders
 
+import com.fasterxml.jackson.annotation.JsonProperty
+import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.PageRequest
 import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
 import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
+import tools.jackson.databind.JsonNode
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
-import uk.gov.justice.hmpps.prison.api.resource.impl.RestResponsePage
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CourtEvent
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
@@ -247,7 +250,7 @@ fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestCl
   .accept(MediaType.APPLICATION_JSON)
   .exchange()
   .expectStatus().isOk
-  .returnResult<RestResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
+  .returnResult<WebClientResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
 
 fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> = this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 
@@ -266,3 +269,15 @@ fun TestDataContext.getOffenderProgramProfiles(bookingId: Long, programStatus: S
 fun TestDataContext.getOffenderBooking(bookingId: Long): OffenderBooking? = this.dataLoader.offenderBookingRepository.findByBookingId(bookingId).orElse(null)
 
 fun TestDataContext.getOffenderBooking(offenderNo: String, active: Boolean = true): OffenderBooking? = this.dataLoader.offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, active).orElse(null)
+
+class WebClientResponsePage<T : Any>(
+  @JsonProperty("content") content: List<T>,
+  @JsonProperty("number") number: Int,
+  @JsonProperty("size") size: Int,
+  @JsonProperty("totalElements") totalElements: Long,
+  @Suppress("UNUSED_PARAMETER")
+  @JsonProperty(
+    "pageable",
+  )
+  pageable: JsonNode,
+) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)

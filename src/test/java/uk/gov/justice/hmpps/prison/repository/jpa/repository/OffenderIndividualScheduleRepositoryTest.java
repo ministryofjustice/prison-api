@@ -2,9 +2,10 @@ package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
-import org.springframework.boot.test.autoconfigure.orm.jpa.TestEntityManager;
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
+import org.springframework.boot.jpa.test.autoconfigure.AutoConfigureTestEntityManager;
+import org.springframework.boot.jpa.test.autoconfigure.TestEntityManager;
 import org.springframework.context.annotation.Import;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
@@ -20,7 +21,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace.NONE;
+import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase.Replace.NONE;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus.SCHEDULED_APPROVED;
 import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule.EventClass.EXT_MOV;
 
@@ -29,6 +30,7 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividua
 @AutoConfigureTestDatabase(replace = NONE)
 @Import({HmppsAuthenticationHolder.class, AuditorAwareImpl.class})
 @WithMockAuthUser
+@AutoConfigureTestEntityManager
 public class OffenderIndividualScheduleRepositoryTest {
 
     private static final LocalDate EVENT_DATE = LocalDate.now();
