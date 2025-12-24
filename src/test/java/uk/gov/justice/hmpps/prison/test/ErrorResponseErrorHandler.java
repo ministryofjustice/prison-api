@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.test;
 
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.HttpMethod;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.client.ClientHttpResponse;
 import org.springframework.http.converter.HttpMessageConverter;
 import org.springframework.http.converter.json.MappingJackson2HttpMessageConverter;
@@ -19,7 +21,9 @@ import java.util.List;
 public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
 
     @Override
-    public void handleError(final ClientHttpResponse response) throws IOException {
+    protected void handleError(
+        ClientHttpResponse response, HttpStatusCode statusCode,
+        @Nullable URI url, @Nullable HttpMethod method) throws IOException {
         final var errorMessageExtractor =
                 new HttpMessageConverterExtractor<>(ErrorResponse.class, getMessageConverters());
 
@@ -27,21 +31,7 @@ public class ErrorResponseErrorHandler extends DefaultResponseErrorHandler {
         try {
             errorResponse = errorMessageExtractor.extractData(response);
         } catch (final Exception e) {
-            super.handleError(response);
-        }
-        throw new PrisonApiClientException(errorResponse);
-    }
-
-    @Override
-    public void handleError(URI url, HttpMethod method, ClientHttpResponse response) throws IOException {
-        final var errorMessageExtractor =
-                new HttpMessageConverterExtractor<>(ErrorResponse.class, getMessageConverters());
-
-        ErrorResponse errorResponse = null;
-        try {
-            errorResponse = errorMessageExtractor.extractData(response);
-        } catch (final Exception e) {
-            super.handleError(url, method, response);
+            super.handleError(response, statusCode, url, method);
         }
         throw new PrisonApiClientException(errorResponse);
     }

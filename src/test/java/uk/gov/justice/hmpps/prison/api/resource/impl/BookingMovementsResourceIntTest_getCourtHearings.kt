@@ -53,7 +53,7 @@ class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
       "/api/bookings/-41/court-hearings",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {
+      object : ParameterizedTypeReference<String>() {
       },
     )
 
@@ -70,7 +70,7 @@ class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
       "/api/bookings/-3/court-hearings",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {
+      object : ParameterizedTypeReference<String>() {
       },
     )
 
@@ -87,7 +87,7 @@ class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
       "/api/bookings/-3/court-hearings?fromDate=2019-05-01",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {
+      object : ParameterizedTypeReference<String>() {
       },
     )
 
@@ -104,7 +104,7 @@ class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
       "/api/bookings/-3/court-hearings?toDate=2016-02-18",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {
+      object : ParameterizedTypeReference<String>() {
       },
     )
 

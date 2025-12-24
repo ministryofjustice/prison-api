@@ -96,7 +96,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/sentences",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "sentence.json")
@@ -127,7 +127,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/case-notes/v2",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes.json")
@@ -141,7 +141,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/case-notes/v2",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes.json")
@@ -155,7 +155,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/case-notes/v2?type=ETE",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes_type_ETE.json")
@@ -169,7 +169,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/case-notes/v2?type=ETE&subType=ETERTO",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes_type_ETE.json")
@@ -183,7 +183,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{nomsId}/case-notes/v2?typeSubTypes=APP&typeSubTypes=COMMS+COM_IN&typeSubTypes=COMMS+COM_OUT",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "casenotes_by_multiple_type_and_subTypes.json")
@@ -299,7 +299,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail.json")
@@ -313,7 +313,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         "A1234AC",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail_recall.json")
@@ -327,7 +327,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         "A1234AD",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail_no_recall.json")
@@ -341,7 +341,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         "A1234DD",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail_min.json")
@@ -355,7 +355,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         "B1234DD",
       )
       assertThatStatus(response, 404)
@@ -369,7 +369,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         "A1234AI",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_detail_aliases.json")
@@ -383,7 +383,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<InmateDetail?>() {},
+        object : ParameterizedTypeReference<InmateDetail>() {},
         "A5577RS",
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
@@ -448,7 +448,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/prison-timeline",
       GET,
       httpEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       prisonerNo,
     )
     assertThatJsonFileAndStatus(response, 200, "prisoner_timeline.json")
@@ -468,7 +468,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/release",
       PUT,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       prisonerNo,
     )
     assertThat(response.statusCode.value()).isEqualTo(400)
@@ -487,7 +487,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/release",
       PUT,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A1234AA",
     )
     assertThat(response.statusCode.value()).isEqualTo(400)
@@ -513,7 +513,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders",
       POST,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
     assertThatJsonFileAndStatus(response, 200, "new_prisoner.json")
   }
@@ -533,9 +533,9 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders",
       POST,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
-    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]
+    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]!!
     val dischargeRequest = mapOf(
       "hospitalLocationCode" to "ARNOLD",
       "dischargeTime" to LocalDateTime.of(2021, 5, 18, 17, 23, 0).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME),
@@ -548,7 +548,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/discharge-to-hospital",
       PUT,
       dischargeEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_court.json")
@@ -582,16 +582,16 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders",
       POST,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
-    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]
+    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]!!
     val newBookingBody = mapOf("prisonId" to "SYI", "fromLocationId" to "COURT1", "movementReasonCode" to "24", "youthOffender" to "true", "imprisonmentStatus" to "CUR_ORA", "cellLocation" to "SYI-A-1-1")
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
       POST,
       newBookingEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThat(newBookingResponse.statusCode.value()).isEqualTo(200)
@@ -600,7 +600,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/release",
       PUT,
       releaseBody,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThat(releaseResponse.statusCode.value()).isEqualTo(200)
@@ -622,7 +622,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/discharge-to-hospital",
       PUT,
       dischargeEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_prison.json")
@@ -638,7 +638,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{offenderNo}",
       GET,
       createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThatOKResponseContainsJson(
@@ -682,16 +682,16 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders",
       POST,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
-    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]
+    val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]!!
     val newBookingBody = mapOf("prisonId" to "SYI", "fromLocationId" to "COURT1", "movementReasonCode" to "24", "youthOffender" to "true", "imprisonmentStatus" to "CUR_ORA", "cellLocation" to "SYI-A-1-1")
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
       POST,
       newBookingEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThat(newBookingResponse.statusCode.value()).isEqualTo(200)
@@ -700,7 +700,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/release",
       PUT,
       releaseBody,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       offenderNo,
     )
     assertThat(releaseResponse.statusCode.value()).isEqualTo(200)
@@ -738,7 +738,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{nomsId}/release",
       PUT,
       entity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       prisonerNo,
     )
     assertThatJsonFileAndStatus(response, 200, "released_prisoner.json")
@@ -833,7 +833,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}/addresses",
         GET,
         requestEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThatJsonFileAndStatus(response, 200, "offender-address.json")
@@ -847,7 +847,7 @@ class OffenderResourceIntTest : ResourceTest() {
       "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
       GET,
       requestEntity,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A1181HH",
       "NOT_PROVEN",
     )
@@ -1077,7 +1077,7 @@ class OffenderResourceIntTest : ResourceTest() {
         "/api/offenders/{offenderNo}/case-notes",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         OFFENDER_NUMBER,
       )
       assertThat(response.statusCode).isEqualTo(BAD_REQUEST)

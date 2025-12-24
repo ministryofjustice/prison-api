@@ -12,9 +12,11 @@ spring:
     name: prison-api
   main:
     web-application-type: servlet
-
   cache:
     type: jcache
+  http:
+    converters:
+      preferred-json-mapper: jackson2
 
   profiles:
     group:
@@ -40,6 +42,8 @@ spring:
             timeout: 10000
 
   jackson:
+    date-format: "yyyy-MM-dd HH:mm:ss"
+  jackson2:
     date-format: "yyyy-MM-dd HH:mm:ss"
     serialization:
       WRITE_DATES_AS_TIMESTAMPS: false

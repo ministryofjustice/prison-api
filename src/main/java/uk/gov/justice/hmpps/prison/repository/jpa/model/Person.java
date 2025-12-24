@@ -14,7 +14,6 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-import org.hibernate.annotations.Where;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -26,6 +25,8 @@ import jakarta.persistence.NamedEntityGraph;
 import jakarta.persistence.NamedSubgraph;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import org.hibernate.annotations.SQLRestriction;
+
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -76,17 +77,17 @@ public class Person extends AuditableEntity {
     private LocalDate birthDate;
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Where(clause = "OWNER_CLASS = '"+PersonAddress.ADDR_TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+PersonAddress.ADDR_TYPE+"'")
     @Default
     private List<PersonAddress> addresses = new ArrayList<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Where(clause = "OWNER_CLASS = '"+PersonPhone.PHONE_TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+PersonPhone.PHONE_TYPE+"'")
     @Default
     private Set<PersonPhone> phones = new HashSet<>();
 
     @OneToMany(mappedBy = "person", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @Where(clause = "OWNER_CLASS = '"+PersonInternetAddress.TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+PersonInternetAddress.TYPE+"'")
     @Default
     private Set<PersonInternetAddress> internetAddresses = new HashSet<>();
 

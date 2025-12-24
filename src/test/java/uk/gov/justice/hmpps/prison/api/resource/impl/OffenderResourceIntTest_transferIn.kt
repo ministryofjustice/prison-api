@@ -3,7 +3,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import com.fasterxml.jackson.annotation.JsonProperty
-import com.fasterxml.jackson.databind.JsonNode
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.BeforeEach
@@ -20,6 +19,7 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
+import tools.jackson.databind.JsonNode
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
@@ -2002,7 +2002,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
   private fun lastMovement(bookingId: Long) = testDataContext.getMovements(bookingId).find { it.isActive }!!
 }
 
-class RestResponsePage<T>(
+class RestResponsePage<T : Any>(
   @JsonProperty("content") content: List<T>,
   @JsonProperty("number") number: Int,
   @JsonProperty("size") size: Int,
