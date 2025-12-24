@@ -5,7 +5,7 @@ import org.ehcache.config.builders.ExpiryPolicyBuilder
 import org.ehcache.config.builders.ResourcePoolsBuilder
 import org.ehcache.jsr107.Eh107Configuration
 import org.springframework.beans.factory.annotation.Value
-import org.springframework.boot.autoconfigure.cache.JCacheManagerCustomizer
+import org.springframework.boot.cache.autoconfigure.JCacheManagerCustomizer
 import org.springframework.cache.annotation.CachingConfigurer
 import org.springframework.cache.annotation.EnableCaching
 import org.springframework.cache.interceptor.SimpleKey

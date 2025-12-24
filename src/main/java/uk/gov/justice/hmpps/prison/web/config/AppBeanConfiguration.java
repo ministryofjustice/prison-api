@@ -6,7 +6,7 @@ import com.fasterxml.jackson.databind.util.StdDateFormat;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.fasterxml.jackson.module.kotlin.KotlinModule;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.boot.autoconfigure.jackson.Jackson2ObjectMapperBuilderCustomizer;
+import org.springframework.boot.jackson.autoconfigure.JsonMapperBuilderCustomizer;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import uk.gov.justice.hmpps.prison.values.Currency;
@@ -15,18 +15,18 @@ import uk.gov.justice.hmpps.prison.values.Currency;
 public class AppBeanConfiguration {
 
     private @Value("${api.currency:GBP}") String currency;
-
-    @Bean
-    public Jackson2ObjectMapperBuilderCustomizer objectMapperBuilder() {
-        return builder -> builder
-                .dateFormat(new StdDateFormat())
-                .modules(new JavaTimeModule(), new KotlinModule.Builder().build())
-                .featuresToDisable(
-                        SerializationFeature.INDENT_OUTPUT,
-                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
-                        SerializationFeature.FAIL_ON_EMPTY_BEANS,
-                        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
-    }
+//
+//    @Bean
+//    public JsonMapperBuilderCustomizer objectMapperBuilder() {
+//        return builder -> builder
+//                .dateFormat(new StdDateFormat())
+//                .modules(new JavaTimeModule(), new KotlinModule.Builder().build())
+//                .featuresToDisable(
+//                        SerializationFeature.INDENT_OUTPUT,
+//                        DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES,
+//                        SerializationFeature.FAIL_ON_EMPTY_BEANS,
+//                        SerializationFeature.WRITE_DATES_AS_TIMESTAMPS);
+//    }
 
     @Bean
     public Currency currency() {
