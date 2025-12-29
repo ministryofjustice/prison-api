@@ -164,6 +164,7 @@ public class MovementsRepositoryTest {
             .movementTime(LocalTime.of(0, 0))
             .movementDate(LocalDate.of(2017, 7, 16))
             .movementReasonDescription("Funerals And Deaths")
+            .movementSequence("2")
             .build();
 
         assertThat(repository.getOffendersOut("LEI", LocalDate.of(2017, Month.JULY, 16), null)).containsExactly(offender);
@@ -182,6 +183,7 @@ public class MovementsRepositoryTest {
             .movementTime(LocalTime.of(0, 0))
             .movementDate(LocalDate.of(2017, 7, 16))
             .movementReasonDescription("Funerals And Deaths")
+            .movementSequence("2")
             .build();
 
         assertThat(repository.getOffendersOut("LEI", LocalDate.of(2017, Month.JULY, 16), "TAP")).containsExactly(offender);

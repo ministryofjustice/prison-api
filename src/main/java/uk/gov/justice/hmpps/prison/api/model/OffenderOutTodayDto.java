@@ -49,4 +49,7 @@ public class OffenderOutTodayDto {
 
     @Schema(description = "Type of movement")
     private String movementType;
+
+    @Schema(description = "The movement sequence")
+    private String movementSequence;
 }

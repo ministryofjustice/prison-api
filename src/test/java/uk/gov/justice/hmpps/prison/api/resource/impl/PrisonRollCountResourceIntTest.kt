@@ -89,10 +89,10 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
           """
             {
               "prisonId": "LEI",
-              "numUnlockRollToday": 24,
+              "numUnlockRollToday": 25,
               "numCurrentPopulation": 24,
               "numArrivedToday": 0,
-              "numOutToday": 0
+              "numOutToday": 2
             } 
           """.trimIndent(),
 
@@ -110,12 +110,12 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
           """
             {
               "prisonId": "LEI",
-              "numUnlockRollToday": 24,
+              "numUnlockRollToday": 25,
               "numCurrentPopulation": 24,
               "numArrivedToday": 0,
               "numInReception": 0,
               "numStillToArrive": 2,
-              "numOutToday": 0,
+              "numOutToday": 2,
               "numNoCellAllocated": 0,
               "totals": {
                 "bedsInUse": 26,
@@ -214,12 +214,12 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
           """
             {
               "prisonId": "LEI",
-              "numUnlockRollToday": 24,
+              "numUnlockRollToday": 25,
               "numCurrentPopulation": 24,
               "numArrivedToday": 0,
               "numInReception": 0,
               "numStillToArrive": 2,
-              "numOutToday": 0,
+              "numOutToday": 2,
               "numNoCellAllocated": 0,
               "totals": {
                 "bedsInUse": 26,
@@ -488,7 +488,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
             {
               "inOutMovementsToday": {
                 "in": 0,
-                "out": 0
+                "out": 2
               },
               "enRouteToday": 2
             } 

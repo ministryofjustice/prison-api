@@ -473,7 +473,7 @@ class MovementResourceTest : ResourceTest() {
         "LEI",
       )
       assertThatStatus(response, 200)
-      assertThatJson(response.body!!).isEqualTo("{\"in\":0,\"out\":0}")
+      assertThatJson(response.body!!).isEqualTo("{\"in\":0,\"out\":2}")
     }
 
     @Test

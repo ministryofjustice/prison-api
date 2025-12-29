@@ -80,10 +80,14 @@ public class OffenderMovement {
     @Schema(requiredMode = REQUIRED, description = "Movement date")
     private LocalDate movementDate;
 
+    @NotBlank
+    @Schema(description = "Movement sequence")
+    private String movementSequence;
+
     @Schema(description = "To address")
     private String toAddress;
 
-    public OffenderMovement(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, String middleName, @NotBlank String lastName, @NotBlank String fromAgency, @NotBlank String fromAgencyDescription, @NotBlank String toAgency, @NotBlank String toAgencyDescription, @NotBlank String movementType, @NotBlank String movementTypeDescription, @NotBlank String movementReason, @NotBlank String movementReasonDescription, @NotBlank String directionCode, @NotNull LocalTime movementTime, @NotNull LocalDate movementDate, String toAddress) {
+    public OffenderMovement(@NotBlank String offenderNo, @NotNull Long bookingId, @NotNull LocalDate dateOfBirth, @NotBlank String firstName, String middleName, @NotBlank String lastName, @NotBlank String fromAgency, @NotBlank String fromAgencyDescription, @NotBlank String toAgency, @NotBlank String toAgencyDescription, @NotBlank String movementType, @NotBlank String movementTypeDescription, @NotBlank String movementReason, @NotBlank String movementReasonDescription, @NotBlank String directionCode, @NotNull LocalTime movementTime, @NotNull LocalDate movementDate, @NotBlank String movementSequence, String toAddress) {
         this.offenderNo = offenderNo;
         this.bookingId = bookingId;
         this.dateOfBirth = dateOfBirth;
@@ -101,6 +105,7 @@ public class OffenderMovement {
         this.directionCode = directionCode;
         this.movementTime = movementTime;
         this.movementDate = movementDate;
+        this.movementSequence = movementSequence;
         this.toAddress = toAddress;
     }
 
