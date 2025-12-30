@@ -84,8 +84,8 @@ class PrisonRollCountService(
 
     val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
 
-    val doubleMoveCount = if (movementCount.getOut() > 1) {
-      getDoubleMoveCount(movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null))
+    val consecutiveOutMoveCount = if (movementCount.getOut() > 1) {
+      getConsecutiveOutMoveCount(movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null))
     } else {
       0
     }
@@ -94,7 +94,7 @@ class PrisonRollCountService(
       unassignedIn = unassignedIn,
       rollSummary = PrisonRollSummary(
         prisonId = prisonId,
-        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut() - doubleMoveCount,
+        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut() - consecutiveOutMoveCount,
         numCurrentPopulation = currentRoll,
         numOutToday = movementCount.getOut(),
         numArrivedToday = movementCount.getIn(),
@@ -102,7 +102,7 @@ class PrisonRollCountService(
     )
   }
 
-  private fun getDoubleMoveCount(offenderMovements: List<OffenderMovement>): Int {
+  private fun getConsecutiveOutMoveCount(offenderMovements: List<OffenderMovement>): Int {
     if (offenderMovements.isEmpty()) return 0
 
     val duplicateOffenderIds = offenderMovements
@@ -112,11 +112,11 @@ class PrisonRollCountService(
 
     return duplicateOffenderIds.sumOf { offenderId ->
       offenderMovements
-        .filter { it.movementType == "REL" && it.offenderNo == offenderId }
+        .filter { it.directionCode == "OUT" && it.offenderNo == offenderId }
         .count { movement ->
           offenderMovements.any {
             it.movementSequence?.toIntOrNull() == movement.movementSequence?.toIntOrNull()?.minus(1) &&
-              it.movementType == "CRT"
+              it.directionCode == "OUT"
           }
         }
     }
