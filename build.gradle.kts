@@ -14,7 +14,6 @@ configurations {
   }
 }
 
-ext["hibernate.version"] = "6.5.3.Final"
 val jsqlParserVersion = "5.2"
 
 dependencies {

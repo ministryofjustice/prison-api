@@ -70,7 +70,7 @@ public class OffenderProfileDetail extends AuditableEntity {
         private Integer sequence;
     }
 
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumns(value = {
         @JoinColumn(name = "PROFILE_CODE", referencedColumnName = "PROFILE_CODE", insertable = false, updatable = false),
         @JoinColumn(name = "PROFILE_TYPE", referencedColumnName = "PROFILE_TYPE", insertable = false, updatable = false)

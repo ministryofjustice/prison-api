@@ -4,7 +4,6 @@ import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorColumn;
 import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Inheritance;
@@ -14,7 +13,6 @@ import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
-import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
@@ -26,7 +24,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import java.time.LocalDate;
 import java.util.HashSet;
@@ -121,7 +119,7 @@ public abstract class Address extends AuditableEntity {
     private Set<AddressUsage> addressUsages = new HashSet<>();
 
     @OneToMany(mappedBy = "address", cascade = CascadeType.ALL, fetch = LAZY, orphanRemoval = true)
-    @Where(clause = "OWNER_CLASS = '"+AddressPhone.PHONE_TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+AddressPhone.PHONE_TYPE+"'")
     @Default
     @BatchSize(size = 200)
     private Set<AddressPhone> phones = new HashSet<>();
