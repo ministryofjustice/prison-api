@@ -24,9 +24,7 @@ import org.hibernate.Hibernate;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.NotFoundAction;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.YesNoConverter;
 
 import java.time.LocalDate;
@@ -120,17 +118,17 @@ public class AgencyLocation extends AuditableEntity {
     private CourtType courtType;
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @Where(clause = "OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+AgencyAddress.ADDR_TYPE+"'")
     @Default
     private Set<AgencyAddress> addresses = new HashSet<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @Where(clause = "OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+AgencyPhone.PHONE_TYPE+"'")
     @Default
     private Set<AgencyPhone> phones = new HashSet<>();
 
     @OneToMany(mappedBy = "agency", cascade = CascadeType.ALL, fetch = FetchType.LAZY, orphanRemoval = true)
-    @Where(clause = "OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
+    @SQLRestriction("OWNER_CLASS = '"+AgencyInternetAddress.TYPE+"'")
     @Default
     private List<AgencyInternetAddress> internetAddresses = new ArrayList<>();
 
