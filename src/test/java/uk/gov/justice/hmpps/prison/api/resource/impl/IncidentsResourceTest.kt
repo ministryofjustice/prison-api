@@ -2,9 +2,12 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.joda.time.LocalDate
+import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
+import org.junit.jupiter.api.Order
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestClassOrder
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.json.JsonCompareMode
@@ -16,10 +19,12 @@ import uk.gov.justice.hmpps.prison.api.model.questionnaire.PrisonerRoleRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.QuestionRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.UpdateIncidentTypeConfigurationRequest
 
+@TestClassOrder(ClassOrderer.OrderAnnotation::class)
 class IncidentsResourceTest : ResourceTest() {
 
   @DisplayName("GET /api/incidents/{incidentId}")
   @Nested
+  @Order(1)
   inner class RetrieveIncidentsTest {
     @Test
     fun `should return 401 when user does not even have token`() {
@@ -65,6 +70,7 @@ class IncidentsResourceTest : ResourceTest() {
 
   @DisplayName("GET /api/incidents/configuration")
   @Nested
+  @Order(2)
   inner class RetrieveIncidentTypeConfigurationTest {
 
     @Nested
@@ -135,6 +141,7 @@ class IncidentsResourceTest : ResourceTest() {
 
   @DisplayName("POST /api/incidents/configuration")
   @Nested
+  @Order(3)
   inner class CreateNewIncidentTypeConfigurationTest {
 
     @Nested
@@ -365,6 +372,7 @@ class IncidentsResourceTest : ResourceTest() {
 
   @DisplayName("PUT /api/incidents/configuration/ASSAULT")
   @Nested
+  @Order(4)
   inner class UpdateNewIncidentTypeConfigurationTest {
 
     @Nested

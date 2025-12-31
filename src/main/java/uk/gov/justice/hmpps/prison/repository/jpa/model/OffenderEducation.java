@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -83,7 +83,7 @@ public class OffenderEducation {
     private EducationSchedule schedule;
 
     @Builder.Default
-    @Where(clause = "OWNER_CLASS = '" + OffenderEducationAddress.ADDR_TYPE + "'")
+    @SQLRestriction("OWNER_CLASS = '" + OffenderEducationAddress.ADDR_TYPE + "'")
     @OneToMany(mappedBy = "education", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     private List<OffenderEducationAddress> addresses = new ArrayList<>();
 

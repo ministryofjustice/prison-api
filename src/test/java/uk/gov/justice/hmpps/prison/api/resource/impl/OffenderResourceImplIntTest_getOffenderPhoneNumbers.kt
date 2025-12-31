@@ -2,11 +2,14 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.TestClassOrder
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.web.reactive.server.WebTestClient
 
+@TestClassOrder(ClassOrderer.ClassName::class)
 class OffenderResourceImplIntTest_getOffenderPhoneNumbers : ResourceTest() {
 
   private fun expectInvalidRequest(requestSpec: WebTestClient.RequestBodyUriSpec, uri: String, body: String) {
