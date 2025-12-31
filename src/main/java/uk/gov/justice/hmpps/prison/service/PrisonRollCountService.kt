@@ -7,6 +7,7 @@ import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.MovementCount
+import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.PrisonRollCountSummaryRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonRollCountSummary
@@ -83,16 +84,42 @@ class PrisonRollCountService(
 
     val movementCount = movementsRepository.getMovementCount(prisonId, LocalDate.now())
 
+    val consecutiveOutMoveCount = if (movementCount.getOut() > 1) {
+      getConsecutiveOutMoveCount(movementsRepository.getOffendersOut(prisonId, LocalDate.now(), null))
+    } else {
+      0
+    }
+
     return PrisonRollSummaryInfo(
       unassignedIn = unassignedIn,
       rollSummary = PrisonRollSummary(
         prisonId = prisonId,
-        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut(),
+        numUnlockRollToday = currentRoll - movementCount.getIn() + movementCount.getOut() - consecutiveOutMoveCount,
         numCurrentPopulation = currentRoll,
         numOutToday = movementCount.getOut(),
         numArrivedToday = movementCount.getIn(),
       ),
     )
+  }
+
+  private fun getConsecutiveOutMoveCount(offenderMovements: List<OffenderMovement>): Int {
+    if (offenderMovements.isEmpty()) return 0
+
+    val duplicateOffenderIds = offenderMovements
+      .groupBy { it.offenderNo }
+      .filter { it.value.size > 1 }
+      .keys
+
+    return duplicateOffenderIds.sumOf { offenderId ->
+      offenderMovements
+        .filter { it.directionCode == "OUT" && it.offenderNo == offenderId }
+        .count { movement ->
+          offenderMovements.any {
+            it.movementSequence?.toIntOrNull() == movement.movementSequence?.toIntOrNull()?.minus(1) &&
+              it.directionCode == "OUT"
+          }
+        }
+    }
   }
 }
 

@@ -6,7 +6,8 @@
     "timeOut": "00:00:00",
     "firstName": "Lucius",
     "lastName": "Fox",
-    "movementType":"REL"
+    "movementType":"REL",
+    "movementSequence": "2"
   },
   {
     "offenderNo": "Z0023ZZ",
@@ -15,7 +16,8 @@
     "timeOut": "00:00:00",
     "firstName": "Richard",
     "lastName": "Grayson",
-    "movementType":"REL"
+    "movementType":"REL",
+    "movementSequence": "2"
   },
   {
     "offenderNo": "Z0021ZZ",
@@ -25,6 +27,7 @@
     "firstName": "David",
     "lastName": "Dickenson",
     "movementType":"TAP",
+    "movementSequence": "2",
     "toAddress": "The Court House, Peyton Place"
   }
 ]

@@ -7,6 +7,7 @@
     "firstName": "David",
     "lastName": "Dickenson",
     "movementType":"TAP",
+    "movementSequence": "2",
     "toAddress": "The Court House, Peyton Place"
   }
 ]
