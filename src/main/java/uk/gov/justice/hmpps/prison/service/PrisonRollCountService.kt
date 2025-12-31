@@ -116,7 +116,8 @@ class PrisonRollCountService(
         .count { movement ->
           offenderMovements.any {
             it.movementSequence?.toIntOrNull() == movement.movementSequence?.toIntOrNull()?.minus(1) &&
-              it.directionCode == "OUT" && it.offenderNo == offenderId
+              it.directionCode == "OUT" &&
+              it.offenderNo == offenderId
           }
         }
     }
