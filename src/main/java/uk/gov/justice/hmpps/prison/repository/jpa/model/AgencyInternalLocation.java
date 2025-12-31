@@ -27,7 +27,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
-import org.hibernate.annotations.Where;
+import org.hibernate.annotations.SQLRestriction;
 import org.hibernate.type.YesNoConverter;
 
 import java.util.ArrayList;
@@ -108,7 +108,7 @@ public class AgencyInternalLocation {
     private String type;
 
     @OneToMany(fetch = FetchType.LAZY)
-    @Where(clause = "INT_LOC_PROFILE_TYPE = 'HOU_UNIT_ATT' AND INT_LOC_PROFILE_CODE is not NULL")
+    @SQLRestriction("INT_LOC_PROFILE_TYPE = 'HOU_UNIT_ATT' AND INT_LOC_PROFILE_CODE is not NULL")
     @JoinColumn(name = "INTERNAL_LOCATION_ID", referencedColumnName = "INTERNAL_LOCATION_ID")
     private List<AgencyInternalLocationProfile> profiles;
 

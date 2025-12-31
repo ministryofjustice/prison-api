@@ -12,7 +12,7 @@ data class PrisonerActivityImpl(
   val schedule: String?,
   val start: String,
 ) : PrisonerActivity {
-  override val programEndDate: LocalDate? = programEnd?.let { LocalDate.parse(programEnd) }
-  override val scheduleDate: LocalDate? = schedule?.let { LocalDate.parse(schedule) }
+  override val programEndDate: LocalDateTime? = programEnd?.let { LocalDate.parse(programEnd).atStartOfDay() }
+  override val scheduleDate: LocalDateTime? = schedule?.let { LocalDate.parse(schedule).atStartOfDay() }
   override val startTime: LocalDateTime = start.let { LocalDateTime.parse(start) }
 }

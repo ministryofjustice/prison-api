@@ -206,7 +206,7 @@ public class SchedulesService {
         // SQL ensures that the activity happens after the start date parameter, now need to check that the offender
         // program hasn't ended. END indicates that the program has ended, in which case the end date will also be populated
         return !"END".equals(activity.getProgramStatus()) ||
-            (activity.getProgramEndDate() != null && !activity.getScheduleDate().isAfter(activity.getProgramEndDate()));
+            (activity.getProgramEndDate() != null && !activity.getScheduleDate().toLocalDate().isAfter(activity.getProgramEndDate().toLocalDate()));
     }
 
     private List<PrisonerSchedule> getPrisonerSchedules(final Long locationId, final String usage, final String sortFields, final Order sortOrder, final LocalDate day) {
