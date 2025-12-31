@@ -102,7 +102,7 @@ class PrisonRollCountService(
     )
   }
 
-  private fun getConsecutiveOutMoveCount(offenderMovements: List<OffenderMovement>): Int {
+  fun getConsecutiveOutMoveCount(offenderMovements: List<OffenderMovement>): Int {
     if (offenderMovements.isEmpty()) return 0
 
     val duplicateOffenderIds = offenderMovements
@@ -116,7 +116,7 @@ class PrisonRollCountService(
         .count { movement ->
           offenderMovements.any {
             it.movementSequence?.toIntOrNull() == movement.movementSequence?.toIntOrNull()?.minus(1) &&
-              it.directionCode == "OUT"
+              it.directionCode == "OUT" && it.offenderNo == offenderId
           }
         }
     }
