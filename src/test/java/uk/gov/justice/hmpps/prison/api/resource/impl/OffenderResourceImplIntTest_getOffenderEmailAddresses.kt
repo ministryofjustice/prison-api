@@ -2,6 +2,7 @@
 
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.ClassOrderer
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -39,9 +40,14 @@ class OffenderResourceImplIntTest_getOffenderEmailAddresses : ResourceTest() {
     @Test
     fun `Read - should return offender email addresses`() {
       webTestClient.get().uri(GET_URL).headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA"))).exchange()
-        .expectBody().jsonPath("$.length()").isEqualTo(2).jsonPath("[0].email").isEqualTo(EMAIL_1.EMAIL_ADDRESS)
-        .jsonPath("[0].emailAddressId").isEqualTo(EMAIL_1.ID).jsonPath("[1].email")
-        .isEqualTo(EMAIL_2.EMAIL_ADDRESS).jsonPath("[1].emailAddressId").isEqualTo(EMAIL_2.ID)
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(2)
+        .jsonPath("[*].email").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrder(EMAIL_1.EMAIL_ADDRESS, EMAIL_2.EMAIL_ADDRESS)
+        }
+        .jsonPath("[*].emailAddressId").value<List<Int>> {
+          assertThat(it).containsExactlyInAnyOrder(EMAIL_1.ID, EMAIL_2.ID)
+        }
     }
   }
 

@@ -107,7 +107,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<String?>() {
+      object : ParameterizedTypeReference<String>() {
       },
       OFFENDER_NO,
     )
@@ -242,7 +242,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<ErrorResponse?>() {
+      object : ParameterizedTypeReference<ErrorResponse>() {
       },
       "xxx",
     ).body!!
@@ -262,7 +262,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<ErrorResponse?>() {
+      object : ParameterizedTypeReference<ErrorResponse>() {
       },
       OFFENDER_NO,
     ).body!!
@@ -282,7 +282,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<ErrorResponse?>() {
+      object : ParameterizedTypeReference<ErrorResponse>() {
       },
       OFFENDER_NO,
     ).body!!
@@ -323,7 +323,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<ErrorResponse?>() {
+      object : ParameterizedTypeReference<ErrorResponse>() {
       },
       nonExistingId,
     ).body!!
@@ -343,7 +343,7 @@ class OffenderTransactionHistoryResourceTest : ResourceTest() {
       url,
       HttpMethod.GET,
       httpEntity,
-      object : ParameterizedTypeReference<ErrorResponse?>() {
+      object : ParameterizedTypeReference<ErrorResponse>() {
       },
       "Z00028",
     ).body!!

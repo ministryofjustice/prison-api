@@ -78,7 +78,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1069AA/distinguishing-marks",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, 200, "distinguishing_marks_for_prisoner.json")
     }
@@ -150,7 +150,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1069AA/distinguishing-mark/2",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, 200, "distinguishing_mark_2.json")
     }
@@ -216,7 +216,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/photo/-100",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       Assertions.assertThat(response.body).isNotEmpty()
     }
@@ -294,7 +294,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/photo/-103/image",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
 
       assertThatStatus(response, 200)
@@ -387,7 +387,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1070AA/distinguishing-mark/1/photo",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
 
       assertThatStatus(response, 200)
@@ -494,7 +494,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1070AA/distinguishing-mark/2",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
 
       assertThatJsonFileAndStatus(response, 200, "distinguishing_mark_updated.json")
@@ -578,7 +578,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1071AA/distinguishing-mark",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
 
       assertThatStatus(response, 200)
@@ -610,7 +610,7 @@ class DistinguishingMarkResourceIntTest : ResourceTest() {
         "/api/person/A1070AA/distinguishing-mark",
         POST,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
 
       assertThatStatus(response, 200)

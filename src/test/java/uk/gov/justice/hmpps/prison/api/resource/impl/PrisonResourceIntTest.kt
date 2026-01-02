@@ -13,6 +13,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METH
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculablePrisoner
+import uk.gov.justice.hmpps.prison.util.builders.WebClientResponsePage
 
 @DisplayName("GET /api/prison/{establishmentId}/booking/latest/paged/calculable-sentence-envelope")
 class PrisonResourceIntTest : ResourceTest() {
@@ -47,7 +48,7 @@ class PrisonResourceIntTest : ResourceTest() {
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBody(object : ParameterizedTypeReference<RestResponsePage<CalculablePrisoner>>() {})
+      .expectBody(object : ParameterizedTypeReference<WebClientResponsePage<CalculablePrisoner>>() {})
       .returnResult()
       .responseBody!!
 
@@ -67,7 +68,7 @@ class PrisonResourceIntTest : ResourceTest() {
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBody(object : ParameterizedTypeReference<RestResponsePage<CalculablePrisoner>>() {})
+      .expectBody(object : ParameterizedTypeReference<WebClientResponsePage<CalculablePrisoner>>() {})
       .returnResult()
       .responseBody!!
 
