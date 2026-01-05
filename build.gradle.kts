@@ -13,8 +13,6 @@ configurations {
   }
 }
 
-val jsqlParserVersion = "5.2"
-
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.42")
@@ -32,6 +30,7 @@ dependencies {
 
   implementation("commons-codec:commons-codec:1.20.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
+  val jsqlParserVersion = "5.2"
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.11.1")
   runtimeOnly("com.zaxxer:HikariCP")
@@ -43,7 +42,9 @@ dependencies {
   implementation("commons-io:commons-io:2.21.0")
   implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
-  implementation("com.oracle.database.jdbc:ojdbc10:19.29.0.0")
+  // Had to leave oracle at 21.20.0.0 because in 23 fails to compile stored procedures
+  val oracleVersion = "21.20.0.0"
+  implementation("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   compileOnly("org.projectlombok:lombok:1.18.42")
