@@ -43,7 +43,7 @@ dependencies {
   implementation("commons-io:commons-io:2.21.0")
   implementation("com.google.guava:guava:33.5.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
-  implementation("com.oracle.database.jdbc:ojdbc11:23.26.0.0.0")
+  implementation("com.oracle.database.jdbc:ojdbc10:19.29.0.0")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   compileOnly("org.projectlombok:lombok:1.18.42")
