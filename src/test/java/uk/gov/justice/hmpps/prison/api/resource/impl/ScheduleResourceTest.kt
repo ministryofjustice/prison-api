@@ -321,7 +321,7 @@ class ScheduleResourceTest : ResourceTest() {
         "/api/schedules/LEI/activities-by-event-ids",
         HttpMethod.POST,
         createHttpEntity(token, eventIds),
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThatJsonFileAndStatus(response, 200, "scheduled-activities.json")
     }
@@ -333,7 +333,7 @@ class ScheduleResourceTest : ResourceTest() {
         "/api/schedules/LEI/activities-by-event-ids",
         HttpMethod.POST,
         createHttpEntity(token, emptyList<Any>()),
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode.value()).isEqualTo(400)
     }
@@ -346,7 +346,7 @@ class ScheduleResourceTest : ResourceTest() {
         "/api/schedules/LEI/activities-by-event-ids",
         HttpMethod.POST,
         createHttpEntity(token, eventIds),
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode.value()).isEqualTo(403)
     }

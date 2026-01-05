@@ -49,7 +49,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A12345",
     )
     assertThatJsonFileAndStatus(response, 200, "offender_damage_obligations.json")
@@ -63,7 +63,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A12345",
     )
     assertThat(response.statusCode.value()).isEqualTo(404)
@@ -76,7 +76,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "Z00028",
     )
     assertThat(response.statusCode.value()).isEqualTo(404)
@@ -116,7 +116,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A12345",
     )
     verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345")
@@ -131,7 +131,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations?status=ACTIVE",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A12345",
     )
     verify(offenderDamageObligationRepository, times(0)).findOffenderDamageObligationByOffender_NomsId("A12345")
@@ -146,7 +146,7 @@ class OffenderResourceImplIntTest_bookingDamageObligations : ResourceTest() {
       "/api/offenders/{offenderNo}/damage-obligations?status=BADSTATUS",
       GET,
       request,
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
       "A12345",
     )
     verify(offenderDamageObligationRepository, times(1)).findOffenderDamageObligationByOffender_NomsId("A12345")

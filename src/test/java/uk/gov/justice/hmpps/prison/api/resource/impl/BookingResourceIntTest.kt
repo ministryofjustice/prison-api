@@ -121,7 +121,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/{bookingId}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         -2,
       )
       assertThatJsonFileAndStatus(response, 200, "booking_offender_-1.json")
@@ -235,7 +235,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/v2?prisonId={prisonId}&sort={sort}&image={imageRequired}&legalInfo={legalInfo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         mapOf("prisonId" to "BXI", "sort" to "bookingId,asc", "imageRequired" to "true", "legalInfo" to "true"),
       )
       assertThatJsonFileAndStatus(response, 200, "bxi_caseload_bookings.json")
@@ -249,7 +249,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/v2?prisonId={prisonId}&page={pageNum}&size={pageSize}&image={imageRequired}&legalInfo={legalInfo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         mapOf("prisonId" to "LEI", "pageNum" to "2", "pageSize" to "3", "imageRequired" to "true", "legalInfo" to "true"),
       )
       assertThatJsonFileAndStatus(response, 200, "lei_bookings.json")
@@ -263,7 +263,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/v2?bookingId={bookingId1}&bookingId={bookingId2}&bookingId={bookingId3}&image={imageRequired}&legalInfo={legalInfo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         mapOf("bookingId1" to "-1", "bookingId2" to "-2", "bookingId3" to "-3", "imageRequired" to "true", "legalInfo" to "true"),
       )
       assertThatJsonFileAndStatus(response, 200, "bookings_by_id.json")
@@ -277,7 +277,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/v2?offenderNo={nomsId1}&offenderNo={nomsId2}&image={imageRequired}&legalInfo={legalInfo}",
         GET,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         mapOf("nomsId1" to "A1234AA", "nomsId2" to "A1234AB", "imageRequired" to "true", "legalInfo" to "true"),
       )
       assertThatJsonFileAndStatus(response, 200, "bookings_by_nomsId.json")
@@ -414,7 +414,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/{bookingId}/activities/{activityId}/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         -2,
         -11,
       )
@@ -430,7 +430,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/{bookingId}/activities/{activityId}/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         -2,
         -11,
       )
@@ -446,7 +446,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/{bookingId}/activities/{activityId}/attendance?lockTimeout=true",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
         -2,
         -11,
       )
@@ -533,7 +533,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/activities/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.CREATED)
     }
@@ -552,7 +552,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/activities/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
     }
@@ -571,7 +571,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/activities/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
       assertThat(response.body).contains("Activity with booking Id -2 and activityId 999 not found")
@@ -591,7 +591,7 @@ class BookingResourceIntTest : ResourceTest() {
         "/api/bookings/activities/attendance",
         PUT,
         httpEntity,
-        object : ParameterizedTypeReference<String?>() {},
+        object : ParameterizedTypeReference<String>() {},
       )
       assertThat(response.statusCode).isEqualTo(HttpStatus.NOT_FOUND)
       assertThat(response.body).contains("Activity with booking Id 999 and activityId -11 not found")
@@ -2041,7 +2041,7 @@ class BookingResourceIntTest : ResourceTest() {
       "/api/bookings/court-event-outcomes",
       POST,
       createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
 
     // Then
@@ -2063,7 +2063,7 @@ class BookingResourceIntTest : ResourceTest() {
       "/api/bookings/court-event-outcomes?outcomeReasonCodes=$outcomeReasonCodes",
       POST,
       createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
-      object : ParameterizedTypeReference<String?>() {},
+      object : ParameterizedTypeReference<String>() {},
     )
 
     // Then

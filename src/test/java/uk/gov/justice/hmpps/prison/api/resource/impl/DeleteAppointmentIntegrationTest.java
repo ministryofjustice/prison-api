@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.HttpMethod;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent;
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.AppointmentDefaults;
@@ -54,7 +55,8 @@ public class DeleteAppointmentIntegrationTest extends ResourceTest {
         final var getAppointmentStatsCodes = appointmentIds
             .stream()
             .map(this::makeGetAppointmentDetails)
-            .map(ResponseEntity::getStatusCodeValue)
+            .map(ResponseEntity::getStatusCode)
+            .map(HttpStatusCode::value)
             .collect(toList());
 
         assertThat(getAppointmentStatsCodes).containsExactly(404, 404);

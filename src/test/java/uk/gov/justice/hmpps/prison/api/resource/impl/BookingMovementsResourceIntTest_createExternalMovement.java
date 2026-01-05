@@ -39,7 +39,7 @@ public class BookingMovementsResourceIntTest_createExternalMovement extends Reso
             new ParameterizedTypeReference<String>() {
             });
 
-        assertThat(response.getStatusCodeValue()).isEqualTo(403);
+        assertThat(response.getStatusCode().value()).isEqualTo(403);
     }
 
     private Map<String,Object> getBody() {

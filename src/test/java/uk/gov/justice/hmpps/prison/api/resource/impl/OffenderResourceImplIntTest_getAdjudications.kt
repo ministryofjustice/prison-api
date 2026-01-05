@@ -82,7 +82,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         "/api/offenders/A1234AA/adjudications",
         HttpMethod.GET,
         createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf()),
-        object : ParameterizedTypeReference<String?>() {
+        object : ParameterizedTypeReference<String>() {
         },
       )
 
@@ -113,7 +113,7 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         "/api/offenders/A1234AA/adjudications",
         HttpMethod.GET,
         createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf("ROLE_VIEW_ADJUDICATIONS"), mapOf()),
-        object : ParameterizedTypeReference<String?>() {
+        object : ParameterizedTypeReference<String>() {
         },
       )
 

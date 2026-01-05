@@ -16,7 +16,7 @@ import java.sql.ResultSet
  * instead convert the result set names into indexes so can get the column value directly.  This is because findColumn
  * is very slow in Oracle as it uses a number of regex to possibly quote the name of the column before looking it up.
  */
-class DataClassByColumnRowMapper<T>(mappedClass: Class<T>) : BeanPropertyRowMapper<T>(mappedClass) {
+class DataClassByColumnRowMapper<T : Any>(mappedClass: Class<T>) : BeanPropertyRowMapper<T>(mappedClass) {
 
   private val mappedConstructor: Constructor<T>
   private val constructorParametersAsColumnNames: List<String>
