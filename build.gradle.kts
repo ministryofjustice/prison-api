@@ -26,7 +26,6 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-data-jpa")
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-jackson2")
-  developmentOnly("org.springframework.boot:spring-boot-devtools")
 
   implementation("commons-codec:commons-codec:1.20.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
