@@ -48,7 +48,7 @@ data class OffenderIn(
   @Schema(description = "Movement time", required = true)
   val movementTime: LocalTime,
 
-  @Schema(description = "Movement date time", required = true)
+  @Schema(description = "Movement date time", required = true, example = "2021-07-16T12:34:56")
   val movementDateTime: LocalDateTime? = null,
 
   @Schema(description = "Description of the offender's (internal) location", required = false)
