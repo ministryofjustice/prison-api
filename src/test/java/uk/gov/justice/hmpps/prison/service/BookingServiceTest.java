@@ -1118,6 +1118,7 @@ public class BookingServiceTest {
                                     .eventDate(LocalDate.of(2021, 1, 1))
                                     .courtLocation(
                                         AgencyLocation.builder()
+                                            .id("ACRT")
                                             .description("A court")
                                             .courtType(new CourtType("DCM", "District Court Martial"))
                                             .build()
@@ -1139,6 +1140,7 @@ public class BookingServiceTest {
                 .lineSequence(5L)
                 .caseSequence(10)
                 .caseReference("XYZ789")
+                .courtId("ACRT")
                 .courtDescription("A court")
                 .courtTypeCode("DCM")
                 .consecutiveToSequence(1)

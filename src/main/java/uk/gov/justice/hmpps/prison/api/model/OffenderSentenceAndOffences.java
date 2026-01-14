@@ -37,7 +37,10 @@ public class OffenderSentenceAndOffences {
     @Schema(description = "Case reference - a string identifying the case this sentence belongs to")
     private String caseReference;
 
-    @Schema(description = "Court description - a string describing the the court that the case was heard at")
+    @Schema(description = "Court id - the agency location id of the court that the case was heard at")
+    private String courtId;
+
+    @Schema(description = "Court description - a string describing the court that the case was heard at")
     private String courtDescription;
 
     @Schema(description = "Court type code - the type code belonging to the court that the case was heard at")
