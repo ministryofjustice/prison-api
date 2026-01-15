@@ -140,6 +140,7 @@ public class OffenderSentence extends AuditableEntity {
                 .findAny()
                 .map(CourtEvent::getCourtLocation);
 
+        var courtId = courtLocation.isEmpty() ? null : courtLocation.map(AgencyLocation::getId).orElse(null);
         var courtDescription = courtLocation.isEmpty() ? null : courtLocation.map(AgencyLocation::getDescription).orElse(null);
         var courtTypeCode = courtLocation.isEmpty() ? null : courtLocation.map(AgencyLocation::getCourtType).map(CourtType::getCodeOrNull).orElse(null);
 
@@ -150,6 +151,7 @@ public class OffenderSentence extends AuditableEntity {
             .lineSequence(lineSequence)
             .caseSequence(courtCase == null ? null : courtCase.getCaseSeq())
             .caseReference(courtCase == null ? null : courtCase.getCaseInfoNumber())
+            .courtId(courtId)
             .courtDescription(courtDescription)
             .courtTypeCode(courtTypeCode)
             .consecutiveToSequence(consecutiveToSentenceSequence)
