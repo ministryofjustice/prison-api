@@ -795,12 +795,35 @@ public class OffenderBooking extends AuditableEntity {
             latestLocationId = assignedLivingUnit.getLocation().getId();
         }
         if (!"IN".equals(getInOutStatus())) {
-            var lastMovement = getLastMovement().orElse(null);
+            var lastMovement = getMovementsRecentFirst().stream()
+                .filter(em -> em != null && em.getFromAgency() != null && !"OUT".equals(em.getFromAgency().getId()))
+                .findFirst()
+                .orElse(null);
             if (lastMovement != null && lastMovement.getFromAgency() != null) {
                 latestLocationId = lastMovement.getFromAgency().getId();
             }
         }
         return latestLocationId;
+    }
+
+    /**
+     * Prisons only, excludes hospitals or other locations
+     */
+    public String getLatestPrisonLocationId() {
+        String latestPrisonLocationId = location.getId();
+        if (assignedLivingUnit != null && assignedLivingUnit.getLocation() != null) {
+            latestPrisonLocationId = assignedLivingUnit.getLocation().getId();
+        }
+        if (!"IN".equals(getInOutStatus())) {
+            var lastMovement = getMovementsRecentFirst().stream()
+                .filter(em -> em != null && em.getFromAgency() != null && em.getFromAgency().isPrison())
+                .findFirst()
+                .orElse(null);
+            if (lastMovement != null && lastMovement.getFromAgency() != null) {
+                latestPrisonLocationId = lastMovement.getFromAgency().getId();
+            }
+        }
+        return latestPrisonLocationId;
     }
 
     private String getLastMovementTypeCode() {

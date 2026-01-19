@@ -550,10 +550,11 @@ class OffenderBookingTest {
   @Nested
   internal inner class Location {
     private val outside = AgencyLocation.builder().id("OUT").description("OUTSIDE").build()
-    private val moorland = AgencyLocation.builder().id("MDI").description("MOORLAND (HMP & YOI)").build()
-    private val brixton = AgencyLocation.builder().id("BXI").description("BRIXTON (HMP)").build()
+    private val moorland = AgencyLocation.builder().id("MDI").type(AgencyLocationType.PRISON_TYPE).description("MOORLAND (HMP & YOI)").build()
+    private val brixton = AgencyLocation.builder().id("BXI").type(AgencyLocationType.PRISON_TYPE).description("BRIXTON (HMP)").build()
     private val transfer = AgencyLocation.builder().id("TRN").description("TRANSFER").build()
     private val cellInMoorland = AgencyInternalLocation.builder().location(moorland).build()
+    private val hospital = AgencyLocation.builder().id("TSPNY").type(AgencyLocationType.HOSPITAL_TYPE).description("A secure hospital").build()
 
     @Test
     fun `IN should be agency description`() {
@@ -575,6 +576,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
 
     @Test
@@ -597,6 +599,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside - released from Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
 
     @Test
@@ -620,6 +623,69 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside")
       assertThat(booking.latestLocationId).isEqualTo("OUT")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("OUT")
+    }
+
+    @Test
+    fun `OUT and last movement has no from-agency, but previous movement does`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("OUT")
+        .statusReason("REL-CR")
+        .location(outside)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementSequence(1)
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(moorland)
+              .build(),
+            ExternalMovement.builder()
+              .movementSequence(2)
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(null)
+              .build(),
+          ),
+        )
+        .assignedLivingUnit(AgencyInternalLocation.builder().description("Outside").build())
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Outside")
+      assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+    }
+
+    @Test
+    fun `OUT and last movement is a hospital, previous movement is a prison`() {
+      val booking = OffenderBooking.builder()
+        .inOutStatus("OUT")
+        .statusReason("REL-CR")
+        .location(outside)
+        .assignedLivingUnit(null)
+        .externalMovements(
+          listOf(
+            ExternalMovement.builder()
+              .movementSequence(1)
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(moorland)
+              .build(),
+            ExternalMovement.builder()
+              .movementSequence(2)
+              .movementDirection(MovementDirection.OUT)
+              .movementType(MovementType.of(REL))
+              .fromAgency(hospital)
+              .build(),
+          ),
+        )
+        .assignedLivingUnit(AgencyInternalLocation.builder().description("Outside").build())
+        .build()
+
+      assertThat(booking.locationDescription).isEqualTo("Outside - released from A Secure Hospital")
+      assertThat(booking.latestLocationId).isEqualTo("TSPNY")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
 
     @Test
@@ -642,6 +708,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
 
     @Test
@@ -665,6 +732,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Transfer")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
 
     @Test
@@ -688,6 +756,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside - Transfers")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
+      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
     }
   }
 }

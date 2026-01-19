@@ -90,6 +90,7 @@ public class OffenderTransformer {
             .receptionDate(latestBooking.getBookingBeginDate().toLocalDate())
             .locationDescription(latestBooking.getLocationDescription())
             .latestLocationId(latestBooking.getLatestLocationId())
+            .latestPrisonLocationId(latestBooking.getLatestPrisonLocationId())
             .build()
             .deriveStatus()
             .splitStatusReason()
