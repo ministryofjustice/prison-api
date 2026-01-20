@@ -132,8 +132,8 @@ data class PrisonerSearchDetails(
   @Schema(description = "the current agency (prison, hospital, court) id or the last one before release", example = "MDI")
   val latestLocationId: String? = null,
 
-  @Schema(description = "the current prison id or the last prison before release. Same as latestLocationId if latestLocationId was a prison", example = "MDI")
-  val latestPrisonLocationId: String? = null,
+  @Schema(description = "the current prison id or the last i.e. final prison before release. Same as latestLocationId if latestLocationId was a prison", example = "MDI")
+  val lastPrisonId: String? = null,
 
   @Schema(description = "Prisoner Addresses")
   val addresses: List<AddressDto>? = null,

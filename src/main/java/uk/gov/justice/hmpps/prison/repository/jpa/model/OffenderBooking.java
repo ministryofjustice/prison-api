@@ -809,10 +809,10 @@ public class OffenderBooking extends AuditableEntity {
     /**
      * Prisons only, excludes hospitals or other locations
      */
-    public String getLatestPrisonLocationId() {
-        String latestPrisonLocationId = location.getId();
+    public String getLastPrisonId() {
+        String lastPrisonId = location.getId();
         if (assignedLivingUnit != null && assignedLivingUnit.getLocation() != null) {
-            latestPrisonLocationId = assignedLivingUnit.getLocation().getId();
+            lastPrisonId = assignedLivingUnit.getLocation().getId();
         }
         if (!"IN".equals(getInOutStatus())) {
             var lastMovement = getMovementsRecentFirst().stream()
@@ -820,10 +820,10 @@ public class OffenderBooking extends AuditableEntity {
                 .findFirst()
                 .orElse(null);
             if (lastMovement != null && lastMovement.getFromAgency() != null) {
-                latestPrisonLocationId = lastMovement.getFromAgency().getId();
+                lastPrisonId = lastMovement.getFromAgency().getId();
             }
         }
-        return latestPrisonLocationId;
+        return lastPrisonId;
     }
 
     private String getLastMovementTypeCode() {

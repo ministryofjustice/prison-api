@@ -576,7 +576,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -599,7 +599,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside - released from Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -623,7 +623,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside")
       assertThat(booking.latestLocationId).isEqualTo("OUT")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("OUT")
+      assertThat(booking.lastPrisonId).isEqualTo("OUT")
     }
 
     @Test
@@ -654,7 +654,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -685,7 +685,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside - released from A Secure Hospital")
       assertThat(booking.latestLocationId).isEqualTo("TSPNY")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -708,7 +708,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Moorland (HMP & YOI)")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -732,7 +732,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Transfer")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
 
     @Test
@@ -756,7 +756,7 @@ class OffenderBookingTest {
 
       assertThat(booking.locationDescription).isEqualTo("Outside - Transfers")
       assertThat(booking.latestLocationId).isEqualTo("MDI")
-      assertThat(booking.latestPrisonLocationId).isEqualTo("MDI")
+      assertThat(booking.lastPrisonId).isEqualTo("MDI")
     }
   }
 }

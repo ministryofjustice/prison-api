@@ -82,7 +82,7 @@ class PrisonerSearchService(
           receptionDate = detail.receptionDate,
           locationDescription = detail.locationDescription,
           latestLocationId = detail.latestLocationId,
-          latestPrisonLocationId = detail.latestPrisonLocationId,
+          lastPrisonId = detail.lastPrisonId,
           addresses = offender.rootOffender.addresses.filter { a ->
             // we only want a no fixed address if it is their primary address
             a.noFixedAddressFlag == "N" || (a.noFixedAddressFlag == "Y" && a.primaryFlag == "Y")
