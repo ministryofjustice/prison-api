@@ -206,8 +206,11 @@ public class InmateDetail {
     @Schema(description = "current prison or outside with last movement information.", example="Outside - released from Leeds")
     private String locationDescription;
 
-    @Schema(description = "the current prison id or the last prison before release", example="MDI")
+    @Schema(description = "the current agency (prison, hospital, court) id or the last one before release", example="MDI")
     private String latestLocationId;
+
+    @Schema(description = "the current prison id or the last i.e. final prison before release. Same as latestLocationId unless latestLocationId was not a prison", example="MDI")
+    private String lastPrisonId;
 
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
