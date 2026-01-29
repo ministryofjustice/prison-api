@@ -177,7 +177,7 @@ docker run -d -p 8888:8080             \
 
 ### Using Docker compose ###
 ```bash
-docker-compose up -d
+docker compose up -d
 ```
 
 ### Running Feature Tests ###
