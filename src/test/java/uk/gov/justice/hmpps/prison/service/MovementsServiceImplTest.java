@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.ImmutableList;
 import com.microsoft.applicationinsights.TelemetryClient;
+import jakarta.persistence.EntityManager;
 import org.assertj.core.groups.Tuple;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -82,6 +83,8 @@ public class MovementsServiceImplTest {
     @Mock
     private MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     @Mock
+    private EntityManager entityManager;
+    @Mock
     private TelemetryClient telemetryClient;
 
     private MovementsService movementsService;
@@ -97,6 +100,7 @@ public class MovementsServiceImplTest {
             movementReasonRepository,
             offenderBookingRepository,
             movementTypeAndReasonRepository,
+            entityManager,
             1,
             telemetryClient);
     }
@@ -556,6 +560,27 @@ public class MovementsServiceImplTest {
                         NOW.toLocalTime(),
                         NOW.toLocalDate());
 
+            }
+
+            @Test
+            public void testSetPreviousMovementsToInactive() {
+                final var previousMovement = ExternalMovement.builder()
+                    .movementType(MovementType.of(MovementType.TAP))
+                    .movementReason(MovementReason.of(MovementReason.TRANSFER_VIA_TAP))
+                    .movementDate(LocalDate.of(2020, 1, 30))
+                    .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
+                    .active(true)
+                    .fromCity(new City("CIT-1", "City 1"))
+                    .toCity(new City("CIT-2", "City 2"))
+                    .toAgency(AgencyLocation.builder().id("LEI").description("LEEDS").build())
+                    .fromAgency(AgencyLocation.builder().id("MDI").description("MOORLAND").build()
+                    ).build();
+                OFFENDER_BOOKING.addExternalMovement(previousMovement);
+                assertThat(previousMovement.isActive()).isTrue();
+
+                movementsService.createExternalMovement(1L, CREATE_MOVEMENT);
+                assertThat(previousMovement.isActive()).isFalse();
+                verify(entityManager).flush();
             }
         }
     }

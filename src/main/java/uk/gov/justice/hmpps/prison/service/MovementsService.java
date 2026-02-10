@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service;
 
 import com.google.common.collect.Lists;
 import com.microsoft.applicationinsights.TelemetryClient;
+import jakarta.persistence.EntityManager;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.commons.lang3.StringUtils;
@@ -78,6 +79,7 @@ public class MovementsService {
     private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
+    private final EntityManager entityManager;
     private final int maxBatchSize;
     private final TelemetryClient telemetryClient;
 
@@ -89,6 +91,7 @@ public class MovementsService {
                             final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
+                            final EntityManager entityManager,
                             @Value("${batch.max.size:1000}") final int maxBatchSize,
                             final TelemetryClient telemetryClient) {
         this.movementsRepository = movementsRepository;
@@ -99,6 +102,7 @@ public class MovementsService {
         this.movementTypeRepository = movementTypeRepository;
         this.movementReasonRepository = movementReasonRepository;
         this.movementTypeAndReasonRepository = movementTypeAndReasonRepository;
+        this.entityManager = entityManager;
         this.maxBatchSize = maxBatchSize;
         this.telemetryClient = telemetryClient;
     }
@@ -399,6 +403,11 @@ public class MovementsService {
 
         final var toAgency = agencyLocationRepository.findById(createExternalMovement.getToAgencyId())
             .orElseThrow(EntityNotFoundException.withMessage("toAgency not found using: %s", createExternalMovement.getToAgencyId()));
+
+        // set previous active movements to false
+        offenderBooking.setPreviousMovementsToInactive();
+        // need to ensure the above updates are executed before booking updates as it invokes a trigger that updates the booking status reason
+        entityManager.flush();
 
         final var externalMovement = ExternalMovement
             .builder()
