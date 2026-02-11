@@ -95,7 +95,6 @@ class AppointmentsResourceTest : ResourceTest() {
       val in1Hour = now.plusHours(6)
       val bookingIds = listOf(-31L, -32L)
       val appointments = bookingIds
-        .stream()
         .map { id: Long ->
           AppointmentDetails
             .builder()

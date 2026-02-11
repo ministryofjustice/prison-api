@@ -126,7 +126,7 @@ class MovementResourceTest : ResourceTest() {
     @Test
     fun testGetMovementsForOffenders() {
       val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
-      val body = String.format("[ \"%s\" ]", "A1179MT")
+      val body = """[ "A1179MT" ]"""
       val response = testRestTemplate.exchange(
         "/api/movements/offenders?allBookings=true&latestOnly=false",
         POST,

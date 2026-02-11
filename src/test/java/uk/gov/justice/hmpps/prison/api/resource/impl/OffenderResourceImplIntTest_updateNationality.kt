@@ -20,7 +20,6 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
-import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
@@ -39,9 +38,6 @@ class OffenderResourceImplIntTest_updateNationality : ResourceTest() {
 
   @Autowired
   lateinit var profileTypeRepository: ProfileTypeRepository
-
-  @Autowired
-  lateinit var prisonerRepository: PrisonerRepository
 
   @MockitoSpyBean
   lateinit var prisonerProfileUpdateService: PrisonerProfileUpdateService
