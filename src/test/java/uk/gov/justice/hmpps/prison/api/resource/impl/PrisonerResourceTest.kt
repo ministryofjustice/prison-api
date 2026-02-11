@@ -400,25 +400,9 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns success if has override role ROLE_GLOBAL_SEARCH`() {
-      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
-        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
     fun `returns success if has override role ROLE_PRISONER_INDEX`() {
       webTestClient.get().uri("/api/prisoners/prisoner-numbers")
         .headers(setClientAuthorisation(listOf("ROLE_PRISONER_INDEX")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `returns success if has override role ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO`() {
-      webTestClient.get().uri("/api/prisoners/prisoner-numbers")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO")))
         .exchange()
         .expectStatus().isOk
     }
@@ -510,6 +494,64 @@ class PrisonerResourceTest : ResourceTest() {
             // A1064AA is included because despite having no bookings it is the root offender
             .contains("A1064AA")
         }
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /api/prisoners/prisoner-numbers/active")
+  inner class GetPrisonerIdsActive {
+    @Nested
+    inner class Security {
+      @Test
+      fun `access forbidden when no role`() {
+        webTestClient.get().uri("/api/prisoners/prisoner-numbers/active")
+          .headers(setAuthorisation(roles = listOf()))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `access forbidden with wrong role`() {
+        webTestClient.get().uri("/api/prisoners/prisoner-numbers/active")
+          .headers(setAuthorisation(roles = listOf("ROLE_BANANAS")))
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `access unauthorised with no auth token`() {
+        webTestClient.get().uri("/api/prisoners/prisoner-numbers/active")
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+    }
+
+    @Nested
+    inner class HappyPath {
+      @Test
+      fun `will return count of all active prisoners by default`() {
+        webTestClient.get().uri("/api/prisoners/prisoner-numbers/active?size=1&page=0")
+          .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_INDEX")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.totalElements").value<Int> { assertThat(it).isGreaterThan(50) }
+          .jsonPath("$.numberOfElements").isEqualTo(1)
+      }
+
+      @Test
+      fun `will return a page of prisoners ordered by root offender id ASC`() {
+        webTestClient.get().uri("/api/prisoners/prisoner-numbers/active?page=0")
+          .headers(setAuthorisation(roles = listOf("ROLE_PRISONER_INDEX")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.totalElements").value<Int> { assertThat(it).isGreaterThan(50) }
+          .jsonPath("$.numberOfElements").isEqualTo(10)
+          .jsonPath("$.content[0]").isEqualTo("A1237AI")
+          .jsonPath("$.content[1]").isEqualTo("A1076AA")
+          .jsonPath("$.content[2]").isEqualTo("A1075AA")
+      }
     }
   }
 }

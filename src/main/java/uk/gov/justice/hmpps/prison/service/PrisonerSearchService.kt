@@ -1,6 +1,13 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.persistence.criteria.CriteriaBuilder
+import jakarta.persistence.criteria.CriteriaQuery
+import jakarta.persistence.criteria.Predicate
+import jakarta.persistence.criteria.Root
 import jakarta.transaction.Transactional
+import org.springframework.data.domain.Page
+import org.springframework.data.domain.Pageable
+import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
@@ -161,6 +168,9 @@ class PrisonerSearchService(
     this.rootOffenderId,
     this.offenderIdentifierPK.offenderIdSeq,
   )
+
+  fun findAllActivePrisoners(pageRequest: Pageable): Page<String> = offenderBookingRepository.findAll(ActiveBookingsSpecification(), pageRequest)
+    .map { it.offender.nomsId }
 }
 
 internal fun OffenderBooking?.getPreviousPrisonTransfer(): Pair<String?, LocalDateTime?> {
@@ -178,4 +188,18 @@ internal fun OffenderBooking?.getPreviousPrisonTransfer(): Pair<String?, LocalDa
     transferDate = last?.movementDateTime
   }
   return transferPrisonId to transferDate
+}
+
+class ActiveBookingsSpecification : Specification<OffenderBooking> {
+  override fun toPredicate(
+    root: Root<OffenderBooking>,
+    query: CriteriaQuery<*>,
+    criteriaBuilder: CriteriaBuilder,
+  ): Predicate? {
+    val predicates = mutableListOf<Predicate>()
+
+    // for now just look at the active booking flag, doesn't matter if we return a few too many prisoners
+    predicates.add(criteriaBuilder.equal(root.get<String>("active"), true))
+    return criteriaBuilder.and(*predicates.toTypedArray())
+  }
 }
