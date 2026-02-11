@@ -29,7 +29,6 @@ import java.time.ZoneId
 import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter.ISO_DATE
 import java.time.format.DateTimeFormatter.ISO_LOCAL_DATE_TIME
-import java.util.Arrays.stream
 
 @ContextConfiguration(classes = [BookingMovementsResourceIntTest_moveToCell.TestClock::class])
 class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
@@ -180,7 +179,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
   private fun requestMoveToCell(bearerToken: String, bookingId: String = BOOKING_ID_S, livingUnitId: String = INITIAL_CELL_DESC, reasonCode: String = INITIAL_REASON, dateTime: String): ResponseEntity<String> {
     val entity = createHttpEntity(bearerToken, null)
     return testRestTemplate.exchange(
-      String.format("/api/bookings/%s/living-unit/%s?reasonCode=%s&dateTime=%s", bookingId, livingUnitId, reasonCode, dateTime),
+      "/api/bookings/$bookingId/living-unit/$livingUnitId?reasonCode=$reasonCode&dateTime=$dateTime",
       PUT,
       entity,
       object : ParameterizedTypeReference<String>() {
@@ -201,7 +200,7 @@ class BookingMovementsResourceIntTest_moveToCellSwap : ResourceTest() {
     assertThat(response.statusCode).isEqualTo(status)
     assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathNumberValue("$.status").isEqualTo(status.value())
     if (partialMessages[0].isNotEmpty()) {
-      stream(partialMessages).forEach { partialMessage: String -> assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathStringValue("$.userMessage").contains(partialMessage) }
+      partialMessages.forEach { partialMessage: String -> assertThat(getBodyAsJsonContent<Any>(response)).extractingJsonPathStringValue("$.userMessage").contains(partialMessage) }
     }
   }
 

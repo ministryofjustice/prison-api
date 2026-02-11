@@ -6,7 +6,6 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.Mockito.verify
-import org.mockito.Mockito.`when`
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
@@ -31,7 +30,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCourtCase
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PropertyContainer
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderMilitaryRecordRepository
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -46,9 +44,6 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var offenderBookingRepository: OffenderBookingRepository
-
-  @MockitoBean
-  private lateinit var offenderMilitaryRecordRepository: OffenderMilitaryRecordRepository
 
   @MockitoBean
   private lateinit var referenceDomainService: ReferenceDomainService
@@ -90,7 +85,7 @@ class BookingResourceImplIntTest : ResourceTest() {
     @Test
     fun personalCareNeeds() {
       val bookingId = -1
-      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(listOf(createPersonalCareNeeds()))
+      whenever(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyLong(), ArgumentMatchers.anySet())).thenReturn(listOf(createPersonalCareNeeds()))
       val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
       val responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC", GET, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds.json")
@@ -192,7 +187,7 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun postPersonalCareNeedsForOffenders() {
-      `when`(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyList(), ArgumentMatchers.anySet())).thenReturn(createPersonalCareNeedsForOffenders())
+      whenever(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyList(), ArgumentMatchers.anySet())).thenReturn(createPersonalCareNeedsForOffenders())
       val requestEntity =
         createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
       val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC", POST, requestEntity, String::class.java)
@@ -229,7 +224,7 @@ class BookingResourceImplIntTest : ResourceTest() {
   fun reasonableAdjustment() {
     val bookingId = -1
     val treatmentCodes = listOf("WHEELCHR_ACC", "PEEP")
-    `when`(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodes)).thenReturn(
+    whenever(inmateRepository.findReasonableAdjustments(bookingId.toLong(), treatmentCodes)).thenReturn(
       listOf(
         ReasonableAdjustment("WHEELCHR_ACC", "abcd", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Wheelchair accessibility", -202L),
         ReasonableAdjustment("PEEP", "efgh", LocalDate.of(2010, 6, 21), null, "LEI", "Leeds (HMP)", "Some other description", -202L),
@@ -318,16 +313,16 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @Test
   fun events() {
-    `when`(bookingRepository.getBookingActivities(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
+    whenever(bookingRepository.getBookingActivities(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
       listOf(
         createEvent("act", "10:11:12"),
         createEvent("act", "08:59:50"),
       ),
     )
-    `when`(bookingRepository.getBookingVisits(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
+    whenever(bookingRepository.getBookingVisits(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
       listOf(createEvent("vis", "09:02:03")),
     )
-    `when`(bookingRepository.getBookingAppointments(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
+    whenever(bookingRepository.getBookingAppointments(ArgumentMatchers.anyLong(), ArgumentMatchers.any(), ArgumentMatchers.any(), ArgumentMatchers.anyString(), ArgumentMatchers.any())).thenReturn(
       listOf(createEvent("app", null)),
     )
     val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
@@ -381,7 +376,7 @@ class BookingResourceImplIntTest : ResourceTest() {
     }
 
     private fun stubRepositoryCall() {
-      `when`(offenderBookingRepository.findById(-1L)).thenReturn(
+      whenever(offenderBookingRepository.findById(-1L)).thenReturn(
         Optional.of(
           OffenderBooking.builder()
             .courtCases(
@@ -431,7 +426,7 @@ class BookingResourceImplIntTest : ResourceTest() {
 
   @Test
   fun courtCases_returnsAllMatchingCourtCases() {
-    `when`(offenderBookingRepository.findById(-1L)).thenReturn(
+    whenever(offenderBookingRepository.findById(-1L)).thenReturn(
       Optional.of(
         OffenderBooking.builder()
           .courtCases(
@@ -524,7 +519,7 @@ class BookingResourceImplIntTest : ResourceTest() {
     val parentLocation = AgencyInternalLocation.builder().locationId(-2L).locationType("LAND").agencyId("LEI").capacity(14)
       .currentOccupancy(null).operationalCapacity(13).description("LEI-A-1").parentLocation(parentParentLocation).userDescription("Landing A/1")
       .certifiedFlag(true).locationCode("1").active(true).build()
-    `when`(offenderBookingRepository.findById(-1L)).thenReturn(
+    whenever(offenderBookingRepository.findById(-1L)).thenReturn(
       Optional.of(
         OffenderBooking.builder()
           .propertyContainers(
@@ -574,7 +569,7 @@ class BookingResourceImplIntTest : ResourceTest() {
   }
 
   private fun createEvent(type: String, time: String?): ScheduledEvent = ScheduledEvent.builder().bookingId(-1L)
-    .startTime(Optional.ofNullable(time).map { t: String -> "2019-01-02T$t" }.map { text: String? -> LocalDateTime.parse(text) }.orElse(null))
+    .startTime(Optional.ofNullable(time).map { t: String -> "2019-01-02T$t" }.map { LocalDateTime.parse(it) }.orElse(null))
     .eventType(type + time)
     .eventSubType("some sub $type")
     .build()
