@@ -8,8 +8,12 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import org.slf4j.LoggerFactory
+import org.springdoc.core.annotations.ParameterObject
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.PageImpl
+import org.springframework.data.domain.Pageable
+import org.springframework.data.domain.Sort
+import org.springframework.data.web.PageableDefault
 import org.springframework.format.annotation.DateTimeFormat
 import org.springframework.http.ResponseEntity
 import org.springframework.security.access.prepost.PreAuthorize
@@ -30,13 +34,17 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess
 import uk.gov.justice.hmpps.prison.service.GlobalSearchService
+import uk.gov.justice.hmpps.prison.service.PrisonerSearchService
 import java.time.LocalDate
 
 @RestController
 @Tag(name = "prisoners")
-@RequestMapping(value = ["\${api.base.path}/prisoners"], produces = ["application/json"])
+@RequestMapping(value = [$$"${api.base.path}/prisoners"], produces = ["application/json"])
 @Validated
-class PrisonerResource(private val globalSearchService: GlobalSearchService) {
+class PrisonerResource(
+  private val globalSearchService: GlobalSearchService,
+  private val prisonerSearchService: PrisonerSearchService,
+) {
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
     ApiResponse(responseCode = "400", description = "Invalid request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
@@ -211,17 +219,16 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
   @Operation(
-    summary = """
-    Return a list of all unique prisoner numbers (also called NOMS ID or offenderNo). 
-    Results are ordered by max(ROOT_OFFENDER_ID), therefore ensuring that new offenders are added to the end of the 
+    summary = "Return a list of all unique prisoner numbers (also called NOMS ID or offenderNo).",
+    description = """Results are ordered by ROOT_OFFENDER_ID ascending, therefore ensuring that new offenders are added to the end of the
     results.
     This is an internal endpoint used by Prisoner Search to ensure that NOMIS and OpenSearch are in sync.
     Other services should use Prisoner Search instead to get the list of prisoners.
-    Requires PRISONER_INDEX or GLOBAL_SEARCH or ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO role.
+    Requires PRISONER_INDEX role.
     """,
   )
   @GetMapping("/prisoner-numbers")
-  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH','PRISONER_INDEX', 'ROLE_PRISON_API__CORE_PERSON__NUMBERS__RO')")
+  @PreAuthorize("hasAnyRole('PRISONER_INDEX')")
   @SlowReportQuery
   fun getPrisonerNumbers(
     @RequestParam(value = "page", defaultValue = "0", required = false)
@@ -238,6 +245,47 @@ class PrisonerResource(private val globalSearchService: GlobalSearchService) {
       offenderNumbers.totalRecords,
     )
   }
+
+  @GetMapping("/prisoner-numbers/active")
+  @PreAuthorize("hasAnyRole('PRISONER_INDEX')")
+  @Operation(
+    summary = "Gets the identifiers for all active prisoners",
+    description = """Return a list of all unique prisoner numbers (also called NOMS ID or offenderNo) with an active booking.
+          Results are ordered by ROOT_OFFENDER_ID ascending, therefore ensuring that new offenders are added to the end of the
+          results.
+          This is an internal endpoint used by Prisoner Search to ensure that NOMIS and OpenSearch are in sync.
+          Other services should use Prisoner Search instead to get the list of prisoners.
+          Requires PRISONER_INDEX role.
+    """,
+    responses = [
+      ApiResponse(responseCode = "200", description = "paged list of prisoner ids"),
+      ApiResponse(
+        responseCode = "401",
+        description = "Unauthorized to access this endpoint",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+      ApiResponse(
+        responseCode = "403",
+        description = "Forbidden to access this endpoint when role NOMIS_PRISONER_API__SYNCHRONISATION__RW not present",
+        content = [
+          Content(
+            mediaType = "application/json",
+            schema = Schema(implementation = ErrorResponse::class),
+          ),
+        ],
+      ),
+    ],
+  )
+  fun getActivePrisonerIdentifiers(
+    @PageableDefault(sort = ["rootOffenderId"], direction = Sort.Direction.ASC)
+    @ParameterObject
+    pageRequest: Pageable,
+  ): Page<String> = prisonerSearchService.findAllActivePrisoners(pageRequest)
 
   private companion object {
     private val log = LoggerFactory.getLogger(this::class.java)
