@@ -56,7 +56,7 @@ class OffenderEmailsServiceTest {
       ),
     ).thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
-    whenever(offenderInternetAddressRepository.save(any())).thenReturn(INTERNET_ADDRESS_ONE)
+    whenever(offenderInternetAddressRepository.save(any<OffenderInternetAddress>())).thenReturn(INTERNET_ADDRESS_ONE)
   }
 
   @Test

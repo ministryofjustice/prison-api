@@ -62,7 +62,7 @@ class OffenderPhonesServiceTest {
       ),
     ).thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
 
-    whenever(offenderPhoneRepository.save(any())).thenReturn(PHONE_NUMBER_ONE)
+    whenever(offenderPhoneRepository.save(any<OffenderPhone>())).thenReturn(PHONE_NUMBER_ONE)
   }
 
   @Test

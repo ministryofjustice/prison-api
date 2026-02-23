@@ -62,7 +62,7 @@ class AppointmentsResourceTest : ResourceTest() {
     fun createAnAppointment() {
       val firstEventId = 11
       val secondEventId = 12
-      whenever(offenderIndividualScheduleRepository.save(org.mockito.kotlin.any()))
+      whenever(offenderIndividualScheduleRepository.save(org.mockito.kotlin.any<OffenderIndividualSchedule>()))
         .thenReturn(appointmentWithId(11))
         .thenReturn(appointmentWithId(12))
       val appointments = createAppointmentBody()
