@@ -4,11 +4,11 @@ import jakarta.persistence.criteria.CriteriaBuilder
 import jakarta.persistence.criteria.CriteriaQuery
 import jakarta.persistence.criteria.Predicate
 import jakarta.persistence.criteria.Root
-import jakarta.transaction.Transactional
 import org.springframework.data.domain.Page
 import org.springframework.data.domain.Pageable
 import org.springframework.data.jpa.domain.Specification
 import org.springframework.stereotype.Component
+import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
@@ -20,6 +20,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIdentifier
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByNomsIdOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findLatestOffenderBookingByRootOffenderIdOrNull
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer
 import java.time.LocalDateTime
 import kotlin.jvm.optionals.getOrNull
@@ -34,12 +36,25 @@ class PrisonerSearchService(
   private val healthService: HealthService,
   private val offenderLanguageRepository: OffenderLanguageRepository,
 ) {
-  @Transactional
+  @Transactional(readOnly = true)
+  fun getPrisonerDetails(rootOffenderId: Long): PrisonerSearchDetails {
+    val booking = offenderBookingRepository.findLatestOffenderBookingByRootOffenderIdOrNull(rootOffenderId)
+    // use the latest booking to the offender (current alias), if not then just use the root (as no bookings)
+    val offender = booking?.offender ?: offenderRepository.findById(rootOffenderId).getOrNull()
+    if (offender == null) throw EntityNotFoundException.withId(rootOffenderId)
+    return getPrisonerDetails(booking, offender)
+  }
+
+  @Transactional(readOnly = true)
   fun getPrisonerDetails(offenderNo: String): PrisonerSearchDetails {
-    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).getOrNull()
+    val booking = offenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(offenderNo)
+    // use the latest booking to the offender (current alias), if not then just use the root (as no bookings)
     val offender = booking?.offender ?: offenderRepository.findRootOffenderByNomsId(offenderNo).getOrNull()
     if (offender == null) throw EntityNotFoundException.withId(offenderNo)
+    return getPrisonerDetails(booking, offender)
+  }
 
+  private fun getPrisonerDetails(booking: OffenderBooking?, offender: Offender): PrisonerSearchDetails {
     val (transferPrisonId, transferDate) = booking.getPreviousPrisonTransfer()
 
     return getInmateDetail(offender, booking)
