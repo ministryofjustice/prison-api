@@ -102,10 +102,10 @@ class AppointmentsServiceImplTest {
     whenever(agencyLocationRepository.findById(any())).thenAnswer { invocation ->
       Optional.of(prison.apply { id = invocation.getArgument<String>(0) })
     }
-    whenever(offenderIndividualScheduleRepository.save(any())).thenAnswer { invocation ->
+    whenever(offenderIndividualScheduleRepository.save(any<OffenderIndividualSchedule>())).thenAnswer { invocation ->
       invocation.getArgument<OffenderIndividualSchedule>(0).apply { id = NEW_EVENT_ID }
     }
-    whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
+    whenever(offenderIndividualScheduleRepository.saveAndFlush(any<OffenderIndividualSchedule>())).thenAnswer { invocation ->
       invocation.getArgument<OffenderIndividualSchedule>(0).apply { id = NEW_EVENT_ID }
     }
 
@@ -155,7 +155,7 @@ class AppointmentsServiceImplTest {
       val appointment2 = appointmentsToCreate.withDefaults()[1]
       val createdId2 = 2L
 
-      whenever(offenderIndividualScheduleRepository.save(ArgumentMatchers.any()))
+      whenever(offenderIndividualScheduleRepository.save(any<OffenderIndividualSchedule>()))
         .thenReturn(appointmentWithId(createdId1))
         .thenReturn(appointmentWithId(createdId2))
 
@@ -226,7 +226,7 @@ class AppointmentsServiceImplTest {
       val appointmentWithRepeats = AppointmentsService
         .withRepeats(appointmentsToCreate.repeat, appointmentsToCreate.withDefaults()[0])
 
-      whenever(offenderIndividualScheduleRepository.save(ArgumentMatchers.any()))
+      whenever(offenderIndividualScheduleRepository.save(any<OffenderIndividualSchedule>()))
         .thenReturn(appointmentWithId(createdId1))
         .thenReturn(appointmentWithId(recurringId1))
         .thenReturn(appointmentWithId(recurringId2))
@@ -750,7 +750,7 @@ class AppointmentsServiceImplTest {
       )
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
-      whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
+      whenever(offenderIndividualScheduleRepository.saveAndFlush(any<OffenderIndividualSchedule>())).thenAnswer { invocation ->
         invocation.getArgument<OffenderIndividualSchedule>(0).apply {
           id = createdEventId
           savedAppointment.set(this)
@@ -914,7 +914,7 @@ class AppointmentsServiceImplTest {
       whenever(offenderBookingRepository.findById(bookingId)).thenReturn(Optional.of(OffenderBooking()))
 
       val savedAppointment: AtomicReference<OffenderIndividualSchedule> = AtomicReference()
-      whenever(offenderIndividualScheduleRepository.saveAndFlush(any())).thenAnswer { invocation ->
+      whenever(offenderIndividualScheduleRepository.saveAndFlush(any<OffenderIndividualSchedule>())).thenAnswer { invocation ->
         invocation.getArgument<OffenderIndividualSchedule>(0).apply {
           id = NEW_EVENT_ID
           savedAppointment.set(this)

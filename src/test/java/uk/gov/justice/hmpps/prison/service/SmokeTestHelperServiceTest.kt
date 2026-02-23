@@ -58,7 +58,7 @@ class SmokeTestHelperServiceTest {
             offenderBooking,
           ),
         )
-      whenever(offenderBookingRepository.save(any())).thenReturn(offenderBooking)
+      whenever(offenderBookingRepository.save(any<OffenderBooking>())).thenReturn(offenderBooking)
 
       smokeTestHelperService.updatePrisonerDetails(SOME_OFFENDER_NO, UpdatePrisonerDetails("Fred", "Smith"))
       verify(offenderBookingRepository).save(

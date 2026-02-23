@@ -48,7 +48,7 @@ internal class CaseNoteMovementServiceTest {
         },
       ),
     )
-    whenever(caseNoteRepository.save(any())).thenAnswer { it.getArgument<OffenderCaseNote>(0) }
+    whenever(caseNoteRepository.save(any<OffenderCaseNote>())).thenAnswer { it.getArgument<OffenderCaseNote>(0) }
   }
 
   private val service = CaseNoteMovementService(
