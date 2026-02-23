@@ -26,7 +26,9 @@ class PrisonerSearchResource(private val service: PrisonerSearchService) {
   @GetMapping("/offenders/{offenderNo}")
   @Operation(
     summary = "Returns details required by Prisoner Search for the given offender number.",
-    description = "This endpoint is dedicated to returning the details required by Prisoner Search so the role and endpoint are not for general use. If you're thinking of calling this endpoint try calling Prisoner Search instead.",
+    description = """This endpoint is dedicated to returning the details required by Prisoner Search 
+      so the role and endpoint are not for general use. If you're thinking of calling this endpoint try calling 
+      Prisoner Search instead. Requires ROLE_PRISONER_INDEX.""",
   )
   @ApiResponses(
     ApiResponse(
@@ -53,4 +55,37 @@ class PrisonerSearchResource(private val service: PrisonerSearchService) {
   fun getPrisonerDetails(
     @PathVariable("offenderNo") @Parameter(description = "offenderNo", example = "A1234AA") offenderNo: String,
   ): PrisonerSearchDetails = service.getPrisonerDetails(offenderNo)
+
+  @GetMapping("/root-offender-id/{rootOffenderId}")
+  @Operation(
+    summary = "Returns details required by Prisoner Search for the given root offender id.",
+    description = """This endpoint is dedicated to returning the details required by Prisoner Search 
+      so the role and endpoint are not for general use. If you're thinking of calling this endpoint try calling 
+      Prisoner Search instead. Requires ROLE_PRISONER_INDEX.""",
+  )
+  @ApiResponses(
+    ApiResponse(
+      responseCode = "200",
+      description = "OK",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = PrisonerSearchDetails::class))],
+    ),
+    ApiResponse(
+      responseCode = "401",
+      description = "Unauthorized to access this endpoint",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "403",
+      description = "Requires role ROLE_PRISONER_INDEX",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "Requested resource not found.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  fun getPrisonerDetails(
+    @PathVariable("rootOffenderId") @Parameter(description = "rootOffenderId", example = "123456") rootOffenderId: Long,
+  ): PrisonerSearchDetails = service.getPrisonerDetails(rootOffenderId)
 }

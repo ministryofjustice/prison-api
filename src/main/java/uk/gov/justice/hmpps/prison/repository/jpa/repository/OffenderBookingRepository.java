@@ -37,6 +37,8 @@ public interface OffenderBookingRepository extends
         return findByOffenderNomsIdAndBookingSequence(nomsId, 1);
     }
 
+    Optional<OffenderBooking> findByRootOffenderIdAndBookingSequence(Long rootOffenderId, Integer bookingSequence);
+
     @Lock(LockModeType.PESSIMISTIC_WRITE)
     @Query("SELECT ob from OffenderBooking ob join ob.offender o where o.nomsId = :nomsId and ob.bookingSequence = 1")
     Optional<OffenderBooking>  findLatestOffenderBookingByNomsIdForUpdate(@NotNull String nomsId);
