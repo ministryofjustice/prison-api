@@ -28,7 +28,7 @@ internal class BedAssignmentMovementServiceTest {
 
     @Test
     internal fun `will create history with next sequence`() {
-      whenever(bedAssignmentHistoryRepository.save(any())).thenAnswer { it.getArgument<BedAssignmentHistory>(0) }
+      whenever(bedAssignmentHistoryRepository.save(any<BedAssignmentHistory>())).thenAnswer { it.getArgument<BedAssignmentHistory>(0) }
       whenever(bedAssignmentHistoryRepository.getMaxSeqForBookingId(99L)).thenReturn(15)
       val booking = OffenderBooking().apply { bookingId = 99L }
       val cellLocation = AgencyInternalLocation().apply { locationId = 88L }

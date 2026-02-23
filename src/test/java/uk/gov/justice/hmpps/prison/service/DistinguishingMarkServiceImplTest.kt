@@ -335,7 +335,7 @@ class DistinguishingMarkServiceImplTest {
     @Test
     fun `Create new distinguishing mark without image`() {
       whenever(bookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_ID)).thenReturn(Optional.of(booking))
-      whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
+      whenever(identifyingMarkRepository.save(any<OffenderIdentifyingMark>())).thenReturn(saveResponse)
 
       val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
       val expected = DistinguishingMark(
@@ -361,7 +361,7 @@ class DistinguishingMarkServiceImplTest {
       whenever(bookingRepository.findLatestOffenderBookingByNomsId(OFFENDER_ID)).thenReturn(Optional.of(booking))
       whenever(identifyingMarkRepository.getMarkForLatestBookingByOffenderNumberAndSequenceId(OFFENDER_ID, 1))
         .thenReturn(saveResponse)
-      whenever(identifyingMarkRepository.save(any())).thenReturn(saveResponse)
+      whenever(identifyingMarkRepository.save(any<OffenderIdentifyingMark>())).thenReturn(saveResponse)
 
       val createRequest = DistinguishingMarkDetails("SCAR", "ARM", "L", "UPP", "Old wound")
       val expected = DistinguishingMark(
