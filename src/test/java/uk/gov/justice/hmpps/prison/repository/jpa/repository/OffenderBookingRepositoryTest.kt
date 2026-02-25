@@ -290,47 +290,4 @@ class OffenderBookingRepositoryTest {
       assertThat(secondBooking).extracting { it.bookingId }.isEqualTo(-13L)
     }
   }
-
-  @Nested
-  inner class findLatestOffenderBookingByRootOffenderId {
-    @Test
-    fun `test find latest booking`() {
-      val optionalOffenderBooking = repository.findByRootOffenderIdAndBookingSequence(-1001L, 1)
-      assertThat(optionalOffenderBooking).get().extracting(
-        { it?.offender?.nomsId },
-        { it?.bookingId },
-      ).containsExactly("A1234AA", -1L)
-    }
-
-    @Test
-    fun `test find latest booking kotlin null`() {
-      val offenderBooking = repository.findLatestOffenderBookingByRootOffenderIdOrNull(-1001L)
-      assertThat(offenderBooking).extracting(
-        { it?.offender?.nomsId },
-        { it?.bookingId },
-      ).containsExactly("A1234AA", -1L)
-    }
-
-    @Test
-    fun `test find latest booking when no bookings exist`() {
-      val optionalOffenderBooking = repository.findByRootOffenderIdAndBookingSequence(-123456L, 1)
-      assertThat(optionalOffenderBooking).isEmpty
-    }
-
-    @Test
-    fun `test find latest booking when no bookings exist kotlin null`() {
-      val offenderBooking = repository.findLatestOffenderBookingByRootOffenderIdOrNull(-123456L)
-      assertThat(offenderBooking).isNull()
-    }
-
-    @Test
-    fun `test find latest booking with multiple bookings for offender`() {
-      val optionalOffenderBooking = repository.findLatestOffenderBookingByRootOffenderIdOrNull(-1012L)
-      assertThat(optionalOffenderBooking).extracting { it?.bookingId }.isEqualTo(-12L)
-
-      // sanity check that there are multiple bookings
-      val secondBooking = repository.findByRootOffenderIdAndBookingSequence(-1012L, 2).orElseThrow()
-      assertThat(secondBooking).extracting { it.bookingId }.isEqualTo(-13L)
-    }
-  }
 }
