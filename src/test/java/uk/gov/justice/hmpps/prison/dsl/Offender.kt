@@ -81,7 +81,7 @@ class OffenderBuilderRepository(
       .ethnicity(ethnicity)
       .build(),
   ).let {
-    OffenderId(it.offenderNo, it.rootOffenderId)
+    OffenderId(it.offenderNo)
   }
 
   fun deletePrisoner(offenderNo: String) {
@@ -210,4 +210,4 @@ class OffenderBuilder(
   )
 }
 
-data class OffenderId(val offenderNo: String, val rootOffenderId: Long)
+data class OffenderId(val offenderNo: String)
