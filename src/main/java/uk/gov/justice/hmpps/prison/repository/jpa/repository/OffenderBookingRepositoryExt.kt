@@ -8,6 +8,4 @@ fun OffenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(
   bookingSequence: Int,
 ): OffenderBooking? = this.findByOffenderNomsIdAndBookingSequence(nomsId, bookingSequence).getOrNull()
 
-fun OffenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(nomsId: String): OffenderBooking? = findLatestOffenderBookingByNomsId(nomsId).getOrNull()
-
-fun OffenderBookingRepository.findLatestOffenderBookingByRootOffenderIdOrNull(rootOffenderId: Long): OffenderBooking? = findByRootOffenderIdAndBookingSequence(rootOffenderId, 1).getOrNull()
+fun OffenderBookingRepository.findLatestOffenderBookingByNomsIdOrNull(nomsId: String): OffenderBooking? = this.findLatestOffenderBookingByNomsId(nomsId).getOrNull()
