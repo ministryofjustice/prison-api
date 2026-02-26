@@ -20,4 +20,5 @@ enum class RecallType(
   STANDARD_RECALL_255("STANDARD_RECALL_255", isStandardRecall = true),
   FIXED_TERM_RECALL_14("FIXED_TERM_RECALL_14", isFixedTermRecall = true),
   FIXED_TERM_RECALL_28("FIXED_TERM_RECALL_28", isFixedTermRecall = true),
+  FIXED_TERM_RECALL_56("FIXED_TERM_RECALL_56", isFixedTermRecall = true),
 }

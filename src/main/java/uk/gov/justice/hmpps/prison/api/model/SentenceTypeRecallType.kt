@@ -4,6 +4,7 @@ import com.fasterxml.jackson.annotation.JsonFormat
 import io.swagger.v3.oas.annotations.media.Schema
 import uk.gov.justice.hmpps.prison.api.model.RecallType.FIXED_TERM_RECALL_14
 import uk.gov.justice.hmpps.prison.api.model.RecallType.FIXED_TERM_RECALL_28
+import uk.gov.justice.hmpps.prison.api.model.RecallType.FIXED_TERM_RECALL_56
 import uk.gov.justice.hmpps.prison.api.model.RecallType.STANDARD_RECALL
 import uk.gov.justice.hmpps.prison.api.model.RecallType.STANDARD_RECALL_255
 
@@ -71,6 +72,7 @@ enum class SentenceTypeRecallType(
   FTRSCH15_ORA("FTRSCH15_ORA", FIXED_TERM_RECALL_28),
   FTRSCH18("FTRSCH18", FIXED_TERM_RECALL_28),
   FTRSCH18_ORA("FTRSCH18_ORA", FIXED_TERM_RECALL_28),
+  FTR_56ORA("FTR_56ORA", FIXED_TERM_RECALL_56),
   //endregion
 
   //region Indeterminate Sentences
