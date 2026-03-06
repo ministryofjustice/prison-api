@@ -19,7 +19,7 @@ class PrisonerRepairResourceIntTest(
 ) : ResourceTest() {
 
   @Nested
-  @DisplayName("GET /api/prisoner-repair/{bookingId}/restricted-patient-movements")
+  @DisplayName("POST /api/prisoner-repair/{bookingId}/restricted-patient-movements")
   open inner class RepairRestrictedPatientMovements {
     @Test
     fun `should return 401 without an auth token`() {
