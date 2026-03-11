@@ -16,11 +16,8 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.PrisonerRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderProfileDetailRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.service.PrisonerProfileUpdateService
 import java.time.LocalDate
@@ -29,12 +26,6 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
 
   @Autowired
   lateinit var offenderRepository: OffenderRepository
-
-  @Autowired
-  lateinit var offenderProfileDetailRepository: OffenderProfileDetailRepository
-
-  @Autowired
-  lateinit var profileTypeRepository: ProfileTypeRepository
 
   @Autowired
   lateinit var prisonerRepository: PrisonerRepository
@@ -116,6 +107,74 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
       assertThat(historyEntry.comments).isEqualTo("Some comment")
       assertThat(historyEntry.verified).isTrue()
       assertThat(historyEntry.startDate).isEqualTo(LocalDate.parse("2025-01-01"))
+      assertThat(historyEntry.endDate).isNull()
+
+      val oldHistoryEntry = history[1]
+      assertThat(oldHistoryEntry.beliefCode.id.code).isNotEqualTo("DRU")
+      assertThat(oldHistoryEntry.startDate).isNotEqualTo(LocalDate.now())
+      assertThat(oldHistoryEntry.endDate).isEqualTo(LocalDate.now())
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should update the end date of a previous religion with the current date`() {
+      webTestClient.put()
+        .uri("api/offenders/A1068AA/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient.put()
+        .uri("api/offenders/A1068AA/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_ALTERNATE_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      val allHistory = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA", null)
+
+      val activeBeliefs = allHistory.filter { it.endDate == null }
+      assertThat(activeBeliefs).hasSize(1)
+      assertThat(activeBeliefs.first().beliefCode.id.code).isEqualTo("ZORO")
+
+      val druBelief = allHistory.first { it.beliefCode.id.code == "DRU" }
+      assertThat(druBelief.endDate)
+        .describedAs("DRU belief should be end-dated when replaced by ZORO")
+        .isEqualTo(LocalDate.now())
+    }
+
+    @Test
+    @Transactional(readOnly = true)
+    open fun `should update the end date of a previous religion across multiple bookings`() {
+      webTestClient.put()
+        .uri("api/offenders/A1234AF/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      webTestClient.put()
+        .uri("api/offenders/A1234AF/religion")
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(VALID_ALTERNATE_RELIGION_UPDATE)
+        .exchange()
+        .expectStatus().isNoContent
+
+      val allHistory = offenderBeliefRepository.getOffenderBeliefHistory("A1234AF", null)
+
+      val activeBeliefs = allHistory.filter { it.endDate == null }
+      assertThat(activeBeliefs).hasSize(1)
+      assertThat(activeBeliefs.first().beliefCode.id.code).isEqualTo("ZORO")
+
+      val druBelief = allHistory.first { it.beliefCode.id.code == "DRU" }
+      assertThat(druBelief.endDate)
+        .describedAs("DRU belief should be end-dated across bookings when replaced by ZORO")
+        .isEqualTo(LocalDate.now())
     }
 
     @Test
@@ -166,8 +225,6 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .expectBody()
         .jsonPath("userMessage").isEqualTo("Malformed request")
     }
-
-    private fun religionProfileType(): ProfileType = profileTypeRepository.findByTypeAndCategoryAndActive("RELF", "PI", true).get()
   }
 
   @Nested
@@ -263,6 +320,17 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
       """
         {
           "religion": null 
+        }
+      """
+
+    const val VALID_ALTERNATE_RELIGION_UPDATE =
+      // language=json
+      """
+        {
+          "religion": "ZORO",
+          "comment": "Some comment",
+          "effectiveFromDate": "2025-01-02",
+          "verified": true
         }
       """
   }
