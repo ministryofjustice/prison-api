@@ -469,6 +469,7 @@ class PrisonerProfileUpdateServiceTest {
       )
       whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
       whenever(booking.rootOffender).thenReturn(offender)
+      whenever(booking.bookingId).thenReturn(99L)
       whenever(offender.id).thenReturn(123456L)
       whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
       whenever(offenderBeliefRepository.getOffenderBeliefHistory(PRISONER_NUMBER, null)).thenReturn(
@@ -477,6 +478,7 @@ class PrisonerProfileUpdateServiceTest {
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
+      verify(offenderBeliefRepository).getOffenderBeliefHistory(PRISONER_NUMBER, null)
       verify(existingBeliefOnLatestBooking).endDate = LocalDate.now()
       verify(existingBeliefOnPreviousBooking).endDate = LocalDate.now()
     }
