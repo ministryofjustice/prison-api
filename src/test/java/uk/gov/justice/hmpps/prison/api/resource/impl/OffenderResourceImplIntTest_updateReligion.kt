@@ -149,31 +149,21 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
     @Test
     @Transactional(readOnly = true)
     open fun `should update the end date of a previous religion across multiple bookings`() {
+      // A1069AA has two bookings: -105 (current, seq=1) and -106 (old, seq=2).
+      // Belief -7 (MORM) is seeded on the old booking -106 with no end date.
+      // Updating religion via the API must end-date belief -7 even though
+      // it belongs to an old booking rather than the current one.
       webTestClient.put()
-        .uri("api/offenders/A1234AF/religion")
-        .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(VALID_RELIGION_UPDATE)
-        .exchange()
-        .expectStatus().isNoContent
-
-      webTestClient.put()
-        .uri("api/offenders/A1234AF/religion")
+        .uri("api/offenders/A1069AA/religion")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_ALTERNATE_RELIGION_UPDATE)
         .exchange()
         .expectStatus().isNoContent
 
-      val allHistory = offenderBeliefRepository.getOffenderBeliefHistory("A1234AF", null)
-
-      val activeBeliefs = allHistory.filter { it.endDate == null }
-      assertThat(activeBeliefs).hasSize(1)
-      assertThat(activeBeliefs.first().beliefCode.id.code).isEqualTo("ZORO")
-
-      val druBelief = allHistory.first { it.beliefCode.id.code == "DRU" }
-      assertThat(druBelief.endDate)
-        .describedAs("DRU belief should be end-dated across bookings when replaced by ZORO")
+      val oldBookingBelief = offenderBeliefRepository.findById(-7L).get()
+      assertThat(oldBookingBelief.endDate)
+        .describedAs("Belief on old booking should be end-dated when religion is updated on the latest booking")
         .isEqualTo(LocalDate.now())
     }
 
