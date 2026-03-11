@@ -455,6 +455,33 @@ class PrisonerProfileUpdateServiceTest {
     }
 
     @Test
+    internal fun `end-dates active beliefs on all bookings including previous ones`() {
+      val request = UpdateReligion(DRUID_RELIGION_CODE, "changing religion", LocalDate.now(), false)
+      val existingBeliefOnLatestBooking: OffenderBelief = mock()
+      val existingBeliefOnPreviousBooking: OffenderBelief = mock()
+      whenever(existingBeliefOnLatestBooking.endDate).thenReturn(null)
+      whenever(existingBeliefOnPreviousBooking.endDate).thenReturn(null)
+      whenever(profileDetailRepository.findLinkedToLatestBookingForUpdate(eq(PRISONER_NUMBER), any())).thenReturn(
+        Optional.of(offenderProfileDetail),
+      )
+      whenever(offenderBookingRepository.findLatestOffenderBookingByNomsId(PRISONER_NUMBER)).thenReturn(
+        Optional.of(booking),
+      )
+      whenever(booking.profileDetails).thenReturn(listOf(offenderProfileDetail))
+      whenever(booking.rootOffender).thenReturn(offender)
+      whenever(offender.id).thenReturn(123456L)
+      whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
+      whenever(offenderBeliefRepository.getOffenderBeliefHistory(PRISONER_NUMBER, null)).thenReturn(
+        listOf(existingBeliefOnLatestBooking, existingBeliefOnPreviousBooking),
+      )
+
+      prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
+
+      verify(existingBeliefOnLatestBooking).endDate = LocalDate.now()
+      verify(existingBeliefOnPreviousBooking).endDate = LocalDate.now()
+    }
+
+    @Test
     internal fun `does not update religion or history if the new value matches the existing value`() {
       val request = UpdateReligion(DRUID_RELIGION_CODE, null, null, false)
       val profileDetails = mutableListOf<OffenderProfileDetail>()
