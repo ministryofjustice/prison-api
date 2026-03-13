@@ -326,7 +326,7 @@ internal class FinanceServiceTest {
       Optional.of(OffenderSubAccount.builder().balance(BigDecimal("12.34")).build()),
     )
 
-    whenever(offenderTransactionRepository.nextTransactionId).thenReturn(12345L)
+    whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any())).thenReturn(
       Optional.of(
         OffenderTransaction.builder().build(),
@@ -368,7 +368,7 @@ internal class FinanceServiceTest {
       Optional.of(OffenderSubAccount.builder().balance(BigDecimal("12.34")).build()),
     )
 
-    whenever(offenderTransactionRepository.nextTransactionId).thenReturn(12345L)
+    whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
     val transaction1 = OffenderTransaction.builder().build()
     val transaction2 = OffenderTransaction.builder().build()
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
@@ -416,7 +416,7 @@ internal class FinanceServiceTest {
         OffenderTransaction.builder().build(),
       ),
     )
-    whenever(offenderTransactionRepository.nextTransactionId).thenReturn(12345L)
+    whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
 
     financeService.transferToSavings("LEI", "AA2134", transaction, "1234")
 
