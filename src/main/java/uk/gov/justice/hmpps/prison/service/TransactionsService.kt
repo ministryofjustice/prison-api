@@ -8,10 +8,14 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription
+import uk.gov.justice.hmpps.prison.api.resource.AddHoldRequest
+import uk.gov.justice.hmpps.prison.api.resource.FinanceHold
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.FinanceHoldsRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.util.MoneySupport
+import uk.gov.justice.hmpps.prison.util.MoneySupport.penceToPounds
 import uk.gov.justice.hmpps.prison.values.AccountCode
 import java.time.LocalDate
 
@@ -19,6 +23,7 @@ import java.time.LocalDate
 class TransactionsService(
   private val offenderTransactionRepository: OffenderTransactionRepository,
   private val offenderRepository: OffenderRepository,
+  private val financeHoldsRepository: FinanceHoldsRepository,
 ) {
   fun getAccountTransactions(
     prisonId: String,
@@ -53,6 +58,30 @@ class TransactionsService(
           clientUniqueRef = it.clientUniqueRef,
         )
       }
+  }
+
+  fun addHold(prisonId: String, nomisId: String, holdRequest: AddHoldRequest): FinanceHold {
+    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
+      .orElseThrow { HttpClientErrorException(HttpStatus.NOT_FOUND, "Offender not found") }
+
+    val accountCode = AccountCode.byCodeName(holdRequest.subAccountType)
+      .orElseThrow { HttpClientErrorException(HttpStatus.NOT_FOUND, "SubAccountCode not found") }
+
+    return financeHoldsRepository.addHold(
+      prisonId = prisonId,
+      nomisId = nomisId,
+      rootOffenderId = rootOffender.rootOffenderId,
+      accountCode = accountCode.code,
+      amount = penceToPounds(holdRequest.amount),
+      holdDescription = holdRequest.holdDescription,
+    )
+  }
+
+  fun removeHold(prisonId: String, nomisId: String, holdNumber: Long) {
+    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
+      .orElseThrow { HttpClientErrorException(HttpStatus.NOT_FOUND, "Offender not found") }
+
+    financeHoldsRepository.removeHold(prisonId, nomisId, rootOffender.id, holdNumber)
   }
 }
 

@@ -99,7 +99,92 @@ class TransactionsResource(private val transactionsService: TransactionsService)
       description = "To date for transactions",
       example = "2019-05-01",
     ) toDate: LocalDate?,
-  ): PrisonerTransactions = PrisonerTransactions(transactionsService.getAccountTransactions(prisonId, nomsId, accountCode, fromDate ?: LocalDate.now(), toDate))
+  ): PrisonerTransactions = PrisonerTransactions(
+    transactionsService.getAccountTransactions(
+      prisonId,
+      nomsId,
+      accountCode,
+      fromDate ?: LocalDate.now(),
+      toDate,
+    ),
+  )
+  /*
+    @ApiResponses(
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(
+        responseCode = "400",
+        description = "Invalid request.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Requested resource not found.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    )
+
+    @Operation(summary = "Add a hold to a prisoner")
+    @PreAuthorize("hasAnyRole('UNILINK') and hasAuthority('SCOPE_write')")
+    @GetMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}")
+    @PostMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/hold")
+    fun placeHold(
+      @PathVariable("prison_id") @Parameter(
+        name = "prison_id",
+        description = "Prison ID",
+        example = "WLI",
+        required = true,
+      ) prisonId:
+      @Size(max = 3)
+      @NotNull
+      String,
+      @PathVariable("noms_id") @Parameter(
+        name = "noms_id",
+        description = "Offender Noms Id",
+        example = "A1404AE",
+        required = true,
+      ) nomsId:
+      @Pattern(regexp = NomisApiV1Resource.NOMS_ID_REGEX_PATTERN)
+      @NotNull
+      String,
+      @PathVariable("account_code") @Parameter(
+        name = "account_code",
+        description = "Account code",
+        example = "spends",
+        required = true,
+        schema = Schema(implementation = String::class, allowableValues = ["spends", "cash", "savings"]),
+      ) accountCode: @NotNull String,
+    ) = transactionsService.addHold(prisonId, nomsId, accountCode)
+
+    @ApiResponses(
+      ApiResponse(responseCode = "200", description = "OK"),
+      ApiResponse(
+        responseCode = "400",
+        description = "Invalid request.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "404",
+        description = "Requested resource not found.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+      ApiResponse(
+        responseCode = "500",
+        description = "Unrecoverable error occurred whilst processing request.",
+        content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+      ),
+    )
+    @Operation(summary = "Remove a hold from a prisoner")
+    @PreAuthorize("hasAnyRole('UNILINK') and hasAuthority('SCOPE_write')")
+    @DeleteMapping("/prison/{prison_id}/offenders/{noms_id}/accounts/{account_code}/hold{holdNumber}")
+    fun removeHold() {
+    }
+
+   */
 }
 
 @Schema(description = "Account Transactions")
