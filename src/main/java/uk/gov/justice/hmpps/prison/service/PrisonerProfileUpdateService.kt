@@ -657,7 +657,7 @@ class PrisonerProfileUpdateService(
     val now = LocalDateTime.now()
     val today = now.toLocalDate()
     val startDate = updateRequest.effectiveFromDate ?: today
-    offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, latestBooking.bookingId.toString())
+    offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, null)
       .filter { it.endDate?.isAfter(today) ?: true }
       .forEach {
         it.endDate = today
