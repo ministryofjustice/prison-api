@@ -46,6 +46,8 @@ generic-service:
     SPRING_REPLICA_DATASOURCE_HIKARI_MAXIMUM_POOL_SIZE: 20
     SMOKE_TEST_AWARE: true
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.dev.json
+    SPRINGDOC_API-DOCS_ENABLED: "true"
+    SPRINGDOC_SWAGGER-UI_ENABLED: "true"
 
 generic-prometheus-alerts:
   businessHoursOnly: true

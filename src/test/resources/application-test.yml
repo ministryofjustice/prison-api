@@ -5,7 +5,8 @@ management.endpoint:
 spring:
   cache.type: none
 
-#logging:
-#  level:
-#     org.hibernate.SQL: DEBUG
-#     org.hibernate.type.descriptor.sql.BasicBinder: TRACE
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
