@@ -89,7 +89,10 @@ smoke:
     aware: false
 
 springdoc:
+  api-docs:
+    enabled: false
   swagger-ui:
+    enabled: false
     operationsSorter: alpha
     tagsSorter: alpha
   nullable-request-parameter-enabled: false
