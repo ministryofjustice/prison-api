@@ -42,7 +42,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity
-@IdClass(OffenderTransaction.Pk.class)
+@IdClass(OffenderTransactionId.class)
 @Table(name = "OFFENDER_TRANSACTIONS")
 @EntityListeners(AuditingEntityListener.class)
 public class OffenderTransactionHistory {

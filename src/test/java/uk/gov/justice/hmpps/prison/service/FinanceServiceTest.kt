@@ -24,7 +24,9 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository
@@ -33,6 +35,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccoun
 import uk.gov.justice.hmpps.prison.util.MoneySupport
 import uk.gov.justice.hmpps.prison.values.Currency
 import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.Optional
 
 internal class FinanceServiceTest {
@@ -283,7 +286,7 @@ internal class FinanceServiceTest {
     )
 
     whenever(offenderTransactionRepository.findByClientUniqueRef(ArgumentMatchers.anyString())).thenReturn(
-      Optional.of(OffenderTransaction.builder().build()),
+      Optional.of(offenderTransaction()),
     )
 
     Assertions.assertThatThrownBy {
@@ -329,7 +332,7 @@ internal class FinanceServiceTest {
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any())).thenReturn(
       Optional.of(
-        OffenderTransaction.builder().build(),
+        offenderTransaction(),
       ),
     )
 
@@ -369,8 +372,8 @@ internal class FinanceServiceTest {
     )
 
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
-    val transaction1 = OffenderTransaction.builder().build()
-    val transaction2 = OffenderTransaction.builder().build()
+    val transaction1 = offenderTransaction()
+    val transaction2 = offenderTransaction()
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
       .thenReturn(Optional.of(transaction1))
       .thenReturn(Optional.of(transaction2))
@@ -413,7 +416,7 @@ internal class FinanceServiceTest {
 
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any())).thenReturn(
       Optional.of(
-        OffenderTransaction.builder().build(),
+        offenderTransaction(),
       ),
     )
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
@@ -610,3 +613,21 @@ internal class FinanceServiceTest {
     verify(financeRepository, times(1)).getBalances(bookingId, agency)
   }
 }
+
+fun offenderTransaction(
+  id: OffenderTransactionId = OffenderTransactionId(1, 1),
+) = OffenderTransaction(
+  id = id,
+  offenderId = 1,
+  prisonId = "BMI",
+  holdNumber = null,
+  holdClearFlag = null,
+  subAccountType = "REG",
+  transactionType = TransactionType("CANT", "Canteen"),
+  transactionReferenceNumber = null,
+  clientUniqueRef = null,
+  entryDate = LocalDate.now(),
+  entryDescription = null,
+  entryAmount = BigDecimal.TEN,
+  postingType = "CR",
+)

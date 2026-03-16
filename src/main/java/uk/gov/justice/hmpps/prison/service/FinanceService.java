@@ -15,7 +15,7 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository;
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction.Pk;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
@@ -98,13 +98,13 @@ public class FinanceService {
         financeRepository.insertIntoOffenderTrans(prisonId, booking.getRootOffender().getId(), booking.getBookingId(), "CR", subActTypeCr,
                 transactionNumber, 2, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);
 
-        final var offenderTransaction = offenderTransactionRepository.findById(new Pk(transactionNumber, 1L)).orElseThrow();
+        final var offenderTransaction = offenderTransactionRepository.findById(new OffenderTransactionId(transactionNumber, 1L)).orElseThrow();
         offenderTransaction.setClientUniqueRef(clientUniqueId);
         offenderTransaction.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
 
-        final var offenderTransaction2 = offenderTransactionRepository.findById(new Pk(transactionNumber, 2L)).orElseThrow();
+        final var OffenderTransaction = offenderTransactionRepository.findById(new OffenderTransactionId(transactionNumber, 2L)).orElseThrow();
         // client unique ref is unique on the table, so can only mark one of the transactions with the unique ref.
-        offenderTransaction2.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
+        OffenderTransaction.setTransactionReferenceNumber(transferTransaction.getClientTransactionId());
 
         financeRepository.processGlTransNew(prisonId, booking.getRootOffender().getId(), booking.getBookingId(), subActTypeDr, subActTypeCr,
                 transactionNumber, 1, transferTransaction.getAmountInPounds(), transferTransaction.getDescription(), transferDate);

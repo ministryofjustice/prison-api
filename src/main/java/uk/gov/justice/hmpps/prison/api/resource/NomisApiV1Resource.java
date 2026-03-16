@@ -249,7 +249,7 @@ public class NomisApiV1Resource {
             @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Post a financial transaction to NOMIS.", description = """
             The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>
-            This will be setup by script intially as part of the deployment process as shown below<br/><br/>
+            This will be setup by script initially as part of the deployment process as shown below<br/><br/>
             <table>
               <tr><th>Transaction Type</th><th>Description</th><th>Digital Prison</th><th>Non Digital Prison</th></tr>
               <tr><td>CANT</td><td>Canteen Spend</td><td>Yes</td><td>No</td></tr>
