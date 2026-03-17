@@ -45,9 +45,9 @@ class TransactionsService(
     )
       .map {
         PrisonerTransaction(
-          id = "${it.transactionId}-${it.transactionEntrySequence}",
-          type = it.transactionType?.toCodeDescription(),
-          description = it.entryDescription,
+          id = "${it.id.transactionId}-${it.id.transactionEntrySequence}",
+          type = it.transactionType.toCodeDescription(),
+          description = it.entryDescription!!,
           amount = MoneySupport.poundsToPence(it.entryAmount).let { a -> a * (if (it.postingType == "DR") -1 else 1) },
           date = it.entryDate,
           clientUniqueRef = it.clientUniqueRef,

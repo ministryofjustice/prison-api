@@ -5,11 +5,12 @@ import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import java.time.LocalDate
 import java.util.Optional
 
 @Repository
-interface OffenderTransactionRepository : CrudRepository<OffenderTransaction, OffenderTransaction.Pk> {
+interface OffenderTransactionRepository : CrudRepository<OffenderTransaction, OffenderTransactionId> {
 
   @Query(value = "SELECT TXN_ID.nextval FROM dual", nativeQuery = true)
   fun getNextTransactionId(): Long
@@ -24,7 +25,7 @@ interface OffenderTransactionRepository : CrudRepository<OffenderTransaction, Of
              and ot.subAccountType = :p_account_type
              and ot.entryDate >= :p_from_date
              and (:p_to_date is null or ot.entryDate <= :p_to_date)
-           order by ot.entryDate desc, ot.transactionId desc, ot.transactionEntrySequence desc
+           order by ot.entryDate desc, ot.id.transactionId desc, ot.id.transactionEntrySequence desc
         
         """,
   )

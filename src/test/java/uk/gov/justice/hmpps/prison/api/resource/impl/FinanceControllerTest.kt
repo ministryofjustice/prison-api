@@ -5,13 +5,17 @@ import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers
 import org.mockito.kotlin.any
 import org.mockito.kotlin.whenever
-import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew
+import java.math.BigDecimal
+import java.time.LocalDate
 import java.util.Optional
 
 class FinanceControllerTest : ResourceTest() {
@@ -28,155 +32,147 @@ class FinanceControllerTest : ResourceTest() {
   fun transferToSavingsNomisV1Role() {
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+      .thenReturn(Optional.of(offenderTransaction()))
+      .thenReturn(Optional.of(offenderTransaction()))
     val transaction = createTransferTransaction(124L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}")
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("debitTransaction.id").isEqualTo("12345-1")
+      .jsonPath("creditTransaction.id").isEqualTo("12345-2")
+      .jsonPath("transactionId").isEqualTo("12345")
   }
 
   @Test
   fun transferToSavingsUnilinkRole() {
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+      .thenReturn(Optional.of(offenderTransaction()))
+      .thenReturn(Optional.of(offenderTransaction()))
     val transaction = createTransferTransaction(124L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("UNILINK"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}")
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("UNILINK")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("debitTransaction.id").isEqualTo("12345-1")
+      .jsonPath("creditTransaction.id").isEqualTo("12345-2")
+      .jsonPath("transactionId").isEqualTo("12345")
   }
 
   @Test
   fun transferToSavings_setXClientNameHeader() {
     whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
-    val transaction1 = OffenderTransaction.builder().build()
+    val transaction1 = offenderTransaction()
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
       .thenReturn(Optional.of(transaction1))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+      .thenReturn(Optional.of(offenderTransaction()))
     val transaction = createTransferTransaction(124L)
-    val jwt = createJwtAccessToken("ITAG_USER", listOf("ROLE_NOMIS_API_V1"))
-    val requestEntity = createHttpEntity(jwt, transaction, mapOf("X-Client-Name" to "clientName"))
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(responseEntity, 200, "{\"debitTransaction\":{\"id\":\"12345-1\"},\"creditTransaction\":{\"id\":\"12345-2\"},\"transactionId\":12345}")
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .header("X-Client-Name", "clientName")
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("debitTransaction.id").isEqualTo("12345-1")
+      .jsonPath("creditTransaction.id").isEqualTo("12345-2")
+      .jsonPath("transactionId").isEqualTo("12345")
+
     assertThat(transaction1.clientUniqueRef).isEqualTo("clientName-clientRef")
   }
 
   @Test
   fun transferToSavings_validatePrisonId() {
     val transaction = createTransferTransaction(12345678L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "1234",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(
-      responseEntity,
-      400,
-      "{\"status\":400,\"userMessage\":\"transferToSavings.prisonId: Value is too long: max length is 3\",\"developerMessage\":\"transferToSavings.prisonId: Value is too long: max length is 3\"}",
-    )
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "1234", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("status").isEqualTo("400")
+      .jsonPath("userMessage").isEqualTo("transferToSavings.prisonId: Value is too long: max length is 3")
+      .jsonPath("developerMessage").isEqualTo("transferToSavings.prisonId: Value is too long: max length is 3")
   }
 
   @Test
   fun transferToSavings_validateOffenderNo() {
     val transaction = createTransferTransaction(12345678L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "123ABC",
-    )
-    assertThatJsonAndStatus(
-      responseEntity,
-      400,
-      "{\"status\":400,\"userMessage\":\"transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'\",\"developerMessage\":\"transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'\"}",
-    )
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "123ABC")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("status").isEqualTo("400")
+      .jsonPath("userMessage").isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
+      .jsonPath("developerMessage").isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
   }
 
   @Test
   fun transferToSavings_validateTransferTransaction() {
     val transaction = createTransferTransaction(0L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(
-      responseEntity,
-      400,
-      "{\"status\":400,\"userMessage\":\"Field: amount - The amount must be greater than 0\",\"developerMessage\":\"Field: amount - The amount must be greater than 0\"}",
-    )
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isBadRequest
+      .expectBody()
+      .jsonPath("status").isEqualTo("400")
+      .jsonPath("userMessage").isEqualTo("Field: amount - The amount must be greater than 0")
+      .jsonPath("developerMessage").isEqualTo("Field: amount - The amount must be greater than 0")
   }
 
   @Test
   fun transferToSavings_wrongRole() {
     val transaction = createTransferTransaction(1L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_BOB"), transaction)
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(responseEntity, 403, "{\"status\":403,\"userMessage\":\"Access Denied\"}")
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_BANANAS")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().isForbidden
+      .expectBody()
+      .jsonPath("status").isEqualTo("403")
+      .jsonPath("userMessage").isEqualTo("Access Denied")
   }
 
   @Test
   fun transferToSavings_duplicateClientUniqueRef() {
     whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
-      .thenReturn(Optional.of(OffenderTransaction.builder().build()))
+      .thenReturn(Optional.of(offenderTransaction()))
+      .thenReturn(Optional.of(offenderTransaction()))
     val transaction = createTransferTransaction(124L)
-    val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
-    whenever(offenderTransactionRepository.findByClientUniqueRef(any())).thenReturn(Optional.of(OffenderTransaction.builder().build()))
-    val responseEntity = testRestTemplate.exchange(
-      "/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings",
-      POST,
-      requestEntity,
-      String::class.java,
-      "LEI",
-      "A1234AA",
-    )
-    assertThatJsonAndStatus(
-      responseEntity,
-      409,
-      "{\"status\":409,\"userMessage\":\"Duplicate post - The unique_client_ref clientRef has been used before\",\"developerMessage\":\"Duplicate post - The unique_client_ref clientRef has been used before\"}",
-    )
+    whenever(offenderTransactionRepository.findByClientUniqueRef(any())).thenReturn(Optional.of(offenderTransaction()))
+
+    webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      .header("Content-Type", APPLICATION_JSON_VALUE)
+      .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
+      .bodyValue(transaction)
+      .exchange()
+      .expectStatus().is4xxClientError
+      .expectBody()
+      .jsonPath("status").isEqualTo("409")
+      .jsonPath("userMessage").isEqualTo("Duplicate post - The unique_client_ref clientRef has been used before")
+      .jsonPath("developerMessage").isEqualTo("Duplicate post - The unique_client_ref clientRef has been used before")
   }
 
   private fun createTransferTransaction(amount: Long): TransferTransaction = TransferTransaction.builder()
@@ -186,3 +182,21 @@ class FinanceControllerTest : ResourceTest() {
     .clientTransactionId("transId")
     .build()
 }
+
+fun offenderTransaction(
+  id: OffenderTransactionId = OffenderTransactionId(1, 1),
+) = OffenderTransaction(
+  id = id,
+  offenderId = 1,
+  prisonId = "BMI",
+  holdNumber = null,
+  holdClearFlag = null,
+  subAccountType = "REG",
+  transactionType = TransactionType("CANT", "Canteen"),
+  transactionReferenceNumber = null,
+  clientUniqueRef = null,
+  entryDate = LocalDate.now(),
+  entryDescription = null,
+  entryAmount = BigDecimal.TEN,
+  postingType = "CR",
+)

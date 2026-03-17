@@ -9,7 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
 import org.springframework.test.context.ActiveProfiles
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import java.time.LocalDate
 
 @DataJpaTest
@@ -19,22 +19,28 @@ class OffenderTransactionRepositoryTest {
   @Autowired
   private lateinit var repository: OffenderTransactionRepository
 
-  @Test
-  fun testGetNextTransactionId() {
-    val transactionId = repository.getNextTransactionId()
+  @Nested
+  inner class GetNextTransactionId {
+    @Test
+    fun testGetNextTransactionId() {
+      val transactionId = repository.getNextTransactionId()
 
-    assertThat(transactionId).isEqualTo(1L)
-  }
-
-  @Test
-  fun testOffenderTransactionMapping() {
-    val optionalOffenderTransaction = repository.findById(OffenderTransaction.Pk(301826802L, 1L))
-
-    assertThat(optionalOffenderTransaction).get().extracting { it.prisonId }.isEqualTo("LEI")
+      assertThat(transactionId).isEqualTo(1L)
+    }
   }
 
   @Nested
-  inner class findAccountTransactions {
+  inner class FindById {
+    @Test
+    fun testOffenderTransactionMapping() {
+      val optionalOffenderTransaction = repository.findById(OffenderTransactionId(301826802L, 1L))
+
+      assertThat(optionalOffenderTransaction).get().extracting { it.prisonId }.isEqualTo("LEI")
+    }
+  }
+
+  @Nested
+  inner class FindAccountTransactions {
     @Test
     fun `no to date specified`() {
       val transactions = repository.findAccountTransactions(-1009, "LEI", "REG", LocalDate.parse("2019-01-01"), null)

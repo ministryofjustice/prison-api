@@ -50,7 +50,6 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
-import uk.gov.justice.hmpps.prison.api.model.PrisonerIdentifier;
 import uk.gov.justice.hmpps.prison.api.model.PrisonerInPrisonSummary;
 import uk.gov.justice.hmpps.prison.api.model.RequestForCourtTransferIn;
 import uk.gov.justice.hmpps.prison.api.model.RequestForNewBooking;
