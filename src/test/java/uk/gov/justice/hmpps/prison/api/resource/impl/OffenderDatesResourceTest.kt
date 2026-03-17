@@ -181,11 +181,9 @@ class OffenderDatesResourceTest : ResourceTest() {
 
     @Test
     fun testCantUpdateOffenderDatesWithIncorrectRole() {
-      val body = mapOf("some key" to "some value")
-
       webTestClient.post().uri("/api/offender-dates/{bookingId}", BOOKING_ID)
         .headers(setAuthorisation(listOf("ROLE_BANANAS")))
-        .body(BodyInserters.fromValue(body))
+        .body(BodyInserters.fromValue(RequestToUpdateOffenderDates.builder().build()))
         .exchange()
         .expectStatus().isForbidden
     }

@@ -83,7 +83,7 @@ class UserResourceTest : ResourceTest() {
         .uri("/api/users/me/activeCaseLoad")
         .headers(setAuthorisation("ITAG_USER", emptyList()))
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-        .body(BodyInserters.fromValue("""{"caseLoadId":"LEI","description":"Leeds HMP"}"""))
+        .body(BodyInserters.fromValue("""{"caseLoadId":"LEI"}"""))
         .exchange()
         .expectStatus().isOk
         .expectBody().isEmpty
