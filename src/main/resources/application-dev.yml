@@ -4,3 +4,9 @@ spring:
       resourceserver:
         jwt:
           jwk-set-uri: http://localhost:9090/auth/.well-known/jwks.json
+
+springdoc:
+  api-docs:
+    enabled: true
+  swagger-ui:
+    enabled: true
