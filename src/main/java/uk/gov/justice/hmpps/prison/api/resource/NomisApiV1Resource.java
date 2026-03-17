@@ -366,7 +366,7 @@ public class NomisApiV1Resource {
         }
         </pre>
         <br/>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu.
-        Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script intially as part of the deployment process as shown below<br/><br/>
+        Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script initially as part of the deployment process as shown below<br/><br/>
         Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
         """
     )
