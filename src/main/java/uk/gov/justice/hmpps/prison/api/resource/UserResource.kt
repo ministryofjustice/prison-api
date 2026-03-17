@@ -78,9 +78,8 @@ class UserResource(
       ],
     ),
   )
-  fun getMyUserInformation():
-    @ProgrammaticAuthorisation(value = "Returns information about the current user only")
-    UserDetail = userService.getUserByUsername(hmppsAuthenticationHolder.username)
+  @ProgrammaticAuthorisation(value = "Returns information about the current user only")
+  fun getMyUserInformation(): UserDetail = userService.getUserByUsername(hmppsAuthenticationHolder.username)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -106,12 +105,11 @@ class UserResource(
   )
   @GetMapping("/me/caseLoads")
   @SlowReportQuery
+  @ProgrammaticAuthorisation("Returns information about the current user only")
   fun getMyCaseLoads(
     @RequestParam(value = "allCaseloads", required = false, defaultValue = "false")
     @Parameter(description = "If set to true then all caseloads are returned") allCaseloads: Boolean,
-  ):
-    @ProgrammaticAuthorisation("Returns information about the current user only")
-    List<CaseLoad> = userService.getCaseLoads(hmppsAuthenticationHolder.username, allCaseloads)
+  ): List<CaseLoad> = userService.getCaseLoads(hmppsAuthenticationHolder.username, allCaseloads)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -139,12 +137,11 @@ class UserResource(
   @GetMapping("/me/locations")
   @SlowReportQuery
   @Deprecated("")
+  @ProgrammaticAuthorisation("Returns information about the current user only")
   fun getMyLocations(
     @RequestParam(value = "include-non-residential-locations", required = false, defaultValue = "false")
     @Parameter(description = "Indicates non residential locations should be included") includeNonRes: Boolean,
-  ):
-    @ProgrammaticAuthorisation("Returns information about the current user only")
-    MutableList<Location> = locationService.getUserLocations(hmppsAuthenticationHolder.username, includeNonRes)
+  ): List<Location> = locationService.getUserLocations(hmppsAuthenticationHolder.username, includeNonRes)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -166,12 +163,11 @@ class UserResource(
   )
   @Operation(summary = "List of roles for current user.", description = "List of roles for current user.")
   @GetMapping("/me/roles")
+  @ProgrammaticAuthorisation("Returns information about the current user only")
   fun getMyRoles(
     @RequestParam(value = "allRoles", required = false, defaultValue = "false")
     @Parameter(description = "If set to true then all roles are returned rather than just API roles") allRoles: Boolean,
-  ):
-    @ProgrammaticAuthorisation("Returns information about the current user only")
-    List<UserRole> = userService.getRolesByUsername(hmppsAuthenticationHolder.username, allRoles)
+  ): List<UserRole> = userService.getRolesByUsername(hmppsAuthenticationHolder.username, allRoles)
 
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -220,11 +216,10 @@ class UserResource(
   @Operation(summary = "User detail.", description = "User detail.")
   @GetMapping("/{username}")
   @SlowReportQuery
+  @ProgrammaticAuthorisation("Returns information about the current user only")
   fun getUserDetails(
     @PathVariable("username") @Parameter(description = "The username of the user.", required = true) username: String,
-  ):
-    @ProgrammaticAuthorisation("Returns information about the current user only")
-    UserDetail = userService.getUserByUsername(username.uppercase(Locale.getDefault()))
+  ): UserDetail = userService.getUserByUsername(username.uppercase(Locale.getDefault()))
 
   @ApiResponses(ApiResponse(responseCode = "200", description = "The list of user details"))
   @Operation(
