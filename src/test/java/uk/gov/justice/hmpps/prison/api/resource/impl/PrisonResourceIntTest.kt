@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.module.kotlin.readValue
 import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -12,6 +11,7 @@ import org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_METHO
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_METHOD
 import org.springframework.test.context.jdbc.SqlConfig
 import org.springframework.test.context.jdbc.SqlConfig.TransactionMode.ISOLATED
+import tools.jackson.module.kotlin.readValue
 import uk.gov.justice.hmpps.prison.api.model.calculation.CalculablePrisoner
 import uk.gov.justice.hmpps.prison.util.builders.WebClientResponsePage
 
@@ -33,9 +33,9 @@ class PrisonResourceIntTest : ResourceTest() {
     val establishment = "LEI"
 
     val json = getPrisonResourceAsText("prison_resource_single_calculable_prisoner.json")
-    val calculableSentenceEnvelope = objectMapper.readValue<CalculablePrisoner>(json)
+    val calculableSentenceEnvelope = jsonMapper.readValue<CalculablePrisoner>(json)
 
-    val fixedRecallCalculableSentenceEnvelope = objectMapper.readValue<CalculablePrisoner>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_prisoner.json"))
+    val fixedRecallCalculableSentenceEnvelope = jsonMapper.readValue<CalculablePrisoner>(getPrisonResourceAsText("prison_resource_fixed_recall_calculable_prisoner.json"))
 
     val firstPageResponse = webTestClient.get()
       .uri("/api/prison/{establishment}/booking/latest/paged/calculable-prisoner?page=0&size=3", establishment)

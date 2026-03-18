@@ -1,9 +1,11 @@
 package uk.gov.justice.hmpps.prison.util;
 
-import com.fasterxml.jackson.core.JsonParser;
-import com.fasterxml.jackson.databind.DeserializationContext;
-import com.fasterxml.jackson.databind.JsonDeserializer;
-import com.fasterxml.jackson.databind.deser.std.NumberDeserializers;
+
+import tools.jackson.core.JacksonException;
+import tools.jackson.core.JsonParser;
+import tools.jackson.databind.DeserializationContext;
+import tools.jackson.databind.ValueDeserializer;
+import tools.jackson.databind.deser.jdk.NumberDeserializers;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -31,10 +33,10 @@ public class MoneySupport {
         return toMoneyScale(new BigDecimal(amount));
     }
 
-    public static class MoneyDeserializer extends JsonDeserializer<BigDecimal> {
+    public static class MoneyDeserializer extends ValueDeserializer<BigDecimal> {
         private NumberDeserializers.BigDecimalDeserializer delegate = NumberDeserializers.BigDecimalDeserializer.instance;
         @Override
-        public BigDecimal deserialize(final JsonParser parser, final DeserializationContext context) throws IOException {
+        public BigDecimal deserialize(final JsonParser parser, final DeserializationContext context) throws JacksonException {
             return toMoneyScale(delegate.deserialize(parser, context));
         }
     }

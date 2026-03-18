@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
-import com.fasterxml.jackson.databind.annotation.JsonDeserialize;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -8,6 +7,7 @@ import lombok.Data;
 import lombok.EqualsAndHashCode;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
+import tools.jackson.databind.annotation.JsonDeserialize;
 import uk.gov.justice.hmpps.prison.util.MoneySupport.MoneyDeserializer;
 
 import java.time.LocalDate;
