@@ -16,5 +16,5 @@ data class UpdateReligion(
   @Schema(description = "The date the religious belief is valid from (in YYYY-MM-DD format)")
   val effectiveFromDate: LocalDate?,
   @Schema(description = "Has the religious belief been verified?", example = "false", defaultValue = "false")
-  val verified: Boolean,
+  val verified: Boolean = false,
 )

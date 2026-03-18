@@ -1,12 +1,12 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Builder.Default;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.Length;
 import org.springframework.format.annotation.DateTimeFormat;
 
@@ -18,7 +18,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Schema(description = "Request release of prisoner")
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 public class RequestToReleasePrisoner {
@@ -38,4 +37,9 @@ public class RequestToReleasePrisoner {
     @Schema(description = "Agency Location code where prisoner is released to, default is OUT", example = "OUT")
     @Default
     private String toLocationCode = "OUT";
+
+    @JsonCreator
+    public RequestToReleasePrisoner() {
+        toLocationCode = "OUT";
+    }
 }
