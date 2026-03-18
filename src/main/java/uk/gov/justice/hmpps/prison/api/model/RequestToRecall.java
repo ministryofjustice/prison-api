@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
 import lombok.AllArgsConstructor;
@@ -18,7 +19,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @Schema(description = "Represents the data required for recalling a prisoner")
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @ToString
@@ -42,7 +42,8 @@ public class RequestToRecall {
     private String movementReasonCode;
 
     @Schema(description = "Is this offender a youth", example = "false")
-    private boolean youthOffender;
+    @Builder.Default
+    private boolean youthOffender = false;
 
     @Schema(description = "Cell location where recalled prisoner should be housed, default will be reception", example = "MDI-RECP")
     @Length(max = 240, message = "Cell Location description cannot be more than 240 characters")
@@ -52,5 +53,6 @@ public class RequestToRecall {
     @Length(max = 12, message = "Imprisonment status cannot be more than 12 characters")
     private String imprisonmentStatus;
 
-
+    @JsonCreator
+    public RequestToRecall() {}
 }

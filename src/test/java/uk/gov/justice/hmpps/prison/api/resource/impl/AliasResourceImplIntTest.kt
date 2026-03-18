@@ -505,16 +505,18 @@ class AliasResourceImplIntTest : ResourceTest() {
       sex: String = "M",
       ethnicity: String? = "M1",
       nameType: String? = "CN",
-    ) = UpdateAlias(
-      firstName,
-      middleName1,
-      middleName2,
-      lastName,
-      dateOfBirth,
-      sex,
-      title,
-      ethnicity,
-      nameType,
+      isWorkingName: Boolean = true,
+    ) = uk.gov.justice.hmpps.prison.api.model.CreateAlias(
+      firstName = firstName,
+      middleName1 = middleName1,
+      middleName2 = middleName2,
+      lastName = lastName,
+      dateOfBirth = dateOfBirth,
+      sex = sex,
+      title = title,
+      ethnicity = ethnicity,
+      nameType = nameType,
+      isWorkingName = isWorkingName,
     )
 
     fun expectBadRequest(body: Any): WebTestClient.BodyContentSpec = webTestClient.post()

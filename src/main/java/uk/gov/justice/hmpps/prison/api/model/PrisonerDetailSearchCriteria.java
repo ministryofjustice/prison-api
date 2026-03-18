@@ -1,16 +1,16 @@
 package uk.gov.justice.hmpps.prison.api.model;
 
+import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import io.swagger.v3.oas.annotations.media.Schema;
+import jakarta.validation.constraints.Max;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.EqualsAndHashCode;
-import lombok.NoArgsConstructor;
 import lombok.ToString;
 import lombok.With;
 
-import jakarta.validation.constraints.Max;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -18,7 +18,6 @@ import java.util.List;
 @JsonInclude(JsonInclude.Include.NON_NULL)
 @Builder
 @AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode
 @Data
 @With
@@ -29,13 +28,13 @@ public class PrisonerDetailSearchCriteria {
     private List<String> offenderNos;
     @Schema(description = "The first name of the offender.", example = "John")
     private String firstName;
-    @Schema(description = "Offender's gender code (F - Female, M - Male, NK - Not Known or NS - Not Specified).", example = "F", allowableValues = {"M","F","NK","NS","ALL"})
+    @Schema(description = "Offender's gender code (F - Female, M - Male, NK - Not Known or NS - Not Specified).", example = "F", allowableValues = {"M", "F", "NK", "NS", "ALL"})
     private String gender;
     @Schema(description = "The middle name(s) of the offender.", example = "James")
     private String middleNames;
     @Schema(description = "The last name of the offender.", example = "Smith")
     private String lastName;
-    @Schema(description = "Offender's location filter (IN, OUT or ALL) - defaults to ALL.", example = "ALL", allowableValues = {"IN","OUT","ALL"})
+    @Schema(description = "Offender's location filter (IN, OUT or ALL) - defaults to ALL.", example = "ALL", allowableValues = {"IN", "OUT", "ALL"})
     private String location;
     @Schema(description = "The offender's PNC (Police National Computer) number.", example = "123/1231")
     private String pncNumber;
@@ -59,4 +58,9 @@ public class PrisonerDetailSearchCriteria {
     private boolean anyMatch;
     @Schema(description = "If <i>true</i>, search criteria prioritisation is used and searching/matching will stop as soon as one or more matching offenders are found. The criteria priority is:<br/><br/>1. <i>offenderNo</i><br/> 2. <i>pncNumber</i><br/>3. <i>croNumber</i><br/>4. <i>firstName</i>, <i>lastName</i>, <i>dob</i> <br/>5. <i>dobFrom</i>, <i>dobTo</i><br/><br/>As an example of how this works, if this parameter is set <i>true</i> and an <i>offenderNo</i> is specified and an offender having this offender number is found, searching will stop and that offender will be returned immediately. If no offender matching the specified <i>offenderNo</i> is found, the search will be repeated using the next priority criteria (<i>pncNumber</i>) and so on. Note that offender name and date of birth criteria have the same priority and will be used together to search for matching offenders.", example = "false")
     private boolean prioritisedMatch;
+
+    @JsonCreator
+    public PrisonerDetailSearchCriteria() {
+        maxYearsRange = 10;
+    }
 }
