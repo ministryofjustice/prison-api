@@ -8,9 +8,9 @@ import io.swagger.v3.oas.annotations.responses.ApiResponse
 import io.swagger.v3.oas.annotations.responses.ApiResponses
 import io.swagger.v3.oas.annotations.tags.Tag
 import jakarta.validation.Valid
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
@@ -27,6 +27,7 @@ import uk.gov.justice.hmpps.prison.util.ResourceUtils
 @RestController
 @Tag(name = "finance")
 @RequestMapping(value = ["\${api.base.path}/finance"], produces = ["application/json"])
+@PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API')")
 @Validated
 class FinanceController(
   private val financeService: FinanceService,
@@ -83,7 +84,6 @@ class FinanceController(
     @PathVariable
     offenderNo: String,
     @Parameter(description = "Saving Transfer Transaction Details", required = true)
-    @NotNull
     @RequestBody
     @Valid
     transferTransaction: TransferTransaction,

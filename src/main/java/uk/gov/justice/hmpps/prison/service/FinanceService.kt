@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.service
 
 import jakarta.validation.ValidationException
 import org.springframework.dao.DuplicateKeyException
-import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.Account
@@ -66,7 +65,6 @@ class FinanceService(
   }
 
   @Transactional
-  @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API')")
   fun transferToSavings(prisonId: String, offenderNo: String, transferTransaction: TransferTransaction, clientUniqueId: String? = null): TransferTransactionDetail {
     val optionalOffenderBooking = offenderBookingRepository.findByOffenderNomsIdAndActive(offenderNo, true)
     val booking = optionalOffenderBooking.orElseThrow {
