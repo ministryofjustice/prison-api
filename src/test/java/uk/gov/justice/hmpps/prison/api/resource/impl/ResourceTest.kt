@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.databind.ObjectMapper
 import net.javacrumbs.jsonunit.assertj.JsonAssertions
 import org.assertj.core.api.Assertions
 import org.springframework.beans.factory.annotation.Autowired
@@ -20,6 +19,7 @@ import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
+import tools.jackson.databind.json.JsonMapper
 import uk.gov.justice.hmpps.prison.PrisonApiServer
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
@@ -55,7 +55,7 @@ abstract class ResourceTest {
   protected lateinit var authTokenHelper: AuthTokenHelper
 
   @Autowired
-  protected lateinit var objectMapper: ObjectMapper
+  protected lateinit var jsonMapper: JsonMapper
 
   protected val testDataContext: TestDataContext
     get() = TestDataContext(webTestClient, jwtAuthenticationHelper, dataLoader)
@@ -176,7 +176,7 @@ abstract class ResourceTest {
     Objects.requireNonNull(response.body!!),
   )
 
-  protected fun jsonString(any: Any) = objectMapper.writeValueAsString(any) as String
+  protected fun jsonString(any: Any) = jsonMapper.writeValueAsString(any) as String
 
   protected fun setAuthorisation(roles: List<String>): Consumer<HttpHeaders> = Consumer { it.setBearerAuth(validToken(roles)) }
 
