@@ -1,49 +1,44 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
 import jakarta.persistence.Column
+import jakarta.persistence.Embeddable
+import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
-import jakarta.persistence.Id
-import jakarta.persistence.IdClass
 import jakarta.persistence.Table
-import lombok.AllArgsConstructor
-import lombok.Builder
-import lombok.Data
-import lombok.EqualsAndHashCode
-import lombok.NoArgsConstructor
-import lombok.ToString
+import org.hibernate.Hibernate
+import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.io.Serializable
 import java.math.BigDecimal
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@IdClass(OffenderSubAccount.Pk::class)
-@Table(name = "OFFENDER_SUB_ACCOUNTS")
-class OffenderSubAccount {
-  @Id
-  @Column(name = "CASELOAD_ID", nullable = false, insertable = false, updatable = false)
-  private var prisonId: String? = null
+@Embeddable
+data class OffenderSubAccountId(
+  @Column(name = "CASELOAD_ID", insertable = false, updatable = false)
+  val prisonId: String,
 
-  @Id
   @Column(name = "OFFENDER_ID", nullable = false, insertable = false, updatable = false)
-  private var offenderId: Long? = null
+  val offenderId: Long,
 
-  @Id
   @Column(name = "TRUST_ACCOUNT_CODE", nullable = false, insertable = false, updatable = false)
-  private var accountCode: Long? = null
+  val accountCode: Long,
+) : Serializable
+
+@Entity
+@Table(name = "OFFENDER_SUB_ACCOUNTS")
+@EntityOpen
+class OffenderSubAccount(
+
+  @EmbeddedId
+  val id: OffenderSubAccountId,
 
   @Column(name = "BALANCE", nullable = false)
-  private var balance: BigDecimal? = null
-
-  @EqualsAndHashCode
-  @NoArgsConstructor
-  @AllArgsConstructor
-  @ToString
-  class Pk : Serializable {
-    private var prisonId: String? = null
-    private var offenderId: Long? = null
-    private var accountCode: Long? = null
+  var balance: BigDecimal,
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as OffenderSubAccount
+    return id == other.id
   }
+
+  override fun hashCode(): Int = this.javaClass.hashCode()
 }
