@@ -12,7 +12,7 @@ import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
@@ -167,7 +167,7 @@ class FinanceService(
     }
 
     val optionalOffenderSubAccount = offenderSubAccountRepository.findById(
-      OffenderSubAccount.Pk(prisonId, booking.rootOffender.id, subActTypeDr),
+      OffenderSubAccountId(prisonId, booking.rootOffender.id, subActTypeDr),
     )
     if (optionalOffenderSubAccount.isEmpty) {
       throw ValidationException("Offender sub account not found")
