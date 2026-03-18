@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude
 import com.fasterxml.jackson.annotation.JsonProperty
 import com.fasterxml.jackson.annotation.JsonPropertyOrder
 import io.swagger.v3.oas.annotations.media.Schema
-import jakarta.validation.constraints.NotNull
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
 import java.math.BigDecimal
@@ -19,20 +18,18 @@ data class CreateTransaction(
     description = "Valid transaction type for the prison_id",
     example = "CANT",
     allowableValues = ["CANT", "REFND", "PHONE", "MRPR", "MTDS", "DTDS", "CASHD", "RELA", "RELS"],
+    required = true,
   )
-  @field:NotNull
   val type: String,
 
-  @Schema(description = "Description of the Transaction", example = "Canteen Purchase of £16.34")
+  @Schema(description = "Description of the Transaction", example = "Canteen Purchase of £16.34", required = true)
   @field:Size(max = 240)
   val description: String,
 
-  @Schema(description = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634")
-  @field:NotNull
+  @Schema(description = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634", required = true)
   val amount: Long,
 
-  @Schema(description = "Client Transaction Id", example = "CL123212")
-  @field:NotNull
+  @Schema(description = "Client Transaction Id", example = "CL123212", required = true)
   @field:Size(max = 12)
   @JsonProperty(value = "client_transaction_id")
   val clientTransactionId: String,
@@ -41,9 +38,9 @@ data class CreateTransaction(
   @Schema(
     description = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
     example = "CLIENT121131-0_11",
+    required = true,
   )
   @field:Size(max = 64)
-  @field:NotNull
   @field:Pattern(regexp = "[a-zA-Z0-9-_]+")
   val clientUniqueRef: String,
 ) {
