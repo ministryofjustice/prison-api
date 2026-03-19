@@ -101,6 +101,7 @@ class PrisonerSearchService(
           languages = findLanguages(detail.bookingId),
           imageId = detail.facialImageId,
           militaryRecord = true == booking?.militaryRecords?.isNotEmpty(),
+          timestamp = LocalDateTime.now(),
         )
       }
   }

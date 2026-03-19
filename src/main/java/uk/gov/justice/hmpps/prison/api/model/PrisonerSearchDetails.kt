@@ -158,4 +158,7 @@ data class PrisonerSearchDetails(
 
   @Schema(description = "true if the prisoner has a military record, i.e. any data in OFFENDER_MILITARY_RECORDS")
   val militaryRecord: Boolean? = null,
+
+  @Schema(description = "The time this data was obtained from Nomis, typically a just a few ms before now()")
+  val timestamp: LocalDateTime,
 )
