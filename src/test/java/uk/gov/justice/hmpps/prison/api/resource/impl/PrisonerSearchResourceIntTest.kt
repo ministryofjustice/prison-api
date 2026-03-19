@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
+import org.assertj.core.api.Assertions.within
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
 import java.time.LocalDate
 import java.time.LocalDateTime
+import java.time.temporal.ChronoUnit
 
 class PrisonerSearchResourceIntTest : ResourceTest() {
   @Autowired
@@ -190,6 +192,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             )
             assertThat(imageId).isEqualTo(-2)
             assertThat(militaryRecord).isTrue()
+            assertThat(timestamp).isCloseTo(LocalDateTime.now(), within(1, ChronoUnit.SECONDS))
           }
         }
     }
