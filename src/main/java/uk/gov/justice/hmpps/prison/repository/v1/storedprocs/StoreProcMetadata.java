@@ -55,6 +55,8 @@ public interface StoreProcMetadata {
 
     String P_DATE_CSR = "p_date_csr";
 
+    String P_ACCOUNT_CODE = "p_account_code";
+    String P_HOLD_NUMBER = "p_hold_number";
     String P_ACCOUNT_TYPE = "p_account_type";
     String P_FROM_DATE = "p_from_date";
     String P_TO_DATE = "p_to_date";
