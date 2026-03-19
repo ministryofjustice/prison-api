@@ -7,6 +7,7 @@ import jakarta.persistence.Entity
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
+import org.hibernate.Hibernate
 import org.hibernate.annotations.NotFound
 import org.hibernate.annotations.NotFoundAction
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
@@ -68,4 +69,13 @@ class OffenderTransaction(
 
   @Column(name = "TXN_POSTING_TYPE", nullable = false)
   var postingType: String,
-)
+) {
+  override fun equals(other: Any?): Boolean {
+    if (this === other) return true
+    if (other == null || Hibernate.getClass(this) != Hibernate.getClass(other)) return false
+    other as OffenderTransaction
+    return id == other.id
+  }
+
+  override fun hashCode(): Int = this.javaClass.hashCode()
+}

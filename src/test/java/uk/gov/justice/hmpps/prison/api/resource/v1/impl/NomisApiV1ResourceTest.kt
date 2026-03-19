@@ -66,12 +66,13 @@ class NomisApiV1ResourceTest {
         anyString(),
       ),
     ).thenReturn(TransferSP(CodeDescription.safeNullBuild("someCode", "desc"), TransactionSP("someId")))
-    val createTransaction = CreateTransaction()
-    createTransaction.amount = 1234L
-    createTransaction.clientUniqueRef = "clientRef"
-    createTransaction.description = "desc"
-    createTransaction.type = "type"
-    createTransaction.clientTransactionId = "transId"
+    val createTransaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
     val transfer = nomisApiV1Resource.transferTransaction("client", "previous", "nomis", createTransaction)
     assertThat(transfer)
       .isEqualTo(Transfer(CodeDescription.safeNullBuild("someCode", "desc"), Transaction("someId")))
@@ -91,12 +92,13 @@ class NomisApiV1ResourceTest {
         anyString(),
       ),
     ).thenReturn("someId")
-    val createTransaction = CreateTransaction()
-    createTransaction.amount = 1234L
-    createTransaction.clientUniqueRef = "clientRef"
-    createTransaction.description = "desc"
-    createTransaction.type = "type"
-    createTransaction.clientTransactionId = "transId"
+    val createTransaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
     val transfer = nomisApiV1Resource.createTransaction("client", "previous", "nomis", createTransaction, false)
     assertThat(transfer).isEqualTo(Transaction("someId"))
   }
