@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.0.6"
-  kotlin("plugin.spring") version "2.3.10"
-  kotlin("plugin.jpa") version "2.3.10"
-  kotlin("plugin.lombok") version "2.3.10"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.1.0"
+  kotlin("plugin.spring") version "2.3.20"
+  kotlin("plugin.jpa") version "2.3.20"
+  kotlin("plugin.lombok") version "2.3.20"
 }
 
 configurations {
@@ -15,10 +15,10 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.42")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.42")
+  annotationProcessor("org.projectlombok:lombok:1.18.44")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.44")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.0.2")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.0")
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -46,13 +46,13 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  compileOnly("org.projectlombok:lombok:1.18.42")
+  compileOnly("org.projectlombok:lombok:1.18.44")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.0.2")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.1.0")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -87,7 +87,7 @@ dependencies {
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.55.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.42")
+  testCompileOnly("org.projectlombok:lombok:1.18.44")
 }
 
 kotlin {

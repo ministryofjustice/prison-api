@@ -379,20 +379,38 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .jsonPath("conditions[0].conditionValue").isEqualTo("BXI")
         .jsonPath("conditions[0].blockAccess").isEqualTo("false")
 
-      // Verify splash screen was created in the database
-      val splashScreen = splashScreenRepository.findByModuleName("NEW_MODULE")
-      assertThat(splashScreen).isNotNull
-      assertThat(splashScreen!!.function).isEqualTo(aFunction)
-      assertThat(splashScreen.warningText).isEqualTo("Warning")
-      assertThat(splashScreen.blockedText).isEqualTo("Blocked")
-      assertThat(splashScreen.blockAccessType).isEqualTo(BlockAccessType.NO)
+      // Verify splash screen was created
+      webTestClient.get()
+        .uri("/api/splash-screen/NEW_MODULE")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("moduleName").isEqualTo("NEW_MODULE")
+        .jsonPath("functionName").isEqualTo(aFunction.functionName)
+        .jsonPath("function.description").isEqualTo(aFunction.description)
+        .jsonPath("warningText").isEqualTo("Warning")
+        .jsonPath("blockedText").isEqualTo("Blocked")
+        .jsonPath("blockAccessType").isEqualTo(BlockAccessType.NO)
+        .jsonPath("conditions[*].conditionType").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrder("CASELOAD")
+        }
+        .jsonPath("conditions[*].conditionValue").value<List<String>> {
+          assertThat(it).containsExactlyInAnyOrder("BXI")
+        }
 
-      // Verify condition was created in the database
-      val conditions = splashConditionRepository.findBySplashScreen(splashScreen)
-      assertThat(conditions).hasSize(1)
-      assertThat(conditions[0].conditionType).isEqualTo("CASELOAD")
-      assertThat(conditions[0].conditionValue).isEqualTo("BXI")
-      assertThat(conditions[0].blockAccess).isFalse()
+      // Verify condition was created
+      webTestClient.get()
+        .uri("/api/splash-screen/condition/CASELOAD/BXI")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].moduleName").value<List<String>> {
+          assertThat(it).containsExactly("NEW_MODULE")
+        }
     }
   }
 
@@ -525,13 +543,23 @@ class SplashScreenResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isNoContent
 
-      // Verify splash screen was deleted from the database
-      val splashScreen = splashScreenRepository.findByModuleName("OIDCHOLO")
-      assertThat(splashScreen).isNull()
+      // Verify splash screen was deleted
+      webTestClient.get()
+        .uri("/api/splash-screen/condition/CASELOAD/MDI")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$[*].moduleName").isEmpty()
 
-      // Verify conditions were deleted from the database
-      val conditions = splashConditionRepository.findAll()
-      assertThat(conditions.filter { it.splashScreen.moduleName == "OIDCHOLO" }).isEmpty()
+      // Verify conditions were deleted
+      webTestClient.get()
+        .uri("/api/splash-screen/OIDCHOLO")
+        .headers(setAuthorisation(listOf("PRISON_API__SPLASH_SCREEN__RO")))
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
     }
   }
 
