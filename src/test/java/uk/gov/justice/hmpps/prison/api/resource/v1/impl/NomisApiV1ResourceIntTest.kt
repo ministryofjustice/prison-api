@@ -216,12 +216,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun transferTransaction() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
 
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
 
@@ -241,12 +242,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun transferTransaction_unilink_role() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
 
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_UNILINK"), transaction)
 
@@ -266,12 +268,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun transferTransaction_integration_api_role() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
 
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_PRISON_API__HMPPS_INTEGRATION_API"), transaction)
 
@@ -291,12 +294,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun transferTransaction_wrong_role() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
 
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_WRONG"), transaction)
 
@@ -316,12 +320,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun transferTransaction_duplicate() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
 
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
 
@@ -335,13 +340,13 @@ class NomisApiV1ResourceIntTest : ResourceTest() {
 
   @Test
   fun createTransaction() {
-    val transaction = CreateTransaction()
-    transaction.amount = 1234L
-    transaction.clientUniqueRef = "clientRef"
-    transaction.description = "desc"
-    transaction.type = "type"
-    transaction.clientTransactionId = "transId"
-
+    val transaction = CreateTransaction(
+      amount = 1234L,
+      clientUniqueRef = "clientRef",
+      description = "desc",
+      type = "type",
+      clientTransactionId = "transId",
+    )
     val requestEntity = createHttpEntityWithBearerAuthorisationAndBody("ITAG_USER", listOf("ROLE_NOMIS_API_V1"), transaction)
 
     whenever(postTransaction.execute(any(SqlParameterSource::class.java))).thenReturn(
