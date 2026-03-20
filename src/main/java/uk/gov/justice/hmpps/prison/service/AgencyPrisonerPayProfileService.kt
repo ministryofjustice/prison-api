@@ -16,7 +16,7 @@ class AgencyPrisonerPayProfileService(
     val today = LocalDate.now()
     val agencyProfilesList = agencyPrisonerPayProfileRepository
       .findAgencyPrisonerPayProfileByAgyLocId(agencyId)
-      .filter { agy -> !agy.startDate.isAfter(today) && (agy.endDate == null || !agy.endDate.isBefore(today)) }
+      .filter { agy -> !agy.startDate.isAfter(today) && !(agy.endDate?.isBefore(today) ?: false) }
 
     if (agencyProfilesList.isEmpty()) {
       log.error("No AGY_PRISONER_PAY_PROFILES row is active for agency {} on {}", agencyId, today)
