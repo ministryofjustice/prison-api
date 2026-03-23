@@ -51,6 +51,7 @@ generic-service:
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/.*description/"
       SecRuleUpdateTargetByTag "attack-rce" "!ARGS:/text/"
       SecRuleUpdateTargetById 932150 "!ARGS:/keywords/"
+      SecRuleUpdateTargetById 932250 "!ARGS:/type/"
       # attack-injection-php is 933 range
       SecRuleUpdateTargetByTag "attack-injection-php" "!ARGS:/.*comment/"
       SecRuleUpdateTargetByTag "attack-injection-php" "!ARGS:/.*description/"
