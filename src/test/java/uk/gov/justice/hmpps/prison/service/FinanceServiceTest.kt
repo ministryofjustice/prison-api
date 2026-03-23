@@ -361,6 +361,9 @@ internal class FinanceServiceTest {
         eq(BigDecimal("12.34")),
         eq("desc"),
         any(),
+        eq("OT"),
+        eq("OTDSUBAT"),
+        eq(null),
       )
     }
     private fun createOffenderBooking(): OffenderBooking = OffenderBooking.builder()

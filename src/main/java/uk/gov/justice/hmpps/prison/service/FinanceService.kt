@@ -130,6 +130,8 @@ class FinanceService(
       transferTransaction.amountInPounds,
       transferTransaction.description,
       transferDate,
+      transactionType = "OT",
+      moduleName = "OTDSUBAT",
     )
 
     return TransferTransactionDetail.builder()
