@@ -363,7 +363,6 @@ internal class FinanceServiceTest {
         any(),
         eq("OT"),
         eq("OTDSUBAT"),
-        eq(null),
       )
     }
     private fun createOffenderBooking(): OffenderBooking = OffenderBooking.builder()
