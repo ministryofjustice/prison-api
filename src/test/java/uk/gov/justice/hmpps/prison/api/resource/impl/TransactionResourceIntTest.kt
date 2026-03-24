@@ -97,7 +97,7 @@ class TransactionResourceIntTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
           .expectBody()
-          .jsonPath("$.transactions.length()").isEqualTo(1)
+          .jsonPath("$.transactions.length()").isEqualTo(10)
           .jsonPath("$.transactions[0].id").isEqualTo("301826806-1")
           .jsonPath("$.transactions[0].type.code").isEqualTo("AD")
           .jsonPath("$.transactions[0].type.desc").isEqualTo("Open/Reopen Trust Account")
