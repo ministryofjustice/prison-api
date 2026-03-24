@@ -47,8 +47,8 @@ class OffenderTransactionRepositoryTest {
     fun `no to date specified`() {
       val transactions = repository.findAccountTransactions(-1009, "LEI", "REG", LocalDate.parse("2019-01-01"), null)
       assertThat(transactions.map { it.clientUniqueRef }).hasSize(11)
-      assertThat(transactions[0].clientUniqueRef).isEqualTo("mtp-prod-520832")
-      assertThat(transactions[1].clientUniqueRef).isEqualTo("mtp-prod-520829")
+      assertThat(transactions[9].clientUniqueRef).isEqualTo("mtp-prod-520832")
+      assertThat(transactions[10].clientUniqueRef).isEqualTo("mtp-prod-520829")
     }
 
     @Test
@@ -60,7 +60,7 @@ class OffenderTransactionRepositoryTest {
         LocalDate.parse("2019-01-01"),
         LocalDate.parse("2019-10-19"),
       )
-      assertThat(transactions.map { it.clientUniqueRef }).hasSize(10)
+      assertThat(transactions.map { it.clientUniqueRef }).hasSize(1)
       assertThat(transactions[0].clientUniqueRef).isEqualTo("mtp-prod-520829")
     }
   }

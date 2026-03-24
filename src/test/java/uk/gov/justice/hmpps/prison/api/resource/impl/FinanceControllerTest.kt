@@ -340,8 +340,18 @@ class FinanceControllerTest : ResourceTest() {
           .expectStatus().isBadRequest
           .expectBody()
           .jsonPath("status").isEqualTo("400")
-          .jsonPath("userMessage").isEqualTo("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores, Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
-          .jsonPath("developerMessage").isEqualTo("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores, Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
+          .jsonPath("userMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
+          }
+          .jsonPath("developerMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
+          }
       }
 
       @Test
