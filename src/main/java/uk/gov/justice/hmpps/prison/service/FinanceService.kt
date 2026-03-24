@@ -14,7 +14,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status.ACTIVE
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository
@@ -130,6 +130,8 @@ class FinanceService(
       transferTransaction.amountInPounds,
       transferTransaction.description,
       transferDate,
+      transactionType = "OT",
+      moduleName = "OTDSUBAT",
     )
 
     return TransferTransactionDetail.builder()
@@ -156,13 +158,13 @@ class FinanceService(
     }
 
     val optionalOffenderTrustAccount = offenderTrustAccountRepository.findById(
-      OffenderTrustAccount.Pk(prisonId, booking.rootOffender.id),
+      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
     )
 
     if (optionalOffenderTrustAccount.isEmpty) {
       throw ValidationException("Offender trust account not found")
     }
-    if (optionalOffenderTrustAccount.get().isAccountClosed) {
+    if (optionalOffenderTrustAccount.get().accountClosed) {
       throw ValidationException("Offender trust account closed")
     }
 

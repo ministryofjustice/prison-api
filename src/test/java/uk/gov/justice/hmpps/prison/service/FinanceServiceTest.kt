@@ -5,8 +5,10 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Assertions.assertThrows
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.ArgumentMatchers
+import org.mockito.ArgumentMatchers.anyBoolean
+import org.mockito.ArgumentMatchers.anyString
 import org.mockito.kotlin.any
+import org.mockito.kotlin.argThat
 import org.mockito.kotlin.eq
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
@@ -28,6 +30,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -84,23 +87,11 @@ internal class FinanceServiceTest {
 
       val offenderBooking = createOffenderBooking()
       offenderBooking.location.id = "WRONG_PRISON"
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(offenderBooking),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(offenderBooking))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -117,23 +108,11 @@ internal class FinanceServiceTest {
     fun testTransfer_offenderTrustAccountNotFound() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -150,27 +129,14 @@ internal class FinanceServiceTest {
     fun testTransfer_offenderTrustAccountClosed() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("Y").build()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount(true)))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -187,27 +153,19 @@ internal class FinanceServiceTest {
     fun testTransfer_offenderSubAccountNotFound() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
       whenever(
         accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
+          anyString(),
           eq("SPND"),
         ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
       )
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -224,30 +182,16 @@ internal class FinanceServiceTest {
     fun testTransfer_offenderSubAccountBalanceNotEnough() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
-      whenever(offenderSubAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(offenderSubAccount(balance = "12")),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
+
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -265,33 +209,19 @@ internal class FinanceServiceTest {
       val transaction = createTransferTransaction()
 
       whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
+        offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()),
       )
+        .thenReturn(Optional.of(createOffenderBooking()))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
-      whenever(offenderSubAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(offenderSubAccount()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
 
-      whenever(offenderTransactionRepository.findByClientUniqueRef(ArgumentMatchers.anyString())).thenReturn(
-        Optional.of(offenderTransaction()),
-      )
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
+
+      whenever(offenderTransactionRepository.findByClientUniqueRef(anyString())).thenReturn(Optional.of(offenderTransaction()))
 
       Assertions.assertThatThrownBy {
         financeService.transferToSavings(
@@ -308,33 +238,23 @@ internal class FinanceServiceTest {
     fun testTransfer() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
       whenever(
         accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
+          anyString(),
           eq("SPND"),
         ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      ).thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
-      whenever(offenderSubAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(offenderSubAccount()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
+
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
 
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
-      whenever(offenderTransactionRepository.findById(ArgumentMatchers.any())).thenReturn(
+      whenever(offenderTransactionRepository.findById(any())).thenReturn(
         Optional.of(
           offenderTransaction(),
         ),
@@ -350,35 +270,21 @@ internal class FinanceServiceTest {
     fun testTransfer_setClientUniqueRef() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
-      whenever(
-        accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
-          eq("SPND"),
-        ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+        .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
-      whenever(offenderSubAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(offenderSubAccount()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
+
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
 
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
       val transaction1 = offenderTransaction()
       val transaction2 = offenderTransaction()
-      whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
+      whenever(offenderTransactionRepository.findById(any()))
         .thenReturn(Optional.of(transaction1))
         .thenReturn(Optional.of(transaction2))
 
@@ -393,36 +299,23 @@ internal class FinanceServiceTest {
     fun testTransfer_verifyCalls() {
       val transaction = createTransferTransaction()
 
-      whenever(
-        offenderBookingRepository.findByOffenderNomsIdAndActive(
-          ArgumentMatchers.anyString(),
-          ArgumentMatchers.anyBoolean(),
-        ),
-      ).thenReturn(
-        Optional.of(createOffenderBooking()),
-      )
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), anyBoolean()))
+        .thenReturn(Optional.of(createOffenderBooking()))
 
       whenever(
         accountCodeRepository.findByCaseLoadTypeAndSubAccountType(
-          ArgumentMatchers.anyString(),
+          anyString(),
           eq("SPND"),
         ),
-      ).thenReturn(
-        Optional.of(AccountCode.builder().accountCode(2101L).build()),
-      )
+      ).thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
 
-      whenever(offenderTrustAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(OffenderTrustAccount.builder().accountClosedFlag("N").build()),
-      )
-      whenever(offenderSubAccountRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(offenderSubAccount()),
-      )
+      whenever(offenderTrustAccountRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTrustAccount()))
 
-      whenever(offenderTransactionRepository.findById(ArgumentMatchers.any())).thenReturn(
-        Optional.of(
-          offenderTransaction(),
-        ),
-      )
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
+
+      whenever(offenderTransactionRepository.findById(any()))
+        .thenReturn(Optional.of(offenderTransaction()))
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
 
       financeService.transferToSavings("LEI", "AA2134", transaction, "1234")
@@ -430,7 +323,7 @@ internal class FinanceServiceTest {
       verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
       verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
 
-      verify(offenderTrustAccountRepository).findById(OffenderTrustAccount.Pk("LEI", 12L))
+      verify(offenderTrustAccountRepository).findById(argThat { prisonId == "LEI" && offenderId == 12L })
       verify(offenderSubAccountRepository).findById(OffenderSubAccountId("LEI", 12L, 2101L))
 
       verify(financeRepository).insertIntoOffenderTrans(
@@ -468,6 +361,8 @@ internal class FinanceServiceTest {
         eq(BigDecimal("12.34")),
         eq("desc"),
         any(),
+        eq("OT"),
+        eq("OTDSUBAT"),
       )
     }
     private fun createOffenderBooking(): OffenderBooking = OffenderBooking.builder()
@@ -639,4 +534,9 @@ fun offenderTransaction(
   entryDescription = null,
   entryAmount = BigDecimal.TEN,
   postingType = "CR",
+)
+
+fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
+  id = OffenderTrustAccountId("ASI", 1L),
+  accountClosed = accountClosed,
 )

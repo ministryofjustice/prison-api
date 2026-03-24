@@ -79,23 +79,25 @@ class FinanceRepository(
     offId: Long,
     offBookId: Long,
     subActTypeDr: String,
-    subActTypeCr: String,
+    subActTypeCr: String? = null,
     transNumber: Long,
     transSeq: Long,
     transAmount: BigDecimal,
     transDesc: String,
     transDate: Date,
+    transactionType: String,
+    moduleName: String,
   ) {
     val params = MapSqlParameterSource()
       .addValue("p_csld_id", prisonId)
-      .addValue("p_trans_type", "OT")
+      .addValue("p_trans_type", transactionType)
       .addValue("p_operation_type", null)
       .addValue("p_trans_amount", transAmount)
       .addValue("p_trans_number", transNumber)
       .addValue("p_trans_date", transDate)
       .addValue("p_trans_desc", transDesc)
       .addValue("p_trans_seq", transSeq)
-      .addValue("p_module_name", "OTDSUBAT")
+      .addValue("p_module_name", moduleName)
       .addValue("p_off_id", offId)
       .addValue("p_off_book_id", offBookId)
       .addValue("p_sub_act_type_dr", subActTypeDr)
