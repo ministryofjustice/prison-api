@@ -24,5 +24,6 @@ class OffenderSubAccountRepositoryTest {
       repository.findById(OffenderSubAccountId("LEI", -1001L, 2101L))
 
     assertThat(optionalOffenderSubAccount.get().balance).isEqualTo(BigDecimal("1.24"))
+    assertThat(optionalOffenderSubAccount.get().holdBalance).isEqualTo(BigDecimal("2.23"))
   }
 }

@@ -12,13 +12,13 @@ import java.math.BigDecimal
 
 @Embeddable
 data class OffenderSubAccountId(
-  @Column(name = "CASELOAD_ID", insertable = false, updatable = false)
+  @Column(name = "CASELOAD_ID", insertable = false)
   val prisonId: String,
 
-  @Column(name = "OFFENDER_ID", nullable = false, insertable = false, updatable = false)
+  @Column(name = "OFFENDER_ID", nullable = false)
   val offenderId: Long,
 
-  @Column(name = "TRUST_ACCOUNT_CODE", nullable = false, insertable = false, updatable = false)
+  @Column(name = "TRUST_ACCOUNT_CODE", nullable = false)
   val accountCode: Long,
 ) : Serializable
 
@@ -32,6 +32,9 @@ class OffenderSubAccount(
 
   @Column(name = "BALANCE", nullable = false)
   var balance: BigDecimal,
+
+  @Column(name = "HOLD_BALANCE")
+  var holdBalance: BigDecimal? = null,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true
@@ -40,5 +43,5 @@ class OffenderSubAccount(
     return id == other.id
   }
 
-  override fun hashCode(): Int = this.javaClass.hashCode()
+  override fun hashCode(): Int = id.hashCode()
 }

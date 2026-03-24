@@ -1,6 +1,10 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
+import jakarta.persistence.LockModeType
+import jakarta.persistence.QueryHint
+import org.springframework.data.jpa.repository.Lock
 import org.springframework.data.jpa.repository.Query
+import org.springframework.data.jpa.repository.QueryHints
 import org.springframework.data.repository.CrudRepository
 import org.springframework.data.repository.query.Param
 import org.springframework.stereotype.Repository
@@ -36,4 +40,18 @@ interface OffenderTransactionRepository : CrudRepository<OffenderTransaction, Of
     @Param("p_from_date") fromDate: LocalDate,
     @Param("p_to_date") toDate: LocalDate?,
   ): MutableList<OffenderTransaction>
+
+  @Lock(LockModeType.PESSIMISTIC_WRITE)
+  @QueryHints(value = [QueryHint(name = "jakarta.persistence.lock.timeout", value = "10000")])
+  @Query(
+    value = """
+        SELECT ot FROM OffenderTransaction ot
+        where ot.offenderId = :rootOffenderId
+             and ot.prisonId = :agencyLocationId
+              and ot.transactionType.type = 'HOA'
+              and ot.holdClearFlag = 'N'
+              and ot.holdNumber = :holdNumber
+    """,
+  )
+  fun findAddHoldTransactionForUpdate(rootOffenderId: Long, agencyLocationId: String, holdNumber: Long): Optional<OffenderTransaction>
 }
