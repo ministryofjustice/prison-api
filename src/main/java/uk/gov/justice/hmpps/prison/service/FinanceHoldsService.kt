@@ -70,12 +70,10 @@ class FinanceHoldsService(
       throw ValidationException("Offender trust account closed")
     }
 
-    val subAccountType = AccountCode.byCodeName(holdTransaction.accountCode).getOrElse {
-      throw ValidationException("Account code not found")
-    }.code
+    val subAccountType = AccountCode.valueOf(holdTransaction.accountCode.name).code
 
     val subAccountTypeId: Long = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType).orElseThrow {
-      ValidationException("Account code not found")
+      ValidationException("Account code ${holdTransaction.accountCode} not found")
     }.accountCode
     val transactionId = offenderTransactionRepository.getNextTransactionId()
     val holdNumber = offenderTransactionRepository.getNextTransactionId()
@@ -91,19 +89,12 @@ class FinanceHoldsService(
 
     val balance = offenderSubAccount.balance
     if (balance < transactionAmount) {
-      throw ValidationException(
-        String.format(
-          "Not enough money in offender sub account balance - %s",
-          balance.setScale(2, RoundingMode.HALF_UP),
-        ),
-      )
+      throw ValidationException("Not enough money in offender sub account balance - ${balance.setScale(2, RoundingMode.HALF_UP)}")
     }
 
     offenderTransactionRepository.findByClientUniqueRef(holdTransaction.clientUniqueRef)
       .ifPresent({
-        throw DuplicateKeyException(
-          String.format("Duplicate post - The unique_client_ref %s has been used before", holdTransaction.clientUniqueRef),
-        )
+        throw DuplicateKeyException("Duplicate post - The unique_client_ref ${holdTransaction.clientUniqueRef} has been used before")
       })
 
     val transaction = OffenderTransaction(
