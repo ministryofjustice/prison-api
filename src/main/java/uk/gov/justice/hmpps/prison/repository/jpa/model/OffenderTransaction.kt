@@ -1,6 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model
 
 import jakarta.persistence.Column
+import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
@@ -10,10 +11,12 @@ import jakarta.persistence.Table
 import org.hibernate.Hibernate
 import org.hibernate.annotations.NotFound
 import org.hibernate.annotations.NotFoundAction
+import org.hibernate.type.YesNoConverter
 import uk.gov.justice.hmpps.prison.repository.jpa.helper.EntityOpen
 import java.io.Serializable
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 
 @Embeddable
 data class OffenderTransactionId(
@@ -32,13 +35,16 @@ class OffenderTransaction(
   @EmbeddedId
   val id: OffenderTransactionId,
 
+  @Column(name = "OFFENDER_BOOK_ID")
+  val offenderBookingId: Long? = null,
+
   @Column(name = "OFFENDER_ID", nullable = false)
   var offenderId: Long,
 
   @Column(name = "CASELOAD_ID", nullable = false)
   var prisonId: String,
 
-  @Column(name = "HOLD_NUMBER", insertable = false)
+  @Column(name = "HOLD_NUMBER")
   var holdNumber: Long?,
 
   @Column(name = "HOLD_CLEAR_FLAG", nullable = false)
@@ -67,8 +73,15 @@ class OffenderTransaction(
   @Column(name = "TXN_ENTRY_AMOUNT", nullable = false)
   var entryAmount: BigDecimal,
 
+  @Column(name = "SLIP_PRINTED_FLAG", nullable = false)
+  @Convert(converter = YesNoConverter::class)
+  var slipPrintedFlag: Boolean = false,
+
   @Column(name = "TXN_POSTING_TYPE", nullable = false)
   var postingType: String,
+
+  @Column(nullable = false)
+  val modifyDate: LocalDateTime,
 ) {
   override fun equals(other: Any?): Boolean {
     if (this === other) return true

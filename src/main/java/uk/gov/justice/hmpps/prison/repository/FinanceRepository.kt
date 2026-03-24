@@ -9,6 +9,7 @@ import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper
 import uk.gov.justice.hmpps.prison.repository.sql.FinanceRepositorySql
 import uk.gov.justice.hmpps.prison.repository.storedprocs.OffenderAdminProcs.CreateTrustAccount
+import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew
 import java.math.BigDecimal
@@ -20,6 +21,7 @@ class FinanceRepository(
   private val insertIntoOffenderTrans: InsertIntoOffenderTrans,
   private val processGlTransNew: ProcessGlTransNew,
   private val createTrustAccount: CreateTrustAccount,
+  private val updateOffenderBalance: TrustProcs.UpdateOffenderBalance,
 ) : RepositoryBase() {
   private val accountMapping: MutableMap<String, FieldMapper> = ImmutableMap.Builder<String, FieldMapper>()
     .put("cash_balance", FieldMapper("cash"))
@@ -131,5 +133,29 @@ class FinanceRepository(
       .addValue("p_dest_caseload_id", destinationCaseloadId)
 
     createTrustAccount.execute(params)
+  }
+
+  fun updateOffenderBalance(
+    prisonId: String,
+    offId: Long,
+    transPostType: String,
+    subActType: String,
+    transNumber: Long,
+    transType: String,
+    transAmount: BigDecimal,
+    transDate: Date,
+  ) {
+    val params = MapSqlParameterSource()
+      .addValue("p_csld_id", prisonId)
+      .addValue("p_off_id", offId)
+      .addValue("p_trans_post_type", transPostType)
+      .addValue("p_trans_date", transDate)
+      .addValue("p_trans_number", transNumber)
+      .addValue("p_trans_type", transType)
+      .addValue("p_trans_amount", transAmount)
+      .addValue("p_sub_act_type", subActType)
+      .addValue("p_allow_overdrawn", "N")
+
+    updateOffenderBalance.execute(params)
   }
 }

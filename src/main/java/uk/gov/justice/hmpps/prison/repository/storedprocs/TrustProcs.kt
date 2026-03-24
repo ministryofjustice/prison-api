@@ -74,4 +74,27 @@ class TrustProcs {
       compile()
     }
   }
+
+  @Component
+  class UpdateOffenderBalance(dataSource: DataSource, errorCodeTranslator: NomisV1SQLErrorCodeTranslator) : SimpleJdbcCallWithExceptionTranslater(dataSource, errorCodeTranslator) {
+    init {
+      withSchemaName("OMS_OWNER")
+        .withCatalogName("TRUST")
+        .withProcedureName("update_offender_balance")
+        .withoutProcedureColumnMetaDataAccess()
+        .withNamedBinding()
+        .declareParameters(
+          SqlParameter("p_csld_id", Types.VARCHAR),
+          SqlParameter("p_off_id", Types.NUMERIC),
+          SqlParameter("p_trans_post_type", Types.VARCHAR),
+          SqlParameter("p_trans_date", Types.DATE),
+          SqlParameter("p_trans_number", Types.NUMERIC),
+          SqlParameter("p_trans_type", Types.VARCHAR),
+          SqlParameter("p_trans_amount", Types.NUMERIC),
+          SqlParameter("p_sub_act_type", Types.VARCHAR),
+          SqlParameter("p_allow_overdrawn", Types.VARCHAR),
+        )
+      compile()
+    }
+  }
 }

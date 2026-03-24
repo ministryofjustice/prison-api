@@ -41,6 +41,7 @@ import uk.gov.justice.hmpps.prison.util.MoneySupport
 import uk.gov.justice.hmpps.prison.values.Currency
 import java.math.BigDecimal
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Optional
 
 internal class FinanceServiceTest {
@@ -534,6 +535,7 @@ fun offenderTransaction(
   entryDescription = null,
   entryAmount = BigDecimal.TEN,
   postingType = "CR",
+  modifyDate = LocalDateTime.now(),
 )
 
 fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
