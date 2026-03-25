@@ -13,6 +13,7 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import uk.gov.justice.hmpps.prison.api.resource.HoldAccountCode
 import uk.gov.justice.hmpps.prison.api.resource.HoldTransaction
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AccountCode
@@ -68,10 +69,11 @@ internal class FinanceHoldsServiceTest {
 
     val transaction = HoldTransaction(
       amount = 1234L,
-      clientUniqueRef = "clientRef",
+      clientUniqueReference = "clientRef",
       description = "desc",
       clientTransactionId = "transId",
-      accountCode = "spends",
+      accountCode = HoldAccountCode.SPENDS,
+      clientName = "clientName",
     )
 
     val offender = Offender().apply {
@@ -221,7 +223,7 @@ internal class FinanceHoldsServiceTest {
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
-        }.hasMessage("Duplicate post - The unique_client_ref clientRef has been used before")
+        }.hasMessage("Duplicate post - The clientUniqueReference clientRef has been used before")
       }
     }
 
@@ -377,24 +379,5 @@ internal class FinanceHoldsServiceTest {
   private fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
     id = OffenderTrustAccountId("ASI", 1L),
     accountClosed = accountClosed,
-  )
-  fun offenderTransaction2(
-    id: OffenderTransactionId = OffenderTransactionId(1, 1),
-  ) = OffenderTransaction(
-    id = id,
-    offenderId = 1,
-    offenderBookingId = 1,
-    prisonId = "BMI",
-    holdNumber = null,
-    holdClearFlag = null,
-    subAccountType = "REG",
-    transactionType = TransactionType("CANT", "Canteen"),
-    transactionReferenceNumber = null,
-    clientUniqueRef = null,
-    entryDate = LocalDate.now(),
-    entryDescription = null,
-    entryAmount = BigDecimal.TEN,
-    modifyDate = LocalDateTime.now(),
-    postingType = "",
   )
 }

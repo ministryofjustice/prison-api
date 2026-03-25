@@ -43,7 +43,12 @@ class FinanceHoldsService(
     const val RELEASE_HOLD_TRANSACTION_TYPE = "HOR"
   }
 
-  fun addHold(prisonId: String, nomisId: String, holdTransaction: HoldTransaction, clientUniqueId: String): HoldDetails {
+  fun addHold(
+    prisonId: String,
+    nomisId: String,
+    holdTransaction: HoldTransaction,
+    clientUniqueId: String,
+  ): HoldDetails {
     val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
       .orElseThrow { EntityNotFoundException("Offender not found") }
 
@@ -70,13 +75,12 @@ class FinanceHoldsService(
       throw ValidationException("Offender trust account closed")
     }
 
-    val subAccountType = AccountCode.byCodeName(holdTransaction.accountCode).getOrElse {
-      throw ValidationException("Account code not found")
-    }.code
+    val subAccountType = AccountCode.valueOf(holdTransaction.accountCode.name).code
 
-    val subAccountTypeId: Long = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType).orElseThrow {
-      ValidationException("Account code not found")
-    }.accountCode
+    val subAccountTypeId: Long =
+      accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType).orElseThrow {
+        ValidationException("Account code ${holdTransaction.accountCode} not found")
+      }.accountCode
     val transactionId = offenderTransactionRepository.getNextTransactionId()
     val holdNumber = offenderTransactionRepository.getNextTransactionId()
     val addHoldTransactionType = transactionTypeRepository.findById(ADD_HOLD_TRANSACTION_TYPE).get()
@@ -92,19 +96,21 @@ class FinanceHoldsService(
     val balance = offenderSubAccount.balance
     if (balance < transactionAmount) {
       throw ValidationException(
-        String.format(
-          "Not enough money in offender sub account balance - %s",
-          balance.setScale(2, RoundingMode.HALF_UP),
-        ),
+        "Not enough money in offender sub account balance - ${
+          balance.setScale(
+            2,
+            RoundingMode.HALF_UP,
+          )
+        }",
       )
     }
 
-    offenderTransactionRepository.findByClientUniqueRef(holdTransaction.clientUniqueRef)
-      .ifPresent({
-        throw DuplicateKeyException(
-          String.format("Duplicate post - The unique_client_ref %s has been used before", holdTransaction.clientUniqueRef),
-        )
-      })
+    offenderTransactionRepository.findByClientUniqueRef(holdTransaction.clientUniqueReference)
+      .ifPresent(
+        {
+          throw DuplicateKeyException("Duplicate post - The clientUniqueReference ${holdTransaction.clientUniqueReference} has been used before")
+        },
+      )
 
     val transaction = OffenderTransaction(
       id = OffenderTransactionId(transactionId, 1),
