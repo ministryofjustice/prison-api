@@ -13,7 +13,6 @@ import org.mockito.kotlin.mock
 import org.mockito.kotlin.times
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
-import uk.gov.justice.hmpps.prison.api.resource.HoldAccountCode
 import uk.gov.justice.hmpps.prison.api.resource.HoldTransaction
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AccountCode
@@ -72,7 +71,6 @@ internal class FinanceHoldsServiceTest {
       clientUniqueReference = "clientRef",
       description = "desc",
       clientTransactionId = "transId",
-      accountCode = HoldAccountCode.SPENDS,
       clientName = "clientName",
     )
 

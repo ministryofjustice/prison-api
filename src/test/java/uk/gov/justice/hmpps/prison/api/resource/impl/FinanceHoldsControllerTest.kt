@@ -9,7 +9,6 @@ import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import uk.gov.justice.hmpps.prison.api.resource.HoldAccountCode
 import uk.gov.justice.hmpps.prison.api.resource.HoldTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
@@ -39,7 +38,6 @@ class FinanceHoldsControllerTest : ResourceTest() {
       clientUniqueReference = "clientRef",
       description = "desc",
       clientTransactionId = "transId",
-      accountCode = HoldAccountCode.SPENDS,
       clientName = "clientName",
     )
 
@@ -143,8 +141,10 @@ class FinanceHoldsControllerTest : ResourceTest() {
           .expectStatus().isBadRequest
           .expectBody()
           .jsonPath("status").isEqualTo("400")
-          .jsonPath("userMessage").isEqualTo("Field: description - The description must be between 1 and 240 characters")
-          .jsonPath("developerMessage").isEqualTo("Field: description - The description must be between 1 and 240 characters")
+          .jsonPath("userMessage")
+          .isEqualTo("Field: description - The description must be between 1 and 240 characters")
+          .jsonPath("developerMessage")
+          .isEqualTo("Field: description - The description must be between 1 and 240 characters")
       }
 
       @Test
@@ -160,8 +160,10 @@ class FinanceHoldsControllerTest : ResourceTest() {
           .expectStatus().isBadRequest
           .expectBody()
           .jsonPath("status").isEqualTo("400")
-          .jsonPath("userMessage").isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
-          .jsonPath("developerMessage").isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
+          .jsonPath("userMessage")
+          .isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
+          .jsonPath("developerMessage")
+          .isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
       }
 
       @Test
@@ -189,29 +191,6 @@ class FinanceHoldsControllerTest : ResourceTest() {
               .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
               .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
           }
-      }
-
-      @Test
-      fun validateTransactionAccountCode() {
-        val transaction =
-          """
-            {
-              "amount": 134,
-              "clientUniqueReference": "clientRef",
-              "description": "desc",
-              "clientTransactionId": "transId",
-              "accountCode": "fred",
-              "clientName": "clientName"
-            }
-          """.trimIndent()
-
-        webTestClient.post()
-          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
-          .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
-          .bodyValue(transaction)
-          .exchange()
-          .expectStatus().isBadRequest
       }
     }
 

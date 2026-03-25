@@ -95,9 +95,6 @@ data class HoldTransaction(
   @Min(value = 1, message = "The amount must be greater than 0")
   val amount: Long,
 
-  @Schema(description = "Account code", required = true)
-  val accountCode: HoldAccountCode,
-
   @Schema(description = "Client Transaction Id", example = "CL123212", required = true)
   @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")
   val clientTransactionId: String,
@@ -116,8 +113,6 @@ data class HoldTransaction(
   )
   val clientUniqueReference: String,
 )
-
-enum class HoldAccountCode { SPENDS, CASH }
 
 data class HoldDetails(
   val holdNumber: Long,
