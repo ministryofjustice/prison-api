@@ -86,7 +86,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "1234", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -101,7 +101,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "123ABC")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -120,7 +120,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -137,7 +137,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -154,7 +154,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -171,7 +171,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -208,7 +208,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -222,7 +222,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         .thenReturn(Optional.of(offenderTransaction()))
       webTestClient.post()
         .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(transaction)
         .exchange()
@@ -238,7 +238,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
       webTestClient.post()
         .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
         .bodyValue(transaction.copy(clientName = "clientName2"))
         .exchange()
         .expectStatus().isOk

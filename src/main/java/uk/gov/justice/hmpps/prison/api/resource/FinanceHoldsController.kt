@@ -26,7 +26,7 @@ import uk.gov.justice.hmpps.prison.util.ResourceUtils
 
 @RestController
 @Tag(name = "canteen-funds-api")
-@PreAuthorize("hasRole('PRISON_API__CANTEEN_FUNDS_API_RW')")
+@PreAuthorize("hasRole('PRISON_API__CANTEEN_FUNDS_API__RW')")
 @RequestMapping(value = [$$"${api.base.path}/finance-holds"], produces = ["application/json"])
 @Validated
 class FinanceHoldsController(
@@ -39,7 +39,7 @@ class FinanceHoldsController(
     description = """
       Add a financial hold to an offender’s account, reserving funds so that a future canteen transaction can be completed successfully.
       Used by the CMS replacement team to support canteen ordering.
-      Requires PRISON_API__CANTEEN_FUNDS_API_RW role.
+      Requires PRISON_API__CANTEEN_FUNDS_API__RW role.
       """,
   )
   @ApiResponses(
