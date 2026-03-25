@@ -94,7 +94,7 @@ kotlin {
   jvmToolchain(25)
   kotlinDaemonJvmArgs = listOf("-Xmx1g", "-Xms256m", "-XX:+UseParallelGC")
   compilerOptions {
-    freeCompilerArgs.addAll("-Xwhen-guards", "-Xannotation-default-target=param-property")
+    freeCompilerArgs.addAll("-Xannotation-default-target=param-property")
   }
 }
 
