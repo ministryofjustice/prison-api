@@ -75,12 +75,12 @@ class FinanceHoldsService(
       throw ValidationException("Offender trust account closed")
     }
 
-    val subAccountType = AccountCode.valueOf(holdTransaction.accountCode.name).code
-
-    val subAccountTypeId: Long =
-      accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType).orElseThrow {
-        ValidationException("Account code ${holdTransaction.accountCode} not found")
+    val subAccountType = AccountCode.SPENDS.code
+    val subAccountTypeId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType)
+      .orElseThrow {
+        ValidationException("Account code ${AccountCode.SPENDS.code} not found")
       }.accountCode
+
     val transactionId = offenderTransactionRepository.getNextTransactionId()
     val holdNumber = offenderTransactionRepository.getNextTransactionId()
     val addHoldTransactionType = transactionTypeRepository.findById(ADD_HOLD_TRANSACTION_TYPE).get()
