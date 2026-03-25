@@ -25,9 +25,9 @@ import uk.gov.justice.hmpps.prison.service.FinanceHoldsService
 import uk.gov.justice.hmpps.prison.util.ResourceUtils
 
 @RestController
-@Tag(name = "cms-api")
-@PreAuthorize("hasRole('NOMIS_CMS_API')")
-@RequestMapping(value = ["\${api.base.path}/finance"], produces = ["application/json"])
+@Tag(name = "canteen-funds-api")
+@PreAuthorize("hasRole('PRISON_API__CANTEEN_FUNDS_API_RW')")
+@RequestMapping(value = [$$"${api.base.path}/finance-holds"], produces = ["application/json"])
 @Validated
 class FinanceHoldsController(
   private val financeHoldsService: FinanceHoldsService,
@@ -37,21 +37,16 @@ class FinanceHoldsController(
   @Operation(
     summary = "Add a hold financial transaction to NOMIS.",
     description = """
-        Notes:<br/>
-          <ul>
-            <li>If the field X-Client-Name is present in the request header then the value is prepended to the client_unique_ref separated by a dash</li>
-            <li>The client_unique_ref can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
-          </ul>
-        <p>Requires NOMIS_CMS_API role.</p>
-        """,
+      Add a financial hold to an offender’s account, reserving funds so that a future canteen transaction can be completed successfully.
+      Used by the CMS replacement team to support canteen ordering.
+      Requires PRISON_API__CANTEEN_FUNDS_API_RW role.
+      """,
   )
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "Hold Added"),
     ApiResponse(
       responseCode = "400",
-      description = "One of: <ul><li>Insufficient Funds - The prisoner has insufficient funds in the required account to cover the cost of the debit transaction</li>" +
-        "<li>Offender not in specified prison - prisoner identified by {offenderNo} is not in prison {prisonId}</li>" +
-        "<li>Finance Exception - An unexpected error has occurred. Details will have been logged in the nomis_api_logs table on the Nomis database.</li></ul>",
+      description = "Invalid Request",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -84,7 +79,7 @@ class FinanceHoldsController(
     @Valid
     holdTransaction: HoldTransaction,
   ): HoldDetails {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueRef)
+    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
     return financeHoldsService.addHold(prisonId, offenderNo, holdTransaction, clientUniqueId)
   }
 }
@@ -119,7 +114,7 @@ data class HoldTransaction(
     regexp = "[a-zA-Z0-9-_]+",
     message = "The client unique reference can only contain letters, numbers, hyphens and underscores",
   )
-  val clientUniqueRef: String,
+  val clientUniqueReference: String,
 )
 
 enum class HoldAccountCode { SPENDS, CASH }

@@ -36,7 +36,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
   inner class AddHold {
     private val transaction = HoldTransaction(
       amount = 134L,
-      clientUniqueRef = "clientRef",
+      clientUniqueReference = "clientRef",
       description = "desc",
       clientTransactionId = "transId",
       accountCode = HoldAccountCode.SPENDS,
@@ -48,7 +48,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
       @Test
       fun `returns 401 without an auth token`() {
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(transaction)
           .exchange()
@@ -58,7 +58,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
       @Test
       fun `returns 403 when client does not have any roles`() {
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(transaction)
@@ -69,7 +69,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
       @Test
       fun `returns 403 when invalid role`() {
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .bodyValue(transaction)
@@ -84,9 +84,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
       @Test
       fun validatePrisonId() {
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "1234", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "1234", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -99,9 +99,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
       @Test
       fun validateOffenderNo() {
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "123ABC")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "123ABC")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -118,9 +118,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
         val transaction = transaction.copy(amount = 0)
 
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -135,9 +135,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
         val transaction = transaction.copy(description = "")
 
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -152,9 +152,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
         val transaction = transaction.copy(clientTransactionId = "")
 
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -165,13 +165,13 @@ class FinanceHoldsControllerTest : ResourceTest() {
       }
 
       @Test
-      fun validateTransactionClientUniqueRef() {
-        val transaction = transaction.copy(clientUniqueRef = "")
+      fun validateTransactionClientUniqueReference() {
+        val transaction = transaction.copy(clientUniqueReference = "")
 
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -180,14 +180,14 @@ class FinanceHoldsControllerTest : ResourceTest() {
           .jsonPath("userMessage")
           .value<String> { message ->
             assertThat(message)
-              .contains("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores")
-              .contains("Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
+              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
           }
           .jsonPath("developerMessage")
           .value<String> { message ->
             assertThat(message)
-              .contains("Field: clientUniqueRef - The client unique reference can only contain letters, numbers, hyphens and underscores")
-              .contains("Field: clientUniqueRef - The client unique reference must be between 1 and 64 characters")
+              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
           }
       }
 
@@ -197,7 +197,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
           """
             {
               "amount": 134,
-              "clientUniqueRef": "clientRef",
+              "clientUniqueReference": "clientRef",
               "description": "desc",
               "clientTransactionId": "transId",
               "accountCode": "fred",
@@ -206,9 +206,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
           """.trimIndent()
 
         webTestClient.post()
-          .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
           .bodyValue(transaction)
           .exchange()
           .expectStatus().isBadRequest
@@ -221,8 +221,8 @@ class FinanceHoldsControllerTest : ResourceTest() {
       whenever(offenderTransactionRepository.findById(ArgumentMatchers.any()))
         .thenReturn(Optional.of(offenderTransaction()))
       webTestClient.post()
-        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(transaction)
         .exchange()
@@ -232,21 +232,20 @@ class FinanceHoldsControllerTest : ResourceTest() {
     }
 
     @Test
-    fun setXClientNameHeader() {
+    fun setClientName() {
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
 
       webTestClient.post()
-        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .header("X-Client-Name", "clientName")
-        .headers(setClientAuthorisation(listOf("ROLE_NOMIS_CMS_API")))
-        .bodyValue(transaction)
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API_RW")))
+        .bodyValue(transaction.copy(clientName = "clientName2"))
         .exchange()
         .expectStatus().isOk
 
       verify(offenderTransactionRepository).save(
         check {
-          assertThat(it.clientUniqueRef).isEqualTo("clientName-clientRef")
+          assertThat(it.clientUniqueRef).isEqualTo("clientName2-clientRef")
         },
       )
     }
