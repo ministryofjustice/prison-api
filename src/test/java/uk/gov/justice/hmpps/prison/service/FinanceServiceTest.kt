@@ -31,6 +31,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -534,7 +535,7 @@ fun offenderTransaction(
   entryDate = LocalDate.now(),
   entryDescription = null,
   entryAmount = BigDecimal.TEN,
-  postingType = "CR",
+  postingType = PostingType.CR,
   modifyDate = LocalDateTime.now(),
 )
 

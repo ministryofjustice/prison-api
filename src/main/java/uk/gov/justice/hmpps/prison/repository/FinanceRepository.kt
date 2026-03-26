@@ -5,6 +5,7 @@ import org.springframework.beans.factory.annotation.Value
 import org.springframework.jdbc.core.namedparam.MapSqlParameterSource
 import org.springframework.stereotype.Repository
 import uk.gov.justice.hmpps.prison.api.model.Account
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.mapping.FieldMapper
 import uk.gov.justice.hmpps.prison.repository.mapping.Row2BeanRowMapper
 import uk.gov.justice.hmpps.prison.repository.sql.FinanceRepositorySql
@@ -138,7 +139,7 @@ class FinanceRepository(
   fun updateOffenderBalance(
     prisonId: String,
     offId: Long,
-    transPostType: String,
+    transPostType: PostingType,
     subActType: String,
     transNumber: Long,
     transType: String,
@@ -148,7 +149,7 @@ class FinanceRepository(
     val params = MapSqlParameterSource()
       .addValue("p_csld_id", prisonId)
       .addValue("p_off_id", offId)
-      .addValue("p_trans_post_type", transPostType)
+      .addValue("p_trans_post_type", transPostType.name)
       .addValue("p_trans_date", transDate)
       .addValue("p_trans_number", transNumber)
       .addValue("p_trans_type", transType)
