@@ -5,6 +5,8 @@ import jakarta.persistence.Convert
 import jakarta.persistence.Embeddable
 import jakarta.persistence.EmbeddedId
 import jakarta.persistence.Entity
+import jakarta.persistence.EnumType
+import jakarta.persistence.Enumerated
 import jakarta.persistence.JoinColumn
 import jakarta.persistence.ManyToOne
 import jakarta.persistence.Table
@@ -78,7 +80,8 @@ class OffenderTransaction(
   var slipPrintedFlag: Boolean = false,
 
   @Column(name = "TXN_POSTING_TYPE", nullable = false)
-  var postingType: String,
+  @Enumerated(EnumType.STRING)
+  val postingType: PostingType,
 
   @Column(nullable = false)
   val modifyDate: LocalDateTime,
@@ -92,3 +95,5 @@ class OffenderTransaction(
 
   override fun hashCode(): Int = this.javaClass.hashCode()
 }
+
+enum class PostingType { CR, DR }

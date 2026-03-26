@@ -95,7 +95,7 @@ public class OffenderTransactionHistoryService {
     private void validate(final String offenderNo, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
         checkNotNull(offenderNo, "offenderNo can't be null");
 
-        if (accountCode != null) checkState(AccountCode.exists(accountCode), "Unknown account-code " + accountCode);
+        if (accountCode != null) checkState(AccountCode.Companion.exists(accountCode), "Unknown account-code " + accountCode);
 
         if (fromDate != null && toDate != null) {
             final var now = LocalDate.now();
@@ -108,7 +108,7 @@ public class OffenderTransactionHistoryService {
 
     private List<OffenderTransactionHistory> getAllTransactionsWithRunningBalance(final String offenderNo) {
         final var transactions = historyRepository
-            .findByOffender_NomsId(offenderNo)
+            .findByOffenderNomsId(offenderNo)
             .stream()
             .sorted(SORT_BY_OLDEST_DATE)
             .collect(groupingBy(transaction -> Pair.of(transaction.getAgencyId(), transaction.getAccountType())));
@@ -144,13 +144,12 @@ public class OffenderTransactionHistoryService {
     }
 
     private Predicate<OffenderTransactionHistory> byAccountCode(final String accountCode) {
-        final var accountCodeValue =
-            Optional.ofNullable(accountCode)
-                .flatMap(AccountCode::byCodeName)
-                .map(optionalCode -> optionalCode.code)
-                .orElse(null);
+        final String accountCodeValue = Optional.ofNullable(accountCode)
+            .map(AccountCode.Companion::byCodeName)
+            .map(AccountCode::getCode)
+            .orElse(null);
 
-        return entry -> (accountCode == null || entry.getAccountType().equals(accountCodeValue));
+        return entry -> accountCode == null || entry.getAccountType().equals(accountCodeValue);
     }
 
     private OffenderTransactionHistory enrichRelatedTransactionsWithCurrentBalance(final OffenderTransactionHistory offenderTransactionHistory) {

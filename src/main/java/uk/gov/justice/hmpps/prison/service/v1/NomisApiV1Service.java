@@ -54,6 +54,7 @@ import uk.gov.justice.hmpps.prison.repository.v1.model.OffenderSP;
 import uk.gov.justice.hmpps.prison.repository.v1.model.TransferSP;
 import uk.gov.justice.hmpps.prison.repository.v1.model.UnavailabilityReasonSP;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
+import uk.gov.justice.hmpps.prison.values.AccountCode;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -70,7 +71,6 @@ import java.util.stream.Collectors;
 import static java.time.format.DateTimeFormatter.ofPattern;
 import static org.apache.commons.lang3.StringUtils.defaultIfBlank;
 import static uk.gov.justice.hmpps.prison.util.MoneySupport.poundsToPence;
-import static uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty;
 
 @Slf4j
 @Service
@@ -310,11 +310,15 @@ public class NomisApiV1Service {
     }
 
     public List<AccountTransaction> getAccountTransactions(final String prisonId, final String nomsId, final String accountCode, final LocalDate fromDate, final LocalDate toDate) {
-        final var accountType = codeForNameOrEmpty(accountCode).orElseThrow(
-            () -> new HttpClientErrorException(HttpStatus.BAD_REQUEST, "Invalid account_code supplied. Should be one of cash, spends or savings")
-        );
+        final var accountType = AccountCode.Companion.byCodeName(accountCode);
+        if (accountType == null) {
+            throw new HttpClientErrorException(
+                HttpStatus.BAD_REQUEST,
+                "Invalid account_code supplied. Should be one of cash, spends or savings"
+            );
+        }
 
-        return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType, fromDate, toDate)
+        return financeV1Repository.getAccountTransactions(prisonId, nomsId, accountType.getCode(), fromDate, toDate)
                 .stream()
                 .map(t -> AccountTransaction.builder()
                         .id(t.getTxnId() + "-" + t.getTxnEntrySeq())
