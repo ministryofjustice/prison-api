@@ -57,7 +57,7 @@ class TransactionsResource(private val transactionsService: TransactionsService)
   @Tag(name = "integration-api")
   @Tag(name = "unilink")
   @PreAuthorize("hasAnyRole('UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API')")
-  fun getAccountTransactions(
+  fun getPrisonerAccountTransactions(
     @PathVariable("prison_id") @Parameter(
       name = "prison_id",
       description = "Prison ID",

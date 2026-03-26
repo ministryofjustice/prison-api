@@ -139,7 +139,7 @@ class DistinguishingMarkResource(
   )
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/photo/{photoId}")
-  fun getImage(
+  fun getImageForDistinguishingMark(
     @PathVariable("photoId") @Parameter(
       description = "The id of the image",
       required = true,

@@ -228,7 +228,7 @@ public class OffenderSentenceResource {
     @Tag(name = "integration-api")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
-    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetails(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetailsByBookingId(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
     }
 
@@ -239,7 +239,7 @@ public class OffenderSentenceResource {
     @Tag(name = "integration-api")
     @PostMapping("/bookings/sentence-and-recall-types")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    public List<BookingSentenceAndRecallTypes> getSentenceAndOffenceDetails(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final Set<Long> bookingIds) {
+    public List<BookingSentenceAndRecallTypes> getSentenceAndOffenceDetailsByBookingIds(@RequestBody @Parameter(description = "The required booking ids (mandatory)", required = true) final Set<Long> bookingIds) {
         return bookingService.getSentenceAndRecallTypes(bookingIds);
     }
 

@@ -100,7 +100,7 @@ public class MovementResource {
     @Operation(summary = "Information on offenders in today.", description = "Information on offenders in on given date.")
     @VerifyAgencyAccess
     @GetMapping("/{agencyId}/in/{isoDate}")
-    public List<OffenderIn> getMovementsIn(
+    public List<OffenderIn> getMovementsInToday(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
         @PathVariable("isoDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "date", required = true) final LocalDate date) {
         return movementsService.getOffendersIn(agencyId, date);
@@ -115,7 +115,7 @@ public class MovementResource {
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/in")
     @SlowReportQuery
-    public ResponseEntity<List<OffenderIn>> getMovementsIn(
+    public ResponseEntity<List<OffenderIn>> getMovementsInByTimePeriod(
         @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "allMovements", required = false, defaultValue = "false") @Parameter(description = "Returns movements for inactive prisoners") final boolean allMovements,
         @RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "fromDateTime", required = true) final LocalDateTime fromDate,
@@ -218,7 +218,7 @@ public class MovementResource {
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
     @SlowReportQuery
-    public List<OffenderOut> getOffendersCurrentlyOut(@PathVariable("livingUnitId") @Parameter(description = "The identifier of a living unit, otherwise known as an internal location.", required = true) final Long livingUnitId) {
+    public List<OffenderOut> getOffendersCurrentlyOutByLivingUnit(@PathVariable("livingUnitId") @Parameter(description = "The identifier of a living unit, otherwise known as an internal location.", required = true) final Long livingUnitId) {
         return movementsService.getOffendersCurrentlyOut(livingUnitId); //not covered by tests ??
     }
 
@@ -230,7 +230,7 @@ public class MovementResource {
     @Operation(summary = "Information on offenders currently out.", description = "Requires role ESTABLISHMENT_ROLL.")
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/agency/{agencyId}/currently-out")
-    public List<OffenderOut> getOffendersCurrentlyOut(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
+    public List<OffenderOut> getOffendersCurrentlyOutByPrison(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersCurrentlyOut(agencyId); //not covered by tests ??
     }
 
@@ -292,7 +292,7 @@ public class MovementResource {
     @Operation(summary = "Get the date of the latest arrival into prison for the offender")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNumber}/latest-arrival-date")
-    public ResponseEntity<LocalDate> getLatestArrivalDate(
+    public ResponseEntity<LocalDate> getLatestArrivalDateForPrisoner(
         @PathVariable("offenderNumber")
         @Parameter(description = "The offender number", required = true) final String offenderNumber) {
         Optional<LocalDate> arrivalDate = movementsService.getLatestArrivalDate(offenderNumber);
@@ -305,7 +305,7 @@ public class MovementResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PostMapping("/offenders/latest-arrival-date")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
-    public ResponseEntity<List<OffenderLatestArrivalDate>> getLatestArrivalDate(
+    public ResponseEntity<List<OffenderLatestArrivalDate>> getLatestArrivalDateForPrisoners(
         @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNumbers
     ) {
         List<OffenderLatestArrivalDate> latestArrivalDates = movementsService.getLatestArrivalDates(offenderNumbers);

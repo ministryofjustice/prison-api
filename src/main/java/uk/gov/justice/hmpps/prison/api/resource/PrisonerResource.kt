@@ -61,7 +61,7 @@ class PrisonerResource(
   @GetMapping
   @PreAuthorize("hasRole('GLOBAL_SEARCH')")
   @SlowReportQuery
-  fun getPrisoners(
+  fun getPrisonersByGetRequest(
     @RequestParam(value = "includeAliases", required = false, defaultValue = "false")
     @Parameter(description = "If true the result set should include a row for every matched alias.  If the request includes some combination of firstName, lastName and dateOfBirth then this will be a subset of the OFFENDERS records for one or more offenders. Otherwise it will be every OFFENDERS record for each match on the other search criteria. Default is false.")
     includeAliases: Boolean,
@@ -187,7 +187,7 @@ class PrisonerResource(
   @PostMapping
   @PreAuthorize("hasRole('GLOBAL_SEARCH')")
   @SlowReportQuery
-  fun getPrisoners(
+  fun getPrisonersByPostRequest(
     @RequestBody
     @Parameter(required = true)
     criteria: PrisonerDetailSearchCriteria,

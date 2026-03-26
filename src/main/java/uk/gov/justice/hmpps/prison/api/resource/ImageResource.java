@@ -82,7 +82,7 @@ public class ImageResource {
     @Operation(summary = "Image detail (with image data).", description = "Requires role VIEW_PRISONER_DATA.")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/{imageId}")
-    public ImageDetail getImage(@PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId) {
+    public ImageDetail getPrisonerImage(@PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId) {
         return imageService.findImageDetail(imageId);
     }
 

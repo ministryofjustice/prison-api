@@ -155,7 +155,7 @@ public class OffenderResource {
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
-    public InmateDetail getOffender(
+    public InmateDetail getOffenderDetail(
         @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true, false);
     }
@@ -766,7 +766,7 @@ public class OffenderResource {
     )
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/events")
-    public List<ScheduledEvent> getEvents(
+    public List<ScheduledEvent> getEventsByPrisonNumber(
         @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
         @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate fromDate,
         @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate toDate) {

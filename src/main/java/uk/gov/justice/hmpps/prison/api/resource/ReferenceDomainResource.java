@@ -86,7 +86,7 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}/codes")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-    public List<ReferenceCode> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
+    public List<ReferenceCode> getReferenceCodesByDomainUnpaged(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
         return referenceDomainService.getReferenceCodesByDomain(domain);
     }
 

@@ -245,7 +245,7 @@ public class BookingResource {
     @PreAuthorize("hasRole('PAY')")
     @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo,
+    public ResponseEntity<Void> updateAttendanceByPrisonNumber(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo,
                                                  @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
                                                  @RequestBody @Parameter(required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull final UpdateAttendance updateAttendance) {
         bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
@@ -263,7 +263,7 @@ public class BookingResource {
     @PreAuthorize("hasRole('PAY')")
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ProxyUser
-    public ResponseEntity<Void> updateAttendance(
+    public ResponseEntity<Void> updateAttendanceByBooking(
         @NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
         @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
         @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
@@ -324,7 +324,7 @@ public class BookingResource {
     @Operation(summary = "Assessment Information", description = "Assessment Information. Requires booking access (via caseload) or VIEW_ASSESSMENTS role.")
     @GetMapping("/{bookingId}/assessments")
     @VerifyBookingAccess(overrideRoles = {"VIEW_ASSESSMENTS"})
-    public List<Assessment> getAssessments(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<Assessment> getAssessmentsByBookingId(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return inmateService.getAssessments(bookingId);
     }
 
@@ -449,7 +449,7 @@ public class BookingResource {
     @Operation(summary = "Personal Care Needs", description = "Personal Care Need. Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/{bookingId}/personal-care-needs")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public PersonalCareNeeds getPersonalCareNeeds(
+    public PersonalCareNeeds getPersonalCareNeedsByBooking(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
     ) {
@@ -481,7 +481,7 @@ public class BookingResource {
     @Operation(summary = "Personal Care Needs  - POST version to allow for large numbers of offenders", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH")
     @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
     @PostMapping("/offenderNo/personal-care-needs")
-    public List<PersonalCareNeeds> getPersonalCareNeeds(
+    public List<PersonalCareNeeds> getPersonalCareNeedsByPrisonNumbers(
         @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
     ) {
@@ -589,7 +589,7 @@ public class BookingResource {
     @Operation(summary = "All scheduled events for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events")
-    public List<ScheduledEvent> getEvents(
+    public List<ScheduledEvent> getEventsByBookingId(
         @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
@@ -780,7 +780,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/cell-history")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA", "MAINTAIN_CELL_MOVEMENTS"})
     @SlowReportQuery
-    public Page<BedAssignment> getBedAssignmentsHistory(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
+    public Page<BedAssignment> getBedAssignmentsHistoryByBookingId(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
                                                         @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
                                                         @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {
         final var pageIndex = page != null ? page : 0;

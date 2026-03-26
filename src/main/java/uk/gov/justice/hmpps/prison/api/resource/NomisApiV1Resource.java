@@ -82,7 +82,7 @@ public class NomisApiV1Resource {
     @Operation(summary = "Returns general offender information.")
     @GetMapping("/offenders/{noms_id}")
     @SlowReportQuery
-    public Offender getOffender(@PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms ID", example = "A1417AE", required = true) @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
+    public Offender getGeneralOffenderDetail(@PathVariable("noms_id") @Parameter(name = "noms_id", description = "Offender Noms ID", example = "A1417AE", required = true) @NotNull @Pattern(regexp = NOMS_ID_REGEX_PATTERN) final String nomsId) {
         return service.getOffender(nomsId);
     }
 
