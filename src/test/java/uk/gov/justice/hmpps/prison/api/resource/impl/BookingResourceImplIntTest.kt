@@ -9,6 +9,7 @@ import org.mockito.Mockito.verify
 import org.mockito.kotlin.whenever
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
@@ -157,9 +158,13 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun personalCareNeeds_missingProblemType() {
-      val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-      val responseEntity = testRestTemplate.exchange("/api/bookings/-1/personal-care-needs", GET, requestEntity, String::class.java)
-      assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json")
+      webTestClient.get().uri("/api/bookings/-1/personal-care-needs")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").isEqualTo("getPersonalCareNeedsByBooking.problemTypes: type: must not be empty")
     }
   }
 
@@ -197,18 +202,26 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun postPersonalCareNeedsForOffenders_missingOffenders() {
-      val requestEntity =
-        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), emptyList<String>())
-      val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT", POST, requestEntity, String::class.java)
-      assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_offender_validation.json")
+      webTestClient.post().uri("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT")
+        .headers(setAuthorisation("ITAG_USER", listOf("GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue("[]")
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").isEqualTo("getPersonalCareNeedsByPrisonNumbers.offenderNos: offenderNo: must not be empty")
     }
 
     @Test
     fun postPersonalCareNeedsForOffenders_missingProblemType() {
-      val requestEntity =
-        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
-      val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs", POST, requestEntity, String::class.java)
-      assertThatJsonFileAndStatus(responseEntity, 400, "personalcareneeds_validation.json")
+      webTestClient.post().uri("/api/bookings/offenderNo/personal-care-needs")
+        .headers(setAuthorisation("ITAG_USER", listOf("GLOBAL_SEARCH")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(listOf("A1234AA", "A1234AB", "A1234AC"))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("$.userMessage").isEqualTo("getPersonalCareNeedsByPrisonNumbers.problemTypes: type: must not be empty")
     }
 
     @Test

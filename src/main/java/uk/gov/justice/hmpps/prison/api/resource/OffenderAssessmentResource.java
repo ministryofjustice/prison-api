@@ -151,7 +151,7 @@ public class OffenderAssessmentResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/assessments")
     @SlowReportQuery
-    public List<Assessment> getAssessments(
+    public List<Assessment> getAssessmentsByListOfPrisoners(
         @RequestParam("offenderNo") @Parameter(description = "The required offender numbers Ids (mandatory)", required = true) @NotEmpty(message = "List of Offender Ids must be provided.") final List<String> offenderList,
         @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,

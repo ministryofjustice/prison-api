@@ -125,7 +125,7 @@ class NomisApiV1ResourceTest {
   fun offenderDetail() {
     whenever(service.getOffender(anyString()))
       .thenReturn(Offender.builder().nomsId("A1404AE").build())
-    val offender = nomisApiV1Resource.getOffender("A1404AE")
+    val offender = nomisApiV1Resource.getGeneralOffenderDetail("A1404AE")
     assertThat(offender).extracting { obj: Offender -> obj.nomsId }
       .isEqualTo("A1404AE")
     verify(service).getOffender(anyString())

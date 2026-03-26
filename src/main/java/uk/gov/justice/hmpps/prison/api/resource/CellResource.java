@@ -47,7 +47,7 @@ public class CellResource {
     @GetMapping("/{locationId}/history")
     @PreAuthorize("hasRole('MAINTAIN_CELL_MOVEMENTS')")
     @SlowReportQuery
-    public List<BedAssignment> getBedAssignmentsHistory(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId,
+    public List<BedAssignment> getBedAssignmentsHistoryByLocationId(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId,
                                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime,
                                                         @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
         return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDateTime, toDateTime);
