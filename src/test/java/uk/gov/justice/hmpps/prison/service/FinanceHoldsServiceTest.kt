@@ -60,11 +60,16 @@ internal class FinanceHoldsServiceTest {
     offenderRepository,
     transactionTypeRepository,
   )
+  val rootOffenderId1 = 345L
+  val prisonNumber = "AA2134"
+  val rootOffender = Offender().apply {
+    id = rootOffenderId1
+    rootOffenderId = rootOffenderId1
+    nomsId = prisonNumber
+  }
 
   @Nested
   inner class AddHold {
-    val prisonNumber = "AA2134"
-    val rootOffenderId1 = 345L
     val transactionId1 = 5454L
     val transactionId2 = 6565L
 
@@ -75,12 +80,6 @@ internal class FinanceHoldsServiceTest {
       clientTransactionId = "transId",
       clientName = "clientName",
     )
-
-    val rootOffender = Offender().apply {
-      id = rootOffenderId1
-      rootOffenderId = rootOffenderId1
-      nomsId = prisonNumber
-    }
 
     @Nested
     inner class Validation {
@@ -94,7 +93,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderBookingNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
+        mockFindOffender()
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", prisonNumber, transaction, "clientId")
         }
@@ -103,10 +102,10 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun wrongPrison() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
-
-        val offenderBooking = createOffenderBooking()
-        offenderBooking.location.id = "WRONG_PRISON"
+        mockFindOffender()
+        val offenderBooking = createOffenderBooking().apply {
+          location.id = "WRONG_PRISON"
+        }
         whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
           .thenReturn(Optional.of(offenderBooking))
 
@@ -118,14 +117,9 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockAccountCode()
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
@@ -135,16 +129,10 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountClosed() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount(true)))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockAccountCode()
+        mockTrustAccount(closed = true)
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
@@ -154,20 +142,11 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount()))
-
-        whenever(transactionTypeRepository.findById("HOA"))
-          .thenReturn(Optional.of(TransactionType("HOA", "Add Hold")))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockAccountCode()
+        mockTrustAccount()
+        mockFindAddHoldType()
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
@@ -177,22 +156,12 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountBalanceNotEnough() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount()))
-        whenever(offenderSubAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderSubAccount(balance = "12")))
-
-        whenever(transactionTypeRepository.findById("HOA"))
-          .thenReturn(Optional.of(TransactionType("HOA", "Add Hold")))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockAccountCode()
+        mockTrustAccount()
+        mockSubAccount(balance = "12")
+        mockFindAddHoldType()
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
@@ -201,29 +170,63 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun clientUniqueRefAlreadyUsed() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount()))
-        whenever(offenderSubAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderSubAccount()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.of(offenderTransaction()))
-
-        whenever(transactionTypeRepository.findById("HOA"))
-          .thenReturn(Optional.of(TransactionType("HOA", "Add Hold")))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockAccountCode()
+        mockTrustAccount()
+        mockSubAccount()
+        mockClientRefDuplicate()
+        mockFindAddHoldType()
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
         }.hasMessage("Duplicate post - The clientUniqueReference clientRef has been used before")
+      }
+
+      @Test
+      fun subAccountHoldBalanceDoesNotExist() {
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockTrustAccount()
+        mockAccountCode()
+        mockFindAddHoldType()
+        mockSubAccount()
+        mockClientRefNotExists()
+        mockGetNextTransactionIdTwice()
+
+        whenever(offenderTransactionRepository.save(any<OffenderTransaction>())).thenReturn(
+          offenderTransaction(),
+        )
+
+        financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
+      }
+
+      @Test
+      fun trustAccountHoldBalanceDoesNotExist() {
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockTrustAccount()
+
+        mockAccountCode()
+
+        mockFindAddHoldType()
+        whenever(offenderSubAccountRepository.findById(any()))
+          .thenReturn(
+            Optional.of(
+              OffenderSubAccount(
+                OffenderSubAccountId("ASI", 1, 2101),
+                balance = BigDecimal("12.34"),
+                holdBalance = null,
+              ),
+            ),
+          )
+        mockClientRefNotExists()
+        mockGetNextTransactionIdTwice()
+
+        whenever(offenderTransactionRepository.save(any<OffenderTransaction>())).thenReturn(
+          offenderTransaction(),
+        )
+        financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
       }
     }
 
@@ -232,28 +235,14 @@ internal class FinanceHoldsServiceTest {
 
       @BeforeEach
       fun setup() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount()))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(transactionTypeRepository.findById("HOA"))
-          .thenReturn(Optional.of(TransactionType("HOA", "Add Hold")))
-
-        whenever(offenderSubAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderSubAccount()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.empty())
-
-        whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(transactionId1).thenReturn(transactionId2)
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockTrustAccount()
+        mockAccountCode()
+        mockFindAddHoldType()
+        mockSubAccount()
+        mockClientRefNotExists()
+        mockGetNextTransactionIdTwice()
 
         whenever(offenderTransactionRepository.save(any<OffenderTransaction>())).thenReturn(
           offenderTransaction(),
@@ -293,6 +282,14 @@ internal class FinanceHoldsServiceTest {
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
 
+        verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
+
+        verify(offenderTransactionRepository, times(2)).getNextTransactionId()
+
+        verify(transactionTypeRepository).findById("HOA")
+
+        verify(offenderSubAccountRepository).findById(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
+
         verify(offenderTrustAccountRepository).findById(
 
           check {
@@ -300,14 +297,6 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
           },
         )
-
-        verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
-        verify(offenderTransactionRepository, times(2)).getNextTransactionId()
-
-        verify(transactionTypeRepository).findById("HOA")
-
-        verify(offenderSubAccountRepository).findById(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
-
         verify(offenderTransactionRepository).findByClientUniqueRef("clientRef")
 
         verify(offenderTransactionRepository).save(
@@ -354,17 +343,15 @@ internal class FinanceHoldsServiceTest {
       }
     }
 
-    private fun createOffenderBooking() = OffenderBooking.builder()
-      .bookingId(1L)
-      .rootOffender(Offender.builder().id(rootOffenderId1).build())
-      .location(AgencyLocation.builder().id("LEI").build())
-      .build()
+    private fun mockGetNextTransactionIdTwice() {
+      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(transactionId1)
+        .thenReturn(transactionId2)
+    }
   }
 
   @Nested
   inner class ReleaseHold {
     val prisonNumber = "AA2134"
-    val rootOffenderId1 = 345L
     val addTransactionId = 5454L
     val releaseTransactionId = 6565L
     val holdNumber = 321L
@@ -427,7 +414,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderBookingNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
+        mockFindOffender()
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", prisonNumber, transaction, "clientId", 1)
         }
@@ -436,7 +423,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun wrongPrison() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
+        mockFindOffender()
 
         val offenderBooking = createOffenderBooking()
         offenderBooking.location.id = "WRONG_PRISON"
@@ -451,24 +438,13 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.empty())
-        whenever(transactionTypeRepository.findById("HOR"))
-          .thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
-
-        whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), anyString(), any()))
-          .thenReturn(Optional.of(addHoldOffenderTransaction))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefNotExists()
+        mockFindReleaseHoldType()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        mockSubAccount()
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", holdNumber)
@@ -478,18 +454,11 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountClosed() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-        whenever(transactionTypeRepository.findById("HOR"))
-          .thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount(true)))
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockFindReleaseHoldType()
+        mockAccountCode()
+        mockTrustAccount(closed = true)
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", 1)
@@ -499,27 +468,14 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountNotFound() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.empty())
-
-        whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), anyString(), any()))
-          .thenReturn(Optional.of(addHoldOffenderTransaction))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount().apply { holdBalance = BigDecimal("6.50") }))
-
-        whenever(transactionTypeRepository.findById("HOR")).thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
-
-        whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(releaseTransactionId)
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefNotExists()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        mockTrustAccount(holdBalance = "6.50")
+        mockFindReleaseHoldType()
+        mockGetReleaseNextTransactionId()
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", 1)
@@ -529,33 +485,62 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun clientUniqueRefAlreadyUsed() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.of(offenderTransaction()))
-
-        whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), anyString(), any()))
-          .thenReturn(Optional.of(addHoldOffenderTransaction))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount().apply { holdBalance = BigDecimal("6.50") }))
-
-        whenever(transactionTypeRepository.findById("HOR")).thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
-
-        whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(releaseTransactionId)
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefDuplicate()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        mockSubAccount()
+        mockTrustAccount(holdBalance = "6.50")
+        mockFindReleaseHoldType()
+        mockGetReleaseNextTransactionId()
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
         }.hasMessage("Duplicate post - The clientUniqueReference clientRef has been used before")
+      }
+
+      @Test
+      fun subAccountHoldBalanceDoesNotExist() {
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefNotExists()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        whenever(offenderSubAccountRepository.findById(any())).thenReturn(
+          Optional.of(
+            OffenderSubAccount(
+              OffenderSubAccountId("ASI", 1, 2101),
+              balance = BigDecimal("12.34"),
+            ),
+          ),
+        )
+        mockTrustAccount(holdBalance = "6.50")
+        mockFindReleaseHoldType()
+        mockGetReleaseNextTransactionId()
+        mockSaveReleaseTransaction()
+
+        assertThatThrownBy {
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
+        }.hasMessage("Offender sub account hold balance not found")
+      }
+
+      @Test
+      fun trustAccountHoldBalanceDoesNotExist() {
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefNotExists()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        mockSubAccount()
+        mockTrustAccount()
+        mockFindReleaseHoldType()
+        mockGetReleaseNextTransactionId()
+        mockSaveReleaseTransaction()
+
+        assertThatThrownBy {
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
+        }.hasMessage("Offender trust account hold balance not found")
       }
     }
 
@@ -564,31 +549,16 @@ internal class FinanceHoldsServiceTest {
 
       @BeforeEach
       fun setup() {
-        whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber))
-          .thenReturn(Optional.of(rootOffender))
-
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
-          .thenReturn(Optional.of(createOffenderBooking()))
-
-        whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
-          .thenReturn(Optional.empty())
-
-        whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), anyString(), any()))
-          .thenReturn(Optional.of(addHoldOffenderTransaction))
-
-        whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
-          .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
-
-        whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount()))
-
-        whenever(offenderTrustAccountRepository.findById(any()))
-          .thenReturn(Optional.of(offenderTrustAccount().apply { holdBalance = BigDecimal("6.50") }))
-
-        whenever(transactionTypeRepository.findById("HOR")).thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
-
-        whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(releaseTransactionId)
-
-        whenever(offenderTransactionRepository.save(any<OffenderTransaction>())).thenReturn(releaseHoldOffenderTransaction)
+        mockFindOffender()
+        mockFindOffenderBooking()
+        mockClientRefNotExists()
+        mockFindAddHoldTransaction()
+        mockAccountCode()
+        mockSubAccount()
+        mockTrustAccount(holdBalance = "6.50")
+        mockFindReleaseHoldType()
+        mockGetReleaseNextTransactionId()
+        mockSaveReleaseTransaction()
       }
 
       @Test
@@ -630,6 +600,7 @@ internal class FinanceHoldsServiceTest {
         verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
         verify(offenderSubAccountRepository).findById(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
         verify(offenderTrustAccountRepository).findById(
+
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
@@ -669,40 +640,118 @@ internal class FinanceHoldsServiceTest {
         )
       }
     }
+    private fun mockGetReleaseNextTransactionId() {
+      whenever(offenderTransactionRepository.getNextTransactionId())
+        .thenReturn(releaseTransactionId)
+    }
 
-    private fun createOffenderBooking() = OffenderBooking.builder()
-      .bookingId(1L)
-      .rootOffender(rootOffender)
-      .location(AgencyLocation.builder().id("LEI").build())
-      .build()
+    private fun mockFindAddHoldTransaction() {
+      whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), anyString(), any()))
+        .thenReturn(Optional.of(addHoldOffenderTransaction))
+    }
+
+    private fun mockSaveReleaseTransaction() {
+      whenever(offenderTransactionRepository.save(any<OffenderTransaction>())).thenReturn(
+        releaseHoldOffenderTransaction,
+      )
+    }
   }
 
   private fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
     id = OffenderTrustAccountId("ASI", 1L),
     accountClosed = accountClosed,
   )
-}
-private fun offenderSubAccount(balance: String = "12.34") = OffenderSubAccount(
-  OffenderSubAccountId("ASI", 1, 2101),
-  balance = BigDecimal(balance),
-  holdBalance = BigDecimal("3.50"),
-)
 
-private fun offenderTransaction(
-  id: OffenderTransactionId = OffenderTransactionId(1, 1),
-) = OffenderTransaction(
-  id = id,
-  offenderId = 1,
-  prisonId = "BMI",
-  holdNumber = null,
-  holdClearFlag = null,
-  subAccountType = "REG",
-  transactionType = TransactionType("CANT", "Canteen"),
-  transactionReferenceNumber = null,
-  clientUniqueRef = null,
-  entryDate = LocalDate.now(),
-  entryDescription = null,
-  entryAmount = BigDecimal.TEN,
-  postingType = PostingType.CR,
-  modifyDate = LocalDateTime.now(),
-)
+  private fun offenderSubAccount(balance: String = "12.34") = OffenderSubAccount(
+    OffenderSubAccountId("ASI", 1, 2101),
+    balance = BigDecimal(balance),
+    holdBalance = BigDecimal("3.50"),
+  )
+
+  private fun offenderTransaction(
+    id: OffenderTransactionId = OffenderTransactionId(1, 1),
+  ) = OffenderTransaction(
+    id = id,
+    offenderId = 1,
+    prisonId = "BMI",
+    holdNumber = null,
+    holdClearFlag = null,
+    subAccountType = "REG",
+    transactionType = TransactionType("CANT", "Canteen"),
+    transactionReferenceNumber = null,
+    clientUniqueRef = null,
+    entryDate = LocalDate.now(),
+    entryDescription = null,
+    entryAmount = BigDecimal.TEN,
+    postingType = PostingType.CR,
+    modifyDate = LocalDateTime.now(),
+  )
+
+  private fun mockFindOffender() {
+    whenever(offenderRepository.findRootOffenderByNomsId(prisonNumber)).thenReturn(Optional.of(rootOffender))
+  }
+
+  private fun createOffenderBooking(prisonId: String = "LEI") = OffenderBooking.builder()
+    .bookingId(1L)
+    .rootOffender(Offender.builder().id(rootOffenderId1).build())
+    .location(AgencyLocation.builder().id(prisonId).build())
+    .build()
+
+  private fun mockFindOffenderBooking(prison: String = "LEI") {
+    whenever(offenderBookingRepository.findByOffenderNomsIdAndActive(anyString(), eq(true)))
+      .thenReturn(Optional.of(createOffenderBooking(prison)))
+  }
+
+  fun mockAccountCode() {
+    whenever(accountCodeRepository.findByCaseLoadTypeAndSubAccountType(anyString(), eq("SPND")))
+      .thenReturn(Optional.of(AccountCode.builder().accountCode(2101L).build()))
+  }
+
+  fun mockTrustAccount(closed: Boolean = false, holdBalance: String? = null) {
+    whenever(offenderTrustAccountRepository.findById(any()))
+      .thenReturn(
+        Optional.of(
+          offenderTrustAccount(closed).apply {
+            this.holdBalance = holdBalance?.let { BigDecimal(it) }
+          },
+        ),
+      )
+  }
+
+  fun mockFindAddHoldType() {
+    whenever(transactionTypeRepository.findById("HOA"))
+      .thenReturn(Optional.of(TransactionType("HOA", "Add Hold")))
+  }
+
+  fun mockFindReleaseHoldType() {
+    whenever(transactionTypeRepository.findById("HOR"))
+      .thenReturn(Optional.of(TransactionType("HOR", "Remove Hold")))
+  }
+
+  private fun mockSubAccount(balance: String = "12.34", holdBalance: String = "3.50") {
+    whenever(offenderSubAccountRepository.findById(any()))
+      .thenReturn(
+        Optional.of(
+          offenderSubAccount(balance).apply {
+            this.holdBalance = BigDecimal(holdBalance)
+          },
+        ),
+      )
+  }
+
+  private fun mockClientRefNotExists() {
+    whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
+      .thenReturn(Optional.empty())
+  }
+
+  private fun mockClientRefDuplicate() {
+    whenever(offenderTransactionRepository.findByClientUniqueRef(anyString()))
+      .thenReturn(Optional.of(offenderTransaction()))
+  }
+
+/*
+  private fun mockSave() {
+    whenever(offenderTransactionRepository.save(any()))
+      .thenReturn(offenderTransaction())
+  }*/
+}
