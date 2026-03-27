@@ -11,6 +11,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
@@ -21,7 +22,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.TransactionTypeRepo
 import uk.gov.justice.hmpps.prison.util.MoneySupport.penceToPounds
 import uk.gov.justice.hmpps.prison.values.AccountCode
 import java.math.RoundingMode
-import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
 import kotlin.jvm.optionals.getOrElse
@@ -111,6 +111,8 @@ class FinanceHoldsService(
           throw DuplicateKeyException("Duplicate post - The clientUniqueReference ${holdTransaction.clientUniqueReference} has been used before")
         },
       )
+    val entryDate = Date()
+    val now = LocalDateTime.now()
 
     val transaction = OffenderTransaction(
       id = OffenderTransactionId(transactionId, 1),
@@ -123,23 +125,23 @@ class FinanceHoldsService(
       transactionType = addHoldTransactionType,
       transactionReferenceNumber = holdTransaction.clientTransactionId,
       clientUniqueRef = clientUniqueId,
-      entryDate = LocalDate.now(),
+      entryDate = now.toLocalDate(),
       entryDescription = holdTransaction.description,
       entryAmount = transactionAmount,
-      postingType = "DR",
-      modifyDate = LocalDateTime.now(),
+      postingType = PostingType.DR,
+      modifyDate = now,
     )
     offenderTransactionRepository.save(transaction)
 
     financeRepository.updateOffenderBalance(
       prisonId,
       rootOffender.id,
-      "DR",
+      PostingType.DR,
       subAccountType,
       transactionId,
       addHoldTransactionType.type,
       transactionAmount,
-      Date(),
+      entryDate,
     )
 
     financeRepository.processGlTransNew(
@@ -151,7 +153,7 @@ class FinanceHoldsService(
       transSeq = 1,
       transAmount = transactionAmount,
       transDesc = holdTransaction.description,
-      transDate = Date(),
+      transDate = entryDate,
       transactionType = ADD_HOLD_TRANSACTION_TYPE,
       moduleName = "NOMISAPI",
       // TODO Check - there is anywhere to add  transactionReferenceNumber = holdTransaction.clientTransactionId,

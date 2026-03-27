@@ -8,6 +8,7 @@ import org.springframework.http.HttpStatus
 import org.springframework.stereotype.Service
 import org.springframework.web.client.HttpClientErrorException
 import uk.gov.justice.hmpps.prison.api.model.v1.CodeDescription
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
@@ -27,12 +28,12 @@ class TransactionsService(
     fromDate: LocalDate,
     toDate: LocalDate?,
   ): List<PrisonerTransaction> {
-    val accountType = AccountCode.codeForNameOrEmpty(accountCode).orElseThrow {
-      HttpClientErrorException(
+    val accountType = AccountCode.byCodeName(accountCode) ?.code
+      ?: throw HttpClientErrorException(
         HttpStatus.BAD_REQUEST,
         "Invalid account_code supplied. Should be one of cash, spends or savings",
       )
-    }
+
     val rootOffender = offenderRepository.findRootOffenderByNomsId(nomsId)
       .orElseThrow { HttpClientErrorException(HttpStatus.NOT_FOUND, "Offender not found") }
 
@@ -48,7 +49,7 @@ class TransactionsService(
           id = "${it.id.transactionId}-${it.id.transactionEntrySequence}",
           type = it.transactionType.toCodeDescription(),
           description = it.entryDescription!!,
-          amount = MoneySupport.poundsToPence(it.entryAmount).let { a -> a * (if (it.postingType == "DR") -1 else 1) },
+          amount = MoneySupport.poundsToPence(it.entryAmount).let { a -> a * (if (it.postingType == PostingType.DR) -1 else 1) },
           date = it.entryDate,
           clientUniqueRef = it.clientUniqueRef,
         )

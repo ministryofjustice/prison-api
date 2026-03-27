@@ -2,9 +2,8 @@ package uk.gov.justice.hmpps.prison.values
 
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import uk.gov.justice.hmpps.prison.values.AccountCode.byCode
-import uk.gov.justice.hmpps.prison.values.AccountCode.byCodeName
-import uk.gov.justice.hmpps.prison.values.AccountCode.codeForNameOrEmpty
+import uk.gov.justice.hmpps.prison.values.AccountCode.Companion.byCodeName
+import uk.gov.justice.hmpps.prison.values.AccountCode.Companion.exists
 
 class AccountCodeTest {
   @Test
@@ -19,25 +18,17 @@ class AccountCodeTest {
 
   @Test
   fun byCodeNameReturnsCorrectCode() {
-    assertThat(byCodeName("savings").map { it.code }).get().isEqualTo("SAV")
-    assertThat(byCodeName("spends").map { it.code }).get().isEqualTo("SPND")
-    assertThat(byCodeName("cash").map { it.code }).get().isEqualTo("REG")
-    assertThat(byCodeName("unknown").map { it.code }).isEmpty
+    assertThat(byCodeName("savings")!!.code).isEqualTo("SAV")
+    assertThat(byCodeName("spends")!!.code).isEqualTo("SPND")
+    assertThat(byCodeName("cash")!!.code).isEqualTo("REG")
+    assertThat(byCodeName("unknown")).isNull()
   }
 
   @Test
-  fun byCodeReturnsCorrectCodeName() {
-    assertThat(byCode("SAV").map { it.codeName }).get().isEqualTo("savings")
-    assertThat(byCode("SPND").map { it.codeName }).get().isEqualTo("spends")
-    assertThat(byCode("REG").map { it.codeName }).get().isEqualTo("cash")
-    assertThat(byCode("unknown").map { it.codeName }).isEmpty
-  }
-
-  @Test
-  fun codeForNameOrEmptyReturnsCode() {
-    assertThat(codeForNameOrEmpty("cash")).get().isEqualTo("REG")
-    assertThat(codeForNameOrEmpty("spends")).get().isEqualTo("SPND")
-    assertThat(codeForNameOrEmpty("savings")).get().isEqualTo("SAV")
-    assertThat(codeForNameOrEmpty("unknown")).isEmpty
+  fun exists() {
+    assertThat(exists("savings")).isTrue
+    assertThat(exists("spends")).isTrue
+    assertThat(exists("cash")).isTrue
+    assertThat(exists("unknown")).isFalse
   }
 }

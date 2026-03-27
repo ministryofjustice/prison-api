@@ -12,6 +12,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.resource.HoldTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs
@@ -246,7 +247,7 @@ fun offenderTransaction(
   entryDate = LocalDate.now(),
   entryDescription = null,
   entryAmount = BigDecimal.TEN,
-  postingType = "CR",
+  postingType = PostingType.CR,
   offenderBookingId = 1,
   slipPrintedFlag = false,
   modifyDate = LocalDateTime.now(),

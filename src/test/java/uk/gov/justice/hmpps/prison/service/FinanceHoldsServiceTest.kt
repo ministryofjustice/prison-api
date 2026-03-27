@@ -24,6 +24,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -316,14 +317,14 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.entryDate).isInstanceOf(LocalDate::class.java)
             assertThat(it.entryDescription).isEqualTo("desc")
             assertThat(it.entryAmount).isEqualTo(BigDecimal("12.34"))
-            assertThat(it.postingType).isEqualTo("DR")
+            assertThat(it.postingType).isEqualTo(PostingType.DR)
           },
         )
 
         verify(financeRepository).updateOffenderBalance(
           eq("LEI"),
           eq(offenderId),
-          eq("DR"),
+          eq(PostingType.DR),
           eq("SPND"),
           eq(transactionId1),
           eq("HOA"),
@@ -370,7 +371,7 @@ internal class FinanceHoldsServiceTest {
     entryDate = LocalDate.now(),
     entryDescription = null,
     entryAmount = BigDecimal.TEN,
-    postingType = "CR",
+    postingType = PostingType.DR,
     modifyDate = LocalDateTime.now(),
   )
 
