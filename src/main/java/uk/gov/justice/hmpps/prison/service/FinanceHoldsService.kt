@@ -8,9 +8,11 @@ import uk.gov.justice.hmpps.prison.api.resource.AddHoldTransaction
 import uk.gov.justice.hmpps.prison.api.resource.HoldDetails
 import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldTransaction
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
@@ -50,31 +52,7 @@ class FinanceHoldsService(
     holdTransaction: AddHoldTransaction,
     clientUniqueId: String,
   ): HoldDetails {
-    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
-      .orElseThrow { EntityNotFoundException("Offender not found") }
-
-    val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
-      .orElseThrow { EntityNotFoundException("Offender not in prison") }
-
-    if (booking.location.id != prisonId) {
-      throw EntityNotFoundException.withMessage(
-        "Offender %s found at prison %s instead of %s",
-        nomisId,
-        booking.location.id,
-        prisonId,
-      )
-    }
-
-    val offenderTrustAccount = offenderTrustAccountRepository.findById(
-      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
-    )
-
-    if (offenderTrustAccount.isEmpty) {
-      throw ValidationException("Offender trust account not found")
-    }
-    if (offenderTrustAccount.get().accountClosed) {
-      throw ValidationException("Offender trust account closed")
-    }
+    val (rootOffenderId, booking, offenderTrustAccount) = validate(prisonId, nomisId)
 
     val subAccountType = AccountCode.SPENDS.code
     val subAccountTypeId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType)
@@ -117,7 +95,7 @@ class FinanceHoldsService(
 
     val transaction = OffenderTransaction(
       id = OffenderTransactionId(transactionId, 1),
-      offenderId = rootOffender.id,
+      offenderId = rootOffenderId,
       offenderBookingId = booking.bookingId,
       prisonId = prisonId,
       holdNumber = holdNumber,
@@ -136,7 +114,7 @@ class FinanceHoldsService(
 
     financeRepository.updateOffenderBalance(
       prisonId,
-      rootOffender.id,
+      rootOffenderId,
       PostingType.DR,
       subAccountType,
       transactionId,
@@ -161,39 +139,16 @@ class FinanceHoldsService(
     )
 
     offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
-    offenderTrustAccount.get().holdBalance = offenderTrustAccount.get().holdBalance?.add(transactionAmount) ?: transactionAmount
+    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
 
     return HoldDetails(holdNumber)
   }
 
   fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, clientUniqueId: String, holdNumber: Long) {
-    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
-      .orElseThrow { EntityNotFoundException("Offender not found") }
-
-    val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
-      .orElseThrow { EntityNotFoundException("Offender not in prison") }
-
-    if (booking.location.id != prisonId) {
-      throw EntityNotFoundException.withMessage(
-        "Offender %s found at prison %s instead of %s",
-        nomisId,
-        booking.location.id,
-        prisonId,
-      )
-    }
-
-    val offenderTrustAccount = offenderTrustAccountRepository.findById(
-      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
-    )
-    if (offenderTrustAccount.isEmpty) {
-      throw ValidationException("Offender trust account not found")
-    }
-    if (offenderTrustAccount.get().accountClosed) {
-      throw ValidationException("Offender trust account closed")
-    }
+    val (rootOffenderId, booking, offenderTrustAccount) = validate(prisonId, nomisId)
 
     val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(
-      rootOffender.id,
+      rootOffenderId,
       prisonId,
       holdNumber,
     )
@@ -223,7 +178,7 @@ class FinanceHoldsService(
 
     val releaseTransaction = OffenderTransaction(
       id = OffenderTransactionId(releaseHoldTransactionId, 1),
-      offenderId = rootOffender.id,
+      offenderId = rootOffenderId,
       offenderBookingId = booking.bookingId,
       prisonId = prisonId,
       holdClearFlag = "Y",
@@ -241,7 +196,7 @@ class FinanceHoldsService(
 
     financeRepository.updateOffenderBalance(
       prisonId,
-      rootOffender.id,
+      rootOffenderId,
       releaseTransaction.postingType,
       holdToReleaseTransaction.subAccountType,
       releaseHoldTransactionId,
@@ -257,9 +212,39 @@ class FinanceHoldsService(
         throw ValidationException("Offender sub account hold balance not found")
       }
 
-    offenderTrustAccount.get().holdBalance = offenderTrustAccount.get().holdBalance?.minus(holdToReleaseTransaction.entryAmount)
+    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
       ?: run {
         throw ValidationException("Offender trust account hold balance not found")
       }
+  }
+
+  fun validate(prisonId: String, nomisId: String): Triple<Long, OffenderBooking, OffenderTrustAccount> {
+    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
+      .orElseThrow { EntityNotFoundException("Offender not found") }
+
+    // TODO should we use this or offenderRepository.findLatestOffenderBookingByNomsId
+    val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
+      .orElseThrow { EntityNotFoundException("Offender not in prison") }
+
+    if (booking.location.id != prisonId) {
+      throw EntityNotFoundException.withMessage(
+        "Offender %s found at prison %s instead of %s",
+        nomisId,
+        booking.location.id,
+        prisonId,
+      )
+    }
+
+    val offenderTrustAccount = offenderTrustAccountRepository.findById(
+      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
+    )
+    if (offenderTrustAccount.isEmpty) {
+      throw ValidationException("Offender trust account not found")
+    }
+    if (offenderTrustAccount.get().accountClosed) {
+      throw ValidationException("Offender trust account closed")
+    }
+
+    return Triple(rootOffender.id, booking, offenderTrustAccount.get())
   }
 }
