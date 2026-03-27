@@ -518,9 +518,13 @@ internal class FinanceServiceTest {
   }
 }
 
-fun offenderSubAccount(balance: String = "12.34") = OffenderSubAccount(OffenderSubAccountId("ASI", 1, 2101), BigDecimal(balance))
+private fun offenderSubAccount(balance: String = "12.34") = OffenderSubAccount(
+  OffenderSubAccountId("ASI", 1, 2101),
+  balance = BigDecimal(balance),
+  holdBalance = BigDecimal("3.50"),
+)
 
-fun offenderTransaction(
+private fun offenderTransaction(
   id: OffenderTransactionId = OffenderTransactionId(1, 1),
 ) = OffenderTransaction(
   id = id,
@@ -539,7 +543,7 @@ fun offenderTransaction(
   modifyDate = LocalDateTime.now(),
 )
 
-fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
+private fun offenderTrustAccount(accountClosed: Boolean = false) = OffenderTrustAccount(
   id = OffenderTrustAccountId("ASI", 1L),
   accountClosed = accountClosed,
 )

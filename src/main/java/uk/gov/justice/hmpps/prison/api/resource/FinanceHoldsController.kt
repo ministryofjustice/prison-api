@@ -32,6 +32,10 @@ import uk.gov.justice.hmpps.prison.util.ResourceUtils
 class FinanceHoldsController(
   private val financeHoldsService: FinanceHoldsService,
 ) {
+  companion object {
+    const val NOMS_ID_REGEX_PATTERN: String = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}"
+  }
+
   @Hidden
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/add-hold")
   @Operation(
@@ -56,7 +60,7 @@ class FinanceHoldsController(
     ),
     ApiResponse(
       responseCode = "409",
-      description = "Duplicate post - The unique_client_ref has been used before",
+      description = "Duplicate post - The clientUniqueReference has been used before",
       content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
     ),
     ApiResponse(
@@ -71,22 +75,76 @@ class FinanceHoldsController(
     @Size(max = 3)
     prisonId: String,
     @Parameter(description = "Offender Noms Id", example = "A1417AE", required = true)
-    @Pattern(regexp = NomisApiV1Resource.NOMS_ID_REGEX_PATTERN)
+    @Pattern(regexp = NOMS_ID_REGEX_PATTERN)
     @PathVariable
     offenderNo: String,
     @Parameter(description = "Hold Transaction Details", required = true)
     @RequestBody
     @Valid
-    holdTransaction: HoldTransaction,
+    holdTransaction: AddHoldTransaction,
   ): HoldDetails {
     val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
     return financeHoldsService.addHold(prisonId, offenderNo, holdTransaction, clientUniqueId)
+  }
+
+  @Hidden
+  @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}")
+  @Operation(
+    summary = "Remove a hold from an existing hold financial transaction to NOMIS.",
+    description = """
+      Removes a financial hold on an offender’s account, making funds available so that a canteen transaction can be completed successfully.
+      Used by the CMS replacement team to support canteen ordering.
+      Requires PRISON_API__CANTEEN_FUNDS_API__RW role.
+      """,
+  )
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "Hold Removed"),
+    ApiResponse(
+      responseCode = "400",
+      description = "Invalid Request",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "404",
+      description = "Requested resource not found.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "409",
+      description = "Duplicate post - The clientUniqueReference has been used before",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+    ApiResponse(
+      responseCode = "500",
+      description = "Unrecoverable error occurred whilst processing request.",
+      content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))],
+    ),
+  )
+  fun releaseHold(
+    @Parameter(description = "Prison ID", example = "BMI", required = true)
+    @PathVariable
+    @Size(max = 3)
+    prisonId: String,
+    @Parameter(description = "Offender Noms Id", example = "A1417AE", required = true)
+    @Pattern(regexp = NOMS_ID_REGEX_PATTERN)
+    @PathVariable
+    offenderNo: String,
+    @Parameter(description = "Hold Number", required = true)
+    @PathVariable
+    holdNumber: Long,
+    @Parameter(description = "Release Hold Transaction Details", required = true)
+    @RequestBody
+    @Valid
+    holdTransaction: ReleaseHoldTransaction,
+  ) {
+    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
+    financeHoldsService.releaseHold(prisonId, offenderNo, holdTransaction, clientUniqueId, holdNumber)
   }
 }
 
 @Schema(description = "Hold Transaction to Create")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class HoldTransaction(
+data class AddHoldTransaction(
   @Schema(description = "Description of the Transaction", example = "Hold for Food", defaultValue = "HOLD")
   @Size(min = 1, max = 240, message = "The description must be between 1 and 240 characters")
   val description: String = "HOLD",
@@ -94,6 +152,32 @@ data class HoldTransaction(
   @Schema(description = "Amount of transaction in pence, hence 1634 is £16.34", example = "1634", required = true)
   @Min(value = 1, message = "The amount must be greater than 0")
   val amount: Long,
+
+  @Schema(description = "Client Transaction Id", example = "CL123212", required = true)
+  @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")
+  val clientTransactionId: String,
+
+  @Schema(description = "Client Name", example = "CL123212", required = false)
+  val clientName: String?,
+
+  @Schema(
+    description = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
+    example = "CLIENT121131-0_11",
+  )
+  @Size(min = 1, max = 64, message = "The client unique reference must be between 1 and 64 characters")
+  @Pattern(
+    regexp = "[a-zA-Z0-9-_]+",
+    message = "The client unique reference can only contain letters, numbers, hyphens and underscores",
+  )
+  val clientUniqueReference: String,
+)
+
+@Schema(description = "Hold Transaction to Release")
+@JsonInclude(JsonInclude.Include.NON_NULL)
+data class ReleaseHoldTransaction(
+  @Schema(description = "Description of the Transaction", example = "Hold for Food", defaultValue = "HOLD")
+  @Size(min = 1, max = 240, message = "The description must be between 1 and 240 characters")
+  val description: String = "Remove Hold",
 
   @Schema(description = "Client Transaction Id", example = "CL123212", required = true)
   @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")

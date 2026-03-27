@@ -9,9 +9,16 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.model.TransferTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.InsertIntoOffenderTrans
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
 import java.util.Optional
 
 class FinanceControllerTest : ResourceTest() {
@@ -34,7 +41,8 @@ class FinanceControllerTest : ResourceTest() {
         .thenReturn(Optional.of(offenderTransaction()))
       val transaction = createTransferTransaction(124L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
         .bodyValue(transaction)
@@ -54,7 +62,8 @@ class FinanceControllerTest : ResourceTest() {
         .thenReturn(Optional.of(offenderTransaction()))
       val transaction = createTransferTransaction(124L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .headers(setAuthorisation("ITAG_USER", listOf("UNILINK")))
         .bodyValue(transaction)
@@ -75,7 +84,8 @@ class FinanceControllerTest : ResourceTest() {
         .thenReturn(Optional.of(offenderTransaction()))
       val transaction = createTransferTransaction(124L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .header("X-Client-Name", "clientName")
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
@@ -94,7 +104,8 @@ class FinanceControllerTest : ResourceTest() {
     fun transferToSavings_validatePrisonId() {
       val transaction = createTransferTransaction(12345678L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "1234", "A1234AA")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "1234", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
         .bodyValue(transaction)
@@ -110,7 +121,8 @@ class FinanceControllerTest : ResourceTest() {
     fun transferToSavings_validateOffenderNo() {
       val transaction = createTransferTransaction(12345678L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "123ABC")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "123ABC")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
         .bodyValue(transaction)
@@ -118,15 +130,18 @@ class FinanceControllerTest : ResourceTest() {
         .expectStatus().isBadRequest
         .expectBody()
         .jsonPath("status").isEqualTo("400")
-        .jsonPath("userMessage").isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
-        .jsonPath("developerMessage").isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
+        .jsonPath("userMessage")
+        .isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
+        .jsonPath("developerMessage")
+        .isEqualTo("transferToSavings.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
     }
 
     @Test
     fun transferToSavings_validateTransferTransaction() {
       val transaction = createTransferTransaction(0L)
 
-      webTestClient.post().uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
+      webTestClient.post()
+        .uri("/api/finance/prison/{prisonId}/offenders/{offenderNo}/transfer-to-savings", "LEI", "A1234AA")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .headers(setAuthorisation("ITAG_USER", listOf("ROLE_NOMIS_API_V1")))
         .bodyValue(transaction)
@@ -182,4 +197,23 @@ class FinanceControllerTest : ResourceTest() {
       .clientTransactionId("transId")
       .build()
   }
+
+  private fun offenderTransaction(id: OffenderTransactionId = OffenderTransactionId(1, 1)) = OffenderTransaction(
+    id = id,
+    offenderId = 1,
+    prisonId = "BMI",
+    holdNumber = null,
+    holdClearFlag = null,
+    subAccountType = "REG",
+    transactionType = TransactionType("CANT", "Canteen"),
+    transactionReferenceNumber = null,
+    clientUniqueRef = null,
+    entryDate = LocalDate.now(),
+    entryDescription = null,
+    entryAmount = BigDecimal.TEN,
+    postingType = PostingType.CR,
+    offenderBookingId = 1,
+    slipPrintedFlag = false,
+    modifyDate = LocalDateTime.now(),
+  )
 }
