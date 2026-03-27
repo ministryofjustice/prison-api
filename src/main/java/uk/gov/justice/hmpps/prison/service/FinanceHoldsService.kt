@@ -4,8 +4,9 @@ import jakarta.validation.ValidationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import uk.gov.justice.hmpps.prison.api.resource.AddHoldTransaction
 import uk.gov.justice.hmpps.prison.api.resource.HoldDetails
-import uk.gov.justice.hmpps.prison.api.resource.HoldTransaction
+import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldTransaction
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
@@ -46,7 +47,7 @@ class FinanceHoldsService(
   fun addHold(
     prisonId: String,
     nomisId: String,
-    holdTransaction: HoldTransaction,
+    holdTransaction: AddHoldTransaction,
     clientUniqueId: String,
   ): HoldDetails {
     val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
@@ -163,5 +164,102 @@ class FinanceHoldsService(
     offenderTrustAccount.get().holdBalance = offenderTrustAccount.get().holdBalance?.add(transactionAmount) ?: transactionAmount
 
     return HoldDetails(holdNumber)
+  }
+
+  fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, clientUniqueId: String, holdNumber: Long) {
+    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
+      .orElseThrow { EntityNotFoundException("Offender not found") }
+
+    val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
+      .orElseThrow { EntityNotFoundException("Offender not in prison") }
+
+    if (booking.location.id != prisonId) {
+      throw EntityNotFoundException.withMessage(
+        "Offender %s found at prison %s instead of %s",
+        nomisId,
+        booking.location.id,
+        prisonId,
+      )
+    }
+
+    val offenderTrustAccount = offenderTrustAccountRepository.findById(
+      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
+    )
+    if (offenderTrustAccount.isEmpty) {
+      throw ValidationException("Offender trust account not found")
+    }
+    if (offenderTrustAccount.get().accountClosed) {
+      throw ValidationException("Offender trust account closed")
+    }
+
+    val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(
+      rootOffender.id,
+      prisonId,
+      holdNumber,
+    )
+      .orElseThrow { EntityNotFoundException("Hold transaction not found'") }
+
+    val subAccountTypeId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", holdToReleaseTransaction.subAccountType)
+      .orElseThrow {
+        ValidationException("Account code ${AccountCode.SPENDS.code} not found")
+      }.accountCode
+    val offenderSubAccount = offenderSubAccountRepository.findById(
+      OffenderSubAccountId(prisonId, booking.rootOffender.id, subAccountTypeId),
+    ).getOrElse {
+      throw ValidationException("Offender sub account not found")
+    }
+
+    offenderTransactionRepository.findByClientUniqueRef(releaseHoldTransaction.clientUniqueReference)
+      .ifPresent(
+        {
+          throw DuplicateKeyException("Duplicate post - The clientUniqueReference ${releaseHoldTransaction.clientUniqueReference} has been used before")
+        },
+      )
+
+    val releaseHoldTransactionId = offenderTransactionRepository.getNextTransactionId()
+    val now = LocalDateTime.now()
+    val nowDate = Date()
+    val releaseHoldTransactionType = transactionTypeRepository.findById(RELEASE_HOLD_TRANSACTION_TYPE).get()
+
+    val releaseTransaction = OffenderTransaction(
+      id = OffenderTransactionId(releaseHoldTransactionId, 1),
+      offenderId = rootOffender.id,
+      offenderBookingId = booking.bookingId,
+      prisonId = prisonId,
+      holdClearFlag = "Y",
+      subAccountType = holdToReleaseTransaction.subAccountType,
+      transactionType = releaseHoldTransactionType,
+      transactionReferenceNumber = releaseHoldTransaction.clientTransactionId,
+      clientUniqueRef = clientUniqueId,
+      entryDate = now.toLocalDate(),
+      entryDescription = releaseHoldTransaction.description,
+      entryAmount = holdToReleaseTransaction.entryAmount,
+      postingType = PostingType.CR,
+      modifyDate = now,
+    )
+    offenderTransactionRepository.save(releaseTransaction)
+
+    financeRepository.updateOffenderBalance(
+      prisonId,
+      rootOffender.id,
+      releaseTransaction.postingType,
+      holdToReleaseTransaction.subAccountType,
+      releaseHoldTransactionId,
+      releaseHoldTransactionType.type,
+      holdToReleaseTransaction.entryAmount,
+      nowDate,
+    )
+
+    holdToReleaseTransaction.holdClearFlag = "Y"
+
+    offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
+      ?: run {
+        throw ValidationException("Offender sub account hold balance not found")
+      }
+
+    offenderTrustAccount.get().holdBalance = offenderTrustAccount.get().holdBalance?.minus(holdToReleaseTransaction.entryAmount)
+      ?: run {
+        throw ValidationException("Offender trust account hold balance not found")
+      }
   }
 }

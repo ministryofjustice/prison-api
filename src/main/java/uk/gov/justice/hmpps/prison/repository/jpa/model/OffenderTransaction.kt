@@ -47,7 +47,7 @@ class OffenderTransaction(
   var prisonId: String,
 
   @Column(name = "HOLD_NUMBER")
-  var holdNumber: Long?,
+  var holdNumber: Long? = null,
 
   @Column(name = "HOLD_CLEAR_FLAG", nullable = false)
   var holdClearFlag: String?,
