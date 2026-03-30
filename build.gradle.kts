@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.1.2"
   kotlin("plugin.spring") version "2.3.20"
   kotlin("plugin.jpa") version "2.3.20"
   kotlin("plugin.lombok") version "2.3.20"
@@ -85,7 +85,7 @@ dependencies {
   }
   testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.41")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.55.0")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.60.1")
 
   testCompileOnly("org.projectlombok:lombok:1.18.44")
 }
