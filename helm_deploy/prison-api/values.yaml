@@ -16,26 +16,17 @@ generic-service:
     modsecurity_enabled: true
     modsecurity_snippet: |
       SecRuleEngine On
-      # team here grants access to the OpenSearch logs to delve into the cause of the blockage
       SecDefaultAction "phase:2,pass,log,tag:github_team=syscon-devs,tag:namespace={{ .Release.Namespace }}"
-      # Default is only GET HEAD POST OPTIONS so need to include PUT etc.
       SecAction "id:900200,phase:1,nolog,pass,t:none,setvar:tx.allowed_methods=GET HEAD POST OPTIONS PUT PATCH DELETE"
-      # Missing User Agent Header
       SecRuleRemoveById 920320
-      # Request Missing an Accept Header
       SecRuleRemoveById 920300
-      # Restrict file extension
       SecRuleRemoveById 920440
-      # SQL Injection Attack: Common Injection Testing Detected
       SecRuleRemoveById 942110
-      # Found User-Agent associated with scripting/generic HTTP client
       SecRuleRemoveById 913101
-      # Remote Command Execution: Windows Command Injection - only for windows servers
       SecRuleRemoveById 932110
-      # Remote Command Execution: Windows Command Injection - only for windows servers
       SecRuleRemoveById 932115
-      # Remote Command Execution: Windows FOR/IF Command Found - only for windows servers
       SecRuleRemoveById 932140
+      SecRuleRemoveById 920450
       # attack-protocol is 921 range
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/.*comment/"
       SecRuleUpdateTargetByTag "attack-protocol" "!ARGS:/.*description/"
