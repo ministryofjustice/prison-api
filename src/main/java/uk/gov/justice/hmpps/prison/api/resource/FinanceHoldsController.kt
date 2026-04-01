@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
 import com.fasterxml.jackson.annotation.JsonInclude
-import io.swagger.v3.oas.annotations.Hidden
 import io.swagger.v3.oas.annotations.Operation
 import io.swagger.v3.oas.annotations.Parameter
 import io.swagger.v3.oas.annotations.media.Content
@@ -36,7 +35,6 @@ class FinanceHoldsController(
     const val NOMS_ID_REGEX_PATTERN: String = "[a-zA-Z][0-9]{4}[a-zA-Z]{2}"
   }
 
-  @Hidden
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/add-hold")
   @Operation(
     summary = "Add a hold financial transaction to NOMIS.",
@@ -87,7 +85,6 @@ class FinanceHoldsController(
     return financeHoldsService.addHold(prisonId, offenderNo, holdTransaction, clientUniqueId)
   }
 
-  @Hidden
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}")
   @Operation(
     summary = "Remove a hold from an existing hold financial transaction to NOMIS.",
@@ -175,7 +172,7 @@ data class AddHoldTransaction(
 @Schema(description = "Hold Transaction to Release")
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class ReleaseHoldTransaction(
-  @Schema(description = "Description of the Transaction", example = "Hold for Food", defaultValue = "HOLD")
+  @Schema(description = "Description of the Transaction", example = "Hold for Food", defaultValue = "Remove Hold")
   @Size(min = 1, max = 240, message = "The description must be between 1 and 240 characters")
   val description: String = "Remove Hold",
 
