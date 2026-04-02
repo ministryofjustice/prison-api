@@ -10,6 +10,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.resource.AddHoldTransaction
+import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldAndCreateTransaction
 import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
@@ -24,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransaction
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew
+import uk.gov.justice.hmpps.prison.repository.v1.FinanceV1Repository
 import java.math.BigDecimal
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -44,6 +46,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var offenderTrustAccountRepository: OffenderTrustAccountRepository
+
+  @MockitoBean
+  private lateinit var financeV1Repository: FinanceV1Repository
 
   @Nested
   inner class AddHold {
@@ -437,6 +442,244 @@ class FinanceHoldsControllerTest : ResourceTest() {
         check {
           assertThat(it.clientUniqueRef).isEqualTo("clientName2-clientRef")
         },
+      )
+    }
+  }
+
+  @Nested
+  inner class ReleaseHoldCreateTransaction {
+    private val transaction = ReleaseHoldAndCreateTransaction(
+      type = "CANT",
+      clientUniqueReference = "clientRef",
+      removeDescription = "desc",
+      createDescription = "new",
+      clientTransactionId = "transId",
+      clientName = "clientName",
+    )
+
+    @Nested
+    inner class Authorisation {
+      @Test
+      fun `returns 401 without an auth token`() {
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `returns 403 when client does not have any roles`() {
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .headers(setClientAuthorisation(listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 403 when invalid role`() {
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .headers(setClientAuthorisation(listOf("ROLE_BANANAS")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+    }
+
+    @Nested
+    inner class Validation {
+
+      @Test
+      fun validatePrisonId() {
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "1234", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage").isEqualTo("releaseHoldAndCreateTransaction.prisonId: Value is too long: max length is 3")
+          .jsonPath("developerMessage").isEqualTo("releaseHoldAndCreateTransaction.prisonId: Value is too long: max length is 3")
+      }
+
+      @Test
+      fun validateOffenderNo() {
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "123ABC", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .isEqualTo("releaseHoldAndCreateTransaction.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
+          .jsonPath("developerMessage")
+          .isEqualTo("releaseHoldAndCreateTransaction.offenderNo: Value contains invalid characters: must match '[a-zA-Z][0-9]{4}[a-zA-Z]{2}'")
+      }
+
+      @Test
+      fun validateTransactionCreateDescription() {
+        val transaction = transaction.copy(createDescription = "")
+
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .isEqualTo("Field: createDescription - The description must be between 1 and 240 characters")
+          .jsonPath("developerMessage")
+          .isEqualTo("Field: createDescription - The description must be between 1 and 240 characters")
+      }
+
+      @Test
+      fun validateTransactionRemoveDescription() {
+        val transaction = transaction.copy(removeDescription = "")
+
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .isEqualTo("Field: removeDescription - The description must be between 1 and 240 characters")
+          .jsonPath("developerMessage")
+          .isEqualTo("Field: removeDescription - The description must be between 1 and 240 characters")
+      }
+
+      @Test
+      fun validateTransactionClientTransactionId() {
+        val transaction = transaction.copy(clientTransactionId = "")
+
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
+          .jsonPath("developerMessage")
+          .isEqualTo("Field: clientTransactionId - The client transaction ID must be between 1 and 12 characters")
+      }
+
+      @Test
+      fun validateTransactionClientUniqueReference() {
+        val transaction = transaction.copy(clientUniqueReference = "")
+
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
+          }
+          .jsonPath("developerMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
+          }
+      }
+    }
+
+    @Test
+    fun happyPath() {
+      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
+
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
+
+      whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
+        .thenReturn(Optional.of(offenderTransaction()))
+      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+      whenever(financeV1Repository.postTransaction(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn("billyBob")
+
+      webTestClient.post()
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(transaction)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath(".id").isEqualTo("billyBob")
+
+      verify(financeV1Repository).postTransaction(
+        "LEI",
+        "A1234AA",
+        "CANT",
+        transaction.createDescription,
+        BigDecimal.TEN,
+        LocalDate.now(),
+        "transId",
+        "clientName-clientRef",
+      )
+    }
+
+    @Test
+    fun setClientName() {
+      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
+
+      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
+
+      whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
+        .thenReturn(Optional.of(offenderTransaction()))
+
+      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+
+      whenever(financeV1Repository.postTransaction(any(), any(), any(), any(), any(), any(), any(), any())).thenReturn("billyBob")
+
+      webTestClient.post()
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+        .bodyValue(transaction.copy(clientName = "clientName2"))
+        .exchange()
+        .expectStatus().isOk
+
+      verify(offenderTransactionRepository).save(
+        check {
+          assertThat(it.clientUniqueRef).isEqualTo("clientName2-clientRef")
+        },
+      )
+
+      verify(financeV1Repository).postTransaction(
+        "LEI",
+        "A1234AA",
+        "CANT",
+        transaction.createDescription,
+        BigDecimal.TEN,
+        LocalDate.now(),
+        "transId",
+        "clientName2-clientRef",
       )
     }
   }

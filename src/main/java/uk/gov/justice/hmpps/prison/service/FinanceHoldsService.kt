@@ -6,6 +6,7 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.resource.AddHoldTransaction
 import uk.gov.justice.hmpps.prison.api.resource.HoldDetails
+import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldAndCreateTransaction
 import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldTransaction
 import uk.gov.justice.hmpps.prison.repository.FinanceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
@@ -22,9 +23,12 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountR
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TransactionTypeRepository
+import uk.gov.justice.hmpps.prison.repository.v1.FinanceV1Repository
 import uk.gov.justice.hmpps.prison.util.MoneySupport.penceToPounds
 import uk.gov.justice.hmpps.prison.values.AccountCode
+import java.math.BigDecimal
 import java.math.RoundingMode
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.util.Date
 import kotlin.jvm.optionals.getOrElse
@@ -40,6 +44,7 @@ class FinanceHoldsService(
   private val offenderTrustAccountRepository: OffenderTrustAccountRepository,
   private val offenderRepository: OffenderRepository,
   private val transactionTypeRepository: TransactionTypeRepository,
+  private val financeV1Repository: FinanceV1Repository,
 ) {
   companion object {
     const val ADD_HOLD_TRANSACTION_TYPE = "HOA"
@@ -144,7 +149,7 @@ class FinanceHoldsService(
     return HoldDetails(holdNumber)
   }
 
-  fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, clientUniqueId: String, holdNumber: Long) {
+  fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, clientUniqueId: String, holdNumber: Long): BigDecimal {
     val (rootOffenderId, booking, offenderTrustAccount) = validate(prisonId, nomisId)
 
     val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(
@@ -216,9 +221,25 @@ class FinanceHoldsService(
       ?: run {
         throw ValidationException("Offender trust account hold balance not found")
       }
+
+    return holdToReleaseTransaction.entryAmount
   }
 
-  fun validate(prisonId: String, nomisId: String): Triple<Long, OffenderBooking, OffenderTrustAccount> {
+  fun releaseHoldAndCreateTransaction(prisonId: String, nomisId: String, createTransaction: ReleaseHoldAndCreateTransaction, clientUniqueId: String, holdNumber: Long): String {
+    val amountInPounds = releaseHold(prisonId, nomisId, createTransaction.toReleaseHold(), clientUniqueId, holdNumber)
+    return financeV1Repository.postTransaction(
+      prisonId,
+      nomisId,
+      createTransaction.type,
+      createTransaction.createDescription,
+      amountInPounds,
+      LocalDate.now(),
+      createTransaction.clientTransactionId,
+      clientUniqueId,
+    )
+  }
+
+  private fun validate(prisonId: String, nomisId: String): Triple<Long, OffenderBooking, OffenderTrustAccount> {
     val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
       .orElseThrow { EntityNotFoundException("Offender not found") }
 
