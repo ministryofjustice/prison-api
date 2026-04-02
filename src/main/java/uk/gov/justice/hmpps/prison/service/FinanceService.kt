@@ -135,8 +135,8 @@ class FinanceService(
     )
 
     return TransferTransactionDetail.builder()
-      .debitTransaction(Transaction.builder().id("$transactionNumber-1").build())
-      .creditTransaction(Transaction.builder().id("$transactionNumber-2").build())
+      .debitTransaction(Transaction("$transactionNumber-1"))
+      .creditTransaction(Transaction("$transactionNumber-2"))
       .transactionId(transactionNumber).build()
   }
 
