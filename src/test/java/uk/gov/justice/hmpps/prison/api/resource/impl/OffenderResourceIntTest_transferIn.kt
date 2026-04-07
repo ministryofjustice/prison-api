@@ -4,6 +4,7 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.tuple
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -80,6 +81,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             }.bookingId
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Test
@@ -293,6 +299,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
         }
 
+        @AfterEach
+        fun deletePrisoner() {
+          builder.deletePrisoner(offenderNo)
+        }
+
         @Test
         internal fun `cannot transfer a prisoner in to a full cell`() {
           webTestClient.put()
@@ -390,6 +401,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
         }
 
+        @AfterEach
+        fun deletePrisoner() {
+          builder.deletePrisoner(offenderNo)
+        }
+
         @Test
         internal fun `cannot transfer in when not already in transit`() {
           webTestClient.put()
@@ -447,6 +463,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               }.bookingId
             }.offenderNo
           }
+        }
+
+        @AfterEach
+        fun deletePrisoner() {
+          builder.deletePrisoner(offenderNo)
         }
 
         @Nested
@@ -840,6 +861,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
         }
 
+        @AfterEach
+        fun deletePrisoner() {
+          builder.deletePrisoner(offenderNo)
+        }
+
         @Nested
         @DisplayName("Returning back to the same prison")
         inner class SamePrison {
@@ -1011,6 +1037,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           }
         }
 
+        @AfterEach
+        fun deletePrisoner() {
+          builder.deletePrisoner(offenderNo)
+        }
+
         @Test
         internal fun `will complete scheduled appearance event`() {
           // test offender is in the right state
@@ -1069,6 +1100,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             }.bookingId
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Nested
@@ -1162,6 +1198,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             }
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Nested
@@ -1299,6 +1340,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             }.bookingId
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Nested
@@ -1840,6 +1886,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
         }
       }
 
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
+      }
+
       @Nested
       @DisplayName("Returning to a different prison")
       inner class DifferentPrison {
@@ -1907,6 +1958,11 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             }
           }.offenderNo
         }
+      }
+
+      @AfterEach
+      fun deletePrisoner() {
+        builder.deletePrisoner(offenderNo)
       }
 
       @Nested
