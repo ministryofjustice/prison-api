@@ -31,7 +31,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository
@@ -49,7 +48,6 @@ internal class FinanceHoldsServiceTest {
   private val accountCodeRepository: AccountCodeRepository = mock()
   private val offenderSubAccountRepository: OffenderSubAccountRepository = mock()
   private val offenderTrustAccountRepository: OffenderTrustAccountRepository = mock()
-  private val offenderRepository: OffenderRepository = mock()
   private val transactionTypeRepository: TransactionTypeRepository = mock()
   private val financeV1Repository: FinanceV1Repository = mock()
 
@@ -60,7 +58,6 @@ internal class FinanceHoldsServiceTest {
     accountCodeRepository,
     offenderSubAccountRepository,
     offenderTrustAccountRepository,
-    offenderRepository,
     transactionTypeRepository,
     financeV1Repository,
   )
@@ -243,7 +240,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
           },
         )
-        verify(offenderTransactionRepository).findByClientUniqueRef("clientRef")
+        verify(offenderTransactionRepository).findByClientUniqueRef("clientId")
 
         verify(offenderTransactionRepository).save(
           check {
@@ -507,7 +504,7 @@ internal class FinanceHoldsServiceTest {
 
         verify(offenderTransactionRepository).getNextTransactionId()
 
-        verify(offenderTransactionRepository).findByClientUniqueRef("clientRef")
+        verify(offenderTransactionRepository).findByClientUniqueRef("clientId")
 
         verify(offenderTransactionRepository).save(
           check {
@@ -685,7 +682,7 @@ internal class FinanceHoldsServiceTest {
 
         assertThatThrownBy {
           financeHoldsService.releaseHoldAndCreateTransaction("LEI", "AA2134", transaction, 1)
-        }.hasMessage("Duplicate post - The clientUniqueReference removeClientRef has been used before")
+        }.hasMessage("Duplicate post - The clientUniqueReference clientName-removeClientRef has been used before")
       }
 
       @Test
@@ -799,7 +796,7 @@ internal class FinanceHoldsServiceTest {
 
         verify(offenderTransactionRepository).getNextTransactionId()
 
-        verify(offenderTransactionRepository).findByClientUniqueRef("removeClientRef")
+        verify(offenderTransactionRepository).findByClientUniqueRef("clientName-removeClientRef")
 
         verify(offenderTransactionRepository).save(
           check {

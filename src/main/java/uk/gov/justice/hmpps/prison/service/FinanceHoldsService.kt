@@ -18,7 +18,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AccountCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository
@@ -43,7 +42,6 @@ class FinanceHoldsService(
   private val accountCodeRepository: AccountCodeRepository,
   private val offenderSubAccountRepository: OffenderSubAccountRepository,
   private val offenderTrustAccountRepository: OffenderTrustAccountRepository,
-  private val offenderRepository: OffenderRepository,
   private val transactionTypeRepository: TransactionTypeRepository,
   private val financeV1Repository: FinanceV1Repository,
 ) {
@@ -66,8 +64,6 @@ class FinanceHoldsService(
         ValidationException("Account code ${AccountCode.SPENDS.code} not found")
       }.accountCode
 
-    val transactionId = offenderTransactionRepository.getNextTransactionId()
-    val holdNumber = offenderTransactionRepository.getNextTransactionId()
     val addHoldTransactionType = transactionTypeRepository.findById(ADD_HOLD_TRANSACTION_TYPE).get()
 
     val transactionAmount = penceToPounds(holdTransaction.amount)
@@ -90,14 +86,16 @@ class FinanceHoldsService(
       )
     }
 
-    offenderTransactionRepository.findByClientUniqueRef(holdTransaction.clientUniqueReference)
+    offenderTransactionRepository.findByClientUniqueRef(clientUniqueId)
       .ifPresent(
         {
-          throw DuplicateKeyException("Duplicate post - The clientUniqueReference ${holdTransaction.clientUniqueReference} has been used before")
+          throw DuplicateKeyException("Duplicate post - The clientUniqueReference $clientUniqueId has been used before")
         },
       )
     val entryDate = Date()
     val now = LocalDateTime.now()
+    val transactionId = offenderTransactionRepository.getNextTransactionId()
+    val holdNumber = offenderTransactionRepository.getNextTransactionId()
 
     val transaction = OffenderTransaction(
       id = OffenderTransactionId(transactionId, 1),
@@ -170,10 +168,10 @@ class FinanceHoldsService(
       throw ValidationException("Offender sub account not found")
     }
 
-    offenderTransactionRepository.findByClientUniqueRef(releaseHoldTransaction.clientUniqueReference)
+    offenderTransactionRepository.findByClientUniqueRef(clientUniqueId)
       .ifPresent(
         {
-          throw DuplicateKeyException("Duplicate post - The clientUniqueReference ${releaseHoldTransaction.clientUniqueReference} has been used before")
+          throw DuplicateKeyException("Duplicate post - The clientUniqueReference $clientUniqueId has been used before")
         },
       )
 
