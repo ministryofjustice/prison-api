@@ -171,8 +171,9 @@ class FinanceHoldsController(
     ),
   )
   @Operation(
-    summary = "Post a financial transaction to NOMIS.",
-    description = """
+    summary = "Release the hold and post a financial transaction to NOMIS.",
+    description = """This endpont is the combination of two endpoints - it releases the hold and then creates the finance transaction.
+      
             The valid prisonId and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>
             This will be setup by script initially as part of the deployment process as shown below<br/><br/>
             <table>
@@ -215,8 +216,7 @@ class FinanceHoldsController(
     @Valid
     createTransaction: ReleaseHoldAndCreateTransaction,
   ): Transaction {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(createTransaction.clientName, createTransaction.clientUniqueReference)
-    val result = financeHoldsService.releaseHoldAndCreateTransaction(prisonId, offenderNo, createTransaction, clientUniqueId, holdNumber)
+    val result = financeHoldsService.releaseHoldAndCreateTransaction(prisonId, offenderNo, createTransaction, holdNumber)
     return Transaction(result)
   }
 }
@@ -304,7 +304,7 @@ data class ReleaseHoldAndCreateTransaction(
   val clientName: String?,
 
   @Schema(
-    description = "A reference unique to the client making the post. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
+    description = "A reference unique to the client for the remove hold. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
     example = "CLIENT121131-0_11",
   )
   @Size(min = 1, max = 64, message = "The client unique reference must be between 1 and 64 characters")
@@ -312,13 +312,24 @@ data class ReleaseHoldAndCreateTransaction(
     regexp = "[a-zA-Z0-9-_]+",
     message = "The client unique reference can only contain letters, numbers, hyphens and underscores",
   )
-  val clientUniqueReference: String,
+  val removeClientUniqueReference: String,
+
+  @Schema(
+    description = "A reference unique to the client for the create. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
+    example = "CLIENT121131-0_11",
+  )
+  @Size(min = 1, max = 64, message = "The client unique reference must be between 1 and 64 characters")
+  @Pattern(
+    regexp = "[a-zA-Z0-9-_]+",
+    message = "The client unique reference can only contain letters, numbers, hyphens and underscores",
+  )
+  val createClientUniqueReference: String,
 ) {
   fun toReleaseHold(): ReleaseHoldTransaction = ReleaseHoldTransaction(
     description = removeDescription,
     clientTransactionId = clientTransactionId,
     clientName = clientName,
-    clientUniqueReference = clientUniqueReference,
+    clientUniqueReference = removeClientUniqueReference,
   )
 }
 

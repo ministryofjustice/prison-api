@@ -450,8 +450,9 @@ class FinanceHoldsControllerTest : ResourceTest() {
   inner class ReleaseHoldCreateTransaction {
     private val transaction = ReleaseHoldAndCreateTransaction(
       type = "CANT",
-      clientUniqueReference = "clientRef",
+      removeClientUniqueReference = "removeClientRef",
       removeDescription = "desc",
+      createClientUniqueReference = "createClientRef",
       createDescription = "new",
       clientTransactionId = "transId",
       clientName = "clientName",
@@ -585,8 +586,8 @@ class FinanceHoldsControllerTest : ResourceTest() {
       }
 
       @Test
-      fun validateTransactionClientUniqueReference() {
-        val transaction = transaction.copy(clientUniqueReference = "")
+      fun validateTransactionCreateClientUniqueReference() {
+        val transaction = transaction.copy(removeClientUniqueReference = "")
 
         webTestClient.post()
           .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
@@ -600,16 +601,68 @@ class FinanceHoldsControllerTest : ResourceTest() {
           .jsonPath("userMessage")
           .value<String> { message ->
             assertThat(message)
-              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
-              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
+              .contains("Field: removeClientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: removeClientUniqueReference - The client unique reference must be between 1 and 64 characters")
           }
           .jsonPath("developerMessage")
           .value<String> { message ->
             assertThat(message)
-              .contains("Field: clientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
-              .contains("Field: clientUniqueReference - The client unique reference must be between 1 and 64 characters")
+              .contains("Field: removeClientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: removeClientUniqueReference - The client unique reference must be between 1 and 64 characters")
           }
       }
+
+      @Test
+      fun validateTransactionRemoveClientUniqueReference() {
+        val transaction = transaction.copy(createClientUniqueReference = "")
+
+        webTestClient.post()
+          .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+          .bodyValue(transaction)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody()
+          .jsonPath("status").isEqualTo("400")
+          .jsonPath("userMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: createClientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: createClientUniqueReference - The client unique reference must be between 1 and 64 characters")
+          }
+          .jsonPath("developerMessage")
+          .value<String> { message ->
+            assertThat(message)
+              .contains("Field: createClientUniqueReference - The client unique reference can only contain letters, numbers, hyphens and underscores")
+              .contains("Field: createClientUniqueReference - The client unique reference must be between 1 and 64 characters")
+          }
+      }
+    }
+
+    @Test
+    fun validateTransactionCreateAndRemoveClientUniqueReferenceDifferent() {
+      val transaction = transaction.copy(createClientUniqueReference = "billy", removeClientUniqueReference = "billy")
+
+      webTestClient.post()
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}", "LEI", "A1234AA", 343)
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+        .bodyValue(transaction)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("status").isEqualTo("400")
+        .jsonPath("userMessage")
+        .value<String> { message ->
+          assertThat(message)
+            .contains("Remove and create client unique references cannot be the same: billy")
+        }
+        .jsonPath("developerMessage")
+        .value<String> { message ->
+          assertThat(message)
+            .contains("Remove and create client unique references cannot be the same: billy")
+        }
     }
 
     @Test
@@ -640,7 +693,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         BigDecimal.TEN,
         LocalDate.now(),
         "transId",
-        "clientName-clientRef",
+        "clientName-createClientRef",
       )
     }
 
@@ -667,7 +720,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
 
       verify(offenderTransactionRepository).save(
         check {
-          assertThat(it.clientUniqueRef).isEqualTo("clientName2-clientRef")
+          assertThat(it.clientUniqueRef).isEqualTo("clientName2-removeClientRef")
         },
       )
 
@@ -679,7 +732,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
         BigDecimal.TEN,
         LocalDate.now(),
         "transId",
-        "clientName2-clientRef",
+        "clientName2-createClientRef",
       )
     }
   }
