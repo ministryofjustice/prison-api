@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccoun
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TransactionTypeRepository
 import uk.gov.justice.hmpps.prison.repository.v1.FinanceV1Repository
 import uk.gov.justice.hmpps.prison.util.MoneySupport.penceToPounds
+import uk.gov.justice.hmpps.prison.util.ResourceUtils
 import uk.gov.justice.hmpps.prison.values.AccountCode
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -225,8 +226,15 @@ class FinanceHoldsService(
     return holdToReleaseTransaction.entryAmount
   }
 
-  fun releaseHoldAndCreateTransaction(prisonId: String, nomisId: String, createTransaction: ReleaseHoldAndCreateTransaction, clientUniqueId: String, holdNumber: Long): String {
-    val amountInPounds = releaseHold(prisonId, nomisId, createTransaction.toReleaseHold(), clientUniqueId, holdNumber)
+  fun releaseHoldAndCreateTransaction(prisonId: String, nomisId: String, createTransaction: ReleaseHoldAndCreateTransaction, holdNumber: Long): String {
+    if (createTransaction.removeClientUniqueReference == createTransaction.createClientUniqueReference) {
+      throw ValidationException("Remove and create client unique references cannot be the same: ${createTransaction.removeClientUniqueReference}")
+    }
+
+    val removeClientUniqueId = ResourceUtils.getUniqueClientId(createTransaction.clientName, createTransaction.removeClientUniqueReference)
+    val amountInPounds = releaseHold(prisonId, nomisId, createTransaction.toReleaseHold(), removeClientUniqueId, holdNumber)
+
+    val createClientUniqueId = ResourceUtils.getUniqueClientId(createTransaction.clientName, createTransaction.createClientUniqueReference)
     return financeV1Repository.postTransaction(
       prisonId,
       nomisId,
@@ -235,17 +243,13 @@ class FinanceHoldsService(
       amountInPounds,
       LocalDate.now(),
       createTransaction.clientTransactionId,
-      clientUniqueId,
+      createClientUniqueId,
     )
   }
 
   private fun validate(prisonId: String, nomisId: String): Triple<Long, OffenderBooking, OffenderTrustAccount> {
-    val rootOffender = offenderRepository.findRootOffenderByNomsId(nomisId)
-      .orElseThrow { EntityNotFoundException("Offender not found") }
-
-    // TODO should we use this or offenderRepository.findLatestOffenderBookingByNomsId
     val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
-      .orElseThrow { EntityNotFoundException("Offender not in prison") }
+      .orElseThrow { EntityNotFoundException("Offender not found active in prison") }
 
     if (booking.location.id != prisonId) {
       throw EntityNotFoundException.withMessage(
@@ -266,6 +270,6 @@ class FinanceHoldsService(
       throw ValidationException("Offender trust account closed")
     }
 
-    return Triple(rootOffender.id, booking, offenderTrustAccount.get())
+    return Triple(booking.rootOffender.id, booking, offenderTrustAccount.get())
   }
 }
