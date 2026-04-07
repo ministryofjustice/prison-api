@@ -3,6 +3,8 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import net.javacrumbs.jsonunit.assertj.JsonAssertions.assertThatJson
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
+import org.junit.jupiter.api.AfterAll
+import org.junit.jupiter.api.BeforeAll
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -28,6 +30,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
+import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.dsl.isAboutNow
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
@@ -386,21 +389,31 @@ class MovementResourceTest : ResourceTest() {
   }
 
   @Nested
+  @TestInstance(PER_CLASS)
   @DisplayName("GET /api/movements/booking/{bookingId}")
   inner class GetMovementsForBooking {
-    @Test
-    fun `Get movements for booking`() {
-      lateinit var booking: OffenderBookingId
+    private lateinit var prisoner: OffenderId
+    private lateinit var booking: OffenderBookingId
 
+    @BeforeAll
+    fun setup() {
       builder.build {
-        offender {
+        prisoner = offender {
           booking = booking(bookingInTime = LocalDateTime.parse("2025-05-18T08:00:00")) {
             release(releaseTime = LocalDateTime.parse("2025-05-19T10:00:00"))
             recall(recallTime = LocalDateTime.parse("2025-05-20T22:00:00"))
           }
         }
       }
+    }
 
+    @AfterAll
+    fun deletePrisoner() {
+      builder.deletePrisoner(prisoner.offenderNo)
+    }
+
+    @Test
+    fun `Get movements for booking`() {
       webTestClient.get()
         .uri("/api/movements/booking/{bookingId}", booking.bookingId)
         .headers(setClientAuthorisation(listOf("VIEW_PRISONER_DATA")))

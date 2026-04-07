@@ -1,6 +1,8 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -12,7 +14,6 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.InmateService
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService.Companion.SMOKE_TEST_PRISON_ID
-import uk.gov.justice.hmpps.prison.util.builders.OffenderBuilder
 
 class SmokeTestHelperResourceIntTest : ResourceTest() {
 
@@ -79,9 +80,6 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
 
   @Nested
   inner class UpdateDetails {
-    private fun createPrisoner() = OffenderBuilder(bookingBuilders = arrayOf(), firstName = "Bob", lastName = "Bailey")
-      .save(testDataContext).offenderNo
-
     @Test
     fun `requires ROLE_SMOKE_TEST`() {
       webTestClient.post()
@@ -120,34 +118,46 @@ class SmokeTestHelperResourceIntTest : ResourceTest() {
         .expectStatus().isNotFound
     }
 
-    @Test
-    fun `will change prisoner name`() {
-      var prisonerNo: String? = null
-      builder.build {
-        prisonerNo = offender {
-          booking { }
-        }.offenderNo
+    @Nested
+    inner class Success {
+      private lateinit var prisonerNo: String
+
+      @BeforeEach
+      fun setup() {
+        builder.build {
+          prisonerNo = offender {
+            booking { }
+          }.offenderNo
+        }
       }
 
-      webTestClient.post()
-        .uri("/api/smoketest/offenders/$prisonerNo/details")
-        .headers {
-          it.setBearerAuth(authTokenHelper.getToken(SMOKE_TEST))
-          it.contentType = MediaType.APPLICATION_JSON
-        }
-        .bodyValue(
-          """ {
+      @AfterEach
+      fun cleanup() {
+        builder.deletePrisoner(prisonerNo)
+      }
+
+      @Test
+      fun `will change prisoner name`() {
+        webTestClient.post()
+          .uri("/api/smoketest/offenders/$prisonerNo/details")
+          .headers {
+            it.setBearerAuth(authTokenHelper.getToken(SMOKE_TEST))
+            it.contentType = MediaType.APPLICATION_JSON
+          }
+          .bodyValue(
+            """ {
           "firstName": "John",
           "lastName": "Smith"
         } 
-          """.trimIndent(),
-        )
-        .exchange()
-        .expectStatus().isOk
+            """.trimIndent(),
+          )
+          .exchange()
+          .expectStatus().isOk
 
-      val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo!!).orElseThrow()
-      assertThat(prisoner.firstName).isEqualTo("JOHN")
-      assertThat(prisoner.lastName).isEqualTo("SMITH")
+        val prisoner = offenderRepository.findRootOffenderByNomsId(prisonerNo!!).orElseThrow()
+        assertThat(prisoner.firstName).isEqualTo("JOHN")
+        assertThat(prisoner.lastName).isEqualTo("SMITH")
+      }
     }
 
     @Test
