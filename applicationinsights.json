@@ -32,7 +32,18 @@
         "attributes": [
           {
             "key": "url.path",
-            "value": "/api/users/me.*",
+            "value": "/api/users/me/caseLoads.*",
+            "matchType": "regexp"
+          }
+        ],
+        "percentage": 1
+      },
+      {
+        "telemetryType": "request",
+        "attributes": [
+          {
+            "key": "url.path",
+            "value": "/api/users/me/locations.*",
             "matchType": "regexp"
           }
         ],
