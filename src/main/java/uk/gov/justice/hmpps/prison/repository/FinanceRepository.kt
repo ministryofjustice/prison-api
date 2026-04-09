@@ -81,7 +81,7 @@ class FinanceRepository(
     prisonId: String,
     offId: Long,
     offBookId: Long,
-    subActTypeDr: String,
+    subActTypeDr: String? = null,
     subActTypeCr: String? = null,
     transNumber: Long,
     transSeq: Long,
