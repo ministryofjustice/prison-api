@@ -12,18 +12,19 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.v1.Transaction
 import uk.gov.justice.hmpps.prison.core.ProxyUser
 import uk.gov.justice.hmpps.prison.service.FinanceHoldsService
-import uk.gov.justice.hmpps.prison.util.ResourceUtils
 
 @RestController
 @Tag(name = "canteen-funds-api")
@@ -38,16 +39,23 @@ class FinanceHoldsController(
   }
 
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/add-hold")
+  @ProxyUser
+  @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Add a hold financial transaction to NOMIS.",
     description = """
-      Add a financial hold to an offender’s account, reserving funds so that a future canteen transaction can be completed successfully.
+      Add a financial hold (HOA transaction) to an offender’s account, reserving funds so that a future canteen transaction can be completed successfully.
+      
+      The valid prisonId and type combinations are defined in the Nomis transaction_operations table which is maintained by the
+      Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. 
+      Only those prisons (Caseloads) with HOA Transaction type associated with the NOMISAPI module are valid for an 'Add Hold' transaction.
+
       Used by the CMS replacement team to support canteen ordering.
       Requires PRISON_API__CANTEEN_FUNDS_API__RW role.
       """,
   )
   @ApiResponses(
-    ApiResponse(responseCode = "200", description = "Hold Added"),
+    ApiResponse(responseCode = "201", description = "Hold Added"),
     ApiResponse(
       responseCode = "400",
       description = "Invalid Request",
@@ -82,22 +90,26 @@ class FinanceHoldsController(
     @RequestBody
     @Valid
     holdTransaction: AddHoldTransaction,
-  ): HoldDetails {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
-    return financeHoldsService.addHold(prisonId, offenderNo, holdTransaction, clientUniqueId)
-  }
+  ): HoldDetails = financeHoldsService.addHold(prisonId, offenderNo, holdTransaction)
 
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}")
+  @ProxyUser
+  @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Remove a hold from an existing hold financial transaction to NOMIS.",
     description = """
-      Removes a financial hold on an offender’s account, making funds available so that a canteen transaction can be completed successfully.
+      Removes a financial hold (by adding a HOR transaction) on an offender’s account, making funds available so that a canteen transaction can be completed successfully.
+      
+      The valid prisonId and type combinations are defined in the Nomis transaction_operations table which is maintained by the
+      Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. 
+      Only those prisons (Caseloads) with HOR Transaction type associated with the NOMISAPI module are valid for a 'Remove Hold' transaction.
+
       Used by the CMS replacement team to support canteen ordering.
       Requires PRISON_API__CANTEEN_FUNDS_API__RW role.
       """,
   )
   @ApiResponses(
-    ApiResponse(responseCode = "200", description = "Hold Removed"),
+    ApiResponse(responseCode = "201", description = "Hold removal transaction created"),
     ApiResponse(
       responseCode = "400",
       description = "Invalid Request",
@@ -136,8 +148,7 @@ class FinanceHoldsController(
     @Valid
     holdTransaction: ReleaseHoldTransaction,
   ) {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
-    financeHoldsService.releaseHold(prisonId, offenderNo, holdTransaction, clientUniqueId, holdNumber)
+    financeHoldsService.releaseHold(prisonId, offenderNo, holdTransaction, holdNumber)
   }
 
   @ApiResponses(
@@ -172,32 +183,34 @@ class FinanceHoldsController(
   )
   @Operation(
     summary = "Release the hold and post a financial transaction to NOMIS.",
-    description = """This endpont is the combination of two endpoints - it releases the hold and then creates the finance transaction.
+    description = """This endpoint is the combination of two endpoints - it releases the hold and then creates the finance transaction.
       
-            The valid prisonId and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>
-            This will be setup by script initially as part of the deployment process as shown below<br/><br/>
-            <table>
-              <tr><th>Transaction Type</th><th>Description</th><th>Digital Prison</th><th>Non Digital Prison</th></tr>
-              <tr><td>CANT</td><td>Canteen Spend</td><td>Yes</td><td>No</td></tr>
-              <tr><td>REFND</td><td>Canteen Refund</td><td>Yes</td><td>No</td></tr>
-              <tr><td>PHONE</td><td>Phone Credit</td><td>Yes</td><td>No</td></tr>
-              <tr><td>MRPR</td><td>Misc Receipt - Private Cash</td><td>Yes</td><td>Yes</td></tr>
-              <tr><td>MTDS</td><td>Money through digital service</td><td>Yes</td><td>Yes</td></tr>
-              <tr><td>DTDS</td><td>Disbursement through Digital service</td><td>Yes</td><td>Yes</td></tr>
-              <tr><td>CASHD</td><td>Cash Disbursement</td><td>Yes</td><td>Yes</td></tr>
-              <tr><td>RELA</td><td>Money to Relatives</td><td>Yes</td><td>Yes</td></tr>
-              <tr><td>RELS</td><td>Money to Relatives- Spends</td><td>Yes</td><td>Yes</td></tr>
-            </table>Notes:<br/>
-            <ul>
-              <li>The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.</li>
-              <li>The clientUniqueReference can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed</li>
-            </ul>
+            The valid prisonId and type combinations are defined in the Nomis transaction_operations table which is maintained by the
+            Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu. 
+            Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.
+             
+            This will be setup by script initially as part of the deployment process as shown below:
+            
+            | Transaction Type | Description                          | Digital Prison | Non Digital Prison |
+            |------------------|--------------------------------------|----------------|--------------------|
+            | CANT             | Canteen Spend                        | Yes            | No                 |
+            | REFND            | Canteen Refund                       | Yes            | No                 |
+            | PHONE            | Phone Credit                         | Yes            | No                 |
+            | MRPR             | Misc Receipt - Private Cash          | Yes            | Yes                |
+            | MTDS             | Money through digital service        | Yes            | Yes                |
+            | DTDS             | Disbursement through Digital service | Yes            | Yes                |
+            | CASHD            | Cash Disbursement                    | Yes            | Yes                |
+            | RELA             | Money to Relatives                   | Yes            | Yes                |
+            | RELS             | Money to Relatives- Spends           | Yes            | Yes                |
+
+            Notes:
+            - The sub_account the amount is debited or credited from will be determined by the transaction_type definition in NOMIS.
+            - The clientUniqueReference can have a maximum of 64 characters, only alphabetic, numeric, ‘-’ and ‘_’ characters are allowed
+
             Requires PRISON_API__CANTEEN_FUNDS_API__RW role.""",
   )
-  @Tag(name = "unilink")
-  @Tag(name = "integration-api")
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}")
-  @PreAuthorize("hasRole('PRISON_API__CANTEEN_FUNDS_API__RW')")
+  @ResponseStatus(HttpStatus.CREATED)
   @ProxyUser
   fun releaseHoldAndCreateTransaction(
     @Parameter(description = "Prison ID", example = "BMI", required = true)
@@ -236,7 +249,7 @@ data class AddHoldTransaction(
   @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")
   val clientTransactionId: String,
 
-  @Schema(description = "Client Name", example = "CL123212", required = false)
+  @Schema(description = "Client Name", example = "CL123212")
   val clientName: String?,
 
   @Schema(
@@ -262,7 +275,7 @@ data class ReleaseHoldTransaction(
   @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")
   val clientTransactionId: String,
 
-  @Schema(description = "Client Name", example = "CL123212", required = false)
+  @Schema(description = "Client Name", example = "CL123212")
   val clientName: String?,
 
   @Schema(
@@ -300,7 +313,7 @@ data class ReleaseHoldAndCreateTransaction(
   @Size(min = 1, max = 12, message = "The client transaction ID must be between 1 and 12 characters")
   val clientTransactionId: String,
 
-  @Schema(description = "Client Name", example = "CL123212", required = false)
+  @Schema(description = "Client Name", example = "CL123212")
   val clientName: String?,
 
   @Schema(

@@ -102,7 +102,7 @@ internal class FinanceHoldsServiceTest {
           .thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", prisonNumber, transaction, "clientId")
+          financeHoldsService.addHold("LEI", prisonNumber, transaction)
         }
           .hasMessage("Offender not found active in prison")
       }
@@ -116,7 +116,7 @@ internal class FinanceHoldsServiceTest {
           .thenReturn(Optional.of(offenderBooking))
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }
           .hasMessage("Offender AA2134 found at prison WRONG_PRISON instead of LEI")
       }
@@ -126,7 +126,7 @@ internal class FinanceHoldsServiceTest {
         whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }
           .hasMessage("Offender trust account not found")
       }
@@ -136,7 +136,7 @@ internal class FinanceHoldsServiceTest {
         mockFindTrustAccount(closed = true)
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }
           .hasMessage("Offender trust account closed")
       }
@@ -146,7 +146,7 @@ internal class FinanceHoldsServiceTest {
         whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }
           .hasMessage("Offender sub account not found")
       }
@@ -156,7 +156,7 @@ internal class FinanceHoldsServiceTest {
         mockSubAccount(balance = "12")
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }.hasMessage("Not enough money in offender sub account balance - 12.00")
       }
 
@@ -165,7 +165,7 @@ internal class FinanceHoldsServiceTest {
         mockClientRefDuplicate()
 
         assertThatThrownBy {
-          financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
+          financeHoldsService.addHold("LEI", "AA2134", transaction)
         }.hasMessage("Duplicate post - The clientUniqueReference clientRef has been used before")
       }
 
@@ -180,7 +180,7 @@ internal class FinanceHoldsServiceTest {
           ),
         )
 
-        financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
+        financeHoldsService.addHold("LEI", "AA2134", transaction)
       }
 
       @Test
@@ -188,7 +188,7 @@ internal class FinanceHoldsServiceTest {
         whenever(offenderTrustAccountRepository.findById(any()))
           .thenReturn(Optional.of(offenderTrustAccount()))
 
-        financeHoldsService.addHold("LEI", "AA2134", transaction, "clientRef")
+        financeHoldsService.addHold("LEI", "AA2134", transaction)
       }
     }
 
@@ -196,24 +196,11 @@ internal class FinanceHoldsServiceTest {
     inner class AddHold {
       @Test
       fun happyPath() {
-        val hold = financeHoldsService.addHold("LEI", "AA2134", transaction, "clientUniqueId")
+        val hold = financeHoldsService.addHold("LEI", "AA2134", transaction)
         assertThat(hold.holdNumber).isEqualTo(transactionId2)
         verify(offenderTransactionRepository).save(
           check {
-            assertThat(it.clientUniqueRef).isEqualTo("clientUniqueId")
-            assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-          },
-        )
-      }
-
-      @Test
-      fun setClientUniqueRef() {
-        val hold = financeHoldsService.addHold("LEI", "AA2134", transaction, "clientUniqueId")
-
-        assertThat(hold.holdNumber).isEqualTo(transactionId2)
-        verify(offenderTransactionRepository).save(
-          check {
-            assertThat(it.clientUniqueRef).isEqualTo("clientUniqueId")
+            assertThat(it.clientUniqueRef).isEqualTo("clientRef")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
           },
         )
@@ -221,7 +208,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun verifyCalls() {
-        financeHoldsService.addHold("LEI", "AA2134", transaction, "clientId")
+        financeHoldsService.addHold("LEI", "AA2134", transaction)
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
 
@@ -240,7 +227,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
           },
         )
-        verify(offenderTransactionRepository).findByClientUniqueRef("clientId")
+        verify(offenderTransactionRepository).findByClientUniqueRef("clientRef")
 
         verify(offenderTransactionRepository).save(
           check {
@@ -250,7 +237,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.subAccountType).isEqualTo("SPND")
             assertThat(it.transactionType.type).isEqualTo("HOA")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-            assertThat(it.clientUniqueRef).isEqualTo("clientId", 1)
+            assertThat(it.clientUniqueRef).isEqualTo("clientRef", 1)
             assertThat(it.entryDate).isInstanceOf(LocalDate::class.java)
             assertThat(it.entryDescription).isEqualTo("desc")
             assertThat(it.entryAmount).isEqualTo(BigDecimal("12.34"))
@@ -371,7 +358,7 @@ internal class FinanceHoldsServiceTest {
           .thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", prisonNumber, transaction, "clientId", 1)
+          financeHoldsService.releaseHold("LEI", prisonNumber, transaction, 1)
         }
           .hasMessage("Offender not found active in prison")
       }
@@ -384,7 +371,7 @@ internal class FinanceHoldsServiceTest {
           .thenReturn(Optional.of(offenderBooking))
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }
           .hasMessage("Offender AA2134 found at prison WRONG_PRISON instead of LEI")
       }
@@ -394,7 +381,7 @@ internal class FinanceHoldsServiceTest {
         whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", holdNumber)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, holdNumber)
         }
           .hasMessage("Offender trust account not found")
       }
@@ -404,7 +391,7 @@ internal class FinanceHoldsServiceTest {
         mockFindTrustAccount(closed = true)
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }
           .hasMessage("Offender trust account closed")
       }
@@ -414,7 +401,7 @@ internal class FinanceHoldsServiceTest {
         whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }
           .hasMessage("Offender sub account not found")
       }
@@ -424,7 +411,7 @@ internal class FinanceHoldsServiceTest {
         mockClientRefDuplicate()
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }.hasMessage("Duplicate post - The clientUniqueReference clientRef has been used before")
       }
 
@@ -440,7 +427,7 @@ internal class FinanceHoldsServiceTest {
         )
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }.hasMessage("Offender sub account hold balance not found")
       }
 
@@ -450,7 +437,7 @@ internal class FinanceHoldsServiceTest {
           .thenReturn(Optional.of(offenderTrustAccount()))
 
         assertThatThrownBy {
-          financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientRef", 1)
+          financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         }.hasMessage("Offender trust account hold balance not found")
       }
     }
@@ -459,11 +446,11 @@ internal class FinanceHoldsServiceTest {
     inner class ReleaseHold {
       @Test
       fun happyPath() {
-        financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientUniqueId", 1)
+        financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
         verify(offenderTransactionRepository).save(
           check {
             assertThat(it.id.transactionId).isEqualTo(releaseTransactionId)
-            assertThat(it.clientUniqueRef).isEqualTo("clientUniqueId")
+            assertThat(it.clientUniqueRef).isEqualTo("clientRef")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
             assertThat(it.holdNumber).isNull()
             assertThat(it.holdClearFlag).isEqualTo("Y")
@@ -472,20 +459,8 @@ internal class FinanceHoldsServiceTest {
       }
 
       @Test
-      fun setClientUniqueRef() {
-        financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientUniqueId", holdNumber)
-
-        verify(offenderTransactionRepository).save(
-          check {
-            assertThat(it.clientUniqueRef).isEqualTo("clientUniqueId")
-            assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-          },
-        )
-      }
-
-      @Test
       fun verifyCalls() {
-        financeHoldsService.releaseHold("LEI", "AA2134", transaction, "clientId", holdNumber)
+        financeHoldsService.releaseHold("LEI", "AA2134", transaction, holdNumber)
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
 
@@ -504,7 +479,7 @@ internal class FinanceHoldsServiceTest {
 
         verify(offenderTransactionRepository).getNextTransactionId()
 
-        verify(offenderTransactionRepository).findByClientUniqueRef("clientId")
+        verify(offenderTransactionRepository).findByClientUniqueRef("clientRef")
 
         verify(offenderTransactionRepository).save(
           check {
@@ -514,7 +489,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.subAccountType).isEqualTo("SPND")
             assertThat(it.transactionType.type).isEqualTo("HOR")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-            assertThat(it.clientUniqueRef).isEqualTo("clientId")
+            assertThat(it.clientUniqueRef).isEqualTo("clientRef")
             assertThat(it.entryDate).isInstanceOf(LocalDate::class.java)
             assertThat(it.entryDescription).isEqualTo("desc")
             assertThat(it.entryAmount).isEqualTo(BigDecimal.TEN)
@@ -682,7 +657,7 @@ internal class FinanceHoldsServiceTest {
 
         assertThatThrownBy {
           financeHoldsService.releaseHoldAndCreateTransaction("LEI", "AA2134", transaction, 1)
-        }.hasMessage("Duplicate post - The clientUniqueReference clientName-removeClientRef has been used before")
+        }.hasMessage("Duplicate post - The clientUniqueReference removeClientRef has been used before")
       }
 
       @Test
@@ -735,7 +710,7 @@ internal class FinanceHoldsServiceTest {
         verify(offenderTransactionRepository).save(
           check {
             assertThat(it.id.transactionId).isEqualTo(releaseTransactionId)
-            assertThat(it.clientUniqueRef).isEqualTo("clientName-removeClientRef")
+            assertThat(it.clientUniqueRef).isEqualTo("removeClientRef")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
             assertThat(it.holdNumber).isNull()
             assertThat(it.holdClearFlag).isEqualTo("Y")
@@ -749,29 +724,7 @@ internal class FinanceHoldsServiceTest {
           BigDecimal.TEN,
           LocalDate.now(),
           "transId",
-          "clientName-createClientRef",
-        )
-      }
-
-      @Test
-      fun setClientUniqueRef() {
-        financeHoldsService.releaseHoldAndCreateTransaction("LEI", "AA2134", transaction, holdNumber)
-
-        verify(offenderTransactionRepository).save(
-          check {
-            assertThat(it.clientUniqueRef).isEqualTo("clientName-removeClientRef")
-            assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-          },
-        )
-        verify(financeV1Repository).postTransaction(
-          "LEI",
-          "AA2134",
-          "CANT",
-          transaction.createDescription,
-          BigDecimal.TEN,
-          LocalDate.now(),
-          "transId",
-          "clientName-createClientRef",
+          "createClientRef",
         )
       }
 
@@ -796,7 +749,7 @@ internal class FinanceHoldsServiceTest {
 
         verify(offenderTransactionRepository).getNextTransactionId()
 
-        verify(offenderTransactionRepository).findByClientUniqueRef("clientName-removeClientRef")
+        verify(offenderTransactionRepository).findByClientUniqueRef("removeClientRef")
 
         verify(offenderTransactionRepository).save(
           check {
@@ -806,7 +759,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.subAccountType).isEqualTo("SPND")
             assertThat(it.transactionType.type).isEqualTo("HOR")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-            assertThat(it.clientUniqueRef).isEqualTo("clientName-removeClientRef")
+            assertThat(it.clientUniqueRef).isEqualTo("removeClientRef")
             assertThat(it.entryDate).isInstanceOf(LocalDate::class.java)
             assertThat(it.entryDescription).isEqualTo("desc")
             assertThat(it.entryAmount).isEqualTo(BigDecimal.TEN)
@@ -833,7 +786,7 @@ internal class FinanceHoldsServiceTest {
           BigDecimal.TEN,
           LocalDate.now(),
           "transId",
-          "clientName-createClientRef",
+          "createClientRef",
         )
       }
     }
