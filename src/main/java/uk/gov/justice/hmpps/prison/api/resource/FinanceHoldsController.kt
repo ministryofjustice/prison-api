@@ -12,18 +12,19 @@ import jakarta.validation.Valid
 import jakarta.validation.constraints.Min
 import jakarta.validation.constraints.Pattern
 import jakarta.validation.constraints.Size
+import org.springframework.http.HttpStatus
 import org.springframework.security.access.prepost.PreAuthorize
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.PathVariable
 import org.springframework.web.bind.annotation.PostMapping
 import org.springframework.web.bind.annotation.RequestBody
 import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.ResponseStatus
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.v1.Transaction
 import uk.gov.justice.hmpps.prison.core.ProxyUser
 import uk.gov.justice.hmpps.prison.service.FinanceHoldsService
-import uk.gov.justice.hmpps.prison.util.ResourceUtils
 
 @RestController
 @Tag(name = "canteen-funds-api")
@@ -39,6 +40,7 @@ class FinanceHoldsController(
 
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/add-hold")
   @ProxyUser
+  @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Add a hold financial transaction to NOMIS.",
     description = """
@@ -53,7 +55,7 @@ class FinanceHoldsController(
       """,
   )
   @ApiResponses(
-    ApiResponse(responseCode = "200", description = "Hold Added"),
+    ApiResponse(responseCode = "201", description = "Hold Added"),
     ApiResponse(
       responseCode = "400",
       description = "Invalid Request",
@@ -88,13 +90,11 @@ class FinanceHoldsController(
     @RequestBody
     @Valid
     holdTransaction: AddHoldTransaction,
-  ): HoldDetails {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
-    return financeHoldsService.addHold(prisonId, offenderNo, holdTransaction, clientUniqueId)
-  }
+  ): HoldDetails = financeHoldsService.addHold(prisonId, offenderNo, holdTransaction)
 
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}")
   @ProxyUser
+  @ResponseStatus(HttpStatus.CREATED)
   @Operation(
     summary = "Remove a hold from an existing hold financial transaction to NOMIS.",
     description = """
@@ -109,7 +109,7 @@ class FinanceHoldsController(
       """,
   )
   @ApiResponses(
-    ApiResponse(responseCode = "200", description = "Hold Removed"),
+    ApiResponse(responseCode = "201", description = "Hold removal transaction created"),
     ApiResponse(
       responseCode = "400",
       description = "Invalid Request",
@@ -148,8 +148,7 @@ class FinanceHoldsController(
     @Valid
     holdTransaction: ReleaseHoldTransaction,
   ) {
-    val clientUniqueId = ResourceUtils.getUniqueClientId(holdTransaction.clientName, holdTransaction.clientUniqueReference)
-    financeHoldsService.releaseHold(prisonId, offenderNo, holdTransaction, clientUniqueId, holdNumber)
+    financeHoldsService.releaseHold(prisonId, offenderNo, holdTransaction, holdNumber)
   }
 
   @ApiResponses(
@@ -211,6 +210,7 @@ class FinanceHoldsController(
             Requires PRISON_API__CANTEEN_FUNDS_API__RW role.""",
   )
   @PostMapping("/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}")
+  @ResponseStatus(HttpStatus.CREATED)
   @ProxyUser
   fun releaseHoldAndCreateTransaction(
     @Parameter(description = "Prison ID", example = "BMI", required = true)
@@ -330,7 +330,6 @@ data class ReleaseHoldAndCreateTransaction(
   @Schema(
     description = "A reference unique to the client for the create. Maximum size 64 characters, only alphabetic, numeric, '-' and '_' are allowed",
     example = "CLIENT121131-0_11",
-    required = true,
   )
   @Size(min = 1, max = 64, message = "The client unique reference must be between 1 and 64 characters")
   @Pattern(

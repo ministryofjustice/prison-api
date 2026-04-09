@@ -25,7 +25,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccoun
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.TransactionTypeRepository
 import uk.gov.justice.hmpps.prison.repository.v1.FinanceV1Repository
 import uk.gov.justice.hmpps.prison.util.MoneySupport.penceToPounds
-import uk.gov.justice.hmpps.prison.util.ResourceUtils
 import uk.gov.justice.hmpps.prison.values.AccountCode
 import java.math.BigDecimal
 import java.math.RoundingMode
@@ -55,10 +54,9 @@ class FinanceHoldsService(
     prisonId: String,
     nomisId: String,
     holdTransaction: AddHoldTransaction,
-    clientUniqueId: String,
   ): HoldDetails {
     val subAccountType = AccountCode.SPENDS.code
-    val (rootOffenderId, booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, clientUniqueId, subAccountType)
+    val (booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, holdTransaction.clientUniqueReference, subAccountType)
 
     val addHoldTransactionType = transactionTypeRepository.findById(ADD_HOLD_TRANSACTION_TYPE).get()
 
@@ -83,7 +81,7 @@ class FinanceHoldsService(
 
     val transaction = OffenderTransaction(
       id = OffenderTransactionId(transactionId, 1),
-      offenderId = rootOffenderId,
+      offenderId = booking.rootOffender.id,
       offenderBookingId = booking.bookingId,
       prisonId = prisonId,
       holdNumber = holdNumber,
@@ -91,7 +89,7 @@ class FinanceHoldsService(
       subAccountType = subAccountType,
       transactionType = addHoldTransactionType,
       transactionReferenceNumber = holdTransaction.clientTransactionId,
-      clientUniqueRef = clientUniqueId,
+      clientUniqueRef = holdTransaction.clientUniqueReference,
       entryDate = now.toLocalDate(),
       entryDescription = holdTransaction.description,
       entryAmount = transactionAmount,
@@ -102,7 +100,7 @@ class FinanceHoldsService(
 
     financeRepository.updateOffenderBalance(
       prisonId,
-      rootOffenderId,
+      booking.rootOffender.id,
       PostingType.DR,
       subAccountType,
       transactionId,
@@ -132,15 +130,10 @@ class FinanceHoldsService(
     return HoldDetails(holdNumber)
   }
 
-  fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, clientUniqueId: String, holdNumber: Long): BigDecimal {
+  fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, holdNumber: Long): BigDecimal {
     val subAccountType = AccountCode.SPENDS.code
-    val (rootOffenderId, booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, clientUniqueId, subAccountType)
-
-    val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(
-      rootOffenderId,
-      prisonId,
-      holdNumber,
-    )
+    val (booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, releaseHoldTransaction.clientUniqueReference, subAccountType)
+    val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(booking.rootOffender.id, prisonId, holdNumber)
       .orElseThrow { EntityNotFoundException("Hold transaction not found'") }
 
     val now = LocalDateTime.now()
@@ -150,14 +143,14 @@ class FinanceHoldsService(
 
     val releaseTransaction = OffenderTransaction(
       id = OffenderTransactionId(releaseHoldTransactionId, 1),
-      offenderId = rootOffenderId,
+      offenderId = booking.rootOffender.id,
       offenderBookingId = booking.bookingId,
       prisonId = prisonId,
       holdClearFlag = "Y",
       subAccountType = holdToReleaseTransaction.subAccountType,
       transactionType = releaseHoldTransactionType,
       transactionReferenceNumber = releaseHoldTransaction.clientTransactionId,
-      clientUniqueRef = clientUniqueId,
+      clientUniqueRef = releaseHoldTransaction.clientUniqueReference,
       entryDate = now.toLocalDate(),
       entryDescription = releaseHoldTransaction.description,
       entryAmount = holdToReleaseTransaction.entryAmount,
@@ -168,7 +161,7 @@ class FinanceHoldsService(
 
     financeRepository.updateOffenderBalance(
       prisonId,
-      rootOffenderId,
+      booking.rootOffender.id,
       releaseTransaction.postingType,
       holdToReleaseTransaction.subAccountType,
       releaseHoldTransactionId,
@@ -197,10 +190,8 @@ class FinanceHoldsService(
       throw ValidationException("Remove and create client unique references cannot be the same: ${createTransaction.removeClientUniqueReference}")
     }
 
-    val removeClientUniqueId = ResourceUtils.getUniqueClientId(createTransaction.clientName, createTransaction.removeClientUniqueReference)
-    val amountInPounds = releaseHold(prisonId, nomisId, createTransaction.toReleaseHold(), removeClientUniqueId, holdNumber)
+    val amountInPounds = releaseHold(prisonId, nomisId, createTransaction.toReleaseHold(), holdNumber)
 
-    val createClientUniqueId = ResourceUtils.getUniqueClientId(createTransaction.clientName, createTransaction.createClientUniqueReference)
     return financeV1Repository.postTransaction(
       prisonId,
       nomisId,
@@ -209,11 +200,11 @@ class FinanceHoldsService(
       amountInPounds,
       LocalDate.now(),
       createTransaction.clientTransactionId,
-      createClientUniqueId,
+      createTransaction.createClientUniqueReference,
     )
   }
 
-  private fun validate(prisonId: String, nomisId: String, clientUniqueId: String, subAccountType: String): ValidatedFields {
+  private fun validate(prisonId: String, nomisId: String, clientUniqueReference: String, subAccountType: String): Triple<OffenderBooking, OffenderTrustAccount, OffenderSubAccount> {
     val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
       .orElseThrow { EntityNotFoundException("Offender not found active in prison") }
 
@@ -247,19 +238,12 @@ class FinanceHoldsService(
       throw ValidationException("Offender sub account not found")
     }
 
-    offenderTransactionRepository.findByClientUniqueRef(clientUniqueId)
+    offenderTransactionRepository.findByClientUniqueRef(clientUniqueReference)
       .ifPresent(
         {
-          throw DuplicateKeyException("Duplicate post - The clientUniqueReference $clientUniqueId has been used before")
+          throw DuplicateKeyException("Duplicate post - The clientUniqueReference $clientUniqueReference has been used before")
         },
       )
-    return ValidatedFields(booking.rootOffender.id, booking, offenderTrustAccount.get(), offenderSubAccount)
+    return Triple(booking, offenderTrustAccount.get(), offenderSubAccount)
   }
 }
-
-data class ValidatedFields(
-  val rootOffenderId: Long,
-  val offenderBooking: OffenderBooking,
-  val offenderTrustAccount: OffenderTrustAccount,
-  val offenderSubAccount: OffenderSubAccount,
-)
