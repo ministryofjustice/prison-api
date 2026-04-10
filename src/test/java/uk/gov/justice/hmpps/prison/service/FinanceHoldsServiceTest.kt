@@ -507,6 +507,20 @@ internal class FinanceHoldsServiceTest {
           eq(BigDecimal.TEN),
           any(),
         )
+        verify(financeRepository).processGlTransNew(
+          eq("LEI"),
+          eq(345L),
+          eq(1L),
+          eq(null),
+          eq("SPND"),
+          eq(releaseTransactionId),
+          eq(1L),
+          eq(BigDecimal.TEN),
+          eq("desc"),
+          any(),
+          eq("HOR"),
+          eq("NOMISAPI"),
+        )
       }
     }
     private fun mockGetReleaseNextTransactionId() {
@@ -776,6 +790,21 @@ internal class FinanceHoldsServiceTest {
           eq("HOR"),
           eq(BigDecimal.TEN),
           any(),
+        )
+
+        verify(financeRepository).processGlTransNew(
+          eq("LEI"),
+          eq(345L),
+          eq(1L),
+          eq(null),
+          eq("SPND"),
+          eq(releaseTransactionId),
+          eq(1L),
+          eq(BigDecimal.TEN),
+          eq("desc"),
+          any(),
+          eq("HOR"),
+          eq("NOMISAPI"),
         )
 
         verify(financeV1Repository).postTransaction(

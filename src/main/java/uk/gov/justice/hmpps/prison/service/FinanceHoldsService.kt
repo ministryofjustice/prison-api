@@ -170,6 +170,21 @@ class FinanceHoldsService(
       nowDate,
     )
 
+    financeRepository.processGlTransNew(
+      prisonId = prisonId, offId = booking.rootOffender.id,
+      offBookId = booking.bookingId,
+      subActTypeCr = subAccountType,
+      subActTypeDr = null,
+      transNumber = releaseHoldTransactionId,
+      transSeq = 1,
+      transAmount = holdToReleaseTransaction.entryAmount,
+      transDesc = releaseHoldTransaction.description,
+      transDate = nowDate,
+      transactionType = RELEASE_HOLD_TRANSACTION_TYPE,
+      moduleName = "NOMISAPI",
+      // TODO Check - there is anywhere to add  transactionReferenceNumber = holdTransaction.clientTransactionId,
+    )
+
     holdToReleaseTransaction.holdClearFlag = "Y"
 
     offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
