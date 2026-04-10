@@ -121,7 +121,6 @@ class FinanceHoldsService(
       transDate = entryDate,
       transactionType = ADD_HOLD_TRANSACTION_TYPE,
       moduleName = "NOMISAPI",
-      // TODO Check - there is anywhere to add  transactionReferenceNumber = holdTransaction.clientTransactionId,
     )
 
     offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
@@ -182,7 +181,6 @@ class FinanceHoldsService(
       transDate = nowDate,
       transactionType = RELEASE_HOLD_TRANSACTION_TYPE,
       moduleName = "NOMISAPI",
-      // TODO Check - there is anywhere to add  transactionReferenceNumber = holdTransaction.clientTransactionId,
     )
 
     holdToReleaseTransaction.holdClearFlag = "Y"
