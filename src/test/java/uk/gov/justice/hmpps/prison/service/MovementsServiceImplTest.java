@@ -79,8 +79,6 @@ public class MovementsServiceImplTest {
     @Mock
     private ReferenceCodeRepository<MovementType> movementTypeRepository;
     @Mock
-    private ReferenceCodeRepository<MovementReason> movementReasonRepository;
-    @Mock
     private MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     @Mock
     private EntityManager entityManager;
@@ -97,7 +95,6 @@ public class MovementsServiceImplTest {
             courtEventRepository,
             agencyLocationRepository,
             movementTypeRepository,
-            movementReasonRepository,
             offenderBookingRepository,
             movementTypeAndReasonRepository,
             entityManager,
@@ -332,8 +329,7 @@ public class MovementsServiceImplTest {
         when(externalMovementRepository.findMovements(any(), anyBoolean(), any(), any(), any(), any()))
             .thenReturn(
                 new PageImpl<>(Collections.singletonList(ExternalMovement.builder()
-                    .movementType(MovementType.of(MovementType.TAP))
-                    .movementReason(MovementReason.of(MovementReason.TRANSFER_VIA_TAP))
+                    .movementReason(new MovementTypeAndReason(new MovementType("TAP", "Transfer"), MovementReason.TRANSFER_VIA_TAP.getCode(), "MOVE_RSN"))
                     .movementDate(LocalDate.of(2020, 1, 30))
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
                     .offenderBooking(OffenderBooking.builder()
@@ -406,7 +402,7 @@ public class MovementsServiceImplTest {
         final AgencyLocation HOSPITAL = AgencyLocation.builder().id("HAZLWD").description("Hazelwood House").build();
         final MovementType MOVEMENT_TYPE_RELEASE = new MovementType("REL", "Released");
         final MovementReason MOVEMENT_REASON_CR = new MovementReason("CR", "Conditional release");
-        final MovementTypeAndReason VALID_MOVEMENT_TYPE_AND_REASON = MovementTypeAndReason.builder().type("REL").reasonCode("CR").build();
+        final MovementTypeAndReason VALID_MOVEMENT_TYPE_AND_REASON = new MovementTypeAndReason(MOVEMENT_TYPE_RELEASE,"CR", "Conditional release");
 
         final OffenderBooking OFFENDER_BOOKING = OffenderBooking.builder()
             .bookingId(1L)
@@ -453,26 +449,15 @@ public class MovementsServiceImplTest {
 
             Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
 
-            assertThat(exception.getMessage()).isEqualTo("movementReason not found using: CR");
-        }
-
-        @Test
-        public void testInvalidMovementReasonForType() {
-            when(movementTypeRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
-            when(movementReasonRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_REASON_CR));
-            when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
-
-            Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
-
-            assertThat(exception.getMessage()).isEqualTo("Invalid movement reason for supplied movement type");
+            assertThat(exception.getMessage()).isEqualTo("movementReason not found using type REL and reason CR");
         }
 
         @Test
         public void testFromAgencyNotFound() {
             when(movementTypeRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
-            when(movementReasonRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_REASON_CR));
             when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
-            when(movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
+            when(movementTypeAndReasonRepository.findById(any())).thenReturn(Optional.of(VALID_MOVEMENT_TYPE_AND_REASON));
+            when(movementTypeAndReasonRepository.findMovementTypeAndReasonById_Type(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
 
             Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
 
@@ -483,9 +468,9 @@ public class MovementsServiceImplTest {
         public void testToAgencyNotFound() {
             when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(AgencyLocation.builder().build()));
             when(movementTypeRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
-            when(movementReasonRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_REASON_CR));
             when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
-            when(movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
+            when(movementTypeAndReasonRepository.findById(any())).thenReturn(Optional.of(VALID_MOVEMENT_TYPE_AND_REASON));
+            when(movementTypeAndReasonRepository.findMovementTypeAndReasonById_Type(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
 
             Throwable exception = assertThrows(EntityNotFoundException.class, () -> movementsService.createExternalMovement(1L, CREATE_MOVEMENT));
 
@@ -497,8 +482,8 @@ public class MovementsServiceImplTest {
             @Test
             public void testStopReleaseMovementsForOffenders_currentlyInside() {
                 when(movementTypeRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
-                when(movementReasonRepository.findById(any())).thenReturn(Optional.of(MOVEMENT_REASON_CR));
-                when(movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
+                when(movementTypeAndReasonRepository.findById(any())).thenReturn(Optional.of(VALID_MOVEMENT_TYPE_AND_REASON));
+                when(movementTypeAndReasonRepository.findMovementTypeAndReasonById_Type(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
 
                 when(offenderBookingRepository.findById(anyLong()))
                     .thenReturn(Optional.of(OFFENDER_BOOKING
@@ -520,9 +505,9 @@ public class MovementsServiceImplTest {
                 when(agencyLocationRepository.findById("MDI")).thenReturn(Optional.of(PRISON));
                 when(agencyLocationRepository.findById("HAZLWD")).thenReturn(Optional.of(HOSPITAL));
                 when(movementTypeRepository.findById(MovementType.pk("REL"))).thenReturn(Optional.of(MOVEMENT_TYPE_RELEASE));
-                when(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(Optional.of(MOVEMENT_REASON_CR));
                 when(offenderBookingRepository.findById(anyLong())).thenReturn(Optional.of(OFFENDER_BOOKING));
-                when(movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
+                when(movementTypeAndReasonRepository.findById(any())).thenReturn(Optional.of(VALID_MOVEMENT_TYPE_AND_REASON));
+                when(movementTypeAndReasonRepository.findMovementTypeAndReasonById_Type(any())).thenReturn(List.of(VALID_MOVEMENT_TYPE_AND_REASON));
             }
 
             @Test
@@ -565,8 +550,7 @@ public class MovementsServiceImplTest {
             @Test
             public void testSetPreviousMovementsToInactive() {
                 final var previousMovement = ExternalMovement.builder()
-                    .movementType(MovementType.of(MovementType.TAP))
-                    .movementReason(MovementReason.of(MovementReason.TRANSFER_VIA_TAP))
+                    .movementReason(new MovementTypeAndReason(new MovementType("TAP", "Transfer"), MovementReason.TRANSFER_VIA_TAP.getCode(), "desc"))
                     .movementDate(LocalDate.of(2020, 1, 30))
                     .movementTime(LocalDateTime.of(2020, 1, 30, 12, 30))
                     .active(true)

@@ -1,6 +1,13 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.model;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Convert;
+import jakarta.persistence.Embeddable;
+import jakarta.persistence.EmbeddedId;
+import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
+import jakarta.persistence.JoinColumn;
+import jakarta.persistence.ManyToOne;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -8,22 +15,26 @@ import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.ToString;
-
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.Id;
-import jakarta.persistence.IdClass;
+import org.hibernate.annotations.JoinColumnOrFormula;
+import org.hibernate.annotations.JoinColumnsOrFormulas;
+import org.hibernate.annotations.JoinFormula;
 import org.hibernate.type.YesNoConverter;
 
 import java.io.Serializable;
+
+import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE;
 
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @Entity(name = "MOVEMENT_REASONS")
-@IdClass(MovementTypeAndReason.Pk.class)
+//@IdClass(MovementTypeAndReason.Pk.class)
 public class MovementTypeAndReason implements Serializable {
+
+    public MovementTypeAndReason(MovementType movementType, String reasonCode, String description) {
+        this(new Pk(movementType.getCode(), reasonCode), movementType, description, false);
+    }
 
     @AllArgsConstructor
     @NoArgsConstructor
@@ -31,18 +42,32 @@ public class MovementTypeAndReason implements Serializable {
     @ToString
     @EqualsAndHashCode
     @Builder
+    @Embeddable
     public static class Pk implements Serializable {
         @Column(name = "MOVEMENT_TYPE", updatable = false, insertable = false)
         private String type;
+
         @Column(name = "MOVEMENT_REASON_CODE", updatable = false, insertable = false)
         private String reasonCode;
+
+        public Pk(MovementType movementType, String reasonCode) {
+            this(movementType.getCode(), reasonCode);
+        }
     }
 
-    @Id
-    private String type;
+    public String getReasonCode() {
+        return id.getReasonCode();
+    }
 
-    @Id
-    private String reasonCode;
+    @EmbeddedId
+    private Pk id;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumnsOrFormulas(value = {
+        @JoinColumnOrFormula(formula = @JoinFormula(value = "'" + TYPE + "'", referencedColumnName = "domain")),
+        @JoinColumnOrFormula(column = @JoinColumn(name = "MOVEMENT_TYPE", referencedColumnName = "code", insertable = false, updatable = false))
+    })
+    private MovementType movementType;
 
     private String description;
 
@@ -50,8 +75,4 @@ public class MovementTypeAndReason implements Serializable {
     @Convert(converter = YesNoConverter.class)
     @Builder.Default
     private boolean escaped = false;
-
-    public static String getDescriptionOrNull(final MovementTypeAndReason referenceCode) {
-        return referenceCode != null ? referenceCode.getDescription() : null;
-    }
 }

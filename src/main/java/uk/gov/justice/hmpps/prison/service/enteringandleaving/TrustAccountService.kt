@@ -32,14 +32,14 @@ class TrustAccountSPService(val financeRepository: FinanceRepository) : TrustAcc
       booking.bookingId,
       booking.rootOffender.id,
       fromAgency.id,
-      movementIn.movementReason.code,
+      movementIn.movementReasonCode,
       null,
       null,
       movementIn.toAgency.id,
     )
   }
 
-  private fun doesNotRequireTrustAccount(movementIn: ExternalMovement): Boolean = movementIn.movementReason.code.equals(MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
+  private fun doesNotRequireTrustAccount(movementIn: ExternalMovement): Boolean = movementIn.movementReasonCode.equals(MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
 }
 
 @Service

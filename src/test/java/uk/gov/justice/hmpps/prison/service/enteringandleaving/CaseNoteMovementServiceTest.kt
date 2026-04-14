@@ -16,7 +16,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Staff
@@ -80,10 +81,7 @@ internal class CaseNoteMovementServiceTest {
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = toPrison
-        movementReason = MovementReason().apply {
-          code = "TRANSFERRED"
-          description = "Transferred"
-        }
+        movementReason = MovementTypeAndReason(MovementType.of(MovementType.TRN), "TRANSFERRED", "Transferred")
       }
     }
 
@@ -184,10 +182,7 @@ internal class CaseNoteMovementServiceTest {
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out
-        movementReason = MovementReason().apply {
-          code = "TRANSFERRED"
-          description = "Transferred"
-        }
+        movementReason = MovementTypeAndReason(MovementType.of(MovementType.TRN), "TRANSFERRED", "Transferred")
       }
     }
 
@@ -204,10 +199,7 @@ internal class CaseNoteMovementServiceTest {
         movementTime = LocalDateTime.parse("2020-01-01T00:00:00")
         this.fromAgency = fromPrison
         this.toAgency = out
-        movementReason = MovementReason().apply {
-          code = "CR"
-          description = "Conditional Release"
-        }
+        movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), "CR", "Conditional Release")
       }
       whenever(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("PRISON"))).thenReturn(
         Optional.of(

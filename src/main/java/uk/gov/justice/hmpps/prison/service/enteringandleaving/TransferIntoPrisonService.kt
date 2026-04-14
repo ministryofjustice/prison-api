@@ -64,7 +64,7 @@ class TransferIntoPrisonService(
         booking = booking,
         lastMovement = transferMovement,
       ).also { movement ->
-        statusReason = "${movement.movementType.code}-${movement.movementReason.code}"
+        statusReason = "${movement.movementReason.movementType.code}-${movement.movementReasonCode}"
         bedAssignmentMovementService.createBedHistory(
           booking = this,
           cellLocation = cellLocation,
@@ -120,7 +120,7 @@ class TransferIntoPrisonService(
           toAgency = toAgency,
           commentText = request.commentText,
         ).also { createdMovement ->
-          statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
+          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReasonCode}"
           bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,
@@ -154,7 +154,7 @@ class TransferIntoPrisonService(
     }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
+      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReasonCode)
       livingUnitMv = null
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
         movementReasonCode = request.movementReasonCode,
@@ -194,7 +194,7 @@ class TransferIntoPrisonService(
     }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      statusReason = MovementType.TAP.code + "-" + (request.movementReasonCode ?: releaseTAPMovement.movementReason.code)
+      statusReason = MovementType.TAP.code + "-" + (request.movementReasonCode ?: releaseTAPMovement.movementReasonCode)
       livingUnitMv = null
       externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
         movementReasonCode = request.movementReasonCode,
@@ -231,7 +231,7 @@ class TransferIntoPrisonService(
           toAgency = toAgency,
           commentText = request.commentText,
         ).also { createdMovement ->
-          statusReason = "${createdMovement.movementType.code}-${createdMovement.movementReason.code}"
+          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReasonCode}"
           bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,
@@ -323,9 +323,9 @@ private fun ExternalMovement.assertIsActiveTAPTransfer(): Result<ExternalMovemen
   return success(this)
 }
 
-private fun ExternalMovement.isTransfer() = this.movementType.code == MovementType.TRN.code
-private fun ExternalMovement.isCourtTransfer() = this.movementType.code == MovementType.CRT.code
-private fun ExternalMovement.isTAPTransfer() = this.movementType.code == MovementType.TAP.code
+private fun ExternalMovement.isTransfer() = this.movementReason.movementType.code == MovementType.TRN.code
+private fun ExternalMovement.isCourtTransfer() = this.movementReason.movementType.code == MovementType.CRT.code
+private fun ExternalMovement.isTAPTransfer() = this.movementReason.movementType.code == MovementType.TAP.code
 private fun AgencyInternalLocation.assertHasSpaceInCell(): Result<AgencyInternalLocation> = if (this.hasSpace()) {
   success(this)
 } else {

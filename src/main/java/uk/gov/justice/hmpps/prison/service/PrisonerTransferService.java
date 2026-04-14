@@ -20,12 +20,11 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.BedAssignmentHistoriesRepository;
@@ -64,7 +63,6 @@ public class PrisonerTransferService {
     private final ExternalMovementRepository externalMovementRepository;
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeRepository;
-    private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
@@ -83,11 +81,12 @@ public class PrisonerTransferService {
     public InmateDetail transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
-
-        checkMovementTypes(TRN.getCode(), requestToTransferOut.getTransferReasonCode());
+        final var trn = movementTypeRepository.findById(TRN).orElseThrow();
+        final var movementTypeAndReason = new Pk(trn, requestToTransferOut.getTransferReasonCode());
 
         // Generate the external movement out
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestToTransferOut.getTransferReasonCode())));
+        final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
+            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for %s", movementTypeAndReason));
 
         final var transferDateTime = getAndCheckMovementTime(requestToTransferOut.getMovementTime(), booking.getBookingId());
         // set previous active movements to false
@@ -96,7 +95,7 @@ public class PrisonerTransferService {
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.INST).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOut.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOut.getToLocation())));
 
-        createOutMovement(booking, TRN, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
+        createOutMovement(booking, movementReason, booking.getLocation(), toLocation, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
         updateBedAssignmentHistory(booking, transferDateTime);
         updatePayPeriods(booking.getBookingId(), transferDateTime.toLocalDate());
 
@@ -123,10 +122,12 @@ public class PrisonerTransferService {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
 
-        checkMovementTypes(CRT.getCode(), requestToTransferOutToCourt.getTransferReasonCode());
+        final var crt = movementTypeRepository.findById(CRT).orElseThrow();
+        final var movementTypeAndReason = new Pk(crt, requestToTransferOutToCourt.getTransferReasonCode());
 
         // Generate the external movement out
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOutToCourt.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestToTransferOutToCourt.getTransferReasonCode())));
+        final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
+            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for %s", movementTypeAndReason));
 
         final var transferDateTime = getAndCheckMovementTime(requestToTransferOutToCourt.getMovementTime(), booking.getBookingId());
         // set previous active movements to false
@@ -135,7 +136,7 @@ public class PrisonerTransferService {
         final var agencyLocationType = agencyLocationTypeRepository.findById(AgencyLocationType.CRT).orElseThrow(EntityNotFoundException.withMessage(format("Agency Location Type of %s not Found", AgencyLocationType.INST.getCode())));
         final var toLocation = agencyLocationRepository.findByIdAndTypeAndActiveAndDeactivationDateIsNull(requestToTransferOutToCourt.getToLocation(), agencyLocationType, true).orElseThrow(EntityNotFoundException.withMessage(format("No %s agency found", requestToTransferOutToCourt.getToLocation())));
 
-        createOutMovement(booking, CRT, movementReason, booking.getLocation(), toLocation, null, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType(), requestToTransferOutToCourt.getCourtEventId());
+        createOutMovement(booking, movementReason, booking.getLocation(), toLocation, null, transferDateTime, requestToTransferOutToCourt.getCommentText(), requestToTransferOutToCourt.getEscortType(), requestToTransferOutToCourt.getCourtEventId());
         Optional.ofNullable(requestToTransferOutToCourt.getCourtEventId()).ifPresent(id -> createScheduleCourtHearingInEvent(markCourtEventComplete(id)));
         if (requestToTransferOutToCourt.isShouldReleaseBed()) {
             updateBedAssignmentHistory(booking, transferDateTime);
@@ -146,7 +147,7 @@ public class PrisonerTransferService {
                 .livingUnitId(booking.getAssignedLivingUnit().getLocationId())
                 .assignmentDate(transferDateTime.toLocalDate())
                 .assignmentDateTime(transferDateTime)
-                .assignmentReason(movementReason.getCode())
+                .assignmentReason(movementReason.getReasonCode())
                 .offenderBooking(booking)
                 .build());
         }
@@ -168,10 +169,12 @@ public class PrisonerTransferService {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
 
-        checkMovementTypes(TAP.getCode(), requestToTransferOut.getTransferReasonCode());
+        final var tap = movementTypeRepository.findById(TAP).orElseThrow();
+        final var movementTypeAndReason = new Pk(tap, requestToTransferOut.getTransferReasonCode());
 
         // Generate the external movement out
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(requestToTransferOut.getTransferReasonCode())).orElseThrow(EntityNotFoundException.withMessage(format("No movement reason %s found", requestToTransferOut.getTransferReasonCode())));
+        final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
+            .orElseThrow(EntityNotFoundException.withMessage("No movement type found for %s", movementTypeAndReason));
 
         final var transferDateTime = getAndCheckMovementTime(requestToTransferOut.getMovementTime(), booking.getBookingId());
         // set previous active movements to false
@@ -182,10 +185,10 @@ public class PrisonerTransferService {
             .ifPresentOrElse(id -> {
                 var individualSchedule = offenderIndividualScheduleRepository.findById(id).orElseThrow(EntityNotFoundException.withMessage(format("No schedule event found for %s", id)));
                 createScheduleTAPInEvent(markOffenderIndividualScheduleComplete(individualSchedule));
-                createOutMovement(booking, TAP, movementReason, booking.getLocation(), individualSchedule, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
+                createOutMovement(booking, movementReason, booking.getLocation(), individualSchedule, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType());
             }, () -> {
             final var toCity = Optional.ofNullable(requestToTransferOut.getToCity()).map(city -> cityReferenceCodeRepository.findById(City.pk(requestToTransferOut.getToCity())).orElseThrow(EntityNotFoundException.withMessage(format("No city %s found", requestToTransferOut.getToCity())))).orElseThrow(BadRequestException.withMessage("No city specified"));
-            createOutMovement(booking, TAP, movementReason, booking.getLocation(), null, toCity, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType(), requestToTransferOut.getScheduleEventId());
+            createOutMovement(booking, movementReason, booking.getLocation(), null, toCity, transferDateTime, requestToTransferOut.getCommentText(), requestToTransferOut.getEscortType(), requestToTransferOut.getScheduleEventId());
         });
 
 
@@ -198,7 +201,7 @@ public class PrisonerTransferService {
                 .livingUnitId(booking.getAssignedLivingUnit().getLocationId())
                 .assignmentDate(transferDateTime.toLocalDate())
                 .assignmentDateTime(transferDateTime)
-                .assignmentReason(movementReason.getCode())
+                .assignmentReason(movementReason.getReasonCode())
                 .offenderBooking(booking)
                 .build());
         }
@@ -284,8 +287,7 @@ public class PrisonerTransferService {
     }
 
     private void createOutMovement(final OffenderBooking booking,
-                                   final ReferenceCode.Pk movementCode,
-                                   final MovementReason movementReason,
+                                   final MovementTypeAndReason movementReason,
                                    final AgencyLocation fromLocation,
                                    final AgencyLocation toLocation,
                                    final LocalDateTime movementTime,
@@ -294,7 +296,7 @@ public class PrisonerTransferService {
         booking.addExternalMovement(ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
             .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
+            //.movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
             .movementReason(movementReason)
             .movementDirection(MovementDirection.OUT)
             .reportingDate(movementTime.toLocalDate())
@@ -307,8 +309,7 @@ public class PrisonerTransferService {
     }
 
     private void createOutMovement(final OffenderBooking booking,
-                                   final ReferenceCode.Pk movementCode,
-                                   final MovementReason movementReason,
+                                   final MovementTypeAndReason movementReason,
                                    final AgencyLocation fromLocation,
                                    final OffenderIndividualSchedule offenderIndividualSchedule,
                                    final LocalDateTime movementTime,
@@ -317,7 +318,7 @@ public class PrisonerTransferService {
         booking.addExternalMovement(ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
             .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
+            //.movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
             .movementReason(movementReason)
             .movementDirection(MovementDirection.OUT)
             .reportingDate(movementTime.toLocalDate())
@@ -332,8 +333,7 @@ public class PrisonerTransferService {
             .build());
     }
     private void createOutMovement(final OffenderBooking booking,
-                                   final ReferenceCode.Pk movementCode,
-                                   final MovementReason movementReason,
+                                   final MovementTypeAndReason movementReason,
                                    final AgencyLocation fromLocation,
                                    final AgencyLocation toLocation,
                                    final City toCity,
@@ -344,7 +344,7 @@ public class PrisonerTransferService {
         booking.addExternalMovement(ExternalMovement.builder()
             .movementDate(movementTime.toLocalDate())
             .movementTime(movementTime)
-            .movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
+            //.movementType(movementTypeRepository.findById(movementCode).orElseThrow(EntityNotFoundException.withMessage(format("No %s movement type found", movementCode))))
             .movementReason(movementReason)
             .movementDirection(MovementDirection.OUT)
             .reportingDate(movementTime.toLocalDate())
@@ -356,13 +356,6 @@ public class PrisonerTransferService {
             .commentText(commentText)
             .eventId(eventId)
             .build());
-    }
-
-    private void checkMovementTypes(final String movementCode, final String reasonCode) {
-        final var movementTypeAndReason = Pk.builder().type(movementCode).reasonCode(reasonCode).build();
-
-        movementTypeAndReasonRepository.findById(movementTypeAndReason)
-            .orElseThrow(EntityNotFoundException.withMessage(format("No movement type found for %s", movementTypeAndReason)));
     }
 
     private OffenderBooking getAndCheckOffenderBooking(final String prisonerIdentifier, final boolean skipChecks) {

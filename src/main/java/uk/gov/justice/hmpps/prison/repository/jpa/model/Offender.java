@@ -276,7 +276,7 @@ public class Offender extends AuditableEntity {
             return false;
 
         // treat transfer via court or TAP as transfers
-        return movement.getMovementType().getCode().equals("ADM") && List.of("TRNTAP", "TRNCRT").contains(movement.getMovementReason().getCode());
+        return movement.getMovementType().getCode().equals("ADM") && List.of("TRNTAP", "TRNCRT").contains(movement.getMovementReasonCode());
     }
 
     private boolean isAdmission(ExternalMovement movement) {
@@ -390,7 +390,7 @@ public class Offender extends AuditableEntity {
                     .builder()
                     .dateOutOfPrison(transfer.getMovementDateTime())
                     .dateInToPrison(admission.map(ExternalMovement::getMovementDateTime).orElse(null))
-                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
+                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementTypeAndReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(admission.map(ExternalMovement::getToAgency).map(AgencyLocation::getId).orElse(null))
                     .build();
@@ -402,7 +402,7 @@ public class Offender extends AuditableEntity {
                     .builder()
                     .dateOutOfPrison(courtOrTapMovement.map(ExternalMovement::getMovementDateTime).orElse(null))
                     .dateInToPrison(transfer.getMovementDateTime())
-                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementReason::getDescription).orElse(null))
+                    .transferReason(Optional.ofNullable(transfer.getMovementReason()).map(MovementTypeAndReason::getDescription).orElse(null))
                     .fromPrisonId(Optional.ofNullable(transfer.getFromAgency()).map(AgencyLocation::getId).orElse(null))
                     .toPrisonId(Optional.ofNullable(transfer.getToAgency()).map(AgencyLocation::getId).orElse(null))
                     .build();
@@ -455,14 +455,14 @@ public class Offender extends AuditableEntity {
 
     private void outward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateOutOfPrison(m.getMovementDateTime());
-        md.setReasonOutOfPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
+        md.setReasonOutOfPrison(Optional.ofNullable(m.getMovementReason()).map(MovementTypeAndReason::getDescription).orElse(null));
         md.setOutwardType(m.getMovementType().getCode());
         md.setReleaseFromPrisonId(Optional.ofNullable(m.getFromAgency()).map(AgencyLocation::getId).orElse(null));
     }
 
     private void inward(final ExternalMovement m, final SignificantMovement md) {
         md.setDateInToPrison(m.getMovementDateTime());
-        md.setReasonInToPrison(Optional.ofNullable(m.getMovementReason()).map(MovementReason::getDescription).orElse(null));
+        md.setReasonInToPrison(Optional.ofNullable(m.getMovementReason()).map(MovementTypeAndReason::getDescription).orElse(null));
         md.setInwardType(m.getMovementType().getCode());
         md.setAdmittedIntoPrisonId(Optional.ofNullable(m.getToAgency()).map(AgencyLocation::getId).orElse(null));
     }

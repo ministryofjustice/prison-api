@@ -126,14 +126,14 @@ class PrisonerSearchService(
     lastMovementTypeCode: String?,
     lastMovementReasonCode: String?,
   ) = externalMovements?.filter { em ->
-    em.movementType?.code == lastMovementTypeCode &&
+    em.movementReason?.movementType?.code == lastMovementTypeCode &&
       em.movementReasonCode == lastMovementReasonCode
   }
     ?.maxByOrNull { em -> em.movementDateTime }
     ?.movementDateTime
 
   private fun findLastAdmissionTime(externalMovements: List<ExternalMovement>?): LocalDateTime? = externalMovements
-    ?.filter { it.movementType?.code == "ADM" }
+    ?.filter { it.movementReason?.movementType?.code == "ADM" }
     ?.maxByOrNull { it.movementDateTime }
     ?.movementDateTime
 

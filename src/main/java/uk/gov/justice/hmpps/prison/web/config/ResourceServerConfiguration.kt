@@ -13,7 +13,7 @@ class ResourceServerConfiguration {
   @Bean
   fun resourceServerCustomizer() = ResourceServerConfigurationCustomizer {
     unauthorizedRequestPaths {
-      addPaths = setOf("/api/restore-info")
+      addPaths = setOf("/api/restore-info", "/api/restore-details")
     }
   }
 }

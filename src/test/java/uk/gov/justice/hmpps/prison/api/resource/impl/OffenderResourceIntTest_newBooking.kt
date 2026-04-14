@@ -1365,7 +1365,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           },
           check {
             assertThat(it.toAgency.id).isEqualTo("MDI")
-            assertThat(it.movementReason.code).isEqualTo("24")
+            assertThat(it.movementReasonCode).isEqualTo("24")
           },
         )
       }

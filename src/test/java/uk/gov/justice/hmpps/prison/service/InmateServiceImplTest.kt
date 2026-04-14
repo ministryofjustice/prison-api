@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.LanguageReferenceCode
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
@@ -875,8 +876,7 @@ class InmateServiceImplTest {
           AgencyLocation.builder().id("OUT").description("Outside").type(AgencyLocationType.PRISON_TYPE).build(),
         )
         .movementDirection(MovementDirection.OUT)
-        .movementType(MovementType(movementType, movementTypeDescription))
-        .movementReason(MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code, "to hospital"))
+        .movementReason(MovementTypeAndReason(MovementType(movementType, movementTypeDescription), MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code, "to hospital"))
         .build(),
     )
   }
@@ -894,8 +894,7 @@ class InmateServiceImplTest {
           AgencyLocation.builder().id("OUT").description("Outside").type(AgencyLocationType.PRISON_TYPE).build(),
         )
         .movementDirection(MovementDirection.OUT)
-        .movementType(MovementType(movementType, movementTypeDescription))
-        .movementReason(MovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code, "to hospital"))
+        .movementReason(MovementTypeAndReason(MovementType(movementType, movementTypeDescription), MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code, "to hospital"))
         .build(),
     )
   }
@@ -916,8 +915,7 @@ class InmateServiceImplTest {
           AgencyLocation.builder().id("MDI").description("Moorland").type(AgencyLocationType.PRISON_TYPE).build(),
         )
         .movementDirection(MovementDirection.OUT)
-        .movementType(MovementType(movementType, movementTypeDescription))
-        .movementReason(MovementReason("P", "PRODUCTION"))
+        .movementReason(MovementTypeAndReason(MovementType(movementType, movementTypeDescription), "P", "PRODUCTION"))
         .build(),
     )
   }

@@ -14,8 +14,8 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.InstitutionArea
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTeamAssignment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
@@ -42,14 +42,7 @@ internal class TeamWorkflowNotificationServiceTest {
   private val movement = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "ADM"
-      description = "Admission"
-    }
-    movementReason = MovementReason().apply {
-      code = "TRNCRT"
-      description = "Transfer via Court"
-    }
+    movementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "TRNCRT", "Transfer via Court")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true

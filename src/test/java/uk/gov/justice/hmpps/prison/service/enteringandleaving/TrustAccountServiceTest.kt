@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import java.time.LocalDateTime
@@ -45,14 +46,7 @@ internal class TrustAccountServiceTest {
   private val transferOutToPrison = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "TRN"
-      description = "Transfer"
-    }
-    movementReason = MovementReason().apply {
-      code = "TRN"
-      description = "Transfer"
-    }
+    movementReason = MovementTypeAndReason(MovementType("TRN", "Transfer"), "TRN", "Transfer")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -61,14 +55,7 @@ internal class TrustAccountServiceTest {
   private val transferOutToCourt = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toCourt
-    movementType = MovementType().apply {
-      code = "CRT"
-      description = "Court"
-    }
-    movementReason = MovementReason().apply {
-      code = "19"
-      description = "Witness"
-    }
+    movementReason = MovementTypeAndReason(MovementType("CRT", "Court"), "19", "Witness")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -77,14 +64,7 @@ internal class TrustAccountServiceTest {
   private val transferInToPrison = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "ADM"
-      description = "Admission"
-    }
-    movementReason = MovementReason().apply {
-      code = "INT"
-      description = "Inter prison transfer"
-    }
+    movementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "INT", "Inter prison transfer")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -93,14 +73,7 @@ internal class TrustAccountServiceTest {
   private val transferInToPrisonViaCourt = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "ADM"
-      description = "Admission"
-    }
-    movementReason = MovementReason().apply {
-      code = "TRNCRT"
-      description = "Transfer via court"
-    }
+    movementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "TRNCRT", "Transfer via court")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -109,14 +82,7 @@ internal class TrustAccountServiceTest {
   private val transferInToAwaitHospital = ExternalMovement().apply {
     fromAgency = toPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "ADM"
-      description = "Admission"
-    }
-    movementReason = MovementReason().apply {
-      code = MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code
-      description = "Await removal to hospital"
-    }
+    movementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), MovementReason.AWAIT_REMOVAL_TO_PSY_HOSPITAL.code, "Await removal to hospital")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true

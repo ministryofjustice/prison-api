@@ -57,7 +57,7 @@ class ReleasePrisonerService(
         assignedLivingUnit = null
         location = getAgencyLocation(AgencyLocation.OUT).getOrThrow()
         bookingEndDate = movement.movementTime
-        statusReason = "REL-${movement.movementReason.code}"
+        statusReason = "REL-${movement.movementReasonCode}"
         commStatus = null
       }
       .let { transformer.transform(it) }
