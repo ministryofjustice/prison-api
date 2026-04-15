@@ -34,7 +34,7 @@ class ExternalMovementService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
   ): ExternalMovement {
-    val movementReason = getMovementReasonForPrisonTransfer().getOrThrow()
+    val movementReason = getMovementTypeAndReason("ADM", "INT").getOrThrow()
     val receiveDateTime = getMovementDateTime(request.receiveTime, booking).getOrThrow()
 
     return booking.addExternalMovementIn(
@@ -170,21 +170,10 @@ class ExternalMovementService(
     )
   }
 
-  private fun getMovementReasonForPrisonTransfer(): Result<MovementTypeAndReason> {
-    return movementTypeAndReasonRepository.findByIdOrNull(MovementTypeAndReason.Pk(MovementType("ADM", "Admission"), "INT"))
-      ?.let { success(it) }
-      ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
-  }
-
-  fun getMovementTypeAndReason(type: String, movementReasonCode: String): Result<MovementTypeAndReason> {
-//    val movementType = movementTypeRepository.findByIdOrNull(MovementType.pk(type))
-//      ?: throw EntityNotFoundException.withMessage("No $type movement type found")
-
-    return movementTypeAndReasonRepository.getMovementTypeAndReason(type, movementReasonCode)
-      .getOrNull()
-      ?.let { success(it) }
-      ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode with type $type found"))
-  }
+  fun getMovementTypeAndReason(type: String, movementReasonCode: String): Result<MovementTypeAndReason> = movementTypeAndReasonRepository
+    .findByIdOrNull(MovementTypeAndReason.Pk(type, movementReasonCode))
+    ?.let { success(it) }
+    ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode with type $type found"))
 
   fun getMovementDateTime(movementTime: LocalDateTime?, booking: OffenderBooking?): Result<LocalDateTime> {
     val now = LocalDateTime.now()

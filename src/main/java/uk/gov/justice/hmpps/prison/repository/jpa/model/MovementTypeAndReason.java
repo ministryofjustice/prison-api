@@ -8,6 +8,7 @@ import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.Table;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,15 +29,14 @@ import static uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType.TYPE
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Entity(name = "MOVEMENT_REASONS")
-//@IdClass(MovementTypeAndReason.Pk.class)
+@Entity
+@Table(name = "MOVEMENT_REASONS")
 public class MovementTypeAndReason implements Serializable {
 
     public MovementTypeAndReason(MovementType movementType, String reasonCode, String description) {
         this(new Pk(movementType.getCode(), reasonCode), movementType, description, false);
     }
 
-    @AllArgsConstructor
     @NoArgsConstructor
     @Getter
     @ToString
@@ -52,6 +52,12 @@ public class MovementTypeAndReason implements Serializable {
 
         public Pk(MovementType movementType, String reasonCode) {
             this(movementType.getCode(), reasonCode);
+        }
+
+        public Pk(String type, String reasonCode) {
+            this();
+            this.type = type;
+            this.reasonCode = reasonCode;
         }
     }
 

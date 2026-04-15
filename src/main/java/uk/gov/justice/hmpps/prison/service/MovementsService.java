@@ -380,10 +380,7 @@ public class MovementsService {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
             .orElseThrow(EntityNotFoundException.withMessage("booking not found using %s", bookingId));
 
-        final var movementType = movementTypeRepository.findById(MovementType.pk(createExternalMovement.getMovementType()))
-            .orElseThrow(EntityNotFoundException.withMessage("movementType not found using: %s", createExternalMovement.getMovementType()));
-
-        final var movementReason = movementTypeAndReasonRepository.findById(new MovementTypeAndReason.Pk(movementType, createExternalMovement.getMovementReason()))
+        final var movementReason = movementTypeAndReasonRepository.findById(new MovementTypeAndReason.Pk(createExternalMovement.getMovementType(), createExternalMovement.getMovementReason()))
             .orElseThrow(EntityNotFoundException.withMessage(
                     "movementReason not found using type %s and reason %s",
                     createExternalMovement.getMovementType(),
@@ -420,7 +417,6 @@ public class MovementsService {
             .fromAgency(fromAgency)
             .toAgency(toAgency)
             .movementDirection(createExternalMovement.getDirectionCode())
-            //.movementType(movementType)
             .movementReason(movementReason)
             .build();
 
