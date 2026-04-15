@@ -101,7 +101,7 @@ class DischargeToHospitalService(
   private fun ExternalMovement.changeToHospitalDischarge(toLocation: AgencyLocation) {
     val text = (if (commentText == null) "" else "$commentText. ")
       .let { it + "Psychiatric Hospital Discharge to ${toLocation.description}" }
-    movementReason = externalMovementService.getMovementReason(MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code).getOrThrow()
+    movementReason = externalMovementService.getMovementTypeAndReason(MovementType.REL.code, MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code).getOrThrow()
     toAgency = toLocation
     commentText = text.substring(0, min(text.length, 240))
     offenderBooking.statusReason = MovementType.REL.code + "-" + MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code

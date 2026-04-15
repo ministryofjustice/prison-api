@@ -39,8 +39,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepository;
@@ -76,7 +76,6 @@ public class MovementsService {
     private final CourtEventRepository courtEventRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ReferenceCodeRepository<MovementType> movementTypeRepository;
-    private final ReferenceCodeRepository<MovementReason> movementReasonRepository;
     private final OffenderBookingRepository offenderBookingRepository;
     private final MovementTypeAndReasonRepository movementTypeAndReasonRepository;
     private final EntityManager entityManager;
@@ -88,7 +87,6 @@ public class MovementsService {
                             final CourtEventRepository courtEventRepository,
                             final AgencyLocationRepository agencyLocationRepository,
                             final ReferenceCodeRepository<MovementType> movementTypeRepository,
-                            final ReferenceCodeRepository<MovementReason> movementReasonRepository,
                             final OffenderBookingRepository offenderBookingRepository,
                             final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
                             final EntityManager entityManager,
@@ -100,7 +98,6 @@ public class MovementsService {
         this.offenderBookingRepository = offenderBookingRepository;
         this.agencyLocationRepository = agencyLocationRepository;
         this.movementTypeRepository = movementTypeRepository;
-        this.movementReasonRepository = movementReasonRepository;
         this.movementTypeAndReasonRepository = movementTypeAndReasonRepository;
         this.entityManager = entityManager;
         this.maxBatchSize = maxBatchSize;
@@ -383,14 +380,16 @@ public class MovementsService {
         final var offenderBooking = offenderBookingRepository.findById(bookingId)
             .orElseThrow(EntityNotFoundException.withMessage("booking not found using %s", bookingId));
 
-        final var movementType = movementTypeRepository.findById(MovementType.pk(createExternalMovement.getMovementType()))
-            .orElseThrow(EntityNotFoundException.withMessage("movementType not found using: %s", createExternalMovement.getMovementType()));
-
-        final var movementReason = movementReasonRepository.findById(MovementReason.pk(createExternalMovement.getMovementReason()))
-            .orElseThrow(EntityNotFoundException.withMessage("movementReason not found using: %s", createExternalMovement.getMovementReason()));
+        final var movementReason = movementTypeAndReasonRepository.findById(new MovementTypeAndReason.Pk(createExternalMovement.getMovementType(), createExternalMovement.getMovementReason()))
+            .orElseThrow(EntityNotFoundException.withMessage(
+                    "movementReason not found using type %s and reason %s",
+                    createExternalMovement.getMovementType(),
+                    createExternalMovement.getMovementReason()
+                )
+            );
 
         final var movementReasons =
-            movementTypeAndReasonRepository.findMovementTypeAndReasonByTypeIs(createExternalMovement.getMovementType());
+            movementTypeAndReasonRepository.findMovementTypeAndReasonById_Type(createExternalMovement.getMovementType());
 
         if (movementReasons.stream().noneMatch(r -> r.getReasonCode().equals(createExternalMovement.getMovementReason())))
             throw new EntityNotFoundException("Invalid movement reason for supplied movement type");
@@ -418,7 +417,6 @@ public class MovementsService {
             .fromAgency(fromAgency)
             .toAgency(toAgency)
             .movementDirection(createExternalMovement.getDirectionCode())
-            .movementType(movementType)
             .movementReason(movementReason)
             .build();
 

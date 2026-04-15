@@ -230,7 +230,7 @@ class OffenderResourceIntTest_release : ResourceTest() {
           .isNotFound
           .expectBody()
           .jsonPath("userMessage")
-          .isEqualTo("No movement reason ZZZ found")
+          .isEqualTo("No movement reason ZZZ with type REL found")
       }
 
       @Test

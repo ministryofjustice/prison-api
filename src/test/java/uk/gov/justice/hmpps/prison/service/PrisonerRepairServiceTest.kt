@@ -14,6 +14,7 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
@@ -38,15 +39,13 @@ internal class PrisonerRepairServiceTest {
     private val hospitalRelease = ExternalMovement().apply {
       isActive = true
       movementSequence = 1
-      movementType = MovementType.of(MovementType.REL)
-      movementReason = MovementReason.of(MovementReason.DISCHARGE_TO_PSY_HOSPITAL)
+      movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), MovementReason.DISCHARGE_TO_PSY_HOSPITAL.code, "desc")
       offenderBooking = booking
     }
     private val conditionalRelease = ExternalMovement().apply {
       isActive = true
       movementSequence = 2
-      movementType = MovementType.of(MovementType.REL)
-      movementReason = MovementReason.of(MovementReason.CONDITIONAL_RELEASE)
+      movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), MovementReason.CONDITIONAL_RELEASE.code, "desc")
       offenderBooking = booking
     }
 
@@ -70,7 +69,7 @@ internal class PrisonerRepairServiceTest {
             ExternalMovement().apply {
               isActive = true
               movementSequence = 2
-              movementType = MovementType("BOB", "Bob")
+              movementReason = MovementTypeAndReason(MovementType("BOB", "Bob"), MovementReason.CONDITIONAL_RELEASE.code, "desc")
             },
             hospitalRelease,
           ),
@@ -88,8 +87,7 @@ internal class PrisonerRepairServiceTest {
             ExternalMovement().apply {
               isActive = true
               movementSequence = 2
-              movementType = MovementType.of(MovementType.REL)
-              movementReason = MovementReason.of(MovementReason.SENTENCING)
+              movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), MovementReason.SENTENCING.code, "desc")
             },
             hospitalRelease,
           ),
@@ -108,7 +106,7 @@ internal class PrisonerRepairServiceTest {
             ExternalMovement().apply {
               isActive = true
               movementSequence = 1
-              movementType = MovementType("BOB", "Bob")
+              movementReason = MovementTypeAndReason(MovementType("BOB", "Bob"), MovementReason.CONDITIONAL_RELEASE.code, "desc")
             },
           ),
         )
@@ -126,8 +124,7 @@ internal class PrisonerRepairServiceTest {
             ExternalMovement().apply {
               isActive = true
               movementSequence = 1
-              movementType = MovementType.of(MovementType.REL)
-              movementReason = MovementReason.of(MovementReason.SENTENCING)
+              movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), MovementReason.SENTENCING.code, "desc")
             },
           ),
         )

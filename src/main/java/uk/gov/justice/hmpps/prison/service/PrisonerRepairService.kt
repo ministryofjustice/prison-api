@@ -20,16 +20,16 @@ class PrisonerRepairService(
     if (sortedMovements.size != 2) throw IllegalStateException("Found ${sortedMovements.size} active movements, expecting 2")
 
     val releaseMovement = sortedMovements[0]
-    if (releaseMovement.movementType.code != "REL") {
-      throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a REL, found ${releaseMovement.movementType.code} instead")
+    if (releaseMovement.movementReason.movementType.code != "REL") {
+      throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a REL, found ${releaseMovement.movementReason.movementType.code} instead")
     }
     if (releaseMovement.movementReason.code != "CR") {
       throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a CR, found ${releaseMovement.movementReason.code} instead")
     }
 
     val hospitalMovement = sortedMovements[1]
-    if (hospitalMovement.movementType.code != "REL") {
-      throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a REL, found ${hospitalMovement.movementType.code} instead")
+    if (hospitalMovement.movementReason.movementType.code != "REL") {
+      throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a REL, found ${hospitalMovement.movementReason.movementType.code} instead")
     }
     if (hospitalMovement.movementReason.code != "HP") {
       throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a HP, found ${hospitalMovement.movementReason.code} instead")

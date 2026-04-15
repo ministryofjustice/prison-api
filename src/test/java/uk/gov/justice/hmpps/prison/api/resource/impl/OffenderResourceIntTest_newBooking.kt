@@ -1322,7 +1322,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
             tuple(
               "TRANSFER",
               "FROMTOL",
-              "Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from Court 1.",
+              "Offender admitted to MOORLAND for reason: Recall from Intermittent Custody from Court 1.",
             ),
           )
       }

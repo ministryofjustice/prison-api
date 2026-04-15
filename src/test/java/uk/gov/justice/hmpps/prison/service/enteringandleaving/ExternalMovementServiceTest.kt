@@ -21,6 +21,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
@@ -35,7 +36,6 @@ import java.util.Optional
 internal class ExternalMovementServiceTest {
   private val movementReasonRepository: ReferenceCodeRepository<MovementReason> = mock()
   private val externalMovementRepository: ExternalMovementRepository = mock()
-  private val movementTypeRepository: ReferenceCodeRepository<MovementType> = mock()
   private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository = mock()
   private val entityManager: EntityManager = mock()
 
@@ -72,14 +72,7 @@ internal class ExternalMovementServiceTest {
   private val bookingLastMovement = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "TRN"
-      description = "Transfer"
-    }
-    movementReason = MovementReason().apply {
-      code = "TRN"
-      description = "Transfer"
-    }
+    movementReason = MovementTypeAndReason(MovementType("TRN", "Transfer"), "TRANSFERRED", "Transfer")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -88,14 +81,7 @@ internal class ExternalMovementServiceTest {
   private val bookingLastMovementCourt = ExternalMovement().apply {
     fromAgency = fromPrison
     toAgency = toCourt
-    movementType = MovementType().apply {
-      code = "CRT"
-      description = "Court"
-    }
-    movementReason = MovementReason().apply {
-      code = "CRT"
-      description = "Court"
-    }
+    movementReason = MovementTypeAndReason(MovementType("CRT", "Court"), "CRT", "Court")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -104,14 +90,7 @@ internal class ExternalMovementServiceTest {
     fromAgency = fromPrison
     toAgency = toCourt
     toCity = toHomeCity
-    movementType = MovementType().apply {
-      code = "TAP"
-      description = "Temporary Absence"
-    }
-    movementReason = MovementReason().apply {
-      code = "C3"
-      description = "Funeral"
-    }
+    movementReason = MovementTypeAndReason(MovementType("TAP", "Temporary Absence"), "C3", "Funeral")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
@@ -120,23 +99,14 @@ internal class ExternalMovementServiceTest {
   private val bookingLastMovementAdmission = ExternalMovement().apply {
     fromAgency = fromCourt
     toAgency = toPrison
-    movementType = MovementType().apply {
-      code = "ADM"
-      description = "Admission"
-    }
-    movementReason = MovementReason().apply {
-      code = "I"
-      description = "Imprisonment"
-    }
+    movementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "I", "Imprisonment")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = true
   }
 
   private val service = ExternalMovementService(
-    movementReasonRepository = movementReasonRepository,
     externalMovementRepository = externalMovementRepository,
-    movementTypeRepository = movementTypeRepository,
     entityManager = entityManager,
     movementTypeAndReasonRepository = movementTypeAndReasonRepository,
   )
@@ -164,12 +134,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(
-          Optional.ofNullable(
-            movementReason,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "INT")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReason.code, movementReason.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovement,
@@ -208,7 +174,8 @@ internal class ExternalMovementServiceTest {
       internal fun `new movement will contain reason and comment`() {
         val movement = service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
         assertThat(movement.commentText).isEqualTo("😩")
-        assertThat(movement.movementReason).isEqualTo(movementReason)
+        assertThat(movement.movementReason.reasonCode).isEqualTo(movementReason.code)
+        assertThat(movement.movementReason.description).isEqualTo(movementReason.description)
       }
 
       @Test
@@ -249,12 +216,9 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(
-          Optional.ofNullable(
-            movementReason,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "INT")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReason.code, movementReason.description)))
+
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovement,
@@ -268,7 +232,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement reason`() {
-        whenever(movementReasonRepository.findById(MovementReason.pk("INT"))).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "INT")))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
@@ -277,7 +242,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement type`() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, movementReason.code)))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForTransferIn(request, booking, bookingLastMovement)
@@ -341,12 +307,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.CRT)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonCourt,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "CRT")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonCourt.code, movementReasonCourt.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovementCourt,
@@ -416,7 +378,8 @@ internal class ExternalMovementServiceTest {
             courtEvent = null,
           )
         assertThat(movement.commentText).isEqualTo("😩")
-        assertThat(movement.movementReason).isEqualTo(movementReasonCourt)
+        assertThat(movement.movementReason.reasonCode).isEqualTo(movementReasonCourt.code)
+        assertThat(movement.movementReason.description).isEqualTo(movementReasonCourt.description)
       }
 
       @Test
@@ -474,12 +437,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonCourt,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "CRT")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonCourt.code, movementReasonCourt.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovement,
@@ -493,7 +452,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement reason`() {
-        whenever(movementReasonRepository.findById(MovementReason.pk("CRT"))).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType.code, "CRT")))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForCourtTransferToSamePrison(
@@ -509,7 +469,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement type`() {
-        whenever(movementTypeRepository.findById(MovementType.CRT)).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, movementReasonCourt.code)))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForCourtTransferToSamePrison(
@@ -579,12 +540,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.TAP)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("C3"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonFuneral,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "C3")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonFuneral.code, movementReasonFuneral.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovementForTAP,
@@ -656,7 +613,8 @@ internal class ExternalMovementServiceTest {
             scheduleEvent = null,
           )
         assertThat(movement.commentText).isEqualTo("😩")
-        assertThat(movement.movementReason).isEqualTo(movementReasonFuneral)
+        assertThat(movement.movementReason.reasonCode).isEqualTo(movementReasonFuneral.code)
+        assertThat(movement.movementReason.description).isEqualTo(movementReasonFuneral.description)
       }
 
       @Test
@@ -714,12 +672,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("C3"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonFuneral,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "C3")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonFuneral.code, movementReasonFuneral.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovement,
@@ -733,27 +687,12 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement reason`() {
-        whenever(movementReasonRepository.findById(MovementReason.pk("C3"))).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "C3")))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
             movementReasonCode = "C3",
-            movementDateTime = dateTime,
-            commentText = commentText,
-            booking = booking,
-            lastMovement = bookingLastMovementCourt,
-            scheduleEvent = null,
-          )
-        }
-      }
-
-      @Test
-      internal fun `will throw exception if cannot find movement type`() {
-        whenever(movementTypeRepository.findById(MovementType.TAP)).thenReturn(Optional.empty())
-
-        assertThrows<EntityNotFoundException> {
-          service.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
-            movementReasonCode = movementReasonCode,
             movementDateTime = dateTime,
             commentText = commentText,
             booking = booking,
@@ -819,12 +758,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("TRNTAP"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonTransferViaTAP,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "TRNTAP")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonTransferViaTAP.code, movementReasonTransferViaTAP.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovementForTAP,
@@ -891,7 +826,8 @@ internal class ExternalMovementServiceTest {
             commentText = commentText,
           )
         assertThat(movement.commentText).isEqualTo("😩")
-        assertThat(movement.movementReason).isEqualTo(movementReasonTransferViaTAP)
+        assertThat(movement.movementReason.reasonCode).isEqualTo(movementReasonTransferViaTAP.code)
+        assertThat(movement.movementReason.description).isEqualTo(movementReasonTransferViaTAP.description)
       }
 
       @Test
@@ -945,12 +881,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("TRNTAP"))).thenReturn(
-          Optional.ofNullable(
-            movementReasonTransferViaTAP,
-          ),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "TRNTAP")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonTransferViaTAP.code, movementReasonTransferViaTAP.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(
             bookingLastMovement,
@@ -964,7 +896,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement reason`() {
-        whenever(movementReasonRepository.findById(MovementReason.pk("TRNTAP"))).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "TRNTAP")))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
@@ -979,7 +912,8 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement type`() {
-        whenever(movementTypeRepository.findById(MovementType.ADM)).thenReturn(Optional.empty())
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, movementReasonTransferViaTAP.code)))
+          .thenReturn(Optional.empty())
 
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForTransferInAfterTemporaryAbsenceToDifferentPrison(
@@ -1046,10 +980,8 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.ofNullable(movementType))
-        whenever(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(
-          Optional.ofNullable(movementReasonConditionalRelease),
-        )
+        whenever(movementTypeAndReasonRepository.findById(MovementTypeAndReason.Pk(movementType, "CR")))
+          .thenReturn(Optional.of(MovementTypeAndReason(movementType, movementReasonConditionalRelease.code, movementReasonConditionalRelease.description)))
         whenever(externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(99, true)).thenReturn(
           listOf(bookingLastMovementAdmission),
         )
@@ -1113,7 +1045,8 @@ internal class ExternalMovementServiceTest {
             commentText = commentText,
           )
         assertThat(movement.commentText).isEqualTo("😩")
-        assertThat(movement.movementReason).isEqualTo(movementReasonConditionalRelease)
+        assertThat(movement.movementReason.reasonCode).isEqualTo(movementReasonConditionalRelease.code)
+        assertThat(movement.movementReason.description).isEqualTo(movementReasonConditionalRelease.description)
       }
 
       @Test
@@ -1166,7 +1099,6 @@ internal class ExternalMovementServiceTest {
 
       @BeforeEach
       internal fun setUp() {
-        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.ofNullable(movementType))
         whenever(movementReasonRepository.findById(MovementReason.pk("CR"))).thenReturn(
           Optional.ofNullable(movementReasonConditionalRelease),
         )
@@ -1197,8 +1129,6 @@ internal class ExternalMovementServiceTest {
 
       @Test
       internal fun `will throw exception if cannot find movement type`() {
-        whenever(movementTypeRepository.findById(MovementType.REL)).thenReturn(Optional.empty())
-
         assertThrows<EntityNotFoundException> {
           service.updateMovementsForRelease(
             releaseTime = dateTime,

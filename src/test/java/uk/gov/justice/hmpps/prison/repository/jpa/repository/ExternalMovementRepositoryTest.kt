@@ -28,7 +28,7 @@ class ExternalMovementRepositoryTest {
     assertThat(absences).extracting(
       "offenderBooking.bookingId",
       "movementDirection",
-      "movementType.code",
+      "movementReason.id.type",
     ).contains(tuple(-25L, MovementDirection.OUT, "TAP"))
   }
 }

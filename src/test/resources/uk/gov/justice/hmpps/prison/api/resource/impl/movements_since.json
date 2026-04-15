@@ -32,6 +32,6 @@
     "fromCity": "Birmingham",
     "toCity": "Leicester",
     "movementType":"ADM",
-    "movementReasonDescription":"Recapture (Escapee)"
+    "movementReasonDescription":"Recapture"
   }
 ]

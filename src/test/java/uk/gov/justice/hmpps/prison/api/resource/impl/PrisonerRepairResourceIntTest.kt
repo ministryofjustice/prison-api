@@ -11,8 +11,8 @@ import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import java.time.LocalDateTime
 
 class PrisonerRepairResourceIntTest(
@@ -78,12 +78,11 @@ class PrisonerRepairResourceIntTest(
         val offenderBooking = dataLoader.offenderBookingRepository.findByBookingId(booking.bookingId).orElseThrow()
         val movements = offenderBooking.externalMovements
         movements[1].apply {
-          movementReason = MovementReason("HP", "Hospital Release")
+          movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), "HP", "Hospital Release")
           isActive = true
         }
         movements[2].apply {
-          movementReason = MovementReason("CR", "Conditional Release")
-          movementType = MovementType.of(MovementType.REL)
+          movementReason = MovementTypeAndReason(MovementType.of(MovementType.REL), "CR", "Conditional Release")
           movementDirection = MovementDirection.OUT
           isActive = true
         }

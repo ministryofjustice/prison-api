@@ -665,8 +665,8 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(caseNotes.body!!.content)
       .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
       .containsExactly(
-        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
-        Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release (CJA91) -SH Term>1YR."),
+        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1."),
+        Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release."),
         Tuple.tuple("PRISON", "RELEASE", "SYI", "Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House."),
       )
   }
@@ -723,8 +723,8 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(caseNotes.body!!.content)
       .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
       .containsExactly(
-        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall From Intermittent Custody from Court 1."),
-        Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Final Discharge To Hospital-Psychiatric."),
+        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1."),
+        Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Discharge To Hospital-Psychiatric."),
       )
   }
 
@@ -756,7 +756,7 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(caseNotes.body!!.content)
       .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
       .containsExactly(
-        Tuple.tuple("PRISON", "RELEASE", "WAI", "Released from THE WEARE for reason: Conditional Release (CJA91) -SH Term>1YR."),
+        Tuple.tuple("PRISON", "RELEASE", "WAI", "Released from THE WEARE for reason: Conditional Release."),
       )
   }
 

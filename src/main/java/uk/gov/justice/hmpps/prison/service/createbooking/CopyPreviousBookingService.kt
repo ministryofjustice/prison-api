@@ -28,7 +28,7 @@ class CopyPreviousBookingSPService(val copyBookData: CopyBookData) : CopyPreviou
   ) {
     val params = MapSqlParameterSource()
       .addValue("p_move_type", MovementType.ADM.code)
-      .addValue("p_move_reason", movement.movementReason.code)
+      .addValue("p_move_reason", movement.movementReasonCode)
       .addValue("p_old_book_id", previousBooking.bookingId)
       .addValue("p_new_book_id", booking.bookingId)
     copyBookData.execute(params)

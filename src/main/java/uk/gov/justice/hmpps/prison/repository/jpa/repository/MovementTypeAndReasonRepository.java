@@ -6,5 +6,5 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason;
 import java.util.List;
 
 public interface MovementTypeAndReasonRepository extends CrudRepository<MovementTypeAndReason, MovementTypeAndReason.Pk> {
-    List<MovementTypeAndReason> findMovementTypeAndReasonByTypeIs(String movementType);
+    List<MovementTypeAndReason> findMovementTypeAndReasonById_Type(String type);
 }

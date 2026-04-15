@@ -53,12 +53,12 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
         "    where m.fromAgency.id = :agencyId " +
         "          and m.movementDirection = 'OUT' " +
         "          and m.active = true " +
-        "          and m.movementType = :movementType " +
+        "          and m.movementReason.movementType = :movementType " +
         "          and m.offenderBooking.active = true " +
         "          and m.movementSequence = (" +
         "            select max(m2.movementSequence) " +
         "              from ExternalMovement m2 " +
-        "             where m2.movementType = :movementType " +
+        "             where m2.movementReason.movementType = :movementType " +
         "                   and m2.offenderBooking.bookingId = m.offenderBooking.bookingId " +
         "          )"
     )

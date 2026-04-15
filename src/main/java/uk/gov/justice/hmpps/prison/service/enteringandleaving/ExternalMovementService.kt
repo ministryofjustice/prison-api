@@ -16,18 +16,16 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDateTime
 import kotlin.Result.Companion.failure
 import kotlin.Result.Companion.success
+import kotlin.jvm.optionals.getOrNull
 
 @Service
 class ExternalMovementService(
-  private val movementReasonRepository: ReferenceCodeRepository<MovementReason>,
   private val externalMovementRepository: ExternalMovementRepository,
-  private val movementTypeRepository: ReferenceCodeRepository<MovementType>,
   private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository,
   private val entityManager: EntityManager,
 ) {
@@ -36,9 +34,8 @@ class ExternalMovementService(
     booking: OffenderBooking,
     lastMovement: ExternalMovement,
   ): ExternalMovement {
-    val movementReason = getMovementReasonForPrisonTransfer().getOrThrow()
+    val movementReason = getMovementTypeAndReason("ADM", "INT").getOrThrow()
     val receiveDateTime = getMovementDateTime(request.receiveTime, booking).getOrThrow()
-    val movementType = getAdmissionMovementType().getOrThrow()
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -46,7 +43,6 @@ class ExternalMovementService(
       prison = lastMovement.toAgency,
       commentText = request.commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
@@ -57,9 +53,8 @@ class ExternalMovementService(
     toAgency: AgencyLocation,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_COURT.code).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.ADM.code, MovementReason.TRANSFER_VIA_COURT.code).getOrThrow()
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
-    val movementType = getAdmissionMovementType().getOrThrow()
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -67,7 +62,6 @@ class ExternalMovementService(
       prison = toAgency,
       commentText = commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
@@ -79,9 +73,9 @@ class ExternalMovementService(
     courtEvent: CourtEvent?,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.CRT.code, movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
+    // not an admission as only returning from court
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
-    val movementType = getCourtMovementType().getOrThrow() // not an admission as only returning from court
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -91,7 +85,6 @@ class ExternalMovementService(
       prison = lastMovement.fromAgency,
       commentText = commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
@@ -103,9 +96,8 @@ class ExternalMovementService(
     scheduleEvent: OffenderIndividualSchedule?,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementReason(movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.TAP.code, movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
-    val movementType = getTAPMovementType().getOrThrow()
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -117,7 +109,6 @@ class ExternalMovementService(
       commentText = commentText,
       fromCity = lastMovement.toCity,
       movementReason = movementReason,
-      movementType = movementType,
       fromAddressId = lastMovement.toAddressId,
     )
   }
@@ -129,9 +120,8 @@ class ExternalMovementService(
     toAgency: AgencyLocation,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementReason(MovementReason.TRANSFER_VIA_TAP.code).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.ADM.code, MovementReason.TRANSFER_VIA_TAP.code).getOrThrow()
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
-    val movementType = getAdmissionMovementType().getOrThrow()
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -139,7 +129,6 @@ class ExternalMovementService(
       prison = toAgency,
       commentText = commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
@@ -151,8 +140,7 @@ class ExternalMovementService(
     receiveDateTime: LocalDateTime,
     commentText: String,
   ): ExternalMovement {
-    val movementReason = getMovementReason(movementReasonCode).getOrThrow()
-    val movementType = getAdmissionMovementType().getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.ADM.code, movementReasonCode).getOrThrow()
 
     return booking.addExternalMovementIn(
       movementDateTime = receiveDateTime,
@@ -160,7 +148,6 @@ class ExternalMovementService(
       prison = prison,
       commentText = commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
@@ -172,8 +159,7 @@ class ExternalMovementService(
     commentText: String,
   ): ExternalMovement {
     val receiveDateTime = getMovementDateTime(releaseTime, booking).getOrThrow()
-    val movementType = getReleaseMovementType().getOrThrow()
-    val movementReason = getMovementReason(movementReasonCode).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.REL.code, movementReasonCode).getOrThrow()
 
     return booking.addExternalMovementOut(
       movementDateTime = receiveDateTime,
@@ -181,35 +167,13 @@ class ExternalMovementService(
       toLocation = toAgency,
       commentText = commentText,
       movementReason = movementReason,
-      movementType = movementType,
     )
   }
 
-  private fun getAdmissionMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.ADM)?.let { success(it) } ?: failure(
-    EntityNotFoundException.withMessage("No ${MovementType.ADM} movement type found"),
-  )
-
-  private fun getCourtMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.CRT)?.let { success(it) } ?: failure(
-    EntityNotFoundException.withMessage("No ${MovementType.CRT} movement type found"),
-  )
-
-  private fun getTAPMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.TAP)?.let { success(it) } ?: failure(
-    EntityNotFoundException.withMessage("No ${MovementType.TAP} movement type found"),
-  )
-
-  private fun getReleaseMovementType(): Result<MovementType> = movementTypeRepository.findByIdOrNull(MovementType.REL)?.let { success(it) } ?: failure(
-    EntityNotFoundException.withMessage("No ${MovementType.REL} movement type found"),
-  )
-
-  private fun getMovementReasonForPrisonTransfer(): Result<MovementReason> {
-    return movementReasonRepository.findByIdOrNull(MovementReason.pk("INT"))
-      ?.let { success(it) }
-      ?: return failure(EntityNotFoundException.withMessage("No movement reason INT found"))
-  }
-
-  fun getMovementReason(movementReasonCode: String): Result<MovementReason> = movementReasonRepository.findByIdOrNull(MovementReason.pk(movementReasonCode))
+  fun getMovementTypeAndReason(type: String, movementReasonCode: String): Result<MovementTypeAndReason> = movementTypeAndReasonRepository
+    .findByIdOrNull(MovementTypeAndReason.Pk(type, movementReasonCode))
     ?.let { success(it) }
-    ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode found"))
+    ?: failure(EntityNotFoundException.withMessage("No movement reason $movementReasonCode with type $type found"))
 
   fun getMovementDateTime(movementTime: LocalDateTime?, booking: OffenderBooking?): Result<LocalDateTime> {
     val now = LocalDateTime.now()
@@ -224,11 +188,9 @@ class ExternalMovementService(
     } ?: success(now)
   }
 
-  fun wasLastMovementAnEscape(booking: OffenderBooking): Boolean = externalMovementRepository.findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(booking.bookingId)
-    .map {
-      movementTypeAndReasonRepository.findByIdOrNull(MovementTypeAndReason.Pk("REL", it.movementReason.code))
-    }
-    .orElse(null)?.isEscaped
+  fun wasLastMovementAnEscape(booking: OffenderBooking): Boolean = externalMovementRepository
+    .findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(booking.bookingId)
+    .getOrNull()?.movementReason?.isEscaped
     ?: false
 
   private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) = externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
@@ -244,8 +206,7 @@ class ExternalMovementService(
     escortCode: String? = null,
     commentText: String? = null,
     fromCity: City? = null,
-    movementReason: MovementReason,
-    movementType: MovementType,
+    movementReason: MovementTypeAndReason,
     fromAddressId: Long? = null,
   ): ExternalMovement = this.setPreviousMovementsToInactive().also { entityManager.flush() }.let {
     this.addExternalMovement(
@@ -261,7 +222,6 @@ class ExternalMovementService(
         .fromCity(fromCity)
         .movementReason(movementReason)
         .movementDirection(MovementDirection.IN)
-        .movementType(movementType)
         .fromAddressId(fromAddressId)
         .build(),
     )
@@ -275,8 +235,7 @@ class ExternalMovementService(
     toLocation: AgencyLocation,
     escortCode: String? = null,
     commentText: String? = null,
-    movementReason: MovementReason,
-    movementType: MovementType,
+    movementReason: MovementTypeAndReason,
   ): ExternalMovement = this.setPreviousMovementsToInactive().also { entityManager.flush() }.let {
     this.addExternalMovement(
       ExternalMovement.builder()
@@ -290,7 +249,6 @@ class ExternalMovementService(
         .commentText(commentText)
         .movementReason(movementReason)
         .movementDirection(MovementDirection.OUT)
-        .movementType(movementType)
         .reportingDate(movementDateTime.toLocalDate())
         .build(),
     )

@@ -22,8 +22,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
@@ -119,14 +119,7 @@ class TransferIntoPrisonServiceTest {
     fromAgency = fromPrison
     toAgency = toAgencyIn
     toCity = toCityIn
-    movementType = MovementType().apply {
-      code = movementTypeCode
-      description = "type description"
-    }
-    movementReason = MovementReason().apply {
-      code = movementReasonCode
-      description = "code description"
-    }
+    movementReason = MovementTypeAndReason(MovementType(movementTypeCode, "type description"), movementReasonCode, "code description")
     movementTime = LocalDateTime.parse("2022-04-19T00:00:00")
     movementDate = LocalDateTime.parse("2022-04-19T00:00:00").toLocalDate()
     isActive = active
@@ -184,20 +177,10 @@ class TransferIntoPrisonServiceTest {
 
     @Nested
     inner class Success {
-      private val newMovementReason =
-        MovementReason().apply {
-          code = "INT"
-          description = "Transfer In from Other Establishment"
-        }
-      private val newMovementType =
-        MovementType().apply {
-          code = "ADM"
-          description = "Admission"
-        }
+      private val newMovementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "INT", "Transfer In from Other Establishment")
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementReason = newMovementReason
-        movementType = newMovementType
       }
 
       @BeforeEach
@@ -483,20 +466,10 @@ class TransferIntoPrisonServiceTest {
 
     @Nested
     inner class Success {
-      private val newMovementReason =
-        MovementReason().apply {
-          code = "CRT"
-          description = "Return to same prison after court"
-        }
-      private val newMovementType =
-        MovementType().apply {
-          code = "CRT"
-          description = "Court"
-        }
+      private val newMovementReason = MovementTypeAndReason(MovementType("CRT", "Court"), "CRT", "Return to same prison after court")
       private val newMovement = ExternalMovement().apply {
         movementTime = movementSamePrisonTime
         movementReason = newMovementReason
-        movementType = newMovementType
       }
 
       @BeforeEach
@@ -751,21 +724,11 @@ class TransferIntoPrisonServiceTest {
 
     @Nested
     inner class Success {
-      private val newMovementReason =
-        MovementReason().apply {
-          code = "TRNCRT"
-          description = "Transfer Ifrom court"
-        }
-      private val newMovementType =
-        MovementType().apply {
-          code = "ADM"
-          description = "Admission"
-        }
+      private val newMovementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "TRNCRT", "Transfer Ifrom court")
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementDate = LocalDate.parse("2022-04-20")
         movementReason = newMovementReason
-        movementType = newMovementType
       }
 
       @BeforeEach
@@ -992,20 +955,10 @@ class TransferIntoPrisonServiceTest {
 
     @Nested
     inner class Success {
-      private val newMovementReason =
-        MovementReason().apply {
-          code = "C3"
-          description = "Funeral"
-        }
-      private val newMovementType =
-        MovementType().apply {
-          code = "TAP"
-          description = "Temporary Absence"
-        }
+      private val newMovementReason = MovementTypeAndReason(MovementType("TAP", "Temporary Absence"), "C3", "Funeral")
       private val newMovement = ExternalMovement().apply {
         movementTime = movementSamePrisonTime
         movementReason = newMovementReason
-        movementType = newMovementType
       }
 
       @BeforeEach
@@ -1260,21 +1213,11 @@ class TransferIntoPrisonServiceTest {
 
     @Nested
     inner class Success {
-      private val newMovementReason =
-        MovementReason().apply {
-          code = "TRNTAP"
-          description = "Transfer via TAP"
-        }
-      private val newMovementType =
-        MovementType().apply {
-          code = "ADM"
-          description = "Admission"
-        }
+      private val newMovementReason = MovementTypeAndReason(MovementType("ADM", "Admission"), "TRNTAP", "Transfer via TAP")
       private val newMovement = ExternalMovement().apply {
         movementTime = LocalDateTime.parse("2022-04-20T10:00:00")
         movementDate = LocalDate.parse("2022-04-20")
         movementReason = newMovementReason
-        movementType = newMovementType
       }
 
       @BeforeEach

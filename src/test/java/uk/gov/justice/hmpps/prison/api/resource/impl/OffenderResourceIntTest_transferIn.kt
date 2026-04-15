@@ -89,7 +89,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       }
 
       @Test
-      internal fun `can transfer a prisoner a prison and specify a cell`() {
+      internal fun `can transfer a prisoner into a prison and specify a cell`() {
         webTestClient.put()
           .uri("/api/offenders/{nomsId}/transfer-in", offenderNo)
           .headers(setAuthorisation(listOf("ROLE_TRANSFER_PRISONER")))
@@ -836,7 +836,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 tuple(
                   "TRANSFER",
                   "FROMTOL",
-                  "Offender admitted to MOORLAND for reason: Transfer Via Court from LEEDS.",
+                  "Offender admitted to MOORLAND for reason: TRANSFER VIA COURT from LEEDS.",
                 ),
               )
           }
@@ -1417,7 +1417,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .jsonPath("inOutStatus").isEqualTo("IN")
               .jsonPath("agencyId").isEqualTo("LEI")
 
-            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).movementReason?.code }).isEqualTo("C6")
+            assertThat(dataLoaderTransaction.get { lastMovement(bookingId).movementReasonCode }).isEqualTo("C6")
           }
 
           @Test
@@ -1644,7 +1644,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
                 tuple(
                   "TRANSFER",
                   "FROMTOL",
-                  "Offender admitted to MOORLAND for reason: Transfer Via Temporary Release from LEEDS.",
+                  "Offender admitted to MOORLAND for reason: TRANSFER VIA TEMPORARY RELEASE from LEEDS.",
                 ),
               )
           }
