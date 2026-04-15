@@ -20,7 +20,6 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection;
-import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason.Pk;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking;
@@ -61,7 +60,6 @@ public class PrisonerTransferService {
     private final OffenderBookingRepository offenderBookingRepository;
     private final AgencyLocationRepository agencyLocationRepository;
     private final ExternalMovementRepository externalMovementRepository;
-    private final ReferenceCodeRepository<MovementType> movementTypeRepository;
     private final ReferenceCodeRepository<AgencyLocationType> agencyLocationTypeRepository;
     private final BedAssignmentHistoriesRepository bedAssignmentHistoriesRepository;
     private final AgencyInternalLocationRepository agencyInternalLocationRepository;
@@ -81,8 +79,7 @@ public class PrisonerTransferService {
     public InmateDetail transferOutPrisoner(final String prisonerIdentifier, final RequestToTransferOut requestToTransferOut) {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
-        final var trn = movementTypeRepository.findById(TRN).orElseThrow();
-        final var movementTypeAndReason = new Pk(trn, requestToTransferOut.getTransferReasonCode());
+        final var movementTypeAndReason = new Pk(TRN.getCode(), requestToTransferOut.getTransferReasonCode());
 
         // Generate the external movement out
         final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
@@ -122,8 +119,7 @@ public class PrisonerTransferService {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
 
-        final var crt = movementTypeRepository.findById(CRT).orElseThrow();
-        final var movementTypeAndReason = new Pk(crt, requestToTransferOutToCourt.getTransferReasonCode());
+        final var movementTypeAndReason = new Pk(CRT.getCode(), requestToTransferOutToCourt.getTransferReasonCode());
 
         // Generate the external movement out
         final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
@@ -169,8 +165,7 @@ public class PrisonerTransferService {
         // check that prisoner is active in
         final OffenderBooking booking = getAndCheckOffenderBooking(prisonerIdentifier, false);
 
-        final var tap = movementTypeRepository.findById(TAP).orElseThrow();
-        final var movementTypeAndReason = new Pk(tap, requestToTransferOut.getTransferReasonCode());
+        final var movementTypeAndReason = new Pk(TAP.getCode(), requestToTransferOut.getTransferReasonCode());
 
         // Generate the external movement out
         final var movementReason = movementTypeAndReasonRepository.findById(movementTypeAndReason)
