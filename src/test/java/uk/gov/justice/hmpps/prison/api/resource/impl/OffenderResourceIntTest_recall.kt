@@ -482,7 +482,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
         val caseNote = testDataContext.getCaseNotes(offenderNo).maxBy { it.creationDateTime }
         assertThat(caseNote.type).isEqualTo("TRANSFER")
         assertThat(caseNote.subType).isEqualTo("FROMTOL")
-        assertThat(caseNote.text).isEqualTo("Offender admitted to MOORLAND for reason: Recall From Intermittent Custody from OUTSIDE.")
+        assertThat(caseNote.text).isEqualTo("Offender admitted to MOORLAND for reason: Recall from Intermittent Custody from OUTSIDE.")
       }
 
       @Test
