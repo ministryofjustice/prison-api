@@ -20,7 +20,7 @@ interface WorkflowTaskService {
 class WorkflowTaskSPService(val createWorkflowTask: OffenderAdminProcs.CreateWorkflowTask) : WorkflowTaskService {
   override fun createTaskAutomaticTransfer(booking: OffenderBooking, movement: ExternalMovement, team: Team) {
     val offenderBookingId = booking.bookingId
-    val movementReasonCode = movement.movementReasonCode
+    val movementReasonCode = movement.movementReason.code
     val movementDate = movement.movementDate
     val movementTime = movement.movementTime
     val oldCaseloadId = movement.fromAgency.id

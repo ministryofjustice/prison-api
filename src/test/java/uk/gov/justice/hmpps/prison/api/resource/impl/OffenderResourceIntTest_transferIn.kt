@@ -1140,7 +1140,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             check {
               assertThat(it.fromAgency.id).isEqualTo("LEI")
               assertThat(it.toAgency.id).isEqualTo("MDI")
-              assertThat(it.movementReasonCode).isEqualTo("TRNCRT")
+              assertThat(it.movementReason.code).isEqualTo("TRNCRT")
               assertThat(it.movementDate).isEqualTo(receiveDateTime.toLocalDate())
               assertThat(it.movementTime).isEqualTo(receiveDateTime)
             },
@@ -1912,7 +1912,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             check {
               assertThat(it.fromAgency.id).isEqualTo("LEI")
               assertThat(it.toAgency.id).isEqualTo("MDI")
-              assertThat(it.movementReasonCode).isEqualTo("TRNTAP")
+              assertThat(it.movementReason.code).isEqualTo("TRNTAP")
               assertThat(it.movementDate).isEqualTo(receiveDateTime.toLocalDate())
               assertThat(it.movementTime).isEqualTo(receiveDateTime)
             },

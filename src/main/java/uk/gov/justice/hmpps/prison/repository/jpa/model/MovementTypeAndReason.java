@@ -64,6 +64,9 @@ public class MovementTypeAndReason implements Serializable {
     public String getReasonCode() {
         return id.getReasonCode();
     }
+    public String getCode() {
+        return id.getReasonCode();
+    }
 
     @EmbeddedId
     private Pk id;

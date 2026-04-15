@@ -276,7 +276,7 @@ public class Offender extends AuditableEntity {
             return false;
 
         // treat transfer via court or TAP as transfers
-        return movement.getMovementType().getCode().equals("ADM") && List.of("TRNTAP", "TRNCRT").contains(movement.getMovementReasonCode());
+        return movement.getMovementType().getCode().equals("ADM") && List.of("TRNTAP", "TRNCRT").contains(movement.getMovementReason().getCode());
     }
 
     private boolean isAdmission(ExternalMovement movement) {

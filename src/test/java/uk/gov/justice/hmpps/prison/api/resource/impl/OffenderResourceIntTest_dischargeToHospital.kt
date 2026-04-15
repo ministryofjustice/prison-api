@@ -296,7 +296,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
                 assertThat(toAgency.id).isEqualTo("HAZLWD")
                 assertThat(movementDate).isEqualTo(LocalDate.now())
                 assertThat(isActive).isTrue()
-                assertThat(movementReasonCode).isEqualTo(DISCHARGE_TO_PSY_HOSPITAL.code)
+                assertThat(movementReason.code).isEqualTo(DISCHARGE_TO_PSY_HOSPITAL.code)
                 assertThat(commentText).contains("Psychiatric Hospital Discharge to Hazelwood House")
               }
             }
@@ -547,7 +547,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
                 assertThat(toAgency.id).isEqualTo("SYI")
                 assertThat(movementDate).isEqualTo(LocalDate.now())
                 assertThat(isActive).isFalse()
-                assertThat(movementReasonCode).isEqualTo(AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
+                assertThat(movementReason.code).isEqualTo(AWAIT_REMOVAL_TO_PSY_HOSPITAL.code)
               }
             }
         }
@@ -597,7 +597,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
               with(it[it.size - 2]) {
                 assertThat(movementSequence).isEqualTo(1)
                 assertThat(isActive).isFalse()
-                assertThat(movementReasonCode).isNotEqualTo("ADM")
+                assertThat(movementReason.code).isNotEqualTo("ADM")
               }
             }
             .also {
@@ -605,7 +605,7 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
               with(it.last()) {
                 assertThat(movementSequence).isEqualTo(2)
                 assertThat(isActive).isTrue()
-                assertThat(movementReasonCode).isEqualTo(DISCHARGE_TO_PSY_HOSPITAL.code)
+                assertThat(movementReason.code).isEqualTo(DISCHARGE_TO_PSY_HOSPITAL.code)
                 assertThat(commentText).isEqualTo("released prisoner today. Psychiatric Hospital Discharge to Hazelwood House")
               }
             }

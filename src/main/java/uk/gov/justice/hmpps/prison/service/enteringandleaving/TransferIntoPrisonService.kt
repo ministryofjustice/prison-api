@@ -64,7 +64,7 @@ class TransferIntoPrisonService(
         booking = booking,
         lastMovement = transferMovement,
       ).also { movement ->
-        statusReason = "${movement.movementReason.movementType.code}-${movement.movementReasonCode}"
+        statusReason = "${movement.movementReason.movementType.code}-${movement.movementReason.code}"
         bedAssignmentMovementService.createBedHistory(
           booking = this,
           cellLocation = cellLocation,
@@ -120,7 +120,7 @@ class TransferIntoPrisonService(
           toAgency = toAgency,
           commentText = request.commentText,
         ).also { createdMovement ->
-          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReasonCode}"
+          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReason.code}"
           bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,
@@ -154,7 +154,7 @@ class TransferIntoPrisonService(
     }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReasonCode)
+      statusReason = MovementType.CRT.code + "-" + (request.movementReasonCode ?: toCourtMovement.movementReason.code)
       livingUnitMv = null
       externalMovementService.updateMovementsForCourtTransferToSamePrison(
         movementReasonCode = request.movementReasonCode,
@@ -194,7 +194,7 @@ class TransferIntoPrisonService(
     }
     with(booking) {
       inOutStatus = MovementDirection.IN.name
-      statusReason = MovementType.TAP.code + "-" + (request.movementReasonCode ?: releaseTAPMovement.movementReasonCode)
+      statusReason = MovementType.TAP.code + "-" + (request.movementReasonCode ?: releaseTAPMovement.movementReason.code)
       livingUnitMv = null
       externalMovementService.updateMovementsForTransferInAfterTemporaryAbsenceToSamePrison(
         movementReasonCode = request.movementReasonCode,
@@ -231,7 +231,7 @@ class TransferIntoPrisonService(
           toAgency = toAgency,
           commentText = request.commentText,
         ).also { createdMovement ->
-          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReasonCode}"
+          statusReason = "${createdMovement.movementReason.movementType.code}-${createdMovement.movementReason.code}"
           bedAssignmentMovementService.createBedHistory(
             booking = this,
             cellLocation = reception,

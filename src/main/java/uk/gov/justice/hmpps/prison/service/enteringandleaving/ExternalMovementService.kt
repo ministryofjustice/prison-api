@@ -73,7 +73,7 @@ class ExternalMovementService(
     courtEvent: CourtEvent?,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementTypeAndReason(MovementType.CRT.code, movementReasonCode ?: lastMovement.movementReasonCode).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.CRT.code, movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     // not an admission as only returning from court
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
 
@@ -96,7 +96,7 @@ class ExternalMovementService(
     scheduleEvent: OffenderIndividualSchedule?,
     commentText: String?,
   ): ExternalMovement {
-    val movementReason = getMovementTypeAndReason(MovementType.TAP.code, movementReasonCode ?: lastMovement.movementReasonCode).getOrThrow()
+    val movementReason = getMovementTypeAndReason(MovementType.TAP.code, movementReasonCode ?: lastMovement.movementReason.code).getOrThrow()
     val receiveDateTime = getMovementDateTime(movementDateTime, booking).getOrThrow()
 
     return booking.addExternalMovementIn(

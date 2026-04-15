@@ -437,7 +437,7 @@ public class MovementsService {
             .movementDate(externalMovement.getMovementDate())
             .movementTime(externalMovement.getMovementTime().toLocalTime())
             .directionCode(externalMovement.getMovementDirection().toString())
-            .movementReason(externalMovement.getMovementReasonCode())
+            .movementReason(externalMovement.getMovementReason().getCode())
             .movementReasonDescription(externalMovement.getMovementReason().getDescription())
             .movementType(externalMovement.getMovementType().getCode())
             .movementTypeDescription(externalMovement.getMovementType().getDescription())
@@ -480,7 +480,7 @@ public class MovementsService {
             .toAgencyDescription(toAgency == null ? null : toAgency.getDescription())
             .toCity(toCity == null ? null : toCity.getDescription())
             .movementReason(movement.getMovementReason().getDescription())
-            .movementReasonCode(movement.getMovementReasonCode())
+            .movementReasonCode(movement.getMovementReason().getCode())
             .commentText(movement.getCommentText())
             .build();
     }

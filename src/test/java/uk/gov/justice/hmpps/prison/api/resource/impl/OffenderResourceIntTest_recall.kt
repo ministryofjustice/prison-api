@@ -510,7 +510,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
           },
           check {
             assertThat(it.toAgency.id).isEqualTo("MDI")
-            assertThat(it.movementReasonCode).isEqualTo("24")
+            assertThat(it.movementReason.code).isEqualTo("24")
           },
         )
       }

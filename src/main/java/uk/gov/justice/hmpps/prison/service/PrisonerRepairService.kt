@@ -23,16 +23,16 @@ class PrisonerRepairService(
     if (releaseMovement.movementReason.movementType.code != "REL") {
       throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a REL, found ${releaseMovement.movementReason.movementType.code} instead")
     }
-    if (releaseMovement.movementReasonCode != "CR") {
-      throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a CR, found ${releaseMovement.movementReasonCode} instead")
+    if (releaseMovement.movementReason.code != "CR") {
+      throw IllegalStateException("Movement ${releaseMovement.movementSequence} is not a CR, found ${releaseMovement.movementReason.code} instead")
     }
 
     val hospitalMovement = sortedMovements[1]
     if (hospitalMovement.movementReason.movementType.code != "REL") {
       throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a REL, found ${hospitalMovement.movementReason.movementType.code} instead")
     }
-    if (hospitalMovement.movementReasonCode != "HP") {
-      throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a HP, found ${hospitalMovement.movementReasonCode} instead")
+    if (hospitalMovement.movementReason.code != "HP") {
+      throw IllegalStateException("Movement ${hospitalMovement.movementSequence} is not a HP, found ${hospitalMovement.movementReason.code} instead")
     }
     if (hospitalMovement.movementSequence.toInt() != movements.size - 1) {
       throw IllegalStateException("Hospital release is not the penultimate movement, has ${hospitalMovement.movementSequence} instead")

@@ -127,7 +127,7 @@ class PrisonerSearchService(
     lastMovementReasonCode: String?,
   ) = externalMovements?.filter { em ->
     em.movementReason?.movementType?.code == lastMovementTypeCode &&
-      em.movementReasonCode == lastMovementReasonCode
+      em.movementReason.code == lastMovementReasonCode
   }
     ?.maxByOrNull { em -> em.movementDateTime }
     ?.movementDateTime
