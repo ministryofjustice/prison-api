@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.1.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.1"
   kotlin("plugin.spring") version "2.3.20"
   kotlin("plugin.jpa") version "2.3.20"
   kotlin("plugin.lombok") version "2.3.20"
@@ -31,15 +31,18 @@ dependencies {
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   val jsqlParserVersion = "5.2"
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
-  implementation("org.ehcache:ehcache:3.11.1")
+  implementation("org.ehcache:ehcache:3.12.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+  constraints {
+    implementation("org.webjars:swagger-ui:5.32.2")
+  }
 
   implementation("org.apache.commons:commons-lang3:3.20.0")
   implementation("commons-io:commons-io:2.21.0")
-  implementation("com.google.guava:guava:33.5.0-jre")
+  implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
   // Had to leave oracle at 21.20.0.0 because in 23 fails to compile stored procedures
   val oracleVersion = "21.20.0.0"
