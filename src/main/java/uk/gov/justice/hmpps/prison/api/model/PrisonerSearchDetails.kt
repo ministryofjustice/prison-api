@@ -21,6 +21,9 @@ data class PrisonerSearchDetails(
   @Schema(description = "Booking Number of the active booking")
   val bookingNo: String? = null,
 
+  @Schema(description = "All Booking Ids of the prisoner")
+  val bookingIds: List<Long>? = null,
+
   @Schema(description = "Title")
   val title: String? = null,
 
@@ -96,8 +99,11 @@ data class PrisonerSearchDetails(
   @Schema(description = "Last Movement Reason of prisoner. Note: Reference Data from MOVE_RSN Domain", example = "CA")
   val lastMovementReasonCode: String? = null,
 
-  @Schema(description = "Last Movement time", example = "2024-12-01 12:23:34")
+  @Schema(description = "Last Movement time (the time the movement happened)", example = "2024-12-01 12:23:34")
   val lastMovementTime: LocalDateTime? = null,
+
+  @Schema(description = "Last Movement creation time (the time the movement was recorded). This could refer to a different movement to lastMovementTime", example = "2024-12-01 12:23:34")
+  val lastMovementCreationTime: LocalDateTime? = null,
 
   @Schema(description = "Time of transfer into the current or most recent prison", example = "2024-12-01 12:23:34")
   val lastAdmissionTime: LocalDateTime? = null,

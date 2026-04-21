@@ -48,6 +48,7 @@ class PrisonerSearchService(
           offenderNo = detail.offenderNo,
           offenderId = detail.offenderId,
           bookingId = detail.bookingId,
+          bookingIds = offender.allBookings.map { it.bookingId },
           bookingNo = detail.bookingNo,
           title = offender.title?.description,
           firstName = detail.firstName,
@@ -74,6 +75,11 @@ class PrisonerSearchService(
           lastMovementTypeCode = detail.lastMovementTypeCode,
           lastMovementReasonCode = detail.lastMovementReasonCode,
           lastMovementTime = findLastMovementTime(
+            booking?.externalMovements,
+            detail.lastMovementTypeCode,
+            detail.lastMovementReasonCode,
+          ),
+          lastMovementCreationTime = findLastMovementCreationTime(
             booking?.externalMovements,
             detail.lastMovementTypeCode,
             detail.lastMovementReasonCode,
@@ -131,6 +137,17 @@ class PrisonerSearchService(
   }
     ?.maxByOrNull { em -> em.movementDateTime }
     ?.movementDateTime
+
+  private fun findLastMovementCreationTime(
+    externalMovements: List<ExternalMovement>?,
+    lastMovementTypeCode: String?,
+    lastMovementReasonCode: String?,
+  ) = externalMovements?.filter { em ->
+    em.movementReason?.movementType?.code == lastMovementTypeCode &&
+      em.movementReason.code == lastMovementReasonCode
+  }
+    ?.maxByOrNull { em -> em.createDatetime }
+    ?.createDatetime
 
   private fun findLastAdmissionTime(externalMovements: List<ExternalMovement>?): LocalDateTime? = externalMovements
     ?.filter { it.movementReason?.movementType?.code == "ADM" }
