@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
 import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
+import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.temporal.ChronoUnit
@@ -82,6 +83,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
           with(response.responseBody!!) {
             assertThat(offenderNo).isEqualTo("A1234AB")
             assertThat(bookingId).isEqualTo(-2)
+            assertThat(bookingIds).containsExactly(-2)
             assertThat(bookingNo).isEqualTo("A00112")
             assertThat(title).isEqualTo("Mrs")
             assertThat(firstName).isEqualTo("GILLIAN")
@@ -138,6 +140,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             assertThat(lastMovementTypeCode).isEqualTo("ADM")
             assertThat(lastMovementReasonCode).isEqualTo("24")
             assertThat(lastMovementTime).isEqualTo("2018-10-01T17:00")
+            assertThat(lastMovementCreationTime).isEqualTo("2018-09-01T00:00")
             assertThat(lastAdmissionTime).isEqualTo("2018-10-02T11:00")
 
             assertThat(previousPrisonId).isEqualTo("MDI")
@@ -542,8 +545,17 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
       @Test
       fun `should return correct location data when prisoner is INACTIVE OUT`() {
+        lateinit var oldBooking1: OffenderBookingId
+        lateinit var oldBooking2: OffenderBookingId
+
         builder.build {
           offender = offender {
+            oldBooking1 = booking(bookingInTime = LocalDateTime.parse("2010-07-01T10:00:00")) {
+              release(releaseTime = LocalDateTime.parse("2010-07-06T00:00"))
+            }
+            oldBooking2 = booking(bookingInTime = LocalDateTime.parse("2011-07-01T10:00:00")) {
+              release(releaseTime = LocalDateTime.parse("2011-07-06T00:00"))
+            }
             booking = booking(prisonId = "SYI", bookingInTime = LocalDateTime.parse("2012-07-03T00:00")) {
               transferOut(prisonId = "MDI", transferTime = LocalDateTime.parse("2012-07-04T00:00"))
               transferIn(receiveTime = LocalDateTime.parse("2012-07-05T00:00"))
@@ -556,6 +568,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
             with(response.responseBody!!) {
               assertThat(offenderNo).isEqualTo(offender.offenderNo)
               assertThat(bookingId).isEqualTo(booking.bookingId)
+              assertThat(bookingIds).containsExactly(oldBooking1.bookingId, oldBooking2.bookingId, booking.bookingId)
               assertThat(status).isEqualTo("INACTIVE OUT")
               assertThat(inOutStatus).isEqualTo("OUT")
               assertThat(recall).isFalse()
@@ -564,6 +577,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(lastMovementTypeCode).isEqualTo("REL")
               assertThat(lastMovementReasonCode).isEqualTo("CR")
               assertThat(lastMovementTime).isEqualTo("2012-07-06T00:00")
+              assertThat(lastMovementCreationTime).isCloseTo(LocalDateTime.now(), within(Duration.ofSeconds(10)))
               assertThat(previousPrisonId).isNull()
               assertThat(previousPrisonLeavingDate).isNull()
             }
