@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.persistence.EntityManager
 import jakarta.validation.ValidationException
 import org.springframework.dao.DuplicateKeyException
 import org.springframework.stereotype.Service
@@ -44,6 +45,7 @@ class FinanceHoldsService(
   private val offenderTrustAccountRepository: OffenderTrustAccountRepository,
   private val transactionTypeRepository: TransactionTypeRepository,
   private val financeV1Repository: FinanceV1Repository,
+  private val entityManager: EntityManager,
 ) {
   companion object {
     const val ADD_HOLD_TRANSACTION_TYPE = "HOA"
@@ -123,6 +125,9 @@ class FinanceHoldsService(
       moduleName = "NOMISAPI",
     )
 
+    entityManager.refresh(offenderSubAccount)
+    entityManager.refresh(offenderTrustAccount)
+
     offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
     offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
 
@@ -184,6 +189,9 @@ class FinanceHoldsService(
     )
 
     holdToReleaseTransaction.holdClearFlag = "Y"
+
+    entityManager.refresh(offenderSubAccount)
+    entityManager.refresh(offenderTrustAccount)
 
     offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
       ?: run {

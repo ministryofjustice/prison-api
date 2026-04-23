@@ -1,59 +1,53 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.mockito.kotlin.any
 import org.mockito.kotlin.verify
 import org.mockito.kotlin.whenever
+import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
+import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.api.resource.AddHoldTransaction
+import uk.gov.justice.hmpps.prison.api.resource.HoldDetails
 import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldAndCreateTransaction
 import uk.gov.justice.hmpps.prison.api.resource.ReleaseHoldTransaction
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccount
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderSubAccountId
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransaction
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTransactionId
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccount
-import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderTrustAccountId
-import uk.gov.justice.hmpps.prison.repository.jpa.model.PostingType
-import uk.gov.justice.hmpps.prison.repository.jpa.model.TransactionType
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderSubAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTransactionRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderTrustAccountRepository
 import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs
-import uk.gov.justice.hmpps.prison.repository.storedprocs.TrustProcs.ProcessGlTransNew
 import uk.gov.justice.hmpps.prison.repository.v1.FinanceV1Repository
 import java.math.BigDecimal
 import java.time.LocalDate
-import java.time.LocalDateTime
-import java.util.Optional
 
 class FinanceHoldsControllerTest : ResourceTest() {
+
   @MockitoBean
-  private lateinit var processGlTransNew: ProcessGlTransNew
+  private lateinit var processGlTransNew: TrustProcs.ProcessGlTransNew
 
   @MockitoBean
   private lateinit var updateOffenderBalance: TrustProcs.UpdateOffenderBalance
 
   @MockitoBean
+  private lateinit var financeV1Repository: FinanceV1Repository
+
+  @Autowired
   private lateinit var offenderTransactionRepository: OffenderTransactionRepository
 
-  @MockitoBean
-  private lateinit var offenderSubAccountRepository: OffenderSubAccountRepository
+  @Autowired
+  private lateinit var jdbcTemplate: JdbcTemplate
 
-  @MockitoBean
-  private lateinit var offenderTrustAccountRepository: OffenderTrustAccountRepository
-
-  @MockitoBean
-  private lateinit var financeV1Repository: FinanceV1Repository
+  @AfterEach
+  fun tearDown() {
+    jdbcTemplate.update("DELETE FROM OFFENDER_TRANSACTIONS WHERE client_unique_ref like 'clientRefHoldTest%';")
+  }
 
   @Nested
   inner class AddHold {
     private val transaction = AddHoldTransaction(
       amount = 134L,
-      clientUniqueReference = "clientRef",
+      clientUniqueReference = "clientRefHoldTestAdd",
       description = "desc",
       clientTransactionId = "transId",
       clientName = "clientName",
@@ -214,12 +208,6 @@ class FinanceHoldsControllerTest : ResourceTest() {
 
     @Test
     fun happyPath() {
-      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
-      whenever(offenderSubAccountRepository.findById(any()))
-        .thenReturn(Optional.of(offenderSubAccount(balance = "12")))
-
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
-
       webTestClient.post()
         .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
@@ -228,14 +216,14 @@ class FinanceHoldsControllerTest : ResourceTest() {
         .exchange()
         .expectStatus().isCreated
         .expectBody()
-        .jsonPath("holdNumber").isEqualTo(12345)
+        .jsonPath("holdNumber").value<Int> { assertThat(it).isGreaterThan(0) }
     }
   }
 
   @Nested
   inner class ReleaseHold {
     private val transaction = ReleaseHoldTransaction(
-      clientUniqueReference = "clientRef",
+      clientUniqueReference = "clientRefRelTest",
       description = "desc",
       clientTransactionId = "transId",
       clientName = "clientName",
@@ -379,16 +367,27 @@ class FinanceHoldsControllerTest : ResourceTest() {
 
     @Test
     fun happyPath() {
-      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
+      val transactionToRelease = AddHoldTransaction(
+        amount = 124L,
+        clientUniqueReference = "clientRefHoldTestRem",
+        description = "desc",
+        clientTransactionId = "transId",
+        clientName = "clientName",
+      )
 
-      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
-
-      whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
-        .thenReturn(Optional.of(offenderTransaction()))
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+      val hold = webTestClient.post()
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(transactionToRelease)
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(HoldDetails::class.java)
+        .returnResult()
+        .responseBody!!
 
       webTestClient.post()
-        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}", "LEI", "A1234AA", 343)
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}", "LEI", "A1234AA", hold.holdNumber)
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(transaction)
@@ -401,7 +400,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
   inner class ReleaseHoldCreateTransaction {
     private val transaction = ReleaseHoldAndCreateTransaction(
       type = "CANT",
-      removeClientUniqueReference = "removeClientRef",
+      removeClientUniqueReference = "clientRefHoldTestRemCant",
       removeDescription = "desc",
       createClientUniqueReference = "createClientRef",
       createDescription = "new",
@@ -675,13 +674,24 @@ class FinanceHoldsControllerTest : ResourceTest() {
 
     @Test
     fun happyPath() {
-      whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
+      val transactionToRelease = AddHoldTransaction(
+        amount = 125L,
+        clientUniqueReference = "clientRefHoldTest",
+        description = "desc",
+        clientTransactionId = "transId",
+        clientName = "clientName",
+      )
+      val hold = webTestClient.post()
+        .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(transactionToRelease)
+        .exchange()
+        .expectStatus().isCreated
+        .expectBody(HoldDetails::class.java)
+        .returnResult()
+        .responseBody!!
 
-      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
-
-      whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
-        .thenReturn(Optional.of(offenderTransaction()))
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
       whenever(
         financeV1Repository.postTransaction(
           any(),
@@ -700,7 +710,7 @@ class FinanceHoldsControllerTest : ResourceTest() {
           "/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold-transaction/{holdNumber}",
           "LEI",
           "A1234AA",
-          343,
+          hold.holdNumber,
         )
         .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CANTEEN_FUNDS_API__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -714,44 +724,11 @@ class FinanceHoldsControllerTest : ResourceTest() {
         "A1234AA",
         "CANT",
         transaction.createDescription,
-        BigDecimal.TEN,
+        BigDecimal.valueOf(1.25),
         LocalDate.now(),
         "transId",
         "createClientRef",
       )
     }
   }
-}
-
-private fun offenderTransaction(
-  id: OffenderTransactionId = OffenderTransactionId(1, 1),
-) = OffenderTransaction(
-  id = id,
-  offenderId = 1,
-  prisonId = "BMI",
-  holdNumber = null,
-  holdClearFlag = null,
-  subAccountType = "SPND",
-  transactionType = TransactionType("HOA", "Add Hold"),
-  transactionReferenceNumber = null,
-  clientUniqueRef = null,
-  entryDate = LocalDate.now(),
-  entryDescription = null,
-  entryAmount = BigDecimal.TEN,
-  postingType = PostingType.DR,
-  offenderBookingId = 1,
-  slipPrintedFlag = false,
-  modifyDate = LocalDateTime.now(),
-)
-
-private fun offenderSubAccount(balance: String = "12.34") = OffenderSubAccount(
-  OffenderSubAccountId("ASI", 1, 2101),
-  balance = BigDecimal(balance),
-  holdBalance = BigDecimal("3.50"),
-)
-private fun offenderTrustAccount() = OffenderTrustAccount(
-  id = OffenderTrustAccountId("ASI", 1L),
-  accountClosed = false,
-).apply {
-  holdBalance = BigDecimal.TEN
 }
