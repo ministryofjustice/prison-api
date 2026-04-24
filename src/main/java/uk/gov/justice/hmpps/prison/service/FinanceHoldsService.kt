@@ -98,6 +98,11 @@ class FinanceHoldsService(
     )
     offenderTransactionRepository.save(transaction)
 
+    offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
+    offenderSubAccountRepository.saveAndFlush(offenderSubAccount)
+    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
+    offenderTrustAccountRepository.saveAndFlush(offenderTrustAccount)
+
     financeRepository.updateOffenderBalance(
       prisonId,
       booking.rootOffender.id,
@@ -123,9 +128,6 @@ class FinanceHoldsService(
       moduleName = "NOMISAPI",
     )
 
-    offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
-    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.add(transactionAmount) ?: transactionAmount
-
     return HoldDetails(holdNumber)
   }
 
@@ -134,6 +136,7 @@ class FinanceHoldsService(
     val (booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, releaseHoldTransaction.clientUniqueReference, subAccountType)
     val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(booking.rootOffender.id, prisonId, holdNumber)
       .orElseThrow { EntityNotFoundException("Hold transaction not found'") }
+    holdToReleaseTransaction.holdClearFlag = "Y"
 
     val now = LocalDateTime.now()
     val nowDate = Date()
@@ -157,6 +160,19 @@ class FinanceHoldsService(
       modifyDate = now,
     )
     offenderTransactionRepository.save(releaseTransaction)
+
+    offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
+      ?: run {
+        throw ValidationException("Offender sub account hold balance not found")
+      }
+
+    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
+      ?: run {
+        throw ValidationException("Offender trust account hold balance not found")
+      }
+
+    offenderSubAccountRepository.saveAndFlush(offenderSubAccount)
+    offenderTrustAccountRepository.saveAndFlush(offenderTrustAccount)
 
     financeRepository.updateOffenderBalance(
       prisonId,
@@ -182,19 +198,6 @@ class FinanceHoldsService(
       transactionType = RELEASE_HOLD_TRANSACTION_TYPE,
       moduleName = "NOMISAPI",
     )
-
-    holdToReleaseTransaction.holdClearFlag = "Y"
-
-    offenderSubAccount.holdBalance = offenderSubAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
-      ?: run {
-        throw ValidationException("Offender sub account hold balance not found")
-      }
-
-    offenderTrustAccount.holdBalance = offenderTrustAccount.holdBalance?.minus(holdToReleaseTransaction.entryAmount)
-      ?: run {
-        throw ValidationException("Offender trust account hold balance not found")
-      }
-
     return holdToReleaseTransaction.entryAmount
   }
 
