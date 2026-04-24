@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service
 
-import jakarta.persistence.EntityManager
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
 import org.junit.jupiter.api.BeforeEach
@@ -51,7 +50,6 @@ internal class FinanceHoldsServiceTest {
   private val offenderTrustAccountRepository: OffenderTrustAccountRepository = mock()
   private val transactionTypeRepository: TransactionTypeRepository = mock()
   private val financeV1Repository: FinanceV1Repository = mock()
-  private val entityManager: EntityManager = mock()
 
   private val financeHoldsService: FinanceHoldsService = FinanceHoldsService(
     financeRepository,
@@ -62,7 +60,6 @@ internal class FinanceHoldsServiceTest {
     offenderTrustAccountRepository,
     transactionTypeRepository,
     financeV1Repository,
-    entityManager,
   )
   val rootOffenderId1 = 345L
   val prisonNumber = "AA2134"
