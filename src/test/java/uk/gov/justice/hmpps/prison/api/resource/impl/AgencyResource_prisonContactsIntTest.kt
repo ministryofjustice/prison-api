@@ -15,7 +15,7 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
   inner class GetAllPrisonContacts {
 
     @Test
-    fun `requires authorization`() {
+    fun `requires authorisation`() {
       webTestClient.get()
         .uri("/api/agencies/prison")
         .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
@@ -50,6 +50,61 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
         .jsonPath("\$[?(@.agencyId == 'BMI')].addresses[*].premise").value<List<String>> {
           assertThat(it).containsExactlyInAnyOrder("Birmingham HMP", "Birmingham HMP")
         }
+    }
+  }
+
+  @Nested
+  @DisplayName("GET /agencies/prison/{agencyId}")
+  inner class GetAllPrisonContactDetails {
+
+    @Nested
+    inner class Authorisation {
+
+      @Test
+      fun `requires authorisation`() {
+        webTestClient.get()
+          .uri("/api/agencies/prison/BMI")
+          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+          .accept(MediaType.APPLICATION_JSON)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+    }
+
+    @Test
+    fun `will retrieve contact details for a specific Prison`() {
+      webTestClient.get()
+        .uri("/api/agencies/prison/BMI")
+        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("agencyId").isEqualTo("BMI")
+        .jsonPath("addressType").isEqualTo("BUS")
+        .jsonPath("premise").isEqualTo("Birmingham HMP")
+        .jsonPath("locality").isEqualTo("Ambley")
+        .jsonPath("city").isEqualTo("Birmingham")
+        .jsonPath("country").isEqualTo("England")
+        .jsonPath("postCode").isEqualTo("BM1 23V")
+        .jsonPath("phones.size()").isEqualTo(1)
+        .jsonPath("phones[0].number").isEqualTo("0114 2345345")
+        .jsonPath("phones[0].ext").isEqualTo("345")
+        .jsonPath("phones[0].type").isEqualTo("BUS")
+    }
+
+    @Test
+    fun `will return not found if check prison exists but has no associated address`() {
+      webTestClient.get()
+        .uri("/api/agencies/prison/WAI")
+        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
+        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Contact details not found for Prison WAI")
     }
   }
 }
