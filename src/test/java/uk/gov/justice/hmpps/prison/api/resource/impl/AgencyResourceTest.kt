@@ -6,8 +6,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
+import org.springframework.http.MediaType
+import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Location
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 
 class AgencyResourceTest : ResourceTest() {
@@ -17,19 +18,28 @@ class AgencyResourceTest : ResourceTest() {
   inner class GetAgencies {
     @Test
     fun testCanFindAgencyById() {
-      val token = authTokenHelper.getToken(NORMAL_USER)
+      webTestClient.get().uri("/api/agencies/LEI")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("agencyId").isEqualTo("LEI")
+        .jsonPath("description").isEqualTo("Leeds")
+        .jsonPath("agencyType").isEqualTo("INST")
+        .jsonPath("active").isEqualTo(true)
+    }
 
-      val httpEntity = createHttpEntity(token, null)
-
-      val response = testRestTemplate.exchange(
-        "/api/agencies/LEI",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {
-        },
-      )
-
-      assertThatJsonFileAndStatus(response, 200, "single_agency.json")
+    @Test
+    fun testCanFindWAIAgencyById() {
+      webTestClient.get().uri("/api/agencies/WAI")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("agencyId").isEqualTo("WAI")
+        .jsonPath("description").isEqualTo("The Weare")
+        .jsonPath("agencyType").isEqualTo("INST")
+        .jsonPath("active").isEqualTo(true)
     }
 
     @Test
@@ -145,18 +155,36 @@ class AgencyResourceTest : ResourceTest() {
   inner class GetAgencyEventLocations {
     @Test
     fun testGetEventLocationsForAPrison() {
-      val token = authTokenHelper.getToken(AuthToken.REF_DATA_MAINTAINER)
-      val httpEntity = createHttpEntity(token, null)
+      val response = webTestClient.get().uri("/api/agencies/LEI/eventLocations")
+        .accept(MediaType.APPLICATION_JSON)
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody<List<Location>>()
+        .returnResult()
+        .responseBody!!
 
-      val response = testRestTemplate.exchange(
-        "/api/agencies/LEI/eventLocations",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<List<Location>>() {
-        },
-      )
-
-      assertThat(response.body?.size).isEqualTo(14)
+      assertThat(response.size).isEqualTo(14)
+      assertThat(response[0].locationId).isEqualTo(14433)
+      assertThat(response[0].description).isEqualTo("RES-AWING")
+      assertThat(response[0].userDescription).isEqualTo("A Wing")
+      assertThat(response[0].locationPrefix).isEqualTo("LEI-RES-AWING")
+      assertThat(response[1].locationId).isEqualTo(13411)
+      assertThat(response[1].userDescription).isEqualTo("A/b Exercise Yard")
+      assertThat(response[13].locationId).isEqualTo(1900)
+      assertThat(response[13].description).isEqualTo("OTHER-PRISONERSCEL")
+      assertThat(response[13].userDescription).isEqualTo("Prisoner's Cell")
+      assertThat(response[13].locationPrefix).isEqualTo("LEI-OTHER-PRISONERSCEL")
     }
+  }
+
+  @Test
+  fun `Retrieve locations, for an agency, that can be used for any events`() {
+    webTestClient.get().uri("/api/agencies/LEI/eventLocations")
+      .accept(MediaType.APPLICATION_JSON)
+      .headers(setClientAuthorisation(listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
   }
 }

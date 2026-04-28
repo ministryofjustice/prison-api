@@ -564,10 +564,25 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThat(caseNotes.body!!.content)
-      .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
+      .extracting(
+        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+      )
       .containsExactly(
-        Tuple.tuple("TRANSFER", "FROMTOL", "LEI", "Offender admitted to LEEDS for reason: Awaiting Removal to Psychiatric Hospital from Court 1."),
-        Tuple.tuple("PRISON", "RELEASE", "LEI", "Transferred from LEEDS for reason: Moved to psychiatric hospital Arnold Lodge."),
+        Tuple.tuple(
+          "TRANSFER",
+          "FROMTOL",
+          "LEI",
+          "Offender admitted to LEEDS for reason: Awaiting Removal to Psychiatric Hospital from Court 1.",
+        ),
+        Tuple.tuple(
+          "PRISON",
+          "RELEASE",
+          "LEI",
+          "Transferred from LEEDS for reason: Moved to psychiatric hospital Arnold Lodge.",
+        ),
       )
   }
 
@@ -589,7 +604,14 @@ class OffenderResourceIntTest : ResourceTest() {
       object : ParameterizedTypeReference<String>() {},
     )
     val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]!!
-    val newBookingBody = mapOf("prisonId" to "SYI", "fromLocationId" to "COURT1", "movementReasonCode" to "24", "youthOffender" to "true", "imprisonmentStatus" to "CUR_ORA", "cellLocation" to "SYI-A-1-1")
+    val newBookingBody = mapOf(
+      "prisonId" to "SYI",
+      "fromLocationId" to "COURT1",
+      "movementReasonCode" to "24",
+      "youthOffender" to "true",
+      "imprisonmentStatus" to "CUR_ORA",
+      "cellLocation" to "SYI-A-1-1",
+    )
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
@@ -599,7 +621,8 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThat(newBookingResponse.statusCode.value()).isEqualTo(200)
-    val releaseBody = createHttpEntity(token, mapOf("movementReasonCode" to "CR", "commentText" to "released prisoner incorrectly"))
+    val releaseBody =
+      createHttpEntity(token, mapOf("movementReasonCode" to "CR", "commentText" to "released prisoner incorrectly"))
     val releaseResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/release",
       PUT,
@@ -610,7 +633,8 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(releaseResponse.statusCode.value()).isEqualTo(200)
 
     // check that no new movement is created
-    val latestMovement = movementsRepository.getMovementsByOffenders(listOf(offenderNo.toString()), null, true, false)[0]
+    val latestMovement =
+      movementsRepository.getMovementsByOffenders(listOf(offenderNo.toString()), null, true, false)[0]
     assertThat(latestMovement.fromAgency).isEqualTo("SYI")
     assertThat(latestMovement.toAgency).isEqualTo("OUT")
     assertThat(latestMovement.movementType).isEqualTo("REL")
@@ -663,11 +687,26 @@ class OffenderResourceIntTest : ResourceTest() {
     )
 
     assertThat(caseNotes.body!!.content)
-      .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
+      .extracting(
+        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+      )
       .containsExactly(
-        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1."),
+        Tuple.tuple(
+          "TRANSFER",
+          "FROMTOL",
+          "SYI",
+          "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1.",
+        ),
         Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Conditional Release."),
-        Tuple.tuple("PRISON", "RELEASE", "SYI", "Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House."),
+        Tuple.tuple(
+          "PRISON",
+          "RELEASE",
+          "SYI",
+          "Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.",
+        ),
       )
   }
 
@@ -689,7 +728,14 @@ class OffenderResourceIntTest : ResourceTest() {
       object : ParameterizedTypeReference<String>() {},
     )
     val offenderNo = Gson().fromJson<Map<*, *>>(createResponse.body, MutableMap::class.java)["offenderNo"]!!
-    val newBookingBody = mapOf("prisonId" to "SYI", "fromLocationId" to "COURT1", "movementReasonCode" to "24", "youthOffender" to "true", "imprisonmentStatus" to "CUR_ORA", "cellLocation" to "SYI-A-1-1")
+    val newBookingBody = mapOf(
+      "prisonId" to "SYI",
+      "fromLocationId" to "COURT1",
+      "movementReasonCode" to "24",
+      "youthOffender" to "true",
+      "imprisonmentStatus" to "CUR_ORA",
+      "cellLocation" to "SYI-A-1-1",
+    )
     val newBookingEntity = createHttpEntity(token, newBookingBody)
     val newBookingResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/booking",
@@ -699,7 +745,10 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThat(newBookingResponse.statusCode.value()).isEqualTo(200)
-    val releaseBody = createHttpEntity(token, mapOf("movementReasonCode" to "HP", "commentText" to "released prisoner to hospital in NOMIS"))
+    val releaseBody = createHttpEntity(
+      token,
+      mapOf("movementReasonCode" to "HP", "commentText" to "released prisoner to hospital in NOMIS"),
+    )
     val releaseResponse = testRestTemplate.exchange(
       "/api/offenders/{nomsId}/release",
       PUT,
@@ -708,7 +757,8 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThat(releaseResponse.statusCode.value()).isEqualTo(200)
-    val latestMovement = movementsRepository.getMovementsByOffenders(listOf(offenderNo.toString()), null, true, false)[0]
+    val latestMovement =
+      movementsRepository.getMovementsByOffenders(listOf(offenderNo.toString()), null, true, false)[0]
     assertThat(latestMovement.fromAgency).isEqualTo("SYI")
     assertThat(latestMovement.toAgency).isEqualTo("OUT")
     assertThat(latestMovement.movementType).isEqualTo("REL")
@@ -721,10 +771,25 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThat(caseNotes.body!!.content)
-      .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
+      .extracting(
+        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+      )
       .containsExactly(
-        Tuple.tuple("TRANSFER", "FROMTOL", "SYI", "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1."),
-        Tuple.tuple("PRISON", "RELEASE", "SYI", "Released from SHREWSBURY for reason: Discharge To Hospital-Psychiatric."),
+        Tuple.tuple(
+          "TRANSFER",
+          "FROMTOL",
+          "SYI",
+          "Offender admitted to SHREWSBURY for reason: Recall from Intermittent Custody from Court 1.",
+        ),
+        Tuple.tuple(
+          "PRISON",
+          "RELEASE",
+          "SYI",
+          "Released from SHREWSBURY for reason: Discharge To Hospital-Psychiatric.",
+        ),
       )
   }
 
@@ -754,7 +819,12 @@ class OffenderResourceIntTest : ResourceTest() {
       prisonerNo,
     )
     assertThat(caseNotes.body!!.content)
-      .extracting(Function<CaseNote, Any> { obj: CaseNote -> obj.type }, Function<CaseNote, Any> { obj: CaseNote -> obj.subType }, Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId }, Function<CaseNote, Any> { obj: CaseNote -> obj.text })
+      .extracting(
+        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
+        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+      )
       .containsExactly(
         Tuple.tuple("PRISON", "RELEASE", "WAI", "Released from THE WEARE for reason: Conditional Release."),
       )
@@ -844,18 +914,22 @@ class OffenderResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun testFilterAdjudicationsByFindingCode() {
-    val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
-    val response = testRestTemplate.exchange(
-      "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
-      GET,
-      requestEntity,
-      object : ParameterizedTypeReference<String>() {},
-      "A1181HH",
-      "NOT_PROVEN",
-    )
-    assertThatJsonFileAndStatus(response, 200, "adjudications_by_finding_code.json")
+  @DisplayName("GET /api/offenders/{offenderNo}/adjudications")
+  @Nested
+  inner class GetAdjudications {
+    @Test
+    fun testFilterAdjudicationsByFindingCode() {
+      val requestEntity = createHttpEntity(authTokenHelper.getToken(AuthToken.PRISON_API_USER), null, mapOf())
+      val response = testRestTemplate.exchange(
+        "/api/offenders/{offenderNumber}/adjudications?finding={findingCode}",
+        GET,
+        requestEntity,
+        object : ParameterizedTypeReference<String>() {},
+        "A1181HH",
+        "NOT_PROVEN",
+      )
+      assertThatJsonFileAndStatus(response, 200, "adjudications_by_finding_code.json")
+    }
   }
 
   @Nested

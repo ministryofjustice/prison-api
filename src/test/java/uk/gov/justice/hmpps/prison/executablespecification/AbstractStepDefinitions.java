@@ -9,14 +9,12 @@ import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.justice.hmpps.prison.api.support.Order;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AgencySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivitySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
@@ -49,11 +47,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public AgencySteps agency() {
-            return new AgencySteps();
-        }
-
-        @Bean
         public CaseNoteSteps caseNote() {
             return new CaseNoteSteps();
         }
@@ -71,11 +64,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingActivitySteps bookingActivity() {
             return new BookingActivitySteps();
-        }
-
-        @Bean
-        public OffenderAdjudicationSteps offenderAdjudicationSteps() {
-            return new OffenderAdjudicationSteps();
         }
 
         @Bean
