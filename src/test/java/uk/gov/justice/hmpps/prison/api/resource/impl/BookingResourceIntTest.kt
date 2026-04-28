@@ -1,5 +1,6 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
+import org.apache.commons.lang3.StringUtils
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
@@ -16,9 +17,9 @@ import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.ContextConfiguration
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
+import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
-import uk.gov.justice.hmpps.prison.api.support.Order
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
@@ -300,23 +301,90 @@ class BookingResourceIntTest : ResourceTest() {
           }
       """
 
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "A1234AA")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(appointment)
-        .exchange()
-        .expectStatus().isUnauthorized
+    @Nested
+    inner class Authorisation {
+      @Test
+      fun `should return 401 when user does not even have token`() {
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appointment)
+          .exchange()
+          .expectStatus().isUnauthorized
+      }
+
+      @Test
+      fun `returns 403 when client has no override role`() {
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .headers(setClientAuthorisation(listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appointment)
+          .exchange()
+          .expectStatus().isForbidden
+      }
+
+      @Test
+      fun `returns 403 when user does not have offender in caseload`() {
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .headers(setAuthorisation("WAI_USER", listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appointment)
+          .exchange()
+          .expectStatus().isForbidden
+          .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
+      }
     }
 
-    @Test
-    fun `returns 403 when client has no override role`() {
-      webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
-        .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(appointment)
-        .exchange()
-        .expectStatus().isForbidden
+    @Nested
+    inner class Validation {
+      @Test
+      fun `returns 404 when invalid booking id`() {
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-999")
+          .headers(setAuthorisation("NORMAL_USER", listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appointment)
+          .exchange()
+          .expectStatus().isNotFound
+          .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -999 not found.")
+      }
+
+      @Test
+      fun `returns 400 when invalid comment`() {
+        val appWithInvalidComment = NewAppointment("ACTI", -25L, tomorrowDateTime, null, StringUtils.repeat("0123456789", 1000))
+
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .headers(setAuthorisation("NORMAL_USER", listOf("ROLE_GLOBAL_APPOINTMENT")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appWithInvalidComment)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().jsonPath("userMessage").toString().contains("Value is too long: max length is 4000")
+      }
+
+      @Test
+      fun `returns 400 when invalid type`() {
+        val appWithInvalidType = NewAppointment("doesnotexist", -25L, tomorrowDateTime, null, "comment")
+
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .headers(setAuthorisation("NORMAL_USER", listOf("ROLE_GLOBAL_APPOINTMENT")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appWithInvalidType)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().jsonPath("userMessage").isEqualTo("Event type not recognised.")
+      }
+
+      @Test
+      fun `returns 400 when invalid location`() {
+        val appWithInvalidLocation = NewAppointment("ACTI", -999L, tomorrowDateTime, null, "comment")
+
+        webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
+          .headers(setAuthorisation("NORMAL_USER", listOf("ROLE_GLOBAL_APPOINTMENT")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue(appWithInvalidLocation)
+          .exchange()
+          .expectStatus().isBadRequest
+          .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
+      }
     }
 
     @Test
@@ -360,32 +428,6 @@ class BookingResourceIntTest : ResourceTest() {
       assertThat(scheduledEvent.createUserId).isEqualTo("notanemailaddress")
 
       bookingRepository.deleteBookingAppointment(scheduledEvent.eventId)
-    }
-
-    @Test
-    fun `returns 403 when user does not have offender in caseload`() {
-      bookingRepository.getBookingAppointments(-2, tomorrow, tomorrow, "startTime", Order.ASC)
-
-      webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
-        .headers(setAuthorisation("WAI_USER", listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(appointment)
-        .exchange()
-        .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
-    }
-
-    @Test
-    fun `returns 403 when user does not have offender in casedload`() {
-      bookingRepository.getBookingAppointments(-2, tomorrow, tomorrow, "startTime", Order.ASC)
-
-      webTestClient.post().uri("/api/bookings/{bookingId}/appointments", "-2")
-        .headers(setAuthorisation("WAI_USER", listOf("ROLE_SYSTEM_USER")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(appointment)
-        .exchange()
-        .expectStatus().isForbidden
-        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -2.")
     }
 
     @Test
@@ -2031,46 +2073,50 @@ class BookingResourceIntTest : ResourceTest() {
     }
   }
 
-  @Test
-  fun `should return court event outcomes when no outcomeReasonCodes provided`() {
-    // Given
-    val bookingIds = setOf(-4L)
+  @Nested
+  @DisplayName("POST /api/bookings/court-event-outcomes")
+  inner class CourtEventOutcomes {
+    @Test
+    fun `should return court event outcomes when no outcomeReasonCodes provided`() {
+      // Given
+      val bookingIds = setOf(-4L)
 
-    // When
-    val response = testRestTemplate.exchange(
-      "/api/bookings/court-event-outcomes",
-      POST,
-      createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
-      object : ParameterizedTypeReference<String>() {},
-    )
+      // When
+      val response = testRestTemplate.exchange(
+        "/api/bookings/court-event-outcomes",
+        POST,
+        createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
+        object : ParameterizedTypeReference<String>() {},
+      )
 
-    // Then
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
-    assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].eventId").isEqualTo(-204)
-    assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
-    assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
-  }
+      // Then
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
+      assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].eventId").isEqualTo(-204)
+      assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
+      assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
+    }
 
-  @Test
-  fun `should return filtered court event outcomes when outcomeReasonCodes provided`() {
-    // Given
-    val bookingIds = setOf(-4L)
-    val outcomeReasonCodes = "1024"
+    @Test
+    fun `should return filtered court event outcomes when outcomeReasonCodes provided`() {
+      // Given
+      val bookingIds = setOf(-4L)
+      val outcomeReasonCodes = "1024"
 
-    // When
-    val response = testRestTemplate.exchange(
-      "/api/bookings/court-event-outcomes?outcomeReasonCodes=$outcomeReasonCodes",
-      POST,
-      createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
-      object : ParameterizedTypeReference<String>() {},
-    )
+      // When
+      val response = testRestTemplate.exchange(
+        "/api/bookings/court-event-outcomes?outcomeReasonCodes=$outcomeReasonCodes",
+        POST,
+        createHttpEntity(VIEW_PRISONER_DATA, bookingIds),
+        object : ParameterizedTypeReference<String>() {},
+      )
 
-    // Then
-    assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
-    val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
-    assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
-    assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
+      // Then
+      assertThat(response.statusCode).isEqualTo(HttpStatus.OK)
+      val bodyAsJsonContent = getBodyAsJsonContent<Any>(response)
+      assertThat(bodyAsJsonContent).extractingJsonPathNumberValue("$[0].bookingId").isEqualTo(-4)
+      assertThat(bodyAsJsonContent).extractingJsonPathStringValue("$[0].outcomeReasonCode").isEqualTo("1024")
+    }
   }
 
   @Nested

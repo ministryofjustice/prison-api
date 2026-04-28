@@ -3,50 +3,54 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.junit.jupiter.api.DisplayName
+import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 
 @DisplayName("GET /api/bookings/{bookingId}/contacts")
 class BookingResourceIntTest_getOffenderContacts : ResourceTest() {
 
-  @Test
-  fun `returns 401 without an auth token`() {
-    webTestClient.get().uri("/api/bookings/-1/contacts")
-      .exchange()
-      .expectStatus().isUnauthorized
-  }
+  @Nested
+  inner class Authorisation {
+    @Test
+    fun `returns 401 without an auth token`() {
+      webTestClient.get().uri("/api/bookings/-1/contacts")
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
 
-  @Test
-  fun `returns 403 when client does not have any override roles`() {
-    webTestClient.get().uri("/api/bookings/-1/contacts")
-      .headers(setClientAuthorisation(listOf()))
-      .exchange()
-      .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
-  }
+    @Test
+    fun `returns 403 when client does not have any override roles`() {
+      webTestClient.get().uri("/api/bookings/-1/contacts")
+        .headers(setClientAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
+    }
 
-  @Test
-  fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH`() {
-    webTestClient.get().uri("/api/bookings/-1/contacts")
-      .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-      .exchange()
-      .expectStatus().isOk
-  }
+    @Test
+    fun `returns 200 when client has override role ROLE_GLOBAL_SEARCH`() {
+      webTestClient.get().uri("/api/bookings/-1/contacts")
+        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+    }
 
-  @Test
-  fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
-    webTestClient.get().uri("/api/bookings/-1/contacts")
-      .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-      .exchange()
-      .expectStatus().isOk
-  }
+    @Test
+    fun `returns 200 when client has override role ROLE_VIEW_PRISONER_DATA`() {
+      webTestClient.get().uri("/api/bookings/-1/contacts")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+    }
 
-  @Test
-  fun `returns 403 if not in user caseload`() {
-    webTestClient.get().uri("/api/bookings/-1/contacts")
-      .headers(setAuthorisation("WAI_USER", listOf()))
-      .exchange()
-      .expectStatus().isForbidden
-      .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
+    @Test
+    fun `returns 403 if not in user caseload`() {
+      webTestClient.get().uri("/api/bookings/-1/contacts")
+        .headers(setAuthorisation("WAI_USER", listOf()))
+        .exchange()
+        .expectStatus().isForbidden
+        .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -1.")
+    }
   }
 
   @Test
@@ -67,5 +71,86 @@ class BookingResourceIntTest_getOffenderContacts : ResourceTest() {
       .expectBody()
       .json("offender_contacts.json".readFile())
   }
+
+  @Test
+  fun `if offender has no next of kin, next of kin is empty`() {
+    webTestClient.get().uri("/api/bookings/-4/contacts")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("nextOfKin").isEmpty
+  }
+
+  @Test
+  fun `if offender has no next of kin flag N, next of kin is empty`() {
+    webTestClient.get().uri("/api/bookings/-7/contacts")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("nextOfKin").isEmpty
+  }
+
+  @Test
+  fun `will return multiple next of kin`() {
+    webTestClient.get().uri("/api/bookings/-10/contacts")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("nextOfKin.size()").isEqualTo(2)
+      .jsonPath("nextOfKin[0].firstName").isEqualTo("JESSY")
+      .jsonPath("nextOfKin[0].lastName").isEqualTo("SMITH13")
+      .jsonPath("nextOfKin[0].contactType").isEqualTo("S")
+      .jsonPath("nextOfKin[0].contactTypeDescription").isEqualTo("Social/Family")
+      .jsonPath("nextOfKin[0].relationship").isEqualTo("SDAU")
+      .jsonPath("nextOfKin[0].relationshipDescription").isEqualTo("Stepdaughter")
+      .jsonPath("nextOfKin[0].emergencyContact").isEqualTo("true")
+      .jsonPath("nextOfKin[1].firstName").isEqualTo("ELLY")
+      .jsonPath("nextOfKin[1].lastName").isEqualTo("ROBERTSON")
+      .jsonPath("nextOfKin[1].contactType").isEqualTo("S")
+      .jsonPath("nextOfKin[1].contactTypeDescription").isEqualTo("Social/Family")
+      .jsonPath("nextOfKin[1].relationship").isEqualTo("FRI")
+      .jsonPath("nextOfKin[1].relationshipDescription").isEqualTo("Friend")
+      .jsonPath("nextOfKin[1].emergencyContact").isEqualTo("false")
+  }
+
+  @Test
+  fun `will return next of kin for booking -2`() {
+    webTestClient.get().uri("/api/bookings/-2/contacts")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("nextOfKin.size()").isEqualTo(1)
+      .jsonPath("nextOfKin[0].firstName").isEqualTo("John")
+      .jsonPath("nextOfKin[0].middleName").isEqualTo("asdf")
+      .jsonPath("nextOfKin[0].lastName").isEqualTo("Smith")
+      .jsonPath("nextOfKin[0].contactType").isEqualTo("S")
+      .jsonPath("nextOfKin[0].contactTypeDescription").isEqualTo("Social/Family")
+      .jsonPath("nextOfKin[0].relationship").isEqualTo("BOF")
+      .jsonPath("nextOfKin[0].relationshipDescription").isEqualTo("Boyfriend")
+      .jsonPath("nextOfKin[0].emergencyContact").isEqualTo("true")
+  }
+
+  @Test
+  fun `will return next of kin for booking -3`() {
+    webTestClient.get().uri("/api/bookings/-3/contacts")
+      .headers(setAuthorisation("ITAG_USER", listOf()))
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("nextOfKin.size()").isEqualTo(1)
+      .jsonPath("nextOfKin[0].firstName").isEqualTo("JOHN")
+      .jsonPath("nextOfKin[0].middleName").isEqualTo("JUSTICE")
+      .jsonPath("nextOfKin[0].lastName").isEqualTo("JOHNSON")
+      .jsonPath("nextOfKin[0].contactType").isEqualTo("S")
+      .jsonPath("nextOfKin[0].contactTypeDescription").isEqualTo("Social/Family")
+      .jsonPath("nextOfKin[0].relationship").isEqualTo("BRO")
+      .jsonPath("nextOfKin[0].relationshipDescription").isEqualTo("Brother")
+      .jsonPath("nextOfKin[0].emergencyContact").isEqualTo("false")
+  }
+
   internal fun String.readFile(): String = this@BookingResourceIntTest_getOffenderContacts::class.java.getResource(this)!!.readText()
 }
