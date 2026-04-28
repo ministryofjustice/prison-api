@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.1"
-  kotlin("plugin.spring") version "2.3.20"
-  kotlin("plugin.jpa") version "2.3.20"
-  kotlin("plugin.lombok") version "2.3.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.2"
+  kotlin("plugin.spring") version "2.3.21"
+  kotlin("plugin.jpa") version "2.3.21"
+  kotlin("plugin.lombok") version "2.3.21"
 }
 
 configurations {
@@ -15,10 +15,10 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.44")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.44")
+  annotationProcessor("org.projectlombok:lombok:1.18.46")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.1")
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -27,7 +27,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-jackson2")
 
-  implementation("commons-codec:commons-codec:1.21.0")
+  implementation("commons-codec:commons-codec:1.22.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   val jsqlParserVersion = "5.2"
   implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
@@ -36,12 +36,13 @@ dependencies {
 
   implementation("io.swagger:swagger-annotations:1.6.16")
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
+  implementation("org.springdoc:springdoc-openapi-starter-common:3.0.2")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
 
   implementation("org.apache.commons:commons-lang3:3.20.0")
-  implementation("commons-io:commons-io:2.21.0")
+  implementation("commons-io:commons-io:2.22.0")
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
   // Had to leave oracle at 21.20.0.0 because in 23 fails to compile stored procedures
@@ -49,13 +50,13 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  compileOnly("org.projectlombok:lombok:1.18.44")
+  compileOnly("org.projectlombok:lombok:1.18.46")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.1.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.1.1")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -90,7 +91,7 @@ dependencies {
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.60.1")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.44")
+  testCompileOnly("org.projectlombok:lombok:1.18.46")
 }
 
 kotlin {
