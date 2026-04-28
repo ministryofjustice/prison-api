@@ -15,12 +15,10 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivity
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAppointmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingEventSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ContactSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.OffenderAdjudicationSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonContactDetailsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
@@ -103,18 +101,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public BookingEventSteps bookingEvent() {
-            return new BookingEventSteps();
-        }
-
-        @Bean
         public BookingAppointmentSteps bookingAppointment() {
             return new BookingAppointmentSteps();
-        }
-
-        @Bean
-        public PrisonContactDetailsSteps prison() {
-            return new PrisonContactDetailsSteps();
         }
     }
 
