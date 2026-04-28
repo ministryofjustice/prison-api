@@ -18,7 +18,6 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
     fun `requires authorisation`() {
       webTestClient.get()
         .uri("/api/agencies/prison")
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isUnauthorized
@@ -28,8 +27,7 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
     fun `will get the prison contacts`() {
       webTestClient.get()
         .uri("/api/agencies/prison")
-        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation(listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -57,26 +55,20 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
   @DisplayName("GET /agencies/prison/{agencyId}")
   inner class GetAllPrisonContactDetails {
 
-    @Nested
-    inner class Authorisation {
-
-      @Test
-      fun `requires authorisation`() {
-        webTestClient.get()
-          .uri("/api/agencies/prison/BMI")
-          .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .expectStatus().isUnauthorized
-      }
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get()
+        .uri("/api/agencies/prison/BMI")
+        .accept(MediaType.APPLICATION_JSON)
+        .exchange()
+        .expectStatus().isUnauthorized
     }
 
     @Test
     fun `will retrieve contact details for a specific Prison`() {
       webTestClient.get()
         .uri("/api/agencies/prison/BMI")
-        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation(listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isOk
@@ -98,8 +90,7 @@ class AgencyResource_prisonContactsIntTest : ResourceTest() {
     fun `will return not found if check prison exists but has no associated address`() {
       webTestClient.get()
         .uri("/api/agencies/prison/WAI")
-        .headers(setAuthorisation(listOf("ROLE_MAINTAIN_HEALTH_PROBLEMS")))
-        .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation(listOf("")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
