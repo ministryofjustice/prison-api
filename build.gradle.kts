@@ -50,6 +50,10 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
+  val appinsightsCore = "core:2.6.4"
+  implementation("io.micrometer:micrometer-registry-azure-monitor:1.16.5")
+  implementation("com.microsoft.azure:applicationinsights-$appinsightsCore")
+
   compileOnly("org.projectlombok:lombok:1.18.46")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
