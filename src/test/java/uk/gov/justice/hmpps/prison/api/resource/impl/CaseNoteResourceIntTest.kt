@@ -8,25 +8,6 @@ import org.springframework.web.reactive.function.BodyInserters
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest
 
 class CaseNoteResourceIntTest : ResourceTest() {
-  @Nested
-  @DisplayName("GET /case-notes/usage")
-  inner class UsageGet {
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("api/case-notes/usage")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `should return 403 when does not have override role`() {
-      webTestClient.get().uri("api/case-notes/usage")
-        .headers(setClientAuthorisation(emptyList()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-  }
 
   @Nested
   @DisplayName("POST /case-notes/usage-by-types")

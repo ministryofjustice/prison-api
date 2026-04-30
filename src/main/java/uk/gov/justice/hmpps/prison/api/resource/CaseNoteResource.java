@@ -2,30 +2,21 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
-import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.AllArgsConstructor;
-import org.apache.commons.lang3.ObjectUtils;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 
-import java.time.LocalDate;
 import java.util.List;
 
 @RestController
@@ -36,31 +27,6 @@ import java.util.List;
 public class CaseNoteResource {
 
     private final CaseNoteService caseNoteService;
-
-    @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "OK"),
-            @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-            @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        deprecated = true,
-        summary = "This endpoint has been replaced in the case notes service - see case-notes-service/case-notes/usage"
-    )
-    @GetMapping("/usage")
-    @SlowReportQuery
-    @PreAuthorize("hasRole('VIEW_CASE_NOTES')")
-    public List<CaseNoteUsage> getCaseNoteUsageSummary(
-        @RequestParam(value = "offenderNo", required = false) @Parameter(description = "a list of offender numbers to search.") final List<String> offenderNo,
-        @RequestParam(value = "staffId", required = false) @Parameter(description = "Staff Id to filter by") final Integer staffId,
-        @RequestParam(value = "agencyId", required = false) @Parameter(description = "Agency Id to filter by") final String agencyId,
-        @RequestParam(value = "numMonths", required = false, defaultValue = "1") @Parameter(description = "Number of month to look forward (if fromDate only defined), or back (if toDate only defined). Default is 1 month") final Integer numMonths,
-        @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or after this date (in YYYY-MM-DD format) will be considered.  If not defined then the numMonth before the current date, unless a toDate is defined when it will be numMonths before toDate") final LocalDate fromDate,
-        @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Only case notes occurring on or before this date (in YYYY-MM-DD format) will be considered. If not defined then the current date will be used, unless a fromDate is defined when it will be numMonths after fromDate") final LocalDate toDate,
-        @RequestParam(value = "type", required = false) @Parameter(description = "Case note type.") final String type,
-        @RequestParam(value = "subType", required = false) @Parameter(description = "Case note sub-type.") final String subType
-    ) {
-        return caseNoteService.getCaseNoteUsage(type, subType, offenderNo, staffId, agencyId, fromDate, toDate, ObjectUtils.getIfNull(numMonths, 1));
-    }
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "The case note usage list is returned.")})

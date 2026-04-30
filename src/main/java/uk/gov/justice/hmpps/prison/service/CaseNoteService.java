@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.service;
 
-import com.google.common.collect.Lists;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
@@ -15,7 +14,6 @@ import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
 import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
@@ -131,22 +129,6 @@ public class CaseNoteService {
 
     public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
         return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
-    }
-
-    public List<CaseNoteUsage> getCaseNoteUsage(final String type, final String subType, final List<String> offenderNos, final Integer staffId, final String agencyId, final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
-        final var deriveDates = new DeriveDates(fromDate, toDate, numMonths);
-        final var caseNoteUsage = new ArrayList<CaseNoteUsage>();
-
-        if (offenderNos != null && !offenderNos.isEmpty()) {
-            Lists.partition(offenderNos, maxBatchSize).forEach(offenderNosList ->
-                    caseNoteUsage.addAll(
-                            caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, offenderNosList, staffId, type, subType)
-                    )
-            );
-        } else {
-            caseNoteUsage.addAll(caseNoteRepository.getCaseNoteUsage(deriveDates.getFromDateToUse(), deriveDates.getToDateToUse(), agencyId, null, staffId, type, subType));
-        }
-        return caseNoteUsage;
     }
 
     public List<CaseNoteTypeCount> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
