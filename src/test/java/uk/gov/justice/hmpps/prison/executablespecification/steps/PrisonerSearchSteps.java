@@ -18,8 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
  */
 public class PrisonerSearchSteps extends CommonSteps {
     private static final String PRISONER_SEARCH = API_PREFIX + "prisoners?%s";
-    private static final String PRISONER_SIMPLE_SEARCH = API_PREFIX + "prisoners/%s";
-    private static final ParameterizedTypeReference<List<PrisonerDetail>> PRISONER_DETAIL_PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<List<PrisonerDetail>>() {
+    private static final ParameterizedTypeReference<List<PrisonerDetail>> PRISONER_DETAIL_PARAMETERIZED_TYPE_REFERENCE = new ParameterizedTypeReference<>() {
     };
 
     private List<PrisonerDetail> prisonerDetails;

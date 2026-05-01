@@ -1,29 +1,20 @@
 package uk.gov.justice.hmpps.prison.repository;
 
-import jakarta.validation.constraints.NotNull;
 import org.apache.commons.lang3.StringUtils;
 import org.springframework.cache.annotation.Cacheable;
 import org.springframework.jdbc.core.RowMapper;
-import org.springframework.jdbc.core.SqlParameterValue;
 import org.springframework.stereotype.Repository;
 import org.springframework.validation.annotation.Validated;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsage;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteUsageDto;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
-import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
 import uk.gov.justice.hmpps.prison.repository.sql.CaseNoteRepositorySql;
-import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 
-import java.sql.Types;
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map;
 import java.util.TreeMap;
 import java.util.function.Predicate;
-import java.util.stream.Collectors;
 
 @Repository
 @Validated
@@ -31,43 +22,6 @@ public class CaseNoteRepository extends RepositoryBase {
 
     private static final RowMapper<ReferenceCodeDetail> REF_CODE_DETAIL_ROW_MAPPER =
         new StandardBeanPropertyRowMapper<>(ReferenceCodeDetail.class);
-
-    private static final RowMapper<CaseNoteUsageDto> CASE_NOTE_USAGE_MAPPER =
-        new DataClassByColumnRowMapper<>(CaseNoteUsageDto.class);
-
-    public List<CaseNoteUsage> getCaseNoteUsage(@NotNull final LocalDate fromDate, @NotNull final LocalDate toDate, final String agencyId, final List<String> offenderNos, final Integer staffId, final String type, final String subType) {
-
-        final var addSql = new StringBuilder();
-        if (StringUtils.isNotBlank(type)) {
-            addSql.append(" AND OCS.CASE_NOTE_TYPE = :type ");
-        }
-        if (StringUtils.isNotBlank(subType)) {
-            addSql.append(" AND OCS.CASE_NOTE_SUB_TYPE = :subType ");
-        }
-        if (StringUtils.isNotBlank(agencyId)) {
-            addSql.append(" AND OCS.AGY_LOC_ID = :agencyId ");
-        }
-        if (offenderNos != null && !offenderNos.isEmpty()) {
-            addSql.append(" AND O.OFFENDER_ID_DISPLAY IN (:offenderNos) ");
-        }
-        if (staffId != null) {
-            addSql.append(" AND OCS.STAFF_ID = :staffId ");
-        }
-
-        final var sql = String.format(CaseNoteRepositorySql.GROUP_BY_TYPES_AND_OFFENDERS.getSql(), !addSql.isEmpty() ? addSql.toString() : "");
-
-        final var usages = jdbcTemplate.query(sql,
-            createParams(
-                "fromDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(fromDate)),
-                "toDate", new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(toDate)),
-                "type", new SqlParameterValue(Types.VARCHAR, type),
-                "subType", new SqlParameterValue(Types.VARCHAR, subType),
-                "offenderNos", offenderNos,
-                "agencyId", new SqlParameterValue(Types.VARCHAR, agencyId),
-                "staffId", new SqlParameterValue(Types.INTEGER, staffId)),
-            CASE_NOTE_USAGE_MAPPER);
-        return usages.stream().map(CaseNoteUsageDto::toCaseNoteUsage).collect(Collectors.toList());
-    }
 
     @Cacheable("getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag")
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(final String caseLoadType, final Boolean active) {

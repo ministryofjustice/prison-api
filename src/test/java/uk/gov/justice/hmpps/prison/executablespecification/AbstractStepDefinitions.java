@@ -14,9 +14,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivity
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.CaseNoteSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.ReferenceDomainsSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper;
@@ -47,11 +45,6 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public CaseNoteSteps caseNote() {
-            return new CaseNoteSteps();
-        }
-
-        @Bean
         public BookingDetailSteps bookingDetail() {
             return new BookingDetailSteps();
         }
@@ -69,11 +62,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public PrisonerSearchSteps prisonerSearch() {
             return new PrisonerSearchSteps();
-        }
-
-        @Bean
-        public ReferenceDomainsSteps referenceDomain() {
-            return new ReferenceDomainsSteps();
         }
 
         @Bean
