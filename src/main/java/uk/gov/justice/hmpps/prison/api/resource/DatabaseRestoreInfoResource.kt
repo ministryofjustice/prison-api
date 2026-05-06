@@ -11,13 +11,14 @@ import org.springframework.web.bind.annotation.RequestMapping
 import org.springframework.web.bind.annotation.RestController
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.core.ReferenceData
+import uk.gov.justice.hmpps.prison.service.BackupRestoreDetails
 import uk.gov.justice.hmpps.prison.service.DatabaseRestoreInfoService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import java.time.LocalDate
 
 @RestController
 @Tag(name = "database-restore")
-@RequestMapping(value = ["\${api.base.path}/restore-info"], produces = ["application/json"])
+@RequestMapping(value = ["\${api.base.path}"], produces = ["application/json"])
 class DatabaseRestoreInfoResource(private val service: DatabaseRestoreInfoService) {
   @ApiResponses(
     ApiResponse(responseCode = "200", description = "OK"),
@@ -26,6 +27,17 @@ class DatabaseRestoreInfoResource(private val service: DatabaseRestoreInfoServic
   )
   @Operation(summary = "The last restore date or not found is returned if no restore data available")
   @ReferenceData(description = "Non-sensitive info")
-  @GetMapping
+  @Deprecated("Use the more accurate /restore-details endpoint instead")
+  @GetMapping("/restore-info")
   fun getLastRestoreDate(): LocalDate = service.getLastRestoreDate() ?: throw EntityNotFoundException("No restore data found")
+
+  @ApiResponses(
+    ApiResponse(responseCode = "200", description = "OK"),
+    ApiResponse(responseCode = "404", description = "No restore information found - this endpoint is only guaranteed to return information when run on pre-prod.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+    ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
+  )
+  @Operation(summary = "The backup and last restore timestamps, or not found is returned if no restore data available")
+  @ReferenceData(description = "Non-sensitive info")
+  @GetMapping("/restore-details")
+  fun getLastRestoreDetails(): BackupRestoreDetails = service.getLastRestoreDetails() ?: throw EntityNotFoundException("No restore data found")
 }
