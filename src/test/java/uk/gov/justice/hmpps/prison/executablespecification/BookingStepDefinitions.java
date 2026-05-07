@@ -3,14 +3,10 @@ package uk.gov.justice.hmpps.prison.executablespecification;
 import io.cucumber.java.en.And;
 import io.cucumber.java.en.Then;
 import io.cucumber.java.en.When;
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.beans.factory.annotation.Autowired;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingAssessmentSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingDetailSteps;
 
 import java.math.BigDecimal;
-import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 
 import static org.apache.commons.lang3.StringUtils.isBlank;
 
@@ -29,9 +25,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
 
     @Autowired
     private BookingDetailSteps bookingDetail;
-
-    @Autowired
-    private BookingAssessmentSteps bookingAssessment;
 
     @When("^an offender booking request is made with booking id \"([^\"]*)\"$")
     public void anOffenderBookingRequestIsMadeWithBookingId(final String bookingId) {
@@ -118,7 +111,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyOffenderPhysicalCharacteristics(characteristicsList);
     }
 
-    // ----------------------------- Assessments --------------------------
 
     @And("^the CSRA is \"([^\"]*)\"$")
     public void theCsraIs(final String csra) throws ReflectiveOperationException {
@@ -128,46 +120,6 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
     @And("^the category is \"([^\"]*)\"$")
     public void theCategoryIs(final String category) throws ReflectiveOperationException {
         bookingDetail.verifyField("category", category);
-    }
-
-    @Then("^bad request response is received from booking assessments API with message \"([^\"]*)\"$")
-    public void badRequestResponseIsReceivedFromBookingAssessmentsAPI(final String message) {
-        bookingAssessment.verifyBadRequest(message);
-    }
-
-    @Then("^access denied response is received from booking assessments API$")
-    public void accessDeniedResponseIsReceivedFromAssessmentsAPI() {
-        bookingAssessment.verifyAccessDenied();
-    }
-
-    @Then("^resource not found response is received from booking assessments API$")
-    public void resourceNotFoundResponseIsReceivedFromBookingAssessmentsAPI() {
-        bookingAssessment.verifyResourceNotFound();
-    }
-
-    @When("^a request is made for uncategorised offenders at \"([^\"]*)\"$")
-    public void requestUncategorisedOffenders(final String agencyId) {
-        bookingAssessment.getUncategorisedOffenders(agencyId);
-    }
-
-    @When("^a request is made for categorised offenders at \"([^\"]*)\" with an approval from Date of \"([^\"]*)\"$")
-    public void aRequestIsMadeForCategorisedOffendersAtWithAnApprovalFromDateOf(final String agencyId, final String fromDateString) {
-        bookingAssessment.getCategorisedOffenders(agencyId, fromDateString);
-    }
-
-    @When("^a request is made for offenders who need to be recategorised at \"([^\"]*)\" with cutoff Date of \"([^\"]*)\"$")
-    public void aRequestIsMadeForRecategorisingOffenders(final String agencyId, final String cutoff) {
-        bookingAssessment.getRecategorise(agencyId, cutoff);
-    }
-
-    @Then("^some uncategorised offenders are returned$")
-    public void returnedUncategorisedOffenders() {
-        bookingAssessment.verifyOffenderCategoryListNotEmpty();
-    }
-
-    @Then("^([0-9]+) categorised offenders are returned$")
-    public void returnedCategorisedOffenders(final int size) {
-        bookingAssessment.verifyOffenderCategoryListSize(size);
     }
 
     @Then("^the number of active alerts is ([0-9-]+)$")
@@ -185,21 +137,9 @@ public class BookingStepDefinitions extends AbstractStepDefinitions {
         bookingDetail.verifyAlertTypes(types);
     }
 
-    @Then("^\"(\\d+)\" row of assessment data is returned$")
-    public void rowOfDataIsReturned(final long expectedCount) {
-        bookingAssessment.verifyResourceRecordsReturned(expectedCount);
-    }
-
     @Then("^\"(\\d+)\" row of physical characteristics is returned$")
     public void rowOfPhysicalCharacteristicsIsReturned(final long expectedCount) {
         bookingDetail.verifyResourceRecordsReturned(expectedCount);
-    }
-
-    @When("^a categorisation is approved for booking \"([^\"]*)\" with category \"([^\"]*)\" date \"([^\"]*)\" and comment \"([^\"]*)\"$")
-    public void aCategorisationApprovalForBookingWithCategory(final String bookingId, final String category, final String date, final String comment) {
-        final var localDate = StringUtils.isBlank(date) ? null : LocalDate.parse(date, DateTimeFormatter.ISO_LOCAL_DATE);
-        final var id = StringUtils.isBlank(bookingId) ? null : Long.parseLong(bookingId);
-        bookingAssessment.approveCategorisation(id, StringUtils.trimToNull(category), localDate, StringUtils.trimToNull(comment));
     }
 
 }

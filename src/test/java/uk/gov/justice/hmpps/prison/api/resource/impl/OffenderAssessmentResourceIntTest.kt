@@ -202,14 +202,6 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `should return success if has VIEW_ASSESSMENTS override role`() {
-        webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
-          .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
-          .exchange()
-          .expectStatus().isOk
-      }
-
-      @Test
       fun `should return 403 if has SYSTEM_USER override role`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
@@ -242,7 +234,17 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       }
 
       @Test
-      fun `returns success if  in user caseload`() {
+      fun `should return success if has VIEW_ASSESSMENTS override role`() {
+        webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
+          .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$.length()").isEqualTo(25)
+      }
+
+      @Test
+      fun `returns success if in user caseload`() {
         webTestClient.get().uri("/api/offender-assessments/category/LEI?type=UNCATEGORISED")
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .exchange()
@@ -250,6 +252,46 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
           .expectBody()
           .jsonPath("$.length()").isEqualTo(25)
       }
+    }
+
+    @Test
+    fun `returns 404 if agency does not exist`() {
+      webTestClient.get().uri("/api/offender-assessments/category/XXX?type=UNCATEGORISED")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("$.userMessage").isEqualTo("Resource with id [XXX] not found.")
+    }
+
+    @Test
+    fun `returns offenders who have an approved categorisation and fromDate`() {
+      webTestClient.get().uri("/api/offender-assessments/category/LEI?type=CATEGORISED&date=2018-02-02")
+        .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(1)
+    }
+
+    @Test
+    fun `returns offenders who have an approved categorisation and default 1 month period`() {
+      webTestClient.get().uri("/api/offender-assessments/category/LEI?type=CATEGORISED")
+        .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `returns recategorised offenders`() {
+      webTestClient.get().uri("/api/offender-assessments/category/LEI?type=RECATEGORISATIONS&date=2018-07-01")
+        .headers(setClientAuthorisation(listOf("VIEW_ASSESSMENTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(4)
     }
   }
 
@@ -1421,6 +1463,13 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
   @Nested
   @DisplayName("PUT /api/offender-assessments/category/approve")
   inner class ApproveCategorisation {
+    val categoryApproval: CategoryApprovalDetail = CategoryApprovalDetail.builder()
+      .bookingId(-34L)
+      .assessmentSeq(1)
+      .category("D")
+      .evaluationDate(LocalDate.parse("2019-03-21"))
+      .reviewCommitteeCode("GOV")
+      .approvedCategoryComment("approved").build()
 
     @Nested
     inner class Authorisation {
@@ -1429,18 +1478,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       fun `should return 401 when user does not even have token`() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isUnauthorized
       }
@@ -1450,18 +1488,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isForbidden
       }
@@ -1471,18 +1498,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isCreated
 
@@ -1494,18 +1510,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setClientAuthorisation(listOf("SYSTEM_USER")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isForbidden
       }
@@ -1515,18 +1520,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("ITAG_USER", listOf()))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isForbidden
       }
@@ -1536,18 +1530,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("RO_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -34.")
@@ -1558,18 +1541,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .headers(setAuthorisation("WAI_USER", listOf("APPROVE_CATEGORISATION")))
           .header("Content-Type", APPLICATION_JSON_VALUE)
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isForbidden
           .expectBody().jsonPath("userMessage").isEqualTo("Unauthorised access to booking with id -34.")
@@ -1602,18 +1574,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
         webTestClient.put().uri("/api/offender-assessments/category/approve")
           .header("Content-Type", APPLICATION_JSON_VALUE)
           .headers(setAuthorisation("ITAG_USER", listOf("APPROVE_CATEGORISATION")))
-          .bodyValue(
-            """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-          )
+          .bodyValue(categoryApproval)
           .exchange()
           .expectStatus().isCreated
 
@@ -1674,18 +1635,7 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
       webTestClient.put().uri("/api/offender-assessments/category/approve?lockTimeout=true")
         .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue(
-          """
-            {
-              "bookingId" : -34,
-              "assessmentSeq": 1,
-              "category": "D",
-              "approvedCategoryComment": "approved",
-              "evaluationDate": "2019-03-21",
-              "reviewCommitteeCode": "GOV"
-            }
-            """,
-        )
+        .bodyValue(categoryApproval)
         .exchange()
         .expectStatus().isCreated
 
@@ -1693,7 +1643,80 @@ class OffenderAssessmentResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun testApproveCategorisationCommitteCodeInvalid() {
+    fun testApproveCategorisationMissingBookingId() {
+      webTestClient.put().uri("/api/offender-assessments/category/approve")
+        .headers(setClientAuthorisation(listOf("CATEGORISATION_APPROVE")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          CategoryApprovalDetail.builder()
+            .assessmentSeq(3)
+            .category("C")
+            .evaluationDate(LocalDate.parse("2019-02-28"))
+            .reviewCommitteeCode("GOV").build(),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("bookingId must be provided")
+    }
+
+    @Test
+    fun testApproveCategorisationMissingAssessment() {
+      webTestClient.put().uri("/api/offender-assessments/category/approve")
+        .headers(setClientAuthorisation(listOf("MAINTAIN_ASSESSMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          CategoryApprovalDetail.builder()
+            .bookingId(-33L)
+            .assessmentSeq(3)
+            .category("C")
+            .evaluationDate(LocalDate.parse("2019-02-28"))
+            .reviewCommitteeCode("GOV").build(),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("No category assessment found, category C, booking -33")
+    }
+
+    @Test
+    fun testApproveCategorisationMissingDate() {
+      webTestClient.put().uri("/api/offender-assessments/category/approve")
+        .headers(setClientAuthorisation(listOf("CATEGORISATION_APPROVE")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          CategoryApprovalDetail.builder()
+            .bookingId(-34L)
+            .assessmentSeq(3)
+            .category("C")
+            .reviewCommitteeCode("GOV").build(),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("Date of approval must be provided")
+    }
+
+    @Test
+    fun testApproveCategorisationCategoryInvalid() {
+      webTestClient.put().uri("/api/offender-assessments/category/approve")
+        .headers(setClientAuthorisation(listOf("CATEGORISATION_APPROVE")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(
+          CategoryApprovalDetail.builder()
+            .bookingId(-34L)
+            .assessmentSeq(3)
+            .evaluationDate(LocalDate.parse("2019-02-28"))
+            .reviewCommitteeCode("GOV").build(),
+        )
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("category must be provided")
+    }
+
+    @Test
+    fun testApproveCategorisationCommitteeCodeInvalid() {
       val token = authTokenHelper.getToken(AuthToken.CATEGORISATION_APPROVE)
       val requestBody = createHttpEntity(
         token,

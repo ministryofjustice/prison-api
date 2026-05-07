@@ -80,61 +80,6 @@ Feature: Booking Details
     When an offender booking request is made with booking id "-16"
     Then booking number of offender booking returned is "A00126"
 
-  Scenario: Request for offenders who need to be categorised
-    When a request is made for uncategorised offenders at "MDI"
-    Then some uncategorised offenders are returned
-
-  Scenario: Request for offenders who need to be categorised with invalid agency
-    When a request is made for uncategorised offenders at "XXXX"
-    Then resource not found response is received from booking assessments API
-
-  Scenario: Request for offenders who have an approved categorisation
-    When a request is made for categorised offenders at "LEI" with an approval from Date of "2018-02-02"
-    Then 1 categorised offenders are returned
-
-  Scenario: Request for offenders who have an approved categorisation using default 1 month period
-    When a request is made for categorised offenders at "LEI" with an approval from Date of ""
-    Then 0 categorised offenders are returned
-
-  Scenario: Request for offenders who need to be recategorised
-    When a request is made for offenders who need to be recategorised at "LEI" with cutoff Date of "2018-07-01"
-    Then 4 categorised offenders are returned
-
-
-  Scenario: Approve categorisation validation: no auth
-    When a categorisation is approved for booking "-34" with category "D" date "2019-02-28" and comment "Make it so"
-    Then access denied response is received from booking assessments API
-
-  Scenario: Approve categorisation validation: no category
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "-34" with category "" date "2019-02-28" and comment "Make it so"
-    Then bad request response is received from booking assessments API with message "category must be provided"
-
-  Scenario: Approve categorisation validation: no booking
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "" with category "C" date "2019-02-28" and comment "Make it so"
-    Then bad request response is received from booking assessments API with message "bookingId must be provided"
-
-  Scenario: Approve categorisation validation: invalid booking
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "-999" with category "C" date "2019-02-28" and comment ""
-    Then resource not found response is received from booking assessments API
-
-  Scenario: Approve categorisation validation: no date
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "-34" with category "B" date "" and comment ""
-    Then bad request response is received from booking assessments API with message "Date of approval must be provided"
-
-  Scenario: Approve categorisation validation: invalid category
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "-34" with category "hmm" date "2019-02-28" and comment ""
-    Then bad request response is received from booking assessments API with message "Category not recognised."
-
-  Scenario: Approve categorisation validation: no pending category exists
-    Given a user has a token name of "CATEGORISATION_APPROVE"
-    When a categorisation is approved for booking "-33" with category "C" date "2019-02-28" and comment ""
-    Then bad request response is received from booking assessments API with message "No category assessment found, category C, booking -33"
-
   Scenario Outline: Request for specific offender booking record returns language
     When an offender booking request is made with booking id "<bookingId>"
     Then language of offender booking returned is "<language>"
