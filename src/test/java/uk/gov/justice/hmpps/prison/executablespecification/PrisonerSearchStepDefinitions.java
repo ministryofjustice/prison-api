@@ -167,11 +167,6 @@ public class PrisonerSearchStepDefinitions extends AbstractStepDefinitions {
         prisonerSearch.search(params, 0, 100, HttpStatus.BAD_REQUEST);
     }
 
-    @Then("^access is denied$")
-    public void accessIsDenied() throws Throwable {
-        prisonerSearch.verifyAccessDenied();
-    }
-
     @Then("^bad request response is received from prisoner search API$")
     public void badRequestResponseIsReceivedFromPrisonerSearchAPI() {
         prisonerSearch.verifyBadRequest("Incorrectly formatted PNC number");

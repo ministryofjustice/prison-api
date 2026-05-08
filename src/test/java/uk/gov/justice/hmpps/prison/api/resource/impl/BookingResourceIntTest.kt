@@ -97,6 +97,12 @@ class BookingResourceIntTest : ResourceTest() {
     }
 
     @Test
+    fun `returns 200 if not in user caseload but has override role`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setAuthorisation("WAI_USER", listOf("GLOBAL_SEARCH"))).exchange().expectStatus().isOk
+    }
+
+    @Test
     fun `returns 403 if user has no caseloads`() {
       webTestClient.get().uri("/api/bookings/-2")
         .headers(setAuthorisation("RO_USER", listOf())).exchange().expectStatus().isForbidden
@@ -161,6 +167,107 @@ class BookingResourceIntTest : ResourceTest() {
         "-7",
       )
       assertThatJsonFileAndStatus(response, 200, "offender_extra_info.json")
+    }
+
+    @Test
+    fun `should return booking details with active and inactive alerts`() {
+      webTestClient.get().uri("/api/bookings/-1")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("firstName").isEqualTo("ARTHUR")
+        .jsonPath("lastName").isEqualTo("ANDERSON")
+        .jsonPath("physicalAttributes.gender").isEqualTo("Male")
+        .jsonPath("physicalAttributes.ethnicity").isEqualTo("White: British")
+        .jsonPath("physicalAttributes.heightFeet").isEqualTo(5)
+        .jsonPath("physicalAttributes.heightInches").isEqualTo(6)
+        .jsonPath("physicalAttributes.heightMetres").isEqualTo(1.68)
+        .jsonPath("physicalAttributes.heightCentimetres").isEqualTo(168)
+        .jsonPath("physicalAttributes.weightPounds").isEqualTo(165)
+        .jsonPath("physicalAttributes.weightKilograms").isEqualTo(75)
+        .jsonPath("bookingNo").isEqualTo("A00111")
+        .jsonPath("offenderNo").isEqualTo("A1234AA")
+        .jsonPath("activeFlag").isEqualTo(true)
+        .jsonPath("activeAlertCount").isEqualTo(3)
+        .jsonPath("inactiveAlertCount").isEqualTo(1)
+        .jsonPath("alertsCodes").value<List<String>> { assertThat(it).containsExactlyInAnyOrder("H", "X") }
+        .jsonPath("language").isEqualTo("Polish")
+        .jsonPath("physicalCharacteristics.size()").isEqualTo(2)
+        .jsonPath("physicalCharacteristics[0].characteristic").isEqualTo("Right Eye Colour")
+        .jsonPath("physicalCharacteristics[0].detail").isEqualTo("Blue")
+        .jsonPath("physicalCharacteristics[1].characteristic").isEqualTo("Shape of Face")
+        .jsonPath("physicalCharacteristics[1].detail").isEqualTo("Oval")
+        .jsonPath("csra").isEqualTo("High")
+        .jsonPath("category").isEqualTo("Low")
+    }
+
+    @Test
+    fun `should return booking details with only active alerts`() {
+      webTestClient.get().uri("/api/bookings/-2")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("firstName").isEqualTo("GILLIAN")
+        .jsonPath("lastName").isEqualTo("ANDERSON")
+        .jsonPath("physicalAttributes.heightFeet").doesNotExist()
+        .jsonPath("physicalAttributes.heightInches").doesNotExist()
+        .jsonPath("physicalAttributes.heightMetres").doesNotExist()
+        .jsonPath("physicalAttributes.heightCentimetres").doesNotExist()
+        .jsonPath("physicalAttributes.weightPounds").isEqualTo(120)
+        .jsonPath("physicalAttributes.weightKilograms").isEqualTo(55)
+        .jsonPath("bookingNo").isEqualTo("A00112")
+        .jsonPath("offenderNo").isEqualTo("A1234AB")
+        .jsonPath("activeFlag").isEqualTo(true)
+        .jsonPath("activeAlertCount").isEqualTo(2)
+        .jsonPath("inactiveAlertCount").isEqualTo(0)
+        .jsonPath("alertsCodes").value<List<String>> { assertThat(it).containsExactlyInAnyOrder("H", "X") }
+        .jsonPath("csra").doesNotExist()
+        .jsonPath("category").doesNotExist()
+    }
+
+    @Test
+    fun `should return no alerts`() {
+      webTestClient.get().uri("/api/bookings/-11")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("activeAlertCount").isEqualTo(0)
+        .jsonPath("inactiveAlertCount").isEqualTo(0)
+        .jsonPath("alerts.size()").isEqualTo(0)
+    }
+
+    @Test
+    fun `should return no language details`() {
+      webTestClient.get().uri("/api/bookings/-4")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("language").doesNotExist()
+    }
+
+    @Test
+    fun `should return hair physical characteristics`() {
+      webTestClient.get().uri("/api/bookings/-12")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("physicalCharacteristics[0].characteristic").isEqualTo("Hair Colour")
+        .jsonPath("physicalCharacteristics[0].detail").isEqualTo("Bald")
+    }
+
+    @Test
+    fun `should return no physical characteristics`() {
+      webTestClient.get().uri("/api/bookings/-5")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("physicalCharacteristics.size()").isEqualTo(0)
     }
   }
 
