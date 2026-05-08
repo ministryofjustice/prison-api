@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.executablespecification;
 
-import org.apache.commons.lang3.StringUtils;
 import org.springframework.boot.resttestclient.autoconfigure.AutoConfigureTestRestTemplate;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.context.TestConfiguration;
@@ -8,9 +7,7 @@ import org.springframework.context.annotation.Bean;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
-import uk.gov.justice.hmpps.prison.api.support.Order;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingActivitySteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
@@ -48,40 +45,8 @@ abstract class AbstractStepDefinitions {
         }
 
         @Bean
-        public BookingActivitySteps bookingActivity() {
-            return new BookingActivitySteps();
-        }
-
-        @Bean
         public PrisonerSearchSteps prisonerSearch() {
             return new PrisonerSearchSteps();
         }
-    }
-
-    int ord2idx(final String ordinal) {
-        final var numberOnly = StringUtils.trimToEmpty(ordinal).replaceAll("[^0-9]", "");
-        int index;
-
-        try {
-            index = Integer.parseInt(numberOnly) - 1;
-        } catch (final NumberFormatException ex) {
-            index = -1;
-        }
-
-        return index;
-    }
-
-    Order parseSortOrder(final String sortOrder) {
-        final Order order;
-
-        if (StringUtils.startsWithIgnoreCase(sortOrder, "DESC")) {
-            order = Order.DESC;
-        } else if (StringUtils.startsWithIgnoreCase(sortOrder, "ASC")) {
-            order = Order.ASC;
-        } else {
-            order = null;
-        }
-
-        return order;
     }
 }

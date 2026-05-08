@@ -13,12 +13,15 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
+import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.web.reactive.server.expectBodyList
 import uk.gov.justice.hmpps.prison.api.model.BookingActivity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
+import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
@@ -26,6 +29,7 @@ import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import java.time.Clock
+import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now
 import java.time.ZoneId
@@ -667,6 +671,91 @@ class BookingResourceIntTest : ResourceTest() {
           .build(),
       )
     }
+    /*
+     Pulled in broken cucumber test for completeness when rewriting tests
+
+      @broken
+        Scenario: Pay an activity and reject double payment Booking id -3 has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
+          When a request is made to update attendance for booking id "-3" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
+          Then the booking activity is rejected as offender has already been paid for "Substance misuse course"
+     */
+  }
+
+  @Nested
+  @DisplayName("PUT /offenderNo/{offenderNo}/activities/{activityId}/attendance")
+  inner class PutOffenderActivity {
+
+    @Test
+    fun `should return 400 if invalid outcome`() {
+      webTestClient.put().uri("/api/bookings/offenderNo/A1234AC/activities/-2/attendance")
+        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(UpdateAttendance("invalid", "GOOD", "blah"))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
+    }
+
+    @Test
+    fun `should return 400 if invalid performance`() {
+      webTestClient.put().uri("/api/bookings/offenderNo/A1234AC/activities/-2/attendance")
+        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(UpdateAttendance("UNBEH", "GOOD", "blah"))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
+    }
+
+    @Test
+    fun `should return 404 if incorrect ids`() {
+      webTestClient.put().uri("/api/bookings/offenderNo/A1234AB/activities/-2/attendance")
+        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(UpdateAttendance("ATT", "STANDARD", "blah"))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
+    }
+
+    @Test
+    fun `should return 404 if unauthorised booking id`() {
+      webTestClient.put().uri("/api/bookings/offenderNo/A1234AP/activities/-2/attendance")
+        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .accept(MediaType.APPLICATION_JSON)
+        .bodyValue(UpdateAttendance("ATT", "STANDARD", "blah"))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody()
+        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
+    }
+  }
+
+  /*
+     Pulled in broken cucumber test for completeness when rewriting tests
+
+    # Pay is Nomis-only for now due to the "offender id to booking id mapping sql" using nomis-specific booking_seq column
+    # step not implemented so marked as broken
+    @broken
+    Scenario: Pay an activity and reject double payment
+          Offender id A1234AC has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
+      When a request is made to update attendance for offender id "A1234AC" and activity "-6" with outcome "ATT", performance "STANDARD" and comment "blah"
+      Then the booking activities request is successful
+      And the saved attendance details can be retrieved correctly
+      When a request is made to update attendance for offender id "A1234AC" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
+      Then the booking activity is rejected as offender has already been paid for "Substance misuse course"
+*/
+
+  @Nested
+  @DisplayName("PUT /api/bookings/activities/attendance")
+  inner class UpdateAttendanceForMultipleBookings {
 
     @Test
     fun testUpdateAttendance_WithMultipleBookingIds() {
@@ -1386,6 +1475,157 @@ class BookingResourceIntTest : ResourceTest() {
         .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isOk
+    }
+
+    @Test
+    fun `should return success even with no activities returned`() {
+      webTestClient.get().uri("/api/bookings/-9/activities")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .json("[]")
+    }
+
+    @Test
+    fun `should return scheduled activities for offender having one or more activities`() {
+      val scheduledEventList = webTestClient.get().uri("/api/bookings/-1/activities")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBodyList<ScheduledEvent>()
+        .returnResult()
+        .responseBody!!
+
+      assertThat(scheduledEventList).size().isEqualTo(10)
+      assertThat(scheduledEventList.map { it.bookingId }).containsOnly(-1)
+      assertThat(scheduledEventList.map { it.eventClass }).containsOnly("INT_MOV")
+      assertThat(scheduledEventList.map { it.eventStatus }).containsOnly("SCH")
+      assertThat(scheduledEventList.map { it.eventType }).containsOnly("PRISON_ACT")
+      assertThat(scheduledEventList.map { it.eventTypeDesc }).containsOnly("Prison Activities")
+      assertThat(scheduledEventList.map { it.eventSource }).containsOnly("PA")
+      assertThat(scheduledEventList[0].eventSubType).isEqualTo("CHAP")
+      assertThat(scheduledEventList[8].eventSubType).isEqualTo("EDUC")
+      assertThat(scheduledEventList[1].eventSubTypeDesc).isEqualTo("Education")
+      assertThat(scheduledEventList[9].eventSubTypeDesc).isEqualTo("Chaplaincy")
+      assertThat(scheduledEventList[2].eventDate).isEqualTo(LocalDate.parse("2017-09-12"))
+      assertThat(scheduledEventList[8].eventDate).isEqualTo(LocalDate.parse("2017-09-14"))
+      assertThat(scheduledEventList[3].startTime).isEqualTo(LocalDateTime.parse("2017-09-12T13:05:00"))
+      assertThat(scheduledEventList[7].startTime).isEqualTo(LocalDateTime.parse("2017-09-14T09:30:00"))
+      assertThat(scheduledEventList[5].endTime).isEqualTo(LocalDateTime.parse("2017-09-13T11:30:00"))
+      assertThat(scheduledEventList[6].endTime).isEqualTo(LocalDateTime.parse("2017-09-13T15:00:00"))
+      assertThat(scheduledEventList[0].eventLocation).isEqualTo("Chapel")
+      assertThat(scheduledEventList[9].eventLocation).isEqualTo("Chapel")
+      assertThat(scheduledEventList[2].eventSourceCode).isEqualTo("CC1")
+      assertThat(scheduledEventList[8].eventSourceCode).isEqualTo("SUBS")
+      assertThat(scheduledEventList[5].eventSourceDesc).isEqualTo("Chapel Cleaner")
+      assertThat(scheduledEventList[6].eventSourceDesc).isEqualTo("Substance misuse course")
+    }
+
+    @Test
+    fun `should return scheduled activities for offender having one or more activities, some of which they have attended`() {
+      webTestClient.get().uri("/api/bookings/-3/activities")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(10)
+        .jsonPath("[0].startTime").isEqualTo("2017-09-11T13:00:00")
+        .jsonPath("[0].eventStatus").isEqualTo("COMP")
+        .jsonPath("[1].eventStatus").isEqualTo("SCH")
+        .jsonPath("[2].eventStatus").isEqualTo("EXP")
+        .jsonPath("[4].eventStatus").isEqualTo("SCH")
+        .jsonPath("[5].eventStatus").isEqualTo("CANC")
+        .jsonPath("[7].eventStatus").isEqualTo("SCH")
+        .jsonPath("[8].eventStatus").isEqualTo("SCH")
+    }
+
+    @Test
+    fun `should return scheduled activities for offender with excluded activity CRS_SCH_ID=-25 on Friday 2017-09-29`() {
+      webTestClient.get().uri("/api/bookings/-4/activities")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(4)
+    }
+
+    @Test
+    fun `should return scheduled activities for offender with excluded activity by day and slot`() {
+      webTestClient.get().uri("/api/bookings/-5/activities")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(10)
+    }
+
+    @Test
+    fun `should return scheduled activities for an existing offender having one or more activities, from a specified date`() {
+      webTestClient.get().uri("/api/bookings/-1/activities?fromDate=2017-09-12")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(10)
+        .jsonPath("[0].startTime").isEqualTo("2017-09-12T09:30:00")
+        .jsonPath("[0].eventSourceDesc").isEqualTo("Chapel Cleaner")
+        .jsonPath("[9].endTime").isEqualTo("2017-09-18T11:30:00")
+        .jsonPath("[9].eventSourceDesc").isEqualTo("Chapel Cleaner")
+    }
+
+    @Test
+    fun `should return scheduled activities for an existing offender having one or more activities, to a specified date`() {
+      webTestClient.get().uri("/api/bookings/-1/activities?toDate=2017-09-12")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(5)
+        .jsonPath("[0].startTime").isEqualTo("2017-09-11T09:30:00")
+        .jsonPath("[0].eventSourceDesc").isEqualTo("Chapel Cleaner")
+        .jsonPath("[4].endTime").isEqualTo("2017-09-12T15:00:00")
+        .jsonPath("[4].eventSourceDesc").isEqualTo("Substance misuse course")
+    }
+
+    @Test
+    fun `should return scheduled activities for an existing offender having one or more activities, between specified dates`() {
+      webTestClient.get().uri("/api/bookings/-1/activities?fromDate=2017-09-12&toDate=2017-09-18")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(10)
+        .jsonPath("[0].startTime").isEqualTo("2017-09-12T09:30:00")
+        .jsonPath("[0].eventSourceDesc").isEqualTo("Chapel Cleaner")
+        .jsonPath("[9].endTime").isEqualTo("2017-09-18T11:30:00")
+        .jsonPath("[9].eventSourceDesc").isEqualTo("Chapel Cleaner")
+    }
+
+    @Test
+    fun `should return scheduled activities for an existing offender having one or more activities, sorted by descending activity end date`() {
+      webTestClient.get().uri("/api/bookings/-1/activities")
+        .header("Sort-Fields", "endTime")
+        .header("Sort-Order", "DESC")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("size()").isEqualTo(10)
+        .jsonPath("[0].startTime").isEqualTo("2017-09-22T09:30:00")
+        .jsonPath("[0].eventSourceDesc").isEqualTo("Chapel Cleaner")
+        .jsonPath("[9].endTime").isEqualTo("2017-09-13T15:00:00")
+        .jsonPath("[9].eventSourceDesc").isEqualTo("Substance misuse course")
+    }
+
+    @Test
+    fun `should return 400 error if toDate is before fromDate`() {
+      webTestClient.get().uri("/api/bookings/-1/activities?fromDate=2017-09-18&toDate=2017-09-12")
+        .headers(setAuthorisation(listOf()))
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody()
+        .jsonPath("userMessage").isEqualTo("Invalid date range: toDate is before fromDate.")
     }
   }
 
