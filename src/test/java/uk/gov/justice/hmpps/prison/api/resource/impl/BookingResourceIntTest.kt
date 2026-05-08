@@ -671,14 +671,6 @@ class BookingResourceIntTest : ResourceTest() {
           .build(),
       )
     }
-    /*
-     Pulled in broken cucumber test for completeness when rewriting tests
-
-      @broken
-        Scenario: Pay an activity and reject double payment Booking id -3 has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
-          When a request is made to update attendance for booking id "-3" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
-          Then the booking activity is rejected as offender has already been paid for "Substance misuse course"
-     */
   }
 
   @Nested
@@ -737,21 +729,6 @@ class BookingResourceIntTest : ResourceTest() {
         .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
     }
   }
-
-  /*
-     Pulled in broken cucumber test for completeness when rewriting tests
-
-    # Pay is Nomis-only for now due to the "offender id to booking id mapping sql" using nomis-specific booking_seq column
-    # step not implemented so marked as broken
-    @broken
-    Scenario: Pay an activity and reject double payment
-          Offender id A1234AC has 2 activities scheduled on 2017-09-12 PM with eventId -6 and -7
-      When a request is made to update attendance for offender id "A1234AC" and activity "-6" with outcome "ATT", performance "STANDARD" and comment "blah"
-      Then the booking activities request is successful
-      And the saved attendance details can be retrieved correctly
-      When a request is made to update attendance for offender id "A1234AC" and activity "-7" with outcome "ATT", performance "STANDARD" and comment "blah"
-      Then the booking activity is rejected as offender has already been paid for "Substance misuse course"
-*/
 
   @Nested
   @DisplayName("PUT /api/bookings/activities/attendance")
