@@ -21,13 +21,11 @@ import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.Date;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -55,7 +53,6 @@ public abstract class CommonSteps {
     private ErrorResponse errorResponse;
     private long paginationLimit;
     private long paginationOffset;
-    private long paginationNumber;
 
     @PostConstruct
     protected void postConstruct() {
@@ -97,17 +94,6 @@ public abstract class CommonSteps {
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.NOT_FOUND.value());
     }
 
-    @Step("Verify user message in error response")
-    public void verifyErrorUserMessage(final String expectedUserMessage) {
-        assertThat(errorResponse.getUserMessage()).isEqualTo(expectedUserMessage);
-    }
-
-    @Step("Verify 500 error")
-    public void verify500Error() {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-
     @Step("Verify bad request")
     public void verifyBadRequest(final String expectedUserMessage) {
         verifyBadRequest(Collections.singletonList(expectedUserMessage));
@@ -116,46 +102,6 @@ public abstract class CommonSteps {
     public void verifyBadRequest(final List<String> expectedUserMessages) {
         assertThat(errorResponse).isNotNull();
         assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.BAD_REQUEST.value());
-        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
-    }
-
-    @Step("Verify access denied")
-    public void verifyAccessDenied() {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
-    }
-
-    @Step("Verify access denied")
-    public void verifyAccessDenied(final String expectedUserMessage) {
-        verifyAccessDenied(Collections.singletonList(expectedUserMessage));
-    }
-
-    private void verifyAccessDenied(final List<String> expectedUserMessages) {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.FORBIDDEN.value());
-        assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
-    }
-
-    @Step("Verify not authorised")
-    private void verifyNotAuthorised() {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.UNAUTHORIZED.value());
-    }
-
-    @Step("Verify not authorised")
-    public void verifyUnapprovedClient() {
-        verifyNotAuthorised();
-        // unfortunately not able to access the status text that is returned to the client thought the oauth2template.
-    }
-
-    @Step("Verify resource conflict")
-    public void verifyResourceConflict(final String expectedUserMessage) {
-        verifyResourceConflict(Collections.singletonList(expectedUserMessage));
-    }
-
-    private void verifyResourceConflict(final List<String> expectedUserMessages) {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus().intValue()).isEqualTo(HttpStatus.CONFLICT.value());
         assertThat(errorResponse.getUserMessage()).contains(expectedUserMessages);
     }
 
@@ -170,17 +116,9 @@ public abstract class CommonSteps {
         paginationOffset = Objects.requireNonNullElse(offset, 0L);
     }
 
-    @Step("Apply page and size")
-    public void applyPageNumberAndSize(final Long pageNumber, final Long size) {
-        paginationNumber = Objects.requireNonNullElse(pageNumber, 0L);
-        paginationLimit = Objects.requireNonNullElse(size, 10L);
-    }
-
-
     protected void init() {
         paginationLimit = 10;
         paginationOffset = 0;
-        paginationNumber = 0;
         errorResponse = null;
         resources = null;
         pageMetaData = null;
@@ -191,20 +129,8 @@ public abstract class CommonSteps {
         this.resources = receivedResponse.getBody();
     }
 
-    protected <T> void buildResourceData(final org.springframework.data.domain.Page<T> receivedResponse) {
-        this.pageMetaData = buildPageMetaData(receivedResponse);
-        this.resources = receivedResponse.getContent();
-    }
-    void setResourceMetaData(final List<?> resources) {
-        this.resources = resources;
-    }
-
     protected void setErrorResponse(final ErrorResponse errorResponse) {
         this.errorResponse = errorResponse;
-    }
-
-    protected ErrorResponse getErrorResponse() {
-        return errorResponse;
     }
 
     protected HttpEntity<?> createEntity() {
@@ -329,90 +255,10 @@ public abstract class CommonSteps {
         return extractedVals;
     }
 
-    private <T> List<String> extractLocalDateTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
-        final List<String> extractedVals = new ArrayList<>();
-        final var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        if (actualCollection != null) {
-            extractedVals.addAll(
-                    actualCollection
-                            .stream()
-                            .map(mapper)
-                            .filter(Objects::nonNull)
-                            .map(date -> date.format(dateTimeFormatter))
-                            .toList()
-            );
-        }
-
-        return extractedVals;
-    }
-
-    private <T> List<String> extractLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper) {
-        final List<String> extractedVals = new ArrayList<>();
-        final var dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm");
-
-        if (actualCollection != null) {
-            extractedVals.addAll(
-                    actualCollection
-                            .stream()
-                            .map(mapper)
-                            .filter(Objects::nonNull)
-                            .map(date -> date.format(dateTimeFormatter))
-                            .toList()
-            );
-        }
-
-        return extractedVals;
-    }
-
-    private <T> List<String> extractDateValues(final Collection<T> actualCollection, final Function<T, Date> mapper) {
-        final List<String> extractedVals = new ArrayList<>();
-        final var dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-
-        if (actualCollection != null) {
-            extractedVals.addAll(
-                    actualCollection
-                            .stream()
-                            .map(mapper)
-                            .filter(Objects::nonNull)
-                            .map(date -> date.toInstant().atZone(ZoneId.systemDefault()).toLocalDate().format(dateTimeFormatter))
-                            .toList()
-            );
-        }
-
-        return extractedVals;
-    }
-
-    private <T> List<String> extractLongValues(final Collection<T> actualCollection, final Function<T, Long> mapper) {
-        final List<String> extractedVals = new ArrayList<>();
-
-        if (actualCollection != null) {
-            extractedVals.addAll(
-                    actualCollection
-                            .stream()
-                            .map(mapper)
-                            .filter(Objects::nonNull)
-                            .map(String::valueOf)
-                            .toList()
-            );
-        }
-
-        return extractedVals;
-    }
-
     protected <T> void verifyPropertyValues(final Collection<T> actualCollection,
                                             final Function<T, String> mapper,
                                             final String expectedValues) {
         final var actualValList = extractPropertyValues(actualCollection, mapper);
-        final var expectedValList = csv2list(expectedValues);
-
-        verifyIdentical(actualValList, expectedValList);
-    }
-
-    <T> void verifyLongValues(final Collection<T> actualCollection,
-                              final Function<T, Long> mapper,
-                              final String expectedValues) {
-        final var actualValList = extractLongValues(actualCollection, mapper);
         final var expectedValList = csv2list(expectedValues);
 
         verifyIdentical(actualValList, expectedValList);
@@ -427,31 +273,6 @@ public abstract class CommonSteps {
         verifyIdentical(actualValList, expectedValList);
     }
 
-    protected <T> void verifyLocalDateTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper,
-                                                 final String expectedValues) {
-        final var actualValList = extractLocalDateTimeValues(actualCollection, mapper);
-        final var expectedValList = csv2list(expectedValues);
-
-        verifyIdentical(actualValList, expectedValList);
-    }
-
-    <T> void verifyLocalTimeValues(final Collection<T> actualCollection, final Function<T, LocalDateTime> mapper,
-                                   final String expectedValues) {
-        final var actualValList = extractLocalTimeValues(actualCollection, mapper);
-        final var expectedValList = csv2list(expectedValues);
-
-        verifyIdentical(actualValList, expectedValList);
-    }
-
-    protected <T> void verifyDateValues(final Collection<T> actualCollection,
-                                        final Function<T, Date> mapper,
-                                        final String expectedValues) {
-        final var actualValList = extractDateValues(actualCollection, mapper);
-        final var expectedValList = csv2list(expectedValues);
-
-        verifyIdentical(actualValList, expectedValList);
-    }
-
     <T> void verifyPropertyMapValues(final Collection<T> actualCollection,
                                      final Function<T, String> keyMapper,
                                      final Function<T, String> valMapper,
@@ -460,10 +281,6 @@ public abstract class CommonSteps {
         final var expectedPropertyMap = csv2map(expectedMapValues);
 
         verifyIdentical(actualPropertyMap, expectedPropertyMap);
-    }
-
-    void verifyPropertyValue(final Object bean, final String propertyName, final String expectedValue) throws ReflectiveOperationException {
-        verifyField(bean, propertyName, expectedValue);
     }
 
     protected void verifyField(final Object bean, final String fieldName, final String expectedValue) throws ReflectiveOperationException {
@@ -508,19 +325,8 @@ public abstract class CommonSteps {
         }
     }
 
-    String buildQueryStringParameters(final Map<String, String> parameters) {
-        return parameters.keySet()
-                .stream()
-                .map(key -> String.format("%s=%s", key, parameters.get(key)))
-                .collect(Collectors.joining("&"));
-    }
-
     protected Map<String, String> addPaginationHeaders() {
         return ImmutableMap.of("Page-Offset", String.valueOf(paginationOffset), "Page-Limit", String.valueOf(paginationLimit));
-    }
-
-    protected String getPaginationParams() {
-        return "page="+paginationNumber+"&size="+paginationLimit;
     }
 
     Map<String, String> buildSortHeaders(final String sortFields, final Order sortOrder) {
@@ -560,24 +366,5 @@ public abstract class CommonSteps {
         }
 
         return metaData;
-    }
-
-    private <T> Page<T> buildPageMetaData(final org.springframework.data.domain.Page<T> page) {
-        return new Page<T>(page.getContent(), page.getTotalElements(), page.getPageable().getOffset(), page.getPageable().getPageSize());
-
-    }
-    /**
-     * Equality assertion where blank and null are treated as equal
-     */
-    static void assertEqualsBlankIsNull(final String expected, final String actual) {
-        if (StringUtils.isBlank(actual) && StringUtils.isBlank(expected)) {
-            return;
-        }
-        assertThat(actual).isEqualTo(expected);
-    }
-
-    void assertErrorResponse(final HttpStatus expectedStatusCode) {
-        assertThat(errorResponse).isNotNull();
-        assertThat(errorResponse.getStatus()).isEqualTo(expectedStatusCode.value());
     }
 }
