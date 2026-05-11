@@ -1,10 +1,8 @@
 package uk.gov.justice.hmpps.prison.service;
 
 import jakarta.validation.Valid;
-import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
@@ -12,8 +10,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
 import uk.gov.justice.hmpps.prison.api.model.CaseNote;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeCount;
-import uk.gov.justice.hmpps.prison.api.model.CaseNoteTypeSummaryRequest.BookingFromDatePair;
 import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository;
@@ -29,14 +25,8 @@ import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.transformers.CaseNoteTransformer;
 import uk.gov.justice.hmpps.prison.service.validation.CaseNoteTypeSubTypeValid;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
-
-import static java.util.stream.Collectors.counting;
-import static java.util.stream.Collectors.groupingBy;
 
 @Service
 @Validated
@@ -48,7 +38,6 @@ public class CaseNoteService {
     private final OffenderCaseNoteRepository offenderCaseNoteRepository;
     private final CaseNoteTransformer transformer;
     private final BookingService bookingService;
-    private final int maxBatchSize;
     private final OffenderBookingRepository offenderBookingRepository;
     private final StaffUserAccountRepository staffUserAccountRepository;
     private final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository;
@@ -58,7 +47,6 @@ public class CaseNoteService {
                            final OffenderCaseNoteRepository offenderCaseNoteRepository,
                            final CaseNoteTransformer transformer,
                            final BookingService bookingService,
-                           @Value("${batch.max.size:1000}") final int maxBatchSize,
                            final OffenderBookingRepository offenderBookingRepository,
                            final StaffUserAccountRepository staffUserAccountRepository,
                            final ReferenceCodeRepository<CaseNoteType> caseNoteTypeReferenceCodeRepository,
@@ -68,7 +56,6 @@ public class CaseNoteService {
         this.offenderCaseNoteRepository = offenderCaseNoteRepository;
         this.transformer = transformer;
         this.bookingService = bookingService;
-        this.maxBatchSize = maxBatchSize;
         this.offenderBookingRepository = offenderBookingRepository;
         this.caseNoteTypeReferenceCodeRepository = caseNoteTypeReferenceCodeRepository;
         this.caseNoteSubTypeReferenceCodeRepository = caseNoteSubTypeReferenceCodeRepository;
@@ -129,56 +116,5 @@ public class CaseNoteService {
 
     public List<ReferenceCode> getUsedCaseNoteTypesWithSubTypes() {
         return caseNoteRepository.getUsedCaseNoteTypesWithSubTypes();
-    }
-
-    public List<CaseNoteTypeCount> getCaseNoteUsageByBookingIdTypeAndDate(@NotEmpty final List<String> types, @NotEmpty final List<BookingFromDatePair> bookingReviewDatePairs) {
-        final var bookingDateMap = bookingReviewDatePairs.stream().collect(Collectors.toMap(BookingFromDatePair::getBookingId, BookingFromDatePair::getFromDate));
-
-        final var allCaseNotesOfType = offenderCaseNoteRepository.findCaseNoteTypesByBookingAndDate(
-            bookingDateMap.keySet().stream().toList(),
-            types,
-            bookingDateMap.values().stream().min(LocalDateTime::compareTo).orElseThrow().toLocalDate()  // for performance reasons we ignore time part
-        );
-
-        return allCaseNotesOfType.stream()
-            .filter(b -> !bookingDateMap.get(b.bookingId()).isAfter(b.occurrenceDateTime()))
-            .collect(groupingBy(cn -> new CaseNoteTypesAndSubTypes(cn.bookingId(), cn.type(), cn.subType()), counting()))
-            .entrySet().stream()
-            .map(s -> new CaseNoteTypeCount(s.getKey().bookingId, s.getKey().type, s.getKey().subType, s.getValue()))
-            .toList();
-    }
-
-    private record CaseNoteTypesAndSubTypes(Long bookingId, String type, String subType) {}
-
-    private static class DeriveDates {
-        private LocalDate fromDateToUse;
-        private LocalDate toDateToUse;
-
-        DeriveDates(final LocalDate fromDate, final LocalDate toDate, final int numMonths) {
-            final var now = LocalDate.now();
-            fromDateToUse = now.minusMonths(numMonths);
-            toDateToUse = now;
-
-            if (fromDate != null && toDate != null) {
-                fromDateToUse = fromDate;
-                toDateToUse = toDate;
-            } else if (fromDate != null) {
-                fromDateToUse = fromDate;
-                toDateToUse = fromDate.plusMonths(numMonths);
-            } else if (toDate != null) {
-                fromDateToUse = toDate.minusMonths(numMonths);
-                toDateToUse = toDate;
-            }
-
-            toDateToUse = toDateToUse.plusDays(1);
-        }
-
-        LocalDate getFromDateToUse() {
-            return fromDateToUse;
-        }
-
-        LocalDate getToDateToUse() {
-            return toDateToUse;
-        }
     }
 }
