@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.2.4"
   kotlin("plugin.spring") version "2.3.21"
   kotlin("plugin.jpa") version "2.3.21"
   kotlin("plugin.lombok") version "2.3.21"
@@ -18,7 +18,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.46")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.1.1")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:2.2.0")
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -29,14 +29,16 @@ dependencies {
 
   implementation("commons-codec:commons-codec:1.22.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
-  val jsqlParserVersion = "5.2"
-  implementation("com.github.jsqlparser:jsqlparser:$jsqlParserVersion")
+  val jsqlParserVersion = ":5.2"
+  implementation("com.github.jsqlparser:jsqlparser$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.12.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("io.swagger:swagger-annotations:1.6.16")
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.2")
-  implementation("org.springdoc:springdoc-openapi-starter-common:3.0.2")
+  // Temporarily pin spring doc at 3.0.2 whilst waiting for 3.0.4 upgrade
+  val springDocVersion = ":3.0.2"
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui$springDocVersion")
+  implementation("org.springdoc:springdoc-openapi-starter-common$springDocVersion")
   constraints {
     implementation("org.webjars:swagger-ui:5.32.2")
   }
@@ -46,8 +48,8 @@ dependencies {
   implementation("com.google.guava:guava:33.6.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
   // Had to leave oracle at 21.20.0.0 because in 23 fails to compile stored procedures
-  val oracleVersion = "21.20.0.0"
-  implementation("com.oracle.database.jdbc:ojdbc11:$oracleVersion")
+  val oracleVersion = ":21.20.0.0"
+  implementation("com.oracle.database.jdbc:ojdbc11$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
   val appinsightsCore = "core:2.6.4"
@@ -60,7 +62,7 @@ dependencies {
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.1.1")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:2.2.0")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
