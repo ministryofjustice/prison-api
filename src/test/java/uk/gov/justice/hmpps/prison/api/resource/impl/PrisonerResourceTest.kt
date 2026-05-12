@@ -11,8 +11,8 @@ import org.springframework.http.HttpStatus.FORBIDDEN
 import org.springframework.http.HttpStatus.NOT_FOUND
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 
 class PrisonerResourceTest : ResourceTest() {
   @Nested

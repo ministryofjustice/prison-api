@@ -24,8 +24,8 @@ import uk.gov.justice.hmpps.prison.api.model.CategorisationDetail
 import uk.gov.justice.hmpps.prison.api.model.CategorisationUpdateDetail
 import uk.gov.justice.hmpps.prison.api.model.CategoryApprovalDetail
 import uk.gov.justice.hmpps.prison.api.model.CategoryRejectionDetail
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.util.Extractors
 import uk.gov.justice.hmpps.prison.util.Extractors.extractString
 import java.time.LocalDate

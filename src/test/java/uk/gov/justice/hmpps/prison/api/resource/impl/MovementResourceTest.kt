@@ -28,12 +28,12 @@ import uk.gov.justice.hmpps.prison.api.model.OffenderInReception
 import uk.gov.justice.hmpps.prison.api.model.OffenderMovement
 import uk.gov.justice.hmpps.prison.api.model.OffenderOutTodayDto
 import uk.gov.justice.hmpps.prison.api.model.TransferSummary
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
 import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.dsl.isAboutNow
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalDateTime.now

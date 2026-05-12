@@ -26,10 +26,10 @@ import tools.jackson.databind.JsonNode
 import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository

@@ -9,7 +9,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
 
 class OffenderResourceImplIntTest_getOffenderContacts : ResourceTest() {
   @Test

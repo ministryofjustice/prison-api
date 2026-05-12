@@ -18,8 +18,7 @@ import org.springframework.http.client.MultipartBodyBuilder
 import org.springframework.util.LinkedMultiValueMap
 import org.springframework.util.MultiValueMap
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.PRISONER_PROFILE_RW
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.PRISONER_PROFILE_RW
 import java.io.File
 
 class DistinguishingMarkResourceIntTest : ResourceTest() {

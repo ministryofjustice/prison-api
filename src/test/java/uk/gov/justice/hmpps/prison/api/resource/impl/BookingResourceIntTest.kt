@@ -23,10 +23,10 @@ import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import java.time.Clock
 import java.time.LocalDate

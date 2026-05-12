@@ -15,7 +15,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
 import uk.gov.justice.hmpps.prison.repository.OffenderBookingIdSeq
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
