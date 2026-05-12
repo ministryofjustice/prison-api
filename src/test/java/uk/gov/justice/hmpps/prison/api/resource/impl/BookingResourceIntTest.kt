@@ -2179,6 +2179,229 @@ class BookingResourceIntTest : ResourceTest() {
       webTestClient.get().uri("/api/bookings/-20/sentenceDetail")
         .headers(setAuthorisation("WAI_USER", listOf())).exchange().expectStatus().isForbidden
     }
+
+    @Test
+    fun `returns 404 if booking does not exist`() {
+      webTestClient.get().uri("/api/bookings/-99999/sentenceDetail")
+        .headers(setAuthorisation(listOf("GLOBAL_SEARCH")))
+        .exchange()
+        .expectStatus().isNotFound
+        .expectBody().jsonPath("userMessage").isEqualTo("Offender booking with id -99999 not found.")
+    }
+
+    @Test
+    fun `returns sentence details with version number for a booking that is inactive`() {
+      webTestClient.get().uri("/api/bookings/-20/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("RO_USER", listOf("INACTIVE_BOOKINGS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-03-25")
+        .jsonPath("conditionalReleaseDate").isEqualTo("2019-03-24")
+        .jsonPath("conditionalReleaseOverrideDate").isEqualTo("2019-03-25")
+        .jsonPath("nonDtoReleaseDate").isEqualTo("2019-03-25")
+        .jsonPath("nonDtoReleaseDateType").isEqualTo("CRD")
+    }
+
+    @Test
+    fun `returns sentence details with automatic release date details`() {
+      webTestClient.get().uri("/api/bookings/-2/sentenceDetail")
+        .headers(setAuthorisation(listOf("ROLE_INACTIVE_BOOKINGS"))).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("automaticReleaseDate").isEqualTo("2018-05-21")
+        .jsonPath("automaticReleaseOverrideDate").isEqualTo("2018-04-21")
+    }
+
+    @Test
+    fun `returns sentence details with post recall release date details`() {
+      webTestClient.get().uri("/api/bookings/-4/sentenceDetail")
+        .headers(setAuthorisation(listOf("ROLE_INACTIVE_BOOKINGS"))).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("postRecallReleaseDate").isEqualTo("2021-08-29")
+        .jsonPath("postRecallReleaseOverrideDate").isEqualTo("2021-08-31")
+    }
+
+    @Test
+    fun `returns sentence details with non-parole and non-DTO sentence details`() {
+      webTestClient.get().uri("/api/bookings/-5/sentenceDetail")
+        .headers(setAuthorisation(listOf("ROLE_INACTIVE_BOOKINGS"))).exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("conditionalReleaseDate").isEqualTo("2023-02-07")
+        .jsonPath("nonParoleDate").isEqualTo("2022-02-15")
+        .jsonPath("nonParoleOverrideDate").isEqualTo("2022-02-02")
+        .jsonPath("nonDtoReleaseDate").isEqualTo("2023-02-07")
+        .jsonPath("nonDtoReleaseDateType").isEqualTo("CRD")
+    }
+
+    @Test
+    fun `returns sentence details with sentence expiry override date`() {
+      webTestClient.get().uri("/api/bookings/-4/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2007-10-16")
+        .jsonPath("sentenceExpiryDate").isEqualTo("2022-10-20")
+        .jsonPath("sentenceExpiryOverrideDate").isEqualTo("2022-10-20")
+    }
+
+    @Test
+    fun `returns sentence details with term dates`() {
+      webTestClient.get().uri("/api/bookings/-5/sentenceDetail")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-02-08")
+        .jsonPath("sentenceExpiryCalculatedDate").isEqualTo("2023-08-07")
+        .jsonPath("additionalDaysAwarded").isEqualTo(14)
+        .jsonPath("earlyTermDate").isEqualTo("2023-02-07")
+        .jsonPath("midTermDate").isEqualTo("2023-05-07")
+        .jsonPath("lateTermDate").isEqualTo("2023-08-07")
+    }
+
+    @Test
+    fun `returns sentence details with postRecall override release date and effective sentence end date`() {
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-03-25")
+        .jsonPath("dtoPostRecallReleaseDateOverride").isEqualTo("2020-03-22")
+        .jsonPath("effectiveSentenceEndDate").isEqualTo("2025-05-05")
+        .jsonPath("confirmedReleaseDate").isEqualTo("2018-04-23")
+    }
+
+    @Test
+    fun `returns sentence details with parole eligibility date and calculated parole eligibility date`() {
+      webTestClient.get().uri("/api/bookings/-5/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-02-08")
+        .jsonPath("paroleEligibilityDate").isEqualTo("2019-06-01")
+        .jsonPath("paroleEligibilityCalculatedDate").isEqualTo("2019-06-01")
+    }
+
+    @Test
+    fun `returns sentence details with home detention curfew actual date`() {
+      webTestClient.get().uri("/api/bookings/-9/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-09-01")
+        .jsonPath("homeDetentionCurfewActualDate").isEqualTo("2018-01-15")
+    }
+
+    @Test
+    fun `returns sentence details with tariffDate`() {
+      webTestClient.get().uri("/api/bookings/-28/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2014-09-09")
+        .jsonPath("tariffDate").isEqualTo("2031-03-08")
+    }
+
+    @Test
+    fun `returns sentence details with date information`() {
+      webTestClient.get().uri("/api/bookings/-30/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2007-10-16")
+        .jsonPath("homeDetentionCurfewEligibilityDate").isEqualTo("2020-12-30")
+        .jsonPath("homeDetentionCurfewEligibilityCalculatedDate").isEqualTo("2021-01-06")
+        .jsonPath("homeDetentionCurfewEligibilityOverrideDate").isEqualTo("2020-12-30")
+        .jsonPath("licenceExpiryDate").isEqualTo("2021-09-24")
+        .jsonPath("licenceExpiryOverrideDate").isEqualTo("2021-09-24")
+        .jsonPath("licenceExpiryCalculatedDate").isEqualTo("2021-09-08")
+        .jsonPath("actualParoleDate").isEqualTo("2021-01-02")
+        .jsonPath("releaseDate").isEqualTo("2021-01-02")
+    }
+
+    @Test
+    fun `returns empty sentence details`() {
+      webTestClient.get().uri("/api/bookings/-32/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+        .jsonPath("bookingId").isEqualTo(-32)
+    }
+
+    @Test
+    fun `returns sentence details with version number returns rotl data`() {
+      webTestClient.get().uri("/api/bookings/-2/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-05-22")
+        .jsonPath("releaseOnTemporaryLicenceDate").isEqualTo("2018-02-25")
+    }
+
+    @Test
+    fun `returns sentence details with version number returns ersed data`() {
+      webTestClient.get().uri("/api/bookings/-4/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2007-10-16")
+        .jsonPath("earlyRemovalSchemeEligibilityDate").isEqualTo("2019-09-01")
+    }
+
+    @Test
+    fun `returns sentence details with version number returns tersed data`() {
+      webTestClient.get().uri("/api/bookings/-1/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-03-25")
+        .jsonPath("tariffEarlyRemovalSchemeEligibilityDate").isEqualTo("2020-06-25")
+    }
+
+    @Test
+    fun `returns sentence details with version number returns TUSED data`() {
+      webTestClient.get().uri("/api/bookings/-7/sentenceDetail?version=1.1")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("sentenceStartDate").isEqualTo("2017-09-01")
+        .jsonPath("topupSupervisionExpiryDate").isEqualTo("2021-03-31")
+        .jsonPath("topupSupervisionExpiryCalculatedDate").isEqualTo("2021-03-30")
+        .jsonPath("topupSupervisionExpiryOverrideDate").isEqualTo("2021-03-31")
+    }
+
+    @Test
+    fun `returns sentence details with default version number returns MTD, LTD & ETD`() {
+      webTestClient.get().uri("/api/bookings/-30/sentenceDetail?version=1.0")
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("earlyTermDate").isEqualTo("2021-02-28")
+        .jsonPath("etdCalculatedDate").isEqualTo("2021-02-20")
+        .jsonPath("etdOverrideDate").isEqualTo("2021-02-28")
+        .jsonPath("midTermDate").isEqualTo("2021-03-25")
+        .jsonPath("mtdCalculatedDate").isEqualTo("2021-03-15")
+        .jsonPath("mtdOverrideDate").isEqualTo("2021-03-25")
+        .jsonPath("lateTermDate").isEqualTo("2021-04-28")
+        .jsonPath("ltdCalculatedDate").isEqualTo("2021-04-28")
+        .jsonPath("ltdOverrideDate").doesNotExist()
+    }
   }
 
   @Nested
