@@ -152,6 +152,32 @@ class OffenderSentenceResourceTest_hdc : ResourceTest() {
   }
 
   @Nested
+  @DisplayName("GET /api/offender-sentences/home-detention-curfew-candidates")
+  inner class GetOffenderSentencesHomeDetentionCurfewCandidates {
+
+    @Test
+    fun `should return 401 when user does not even have token`() {
+      webTestClient.get()
+        .uri("/api/offender-sentences/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews=1970-01-01")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .exchange()
+        .expectStatus().isUnauthorized
+    }
+
+    @Test
+    fun `returns sentence details for offenders who are candidates for Home Detention Curfew in user caseload`() {
+      webTestClient.get()
+        .uri("/api/offender-sentences/home-detention-curfew-candidates?minimumChecksPassedDateForAssessedCurfews=1970-01-01")
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .headers(setAuthorisation("ITAG_USER", listOf()))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("length()").isEqualTo(1)
+    }
+  }
+
+  @Nested
   @DisplayName("PUT /api/offender-sentences/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
   inner class SetHDCChecks {
     private val hdcCheck =

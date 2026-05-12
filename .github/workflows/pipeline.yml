@@ -60,14 +60,6 @@ jobs:
       gradle-command: './gradlew testIntegration'
       artifact-name: 'integration test results'
       java-version: "25"
-  gradle-test-cucumber:
-    name: Run the cucumber tests
-    uses: ministryofjustice/hmpps-github-actions/.github/workflows/gradle_verify.yml@v2 # WORKFLOW_VERSION
-    secrets: inherit
-    with:
-      gradle-command: './gradlew testWithSchemaNomis'
-      artifact-name: 'cucumber test results'
-      java-version: "25"
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
@@ -76,7 +68,6 @@ jobs:
       - helm_lint
       - gradle-verify
       - gradle-test-integration
-      - gradle-test-cucumber
     with:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
