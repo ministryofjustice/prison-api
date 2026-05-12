@@ -18,6 +18,8 @@ on:
 permissions:
   contents: read
   packages: write
+  id-token: write
+  attestations: write
 concurrency:
   # only cancel in progress when on a branch - use SHA on main to ensure uniqueness
   group: ${{ github.workflow }}-${{ github.ref == 'refs/heads/main' && github.sha || github.ref }}
@@ -79,12 +81,14 @@ jobs:
       docker_registry: 'ghcr.io'
       registry_org: 'ministryofjustice'
       additional_docker_tag: ${{ inputs.additional_docker_tag }}
-      push: ${{ inputs.push || true }}
+      push: ${{ inputs.push || inputs.push == null }}
       docker_multiplatform: true
       download_build_artifacts: true
+      generate_sbom: true
+      attach_sbom_to_registry: true
+      sign_image: true
   deploy_dev:
     name: Deploy to the dev environment
-    if: github.ref == 'refs/heads/main'
     needs:
       - build
     uses: ministryofjustice/hmpps-github-actions/.github/workflows/deploy_env.yml@v2 # WORKFLOW_VERSION
