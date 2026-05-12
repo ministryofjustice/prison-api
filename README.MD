@@ -95,7 +95,7 @@ The preferred patterns going forward are:
 - Use Spring Rest Controllers for APIs
 - Use thin controllers and apply business logic in an associated service
 - Use SpringJPA for database access
-- Use WebTestClient for integration testing (e.g. extend ResourceTest, do not use Cucumber)
+- Use WebTestClient for integration testing (e.g. extend ResourceTest)
 - Use ControllerAdvice for error handling
 - Do not create interfaces with single implementations
 
@@ -179,15 +179,6 @@ docker run -d -p 8888:8080             \
 ```bash
 docker compose up -d
 ```
-
-### Running Feature Tests ###
-
-All feature tests can be run from `uk.gov.justice.hmpps.prison.executablespecification.AllFeatureTest`
-
-Tests can be run individually by adding an e.g. `@wip` tag to the top of the feature file, or to an individual feature scenario, and
-then adding the environment variable `cucumber.filter.tags=@wip` to the executable arguments in 'Edit Confgurations'.
-
-To run all feature tests in IntelliJ, avoiding any known @wip or @broken tests, set `cucumber.filter.tags=not(@wip or @broken)`
 
 ### Authorize with Swagger UI ###
 * Without correct authorisation calling endpoints will return http 401 - Unauthorized

@@ -84,10 +84,6 @@ dependencies {
   testImplementation("com.tngtech.java:junit-dataprovider:1.13.1")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.0")
 
-  testImplementation("net.serenity-bdd:serenity-core:4.2.34")
-  testImplementation("net.serenity-bdd:serenity-junit:4.2.34")
-  testImplementation("net.serenity-bdd:serenity-spring:4.2.34")
-  testImplementation("net.serenity-bdd:serenity-cucumber:4.2.34")
   testImplementation("com.paulhammant:ngwebdriver:1.2")
   testImplementation("org.wiremock:wiremock:3.13.2")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.37") {
@@ -113,10 +109,9 @@ tasks {
     compilerOptions.jvmTarget = org.jetbrains.kotlin.gradle.dsl.JvmTarget.JVM_25
   }
 
-  // Exclude Serenity BDD integration and IntTest tests from "test" task so they can be controlled independently
+  // Exclude IntTest tests from "test" task so they can be controlled independently
   test {
     useJUnitPlatform {
-      exclude("**/executablespecification/*")
       exclude("**/*IntTest*")
     }
     minHeapSize = "128m"
@@ -132,26 +127,6 @@ tasks {
     }
     minHeapSize = "128m"
     maxHeapSize = "2048m"
-  }
-
-  register<Test>("testWithSchemaNomis") {
-    testClassesDirs = files(test.map { it.sources.output.classesDirs })
-    classpath = files(test.map { it.sources.runtimeClasspath })
-    environment(mapOf("api.db.target" to "nomis", "cucumber.filter.tags" to "not(@wip or @broken)"))
-    useJUnitPlatform {
-      include("**/executablespecification/*")
-    }
-    minHeapSize = "128m"
-    maxHeapSize = "2048m"
-  }
-
-  register<Test>("testWithSchemaNomisOracle") {
-    testClassesDirs = files(test.map { it.sources.output.classesDirs })
-    classpath = files(test.map { it.sources.runtimeClasspath })
-    environment(mapOf("api.db.target" to "nomis", "api.db.dialect" to "oracle", "cucumber.filter.tags" to "not(@wip or @broken)"))
-    useJUnitPlatform {
-      include("**/executablespecification/*")
-    }
   }
 }
 

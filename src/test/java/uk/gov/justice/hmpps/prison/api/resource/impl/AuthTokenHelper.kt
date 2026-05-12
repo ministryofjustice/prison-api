@@ -1,4 +1,4 @@
-package uk.gov.justice.hmpps.prison.executablespecification.steps
+package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper

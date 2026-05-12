@@ -18,7 +18,7 @@ import uk.gov.justice.hmpps.prison.api.model.OffenceDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenceToScheduleMappingDto;
 import uk.gov.justice.hmpps.prison.api.model.Schedule;
 import uk.gov.justice.hmpps.prison.api.model.StatuteDto;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken;
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offence.PK;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenceIndicatorRepository;

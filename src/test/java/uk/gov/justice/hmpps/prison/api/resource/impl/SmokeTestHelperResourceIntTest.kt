@@ -8,9 +8,9 @@ import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.SMOKE_TEST
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SMOKE_TEST
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.SYSTEM_USER_READ_WRITE
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.InmateService
 import uk.gov.justice.hmpps.prison.service.SmokeTestHelperService.Companion.SMOKE_TEST_PRISON_ID

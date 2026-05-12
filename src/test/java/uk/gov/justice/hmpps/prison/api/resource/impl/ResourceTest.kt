@@ -21,8 +21,7 @@ import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.web.reactive.server.WebTestClient
 import tools.jackson.databind.json.JsonMapper
 import uk.gov.justice.hmpps.prison.PrisonApiServer
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.prison.util.builders.TestDataContext
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper

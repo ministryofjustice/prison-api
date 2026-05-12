@@ -7,8 +7,8 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.HttpStatusCode
 import org.springframework.http.ResponseEntity
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 

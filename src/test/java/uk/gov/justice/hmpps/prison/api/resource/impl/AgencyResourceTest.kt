@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.expectBody
 import uk.gov.justice.hmpps.prison.api.model.Location
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 
 class AgencyResourceTest : ResourceTest() {
 

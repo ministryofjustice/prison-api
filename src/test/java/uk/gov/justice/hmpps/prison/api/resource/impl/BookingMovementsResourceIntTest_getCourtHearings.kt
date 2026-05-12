@@ -8,7 +8,7 @@ import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod.GET
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse.builder
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 
 class BookingMovementsResourceIntTest_getCourtHearings : ResourceTest() {
 

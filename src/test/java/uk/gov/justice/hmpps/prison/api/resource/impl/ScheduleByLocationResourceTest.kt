@@ -9,7 +9,7 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSchedule
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper.AuthToken.NORMAL_USER
+import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.NORMAL_USER
 import java.time.LocalTime
 
 class ScheduleByLocationResourceTest : ResourceTest() {

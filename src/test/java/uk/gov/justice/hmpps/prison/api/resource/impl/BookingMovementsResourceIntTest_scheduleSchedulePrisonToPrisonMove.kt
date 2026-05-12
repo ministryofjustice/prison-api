@@ -10,7 +10,6 @@ import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
 import org.springframework.http.ResponseEntity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 
 class BookingMovementsResourceIntTest_scheduleSchedulePrisonToPrisonMove : ResourceTest() {
   private lateinit var token: String

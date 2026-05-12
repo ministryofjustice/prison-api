@@ -8,7 +8,6 @@ import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabas
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.ResponseEntity
-import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper
 
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 class BookingMovementsResourceIntTest_jpaLoading : ResourceTest() {
