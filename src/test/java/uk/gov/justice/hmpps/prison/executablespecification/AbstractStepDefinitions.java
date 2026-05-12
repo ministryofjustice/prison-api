@@ -9,7 +9,6 @@ import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.TestPropertySource;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.AuthTokenHelper;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.BookingSentenceDetailSteps;
-import uk.gov.justice.hmpps.prison.executablespecification.steps.PrisonerSearchSteps;
 import uk.gov.justice.hmpps.prison.executablespecification.steps.UserSteps;
 import uk.gov.justice.hmpps.prison.test.DatasourceActiveProfilesResolver;
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper;
@@ -42,11 +41,6 @@ abstract class AbstractStepDefinitions {
         @Bean
         public BookingSentenceDetailSteps bookingSentenceDetail() {
             return new BookingSentenceDetailSteps();
-        }
-
-        @Bean
-        public PrisonerSearchSteps prisonerSearch() {
-            return new PrisonerSearchSteps();
         }
     }
 }

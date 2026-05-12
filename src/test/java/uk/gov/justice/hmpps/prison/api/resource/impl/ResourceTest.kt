@@ -66,8 +66,6 @@ abstract class ResourceTest {
 
   protected fun createEmptyHttpEntity(authToken: AuthToken): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, emptyMap<String, String>())
 
-  protected fun createEmptyHttpEntity(authToken: AuthToken, additionalHeaders: Map<String, String?>): HttpEntity<*> = createHttpEntity(authTokenHelper.getToken(authToken), null, additionalHeaders)
-
   protected fun createHttpEntity(
     bearerToken: String?,
     body: Any?,
