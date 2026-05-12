@@ -22,14 +22,4 @@ public class UserStepDefinitions extends AbstractStepDefinitions {
     public void aUserHasAuthenticatedWithTheAPI() {
         user.authenticateAsClient(NORMAL_USER);
     }
-
-    @Given("^a user has authenticated with the API and has the pay role$")
-    public void aUserHasAuthenticatedWithTheAPIAndHasThePayRole() {
-        user.authenticateAsClient(PAY);
-    }
-
-    @Given("^a trusted client with VIEW_PRISONER_DATA role has authenticated with the API$")
-    public void aTrustedClientThatHasViewPrisonerDataAuthenticatedWithTheAPI() {
-        user.authenticateAsClient(VIEW_PRISONER_DATA);
-    }
 }

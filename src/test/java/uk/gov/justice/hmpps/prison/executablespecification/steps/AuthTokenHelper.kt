@@ -44,7 +44,6 @@ class AuthTokenHelper(private val jwtAuthenticationHelper: JwtAuthorisationHelpe
     RELEASE_DATE_MANUAL_COMPARER,
     UPDATE_OFFENCE_SCHEDULES,
     VIEW_CASE_NOTES,
-    KEY_WORKER,
   }
 
   init {
