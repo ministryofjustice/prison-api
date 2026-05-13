@@ -7,8 +7,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.QuestionnaireOffenderRol
 import java.time.LocalDate
 
 data class PrisonerRoleRequest(
-  @Schema(description = "Prisoner role code", example = "PERPETRATOR", required = true)
-  val prisonerRole: PrisonerRole,
+  @Schema(description = "Prisoner role code (NOMIS) Ref data: 'IR_OFF_PART'", example = "PERP", required = true)
+  val prisonerRole: String,
 
   @Schema(description = "Indicates only a single role can be assigned", example = "false", defaultValue = "false")
   val singleRole: Boolean = false,
@@ -19,7 +19,7 @@ data class PrisonerRoleRequest(
   fun toEntity(questionnaire: Questionnaire, index: Int) = QuestionnaireOffenderRole(
     id = QuestionnaireOffenderRoleId(
       questionnaire = questionnaire,
-      offenderRole = prisonerRole.nomisCode,
+      offenderRole = prisonerRole,
     ),
     singleRole = singleRole,
     active = active,
@@ -30,27 +30,4 @@ data class PrisonerRoleRequest(
       null
     },
   )
-}
-
-enum class PrisonerRole(
-  val nomisCode: String,
-) {
-  ABSCONDER("ABS"),
-  ACTIVE_INVOLVEMENT("ACTINV"),
-  ASSAILANT("ASSIAL"),
-  ASSISTED_STAFF("ASSIST"),
-  DECEASED("DEC"),
-  ESCAPE("ESC"),
-  FIGHTER("FIGHT"),
-  HOSTAGE("HOST"),
-  IMPEDED_STAFF("IMPED"),
-  IN_POSSESSION("INPOSS"),
-  INTENDED_RECIPIENT("INREC"),
-  LICENSE_FAILURE("LICFAIL"),
-  PERPETRATOR("PERP"),
-  PRESENT_AT_SCENE("PRESENT"),
-  SUSPECTED_ASSAILANT("SUSASS"),
-  SUSPECTED_INVOLVED("SUSINV"),
-  TEMPORARY_RELEASE_FAILURE("TRF"),
-  VICTIM("VICT"),
 }
