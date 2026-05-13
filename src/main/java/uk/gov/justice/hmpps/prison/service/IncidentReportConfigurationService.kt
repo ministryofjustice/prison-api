@@ -1,18 +1,23 @@
 package uk.gov.justice.hmpps.prison.service
 
+import jakarta.validation.ValidationException
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.CreateIncidentTypeConfigurationRequest
+import uk.gov.justice.hmpps.prison.api.model.questionnaire.PrisonerRoleRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.UpdateIncidentTypeConfigurationRequest
 import uk.gov.justice.hmpps.prison.repository.QuestionnaireRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.PrisonerIncidentParticipation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Questionnaire
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import java.time.LocalDate
 
 @Service
 @Transactional(readOnly = true)
 class IncidentReportConfigurationService(
   private val questionnaireRepository: QuestionnaireRepository,
+  private val prisonerParticipationRepository: ReferenceCodeRepository<PrisonerIncidentParticipation>,
 ) {
   fun getIncidentTypeConfiguration(
     incidentType: String? = null,
@@ -43,6 +48,7 @@ class IncidentReportConfigurationService(
       ).apply {
         questions.addAll(request.mapQuestions(questionnaire = this))
         mapAnswers(request.questions)
+        checkRolesExist(request.prisonerRoles)
         offenderRoles.addAll(request.mapRoles(questionnaire = this))
       },
     )
@@ -51,6 +57,15 @@ class IncidentReportConfigurationService(
     resequenceQuestionnaires()
 
     return questionnaire.toIncidentTypeConfiguration()
+  }
+
+  private fun checkRolesExist(prisonerRoles: List<PrisonerRoleRequest>) {
+    prisonerRoles.forEach { roleRequest ->
+      val roleCode = roleRequest.prisonerRole
+      if (!prisonerParticipationRepository.existsById(PrisonerIncidentParticipation.pk(roleCode))) {
+        throw ValidationException(roleCode)
+      }
+    }
   }
 
   @Transactional
@@ -75,6 +90,7 @@ class IncidentReportConfigurationService(
 
     // Replace roles if provided
     if (request.prisonerRoles != null) {
+      checkRolesExist(request.prisonerRoles)
       questionnaire.offenderRoles.clear()
       questionnaire.offenderRoles.addAll(request.mapRoles(questionnaire)!!)
     }

@@ -14,7 +14,6 @@ import org.springframework.test.json.JsonCompareMode
 import uk.gov.justice.hmpps.prison.api.model.IncidentTypeConfiguration
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.AnswerRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.CreateIncidentTypeConfigurationRequest
-import uk.gov.justice.hmpps.prison.api.model.questionnaire.PrisonerRole
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.PrisonerRoleRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.QuestionRequest
 import uk.gov.justice.hmpps.prison.api.model.questionnaire.UpdateIncidentTypeConfigurationRequest
@@ -166,6 +165,29 @@ class IncidentsResourceTest : ResourceTest() {
           .exchange()
           .expectStatus().isBadRequest
       }
+
+      @Test
+      fun `returns failure when prisoner role does not exist`() {
+        webTestClient.post().uri("/api/incidents/configuration")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .headers(setClientAuthorisation(listOf("PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW")))
+          .bodyValue(
+            jsonString(
+              CreateIncidentTypeConfigurationRequest(
+                incidentType = "WRONG",
+                incidentTypeDescription = "The new incident type that doesn't work",
+                prisonerRoles = listOf(
+                  PrisonerRoleRequest(
+                    prisonerRole = "XXXXX",
+                    singleRole = true,
+                  ),
+                ),
+              ),
+            ),
+          )
+          .exchange()
+          .expectStatus().isBadRequest
+      }
     }
 
     @Nested
@@ -243,11 +265,11 @@ class IncidentsResourceTest : ResourceTest() {
                 ),
                 prisonerRoles = listOf(
                   PrisonerRoleRequest(
-                    prisonerRole = PrisonerRole.PERPETRATOR,
+                    prisonerRole = "PERP",
                     singleRole = true,
                   ),
                   PrisonerRoleRequest(
-                    prisonerRole = PrisonerRole.VICTIM,
+                    prisonerRole = "VICT",
                     singleRole = false,
                   ),
                 ),
@@ -407,7 +429,7 @@ class IncidentsResourceTest : ResourceTest() {
           .exchange()
           .expectStatus().isOk
           .expectBodyList(ParameterizedTypeReference.forType<IncidentTypeConfiguration>(IncidentTypeConfiguration::class.java))
-          .returnResult().responseBody!![0]!!
+          .returnResult().responseBody!![0]
 
         webTestClient.put().uri("/api/incidents/configuration/ASSAULT")
           .header("Content-Type", APPLICATION_JSON_VALUE)
@@ -437,12 +459,12 @@ class IncidentsResourceTest : ResourceTest() {
                 },
                 prisonerRoles = listOf(
                   PrisonerRoleRequest(
-                    prisonerRole = PrisonerRole.FIGHTER,
+                    prisonerRole = "FIGHT",
                     singleRole = true,
                     active = false,
                   ),
                   PrisonerRoleRequest(
-                    prisonerRole = PrisonerRole.VICTIM,
+                    prisonerRole = "VICT",
                     singleRole = false,
                     active = false,
                   ),
