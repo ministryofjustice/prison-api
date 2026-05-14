@@ -43,13 +43,6 @@ public class CaseNoteService {
         return new PageImpl<>(transformedCaseNotes, pageable, pagedListOfCaseNotes.getTotalElements());
     }
 
-    public CaseNote getCaseNote(final Long bookingId, final Long caseNoteId) {
-        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId)
-                .orElseThrow(EntityNotFoundException.withId(caseNoteId));
-
-        return transformer.transform(caseNote);
-    }
-
     public List<ReferenceCode> getCaseNoteTypesWithSubTypesByCaseLoadType(final String caseLoadType) {
         return caseNoteRepository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag(caseLoadType, true);
     }

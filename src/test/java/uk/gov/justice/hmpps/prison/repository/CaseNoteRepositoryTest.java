@@ -98,23 +98,6 @@ public class CaseNoteRepositoryTest {
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
     }
 
-    @Test
-    public void testCaseNoteTimes() {
-        final long bookingId = -16;
-        final var newCaseNote = newCaseNote();
-        final var sourceCode = "source code";
-        final long caseNoteId = createCaseNote(bookingId, newCaseNote, sourceCode);
-
-        final var caseNote = offenderCaseNoteRepository.findByIdAndOffenderBooking_BookingId(caseNoteId, bookingId).orElseThrow();
-
-        final var contactDateTime = caseNote.getOccurrenceDateTime();
-        final var createDateTime = caseNote.getCreateDatetime();
-
-        assertThat(contactDateTime).isBetween(createDateTime.minusSeconds(2), createDateTime.plusSeconds(1));
-
-        jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
-    }
-
     private NewCaseNote newCaseNote() {
         final var newCaseNote = new NewCaseNote();
         newCaseNote.setText("text");

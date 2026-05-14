@@ -572,16 +572,6 @@ public class OffenderResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
-    @Operation(summary = "Offender case note detail.", description = "Retrieve an single offender case note", hidden = true)
-    @GetMapping("/{offenderNo}/case-notes/{caseNoteId}")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
-    public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
-    }
-
-    @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceDetail.class))})})
     @Operation(summary = "Offender Sentence Details", description = "Retrieve an single offender sentence details. Requires offender to be in caseload or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @Tag(name = "integration-api")
