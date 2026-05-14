@@ -42,7 +42,6 @@ import uk.gov.justice.hmpps.prison.api.model.IncidentCase;
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecordRequest;
 import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEmailAddressCreateRequest;
@@ -75,8 +74,6 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationSearchRes
 import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
-import uk.gov.justice.hmpps.prison.core.HasWriteScope;
-import uk.gov.justice.hmpps.prison.core.ProgrammaticAuthorisation;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
@@ -582,22 +579,6 @@ public class OffenderResource {
     public CaseNote getOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo, @PathVariable("caseNoteId") @Parameter(description = "The case note id", required = true) final Long caseNoteId) {
         final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return caseNoteService.getCaseNote(latestBookingByOffenderNo.getBookingId(), caseNoteId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The Case Note has been recorded. The updated object is returned including the status.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))}),
-        @ApiResponse(responseCode = "409", description = "The case note has already been recorded under the booking. The current unmodified object (including status) is returned.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Create case note for offender.", description = "Create case note for offender. Will attach to the latest booking", hidden = true)
-    @PostMapping("/{offenderNo}/case-notes")
-    @HasWriteScope
-    @ProgrammaticAuthorisation("Checked in service to customise error message")
-    @ProxyUser
-    public CaseNote createOffenderCaseNote(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true, example = "A1234AA") final String offenderNo, @RequestBody @Parameter(required = true) final NewCaseNote body) {
-        try {
-            return caseNoteService.createCaseNote(offenderNo, body, hmppsAuthenticationHolder.getUsername());
-        } catch (EntityNotFoundException e) {
-            throw EntityNotFoundException.withId(offenderNo);
-        }
     }
 
     @ApiResponses({
