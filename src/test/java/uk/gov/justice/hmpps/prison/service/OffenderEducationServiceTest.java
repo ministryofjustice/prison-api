@@ -71,25 +71,11 @@ public class OffenderEducationServiceTest {
     @Mock
     private OffenderEducationRepository repository;
 
-
     private OffenderEducationService service;
-
 
     @BeforeEach
     void setup() {
         service = new OffenderEducationService(repository, transformer, BATCH_SIZE);
-    }
-
-    @Test
-    public void getOffenderEducations() {
-        final var educations = List.of(education1, education2);
-
-        when(repository.findAllByNomisId(nomisId, pageRequest)).thenReturn(new PageImpl<>(educations));
-
-        service.getOffenderEducations(nomisId, pageRequest);
-
-        verify(transformer, times(1)).convert(education1);
-        verify(transformer, times(1)).convert(education2);
     }
 
     @Test

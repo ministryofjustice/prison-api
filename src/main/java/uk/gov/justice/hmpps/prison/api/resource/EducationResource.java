@@ -39,26 +39,6 @@ public class EducationResource {
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "A list of offender educations.",
-        description = "PGP: unused as of 12/08/2025. Left to complement the POST version below."
-    )
-    @GetMapping("/prisoner/{offenderNo}")
-    @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA')")
-    public Page<Education> getPrisonerEducations(
-        @PathVariable(value = "offenderNo") @Parameter(description = "The offender NOMS number. NOMS numbers have the format:<b>G0364GX</b>") final String offenderNo,
-        @RequestParam(value = "page", defaultValue = "0", required = false) @Parameter(description = "The page number of the paged results") final Integer page,
-        @RequestParam(value = "size", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of results returned.") final Integer size
-    ) {
-        log.debug("get prisoner educations for offenderNo: {}", offenderNo);
-        return offenderEducationService.getOffenderEducations(offenderNo, PageRequest.of(page, size));
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "A list of offender educations.", description = "A list of offender educations given a list of offender identifiers")
     @PostMapping("/prisoners")

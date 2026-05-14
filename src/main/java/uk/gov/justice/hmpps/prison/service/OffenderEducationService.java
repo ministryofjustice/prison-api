@@ -34,11 +34,6 @@ public class OffenderEducationService {
     }
 
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public Page<Education> getOffenderEducations(@NotNull final String nomisId, final PageRequest pageRequest) {
-        return repository.findAllByNomisId(nomisId, pageRequest).map(transformer::convert);
-    }
-
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<Education> getOffenderEducations(@NotNull final List<String> nomisIds) {
         return Lists.partition(nomisIds, batchSize)
             .stream()
