@@ -19,8 +19,6 @@ public interface OffenderCaseNoteRepository extends
     CrudRepository<OffenderCaseNote, Long>,
     JpaSpecificationExecutor<OffenderCaseNote> {
 
-    Optional<OffenderCaseNote> findByIdAndOffenderBooking_BookingId(final Long id, final Long bookingId);
-
     @NotNull
     @EntityGraph(type = EntityGraphType.FETCH, value = "case-note-with-author")
     Page<OffenderCaseNote> findAll(@Nullable Specification<OffenderCaseNote> spec, @NotNull Pageable pageable);
