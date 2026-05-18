@@ -57,20 +57,6 @@ class CacheConfig : CachingConfigurer {
       referenceDataTimeoutSeconds,
     )
     cm.createCache(
-      "getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag",
-      SimpleKey::class.java,
-      java.util.List::class.java,
-      100,
-      caseNoteTimeoutSeconds,
-    )
-    cm.createCache(
-      "usedCaseNoteTypesWithSubTypes",
-      SimpleKey::class.java,
-      java.util.List::class.java,
-      100,
-      caseNoteTimeoutSeconds,
-    )
-    cm.createCache(
       "findByStaffId",
       java.lang.Long::class.java,
       StaffDetail::class.java,

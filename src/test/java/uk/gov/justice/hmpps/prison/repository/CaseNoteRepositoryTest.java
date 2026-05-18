@@ -40,9 +40,6 @@ import static org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTest
 public class CaseNoteRepositoryTest {
 
     @Autowired
-    private CaseNoteRepository repository;
-
-    @Autowired
     private OffenderCaseNoteRepository offenderCaseNoteRepository;
 
     @Autowired
@@ -61,19 +58,6 @@ public class CaseNoteRepositoryTest {
 
     @Autowired
     private EntityManager entityManager;
-
-    @Test
-    public void testGetCaseNoteTypeWithSubTypesByCaseLoadType() {
-        final var types = repository.getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("COMM", true);
-
-        // Spot check
-        final var type = types.stream().filter(x -> x.getCode().equals("DRR")).findFirst();
-        assertThat(type).isPresent();
-
-        final var subTypes = type.orElseThrow().getSubCodes();
-
-        assertThat(subTypes).extracting(ReferenceCode::getCode).contains("DTEST");
-    }
 
     @Test
     public void testCreateCaseNote() {

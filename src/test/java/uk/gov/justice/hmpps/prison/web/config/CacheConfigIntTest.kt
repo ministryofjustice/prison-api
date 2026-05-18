@@ -19,11 +19,9 @@ import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import uk.gov.justice.hmpps.prison.api.resource.AgencyResource
 import uk.gov.justice.hmpps.prison.api.support.Order.ASC
 import uk.gov.justice.hmpps.prison.repository.AgencyRepository
-import uk.gov.justice.hmpps.prison.repository.CaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.ReferenceDataRepository
 import uk.gov.justice.hmpps.prison.repository.StaffRepository
 import uk.gov.justice.hmpps.prison.service.AgencyService
-import uk.gov.justice.hmpps.prison.service.CaseNoteService
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
 import uk.gov.justice.hmpps.prison.service.ReferenceDomainService
 import uk.gov.justice.hmpps.prison.service.StaffService
@@ -41,12 +39,6 @@ class CacheConfigIntTest {
 
   @MockitoSpyBean
   private lateinit var referenceDataRepository: ReferenceDataRepository
-
-  @Autowired
-  private lateinit var caseNoteService: CaseNoteService
-
-  @MockitoSpyBean
-  private lateinit var caseNoteRepository: CaseNoteRepository
 
   @Autowired
   private lateinit var staffService: StaffService
@@ -159,54 +151,6 @@ class CacheConfigIntTest {
       referenceDomainService.getReferenceCodeByDomainAndCode(existingDomain, "INST", false)
 
       verify(referenceDataRepository).getReferenceCodeByDomainAndCode(existingDomain, "INST", false)
-    }
-  }
-
-  @Nested
-  inner class getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag_cache {
-    @Test
-    fun `test case load type that doesn't exist won't cause cache to fall over in a heap`() {
-      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("NOT_EXISTS")
-      assertThat(types).isEmpty()
-    }
-
-    @Test
-    fun `test case load type that is null won't cause cache to fall over in a heap`() {
-      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType(null)
-      assertThat(types).isEmpty()
-    }
-
-    @Test
-    fun `test case load type that is blank won't cause cache to fall over in a heap`() {
-      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("  ")
-      assertThat(types).isEmpty()
-    }
-
-    @Test
-    fun `test case load type that exist is added to cache`() {
-      val types = caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST")
-      assertThat(types).isNotEmpty
-
-      // calling twice should only result in one call to the repository
-      caseNoteService.getCaseNoteTypesWithSubTypesByCaseLoadType("INST")
-
-      verify(caseNoteRepository).getCaseNoteTypesWithSubTypesByCaseLoadTypeAndActiveFlag("INST", true)
-    }
-  }
-
-  @Nested
-  inner class usedCaseNoteTypesWithSubTypes_cache {
-    // No parameters here so can't test the doesn't exist scenario
-
-    @Test
-    fun `test case load type that exist is added to cache`() {
-      val code = caseNoteService.usedCaseNoteTypesWithSubTypes
-      assertThat(code).isNotEmpty
-
-      // calling twice should only result in one call to the repository
-      caseNoteService.usedCaseNoteTypesWithSubTypes
-
-      verify(caseNoteRepository).usedCaseNoteTypesWithSubTypes
     }
   }
 
