@@ -17,18 +17,17 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
-import org.springframework.http.ResponseEntity
 import org.springframework.test.context.ContextConfiguration
 import tools.jackson.databind.JsonNode
-import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.CREATE_BOOKING_USER
-import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.GLOBAL_SEARCH
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.VIEW_PRISONER_DATA
 import uk.gov.justice.hmpps.prison.repository.MovementsRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
+import uk.gov.justice.hmpps.prison.util.builders.getCaseNotes
 import java.time.Clock
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -552,19 +551,12 @@ class OffenderResourceIntTest : ResourceTest() {
       offenderNo,
     )
     assertThatJsonFileAndStatus(dischargeResponse, 200, "discharged_from_court.json")
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
-      GET,
-      createEmptyHttpEntity(GLOBAL_SEARCH),
-      object : ParameterizedTypeReference<RestResponsePage<CaseNote>>() {},
-      offenderNo,
-    )
-    assertThat(caseNotes.body!!.content)
+    assertThat(testDataContext.getCaseNotes(offenderNo.toString()))
       .extracting(
-        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+        Function<OffenderCaseNote, Any> { it.typeCode },
+        Function<OffenderCaseNote, Any> { it.subTypeCode },
+        Function<OffenderCaseNote, Any> { it.agencyLocation.id },
+        Function<OffenderCaseNote, Any> { it.caseNoteText },
       )
       .containsExactly(
         Tuple.tuple(
@@ -674,20 +666,12 @@ class OffenderResourceIntTest : ResourceTest() {
         }
       """.trimIndent(),
     )
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
-      GET,
-      createEmptyHttpEntity(GLOBAL_SEARCH),
-      object : ParameterizedTypeReference<RestResponsePage<CaseNote>>() {},
-      offenderNo,
-    )
-
-    assertThat(caseNotes.body!!.content)
+    assertThat(testDataContext.getCaseNotes(offenderNo.toString()))
       .extracting(
-        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+        Function<OffenderCaseNote, Any> { it.typeCode },
+        Function<OffenderCaseNote, Any> { it.subTypeCode },
+        Function<OffenderCaseNote, Any> { it.agencyLocation.id },
+        Function<OffenderCaseNote, Any> { it.caseNoteText },
       )
       .containsExactly(
         Tuple.tuple(
@@ -759,19 +743,12 @@ class OffenderResourceIntTest : ResourceTest() {
     assertThat(latestMovement.toAgency).isEqualTo("OUT")
     assertThat(latestMovement.movementType).isEqualTo("REL")
     assertThat(latestMovement.movementReason).isEqualTo("Final Discharge To Hospital-Psychiatric")
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
-      GET,
-      createEmptyHttpEntity(GLOBAL_SEARCH),
-      object : ParameterizedTypeReference<RestResponsePage<CaseNote>>() {},
-      offenderNo,
-    )
-    assertThat(caseNotes.body!!.content)
+    assertThat(testDataContext.getCaseNotes(offenderNo.toString()))
       .extracting(
-        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+        Function<OffenderCaseNote, Any> { it.typeCode },
+        Function<OffenderCaseNote, Any> { it.subTypeCode },
+        Function<OffenderCaseNote, Any> { it.agencyLocation.id },
+        Function<OffenderCaseNote, Any> { it.caseNoteText },
       )
       .containsExactly(
         Tuple.tuple(
@@ -807,19 +784,12 @@ class OffenderResourceIntTest : ResourceTest() {
       prisonerNo,
     )
     assertThatJsonFileAndStatus(response, 200, "released_prisoner.json")
-    val caseNotes: ResponseEntity<RestResponsePage<CaseNote>> = testRestTemplate.exchange(
-      "/api/offenders/{nomsId}/case-notes/v2?sort=id,asc",
-      GET,
-      createEmptyHttpEntity(GLOBAL_SEARCH),
-      object : ParameterizedTypeReference<RestResponsePage<CaseNote>>() {},
-      prisonerNo,
-    )
-    assertThat(caseNotes.body!!.content)
+    assertThat(testDataContext.getCaseNotes(prisonerNo))
       .extracting(
-        Function<CaseNote, Any> { obj: CaseNote -> obj.type },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.subType },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.agencyId },
-        Function<CaseNote, Any> { obj: CaseNote -> obj.text },
+        Function<OffenderCaseNote, Any> { it.typeCode },
+        Function<OffenderCaseNote, Any> { it.subTypeCode },
+        Function<OffenderCaseNote, Any> { it.agencyLocation.id },
+        Function<OffenderCaseNote, Any> { it.caseNoteText },
       )
       .containsExactly(
         Tuple.tuple("PRISON", "RELEASE", "WAI", "Released from THE WEARE for reason: Conditional Release."),
@@ -961,11 +931,6 @@ class OffenderResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isOk
     }
-  }
-
-  private fun removeCaseNoteCreated(caseNoteId: Long) {
-    val ocn = offenderCaseNoteRepository.findById(caseNoteId).get()
-    offenderCaseNoteRepository.delete(ocn)
   }
 }
 

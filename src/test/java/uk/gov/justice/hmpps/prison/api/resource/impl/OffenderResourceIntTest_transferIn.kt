@@ -17,13 +17,13 @@ import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.StatusAssertions
 import org.springframework.web.reactive.function.BodyInserters
-import uk.gov.justice.hmpps.prison.api.model.CaseNote
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.exception.CustomErrorCodes
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.IN
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection.OUT
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Team
 import uk.gov.justice.hmpps.prison.service.DataLoaderTransaction
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.WorkflowTaskService
@@ -240,7 +240,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
       @Test
       internal fun `will create a transfer in case note`() {
         assertThat(testDataContext.getCaseNotes(offenderNo))
-          .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+          .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
           .contains(
             tuple(
               "TRANSFER",
@@ -270,7 +270,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           .expectStatus().isOk
 
         assertThat(testDataContext.getCaseNotes(offenderNo))
-          .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+          .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
           .contains(
             tuple(
               "TRANSFER",
@@ -803,7 +803,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will create a transfer via court case note`() {
             assertThat(testDataContext.getCaseNotes(offenderNo))
-              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
               .contains(
                 tuple(
                   "TRANSFER",
@@ -831,7 +831,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
               .expectStatus().isOk
 
             assertThat(testDataContext.getCaseNotes(offenderNo))
-              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
               .contains(
                 tuple(
                   "TRANSFER",
@@ -1627,7 +1627,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
           @Test
           internal fun `will create a transfer via TAP note`() {
             assertThat(testDataContext.getCaseNotes(offenderNo))
-              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
               .contains(
                 tuple(
                   "TRANSFER",
@@ -1639,7 +1639,7 @@ class OffendersResourceTransferImpTest : ResourceTest() {
             temporaryAbsenceArrival(temporaryAbsenceArrivalRequest(agencyId = "MDI"))
 
             assertThat(testDataContext.getCaseNotes(offenderNo))
-              .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+              .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
               .contains(
                 tuple(
                   "TRANSFER",

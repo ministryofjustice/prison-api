@@ -337,11 +337,11 @@ class OffenderResourceIntTest_release : ResourceTest() {
         releaseOffender(offenderNo, releaseRequest()).isOk
 
         testDataContext.getCaseNotes(offenderNo)
-          .maxBy { it.caseNoteId }
+          .maxBy { it.id }
           .also {
-            assertThat(it.type).isEqualTo("PRISON")
-            assertThat(it.subType).isEqualTo("RELEASE")
-            assertThat(it.text).contains("Released from SHREWSBURY for reason: Conditional Release")
+            assertThat(it.typeCode).isEqualTo("PRISON")
+            assertThat(it.subTypeCode).isEqualTo("RELEASE")
+            assertThat(it.caseNoteText).contains("Released from SHREWSBURY for reason: Conditional Release")
           }
       }
 

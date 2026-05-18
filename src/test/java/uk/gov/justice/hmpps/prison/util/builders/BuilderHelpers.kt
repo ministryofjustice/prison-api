@@ -7,11 +7,8 @@ import org.springframework.data.repository.findByIdOrNull
 import org.springframework.http.HttpHeaders
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.returnResult
 import org.springframework.web.reactive.function.BodyInserters
 import tools.jackson.databind.JsonNode
-import uk.gov.justice.hmpps.prison.api.model.CaseNote
-import uk.gov.justice.hmpps.prison.api.model.CourtHearing
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToCourt
 import uk.gov.justice.hmpps.prison.api.model.RequestToTransferOutToTemporaryAbsence
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
@@ -22,11 +19,13 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.KeyDateAdjustment
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderIndividualSchedule
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderNoPayPeriod
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPayStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramProfile
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceAdjustment
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter
 import uk.gov.justice.hmpps.prison.service.DataLoaderRepository
 import uk.gov.justice.hmpps.test.kotlin.auth.JwtAuthorisationHelper
 import java.time.LocalDateTime
@@ -210,47 +209,11 @@ fun TestDataContext.createScheduledTemporaryAbsence(
   )
 }
 
-fun TestDataContext.createCourtHearing(bookingId: Long): Long {
-  val courtCase = this.dataLoader.offenderCourtCaseRepository.findAllByOffenderBooking_BookingId(bookingId).first()
-
-  return webTestClient.post()
-    .uri("/api/bookings/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings", bookingId, courtCase.id)
-    .headers(setAuthorisation(listOf("ROLE_COURT_HEARING_MAINTAINER")))
-    .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-    .accept(MediaType.APPLICATION_JSON)
-    .body(
-      BodyInserters.fromValue(
-        """
-          {
-            "fromPrisonLocation":"LEI",
-            "toCourtLocation":"COURT1",
-            "courtHearingDateTime": "${LocalDateTime.now().plusHours(1).format(DateTimeFormatter.ISO_LOCAL_DATE_TIME)}",
-            "comments":"court appearance"
-            
-          }
-        """.trimIndent(),
-      ),
-    )
-    .exchange()
-    .expectStatus().isCreated
-    .returnResult<CourtHearing>().responseBody.blockFirst()?.id!!
-}
-
 fun TestDataContext.getMovements(bookingId: Long): List<ExternalMovement> = this.dataLoader.externalMovementRepository.findAllByOffenderBooking_BookingId(bookingId)
 fun TestDataContext.getBedAssignments(bookingId: Long): List<BedAssignmentHistory> = this.dataLoader.bedAssignmentHistoriesRepository.findAllByBedAssignmentHistoryPKOffenderBookingId(bookingId)
 
-fun TestDataContext.getCaseNotes(offenderNo: String): List<CaseNote> = webTestClient.get()
-  .uri("/api/offenders/{offenderNo}/case-notes/v2?size=999", offenderNo)
-  .headers(
-    setAuthorisation(
-      listOf("ROLE_VIEW_CASE_NOTES"),
-    ),
-  )
-  .header("Content-Type", MediaType.APPLICATION_JSON_VALUE)
-  .accept(MediaType.APPLICATION_JSON)
-  .exchange()
-  .expectStatus().isOk
-  .returnResult<WebClientResponsePage<CaseNote>>().responseBody.blockFirst()!!.content
+fun TestDataContext.getCaseNotes(bookingId: Long): List<OffenderCaseNote> = this.dataLoader.offenderCaseNoteRepository.findAll(CaseNoteFilter(bookingId = bookingId))
+fun TestDataContext.getCaseNotes(offenderNo: String): List<OffenderCaseNote> = this.dataLoader.offenderCaseNoteRepository.findAll(CaseNoteFilter(bookingId = this.dataLoader.offenderBookingRepository.findLatestOffenderBookingByNomsId(offenderNo).get().bookingId))
 
 fun TestDataContext.getCourtHearings(bookingId: Long): List<CourtEvent> = this.dataLoader.courtEventRepository.findByOffenderBooking_BookingIdOrderByIdAsc(bookingId)
 

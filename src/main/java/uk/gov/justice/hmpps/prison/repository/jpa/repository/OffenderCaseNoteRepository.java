@@ -12,8 +12,6 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.lang.Nullable;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
 
-import java.util.Optional;
-
 public interface OffenderCaseNoteRepository extends
     PagingAndSortingRepository<OffenderCaseNote, Long>,
     CrudRepository<OffenderCaseNote, Long>,
