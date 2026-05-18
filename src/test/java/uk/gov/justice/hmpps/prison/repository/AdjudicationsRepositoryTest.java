@@ -16,15 +16,12 @@ import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
 import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs;
 
-import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.Set;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.groups.Tuple.tuple;
@@ -116,7 +113,7 @@ public class AdjudicationsRepositoryTest {
             .pageRequest(new PageRequest(0L, 10L))
             .build());
 
-        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().get().getAdjudicationCharges().get(0).getFindingCode()).isEqualTo("PROVED");
+        assertThat(results.getItems().stream().filter(f -> f.getAdjudicationNumber() == -3001L).findFirst().orElseThrow().getAdjudicationCharges().getFirst().getFindingCode()).isEqualTo("PROVED");
     }
 
     @Sql(scripts = {"/sql/incident_no_suspect.sql"},
@@ -226,36 +223,5 @@ public class AdjudicationsRepositoryTest {
                     "51:2C",
                     "Detains any person against his will - detention against will of prison officer grade",
                     "NOT_PROVEN"))));
-    }
-
-    @Test
-    public void findOffenderAdjudicationHearings() {
-        val results = repository.findOffenderAdjudicationHearings(
-            "LEI",
-            LocalDate.of(2015, 1, 2),
-            LocalDate.of(2015, 1, 3),
-            Set.of("A1181HH"));
-
-        assertThat(results).containsExactlyInAnyOrder(
-            new OffenderAdjudicationHearing(
-                "LEI",
-                "A1181HH",
-                -1,
-                "Governor's Hearing Adult",
-                LocalDateTime.of(2015, 1, 2, 14, 0),
-                -1000,
-                "LEI-AABCW-1",
-                "SCH"
-            ),
-            new OffenderAdjudicationHearing(
-                "LEI",
-                "A1181HH",
-                -2,
-                "Governor's Hearing Adult",
-                LocalDateTime.of(2015, 1, 2, 14, 0),
-                -1001,
-                "LEI-A-1-1001",
-                "SCH")
-        );
     }
 }

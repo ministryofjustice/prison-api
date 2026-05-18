@@ -10,8 +10,6 @@ import uk.gov.justice.hmpps.prison.api.model.adjudications.Adjudication;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationCharge;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffence;
 import uk.gov.justice.hmpps.prison.api.model.adjudications.AdjudicationOffenceDto;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing;
-import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearingDto;
 import uk.gov.justice.hmpps.prison.api.support.Page;
 import uk.gov.justice.hmpps.prison.repository.mapping.DataClassByColumnRowMapper;
 import uk.gov.justice.hmpps.prison.repository.mapping.StandardBeanPropertyRowMapper;
@@ -23,7 +21,6 @@ import uk.gov.justice.hmpps.prison.util.DateTimeConverter;
 import java.sql.Types;
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Set;
 
 import static java.util.Comparator.comparing;
 import static java.util.stream.Collectors.groupingBy;
@@ -35,8 +32,6 @@ public class AdjudicationsRepository extends RepositoryBase {
     private final RowMapper<AgencyDto> agencyMapper = new DataClassByColumnRowMapper<>(AgencyDto.class);
     private final RowMapper<AdjudicationChargeDto> adjudicationMapper = new StandardBeanPropertyRowMapper<>(AdjudicationChargeDto.class);
     private final RowMapper<AdjudicationOffenceDto> offenceMapper = new DataClassByColumnRowMapper<>(AdjudicationOffenceDto.class);
-
-    private final RowMapper<OffenderAdjudicationHearingDto> offenderHearingsMapper = new DataClassByColumnRowMapper<>(OffenderAdjudicationHearingDto.class);
 
     public List<AdjudicationOffence> findAdjudicationOffences(final String offenderNumber) {
         final var adjudications = jdbcTemplate.query(AdjudicationsRepositorySql.FIND_LATEST_ADJUDICATION_OFFENCE_TYPES_FOR_OFFENDER.getSql(),
@@ -109,21 +104,5 @@ public class AdjudicationsRepository extends RepositoryBase {
 
     private SqlParameterValue asDate(final LocalDate startDate) {
         return new SqlParameterValue(Types.DATE, DateTimeConverter.toDate(startDate));
-    }
-
-    public List<OffenderAdjudicationHearing> findOffenderAdjudicationHearings(final String agencyId,
-                                                                              final LocalDate fromDate,
-                                                                              final LocalDate toDate,
-                                                                              final Set<String> offenderNos) {
-        return jdbcTemplate.query(
-                AdjudicationsRepositorySql.FIND_OFFENDER_HEARINGS.getSql(),
-                createParams(
-                    "agencyId", agencyId,
-                    "fromDate", fromDate,
-                    "toDate", toDate,
-                    "offenderNos", offenderNos
-                ),
-                offenderHearingsMapper).stream().map(OffenderAdjudicationHearingDto::toOffenderAdjudicationHearing)
-            .toList();
     }
 }
