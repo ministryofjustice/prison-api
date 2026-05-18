@@ -27,9 +27,6 @@ class CacheConfig : CachingConfigurer {
   @Value("\${cache.timeout.seconds.user:3600}")
   private val userTimeoutSeconds = 0L
 
-  @Value("\${cache.timeout.seconds.casenote:3600}")
-  private val caseNoteTimeoutSeconds = 0L
-
   @Value("\${cache.timeout.seconds.agency:3600}")
   private val agencyTimeoutSeconds = 0L
 
