@@ -6,13 +6,11 @@ import org.assertj.core.api.AssertionsForInterfaceTypes.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.boot.resttestclient.exchange
 import org.springframework.core.ParameterizedTypeReference
 import org.springframework.http.HttpMethod
 import org.springframework.http.HttpStatus
-import org.springframework.test.web.reactive.server.WebTestClient.ListBodySpec
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
-import uk.gov.justice.hmpps.prison.api.model.adjudications.OffenderAdjudicationHearing
-import java.time.LocalDateTime
 
 class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
 
@@ -68,11 +66,10 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
       fun shouldReturn403WhenNoPrivileges() {
         // run with user that doesn't have access to the caseload
 
-        val response = testRestTemplate.exchange(
+        val response = testRestTemplate.exchange<ErrorResponse>(
           "/api/offenders/A1234AA/adjudications",
           HttpMethod.GET,
           createHttpEntityWithBearerAuthorisation("ITAG_USER_ADM", listOf(), mapOf()),
-          ErrorResponse::class.java,
         )
 
         assertThat(response.statusCode).isEqualTo(HttpStatus.FORBIDDEN)
@@ -164,63 +161,6 @@ class OffenderResourceImplIntTest_getAdjudications : ResourceTest() {
         .jsonPath("agencies[0].agencyId").isEqualTo("LEI")
         .jsonPath("agencies[1].agencyId").isEqualTo("MDI")
         .jsonPath("agencies[2].agencyId").isEqualTo("BXI")
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /api/offenders/adjudication-hearings")
-  inner class OffenderAdjudicationHearings {
-    @Test
-    fun shouldReturnOffenderAdjudicationHearingsWhenMatch() {
-      webTestClient.post().uri("/api/offenders/adjudication-hearings?agencyId=LEI&fromDate=2015-01-02&toDate=2015-01-03")
-        .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .bodyValue(setOf("A1181HH"))
-        .exchange()
-        .expectBodyList(ParameterizedTypeReference.forType(OffenderAdjudicationHearing::class.java))
-        .isEqualTo<ListBodySpec<Any>>(
-          listOf<Any>(
-            OffenderAdjudicationHearing(
-              "LEI",
-              "A1181HH",
-              -1,
-              "Governor's Hearing Adult",
-              LocalDateTime.of(2015, 1, 2, 14, 0),
-              -1000,
-              "LEI-AABCW-1",
-              "SCH",
-            ),
-            OffenderAdjudicationHearing(
-              "LEI",
-              "A1181HH",
-              -2,
-              "Governor's Hearing Adult",
-              LocalDateTime.of(2015, 1, 2, 14, 0),
-              -1001,
-              "LEI-A-1-1001",
-              "SCH",
-            ),
-          ),
-        )
-    }
-
-    @Test
-    fun shouldReturnNoOffenderAdjudicationHearingsWhenNoMatch() {
-      webTestClient.post().uri("/api/offenders/adjudication-hearings?agencyId=LEI&fromDate=2015-01-02&toDate=2015-01-03")
-        .headers(setAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
-        .bodyValue(setOf("XXXXXXX"))
-        .exchange()
-        .expectBodyList(ParameterizedTypeReference.forType(OffenderAdjudicationHearing::class.java))
-        .isEqualTo<ListBodySpec<Any>>(emptyList())
-    }
-
-    @Test
-    fun shouldReturn403WhenInsufficientPrivileges() {
-      webTestClient.post().uri("/api/offenders/adjudication-hearings?agencyId=LEI&fromDate=2015-01-02&toDate=2015-01-03")
-        .headers(setAuthorisation(listOf()))
-        .bodyValue(setOf("A1181HH"))
-        .exchange()
-        .expectStatus()
-        .isForbidden()
     }
   }
 }
