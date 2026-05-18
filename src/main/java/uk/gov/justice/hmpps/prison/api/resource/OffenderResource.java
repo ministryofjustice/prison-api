@@ -12,11 +12,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import lombok.RequiredArgsConstructor;
 import lombok.val;
-import org.springdoc.core.annotations.ParameterObject;
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
-import org.springframework.data.domain.Sort;
-import org.springframework.data.web.PageableDefault;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -34,7 +29,6 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
-import uk.gov.justice.hmpps.prison.api.model.CaseNote;
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -77,13 +71,11 @@ import uk.gov.justice.hmpps.prison.api.support.TimeSlot;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation.Status;
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.CaseNoteFilter;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
 import uk.gov.justice.hmpps.prison.service.Belief;
 import uk.gov.justice.hmpps.prison.service.BookingService;
-import uk.gov.justice.hmpps.prison.service.CaseNoteService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
 import uk.gov.justice.hmpps.prison.service.IncidentService;
 import uk.gov.justice.hmpps.prison.service.InmateService;
@@ -124,7 +116,6 @@ public class OffenderResource {
     private final InmateService inmateService;
     private final OffenderAddressService addressService;
     private final AdjudicationService adjudicationService;
-    private final CaseNoteService caseNoteService;
     private final BookingService bookingService;
     private final HmppsAuthenticationHolder hmppsAuthenticationHolder;
     private final PrisonerCreationService prisonerCreationService;
@@ -541,34 +532,6 @@ public class OffenderResource {
                 .offences(adjudicationService.findAdjudicationsOffences(criteria.getOffenderNumber()))
                 .agencies(adjudicationService.findAdjudicationAgencies(criteria.getOffenderNumber()))
                 .build());
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CaseNote.class))})})
-    @Operation(summary = "Offender case notes", description = "Retrieve an offenders case notes for latest booking", hidden = true)
-    @GetMapping("/{offenderNo}/case-notes/v2")
-    @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_CASE_NOTES"})
-    @SlowReportQuery
-    public Page<CaseNote> getOffenderCaseNotes(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true, example = "A1234AA") final String offenderNo,
-                                               @RequestParam(value = "from", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "start contact date to search from", example = "2021-02-03") final LocalDate from,
-                                               @RequestParam(value = "to", required = false) @DateTimeFormat(iso = DATE) @Parameter(description = "end contact date to search up to (including this date)", example = "2021-02-04") final LocalDate to,
-                                               @RequestParam(value = "type", required = false) @Parameter(description = "Filter by case note type. Cannot be used in conjunction with typeSubTypes.", example = "GEN") final String type,
-                                               @RequestParam(value = "subType", required = false) @Parameter(description = "Filter by case note sub-type. Cannot be used in conjunction with typeSubTypes.", example = "OBS") final String subType,
-                                               @RequestParam(value = "prisonId", required = false) @Parameter(description = "Filter by the ID of the prison", example = "LEI") final String prisonId,
-                                               @RequestParam(value = "typeSubTypes", required = false) @Parameter(description = "Filter by list of case note types and optional case note sub types separated by plus. Cannot be used in conjunction with type or subType.", example = "KA+KE,OBS,POMK+GEN") final List<String> typeSubTypes,
-                                               @ParameterObject @PageableDefault(sort = {"occurrenceDateTime"}, direction = Sort.Direction.DESC) final Pageable pageable) {
-        final var latestBookingByOffenderNo = bookingService.getLatestBookingByOffenderNo(offenderNo);
-        final var caseNoteFilter = new CaseNoteFilter(
-            latestBookingByOffenderNo.getBookingId(),
-            prisonId,
-            from,
-            to,
-            type,
-            subType,
-            typeSubTypes
-        );
-        return caseNoteService.getCaseNotes(caseNoteFilter, pageable);
-
     }
 
     @ApiResponses({
