@@ -15,7 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.HttpStatus
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import uk.gov.justice.hmpps.prison.api.model.CaseNote
+import org.springframework.test.web.reactive.server.returnResult
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.dsl.JAN
 import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
@@ -25,6 +25,7 @@ import uk.gov.justice.hmpps.prison.dsl.at
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementDirection
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TrustAccountService
@@ -1234,7 +1235,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
-          .returnResult(InmateDetail::class.java)
+          .returnResult<InmateDetail>()
           .responseBody.blockFirst()!!.bookingId
 
         assertThat(testDataContext.getMovements(bookingId))
@@ -1274,7 +1275,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
-          .returnResult(InmateDetail::class.java)
+          .returnResult<InmateDetail>()
           .responseBody.blockFirst()!!.bookingId
 
         assertThat(testDataContext.getBedAssignments(bookingId))
@@ -1317,7 +1318,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .expectStatus().isOk
 
         assertThat(testDataContext.getCaseNotes(offenderNo))
-          .extracting(CaseNote::getType, CaseNote::getSubType, CaseNote::getText)
+          .extracting(OffenderCaseNote::getTypeCode, OffenderCaseNote::getSubTypeCode, OffenderCaseNote::getCaseNoteText)
           .contains(
             tuple(
               "TRANSFER",
@@ -1350,7 +1351,7 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
-          .returnResult(InmateDetail::class.java)
+          .returnResult<InmateDetail>()
           .responseBody.blockFirst()!!
 
         // since this calls a NOMIS store procedure the best we can do
@@ -1393,10 +1394,10 @@ class OffenderResourceIntTest_newBooking : ResourceTest() {
           .accept(MediaType.APPLICATION_JSON)
           .exchange()
           .expectStatus().isOk
-          .returnResult(InmateDetail::class.java)
+          .returnResult<InmateDetail>()
           .responseBody.blockFirst()!!
 
-        assertThat(inmate.bookingNo).matches("^\\d{5}[A-Z]\$")
+        assertThat(inmate.bookingNo).matches("^\\d{5}[A-Z]$")
       }
     }
   }

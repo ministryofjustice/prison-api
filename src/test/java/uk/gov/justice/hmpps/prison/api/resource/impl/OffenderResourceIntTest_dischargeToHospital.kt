@@ -326,14 +326,14 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
 
         bookingId = findBookingId(offenderType)
 
-        testDataContext.getCaseNotes(offenderNo)
-          .maxBy { it.caseNoteId }
+        testDataContext.getCaseNotes(bookingId!!)
+          .maxBy { it.id }
           .also {
-            assertThat(it.type).isEqualTo("PRISON")
-            assertThat(it.subType).isEqualTo("RELEASE")
-            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
-            assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
-            assertThat(it.agencyId).isEqualTo("SYI")
+            assertThat(it.typeCode).isEqualTo("PRISON")
+            assertThat(it.subTypeCode).isEqualTo("RELEASE")
+            assertThat(it.caseNoteText).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
+            assertThat(it.createDatetime.toLocalDate()).isEqualTo(LocalDate.now())
+            assertThat(it.agencyLocation.id).isEqualTo("SYI")
           }
       }
 
@@ -619,13 +619,13 @@ class OffenderResourceIntTest_dischargeToHospital : ResourceTest() {
         dischargeToHospital(offenderNo, dischargeRequest()).isOk
 
         testDataContext.getCaseNotes(offenderNo)
-          .maxBy { it.caseNoteId }
+          .maxBy { it.id }
           .also {
-            assertThat(it.type).isEqualTo("PRISON")
-            assertThat(it.subType).isEqualTo("RELEASE")
-            assertThat(it.text).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
-            assertThat(it.creationDateTime.toLocalDate()).isEqualTo(LocalDate.now())
-            assertThat(it.agencyId).isEqualTo("SYI")
+            assertThat(it.typeCode).isEqualTo("PRISON")
+            assertThat(it.subTypeCode).isEqualTo("RELEASE")
+            assertThat(it.caseNoteText).isEqualTo("Transferred from SHREWSBURY for reason: Moved to psychiatric hospital Hazelwood House.")
+            assertThat(it.createDatetime.toLocalDate()).isEqualTo(LocalDate.now())
+            assertThat(it.agencyLocation.id).isEqualTo("SYI")
           }
       }
     }

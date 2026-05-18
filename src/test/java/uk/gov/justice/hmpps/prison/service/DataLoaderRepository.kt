@@ -4,7 +4,6 @@ import jakarta.transaction.Transactional
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.stereotype.Service
 import uk.gov.justice.hmpps.prison.repository.BookingRepository
-import uk.gov.justice.hmpps.prison.repository.OffenderDeletionRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseStatus
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EscortAgencyType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EventStatus
@@ -18,8 +17,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.CourtEventRepositor
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalServiceRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCaseNoteRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderCourtCaseRepository
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderIndividualScheduleRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderKeyDateAdjustmentRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriodRepository
@@ -62,8 +61,7 @@ class DataLoaderRepository(
   val externalServiceRepository: ExternalServiceRepository,
   val serviceAgencySwitchesRepository: ServiceAgencySwitchesRepository,
   val offenderNoPayPeriodRepository: OffenderNoPayPeriodRepository,
-  val offenderDeletionRepository: OffenderDeletionRepository,
-  val imageRepository: OffenderImageRepository,
+  val offenderCaseNoteRepository: OffenderCaseNoteRepository,
   val jdbcTemplate: JdbcTemplate,
 )
 

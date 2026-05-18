@@ -14,6 +14,7 @@ import org.mockito.kotlin.verify
 import org.springframework.http.MediaType
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import org.springframework.test.web.reactive.server.StatusAssertions
+import org.springframework.test.web.reactive.server.returnResult
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.repository.jpa.model.BedAssignmentHistory
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -479,10 +480,10 @@ class OffenderResourceIntTest_recall : ResourceTest() {
           """.trimIndent(),
         )
 
-        val caseNote = testDataContext.getCaseNotes(offenderNo).maxBy { it.creationDateTime }
-        assertThat(caseNote.type).isEqualTo("TRANSFER")
-        assertThat(caseNote.subType).isEqualTo("FROMTOL")
-        assertThat(caseNote.text).isEqualTo("Offender admitted to MOORLAND for reason: Recall from Intermittent Custody from OUTSIDE.")
+        val caseNote = testDataContext.getCaseNotes(offenderNo).maxBy { it.createDatetime }
+        assertThat(caseNote.typeCode).isEqualTo("TRANSFER")
+        assertThat(caseNote.subTypeCode).isEqualTo("FROMTOL")
+        assertThat(caseNote.caseNoteText).isEqualTo("Offender admitted to MOORLAND for reason: Recall from Intermittent Custody from OUTSIDE.")
       }
 
       @Test
@@ -561,7 +562,7 @@ class OffenderResourceIntTest_recall : ResourceTest() {
     .expectStatus()
 
   private fun StatusAssertions.inmate() = this.isOk
-    .returnResult(InmateDetail::class.java)
+    .returnResult<InmateDetail>()
     .responseBody.blockFirst()!!
 
   private fun recallRequest(
