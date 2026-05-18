@@ -13,6 +13,10 @@ configurations {
   }
 }
 
+dependencyCheck {
+  suppressionFiles.add("azure-dependency-check-suppress.xml")
+}
+
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
   annotationProcessor("org.projectlombok:lombok:1.18.46")
