@@ -13,7 +13,6 @@ import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
-import org.springframework.http.MediaType
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.test.context.ContextConfiguration
 import org.springframework.test.web.reactive.server.expectBodyList
@@ -21,7 +20,6 @@ import uk.gov.justice.hmpps.prison.api.model.BookingActivity
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.NewAppointment
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
-import uk.gov.justice.hmpps.prison.api.model.UpdateAttendance
 import uk.gov.justice.hmpps.prison.api.model.UpdateAttendanceBatch
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.INACTIVE_BOOKING_USER
@@ -670,63 +668,6 @@ class BookingResourceIntTest : ResourceTest() {
           .developerMessage("Activity with booking Id -2 and activityId 999 not found")
           .build(),
       )
-    }
-  }
-
-  @Nested
-  @DisplayName("PUT /offenderNo/{offenderNo}/activities/{activityId}/attendance")
-  inner class PutOffenderActivity {
-
-    @Test
-    fun `should return 400 if invalid outcome`() {
-      webTestClient.put().uri("/api/bookings/offenderNo/A1234AC/activities/-2/attendance")
-        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(UpdateAttendance("invalid", "GOOD", "blah"))
-        .exchange()
-        .expectStatus().isBadRequest
-        .expectBody()
-        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
-    }
-
-    @Test
-    fun `should return 400 if invalid performance`() {
-      webTestClient.put().uri("/api/bookings/offenderNo/A1234AC/activities/-2/attendance")
-        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(UpdateAttendance("UNBEH", "GOOD", "blah"))
-        .exchange()
-        .expectStatus().isBadRequest
-        .expectBody()
-        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
-    }
-
-    @Test
-    fun `should return 404 if incorrect ids`() {
-      webTestClient.put().uri("/api/bookings/offenderNo/A1234AB/activities/-2/attendance")
-        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(UpdateAttendance("ATT", "STANDARD", "blah"))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody()
-        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
-    }
-
-    @Test
-    fun `should return 404 if unauthorised booking id`() {
-      webTestClient.put().uri("/api/bookings/offenderNo/A1234AP/activities/-2/attendance")
-        .headers(setClientAuthorisation(listOf("ROLE_PAY")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .accept(MediaType.APPLICATION_JSON)
-        .bodyValue(UpdateAttendance("ATT", "STANDARD", "blah"))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody()
-        .jsonPath("userMessage").toString().contains("Event outcome value invalid does not exist")
     }
   }
 

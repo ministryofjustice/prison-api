@@ -233,30 +233,6 @@ public class BookingResource {
         @ApiResponse(responseCode = "400", description = "Invalid request - e.g. validation error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Update offender attendance and pay.",
-        description = """
-            Requires role PAY.
-
-            PGP: unused as of 12/08/2025. Left as we have a very similar endpoint below that takes a bookingId anyway.
-            """
-    )
-    @PreAuthorize("hasRole('PAY')")
-    @PutMapping("/offenderNo/{offenderNo}/activities/{activityId}/attendance")
-    @ProxyUser
-    public ResponseEntity<Void> updateAttendanceByPrisonNumber(@PathVariable("offenderNo") @Parameter(description = "The offenderNo of the prisoner", required = true, example = "A1234AA") final String offenderNo,
-                                                 @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
-                                                 @RequestBody @Parameter(required = true, example = "{eventOutcome = 'ATT', performance = 'ACCEPT' outcomeComment = 'Turned up very late'}") @NotNull final UpdateAttendance updateAttendance) {
-        bookingService.updateAttendance(offenderNo, activityId, updateAttendance);
-        return ResponseEntity.status(HttpStatus.CREATED).build();
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "Attendance data has been updated"),
-        @ApiResponse(responseCode = "400", description = "Invalid request - e.g. validation error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to attend activity.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Resource not found - booking or event does not exist.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Internal server error.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Update offender attendance and pay.", description = "Requires role PAY")

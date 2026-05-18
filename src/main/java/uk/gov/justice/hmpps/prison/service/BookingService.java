@@ -300,13 +300,6 @@ public class BookingService {
     }
 
     @Transactional
-    public void updateAttendance(final String offenderNo, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance) {
-        // Copy flags from the PAYABLE_ATTENDANCE_OUTCOME reference table
-        final var activityOutcome = bookingRepository.getPayableAttendanceOutcome("PRISON_ACT", updateAttendance.getEventOutcome());
-        updateAttendance(activityId, updateAttendance, getLatestBookingByOffenderNo(offenderNo).getBookingId(), activityOutcome);
-    }
-
-    @Transactional
     public void updateAttendance(final Long bookingId, final Long activityId, @Valid @AttendanceTypesValid final UpdateAttendance updateAttendance, boolean lockTimeout) {
         final Long latestBookingId = getLatestBookingByBookingId(bookingId).getBookingId();
         if (lockTimeout) {
