@@ -10,8 +10,6 @@ import org.springframework.context.annotation.Import;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.test.context.ActiveProfiles;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
-import uk.gov.justice.hmpps.prison.api.model.NewCaseNote;
-import uk.gov.justice.hmpps.prison.api.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteSubType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.CaseNoteType;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderCaseNote;
@@ -65,9 +63,8 @@ public class CaseNoteRepositoryTest {
         final var startTime = LocalDateTime.now().truncatedTo(ChronoUnit.SECONDS);
 
         final long bookingId = -16;
-        final var newCaseNote = newCaseNote();
         final var sourceCode = "source code";
-        final long caseNoteId = createCaseNote(bookingId, newCaseNote, sourceCode);
+        final long caseNoteId = createCaseNote(bookingId, sourceCode);
 
         final var map = jdbcTemplate.queryForMap("select TIME_CREATION, CREATE_DATETIME from offender_case_notes where CASE_NOTE_ID = ?", caseNoteId);
 
@@ -82,24 +79,15 @@ public class CaseNoteRepositoryTest {
         jdbcTemplate.update("delete from offender_case_notes where case_note_id = ?", caseNoteId);
     }
 
-    private NewCaseNote newCaseNote() {
-        final var newCaseNote = new NewCaseNote();
-        newCaseNote.setText("text");
-        newCaseNote.setType("GEN");
-        newCaseNote.setSubType("HIS");
-        newCaseNote.setOccurrenceDateTime(LocalDateTime.now());
-        return newCaseNote;
-    }
-
-    private long createCaseNote(final long bookingId, final NewCaseNote newCaseNote, final String sourceCode) {
+    private long createCaseNote(final long bookingId, final String sourceCode) {
         final var caseNote = OffenderCaseNote.builder()
-            .caseNoteText(newCaseNote.getText())
-            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk(newCaseNote.getType())).orElseThrow(EntityNotFoundException.withId(newCaseNote.getType())))
-            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk(newCaseNote.getSubType())).orElseThrow(EntityNotFoundException.withId(newCaseNote.getSubType())))
+            .caseNoteText("text")
+            .type(caseNoteTypeReferenceCodeRepository.findById(CaseNoteType.pk("GEN")).orElseThrow(EntityNotFoundException.withId("GEN")))
+            .subType(caseNoteSubTypeReferenceCodeRepository.findById(CaseNoteSubType.pk("HIS")).orElseThrow(EntityNotFoundException.withId("HIS")))
             .noteSourceCode(sourceCode)
             .author(staffUserAccountRepository.findById("ITAG_USER").orElseThrow().getStaff())
-            .occurrenceDateTime(newCaseNote.getOccurrenceDateTime())
-            .occurrenceDate(newCaseNote.getOccurrenceDateTime().toLocalDate())
+            .occurrenceDateTime(LocalDateTime.now())
+            .occurrenceDate(LocalDateTime.now().toLocalDate())
             .amendmentFlag(false)
             .offenderBooking(offenderBookingRepository.findById(bookingId).orElseThrow())
             .build();
