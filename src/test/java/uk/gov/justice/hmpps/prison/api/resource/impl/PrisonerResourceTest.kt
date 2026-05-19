@@ -16,51 +16,77 @@ import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken.G
 
 class PrisonerResourceTest : ResourceTest() {
   @Nested
-  @DisplayName("GET /api/prisoners")
-  inner class GetPrisoners {
-
+  @DisplayName("POST /api/prisoners")
+  inner class PostPrisoners {
     @Nested
     inner class Authorisation {
+
       @Test
       fun `returns 401 without an auth token`() {
-        webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        webTestClient.post().uri("/api/prisoners")
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
           .exchange()
           .expectStatus().isUnauthorized
       }
 
       @Test
-      fun `returns 403 when there is no override role`() {
-        webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+      fun `returns 403 when client has no override role`() {
+        webTestClient.post().uri("/api/prisoners")
           .headers(setClientAuthorisation(listOf()))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
           .exchange()
           .expectStatus().isForbidden
       }
 
       @Test
-      fun `returns success if has override ROLE_GLOBAL_SEARCH`() {
-        webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+      fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
+        webTestClient.post().uri("/api/prisoners")
           .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
           .exchange()
           .expectStatus().isOk
-          .expectBody()
-          .jsonPath("[0].offenderNo").isEqualTo("A1234AC")
+          .expectBody().jsonPath("length()").isEqualTo(1)
       }
 
       @Test
       fun `returns 403 if has override SYSTEM_USER`() {
-        webTestClient.get().uri("/api/prisoners?offenderNo=A1234AC")
+        webTestClient.post().uri("/api/prisoners")
           .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
+          .header("Content-Type", APPLICATION_JSON_VALUE)
+          .bodyValue("""{ "offenderNos": [ "A1234AA" ] }""")
           .exchange()
           .expectStatus().isForbidden
+      }
+
+      @Test
+      fun testReturn403WhenDoesNotHavePrivs() {
+        val httpEntity = createHttpEntity(
+          AuthToken.NO_CASELOAD_USER,
+          """{ "offenderNos": [ "A1234AC", "A1234AA" ] }""",
+        )
+        val response = testRestTemplate.exchange(
+          "/api/prisoners",
+          POST,
+          httpEntity,
+          object : ParameterizedTypeReference<String>() {},
+        )
+        assertThatStatus(response, FORBIDDEN)
       }
     }
 
     @Test
     fun testReturnEmptyArrayWhenOffenderNotFound() {
-      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
+      val token = authTokenHelper.getToken(GLOBAL_SEARCH)
+      val httpEntity = createHttpEntity(
+        token,
+        """{ "offenderNos": [ "A1476AE"] }""",
+      )
       val response = testRestTemplate.exchange(
-        "/api/prisoners?ofenderNo=A1476AE",
-        GET,
+        "/api/prisoners",
+        POST,
         httpEntity,
         object : ParameterizedTypeReference<String>() {},
       )
@@ -69,10 +95,14 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun testCanFindMultiplePrisoners() {
-      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
+      val token = authTokenHelper.getToken(GLOBAL_SEARCH)
+      val httpEntity = createHttpEntity(
+        token,
+        """{ "offenderNos": [ "A1234AC", "A1234AA" ] }""",
+      )
       val response = testRestTemplate.exchange(
-        "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
-        GET,
+        "/api/prisoners",
+        POST,
         httpEntity,
         object : ParameterizedTypeReference<String>() {},
       )
@@ -80,35 +110,13 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun testCanFindMultiplePrisonersAndFilterByMoreThanOneCriteria() {
-      val httpEntity = createEmptyHttpEntity(GLOBAL_SEARCH)
-      val response = testRestTemplate.exchange(
-        "/api/prisoners?offenderNo=A1181MV&offenderNo=A1234AC&offenderNo=A1234AA&lastName=BATES",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatJsonFileAndStatus(response, OK, "prisoners_single.json")
-    }
-
-    @Test
-    fun testReturn403WhenDoesNotHavePrivs() {
-      val httpEntity = createEmptyHttpEntity(AuthToken.NO_CASELOAD_USER)
-      val response = testRestTemplate.exchange(
-        "/api/prisoners?offenderNo=A1234AC&offenderNo=A1234AA",
-        GET,
-        httpEntity,
-        object : ParameterizedTypeReference<String>() {},
-      )
-      assertThatStatus(response, FORBIDDEN)
-    }
-
-    @Test
     fun `returns success if searching using date-of-birth and paging`() {
-      webTestClient.get().uri("/api/prisoners?dobFrom=1970-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .header("Page-Offset", "0")
         .header("Page-Limit", "15")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dobFrom": "1970-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -117,10 +125,12 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success if searching using date-of-birth and limited paging`() {
-      webTestClient.get().uri("/api/prisoners?dobFrom=1970-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .header("Page-Offset", "0")
         .header("Page-Limit", "2")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dobFrom": "1970-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -129,8 +139,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns 400 if invalid PNC number`() {
-      webTestClient.get().uri("/api/prisoners?pncNumber=234/EE45FX")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "pncNumber": "234/EE45FX" }""")
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
@@ -139,8 +151,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success and results if valid PNC number`() {
-      webTestClient.get().uri("/api/prisoners?pncNumber=1998/1234567L")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "pncNumber": "1998/1234567L" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -151,8 +165,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success and no results if valid PNC number`() {
-      webTestClient.get().uri("/api/prisoners?pncNumber=1898/1234567L")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "pncNumber": "1898/1234567L" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -161,8 +177,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching for OUT prisoners and by lastName`() {
-      webTestClient.get().uri("/api/prisoners?location=OUT&lastName=ELBOW")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "location": "OUT", "lastName": "ELBOW" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -171,8 +189,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching for IN prisoners and by lastName`() {
-      webTestClient.get().uri("/api/prisoners?location=IN&lastName=ELBOW")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "location": "IN", "lastName": "ELBOW" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -181,8 +201,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching for ALL prisoners and by lastName`() {
-      webTestClient.get().uri("/api/prisoners?location=ALL&lastName=ELBOW")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "location": "ALL", "lastName": "ELBOW" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -191,8 +213,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns 400 when searching with invalid gender code`() {
-      webTestClient.get().uri("/api/prisoners?gender=ABC&lastName=SARLY")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "gender": "ABC", "lastName": "SARLY" }""")
         .exchange()
         .expectStatus().isBadRequest
         .expectBody()
@@ -200,9 +224,11 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 400 when searching with female gender code`() {
-      webTestClient.get().uri("/api/prisoners?gender=F&lastName=ELBOW")
+    fun `returns data when searching with female gender code`() {
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "gender": "F", "lastName": "ELBOW" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -210,9 +236,11 @@ class PrisonerResourceTest : ResourceTest() {
     }
 
     @Test
-    fun `returns 400 when searching with male gender code`() {
-      webTestClient.get().uri("/api/prisoners?gender=M&lastName=SARLY")
+    fun `returns data when searching with male gender code`() {
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "gender": "M", "lastName": "SARLY" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -221,8 +249,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by CRO Number`() {
-      webTestClient.get().uri("/api/prisoners?croNumber=CRO112233")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "croNumber": "CRO112233" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -233,8 +263,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success with multiple results when searching by Date of Birth`() {
-      webTestClient.get().uri("/api/prisoners?dob=1970-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dob": "1970-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -245,8 +277,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success with single results when searching by Date of Birth`() {
-      webTestClient.get().uri("/api/prisoners?dob=1999-10-27")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dob": "1999-10-27" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -256,8 +290,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success with no results when searching by Date of Birth`() {
-      webTestClient.get().uri("/api/prisoners?dob=1959-10-28")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dob": "1959-10-28" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -266,8 +302,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with partial name matching by lastName only`() {
-      webTestClient.get().uri("/api/prisoners?partialNameMatch=TRUE&lastName=AND")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "partialNameMatch": "TRUE", "lastName": "AND" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -280,8 +318,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with includeAliases, partial name matching by lastName only`() {
-      webTestClient.get().uri("/api/prisoners?includeAliases=true&partialNameMatch=TRUE&lastName=AND")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "includeAliases": "true", "partialNameMatch": "TRUE", "lastName": "AND" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -297,8 +337,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with partial name matching by firstName only`() {
-      webTestClient.get().uri("/api/prisoners?partialNameMatch=TRUE&firstName=CHES")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "partialNameMatch": "TRUE", "firstName": "CHES" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -311,8 +353,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with includeAliases, partial name matching by firstName only`() {
-      webTestClient.get().uri("/api/prisoners?includeAliases=true&partialNameMatch=TRUE&firstName=CHES")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "includeAliases": "true", "partialNameMatch": "TRUE", "firstName": "CHES" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -332,8 +376,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with partial name matching by middleName only`() {
-      webTestClient.get().uri("/api/prisoners?partialNameMatch=TRUE&middleNames=JEFF")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "partialNameMatch": "TRUE", "middleNames": "JEFF" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -346,8 +392,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, with includeAliases, partial name matching by middleName only`() {
-      webTestClient.get().uri("/api/prisoners?includeAliases=true&partialNameMatch=TRUE&middleNames=JEFF")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "includeAliases": "true", "partialNameMatch": "TRUE", "middleNames": "JEFF" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -363,8 +411,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching by firstName only`() {
-      webTestClient.get().uri("/api/prisoners?firstName=DANIEL")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "firstName": "DANIEL" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -375,8 +425,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching by middleName only`() {
-      webTestClient.get().uri("/api/prisoners?middleNames=JAMES")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "middleNames": "JAMES" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -387,8 +439,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching by lastName only`() {
-      webTestClient.get().uri("/api/prisoners?lastName=ANDERSON")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "lastName": "ANDERSON" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -399,8 +453,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching by middle and lastName`() {
-      webTestClient.get().uri("/api/prisoners?middleNames=EVE&lastName=ANDERSON")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "middleNames": "EVE", "lastName": "ANDERSON" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -411,8 +467,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching by firstName and middleName`() {
-      webTestClient.get().uri("/api/prisoners?firstName=CHESTER&middleNames=JAMES")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "firstName": "CHESTER", "middleNames": "JAMES" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -423,8 +481,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching by names, without partial name matching with no results`() {
-      webTestClient.get().uri("/api/prisoners?firstName=CHESTER&middleNames=JAMES&lastName=WILLIS")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "firstName": "CHESTER", "middleNames": "JAMES", "lastName": "WILLIS" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -433,8 +493,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching within a dates of birth range from both from and to date`() {
-      webTestClient.get().uri("/api/prisoners?dobFrom=1990-01-01&dobTo=2000-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dobFrom": "1990-01-01", "dobTo": "2000-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -446,8 +508,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching within a dates of birth range from both from and to date and includeAliases`() {
-      webTestClient.get().uri("/api/prisoners?includeAliases=true&dobFrom=1990-01-01&dobTo=2000-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "includeAliases": "true", "dobFrom": "1990-01-01", "dobTo": "2000-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -459,8 +523,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching within a dates of birth range with from date only`() {
-      webTestClient.get().uri("/api/prisoners?dobFrom=1970-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dobFrom": "1970-01-01" }""")
         .header("Page-Offset", "0")
         .header("Page-Limit", "100")
         .exchange()
@@ -477,8 +543,10 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching within a dates of birth range with to date only`() {
-      webTestClient.get().uri("/api/prisoners?dobTo=2000-01-01")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "dobTo": "2000-01-01" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
@@ -488,49 +556,16 @@ class PrisonerResourceTest : ResourceTest() {
 
     @Test
     fun `returns success when searching without partial name matching`() {
-      webTestClient.get().uri("/api/prisoners?lastName=ANDERSON")
+      webTestClient.post().uri("/api/prisoners")
         .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue("""{ "lastName": "ANDERSON" }""")
         .exchange()
         .expectStatus().isOk
         .expectBody()
         .jsonPath("size()").isEqualTo(2)
         .jsonPath("[*].offenderNo").value<List<String>> { assertThat(it).containsExactly("A1234AA", "A1234AB") }
         .jsonPath("[*].internalLocation").value<List<String>> { assertThat(it).containsExactly("LEI-A-1-1", "LEI-H-1-5") }
-    }
-  }
-
-  @Nested
-  @DisplayName("POST /api/prisoners")
-  inner class PostPrisoners {
-
-    @Test
-    fun `returns 401 without an auth token`() {
-      webTestClient.post().uri("/api/prisoners")
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `returns 403 when client has no override role`() {
-      webTestClient.post().uri("/api/prisoners")
-        .headers(setClientAuthorisation(listOf()))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `returns success when client has override role ROLE_GlOBAL_SEARCH`() {
-      webTestClient.post().uri("/api/prisoners")
-        .headers(setClientAuthorisation(listOf("ROLE_GLOBAL_SEARCH")))
-        .header("Content-Type", APPLICATION_JSON_VALUE)
-        .bodyValue("{ \"offenderNos\": [ \"A1234AA\" ] }")
-        .exchange()
-        .expectStatus().isOk
-        .expectBody().jsonPath("length()").isEqualTo(1)
     }
 
     @Test
