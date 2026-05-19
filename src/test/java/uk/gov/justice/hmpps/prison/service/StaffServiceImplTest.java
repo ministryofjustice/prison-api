@@ -170,6 +170,68 @@ public class StaffServiceImplTest {
         assertThat(returnedData.get(1).getRoleDescription()).isEqualTo("Key worker 1");
     }
 
+    @Test
+    public void testFindRole() {
+
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW")).thenReturn(List.of(
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(1),
+                "POS",
+                "KW",
+                new StaffRole("KW", "Key worker 1"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                "KW",
+                new StaffRole("KW", "Key worker 2"),
+                null
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                "KW",
+                new StaffRole("KW", "Key worker 3"),
+                LocalDate.now().minusDays(2)
+            )
+        ));
+
+        final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
+
+        assertThat(found).isTrue();
+    }
+
+    @Test
+    public void testDoesNotFindRole() {
+
+        when(staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole("MDI", -1L, "KW")).thenReturn(List.of(
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(2),
+                "POS",
+                "KW",
+                new StaffRole("KW", "Key worker 2"),
+                LocalDate.now().minusDays(1)
+            ),
+            new StaffJobRole(Staff.builder().staffId(-1L).build(),
+                AgencyLocation.builder().id("MDI").build(),
+                LocalDate.now().minusDays(3),
+                "POS",
+                "KW",
+                new StaffRole("KW", "Key worker 3"),
+                LocalDate.now().minusDays(2)
+            )
+        ));
+
+        final var found = staffService.hasStaffRole(-1L, "MDI", StaffJobType.KW);
+
+        assertThat(found).isFalse();
+    }
+
     private Optional<StaffDetail> getValidStaffDetails(final Long staffId) {
         final var staffDetail = StaffDetail.builder().staffId(staffId).firstName("Bob").lastName("Harris").status("ACTIVE").gender("M").dateOfBirth(LocalDate.EPOCH).build();
         return Optional.of(staffDetail);
