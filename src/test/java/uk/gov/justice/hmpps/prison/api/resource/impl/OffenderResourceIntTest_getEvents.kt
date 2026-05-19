@@ -20,25 +20,6 @@ class OffenderResourceIntTest_getEvents : ResourceTest() {
   @MockitoSpyBean
   lateinit var bookingRepository: BookingRepository
 
-  @Test
-  fun events() {
-    whenever(bookingRepository.getBookingActivities(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(
-        createEvent("act", "10:11:12"),
-        createEvent("act", "08:59:50"),
-      ),
-    )
-    whenever(bookingRepository.getBookingVisits(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(createEvent("vis", "09:02:03")),
-    )
-    whenever(bookingRepository.getBookingAppointments(anyLong(), any(), any(), anyString(), any())).thenReturn(
-      listOf(createEvent("app", null)),
-    )
-    val requestEntity = createHttpEntityWithBearerAuthorisation("ITAG_USER", listOf(), mapOf())
-    val responseEntity = testRestTemplate.exchange("/api/offenders/A1234AA/events", HttpMethod.GET, requestEntity, String::class.java)
-    assertThatJsonFileAndStatus(responseEntity, 200, "events.json")
-  }
-
   @Nested
   @DisplayName("GET /api/offenders/{offenderNo}/scheduled-events")
   inner class GetScheduledEvents {
