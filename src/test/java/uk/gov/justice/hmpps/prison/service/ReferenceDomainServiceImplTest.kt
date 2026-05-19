@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertThrows
@@ -9,7 +8,6 @@ import org.junit.jupiter.api.extension.ExtendWith
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.NullAndEmptySource
 import org.mockito.ArgumentMatchers.eq
-import org.mockito.MockitoAnnotations
 import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.verifyNoInteractions
@@ -31,18 +29,12 @@ class ReferenceDomainServiceImplTest {
   private val referenceDomainRepository: ReferenceDomainRepository = mock()
   private val profileCodeRepository: ProfileCodeRepository = mock()
   private val profileTypeRepository: ProfileTypeRepository = mock()
-  private lateinit var service: ReferenceDomainService
-
-  @BeforeEach
-  internal fun setUp() {
-    MockitoAnnotations.initMocks(repository)
-    service = ReferenceDomainService(
-      repository,
-      referenceDomainRepository,
-      profileCodeRepository,
-      profileTypeRepository,
-    )
-  }
+  private val service = ReferenceDomainService(
+    repository,
+    referenceDomainRepository,
+    profileCodeRepository,
+    profileTypeRepository,
+  )
 
   @Test
   internal fun testScheduleReasons() {

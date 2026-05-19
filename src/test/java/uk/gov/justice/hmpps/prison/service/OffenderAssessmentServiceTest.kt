@@ -2,12 +2,9 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers.anyInt
 import org.mockito.ArgumentMatchers.anyLong
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.AssessmentDetail
@@ -28,17 +25,10 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAssessmentR
 import java.time.LocalDate
 import java.util.Optional
 
-@ExtendWith(MockitoExtension::class)
 class OffenderAssessmentServiceTest {
-
-  val repository: OffenderAssessmentRepository = mock()
+  private val repository: OffenderAssessmentRepository = mock()
   private val assessmentRepository: AssessmentRepository = mock()
-  var service = OffenderAssessmentService(repository, assessmentRepository, 1000)
-
-  @BeforeEach
-  fun beforeEach() {
-    service = OffenderAssessmentService(repository, assessmentRepository, 1000)
-  }
+  private val service = OffenderAssessmentService(repository, assessmentRepository, 1000)
 
   @Test
   fun offenderAssessment_returnsCorrectApiObject() {

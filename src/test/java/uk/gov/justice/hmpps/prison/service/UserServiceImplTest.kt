@@ -11,9 +11,6 @@ import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.UserDetail
 import uk.gov.justice.hmpps.prison.repository.UserRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.UserCaseloadRoleRepository
-import java.util.function.IntFunction
-import java.util.stream.Collectors
-import java.util.stream.IntStream
 
 /**
  * Test cases for [UserService].
@@ -23,12 +20,11 @@ class UserServiceImplTest {
   private val userCaseloadRoleRepository: UserCaseloadRoleRepository = mock()
   private val caseLoadService: CaseLoadService = mock()
 
-  private var userService: UserService = UserService(caseLoadService, userRepository, userCaseloadRoleRepository, API_CASELOAD_ID, 100)
+  private val userService: UserService = UserService(caseLoadService, userRepository, userCaseloadRoleRepository, API_CASELOAD_ID, 100)
 
   @Test
   fun testGetOffenderCategorisationsBatching() {
-    val setOf150Strings = IntStream.range(1, 150).mapToObj(IntFunction { it.toString() })
-      .collect(Collectors.toSet())
+    val setOf150Strings = (1..150).map { it.toString() }.toSet()
 
     val detail2 = UserDetail.builder().staffId(-3L).lastName("B").build()
     val detail1 = UserDetail.builder().staffId(-2L).lastName("C").build()

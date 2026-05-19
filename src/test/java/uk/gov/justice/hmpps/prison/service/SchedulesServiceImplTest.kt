@@ -39,7 +39,7 @@ internal class SchedulesServiceImplTest {
   private val hmppsAuthenticationHolder: HmppsAuthenticationHolder = mock()
   private val scheduledActivityRepository: ScheduledActivityRepository = mock()
 
-  private var schedulesService = SchedulesService(
+  private val schedulesService = SchedulesService(
     locationService,
     inmateService,
     bookingService,

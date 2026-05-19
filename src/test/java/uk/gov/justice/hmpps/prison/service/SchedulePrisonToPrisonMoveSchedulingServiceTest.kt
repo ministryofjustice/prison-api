@@ -47,7 +47,7 @@ internal class SchedulePrisonToPrisonMoveSchedulingServiceTest {
 
   private val clock: Clock = Clock.fixed(Instant.ofEpochMilli(0), ZoneId.systemDefault())
 
-  private var service: PrisonToPrisonMoveSchedulingService = PrisonToPrisonMoveSchedulingService(
+  private val service = PrisonToPrisonMoveSchedulingService(
     clock,
     offenderBookingRepository,
     agencyLocationRepository,
