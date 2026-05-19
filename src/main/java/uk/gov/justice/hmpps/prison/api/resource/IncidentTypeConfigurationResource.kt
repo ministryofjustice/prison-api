@@ -37,9 +37,9 @@ class IncidentTypeConfigurationResource(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Returns incident type configuration data sets for incident reports",
-    description = """No additional role required.
+    description = """Requires PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW.
 
-        PGP: unused as of 12/08/2025. Fairly new endpoint for incident reporting configuration.
+        PGP: unused as of 19/05/2026. Fairly new endpoint for incident reporting configuration.
       """,
     responses = [
       ApiResponse(
@@ -85,6 +85,10 @@ class IncidentTypeConfigurationResource(
   @ResponseStatus(HttpStatus.OK)
   @Operation(
     summary = "Update an existing incident type configuration",
+    description = """Requires PRISON_API__INCIDENT_TYPE_CONFIGURATION_RW.
+
+        PGP: unused as of 19/05/2026. Fairly new endpoint for incident reporting configuration.
+      """,
     responses = [
       ApiResponse(responseCode = "200", description = "Updated existing incident type configuration"),
       ApiResponse(

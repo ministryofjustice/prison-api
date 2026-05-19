@@ -93,7 +93,7 @@ class SplashScreenResource(private val splashScreenService: SplashScreenService)
     summary = "Create a new splash screen",
     description = """Creates a new splash screen. Requires PRISON_API__SPLASH_SCREEN__RW.
 
-      PGP: unused as of 12/08/2025. Left so we have full functionality around splash screens and is a new endpoint.
+      PGP: unused as of 19/05/2026. Left so we have full functionality around splash screens and is a new endpoint.
     """,
   )
   @PreAuthorize("hasRole('PRISON_API__SPLASH_SCREEN__RW')")

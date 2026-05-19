@@ -177,7 +177,7 @@ public class OffenderSentenceResource {
     })
     @Operation(
         summary = "Clear the HDC approval status",
-        description = "PGP: unused as of 12/08/2025. Left as complements the method above to set the approval status.  The put version called from licences."
+        description = "PGP: unused as of 19/05/2026. Left as complements the method above to set the approval status.  The put version called from licences."
     )
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser

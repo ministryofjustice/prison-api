@@ -155,7 +155,7 @@ public class BookingMovementsResource {
         description = """
             Schedules a future prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
 
-            PGP: unused as of 12/08/2025. Left as still referenced by hmpps-book-secure-move-api.
+            PGP: unused as of 19/05/2026. Left as still referenced by hmpps-book-secure-move-api, but queried with them.
             """
     )
     @ResponseStatus(HttpStatus.CREATED)
@@ -179,7 +179,7 @@ public class BookingMovementsResource {
         description = """
             Cancels a scheduled prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
 
-            PGP: unused as of 12/08/2025. Left as still referenced by hmpps-book-secure-move-api and complements the booking endpoint above.
+            PGP: unused as of 19/05/2026. Left as still referenced by hmpps-book-secure-move-api and complements the booking endpoint above.
             """
     )
     @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")

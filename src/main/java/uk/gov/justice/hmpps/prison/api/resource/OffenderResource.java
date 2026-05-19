@@ -387,7 +387,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(
         summary = "*** ALPHA *** transfer a prisoner to a court with the option to release the prisoners bed, requires the TRANSFER_PRISONER_ALPHA role",
-    description = "PGP: unused as of 12/08/2025. Left so we have a full set of endpoints to create releases/transfer/tap/court move.")
+    description = "PGP: unused as of 19/05/2026. Left so we have a full set of endpoints to create releases/transfer/tap/court move.")
     @PutMapping("/{offenderNo}/court-transfer-out")
     @PreAuthorize("hasRole('TRANSFER_PRISONER_ALPHA') and hasAuthority('SCOPE_write')")
     @ProxyUser
@@ -693,7 +693,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(
         summary = "All scheduled events for offender.",
-        description = "PGP: unused as of 12/08/2025. Left as all the other events endpoints are still used, so doesn't make sense just to remove this one."
+        description = "PGP: unused as of 19/05/2026. Left as all the other events endpoints are still used, so doesn't make sense just to remove this one."
     )
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/events")
