@@ -2,20 +2,15 @@ package uk.gov.justice.hmpps.prison.api.resource;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.ArraySchema;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import jakarta.validation.constraints.NotEmpty;
-import jakarta.validation.constraints.NotNull;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -30,7 +25,6 @@ import uk.gov.justice.hmpps.prison.api.support.PageRequest;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.security.VerifyAgencyAccess;
 import uk.gov.justice.hmpps.prison.security.VerifyStaffAccess;
-import uk.gov.justice.hmpps.prison.service.StaffJobType;
 import uk.gov.justice.hmpps.prison.service.StaffService;
 import uk.gov.justice.hmpps.prison.service.support.GetStaffRoleRequest;
 
@@ -45,18 +39,6 @@ public class StaffResource {
 
     public StaffResource(final StaffService staffService) {
         this.staffService = staffService;
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", array = @ArraySchema(schema=@Schema(implementation = StaffDetail.class)))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Retrieve details for multiple staff members using ids.", description = "Security note: staff details are only available for the current user unless client has ROLE_STAFF_SEARCH.")
-    @VerifyStaffAccess(overrideRoles = {"STAFF_SEARCH"})
-    @PostMapping
-    public List<StaffDetail> getStaffDetails(@RequestBody @NotEmpty List<Long> staffIds) {
-        return staffService.getStaffDetails(staffIds);
     }
 
     @ApiResponses({
@@ -140,20 +122,5 @@ public class StaffResource {
         @PathVariable("staffId") @Parameter(description = "The staff id of the staff member.", required = true) final Long staffId
     ) {
         return staffService.getAllRolesForAgency(staffId, agencyId);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Check if staff member has a role", description = "Check if staff member has a role, either KW or POM. Security note: the agency must be in the current user's caseload.")
-    @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
-    @GetMapping("/{staffId}/{agencyId}/roles/{roleType}")
-    public boolean hasStaffRole(
-        @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true, example = "MDI") @NotNull final String agencyId,
-        @PathVariable("staffId") @Parameter(description = "The staff id of the staff member.", required = true, example = "1111111") @NotNull final Long staffId,
-        @PathVariable("roleType") @Parameter(description = "Type of role", required = true, example = "KW") @NotNull final StaffJobType roleType
-    ) {
-        return staffService.hasStaffRole(staffId, agencyId, roleType);
     }
 }
