@@ -123,7 +123,7 @@ public class NomisApiV1Resource {
             <li><strong>legal_cases</strong>: Active cases followed by inactive cases, further ordered by begin_date, latest first</li>
             <li><strong>charges</strong>: Most serious active charge first, then remaining active charges, followed by inactive charges</li></ul>
 
-            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
+            PGP: unused as of 19/05/2026. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
 """
     )
     @GetMapping("/offenders/{noms_id}/charges")
@@ -220,7 +220,7 @@ public class NomisApiV1Resource {
             <p>If the account was previously closed then it will be closed again.</p>
             <p>If the offender has been released then the funds are transferred to NACRO. Based on the Nomis Clear Inactive accounts screen (OTDCLINA).</p>
 
-            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.")
+            PGP: unused as of 19/05/2026. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.")
             """)
     @PostMapping("/prison/{previous_prison_id}/offenders/{noms_id}/transfer_transactions")
     @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
@@ -302,7 +302,7 @@ public class NomisApiV1Resource {
         description = """
             Gets every hold on an offender’s account or just the hold identified by the client_unique_ref.
 
-            PGP: unused as of 12/08/2025. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
+            PGP: unused as of 19/05/2026. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
           """
     )
     @GetMapping("/prison/{prison_id}/offenders/{noms_id}/holds")
@@ -368,6 +368,8 @@ public class NomisApiV1Resource {
         <br/>The valid prison_id and type combinations are defined in the Nomis transaction_operations table which is maintained by the Maintain Transaction Operations screen (OCMTROPS), from the Financials Maintenance menu.
         Only those prisons (Caseloads) and Transaction types associated with the NOMISAPI module are valid.<br/>This will be setup by script initially as part of the deployment process as shown below<br/><br/>
         Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
+        
+        PGP: unused as of 19/05/2026. Left as previously identified as a unilink endpoint and some of the endpoints are called very infrequently.
         """
     )
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/payment")

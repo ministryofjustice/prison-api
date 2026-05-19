@@ -121,8 +121,6 @@ public class OffenceResource {
         summary = "Link offence to schedule",
         description = """
             Requires UPDATE_OFFENCE_SCHEDULES role.
-
-            PGP: unused as of 12/08/2025. Looks to be used very infrequently and still referenced by hmpps-manage-offences-api
             """
     )
     @ApiResponses({
@@ -142,7 +140,7 @@ public class OffenceResource {
         description = """
             Requires UPDATE_OFFENCE_SCHEDULES role.
 
-            PGP: unused as of 12/08/2025. Looks to be used very infrequently and still referenced by hmpps-manage-offences-api
+            PGP: unused as of 19/05/2026. hmpps-manage-offences-api to remove.
             """
     )
     @ApiResponses({
