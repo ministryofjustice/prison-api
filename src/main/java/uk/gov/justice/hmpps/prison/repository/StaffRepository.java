@@ -34,7 +34,6 @@ public class StaffRepository extends RepositoryBase {
             new DataClassByColumnRowMapper<>(StaffLocationRoleDto.class);
 
 
-    @Cacheable(value = "findByStaffId", unless = "#result == null")
     public Optional<StaffDetail> findByStaffId(final Long staffId) {
         Validate.notNull(staffId, "A staff id is required in order to retrieve staff details.");
 

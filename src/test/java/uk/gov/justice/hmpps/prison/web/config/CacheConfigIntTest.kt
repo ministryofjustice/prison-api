@@ -155,34 +155,6 @@ class CacheConfigIntTest {
   }
 
   @Nested
-  inner class findByStaffId_cache {
-    @Test
-    fun `test staff that doesn't exist won't cause cache to fall over in a heap`() {
-      assertThatThrownBy {
-        staffService.getStaffDetail(-12345L)
-      }.isInstanceOf(EntityNotFoundException::class.java)
-    }
-
-    @Test
-    fun `test staff that is null won't cause cache to fall over in a heap`() {
-      assertThatThrownBy {
-        staffService.getStaffDetail(null)
-      }.isInstanceOf(EntityNotFoundException::class.java)
-    }
-
-    @Test
-    fun `test staff that exist is added to cache`() {
-      val code = staffService.getStaffDetail(-1L)
-      assertThat(code).isNotNull
-
-      // calling twice should only result in one call to the repository
-      staffService.getStaffDetail(-1L)
-
-      verify(staffRepository).findByStaffId(-1L)
-    }
-  }
-
-  @Nested
   inner class findAgenciesByUsername_cache {
     @Test
     fun `test staff that doesn't exist won't cause cache to fall over in a heap`() {
