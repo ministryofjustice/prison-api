@@ -11,23 +11,8 @@ import org.springframework.http.MediaType
 class StaffResourceIntTest : ResourceTest() {
 
   @Nested
-  @DisplayName("GET /api/staff/{staffId}")
-  inner class StaffDetails {
-    @ParameterizedTest
-    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.StaffResourceIntTest#staffDetailsTable")
-    fun `Find staff member using staff id`(table: StaffDetailsRow) {
-      webTestClient.get()
-        .uri("/api/staff/${table.staffId}")
-        .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("$.firstName").isEqualTo(table.firstName)
-        .jsonPath("$.lastName").isEqualTo(table.lastName)
-        .jsonPath("$.gender").isEqualTo(table.gender)
-        .jsonPath("$.dateOfBirth").isEqualTo(table.dob)
-    }
-
+  @DisplayName("POST /api/staff")
+  inner class PostStaffDetails {
     @Test
     fun `Find staff details by ids`() {
       webTestClient.post()
@@ -40,19 +25,39 @@ class StaffResourceIntTest : ResourceTest() {
         .jsonPath("$.length()").isEqualTo(3)
     }
 
-    @Test
-    fun `Find staff member using staff id that does not exist`() {
-      webTestClient.get()
-        .uri("/api/staff/-9999")
+    @ParameterizedTest
+    @MethodSource("uk.gov.justice.hmpps.prison.api.resource.impl.StaffResourceIntTest#staffDetailsTable")
+    fun `Find staff member using staff id`(table: StaffDetailsRow) {
+      webTestClient.post()
+        .uri("/api/staff")
+        .bodyValue(listOf(table.staffId))
         .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
         .exchange()
-        .expectStatus().isNotFound
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$.length()").isEqualTo(1)
+        .jsonPath("[0].firstName").isEqualTo(table.firstName)
+        .jsonPath("[0].lastName").isEqualTo(table.lastName)
+        .jsonPath("[0].gender").isEqualTo(table.gender)
+        .jsonPath("[0].dateOfBirth").isEqualTo(table.dob)
+    }
+
+    @Test
+    fun `Find staff member using staff id that does not exist`() {
+      webTestClient.post()
+        .uri("/api/staff")
+        .bodyValue(listOf(-9999))
+        .headers(setClientAuthorisation(listOf("STAFF_SEARCH")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody().jsonPath("size()").isEqualTo(0)
     }
 
     @Test
     fun `cannot get another staff members details`() {
-      webTestClient.get()
-        .uri("/api/staff/-2")
+      webTestClient.post()
+        .uri("/api/staff")
+        .bodyValue(listOf(-2))
         .headers(setAuthorisation("EXOFF5", emptyList()))
         .exchange()
         .expectStatus().isForbidden
@@ -60,8 +65,9 @@ class StaffResourceIntTest : ResourceTest() {
 
     @Test
     fun `can get another staff members details with role`() {
-      webTestClient.get()
-        .uri("/api/staff/-2")
+      webTestClient.post()
+        .uri("/api/staff")
+        .bodyValue(listOf(-2))
         .headers(setAuthorisation("EXOFF5", listOf("ROLE_STAFF_SEARCH")))
         .exchange()
         .expectStatus().isOk
@@ -351,138 +357,6 @@ class StaffResourceIntTest : ResourceTest() {
         .headers(setClientAuthorisation(listOf("ROLE_STAFF_SEARCH")))
         .exchange()
         .expectStatus().isOk
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /api/staff/{staffId}/{agencyId}/roles/{roleType}")
-  inner class HasRole {
-    //  -2 is a KW at BXI
-    // -10 is a KW at SYI
-
-    @Test
-    fun `should return 401 when user does not even have token`() {
-      webTestClient.get().uri("/api/staff/-2/BXI/roles/KW")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `returns 403 when client does not have override role`() {
-      webTestClient.get()
-        .uri("/api/staff/-10/SYI/roles/KW")
-        .headers(setClientAuthorisation(listOf()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `Should find role for staff member`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-2/BXI/roles/KW")
-          .headers(setAuthorisation("ITAG_USER", listOf()))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("true")
-    }
-
-    @Test
-    fun `Should find KW role for staff member`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-1/LEI/roles/KW")
-          .headers(setAuthorisation("PRISON_API_USER", emptyList()))
-          .accept(MediaType.APPLICATION_JSON)
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("true")
-    }
-
-    @Test
-    fun `Should not find role for staff member`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-2/LEI/roles/POM")
-          .headers(setAuthorisation("ITAG_USER", listOf()))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("false")
-    }
-
-    @Test
-    fun `No access to find role for staff member at different agency`() {
-      webTestClient.get()
-        .uri("/api/staff/-2/RNI/roles/KW")
-        .headers(setAuthorisation("PRISON_API_USER", listOf()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `Should find role for staff member at different agency with override role`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-2/RNI/roles/KW")
-          .headers(setAuthorisation("ITAG_USER", listOf("ROLE_STAFF_SEARCH")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("false")
-    }
-
-    @Test
-    fun `Should find role for staff member with override role`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-10/SYI/roles/KW")
-          .headers(setClientAuthorisation(listOf("ROLE_STAFF_SEARCH")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("true")
-    }
-
-    @Test
-    fun `Should be able to check role for staff member at inactive agency`() {
-      // PRISON_ANALYST_LOCAL -28 has the ghost establishment (inactive) in their caseload
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-28/ZZGHI/roles/KW")
-          .headers(setAuthorisation("PRISON_ANALYST_LOCAL", listOf()))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("false")
-    }
-
-    @Test
-    fun `Should be able to check role for staff member at inactive agency for client access`() {
-      assertThat(
-        webTestClient.get()
-          .uri("/api/staff/-28/ZZGHI/roles/KW")
-          .headers(setClientAuthorisation(listOf("ROLE_STAFF_SEARCH")))
-          .exchange()
-          .expectStatus().isOk
-          .expectBody(String::class.java)
-          .returnResult()
-          .responseBody,
-      ).isEqualTo("false")
     }
   }
 

@@ -13,7 +13,6 @@ import org.springframework.context.annotation.Bean
 import org.springframework.context.annotation.Configuration
 import uk.gov.justice.hmpps.prison.api.model.ReferenceCode
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDomain
-import uk.gov.justice.hmpps.prison.api.model.StaffDetail
 import uk.gov.justice.hmpps.prison.api.support.Page
 import java.time.Duration
 import javax.cache.CacheManager
@@ -52,13 +51,6 @@ class CacheConfig : CachingConfigurer {
       ReferenceCode::class.java,
       1000,
       referenceDataTimeoutSeconds,
-    )
-    cm.createCache(
-      "findByStaffId",
-      java.lang.Long::class.java,
-      StaffDetail::class.java,
-      1000,
-      userTimeoutSeconds,
     )
     cm.createCache(
       "findAgenciesByUsername",
