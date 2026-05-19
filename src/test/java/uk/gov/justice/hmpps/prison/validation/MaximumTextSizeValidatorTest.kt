@@ -3,7 +3,6 @@ package uk.gov.justice.hmpps.prison.validation
 import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import uk.gov.justice.hmpps.prison.service.validation.MaximumTextSizeValidator
-import java.util.stream.IntStream
 
 class MaximumTextSizeValidatorTest {
   private val validator = MaximumTextSizeValidator()
@@ -37,7 +36,7 @@ class MaximumTextSizeValidatorTest {
     init {
       val stringWith10Chars = "ABCDE12345"
       val string = StringBuilder(3990)
-      IntStream.rangeClosed(1, 399).forEach { string.append(stringWith10Chars) }
+      (1..399).forEach { _ -> string.append(stringWith10Chars) }
       CHAR_TEXT_3990_BYTES = string.toString()
     }
   }
