@@ -24,7 +24,7 @@ class PrisonerSearchServiceTest {
   private val healthService: HealthService = mock()
   private val offenderLanguageRepository: OffenderLanguageRepository = mock()
 
-  var service = PrisonerSearchService(
+  private val service = PrisonerSearchService(
     offenderBookingRepository,
     offenderRepository,
     offenderTransformer,

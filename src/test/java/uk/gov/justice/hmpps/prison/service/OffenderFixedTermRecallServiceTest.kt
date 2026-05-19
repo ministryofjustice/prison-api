@@ -2,11 +2,8 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
-import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.Mockito.mock
-import org.mockito.junit.jupiter.MockitoExtension
 import org.mockito.kotlin.whenever
 import uk.gov.justice.hmpps.prison.api.model.FixedTermRecallDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
@@ -18,16 +15,9 @@ import java.util.Optional
 /**
  * Test cases for [OffenderFixedTermRecallService].
  */
-@ExtendWith(MockitoExtension::class)
 class OffenderFixedTermRecallServiceTest {
   private val repository: OffenderFixedTermRecallRepository = mock()
-
-  private lateinit var offenderFixedTermRecallService: OffenderFixedTermRecallService
-
-  @BeforeEach
-  fun init() {
-    offenderFixedTermRecallService = OffenderFixedTermRecallService(repository)
-  }
+  private val offenderFixedTermRecallService = OffenderFixedTermRecallService(repository)
 
   @Test
   fun testGetFixedTermRecallDetails() {

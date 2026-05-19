@@ -31,13 +31,6 @@ class MaximumTextSizeValidatorTest {
   }
 
   companion object {
-    private val CHAR_TEXT_3990_BYTES: String
-
-    init {
-      val stringWith10Chars = "ABCDE12345"
-      val string = StringBuilder(3990)
-      (1..399).forEach { _ -> string.append(stringWith10Chars) }
-      CHAR_TEXT_3990_BYTES = string.toString()
-    }
+    private val CHAR_TEXT_3990_BYTES = "ABCDE12345".repeat(399)
   }
 }

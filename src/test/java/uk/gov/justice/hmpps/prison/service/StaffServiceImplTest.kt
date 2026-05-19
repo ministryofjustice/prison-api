@@ -30,7 +30,7 @@ class StaffServiceImplTest {
   private val userCaseloadRoleRepository: UserCaseloadRoleRepository = mock()
   private val staffJobRoleRepository: StaffJobRoleRepository = mock()
 
-  private var staffService = StaffService(
+  private val staffService = StaffService(
     staffRepository,
     staffUserAccountRepository,
     caseLoadRepository,

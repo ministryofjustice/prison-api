@@ -47,7 +47,7 @@ class OffenderDatesServiceTest {
 
   private val clock: Clock = Clock.fixed(Instant.now(), ZoneId.systemDefault())
 
-  private var service: OffenderDatesService = OffenderDatesService(
+  private val service: OffenderDatesService = OffenderDatesService(
     sentenceCalculationRepository,
     offenderBookingRepository,
     staffUserAccountRepository,

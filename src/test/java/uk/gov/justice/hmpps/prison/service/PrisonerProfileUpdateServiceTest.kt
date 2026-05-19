@@ -94,28 +94,27 @@ class PrisonerProfileUpdateServiceTest {
   private val aliasCaptor = argumentCaptor<Offender>()
   private val addressCaptor = argumentCaptor<OffenderAddress>()
 
-  private val prisonerProfileUpdateService: PrisonerProfileUpdateService =
-    PrisonerProfileUpdateService(
-      offenderRepository,
-      titleRepository,
-      genderRepository,
-      ethnicityRepository,
-      nameTypeRepository,
-      offenderAddressRepository,
-      cityRepository,
-      countyRepository,
-      countryRepository,
-      addressUsageRepository,
-      profileTypeRepository,
-      profileCodeRepository,
-      profileDetailRepository,
-      offenderBookingRepository,
-      offenderBeliefRepository,
-      staffUserAccountRepository,
-      offenderLanguageRepository,
-      languageCodeRepository,
-      offenderIdentifierRepository,
-    )
+  private val prisonerProfileUpdateService = PrisonerProfileUpdateService(
+    offenderRepository,
+    titleRepository,
+    genderRepository,
+    ethnicityRepository,
+    nameTypeRepository,
+    offenderAddressRepository,
+    cityRepository,
+    countyRepository,
+    countryRepository,
+    addressUsageRepository,
+    profileTypeRepository,
+    profileCodeRepository,
+    profileDetailRepository,
+    offenderBookingRepository,
+    offenderBeliefRepository,
+    staffUserAccountRepository,
+    offenderLanguageRepository,
+    languageCodeRepository,
+    offenderIdentifierRepository,
+  )
 
   @Nested
   inner class UpdateBirthPlaceOfCurrentAlias {
