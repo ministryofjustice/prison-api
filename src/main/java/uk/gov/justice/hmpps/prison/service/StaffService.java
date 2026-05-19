@@ -61,6 +61,10 @@ public class StaffService {
         return staffRepository.findByStaffId(staffId).orElseThrow(EntityNotFoundException.withId(staffId));
     }
 
+    public List<StaffDetail> getStaffDetails(final List<Long> staffIds) {
+        return staffRepository.findByStaffIdIn(staffIds);
+    }
+
     public List<String> getStaffEmailAddresses(@NotNull final Long staffId) {
         checkStaffExists(staffId);
 
@@ -153,5 +157,14 @@ public class StaffService {
                     .roleDescription(staffJobRole.get().getStaffRole().getDescription())
                     .build()
             ).toList();
+    }
+
+    public boolean hasStaffRole(Long staffId, String agencyId, StaffJobType staffJobType) {
+        return staffJobRoleRepository.findAllByAgencyIdAndStaffStaffIdAndRole(agencyId, staffId, staffJobType.name())
+            .stream()
+            .max(Comparator.comparing(StaffJobRole::getFromDate))
+            .filter(
+                staffJobRole -> staffJobRole.isWithinRange(LocalDate.now())
+            ).isPresent();
     }
 }
