@@ -1,6 +1,5 @@
 package uk.gov.justice.hmpps.prison.api.resource.impl
 
-import com.fasterxml.jackson.annotation.JsonProperty
 import com.google.gson.Gson
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.groups.Tuple
@@ -8,17 +7,15 @@ import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.resttestclient.exchange
 import org.springframework.boot.test.context.TestConfiguration
 import org.springframework.context.annotation.Bean
 import org.springframework.core.ParameterizedTypeReference
-import org.springframework.data.domain.PageImpl
-import org.springframework.data.domain.PageRequest
 import org.springframework.http.HttpMethod.GET
 import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpMethod.PUT
 import org.springframework.http.HttpStatus
 import org.springframework.test.context.ContextConfiguration
-import tools.jackson.databind.JsonNode
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
 import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper.AuthToken
@@ -259,49 +256,6 @@ class OffenderResourceIntTest : ResourceTest() {
           Tuple.tuple("M3", true),
           Tuple.tuple("M4", true),
         )
-    }
-  }
-
-  @Nested
-  @DisplayName("GET /api/offenders/{offenderNo}/incidents")
-  inner class OffenderIncidents {
-    @Test
-    fun `returns 401 without an auth token`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .exchange()
-        .expectStatus().isUnauthorized
-    }
-
-    @Test
-    fun `returns 403 when client does not have any roles`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setClientAuthorisation(listOf()))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `returns 403 if has authorised ROLE_SYSTEM_USER`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
-        .exchange()
-        .expectStatus().isForbidden
-    }
-
-    @Test
-    fun `returns success if has authorised ROLE_VIEW_INCIDENTS`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setClientAuthorisation(listOf("ROLE_VIEW_INCIDENTS")))
-        .exchange()
-        .expectStatus().isOk
-    }
-
-    @Test
-    fun `returns 403 if not client authorisation`() {
-      webTestClient.get().uri("/api/offenders/A1234AA/incidents?incidentType=ASSAULT&participationRoles=FIGHT")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isForbidden
     }
   }
 
@@ -668,11 +622,10 @@ class OffenderResourceIntTest : ResourceTest() {
     val token = authTokenHelper.getToken(CREATE_BOOKING_USER)
     val body = mapOf("movementReasonCode" to "CR", "commentText" to "released prisoner today")
     val entity = createHttpEntity(token, body)
-    val response = testRestTemplate.exchange(
+    val response = testRestTemplate.exchange<ErrorResponse>(
       "/api/offenders/{nomsId}/release",
       PUT,
       entity,
-      ErrorResponse::class.java,
       "Z0020ZZ",
     )
     val error = response.body!!
@@ -800,15 +753,3 @@ class OffenderResourceIntTest : ResourceTest() {
     }
   }
 }
-
-private class RestResponsePage<T : Any>(
-  @JsonProperty("content") content: List<T>,
-  @JsonProperty("number") number: Int,
-  @JsonProperty("size") size: Int,
-  @JsonProperty("totalElements") totalElements: Long,
-  @Suppress("UNUSED_PARAMETER")
-  @JsonProperty(
-    "pageable",
-  )
-  pageable: JsonNode,
-) : PageImpl<T>(content, PageRequest.of(number, size), totalElements)
