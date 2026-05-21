@@ -1,0 +1,12 @@
+package uk.gov.justice.hmpps.prison.api.model
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+
+class HdcChecksTest {
+  @Test
+  fun passedFlagIsConvertedToString() {
+    assertThat(HdcChecks.builder().passed(true).build().checksPassed()).isEqualTo("Y")
+    assertThat(HdcChecks.builder().passed(false).build().checksPassed()).isEqualTo("N")
+  }
+}
