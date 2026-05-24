@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository
 
-import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
+import org.assertj.core.api.Assertions.tuple
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -48,10 +48,10 @@ class PrisonRollCountRepositoryTest {
           "outOfOrder",
         )
         .contains(
-          Assertions.tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
-          Assertions.tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
-          Assertions.tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
-          Assertions.tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
+          tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
+          tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
         )
     }
 
@@ -79,9 +79,9 @@ class PrisonRollCountRepositoryTest {
           "outOfOrder",
         )
         .contains(
-          Assertions.tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
-          Assertions.tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
-          Assertions.tuple(-25L, "AREA", "LEI-CHAP", "CHAP", "Chapel", null, 0, 0, 0, 0, null, null, null, null, 0),
+          tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
+          tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-25L, "AREA", "LEI-CHAP", "CHAP", "Chapel", null, 0, 0, 0, 0, null, null, null, null, 0),
         )
     }
 
@@ -109,10 +109,10 @@ class PrisonRollCountRepositoryTest {
           "outOfOrder",
         )
         .contains(
-          Assertions.tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
-          Assertions.tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
-          Assertions.tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
-          Assertions.tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
+          tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
+          tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
         )
     }
 
@@ -140,10 +140,10 @@ class PrisonRollCountRepositoryTest {
           "outOfOrder",
         )
         .contains(
-          Assertions.tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
-          Assertions.tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
-          Assertions.tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
-          Assertions.tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-1L, "WING", "LEI-A", "A", "BLOCK A", null, 12, 11, 1, 0, 13, 1, 14, 2, 3),
+          tuple(-2L, "LAND", "LEI-A-1", "1", "LANDING A/1", -1L, 12, 11, 1, 0, 13, 1, 14, 2, 1),
+          tuple(-13L, "WING", "LEI-H", "H", null, null, 14, 12, 0, 2, 20, 6, 20, 6, 0),
+          tuple(-14L, "LAND", "LEI-H-1", "1", "LANDING H/1", -13L, 14, 12, 0, 2, 20, 6, 20, 6, 0),
         )
     }
 
@@ -161,7 +161,7 @@ class PrisonRollCountRepositoryTest {
           "localName",
         )
         .contains(
-          Assertions.tuple(-25L, "AREA", "LEI-CHAP", "CHAP", "Chapel"),
+          tuple(-25L, "AREA", "LEI-CHAP", "CHAP", "Chapel"),
         )
     }
   }

@@ -25,7 +25,6 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import java.util.Objects
 import java.util.function.Consumer
-import java.util.stream.Stream
 
 @ActiveProfiles("test")
 @Transactional(propagation = Propagation.NOT_SUPPORTED)
@@ -390,14 +389,13 @@ class ScheduleRepositoryTest {
 
     assertThat(
       Objects.requireNonNull(activities)
-        .stream()
         .flatMap { event: PrisonerSchedule ->
-          Stream.of(
+          listOf(
             event.startTime,
             event.endTime,
           )
         }
-        .allMatch { date: LocalDateTime ->
+        .all { date: LocalDateTime ->
           date.toLocalDate().isEqual(fromDate) || date.toLocalDate().isEqual(toDate)
         },
     )

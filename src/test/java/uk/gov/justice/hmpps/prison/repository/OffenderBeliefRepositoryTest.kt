@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.repository
 
 import lombok.extern.slf4j.Slf4j
-import org.assertj.core.api.Assertions
+import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -39,7 +39,7 @@ class OffenderBeliefRepositoryTest {
   @DisplayName("can get belief history")
   fun canGetBeliefHistory() {
     val beliefs = repository.getOffenderBeliefHistory("B1101BB", null)
-    Assertions.assertThat(beliefs).hasSize(4)
+    assertThat(beliefs).hasSize(4)
       .extracting<ProfileCode, RuntimeException>(OffenderBelief::beliefCode)
       .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
       .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }
@@ -50,7 +50,7 @@ class OffenderBeliefRepositoryTest {
   @DisplayName("can get belief history for one booking")
   fun canGetBeliefHistoryForOneBooking() {
     val beliefs = repository.getOffenderBeliefHistory("B1101BB", "-101")
-    Assertions.assertThat(beliefs).hasSize(2)
+    assertThat(beliefs).hasSize(2)
       .extracting<ProfileCode, RuntimeException>(OffenderBelief::beliefCode)
       .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
       .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }

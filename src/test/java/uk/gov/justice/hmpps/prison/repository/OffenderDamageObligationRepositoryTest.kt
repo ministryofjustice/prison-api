@@ -1,0 +1,110 @@
+package uk.gov.justice.hmpps.prison.repository
+
+import org.assertj.core.api.Assertions.assertThat
+import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest
+import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase
+import org.springframework.context.annotation.Import
+import org.springframework.test.context.ActiveProfiles
+import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocation
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AgencyLocationType
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Gender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
+import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderDamageObligationRepository
+import uk.gov.justice.hmpps.prison.web.config.AuditorAwareImpl
+import java.math.BigDecimal
+import java.time.LocalDate
+import java.time.LocalDateTime
+
+@ActiveProfiles("test")
+@DataJpaTest
+@AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
+@Import(HmppsAuthenticationHolder::class, AuditorAwareImpl::class)
+class OffenderDamageObligationRepositoryTest(
+  @Autowired private val repository: OffenderDamageObligationRepository,
+) {
+  private val anOffender: Offender = Offender.builder()
+    .id(-1002L)
+    .idSourceCode("SEQ")
+    .firstName("GILLIAN")
+    .middleName("EVE")
+    .lastName("ANDERSON")
+    .birthDate(LocalDate.parse("1998-08-28"))
+    .rootOffenderId(-1002L)
+    .gender(Gender("F", "Female"))
+    .createDate(LocalDate.now())
+    .lastNameKey("ANDERSON")
+    .nomsId("A1234AB")
+    .build()
+
+  private val someAgencyLocation: AgencyLocation = AgencyLocation.builder()
+    .id("LEI")
+    .description("LEEDS")
+    .type(AgencyLocationType.PRISON_TYPE)
+    .active(true)
+    .longDescription("HMP LEEDS")
+    .build()
+
+  @Test
+  fun testReturnsDamageObligationsForAnOffender() {
+    val damageObligations =
+      repository.findOffenderDamageObligationByOffender_NomsId("A1234AB")
+
+    assertThat(damageObligations).containsExactlyInAnyOrder(
+      OffenderDamageObligation
+        .builder()
+        .id(-2L)
+        .offender(anOffender)
+        .prison(someAgencyLocation)
+        .referenceNumber("124")
+        .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
+        .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
+        .amountToPay(BigDecimal.valueOf(50000, 2))
+        .comment("Some Comment Text")
+        .status("PAID")
+        .build(),
+      OffenderDamageObligation
+        .builder()
+        .id(-3L)
+        .offender(anOffender)
+        .prison(someAgencyLocation)
+        .referenceNumber("125")
+        .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
+        .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
+        .amountToPay(BigDecimal.valueOf(10000, 2))
+        .comment("Some Comment Text")
+        .status("ACTIVE")
+        .build(),
+    )
+  }
+
+  @Test
+  fun testReturnDamageObligationsByOffenderNoAndStatus() {
+    val damageObligations =
+      repository.findOffenderDamageObligationByOffender_NomsIdAndStatus("A1234AB", "ACTIVE")
+
+    assertThat(damageObligations).containsExactlyInAnyOrder(
+      OffenderDamageObligation
+        .builder()
+        .id(-3L)
+        .offender(anOffender)
+        .prison(someAgencyLocation)
+        .referenceNumber("125")
+        .startDateTime(LocalDateTime.parse("2002-01-01T00:00"))
+        .endDateTime(LocalDateTime.parse("2002-01-02T00:00"))
+        .amountToPay(BigDecimal.valueOf(10000, 2))
+        .comment("Some Comment Text")
+        .status("ACTIVE")
+        .build(),
+    )
+  }
+
+  @Test
+  fun testThatAnEmptyListIsReturnedForNoData() {
+    val aa = repository.findOffenderDamageObligationByOffender_NomsIdAndStatus("ZZZZZZ", "ACTIVE")
+    assertThat(aa).isEmpty()
+  }
+}
