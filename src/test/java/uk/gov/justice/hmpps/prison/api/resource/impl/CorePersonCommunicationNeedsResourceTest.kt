@@ -16,7 +16,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.get()
-        .uri("/api/offenders/A1234AA/core-person-record/communication-needs")
+        .uri("/api/offenders/A1234AB/core-person-record/communication-needs")
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -24,7 +24,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 403 when client does not have any roles`() {
       webTestClient.get()
-        .uri("/api/offenders/A1234AA/core-person-record/communication-needs")
+        .uri("/api/offenders/A1234AB/core-person-record/communication-needs")
         .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -33,7 +33,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 200 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.get()
-        .uri("/api/offenders/A1234AA/core-person-record/communication-needs")
+        .uri("/api/offenders/A1234AB/core-person-record/communication-needs")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .exchange()
         .expectStatus().isOk
@@ -48,7 +48,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/language-preferences")
+        .uri("/api/offenders/A1234AB/core-person-record/language-preferences")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_LANGUAGE_PREFERENCES_UPDATE)
         .exchange()
@@ -58,7 +58,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 403 when client does not have any roles`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/language-preferences")
+        .uri("/api/offenders/A1234AB/core-person-record/language-preferences")
         .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_LANGUAGE_PREFERENCES_UPDATE)
@@ -69,7 +69,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 204 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/language-preferences")
+        .uri("/api/offenders/A1234AB/core-person-record/language-preferences")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_LANGUAGE_PREFERENCES_UPDATE)
@@ -83,7 +83,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language")
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_SECONDARY_LANGUAGE_UPDATE)
         .exchange()
@@ -93,7 +93,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 403 when client does not have any roles`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language")
         .headers(setAuthorisation(listOf()))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_SECONDARY_LANGUAGE_UPDATE)
@@ -104,7 +104,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 204 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.put()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .bodyValue(VALID_SECONDARY_LANGUAGE_UPDATE)
@@ -118,7 +118,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 401 without an auth token`() {
       webTestClient.delete()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language/SPA")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language/SPA")
         .exchange()
         .expectStatus().isUnauthorized
     }
@@ -126,7 +126,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 403 when client does not have any roles`() {
       webTestClient.delete()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language/SPA")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language/SPA")
         .headers(setAuthorisation(listOf()))
         .exchange()
         .expectStatus().isForbidden
@@ -135,7 +135,7 @@ class CorePersonCommunicationNeedsResourceTest : ResourceTest() {
     @Test
     fun `returns 204 when supplied role includes PRISON_API__PRISONER_PROFILE__RW`() {
       webTestClient.delete()
-        .uri("/api/offenders/A1234AA/core-person-record/secondary-language/SPA")
+        .uri("/api/offenders/A1234AB/core-person-record/secondary-language/SPA")
         .headers(setAuthorisation(listOf("ROLE_PRISON_API__PRISONER_PROFILE__RW")))
         .exchange()
         .expectStatus().isNoContent
