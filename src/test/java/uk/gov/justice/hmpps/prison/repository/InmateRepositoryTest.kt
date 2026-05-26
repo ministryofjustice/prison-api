@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.repository
 import org.assertj.core.api.Assertions
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.assertj.core.api.Assertions.entry
 import org.assertj.core.groups.Tuple.tuple
 import org.junit.jupiter.api.Test
 import org.springframework.beans.factory.annotation.Autowired
@@ -1136,8 +1137,8 @@ class InmateRepositoryTest {
       .build()
     val responseMap = repository.insertCategory(catDetail, "LEI", -11L, "JDOG")
     assertThat(responseMap).contains(
-      Assertions.entry("bookingId", -5L),
-      Assertions.entry("sequenceNumber", 3L),
+      entry("bookingId", -5L),
+      entry("sequenceNumber", 3L),
     ) // 2 previous category records for A1234AE
     val list = repository.getUncategorised("LEI")
     assertThat(list).extracting("offenderNo", "bookingId", "firstName", "lastName", "status").contains(
