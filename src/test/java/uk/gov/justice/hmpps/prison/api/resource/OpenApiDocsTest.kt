@@ -6,16 +6,18 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.params.ParameterizedTest
 import org.junit.jupiter.params.provider.CsvSource
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.info.BuildProperties
 import org.springframework.boot.test.web.server.LocalServerPort
 import org.springframework.boot.webtestclient.autoconfigure.AutoConfigureWebTestClient
 import org.springframework.http.MediaType
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
-import java.time.LocalDate
-import java.time.format.DateTimeFormatter
 import kotlin.text.get
 
 @AutoConfigureWebTestClient(timeout = "PT60S")
-class OpenApiDocsTest : ResourceTest() {
+class OpenApiDocsTest(
+  @Autowired private val buildProperties: BuildProperties,
+) : ResourceTest() {
   @LocalServerPort
   private val port: Int = 0
 
@@ -62,9 +64,7 @@ class OpenApiDocsTest : ResourceTest() {
       .accept(MediaType.APPLICATION_JSON)
       .exchange()
       .expectStatus().isOk
-      .expectBody().jsonPath("info.version").value<String> {
-        assertThat(it).startsWith(DateTimeFormatter.ISO_DATE.format(LocalDate.now()))
-      }
+      .expectBody().jsonPath("info.version").isEqualTo(buildProperties.version)
   }
 
   @Test
