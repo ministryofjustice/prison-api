@@ -20,8 +20,6 @@ import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 @SuppressWarnings("unused")
 @Schema(description = "Offender Sentence Detail")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-@AllArgsConstructor
-@NoArgsConstructor
 @EqualsAndHashCode(callSuper = true)
 @Data
 public class OffenderSentenceDetail extends OffenderSentenceCalc<SentenceCalcDates> {
