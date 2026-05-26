@@ -1,7 +1,6 @@
 package uk.gov.justice.hmpps.prison.service.curfews;
 
 import lombok.val;
-import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.validation.annotation.Validated;
@@ -12,7 +11,6 @@ import uk.gov.justice.hmpps.prison.api.model.HdcChecks;
 import uk.gov.justice.hmpps.prison.api.model.HomeDetentionCurfew;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceCalc;
 import uk.gov.justice.hmpps.prison.repository.OffenderCurfewRepository;
-import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.CaseloadToAgencyMappingService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -90,32 +88,33 @@ public class OffenderCurfewService {
                 .stream()
                 .filter(offenderSentenceCalculation -> (offenderSentenceCalculation.getHomeDetCurfEligibilityDate() != null) &&
                         offenderBookingIdsForNewHDCProcess.contains(offenderSentenceCalculation.getBookingId()))
-                .map(os -> OffenderSentenceCalc.builder()
-                        .bookingId(os.getBookingId())
-                        .offenderNo(os.getOffenderNo())
-                        .firstName(os.getFirstName())
-                        .lastName(os.getLastName())
-                        .agencyLocationId(os.getAgencyLocationId())
-                        .sentenceDetail(BaseSentenceCalcDates.builder()
-                                .sentenceExpiryDate(os.getSentenceExpiryDate())
-                                .homeDetentionCurfewEligibilityDate(os.getHomeDetCurfEligibilityDate())
-                                .homeDetentionCurfewActualDate(os.getHomeDetCurfActualDate())
-                                .automaticReleaseDate(os.getAutomaticReleaseDate())
-                                .conditionalReleaseDate(os.getConditionalReleaseDate())
-                                .nonParoleDate(os.getNonParoleDate())
-                                .postRecallReleaseDate(os.getPostRecallReleaseDate())
-                                .licenceExpiryDate(os.getLicenceExpiryDate())
-                                .paroleEligibilityDate(os.getParoleEligibilityDate())
-                                .actualParoleDate(os.getActualParolDate())
-                                .releaseOnTemporaryLicenceDate(os.getRotl())
-                                .earlyRemovalSchemeEligibilityDate(os.getErsed())
-                                .earlyTermDate(os.getEarlyTermDate())
-                                .midTermDate(os.getMidTermDate())
-                                .lateTermDate(os.getLateTermDate())
-                                .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
-                                .tariffDate(os.getTariffDate())
-                                .build())
+                .map(os -> new OffenderSentenceCalc<>(
+                    os.getBookingId(),
+                    os.getOffenderNo(),
+                    os.getFirstName(),
+                    os.getLastName(),
+                    os.getAgencyLocationId(),
+                    null,
+                    BaseSentenceCalcDates.builder()
+                        .sentenceExpiryDate(os.getSentenceExpiryDate())
+                        .homeDetentionCurfewEligibilityDate(os.getHomeDetCurfEligibilityDate())
+                        .homeDetentionCurfewActualDate(os.getHomeDetCurfActualDate())
+                        .automaticReleaseDate(os.getAutomaticReleaseDate())
+                        .conditionalReleaseDate(os.getConditionalReleaseDate())
+                        .nonParoleDate(os.getNonParoleDate())
+                        .postRecallReleaseDate(os.getPostRecallReleaseDate())
+                        .licenceExpiryDate(os.getLicenceExpiryDate())
+                        .paroleEligibilityDate(os.getParoleEligibilityDate())
+                        .actualParoleDate(os.getActualParolDate())
+                        .releaseOnTemporaryLicenceDate(os.getRotl())
+                        .earlyRemovalSchemeEligibilityDate(os.getErsed())
+                        .earlyTermDate(os.getEarlyTermDate())
+                        .midTermDate(os.getMidTermDate())
+                        .lateTermDate(os.getLateTermDate())
+                        .topupSupervisionExpiryDate(os.getTopupSupervisionExpiryDate())
+                        .tariffDate(os.getTariffDate())
                         .build())
+                )
                 .sorted(OSC_BY_HDCED_COMPARATOR)
                 .collect(Collectors.toList());
     }

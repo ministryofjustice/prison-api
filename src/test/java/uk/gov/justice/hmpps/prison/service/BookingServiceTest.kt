@@ -1133,12 +1133,20 @@ class BookingServiceTest {
   fun getOffenderSentenceDetail_most_recent_active_booking() {
     val offenderBooking =
       OffenderBooking.builder()
+        .bookingId(-1L)
         .bookingSequence(1)
         .active(true)
-        .offender(Offender.builder().build())
+        .offender(
+          Offender.builder()
+            .nomsId("A1234AA")
+            .firstName("John")
+            .lastName("Smith")
+            .build(),
+        )
         .location(
           AgencyLocation.builder()
             .description("Agency Description 1 An Active Booking")
+            .id("MDI")
             .build(),
         )
         .build()
@@ -1162,9 +1170,17 @@ class BookingServiceTest {
       OffenderSentenceDetailDto.builder()
         .bookingId(1L)
         .mostRecentActiveBooking(true)
+        .offenderNo("A1234AA")
+        .firstName("John")
+        .lastName("Smith")
+        .agencyLocationId("MDI")
         .build(),
       OffenderSentenceDetailDto.builder()
         .bookingId(2L)
+        .offenderNo("A1234AA")
+        .firstName("John")
+        .lastName("Smith")
+        .agencyLocationId("MDI")
         .mostRecentActiveBooking(false)
         .build(),
     )
