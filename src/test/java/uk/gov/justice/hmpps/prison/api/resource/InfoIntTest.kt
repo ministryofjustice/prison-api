@@ -1,55 +1,42 @@
 package uk.gov.justice.hmpps.prison.api.resource
 
-import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.Test
-import org.springframework.core.ParameterizedTypeReference
-import org.springframework.http.HttpMethod
-import org.springframework.http.HttpStatus
-import org.springframework.http.HttpStatusCode
-import org.springframework.http.ResponseEntity
-import uk.gov.justice.hmpps.prison.api.resource.impl.AuthTokenHelper
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.info.BuildProperties
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
-import java.time.LocalDateTime
-import java.time.format.DateTimeFormatter
+import kotlin.text.get
 
-class InfoIntTest : ResourceTest() {
+class InfoIntTest(
+  @Autowired private val buildProperties: BuildProperties,
+) : ResourceTest() {
   @Test
-  fun testInfoPageContainsGitInformation() {
-    val token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER)
-    val response: ResponseEntity<String> = testRestTemplate.exchange(
-      "/info",
-      HttpMethod.GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
-
-    assertThat<HttpStatusCode>(response.statusCode).isEqualTo(HttpStatus.OK)
-    assertThat(
-      getBodyAsJsonContent<Any>(
-        response,
-      ),
-    )!!.extractingJsonPathStringValue("git.commit.id").isNotBlank()
+  fun `Info page is accessible`() {
+    webTestClient.get()
+      .uri("/info")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("build.name").isEqualTo("prison-api")
   }
 
   @Test
-  fun testInfoPageReportsVersion() {
-    val token = authTokenHelper.getToken(AuthTokenHelper.AuthToken.NORMAL_USER)
-    val response: ResponseEntity<String> = testRestTemplate.exchange(
-      "/info",
-      HttpMethod.GET,
-      createHttpEntity(token, null),
-      object : ParameterizedTypeReference<String>() {
-      },
-    )
+  fun testInfoPageContainsGitInformation() {
+    webTestClient.get()
+      .uri("/info")
+      .exchange()
+      .expectStatus()
+      .isOk
+      .expectBody()
+      .jsonPath("git.commit.id").isNotEmpty
+  }
 
-    assertThat<HttpStatusCode>(response.statusCode).isEqualTo(HttpStatus.OK)
-    assertThat(
-      getBodyAsJsonContent<Any>(
-        response,
-      ),
-    )!!.extractingJsonPathStringValue("build.version")
-      .startsWith(LocalDateTime.now().format(DateTimeFormatter.ISO_DATE))
+  @Test
+  fun `Info page reports version`() {
+    webTestClient.get().uri("/info")
+      .exchange()
+      .expectStatus().isOk
+      .expectBody().jsonPath("build.version").isEqualTo(buildProperties.version)
   }
 
   @Test
