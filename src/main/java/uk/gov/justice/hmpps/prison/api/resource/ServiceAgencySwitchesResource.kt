@@ -36,10 +36,11 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     description = """Returns a list of agencies switched on for the service code.
       A special agencyId of `*ALL*` is used to designate that the service is switched on for all agencies.
       An agency in this context is normally a prison, but can also be any agency location e.g. prisoner escort service area.
-      Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO or ROLE_SERVICE_AGENCY_SWITCHES.
+      Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO, PRISON_API__SERVICE_AGENCY_SWITCHES__RW or the deprecated
+      ROLE_SERVICE_AGENCY_SWITCHES.
     """,
   )
-  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
+  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RO', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RW')")
   @GetMapping("/{serviceCode}")
   fun getServiceAgencies(
     @PathVariable
@@ -62,10 +63,10 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     `*ALL*` then the service is deemed to be switched on for all agencies and will therefore return 204 irrespective of the
     agency id that is passed in.
     An agency in this context is normally a prison, but can also be any agency location e.g. prisoner escort service area.
-    Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO.
+    Requires ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO or ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW.
   """,
   )
-  @PreAuthorize("hasAnyRole('PRISON_API__SERVICE_AGENCY_SWITCHES__RO')")
+  @PreAuthorize("hasAnyRole('PRISON_API__SERVICE_AGENCY_SWITCHES__RO', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RW')")
   @GetMapping("/{serviceCode}/agency/{agencyId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   fun checkServiceAgency(
@@ -85,8 +86,8 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "409", description = "The agency is already active for the service", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "Activates an agency for the given service", description = "Requires ROLE_SERVICE_AGENCY_SWITCHES")
-  @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
+  @Operation(summary = "Activates an agency for the given service", description = "Requires ROLE_SERVICE_AGENCY_SWITCHES or ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")
+  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RW')")
   @PostMapping("/{serviceCode}/agency/{agencyId}")
   @ResponseStatus(HttpStatus.CREATED)
   fun addServiceAgency(
@@ -105,8 +106,8 @@ class ServiceAgencySwitchesResource(private val service: ServiceAgencySwitchesSe
     ApiResponse(responseCode = "404", description = "The service code or agency does not exist", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
     ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request", content = [Content(mediaType = "application/json", schema = Schema(implementation = ErrorResponse::class))]),
   )
-  @Operation(summary = "Deactivates an agency for the given service", description = "Requires ROLE_SERVICE_AGENCY_SWITCHES")
-  @PreAuthorize("hasRole('SERVICE_AGENCY_SWITCHES')")
+  @Operation(summary = "Deactivates an agency for the given service", description = "Requires ROLE_SERVICE_AGENCY_SWITCHES or ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")
+  @PreAuthorize("hasAnyRole('SERVICE_AGENCY_SWITCHES', 'PRISON_API__SERVICE_AGENCY_SWITCHES__RW')")
   @DeleteMapping("/{serviceCode}/agency/{agencyId}")
   @ResponseStatus(HttpStatus.NO_CONTENT)
   fun removeServiceAgency(

@@ -83,7 +83,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return not found if service does not exist`() {
       webTestClient.get()
         .uri("/api/agency-switches/INVALID")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -93,7 +93,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO"])
+    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
     fun `should return a list of agencies for the service`(role: String) {
       webTestClient.get()
         .uri("/api/agency-switches/SOME_SERVICE")
@@ -167,11 +167,12 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         }
     }
 
-    @Test
-    fun `should return no content if service switched on`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
+    fun `should return no content if service switched on`(role: String) {
       webTestClient.get()
         .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
-        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO")))
+        .headers(setAuthorisation(listOf(role)))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
@@ -249,11 +250,12 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         }
     }
 
-    @Test
-    fun `should return ok if agency added to the service`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
+    fun `should return ok if agency added to the service`(role: String) {
       webTestClient.post()
         .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf(role)))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isCreated
@@ -322,11 +324,12 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         .expectStatus().isNoContent
     }
 
-    @Test
-    fun `should return ok if agency removed from the service`() {
+    @ParameterizedTest
+    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
+    fun `should return ok if agency removed from the service`(role: String) {
       webTestClient.delete()
         .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf(role)))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
