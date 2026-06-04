@@ -4,7 +4,10 @@ import io.opentelemetry.sdk.testing.assertj.OpenTelemetryAssertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.api.extension.ExtendWith
 import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.boot.test.system.CapturedOutput
+import org.springframework.boot.test.system.OutputCaptureExtension
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import uk.gov.justice.hmpps.prison.api.model.ScheduledEvent
 import uk.gov.justice.hmpps.prison.api.model.bulkappointments.CreatedAppointmentDetails
@@ -91,6 +94,20 @@ class AppointmentsResourceIntTest : ResourceTest() {
         .exchange()
         .expectStatus().isBadRequest
         .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
+    }
+
+    @Test
+    @ExtendWith(OutputCaptureExtension::class)
+    fun `should log the 400 message when user doesn't have offender in caseload`(output: CapturedOutput) {
+      webTestClient.post().uri("/api/appointments")
+        .headers(setAuthorisation("WAI_USER", listOf("ROLE_BULK_APPOINTMENTS")))
+        .header("Content-Type", APPLICATION_JSON_VALUE)
+        .bodyValue(defaultAppointment)
+        .exchange()
+        .expectStatus().isBadRequest
+        .expectBody().jsonPath("userMessage").isEqualTo("Location does not exist or is not in your caseload.")
+
+      assertThat(output).contains("Location does not exist or is not in your caseload.")
     }
 
     @Test

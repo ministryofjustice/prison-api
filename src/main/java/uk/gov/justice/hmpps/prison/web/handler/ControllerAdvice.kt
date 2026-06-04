@@ -34,116 +34,108 @@ import java.util.stream.Collectors
 @RestControllerAdvice(basePackages = ["uk.gov.justice.hmpps.prison.api.resource"])
 class ControllerAdvice {
   @ExceptionHandler(RestClientResponseException::class)
-  fun handleRestClientResponseException(e: RestClientResponseException): ResponseEntity<ByteArray> {
-    log.error("Unexpected exception", e)
-    return ResponseEntity
-      .status(e.statusCode)
-      .body(e.responseBodyAsByteArray)
-  }
+  fun handleRestClientResponseException(e: RestClientResponseException): ResponseEntity<ByteArray> = ResponseEntity
+    .status(e.statusCode)
+    .body(e.responseBodyAsByteArray).also {
+      log.error("Unexpected exception", e)
+    }
 
   @ExceptionHandler(RestClientException::class)
-  fun handleRestClientException(e: RestClientException): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception", e)
-    return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse
-          .builder()
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .developerMessage(e.mostSpecificCause.message)
-          .build(),
-      )
-  }
+  fun handleRestClientException(e: RestClientException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+    .body(
+      ErrorResponse
+        .builder()
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .developerMessage(e.mostSpecificCause.message)
+        .build(),
+    ).also {
+      log.error("Unexpected exception", e)
+    }
 
   @ExceptionHandler(AccessDeniedException::class)
-  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> {
-    log.debug("Forbidden (403) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.FORBIDDEN)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.FORBIDDEN.value())
-          .build(),
-      )
-  }
+  fun handleAccessDeniedException(e: AccessDeniedException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.FORBIDDEN)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.FORBIDDEN.value())
+        .build(),
+    ).also {
+      log.info("Forbidden (403) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(ValidationException::class)
-  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> {
-    log.debug("Bad Request (400) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleValidationException(e: ValidationException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.BAD_REQUEST.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(MissingServletRequestParameterException::class)
-  fun handleValidationException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> {
-    log.debug("Bad Request (400) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleValidationException(e: MissingServletRequestParameterException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.BAD_REQUEST.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(EntityNotFoundException::class)
-  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> {
-    log.debug("Not found (404) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.NOT_FOUND)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.NOT_FOUND.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleEntityNotFoundException(e: EntityNotFoundException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.NOT_FOUND)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.NOT_FOUND.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Not found (404) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(EntityAlreadyExistsException::class)
-  fun handleEntityAlreadyExistsException(e: EntityAlreadyExistsException): ResponseEntity<ErrorResponse> {
-    log.debug("Already exists (409) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.CONFLICT.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleEntityAlreadyExistsException(e: EntityAlreadyExistsException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.CONFLICT)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.CONFLICT.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Already exists (409) for ${e.javaClass.simpleName} returned with message {}", e.message)
+    }
 
   @ExceptionHandler(ConflictingRequestException::class)
-  fun handleConflictingRequestException(e: ConflictingRequestException): ResponseEntity<ErrorResponse> {
-    log.debug("Conflict (409) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.CONFLICT.value())
-          .errorCode(e.errorCode)
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleConflictingRequestException(e: ConflictingRequestException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.CONFLICT)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.CONFLICT.value())
+        .errorCode(e.errorCode)
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Conflict (409) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(EmptyResultDataAccessException::class)
   fun handleEmptyResultDataAccessException(e: EmptyResultDataAccessException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -179,7 +171,9 @@ class ControllerAdvice {
         .status(HttpStatus.CONFLICT.value())
         .developerMessage(e.message)
         .build(),
-    )
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(HttpClientErrorException::class)
   fun handleHttpClientErrorException(e: HttpClientErrorException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -203,7 +197,9 @@ class ControllerAdvice {
         .status(HttpStatus.BAD_REQUEST.value())
         .developerMessage(e.mostSpecificCause.message)
         .build(),
-    )
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(IllegalArgumentException::class)
   fun handleIllegalArgumentException(e: IllegalArgumentException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -215,7 +211,9 @@ class ControllerAdvice {
         .status(HttpStatus.BAD_REQUEST.value())
         .developerMessage(e.message)
         .build(),
-    )
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(IllegalStateException::class)
   fun handleIllegalStateException(e: IllegalStateException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -227,7 +225,9 @@ class ControllerAdvice {
         .status(HttpStatus.BAD_REQUEST.value())
         .developerMessage(e.message)
         .build(),
-    )
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(InvalidDataAccessApiUsageException::class)
   fun handleInvalidDataAccessApiUsageException(e: InvalidDataAccessApiUsageException): ResponseEntity<ErrorResponse> = ResponseEntity
@@ -239,37 +239,37 @@ class ControllerAdvice {
         .status(HttpStatus.BAD_REQUEST.value())
         .developerMessage(e.mostSpecificCause.message)
         .build(),
-    )
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(HttpMessageConversionException::class)
-  fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> {
-    log.error("A malformed request was rejected due to exception", e.mostSpecificCause)
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage("Malformed request")
-          .status(HttpStatus.BAD_REQUEST.value())
-          .developerMessage("Malformed request")
-          .build(),
-      )
-  }
+  fun handleHttpMessageConversionException(e: HttpMessageConversionException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage("Malformed request")
+        .status(HttpStatus.BAD_REQUEST.value())
+        .developerMessage("Malformed request")
+        .build(),
+    ).also {
+      log.error("A malformed request was rejected due to exception", e.mostSpecificCause)
+    }
 
   @ExceptionHandler(NoContentException::class)
-  fun handleNoContentException(e: NoContentException): ResponseEntity<ErrorResponse> {
-    log.debug("No content (204) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.NO_CONTENT)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage("No content returned")
-          .status(HttpStatus.NO_CONTENT.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleNoContentException(e: NoContentException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.NO_CONTENT)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage("No content returned")
+        .status(HttpStatus.NO_CONTENT.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("No content (204) returned with message {}", e.message)
+    }
 
   @ExceptionHandler(MethodArgumentNotValidException::class)
   fun handleMethodArgumentNotValidException(e: MethodArgumentNotValidException): ResponseEntity<ErrorResponse> {
@@ -286,54 +286,53 @@ class ControllerAdvice {
           .status(HttpStatus.BAD_REQUEST.value())
           .developerMessage(errors)
           .build(),
-      )
+      ).also {
+        log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+      }
   }
 
   @ExceptionHandler(Exception::class)
-  fun handleException(e: Exception): ResponseEntity<ErrorResponse> {
-    log.error("Unexpected exception", e)
-    return ResponseEntity
-      .status(HttpStatus.INTERNAL_SERVER_ERROR)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleException(e: Exception): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.INTERNAL_SERVER_ERROR.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.error("Unexpected exception", e)
+    }
 
   @ExceptionHandler(BadRequestException::class)
-  fun handleServiceException(e: BadRequestException): ResponseEntity<ErrorResponse> {
-    log.debug("Bad Request (400) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.BAD_REQUEST.value())
-          .errorCode(e.errorCode)
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleServiceException(e: BadRequestException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.BAD_REQUEST.value())
+        .errorCode(e.errorCode)
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Bad Request (400) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(DuplicateKeyException::class)
-  fun handleServiceException(e: DuplicateKeyException): ResponseEntity<ErrorResponse> {
-    log.debug("Conflict (409) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.CONFLICT)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.CONFLICT.value())
-          .developerMessage(e.message)
-          .build(),
-      )
-  }
+  fun handleServiceException(e: DuplicateKeyException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.CONFLICT)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.CONFLICT.value())
+        .developerMessage(e.message)
+        .build(),
+    ).also {
+      log.info("Conflict (409) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
   @ExceptionHandler(JpaSystemException::class)
   fun handleJpaException(e: JpaSystemException): ResponseEntity<ErrorResponse> {
@@ -361,33 +360,31 @@ class ControllerAdvice {
   }
 
   @ExceptionHandler(DatabaseRowLockedException::class)
-  fun handleDatabaseRowLockedException(e: DatabaseRowLockedException): ResponseEntity<ErrorResponse> {
-    log.debug("Locked (423) returned with message {}", e.message)
-    return ResponseEntity
-      .status(HttpStatus.LOCKED)
-      .body(
-        ErrorResponse
-          .builder()
-          .userMessage(e.message)
-          .status(HttpStatus.LOCKED.value())
-          .developerMessage(e.developerMessage)
-          .build(),
-      )
-  }
+  fun handleDatabaseRowLockedException(e: DatabaseRowLockedException): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.LOCKED)
+    .body(
+      ErrorResponse
+        .builder()
+        .userMessage(e.message)
+        .status(HttpStatus.LOCKED.value())
+        .developerMessage(e.developerMessage)
+        .build(),
+    ).also {
+      log.info("Locked (423) returned for ${e.javaClass.simpleName} with message {}", e.message)
+    }
 
-  private fun handleJpaSqlException(e: JpaSystemException, rootCause: Throwable): ResponseEntity<ErrorResponse> {
-    log.info("Error received from JPA caused by {}", rootCause.message, e)
-    return ResponseEntity
-      .status(HttpStatus.BAD_REQUEST)
-      .body(
-        ErrorResponse
-          .builder()
-          .status(HttpStatus.BAD_REQUEST.value())
-          .userMessage(getJpaSqlExceptionUserMessage(rootCause))
-          .developerMessage(getJpaSqlExceptionDeveloperMessage(rootCause))
-          .build(),
-      )
-  }
+  private fun handleJpaSqlException(e: JpaSystemException, rootCause: Throwable): ResponseEntity<ErrorResponse> = ResponseEntity
+    .status(HttpStatus.BAD_REQUEST)
+    .body(
+      ErrorResponse
+        .builder()
+        .status(HttpStatus.BAD_REQUEST.value())
+        .userMessage(getJpaSqlExceptionUserMessage(rootCause))
+        .developerMessage(getJpaSqlExceptionDeveloperMessage(rootCause))
+        .build(),
+    ).also {
+      log.info("Error received from JPA caused by {}", rootCause.message, e)
+    }
 
   private fun getJpaSqlExceptionUserMessage(rootCause: Throwable): String = rootCause
     .message!!
