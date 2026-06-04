@@ -68,8 +68,8 @@ public class BookingMovementsResource {
     @PostMapping("/{bookingId}/court-cases/{courtCaseId}/prison-to-court-hearings")
     @ProxyUser
     @PreAuthorize("hasRole('COURT_HEARING_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public CourtHearing prisonToCourt(@PathVariable("bookingId") @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId,
-                                      @PathVariable("courtCaseId") @Parameter(description = "The court case to associate the hearing with.", required = true) final Long courtCaseId,
+    public CourtHearing prisonToCourt(@PathVariable @Parameter(description = "The offender booking to associate the court hearing with.", required = true) final Long bookingId,
+                                      @PathVariable @Parameter(description = "The court case to associate the hearing with.", required = true) final Long courtCaseId,
                                       @RequestBody @Parameter(description = "The prison to court hearing to be scheduled for the offender booking.", required = true) final @Valid PrisonToCourtHearing hearing) {
         return courtHearingsService.scheduleHearing(bookingId, courtCaseId, hearing);
     }
@@ -82,7 +82,7 @@ public class BookingMovementsResource {
     @GetMapping("/{bookingId}/court-hearings")
     @VerifyBookingAccess(overrideRoles = {"COURT_HEARING_MAINTAINER"})
     public CourtHearings getCourtHearings(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Return court hearings on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
     ) {
@@ -101,8 +101,8 @@ public class BookingMovementsResource {
     @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @HasWriteScope
     public CellMoveResult moveToCell(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
-        @PathVariable("internalLocationDescription") @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription,
+        @PathVariable @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The cell location the offender has been moved to", example = "MDI-1-1", required = true) final String internalLocationDescription,
         @RequestParam("reasonCode") @Parameter(description = "The reason code for the move (from reason code domain CHG_HOUS_RSN)", example = "ADM", required = true) final String reasonCode,
         @RequestParam(value = "dateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "The date / time of the move (defaults to current)", example = "2020-03-24T12:13:40") final LocalDateTime dateTime,
         @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
@@ -131,7 +131,7 @@ public class BookingMovementsResource {
     @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @HasWriteScope
     public CellMoveResult moveToCellSwap(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
         @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap
     ) {
         final var dateTime = requestMoveToCellSwap.getDateTime();
@@ -163,7 +163,7 @@ public class BookingMovementsResource {
     @ProxyUser
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ScheduledPrisonToPrisonMove prisonToPrison(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId,
         @RequestBody @Parameter(description = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove
     ) {
         return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
@@ -186,8 +186,8 @@ public class BookingMovementsResource {
     @ProxyUser
     @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
     public ResponseEntity<Void> cancelPrisonToPrisonMove(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking linked to the scheduled event.", required = true) final Long bookingId,
-        @PathVariable("eventId") @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId,
+        @PathVariable @Parameter(description = "The offender booking linked to the scheduled event.", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId,
         @RequestBody @Parameter(description = "The cancellation details.", required = true) @Valid final PrisonMoveCancellation cancellation
     ) {
         prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());

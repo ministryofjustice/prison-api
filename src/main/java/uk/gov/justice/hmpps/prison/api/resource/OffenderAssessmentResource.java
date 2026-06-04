@@ -74,7 +74,7 @@ public class OffenderAssessmentResource {
     @GetMapping("/{assessmentCode}")
     @SlowReportQuery
     public List<Assessment> getOffenderAssessmentsAssessmentCode(
-        @PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode,
+        @PathVariable @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode,
         @RequestBody @NotEmpty @RequestParam("offenderNo") @Parameter(description = "The required offender numbers", required = true) final List<String> offenderList,
         @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,
@@ -90,7 +90,7 @@ public class OffenderAssessmentResource {
     @PostMapping("/{assessmentCode}")
     @SlowReportQuery
     public List<Assessment> postOffenderAssessmentsAssessmentCode(
-        @PathVariable("assessmentCode") @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode,
+        @PathVariable @Parameter(description = "Assessment Type Code", required = true) final String assessmentCode,
         @RequestBody @NotEmpty(message = "List of Offender Ids must be provided.") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderList,
         @RequestParam(value = "latestOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only assessments for the current sentence if true, otherwise assessments for all previous sentences are included") final Boolean latestOnly,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Returns only active assessments if true, otherwise inactive and pending assessments are included") final Boolean activeOnly,
@@ -126,7 +126,7 @@ public class OffenderAssessmentResource {
     @Operation(summary = "Retrieves CSRAs for the given offender, ordered by the latest first.", description = "Requires offender in the caseload, or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/csra/{offenderNo}")
-    public List<AssessmentSummary> getOffenderCsraAssessments(@PathVariable("offenderNo") @Parameter(description = "The offender number") final String offenderNo) {
+    public List<AssessmentSummary> getOffenderCsraAssessments(@PathVariable @Parameter(description = "The offender number") final String offenderNo) {
         return offenderAssessmentService.getOffenderAssessments(offenderNo);
     }
 
@@ -138,8 +138,8 @@ public class OffenderAssessmentResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/csra/{bookingId}/assessment/{assessmentSeq}")
     public AssessmentDetail getOffenderCsraAssessment(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender") final Long bookingId,
-        @PathVariable("assessmentSeq") @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
+        @PathVariable @Parameter(description = "The booking id of offender") final Long bookingId,
+        @PathVariable @Parameter(description = "The assessment sequence number for the given offender booking") final Integer assessmentSeq
     ) {
         return offenderAssessmentService.getOffenderAssessment(bookingId, assessmentSeq);
     }
@@ -167,7 +167,7 @@ public class OffenderAssessmentResource {
     @GetMapping("/category/{agencyId}")
     @SlowReportQuery
     public List<OffenderCategorise> getOffenderCategorisations(
-        @PathVariable("agencyId") @Parameter(description = "Prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "Prison id", required = true) final String agencyId,
         @NotNull(message = "Categorisation type must not be null") @RequestParam("type") @Parameter(description = """
             Indicates which type of category information is required.
                 <li>UNCATEGORISED: Offenders who need to be categorised,</li>
@@ -274,7 +274,7 @@ public class OffenderAssessmentResource {
     @PutMapping("/category/{bookingId}/inactive")
     @ProxyUser
     public ResponseEntity<Void> setCategorisationInactive(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestParam(value = "status", required = false, defaultValue = "ACTIVE") @Parameter(description = "Indicates which categorisation statuses to set." +
             "<li>ACTIVE (default): set all active (i.e. approved) categorisations inactive,</li>" +
             "<li>PENDING: set all pending (i.e. awaiting approval) categorisations inactive,</li>", schema = @Schema(implementation = String.class, allowableValues = {"ACTIVE", "PENDING"})) final String status,
@@ -301,8 +301,8 @@ public class OffenderAssessmentResource {
     @PutMapping("/category/{bookingId}/nextReviewDate/{nextReviewDate}")
     @ProxyUser
     public ResponseEntity<Void> updateCategorisationNextReviewDate(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
-        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @PathVariable("nextReviewDate") @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The new next review date (in YYYY-MM-DD format)", required = true) final LocalDate nextReviewDate,
         @RequestParam(value = "lockTimeout", required = false, defaultValue = "true") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout
     ) {
         inmateService.updateCategorisationNextReviewDate(bookingId, nextReviewDate, lockTimeout);

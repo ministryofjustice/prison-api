@@ -47,9 +47,9 @@ public class CellResource {
     @GetMapping("/{locationId}/history")
     @PreAuthorize("hasRole('MAINTAIN_CELL_MOVEMENTS')")
     @SlowReportQuery
-    public List<BedAssignment> getBedAssignmentsHistoryByLocationId(@PathVariable("locationId") @Parameter(description = "The location id.", required = true) final Long locationId,
-                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime,
-                                                        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
+    public List<BedAssignment> getBedAssignmentsHistoryByLocationId(@PathVariable @Parameter(description = "The location id.", required = true) final Long locationId,
+                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime,
+                                                                    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
         return bedAssignmentHistoryService.getBedAssignmentsHistory(locationId, fromDateTime, toDateTime);
     }
 
@@ -63,8 +63,8 @@ public class CellResource {
     @VerifyAgencyAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
     @SlowReportQuery
     public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(
-        @Parameter(description = "Agency Id", example = "MDI", required = true) @PathVariable("agencyId") final String agencyId,
-        @DateTimeFormat(iso = ISO.DATE) @PathVariable("assignmentDate")
+        @PathVariable @Parameter(description = "Agency Id", example = "MDI", required = true) final String agencyId,
+        @PathVariable @DateTimeFormat(iso = ISO.DATE)
         @Parameter(description = "Assignment date (2020-03-24)", example = "2020-03-24", required = true) final LocalDate assignmentDate) {
         return bedAssignmentHistoryService.getBedAssignmentsHistoryByDateForAgency(agencyId, assignmentDate);
     }

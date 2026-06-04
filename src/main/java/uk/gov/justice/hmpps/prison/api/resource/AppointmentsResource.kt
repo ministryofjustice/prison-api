@@ -55,7 +55,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   @DeleteMapping("/{appointmentId}")
   @ProxyUser
   fun deleteAppointment(
-    @PathVariable("appointmentId") @Parameter(
+    @PathVariable @Parameter(
       description = "The unique identifier for the appointment",
       required = true,
     ) appointmentId: @NotNull Long,
@@ -94,7 +94,7 @@ class AppointmentsResource(private val appointmentsService: AppointmentsService)
   @PreAuthorize("hasRole('GLOBAL_APPOINTMENT')")
   @GetMapping("/{appointmentId}")
   fun getAppointment(
-    @PathVariable("appointmentId") @Parameter(
+    @PathVariable @Parameter(
       description = "The unique identifier for the appointment",
       required = true,
     ) appointmentId: @NotNull Long,

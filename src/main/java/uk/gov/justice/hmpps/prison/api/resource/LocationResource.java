@@ -55,7 +55,7 @@ public class LocationResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
     public ResponseEntity<List<OffenderBooking>> getOffendersAtLocationDescription(
-            @PathVariable("locationPrefix") @Parameter(required = true) final String locationPrefix,
+        @PathVariable @Parameter(required = true) final String locationPrefix,
             @RequestParam(value = "keywords", required = false) @Parameter(description = "offender name or id to match") final String keywords,
             @RequestParam(value = "fromDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB >= this date", example = "1970-01-02") final LocalDate fromDob,
             @RequestParam(value = "toDob", required = false) @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Offenders with a DOB <= this date", example = "1975-01-02") final LocalDate toDob,
@@ -100,8 +100,7 @@ public class LocationResource {
     @ReferenceData(description = "Location properties only are returned, no prisoner data")
     @Deprecated(forRemoval = true)
     public Location getLocation(
-        @PathVariable("locationId")
-        @Parameter(description = "The location id of location", required = true)
+        @PathVariable @Parameter(description = "The location id of location", required = true)
         final Long locationId,
 
         @RequestParam(value="includeInactive", required = false)
@@ -121,7 +120,7 @@ public class LocationResource {
     @ReferenceData(description = "Location properties only are returned, no prisoner data")
     @Deprecated(forRemoval = true)
     public Location getLocationByCode(
-        @PathVariable("code") @Parameter(example = "MDI-1", required = true) final String code) {
+        @PathVariable @Parameter(example = "MDI-1", required = true) final String code) {
            return locationService.getLocationByCode(code).orElseThrow(EntityNotFoundException.withId(code));
     }
 
@@ -134,7 +133,7 @@ public class LocationResource {
     @GetMapping("/{locationId}/inmates")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @SlowReportQuery
-    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable("locationId") @Parameter(description = "The location id of location", required = true) final Long locationId,
+    public ResponseEntity<List<OffenderBooking>> getOffendersAtLocation(@PathVariable @Parameter(description = "The location id of location", required = true) final Long locationId,
                                                                         @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of inmate records.") final Long pageOffset,
                                                                         @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of inmate records returned.") final Long pageLimit,
                                                                         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>bookingNo, bookingId, offenderNo, firstName, lastName, agencyId, or assignedLivingUnitId</b>") final String sortFields,

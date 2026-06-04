@@ -58,7 +58,7 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-    public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
+    public ResponseEntity<List<ReferenceCode>> getReferenceCodesByDomain(@PathVariable @Parameter(description = "The domain identifier/name.", required = true) final String domain,
                                                                          @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to return reference codes with their associated sub-codes.") final boolean withSubCodes,
                                                                          @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of domain records.") final Long pageOffset,
                                                                          @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of domain records returned.") final Long pageLimit,
@@ -86,7 +86,7 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}/codes")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-    public List<ReferenceCode> getReferenceCodesByDomainUnpaged(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
+    public List<ReferenceCode> getReferenceCodesByDomainUnpaged(@PathVariable @Parameter(description = "The domain identifier/name.", required = true) final String domain) {
         return referenceDomainService.getReferenceCodesByDomain(domain);
     }
 
@@ -112,8 +112,8 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}/codes/{code}")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-    public ReferenceCode getReferenceCodeByDomainAndCode(@PathVariable("domain") @Parameter(description = "The domain identifier/name.", required = true) final String domain,
-                                                         @PathVariable("code") @Parameter(description = "The reference code.", required = true) final String code,
+    public ReferenceCode getReferenceCodeByDomainAndCode(@PathVariable @Parameter(description = "The domain identifier/name.", required = true) final String domain,
+                                                         @PathVariable @Parameter(description = "The reference code.", required = true) final String code,
                                                          @RequestParam(value = "withSubCodes", required = false, defaultValue = "false") @Parameter(description = "Specify whether or not to return the reference code with its associated sub-codes.") final boolean withSubCodes) {
         return referenceDomainService
                 .getReferenceCodeByDomainAndCode(domain, code, withSubCodes).orElseThrow( () -> {
@@ -149,7 +149,7 @@ public class ReferenceDomainResource {
     @GetMapping("/domains/{domain}/all-codes")
     @ReferenceData(description = "NO role needed as only reading reference data")
     @SlowReportQuery
-    public List<ReferenceCode> getReferenceOrProfileCodesByDomain(@PathVariable("domain") @Parameter(description = "The domain or profile type identifier/name.", required = true) final String domain) {
+    public List<ReferenceCode> getReferenceOrProfileCodesByDomain(@PathVariable @Parameter(description = "The domain or profile type identifier/name.", required = true) final String domain) {
         return referenceDomainService.getReferenceOrProfileCodesByDomain(domain);
     }
 }

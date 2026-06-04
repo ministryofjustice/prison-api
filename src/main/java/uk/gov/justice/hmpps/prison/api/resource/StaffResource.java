@@ -68,7 +68,7 @@ public class StaffResource {
     @Operation(summary = "Returns a list of email addresses associated with this staff user", description = "Security note: staff details are only available for the current user unless client has ROLE_STAFF_SEARCH.")
     @VerifyStaffAccess(overrideRoles = {"STAFF_SEARCH"})
     @GetMapping("/{staffId}/emails")
-    public List<String> getStaffEmailAddresses(@PathVariable("staffId") @Parameter(description = "The staff id of the staff user.", required = true) final Long staffId) {
+    public List<String> getStaffEmailAddresses(@PathVariable @Parameter(description = "The staff id of the staff user.", required = true) final Long staffId) {
         return staffService.getStaffEmailAddresses(staffId);
     }
 
@@ -80,7 +80,7 @@ public class StaffResource {
     @Operation(summary = "Returns a list of caseloads associated with this staff user", description = "Security note: staff details are only available for the current user unless client has ROLE_STAFF_SEARCH.")
     @VerifyStaffAccess(overrideRoles = {"STAFF_SEARCH"})
     @GetMapping("/{staffId}/caseloads")
-    public List<CaseLoad> getStaffCaseloads(@PathVariable("staffId") @Parameter(description = "The staff id of the staff user.", required = true, example = "123123") final Long staffId) {
+    public List<CaseLoad> getStaffCaseloads(@PathVariable @Parameter(description = "The staff id of the staff user.", required = true, example = "123123") final Long staffId) {
         return staffService.getStaffCaseloads(staffId);
     }
 
@@ -94,8 +94,8 @@ public class StaffResource {
     @GetMapping("/roles/{agencyId}/role/{role}")
     @SlowReportQuery
     public ResponseEntity<List<StaffLocationRole>> getStaffByAgencyRole(
-        @PathVariable("agencyId") @Parameter(description = "The agency (prison) id.", required = true) final String agencyId,
-        @PathVariable("role") @Parameter(description = "The staff role.", required = true) final String role,
+        @PathVariable @Parameter(description = "The agency (prison) id.", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The staff role.", required = true) final String role,
         @RequestParam(value = "nameFilter", required = false) @Parameter(description = "Filter results by first name and/or last name of staff member. Supplied filter term is matched to start of staff member's first and last name.") final String nameFilter,
         @RequestParam(value = "staffId", required = false) @Parameter(description = "The staff id of a staff member.") final Long staffId,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Filters results by activeOnly staff members.") final Boolean activeOnly,
@@ -125,8 +125,8 @@ public class StaffResource {
     @VerifyAgencyAccess(overrideRoles = {"STAFF_SEARCH"}, allowInactive = true)
     @GetMapping("/{staffId}/{agencyId}/roles")
     public List<StaffRole> getAllRolesForAgency(
-        @PathVariable("agencyId") @Parameter(description = "Agency Id.", required = true) final String agencyId,
-        @PathVariable("staffId") @Parameter(description = "The staff id of the staff member.", required = true) final Long staffId
+        @PathVariable @Parameter(description = "Agency Id.", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The staff id of the staff member.", required = true) final Long staffId
     ) {
         return staffService.getAllRolesForAgency(staffId, agencyId);
     }

@@ -151,7 +151,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffenderBooking(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestParam(value = "basicInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then only basic data is returned") final boolean basicInfo,
         @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when requesting more than basic data, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo
     ) {
@@ -169,7 +169,7 @@ public class BookingResource {
     @GetMapping("/offenderNo/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public InmateDetail getOffenderBookingByOffenderNo(
-        @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
+        @PathVariable @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "fullInfo", required = false, defaultValue = "false") @Parameter(description = "If set to true then full data is returned") final boolean fullInfo,
         @RequestParam(value = "extraInfo", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns identifiers,offences,aliases,sentence dates,convicted status") final boolean extraInfo,
         @RequestParam(value = "csraSummary", required = false, defaultValue = "false") @Parameter(description = "Only used when fullInfo=true, returns the applicable CSRA classification for this offender") final boolean csraSummary
@@ -206,7 +206,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/activities")
     @SlowReportQuery
     public ResponseEntity<List<ScheduledEvent>> getBookingActivities(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned activities must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of activity records.") final Long pageOffset,
@@ -240,8 +240,8 @@ public class BookingResource {
     @PutMapping("/{bookingId}/activities/{activityId}/attendance")
     @ProxyUser
     public ResponseEntity<Void> updateAttendanceByBooking(
-        @NotNull @PathVariable("bookingId") @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
-        @NotNull @PathVariable("activityId") @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
+        @PathVariable @NotNull @Parameter(description = "The booking Id of the prisoner", required = true, example = "213531") final Long bookingId,
+        @PathVariable @NotNull @Parameter(description = "The activity id", required = true, example = "1212131") final Long activityId,
         @RequestParam(value = "lockTimeout", required = false, defaultValue = "false") @Parameter(description = "Whether to timeout if locked", example = "true") final Boolean lockTimeout,
         @RequestBody @NotNull @Parameter(required = true) final UpdateAttendance updateAttendance
     ) {
@@ -278,7 +278,7 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/aliases")
     public ResponseEntity<List<Alias>> getOffenderAliases(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of alias records.") final Long pageOffset,
         @RequestHeader(value = "Page-Limit", defaultValue = "5", required = false) @Parameter(description = "Requested limit to number of alias records returned.") final Long pageLimit,
         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>firstName, lastName, age, dob, middleName, nameType, createDate</b>") final String sortFields,
@@ -300,7 +300,7 @@ public class BookingResource {
     @Operation(summary = "Assessment Information", description = "Assessment Information. Requires booking access (via caseload) or VIEW_ASSESSMENTS role.")
     @GetMapping("/{bookingId}/assessments")
     @VerifyBookingAccess(overrideRoles = {"VIEW_ASSESSMENTS"})
-    public List<Assessment> getAssessmentsByBookingId(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<Assessment> getAssessmentsByBookingId(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return inmateService.getAssessments(bookingId);
     }
 
@@ -312,7 +312,7 @@ public class BookingResource {
     @GetMapping(value = "/offenderNo/{offenderNo}/image/data", produces = "image/jpeg")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     public ResponseEntity<byte[]> getMainBookingImageDataByNo(
-        @PathVariable("offenderNo") @Parameter(description = "The offender No of offender", required = true) final String offenderNo,
+        @PathVariable @Parameter(description = "The offender No of offender", required = true) final String offenderNo,
         @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage
     ) {
         return imageService.getImageContent(offenderNo, fullSizeImage)
@@ -329,7 +329,7 @@ public class BookingResource {
     @SlowReportQuery
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public ResponseEntity<byte[]> getMainBookingImageData(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestParam(value = "fullSizeImage", defaultValue = "false", required = false) @Parameter(description = "Return full size image") final boolean fullSizeImage
     ) {
         final var mainBookingImage = inmateService.getMainBookingImage(bookingId);
@@ -356,7 +356,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/sentenceDetail")
     @SlowReportQuery
     public SentenceCalcDates getBookingSentenceDetail(
-        @PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
         @RequestHeader(value = "version", defaultValue = "1.0", required = false) @Parameter(description = "Version of Sentence Calc Dates, 1.0 is default") final String version) {
         if ("1.1".equals(version)) {
             return bookingService.getBookingSentenceCalcDatesV1_1(bookingId);
@@ -372,7 +372,7 @@ public class BookingResource {
     @Operation(summary = "Offender account balances.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/balances")
-    public Account getBalances(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public Account getBalances(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return financeService.getBalances(bookingId);
     }
 
@@ -384,7 +384,7 @@ public class BookingResource {
     @Operation(summary = "List of active property containers", description = "Requires booking to be in caseload, or role VIEW_PRISONER_DATA")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/property")
-    public List<PropertyContainer> getOffenderPropertyContainers(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<PropertyContainer> getOffenderPropertyContainers(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getOffenderPropertyContainers(bookingId);
     }
 
@@ -396,7 +396,7 @@ public class BookingResource {
     @Operation(summary = "Get Offender main offence detail.", description = "Requires booking to be in caseload, or role GLOBAL_SEARCH or VIEW_PRISONER_DATA")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/mainOffence")
-    public List<OffenceDetail> getMainOffence(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<OffenceDetail> getMainOffence(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getMainOffenceDetails(bookingId);
     }
 
@@ -411,7 +411,7 @@ public class BookingResource {
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','CREATE_CATEGORISATION','APPROVE_CATEGORISATION','PRISON_API__HMPPS_INTEGRATION_API')")
     @SlowReportQuery
     public List<OffenceHistoryDetail> getOffenceHistory(
-        @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) final String offenderNo,
+        @PathVariable @Parameter(description = "The offender number", required = true) final String offenderNo,
         @RequestParam(value = "convictionsOnly", required = false, defaultValue = "true") @Parameter(description = "include offences with convictions only") final boolean convictionsOnly
     ) {
         return bookingService.getOffenceHistory(offenderNo, convictionsOnly);
@@ -426,7 +426,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/personal-care-needs")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PersonalCareNeeds getPersonalCareNeedsByBooking(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
     ) {
         return healthService.getPersonalCareNeeds(bookingId, problemTypes);
@@ -442,7 +442,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/personal-care-needs/all")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public PersonalCareNeeds getAllPersonalCareNeeds(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId
     ) {
         List<ReferenceCode> referenceCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH);
         List<String> problemTypesString = referenceCodes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
@@ -492,7 +492,7 @@ public class BookingResource {
     @ProxyUser
     @PreAuthorize("hasRole('MAINTAIN_HEALTH_PROBLEMS') and hasAuthority('SCOPE_write')")
     public void addPersonalCareNeed(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @Valid @NotNull @RequestBody final CreatePersonalCareNeed createPersonalCareNeed) {
         healthService.addPersonalCareNeed(bookingId, createPersonalCareNeed);
     }
@@ -507,7 +507,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/reasonable-adjustments")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA","PRISON_API__HMPPS_INTEGRATION_API"})
     public ReasonableAdjustments getReasonableAdjustments(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "type", required = false) @NotEmpty(message = "treatmentCodes: must not be empty") @Parameter(description = "a list of treatment codes to search.", example = "PEEP", required = true) final List<String> treatmentCodes
     ) {
         return inmateService.getReasonableAdjustments(bookingId, treatmentCodes);
@@ -523,7 +523,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/reasonable-adjustments/all")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA","PRISON_API__HMPPS_INTEGRATION_API"})
     public ReasonableAdjustments getAllReasonableAdjustments(
-            @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId
     ) {
         List<ReferenceCode> treatmentCodes = referenceDomainService.getReferenceCodesByDomain(HEALTH_TREATMENT);
         List<String> treatmentCodeStrings = treatmentCodes.stream().map(ReferenceCode::getCode).collect(Collectors.toList());
@@ -538,7 +538,7 @@ public class BookingResource {
     @Operation(summary = "Today's scheduled events for offender.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/today")
-    public List<ScheduledEvent> getEventsToday(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<ScheduledEvent> getEventsToday(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsToday(bookingId);
     }
 
@@ -551,7 +551,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/identifiers")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     public List<OffenderIdentifier> getOffenderIdentifiers(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) @NotNull final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) @NotNull final Long bookingId,
         @RequestParam(value = "type", required = false) @Parameter(description = "Filter By Type", example = "PNC") final String identifierType
     ) {
         return inmateService.getOffenderIdentifiers(bookingId, identifierType);
@@ -566,7 +566,7 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events")
     public List<ScheduledEvent> getEventsByBookingId(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate
     ) {
@@ -581,7 +581,7 @@ public class BookingResource {
     @Operation(summary = "Scheduled events for offender for coming week (from current day).", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/thisWeek")
-    public List<ScheduledEvent> getEventsThisWeek(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<ScheduledEvent> getEventsThisWeek(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsThisWeek(bookingId);
     }
 
@@ -593,7 +593,7 @@ public class BookingResource {
     @Operation(summary = "Scheduled events for offender for following week.", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/events/nextWeek")
-    public List<ScheduledEvent> getEventsNextWeek(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public List<ScheduledEvent> getEventsNextWeek(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getEventsNextWeek(bookingId);
     }
 
@@ -605,7 +605,7 @@ public class BookingResource {
     @Operation(summary = "Offender contacts (e.g. next of kin).", description = "Requires role VIEW_PRISONER_DATA or GLOBAL_SEARCH, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/contacts")
-    public ContactDetail getContacts(@PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+    public ContactDetail getContacts(@PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return contactService.getContacts(bookingId);
     }
 
@@ -619,7 +619,7 @@ public class BookingResource {
     @SlowReportQuery
     @VerifyBookingAccess
     public Page<VisitWithVisitors> getBookingVisitsWithVisitor(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or after this date (in YYYY-MM-DD format).") final LocalDate fromDate,
         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Returned visits must be scheduled on or before this date (in YYYY-MM-DD format).") final LocalDate toDate,
         @RequestParam(value = "visitType", required = false) @Parameter(description = "Type of visit", schema = @Schema(implementation = String.class, allowableValues = {"SCON", "OFFI"})) final String visitType,
@@ -654,7 +654,7 @@ public class BookingResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER", "PRISON_API__HMPPS_INTEGRATION_API"})
     @SlowReportQuery
     public VisitBalances getBookingVisitBalances(
-        @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
+        @PathVariable @Parameter(description = "The offenderNo of offender", required = true) final String offenderNo,
         @RequestParam(value = "allowNoContent", required = false) @Parameter(description = "Allow no content (204) response if no data rather than returning a not found (404)") final boolean allowNoContent
     ) {
         final var identifiers = bookingService.getOffenderIdentifiers(offenderNo, "GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "VISIT_SCHEDULER").getBookingAndSeq()
@@ -674,7 +674,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/visits/next")
     @SlowReportQuery
     public VisitDetails getBookingVisitsNext(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "withVisitors", required = false, defaultValue = "false") @Parameter(description = "Toggle to return Visitors in response (or not).") final boolean withVisitors) {
         return bookingService.getBookingVisitNext(bookingId, withVisitors).orElse(null);
     }
@@ -689,7 +689,7 @@ public class BookingResource {
     @GetMapping("/{bookingId}/visits/summary")
     @SlowReportQuery
     public VisitSummary getBookingVisitsSummary(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getBookingVisitsSummary(bookingId);
     }
 
@@ -702,7 +702,7 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/visits/prisons")
     public List<PrisonDetails> getBookingVisitsPrisons(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId) {
         return bookingService.getBookingVisitsPrisons(bookingId);
     }
 
@@ -715,7 +715,7 @@ public class BookingResource {
     @HasWriteScope
     @ProxyUser
     public ScheduledEvent postBookingsBookingIdAppointments(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestBody @Parameter(required = true) final NewAppointment newAppointment) {
         return appointmentsService.createBookingAppointment(bookingId, hmppsAuthenticationHolder.getUsername(), newAppointment);
     }
@@ -729,7 +729,7 @@ public class BookingResource {
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/court-cases")
     public List<CourtCase> getCourtCases(
-        @PathVariable("bookingId") @Parameter(description = "The offender booking id", required = true) final Long bookingId,
+        @PathVariable @Parameter(description = "The offender booking id", required = true) final Long bookingId,
         @RequestParam(value = "activeOnly", required = false, defaultValue = "true") @Parameter(description = "Only return active court cases") final boolean activeOnly
     ) {
         return bookingService.getOffenderCourtCases(bookingId, activeOnly);
@@ -743,7 +743,7 @@ public class BookingResource {
     @Operation(summary = "Get secondary languages", description = "Get secondary languages")
     @GetMapping("/{bookingId}/secondary-languages")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
-    public List<SecondaryLanguage> getSecondaryLanguages(@PathVariable("bookingId") @Parameter(description = "bookingId", required = true) final Long bookingId) {
+    public List<SecondaryLanguage> getSecondaryLanguages(@PathVariable @Parameter(description = "bookingId", required = true) final Long bookingId) {
         return inmateService.getSecondaryLanguages(bookingId);
     }
 
@@ -756,9 +756,9 @@ public class BookingResource {
     @GetMapping("/{bookingId}/cell-history")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA", "MAINTAIN_CELL_MOVEMENTS"})
     @SlowReportQuery
-    public Page<BedAssignment> getBedAssignmentsHistoryByBookingId(@PathVariable("bookingId") @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
-                                                        @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
-                                                        @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {
+    public Page<BedAssignment> getBedAssignmentsHistoryByBookingId(@PathVariable @Parameter(description = "The offender booking linked to the court hearings.", required = true) final Long bookingId,
+                                                                   @RequestParam(value = "page", required = false, defaultValue = "0") @Parameter(description = "The page number to return. Index starts at 0") final Integer page,
+                                                                   @RequestParam(value = "size", required = false, defaultValue = "20") @Parameter(description = "The number of results per page. Defaults to 20.") final Integer size) {
         final var pageIndex = page != null ? page : 0;
         final var pageSize = size != null ? size : 20;
         return bedAssignmentHistoryService.getBedAssignmentsHistory(bookingId, PageRequest.of(pageIndex, pageSize, Sort.by("assignmentDate").descending()));
@@ -772,7 +772,7 @@ public class BookingResource {
     @Operation(summary = "Gets the Fixed Term Recall details for a booking", description = "Requires role VIEW_PRISONER_DATA, or booking is in caseload")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/fixed-term-recall")
-    public FixedTermRecallDetails getFixedTermRecallDetails(@PathVariable("bookingId") @Parameter(description = "The offenders bookingID", required = true) final Long bookingId) {
+    public FixedTermRecallDetails getFixedTermRecallDetails(@PathVariable @Parameter(description = "The offenders bookingID", required = true) final Long bookingId) {
         return fixedTermRecallService.getFixedTermRecallDetails(bookingId);
     }
 

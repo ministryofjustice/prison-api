@@ -51,6 +51,6 @@ class PrisonerSearchResource(private val service: PrisonerSearchService) {
     ),
   )
   fun getPrisonerDetails(
-    @PathVariable("offenderNo") @Parameter(description = "offenderNo", example = "A1234AA") offenderNo: String,
+    @PathVariable @Parameter(description = "offenderNo", example = "A1234AA") offenderNo: String,
   ): PrisonerSearchDetails = service.getPrisonerDetails(offenderNo)
 }

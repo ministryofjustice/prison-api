@@ -46,8 +46,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
   @PutMapping("/offenders/{offenderNo}/status")
   @ProxyUser
   fun offenderStatusSetup(
-    @PathVariable("offenderNo")
-    @Parameter(description = "offenderNo", required = true, example = "A1234AA")
+    @PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
   ) = service.offenderStatusSetup(offenderNo)
 
@@ -68,8 +67,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
   @PutMapping("/offenders/{offenderNo}/release")
   @ProxyUser
   fun smokeTestReleasePrisoner(
-    @PathVariable("offenderNo")
-    @Parameter(description = "offenderNo", required = true, example = "A1234AA")
+    @PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
   ) = service.releasePrisoner(offenderNo)
 
@@ -90,8 +88,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
   @PutMapping("/offenders/{offenderNo}/recall")
   @ProxyUser
   fun smokeTestRecallPrisoner(
-    @PathVariable("offenderNo")
-    @Parameter(description = "offenderNo", required = true, example = "A1234AA")
+    @PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
   ) = service.recallPrisoner(offenderNo)
 
@@ -112,8 +109,7 @@ class SmokeTestHelperResource(private val service: SmokeTestHelperService) {
   @PostMapping("/offenders/{offenderNo}/details")
   @ProxyUser
   fun updatePrisonerDetails(
-    @PathVariable("offenderNo")
-    @Parameter(description = "offenderNo", required = true, example = "A1234AA")
+    @PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA")
     offenderNo: String,
     @RequestBody @Valid
     prisonerDetails: UpdatePrisonerDetails,

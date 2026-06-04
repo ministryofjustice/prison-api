@@ -64,12 +64,12 @@ public class ScheduleResource {
     @VerifyAgencyAccess
     @PostMapping("/{prisonId}/events-by-location-path")
     @SlowReportQuery
-    public List<PrisonerSchedule> getEventsByLocationPath(@PathVariable("prisonId") @Parameter(description = "The prison Id", required = true) final String prisonId,
-                                                        @NotEmpty @RequestBody @Parameter(description = "The required location paths NOT including the prison Id", required = true, example = "[ '1-1-001', '1-2-001']") final List<String> locationPaths,
-                                                        @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
-                                                        @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
-                                                        @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
-                                                        @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
+    public List<PrisonerSchedule> getEventsByLocationPath(@PathVariable @Parameter(description = "The prison Id", required = true) final String prisonId,
+                                                          @NotEmpty @RequestBody @Parameter(description = "The required location paths NOT including the prison Id", required = true, example = "[ '1-1-001', '1-2-001']") final List<String> locationPaths,
+                                                          @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
+                                                          @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
+                                                          @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
+                                                          @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder) {
         return schedulesService.getLocationGroupEventsByLocationPaths(prisonId, locationPaths, date, timeSlot, sortFields, sortOrder);
     }
 
@@ -82,9 +82,9 @@ public class ScheduleResource {
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/locations/{locationId}/usage/{usage}")
     @SlowReportQuery
-    public List<PrisonerSchedule> getLocationEvents(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
-                                                    @PathVariable("locationId") @Parameter(description = "The location id where event is held.", required = true) final Long locationId,
-                                                    @PathVariable("usage") @Parameter(description = "The locationUsage code from the location object - one of the INTERNAL_LOCATION_USAGE reference codes.", required = true) final String usage,
+    public List<PrisonerSchedule> getLocationEvents(@PathVariable @Parameter(description = "The prison.", required = true) final String agencyId,
+                                                    @PathVariable @Parameter(description = "The location id where event is held.", required = true) final Long locationId,
+                                                    @PathVariable @Parameter(description = "The locationUsage code from the location object - one of the INTERNAL_LOCATION_USAGE reference codes.", required = true) final String usage,
                                                     @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                     @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
                                                     @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
@@ -101,7 +101,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @GetMapping("/locations/{locationId}/activities")
     @SlowReportQuery
-    public List<PrisonerSchedule> getActivitiesAtLocation(@PathVariable("locationId") @Parameter(description = "The location id where activity is held.", required = true) final Long locationId,
+    public List<PrisonerSchedule> getActivitiesAtLocation(@PathVariable @Parameter(description = "The location id where activity is held.", required = true) final Long locationId,
                                                           @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                           @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
                                                           @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
@@ -119,7 +119,7 @@ public class ScheduleResource {
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/activities")
     @SlowReportQuery
-    public List<PrisonerSchedule> getActivitiesAtAllLocations(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
+    public List<PrisonerSchedule> getActivitiesAtAllLocations(@PathVariable @Parameter(description = "The prison.", required = true) final String agencyId,
                                                               @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                               @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
                                                               @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>cellLocation or lastName</b>") final String sortFields,
@@ -137,10 +137,10 @@ public class ScheduleResource {
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @GetMapping("/{agencyId}/suspended-activities-by-date-range")
     @SlowReportQuery
-    public List<PrisonerSchedule> getSuspendedActivitiesAtAllLocationsByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true) final String agencyId,
-                                                                         @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list, default today") final LocalDate fromDate,
-                                                                         @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list, default from date") final LocalDate toDate,
-                                                                         @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
+    public List<PrisonerSchedule> getSuspendedActivitiesAtAllLocationsByDateRange(@PathVariable @Parameter(description = "The prison.", required = true) final String agencyId,
+                                                                                  @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list, default today") final LocalDate fromDate,
+                                                                                  @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list, default from date") final LocalDate toDate,
+                                                                                  @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
         return schedulesService.getSuspendedActivitiesAtAllLocations(agencyId, fromDate, toDate, timeSlot);
     }
 
@@ -153,7 +153,7 @@ public class ScheduleResource {
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @PostMapping("/{agencyId}/count-activities")
     @SlowReportQuery
-    public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable("agencyId") @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
+    public PrisonerActivitiesCount getCountActivitiesByDateRange(@PathVariable @Parameter(description = "The prison.", required = true, example = "MDI") final String agencyId,
                                                                  @RequestParam(value = "fromDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "From date of whereabouts list") @NotNull final LocalDate fromDate,
                                                                  @RequestParam(value = "toDate") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "To Date of whereabouts list") @NotNull final LocalDate toDate,
                                                                  @RequestParam(value = "timeSlots") @Parameter(description = "Set of one or more of AM, PM or ED") @NotEmpty final Set<TimeSlot> timeSlots,
@@ -165,7 +165,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @PostMapping("/{agencyId}/appointments")
     @SlowReportQuery
-    public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getAppointmentsForOffenders(@PathVariable @Parameter(required = true) final String agencyId,
                                                               @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body,
                                                               @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                               @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
@@ -176,7 +176,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @GetMapping("/{agencyId}/appointments")
     @SlowReportQuery
-    public List<ScheduledAppointmentDto> getAppointments(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<ScheduledAppointmentDto> getAppointments(@PathVariable @Parameter(required = true) final String agencyId,
                                                          @RequestParam("date") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date the appointments are scheduled", required = true) final LocalDate date,
                                                          @RequestParam(value = "locationId", required = false) @Parameter(description = "Location id") final Long locationId,
                                                          @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
@@ -187,7 +187,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/visits")
     @SlowReportQuery
-    public List<PrisonerSchedule> getVisits(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getVisits(@PathVariable @Parameter(required = true) final String agencyId,
                                             @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body,
                                             @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                             @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
@@ -198,7 +198,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_ACTIVITIES')")
     @PostMapping("/{agencyId}/activities")
     @SlowReportQuery
-    public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getActivitiesForBookings(@PathVariable @Parameter(required = true) final String agencyId,
                                                            @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body,
                                                            @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                            @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot,
@@ -210,7 +210,7 @@ public class ScheduleResource {
     @VerifyAgencyAccess(overrideRoles = {"GLOBAL_SEARCH"})
     @PostMapping("/{agencyId}/activities-by-event-ids")
     @SlowReportQuery
-    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getActivitiesByEventIds(@PathVariable @Parameter(required = true) final String agencyId,
                                                           @NotEmpty @RequestBody @Parameter(description = "Event ids(mandatory)", required = true) final List<Long> eventIds) {
         return schedulesService.getActivitiesByEventIds(agencyId, eventIds);
     }
@@ -219,7 +219,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/courtEvents")
     @SlowReportQuery
-    public List<PrisonerSchedule> getCourtEvents(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getCourtEvents(@PathVariable @Parameter(required = true) final String agencyId,
                                                  @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body,
                                                  @RequestParam(value = "date", required = false) @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of whereabouts list, default today") final LocalDate date,
                                                  @RequestParam(value = "timeSlot", required = false) @Parameter(description = "AM, PM or ED") final TimeSlot timeSlot) {
@@ -230,7 +230,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @PostMapping("/{agencyId}/externalTransfers")
     @SlowReportQuery
-    public List<PrisonerSchedule> getExternalTransfers(@PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+    public List<PrisonerSchedule> getExternalTransfers(@PathVariable @Parameter(required = true) final String agencyId,
                                                        @RequestBody @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> body,
                                                        @RequestParam("date") @DateTimeFormat(iso = ISO.DATE) @Parameter(description = "Date of scheduled transfer") final LocalDate date) {
         return schedulesService.getExternalTransfers(agencyId, body, date);
@@ -240,7 +240,7 @@ public class ScheduleResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/{prisonerNumber}/scheduled-transfers")
     @SlowReportQuery
-    public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(@PathVariable("prisonerNumber") @Parameter(required = true) final String prisonerNumber) {
+    public List<PrisonerPrisonSchedule> getScheduledTransfersForPrisoner(@PathVariable @Parameter(required = true) final String prisonerNumber) {
         return schedulesService.getScheduledTransfersForPrisoner(prisonerNumber);
     }
 }

@@ -52,7 +52,7 @@ class CourtDateResource(private val courtDateService: CourtDateService) {
   @VerifyOffenderAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   @SlowReportQuery
   fun getCourtDateResults(
-    @PathVariable("offenderNo") @Parameter(
+    @PathVariable @Parameter(
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,
@@ -80,7 +80,7 @@ class CourtDateResource(private val courtDateService: CourtDateService) {
   @VerifyOffenderAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   @SlowReportQuery
   fun getCourtDateChargesAndOutcomes(
-    @PathVariable("offenderNo") @Parameter(
+    @PathVariable @Parameter(
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,

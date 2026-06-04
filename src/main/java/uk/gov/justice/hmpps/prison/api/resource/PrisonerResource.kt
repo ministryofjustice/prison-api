@@ -51,8 +51,7 @@ class PrisonerResource(
   @VerifyOffenderAccess(overrideRoles = ["VIEW_PRISONER_DATA"])
   @GetMapping("/{offenderNo}")
   fun getPrisonersOffenderNo(
-    @PathVariable("offenderNo")
-    @Parameter(description = "The offenderNo to search for", required = true)
+    @PathVariable @Parameter(description = "The offenderNo to search for", required = true)
     offenderNo: String,
   ): List<PrisonerDetail> {
     log.debug("Global Search with search criteria offender No: {}", offenderNo)

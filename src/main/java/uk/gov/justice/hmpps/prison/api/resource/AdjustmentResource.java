@@ -35,7 +35,7 @@ public class AdjustmentResource {
     @Operation(summary = "Offender sentence adjustments.")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{bookingId}/sentence-and-booking")
-    public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(@PathVariable("bookingId") @Parameter(description = "The booking id of the offender", required = true) final Long bookingId) {
+    public BookingAndSentenceAdjustments getBookingAndSentenceAdjustments(@PathVariable @Parameter(description = "The booking id of the offender", required = true) final Long bookingId) {
         return adjustmentService.getBookingAndSentenceAdjustments(bookingId);
     }
 }

@@ -91,11 +91,11 @@ class OffenderIdentifierResource(private val offenderIdentifierService: Offender
   @Operation(summary = "Get a single identifier for the alias by sequence id")
   @GetMapping("/aliases/{offenderId}/offender-identifiers/{offenderIdSeq}")
   fun getOffenderIdentifier(
-    @PathVariable("offenderId") @Parameter(
+    @PathVariable @Parameter(
       description = "The alias identifier (offenderId)",
       required = true,
     ) offenderId: Long,
-    @PathVariable("offenderIdSeq") @Parameter(
+    @PathVariable @Parameter(
       description = "The sequence id",
       required = true,
     ) offenderIdSeq: Long,
@@ -132,11 +132,11 @@ class OffenderIdentifierResource(private val offenderIdentifierService: Offender
   )
   @ProxyUser
   fun updateOffenderIdentifier(
-    @PathVariable("offenderId") @Parameter(
+    @PathVariable @Parameter(
       description = "The alias identifier (offenderId)",
       required = true,
     ) offenderId: Long,
-    @PathVariable("offenderIdSeq") @Parameter(
+    @PathVariable @Parameter(
       description = "The identifier sequence",
       required = true,
     ) offenderIdSeq: Long,
