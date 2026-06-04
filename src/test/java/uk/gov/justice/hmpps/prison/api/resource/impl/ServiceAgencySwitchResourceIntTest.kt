@@ -93,7 +93,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     }
 
     @ParameterizedTest
-    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
+    @ValueSource(strings = ["ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RO", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
     fun `should return a list of agencies for the service`(role: String) {
       webTestClient.get()
         .uri("/api/agency-switches/SOME_SERVICE")
@@ -214,7 +214,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return not found if service does not exist`() {
       webTestClient.post()
         .uri("/api/agency-switches/INVALID/agency/BXI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -227,7 +227,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return not found if agency does not exist`() {
       webTestClient.post()
         .uri("/api/agency-switches/SOME_SERVICE/agency/INVALID")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -240,7 +240,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return conflict if agency already active for a service`() {
       webTestClient.post()
         .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isEqualTo(409)
@@ -250,12 +250,11 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
         }
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
-    fun `should return ok if agency added to the service`(role: String) {
+    @Test
+    fun `should return ok if agency added to the service`() {
       webTestClient.post()
         .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
-        .headers(setAuthorisation(listOf(role)))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isCreated
@@ -292,7 +291,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return not found if service does not exist`() {
       webTestClient.delete()
         .uri("/api/agency-switches/INVALID/agency/MDI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -305,7 +304,7 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return not found if agency does not exist`() {
       webTestClient.delete()
         .uri("/api/agency-switches/SOME_SERVICE/agency/INVALID")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNotFound
@@ -318,18 +317,16 @@ class ServiceAgencySwitchResourceIntTest : ResourceTest() {
     fun `should return ok if agency already inactive for a service`() {
       webTestClient.delete()
         .uri("/api/agency-switches/SOME_SERVICE/agency/BXI")
-        .headers(setAuthorisation(listOf("ROLE_SERVICE_AGENCY_SWITCHES")))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
     }
 
-    @ParameterizedTest
-    @ValueSource(strings = ["ROLE_SERVICE_AGENCY_SWITCHES", "ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW"])
-    fun `should return ok if agency removed from the service`(role: String) {
+    fun `should return ok if agency removed from the service`() {
       webTestClient.delete()
         .uri("/api/agency-switches/SOME_SERVICE/agency/MDI")
-        .headers(setAuthorisation(listOf(role)))
+        .headers(setAuthorisation(listOf("ROLE_PRISON_API__SERVICE_AGENCY_SWITCHES__RW")))
         .accept(MediaType.APPLICATION_JSON)
         .exchange()
         .expectStatus().isNoContent
