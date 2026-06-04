@@ -44,7 +44,7 @@ class CorePersonPhysicalAttributesResource(
   @GetMapping("/{offenderNo}/core-person-record/physical-attributes")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   fun getPhysicalAttributes(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
   ): ResponseEntity<CorePersonPhysicalAttributes> {
     val physicalAttributes = prisonerProfileUpdateService.getPhysicalAttributes(offenderNo)
     return ResponseEntity.ok(physicalAttributes)
@@ -62,7 +62,7 @@ class CorePersonPhysicalAttributesResource(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ProxyUser
   fun updatePhysicalAttributes(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
     @RequestBody(required = true) @Valid physicalAttributes: CorePersonPhysicalAttributesRequest,
   ) {
     prisonerProfileUpdateService.updatePhysicalAttributes(

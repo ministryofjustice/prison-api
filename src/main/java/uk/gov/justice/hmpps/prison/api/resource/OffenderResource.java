@@ -138,7 +138,7 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     public InmateDetail getOffenderDetail(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return inmateService.findOffender(offenderNo, true, false);
     }
 
@@ -279,7 +279,7 @@ public class OffenderResource {
             """)
     @GetMapping("/{offenderNo}/prison-timeline")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
-    public PrisonerInPrisonSummary getOffenderPrisonPeriods(@Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
+    public PrisonerInPrisonSummary getOffenderPrisonPeriods(@PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return movementsService.getPrisonerInPrisonSummary(offenderNo);
     }
 
@@ -309,7 +309,7 @@ public class OffenderResource {
     @ProxyUser
     @VerifyOffenderAccess
     public InmateDetail releasePrisoner(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToReleasePrisoner requestToReleasePrisoner) {
         return releasePrisonerService.releasePrisoner(offenderNo, requestToReleasePrisoner, true);
     }
@@ -325,7 +325,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('RELEASE_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail dischargePrisonerToHospital(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToDischargePrisoner requestToDischargePrisoner) {
         return dischargeToHospitalService.dischargeToHospital(offenderNo, requestToDischargePrisoner);
     }
@@ -341,7 +341,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail recallPrisoner(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToRecall requestToRecall) {
         return bookingIntoPrisonService.recallPrisoner(offenderNo, requestToRecall);
     }
@@ -357,7 +357,7 @@ public class OffenderResource {
     @PreAuthorize("hasAnyRole('BOOKING_CREATE') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail newBooking(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForNewBooking requestForNewBooking) {
         return bookingIntoPrisonService.newBooking(offenderNo, requestForNewBooking);
     }
@@ -372,7 +372,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail transferOutPrisoner(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOut requestToTransferOut) {
         return prisonerTransferService.transferOutPrisoner(offenderNo, requestToTransferOut);
     }
@@ -389,7 +389,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER_ALPHA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail transferOutPrisonerToCourt(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToCourt requestToTransferOut) {
         return prisonerTransferService.transferOutPrisonerToCourt(offenderNo, requestToTransferOut);
     }
@@ -404,7 +404,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER_ALPHA') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail transferOutPrisonerToTemporaryAbsence(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferOutToTemporaryAbsence requestToTransferOut) {
         return prisonerTransferService.transferOutPrisonerToTemporaryAbsence(offenderNo, requestToTransferOut);
     }
@@ -420,7 +420,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail transferInPrisoner(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestToTransferIn requestToTransferIn) {
         return transferIntoPrisonService.transferInFromPrison(offenderNo, requestToTransferIn);
     }
@@ -436,7 +436,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail courtTransferIn(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForCourtTransferIn requestForCourtTransferIn) {
         return transferIntoPrisonService.transferInViaCourt(offenderNo, requestForCourtTransferIn);
     }
@@ -452,7 +452,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('TRANSFER_PRISONER') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public InmateDetail temporaryAbsenceArrival(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Prisoner Number format incorrect") @Parameter(description = "The offenderNo of prisoner", example = "A1234AA", required = true) final String offenderNo,
         @RequestBody @NotNull @Valid final RequestForTemporaryAbsenceArrival requestForTemporaryAbsenceArrival) {
         return transferIntoPrisonService.transferInAfterTemporaryAbsence(offenderNo, requestForTemporaryAbsenceArrival);
     }
@@ -467,7 +467,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/{offenderNo}/addresses")
     @SlowReportQuery
-    public List<AddressDto> getAddressesByOffenderNo(@PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull String offenderNo) {
+    public List<AddressDto> getAddressesByOffenderNo(@PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull String offenderNo) {
         return addressService.getAddressesByOffenderNo(offenderNo);
     }
 
@@ -482,7 +482,7 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}/adjudications")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_ADJUDICATIONS", "VIEW_PRISONER_DATA"})
     public ResponseEntity<AdjudicationSearchResponse> getAdjudicationsByOffenderNo(
-        @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
+        @PathVariable @Parameter(description = "offenderNo", required = true, example = "A1234AA") @NotNull final String offenderNo,
         @RequestParam(value = "offenceId", required = false) @Parameter(description = "An offence id to allow optionally filtering by type of offence") final String offenceId,
         @RequestParam(value = "agencyId", required = false) @Parameter(description = "An agency id to allow optionally filtering by the agency in which the offence occurred") final String agencyId,
         @RequestParam(value = "finding", required = false) @Parameter(description = "Finding code to allow optionally filtering by type of finding", example = "NOT_PROVEN") final String finding,
@@ -518,7 +518,7 @@ public class OffenderResource {
     @Tag(name = "integration-api")
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/{offenderNo}/sentences")
-    public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
+    public OffenderSentenceDetail getOffenderSentenceDetail(@PathVariable @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getOffenderSentenceDetail(offenderNo);
     }
 
@@ -530,7 +530,7 @@ public class OffenderResource {
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}/booking/latest/sentence-summary")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
-    public SentenceSummary getLatestSentenceSummary(@PathVariable("offenderNo") @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
+    public SentenceSummary getLatestSentenceSummary(@PathVariable @Parameter(description = "Noms ID or Prisoner number (also called offenderNo)", required = true) final String offenderNo) {
         return bookingService.getSentenceSummary(offenderNo).orElseThrow(EntityNotFoundException.withId(offenderNo));
     }
 
@@ -542,7 +542,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/damage-obligations")
     public OffenderDamageObligationResponse getOffenderDamageObligations(
-        @NotNull @PathVariable("offenderNo") @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo,
+        @PathVariable @NotNull @Parameter(description = "offenderNo", required = true, example = "A1234AA") final String offenderNo,
         @RequestParam(value = "status", required = false, defaultValue = "ALL") @Parameter(description = "Filter by obligation status. Leave blank to return all", example = "ACTIVE", schema = @Schema(implementation = String.class, allowableValues = {"INACT", "PAID", "ONH", "ACTIVE", "APPEAL"})) final String status
     ) {
         final var damageObligations = offenderDamageObligationService.getDamageObligations(offenderNo, lookupStatusOrDefaultToAll(status));
@@ -568,7 +568,7 @@ public class OffenderResource {
     @GetMapping("/{offenderNo}/transaction-history")
     @SlowReportQuery
     public ResponseEntity<List<OffenderTransactionHistoryDto>> getTransactionsHistory(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
         @Parameter(name = "account_code", description = "Account code", example = "spends", schema = @Schema(implementation = String.class, allowableValues = {"spends", "cash", "savings"})) @RequestParam(value = "account_code", required = false) final String accountCode,
         @Parameter(name = "from_date", description = "Start date for transactions, format yyyy-MM-dd", example = "2019-04-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "from_date", required = false) final LocalDate fromDate,
         @Parameter(name = "to_date", description = "To date for transactions, format yyyy-MM-dd", example = "2019-05-01") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @RequestParam(value = "to_date", required = false) final LocalDate toDate,
@@ -589,7 +589,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/military-records")
     public MilitaryRecords getMilitaryRecords(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo
     ) {
         return offenderMilitaryRecordService.getMilitaryRecords(offenderNo);
     }
@@ -606,7 +606,7 @@ public class OffenderResource {
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
     @ProxyUser
     public ResponseEntity<Void> createMilitaryRecord(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
         @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
         offenderMilitaryRecordService.createMilitaryRecord(offenderNo, militaryRecordRequest);
@@ -626,8 +626,8 @@ public class OffenderResource {
     @ResponseStatus(NO_CONTENT)
     @ProxyUser
     public void updateMilitaryRecord(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
-        @Parameter(name = "militarySeq", description = "Military record sequence number", example = "1", required = true) @PathVariable(value = "militarySeq") @NotNull final Integer militarySeq,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "militarySeq", description = "Military record sequence number", example = "1", required = true) @NotNull final Integer militarySeq,
         @RequestBody @NotNull @Valid final MilitaryRecordRequest militaryRecordRequest
     ) {
         offenderMilitaryRecordService.updateMilitaryRecord(offenderNo, militarySeq, militaryRecordRequest);
@@ -642,7 +642,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"OFFENDER_CONTACTS", "VIEW_CONTACTS"})
     @GetMapping("/{offenderNo}/contacts")
     public OffenderContacts getOffenderContacts(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
         @Parameter(name = "approvedVisitorsOnly", description = "return only contacts approved for visits") @RequestParam(value = "approvedVisitorsOnly", required = false, defaultValue = "false") final boolean approvedVisitors,
         @Parameter(name = "activeOnly", description = "return only active contacts, nb visitors can be inactive contacts") @RequestParam(value = "activeOnly", required = false, defaultValue = "false") final boolean activeOnly
     ) {
@@ -661,7 +661,7 @@ public class OffenderResource {
     @Tag(name = "integration-api")
     @GetMapping("/{offenderNo}/offender-restrictions")
     public OffenderRestrictions getVisitRestrictions(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
         @Parameter(name = "activeRestrictionsOnly", description = "return only restriction that are active (derived from startDate and expiryDate)") @RequestParam(value = "activeRestrictionsOnly", required = false, defaultValue = "true") final boolean activeRestrictionsOnly) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return bookingService.getOffenderRestrictions(booking.getBookingId(), activeRestrictionsOnly);
@@ -676,7 +676,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/scheduled-events")
     public List<ScheduledEvent> getScheduledEvents(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo,
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo,
         @Parameter(description = "Returned events must be scheduled on or after this date (in YYYY-MM-DD format).  The from date must be on or after today.") @RequestParam(value = "fromDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate fromDate,
         @Parameter(description = "Returned events must be scheduled on or before this date (in YYYY-MM-DD format).") @RequestParam(value = "toDate", required = false) @DateTimeFormat(iso = DATE) final LocalDate toDate) {
 
@@ -704,7 +704,7 @@ public class OffenderResource {
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
     @GetMapping("/{offenderNo}/housing-location")
     public OffenderLocation getHousingLocation(
-        @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @PathVariable(value = "offenderNo") @NotNull final String offenderNo) {
+        @PathVariable @Parameter(name = "offenderNo", description = "Offender No", example = "A1234AA", required = true) @NotNull final String offenderNo) {
         final var booking = bookingService.getLatestBookingByOffenderNo(offenderNo);
         return offenderLocationService.getOffenderLocation(booking.getBookingId(), booking);
     }
@@ -877,7 +877,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/phone-numbers/{phoneNumberId}")
     @ProxyUser
     public Telephone updateOffenderPhoneNumber(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                          @PathVariable("phoneNumberId") @Parameter(description = "The phone number ID", required = true) final Long phoneNumberId,
+                                               @PathVariable @Parameter(description = "The phone number ID", required = true) final Long phoneNumberId,
                                                           @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
         return offenderPhonesService.updateOffenderPhoneNumber(prisonerNumber, phoneNumberId, offenderPhoneNumberRequest);
     }
@@ -924,7 +924,7 @@ public class OffenderResource {
     @PutMapping("/{offenderNo}/email-addresses/{emailAddressId}")
     @ProxyUser
     public Email updateOffenderEmailAddress(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                               @PathVariable("emailAddressId") @Parameter(description = "The email address ID", required = true) final Long emailAddressId,
+                                            @PathVariable @Parameter(description = "The email address ID", required = true) final Long emailAddressId,
                                                @RequestBody @NotNull @Valid final OffenderEmailAddressCreateRequest offenderEmailAddressCreateRequest) {
         return offenderEmailsService.updateOffenderEmailAddress(prisonerNumber, emailAddressId, offenderEmailAddressCreateRequest);
     }

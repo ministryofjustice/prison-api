@@ -78,7 +78,7 @@ class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpd
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ResponseStatus(OK)
   fun getAlias(
-    @PathVariable("offenderId") @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
+    @PathVariable @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
   ) = prisonerProfileUpdateService.getAlias(offenderId)
 
   @ApiResponses(
@@ -136,7 +136,7 @@ class AliasResource(private val prisonerProfileUpdateService: PrisonerProfileUpd
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @ProxyUser
   fun updateAlias(
-    @PathVariable("offenderId") @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
+    @PathVariable @Parameter(description = "The alias identifier (offenderId)", required = true) offenderId: Long,
     @RequestBody @NotNull @Valid updateAlias: UpdateAlias,
   ) = prisonerProfileUpdateService.updateAlias(offenderId, updateAlias)
 }

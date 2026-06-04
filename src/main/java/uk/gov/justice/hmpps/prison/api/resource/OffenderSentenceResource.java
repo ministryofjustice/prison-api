@@ -107,7 +107,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Retrieve the current state of the latest Home Detention Curfew for a booking")
     @GetMapping("/booking/{bookingId}/home-detention-curfews/latest")
     @VerifyBookingAccess(overrideRoles = "VIEW_PRISONER_DATA")
-    public HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable("bookingId") Long bookingId) {
+    public HomeDetentionCurfew getLatestHomeDetentionCurfew(@PathVariable Long bookingId) {
         return offenderCurfewService.getLatestHomeDetentionCurfew(bookingId);
     }
 
@@ -134,7 +134,7 @@ public class OffenderSentenceResource {
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> setCurfewChecks(@PathVariable("bookingId") final Long bookingId, @RequestBody @Valid final HdcChecks hdcChecks) {
+    public ResponseEntity<Void> setCurfewChecks(@PathVariable final Long bookingId, @RequestBody @Valid final HdcChecks hdcChecks) {
         offenderCurfewService.setHdcChecks(bookingId, hdcChecks);
         return ResponseEntity.noContent().build();
     }
@@ -149,7 +149,7 @@ public class OffenderSentenceResource {
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/checks-passed")
     @ProxyUser
     @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> clearCurfewChecks(@PathVariable("bookingId") Long bookingId) {
+    public ResponseEntity<Void> clearCurfewChecks(@PathVariable Long bookingId) {
         offenderCurfewService.deleteHdcChecks(bookingId);
         return ResponseEntity.noContent().build();
     }
@@ -164,7 +164,7 @@ public class OffenderSentenceResource {
     @PutMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> setApprovalStatus(@PathVariable("bookingId") final Long bookingId, @RequestBody @Valid final ApprovalStatus approvalStatus) {
+    public ResponseEntity<Void> setApprovalStatus(@PathVariable final Long bookingId, @RequestBody @Valid final ApprovalStatus approvalStatus) {
         offenderCurfewService.setApprovalStatus(bookingId, approvalStatus);
         return ResponseEntity.noContent().build();
     }
@@ -182,7 +182,7 @@ public class OffenderSentenceResource {
     @DeleteMapping("/booking/{bookingId}/home-detention-curfews/latest/approval-status")
     @ProxyUser
     @PreAuthorize("hasAnyRole('MAINTAIN_HDC') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> clearApprovalStatus(@PathVariable("bookingId") Long bookingId) {
+    public ResponseEntity<Void> clearApprovalStatus(@PathVariable Long bookingId) {
         offenderCurfewService.deleteApprovalStatus(bookingId);
         return ResponseEntity.noContent().build();
     }
@@ -217,7 +217,7 @@ public class OffenderSentenceResource {
     @Operation(summary = "Sentence term details for a prisoner", description = "Requires booking access (via caseload) or GLOBAL_SEARCH or VIEW_PRISONER_DATA role.")
     @GetMapping("/booking/{bookingId}/sentenceTerms")
     @VerifyBookingAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
+    public List<OffenderSentenceTerms> getOffenderSentenceTerms(@PathVariable @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId, @RequestParam(value = "filterBySentenceTermCodes", required = false) final List<String> filterBySentenceTermCodes) {
         return bookingService.getOffenderSentenceTerms(bookingId, filterBySentenceTermCodes);
     }
 
@@ -228,7 +228,7 @@ public class OffenderSentenceResource {
     @Tag(name = "integration-api")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA", "PRISON_API__HMPPS_INTEGRATION_API"})
     @GetMapping("/booking/{bookingId}/sentences-and-offences")
-    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetailsByBookingId(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
+    public List<OffenderSentenceAndOffences> getSentenceAndOffenceDetailsByBookingId(@PathVariable @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getSentenceAndOffenceDetails(bookingId);
     }
 

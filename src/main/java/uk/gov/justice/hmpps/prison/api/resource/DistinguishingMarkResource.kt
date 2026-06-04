@@ -65,7 +65,7 @@ class DistinguishingMarkResource(
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/{prisonerNumber}/distinguishing-marks")
   fun getIdentifyingMarksForLatestBooking(
-    @PathVariable("prisonerNumber") @Parameter(
+    @PathVariable @Parameter(
       description = "Prisoner unique reference",
       example = "A1234AA",
       required = true,
@@ -102,12 +102,12 @@ class DistinguishingMarkResource(
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/{prisonerNumber}/distinguishing-mark/{seqId}")
   fun getIdentifyingMark(
-    @PathVariable("prisonerNumber") @Parameter(
+    @PathVariable @Parameter(
       description = "Prisoner unique reference",
       example = "A1234AA",
       required = true,
     ) prisonerNumber: String,
-    @PathVariable("seqId") @Parameter(description = "The sequence id of the mark", required = true) seqId: Int,
+    @PathVariable @Parameter(description = "The sequence id of the mark", required = true) seqId: Int,
   ): DistinguishingMark = service.getMarkForLatestBooking(prisonerNumber, seqId)
 
   @ApiResponses(
@@ -140,7 +140,7 @@ class DistinguishingMarkResource(
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   @GetMapping("/photo/{photoId}")
   fun getImageForDistinguishingMark(
-    @PathVariable("photoId") @Parameter(
+    @PathVariable @Parameter(
       description = "The id of the image",
       required = true,
     ) photoId: Long,
@@ -187,7 +187,7 @@ class DistinguishingMarkResource(
   )
   @ProxyUser
   fun updateImage(
-    @PathVariable("photoId") @Parameter(
+    @PathVariable @Parameter(
       description = "The id of the image",
       required = true,
     ) photoId: Long,
@@ -236,12 +236,12 @@ class DistinguishingMarkResource(
   )
   @ProxyUser
   fun addMarkPhoto(
-    @PathVariable("prisonerNumber") @Parameter(
+    @PathVariable @Parameter(
       description = "Prisoner unique reference",
       example = "A1234AA",
       required = true,
     ) prisonerNumber: String,
-    @PathVariable("seqId") @Parameter(
+    @PathVariable @Parameter(
       description = "The sequence id of the mark",
       required = true,
     ) seqId: Int,
@@ -290,12 +290,12 @@ class DistinguishingMarkResource(
   )
   @ProxyUser
   fun updateMark(
-    @PathVariable("prisonerNumber") @Parameter(
+    @PathVariable @Parameter(
       description = "Prisoner unique reference",
       example = "A1234AA",
       required = true,
     ) prisonerNumber: String,
-    @PathVariable("seqId") @Parameter(
+    @PathVariable @Parameter(
       description = "The sequence id of the mark",
       required = true,
     ) seqId: Int,
@@ -340,7 +340,7 @@ class DistinguishingMarkResource(
   )
   @ProxyUser
   fun createMark(
-    @PathVariable("prisonerNumber") @Parameter(
+    @PathVariable @Parameter(
       description = "Prisoner unique reference",
       example = "A1234AA",
       required = true,

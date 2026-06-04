@@ -87,7 +87,7 @@ public class MovementResource {
     @SlowReportQuery
     @Deprecated(forRemoval = true)
     public MovementCount getRollCountMovements(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "movementDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "The date for which movements are counted, default today.") final LocalDate movementDate) {
         return movementsService.getMovementCount(agencyId, movementDate);
     }
@@ -101,7 +101,7 @@ public class MovementResource {
     @VerifyAgencyAccess
     @GetMapping("/{agencyId}/in/{isoDate}")
     public List<OffenderIn> getMovementsInToday(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId,
         @PathVariable("isoDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "date", required = true) final LocalDate date) {
         return movementsService.getOffendersIn(agencyId, date);
     }
@@ -116,7 +116,7 @@ public class MovementResource {
     @GetMapping("/{agencyId}/in")
     @SlowReportQuery
     public ResponseEntity<List<OffenderIn>> getMovementsInByTimePeriod(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "allMovements", required = false, defaultValue = "false") @Parameter(description = "Returns movements for inactive prisoners") final boolean allMovements,
         @RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "fromDateTime", required = true) final LocalDateTime fromDate,
         @RequestParam(value = "toDateTime", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "toDateTime") final LocalDateTime toDate,
@@ -149,7 +149,7 @@ public class MovementResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offender/{offenderNo}")
     public List<Movement> getMovementsByOffender(
-        @PathVariable("offenderNo") @Parameter(
+        @PathVariable @Parameter(
             description = "The required offender id (mandatory)",
             required = true
         ) final String offenderNo,
@@ -163,7 +163,7 @@ public class MovementResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/booking/{bookingId}")
     public List<BookingMovement> getMovementsByBooking(
-        @PathVariable("bookingId") @Parameter(description = "The booking id", required = true) final Long bookingId
+        @PathVariable @Parameter(description = "The booking id", required = true) final Long bookingId
     ) {
         return movementsService.getMovementsByBooking(bookingId);
     }
@@ -176,7 +176,7 @@ public class MovementResource {
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/enroute")
     public List<OffenderMovement> getEnRouteOffenderMovements(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId,
         @RequestParam(value = "movementDate", required = false) @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "Optional filter on date of movement") final LocalDate movementDate) {
         return movementsService.getEnRouteOffenderMovements(agencyId, movementDate);
     }
@@ -190,7 +190,7 @@ public class MovementResource {
     @VerifyAgencyAccess(overrideRoles = {"ESTABLISHMENT_ROLL"})
     @GetMapping("/{agencyId}/out/{isoDate}")
     public List<OffenderOutTodayDto> getOffendersOutToday(
-        @PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId,
         @PathVariable("isoDate") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) @Parameter(description = "date", required = true) final LocalDate movementsDate,
         @RequestParam(value = "movementType", required = false) @Parameter(description = "The optional movement type to filter by e.g CRT, REL, TAP, TRN") final String movementType
     ) {
@@ -205,7 +205,7 @@ public class MovementResource {
     @Operation(summary = "Count for prisoners in reception.", description = "Requires agency in caseload.")
     @VerifyAgencyAccess
     @GetMapping("/rollcount/{agencyId}/in-reception")
-    public List<OffenderInReception> getOffendersInReception(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
+    public List<OffenderInReception> getOffendersInReception(@PathVariable @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersInReception(agencyId);
     }
 
@@ -218,7 +218,7 @@ public class MovementResource {
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/livingUnit/{livingUnitId}/currently-out")
     @SlowReportQuery
-    public List<OffenderOut> getOffendersCurrentlyOutByLivingUnit(@PathVariable("livingUnitId") @Parameter(description = "The identifier of a living unit, otherwise known as an internal location.", required = true) final Long livingUnitId) {
+    public List<OffenderOut> getOffendersCurrentlyOutByLivingUnit(@PathVariable @Parameter(description = "The identifier of a living unit, otherwise known as an internal location.", required = true) final Long livingUnitId) {
         return movementsService.getOffendersCurrentlyOut(livingUnitId); //not covered by tests ??
     }
 
@@ -230,7 +230,7 @@ public class MovementResource {
     @Operation(summary = "Information on offenders currently out.", description = "Requires role ESTABLISHMENT_ROLL.")
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/agency/{agencyId}/currently-out")
-    public List<OffenderOut> getOffendersCurrentlyOutByPrison(@PathVariable("agencyId") @Parameter(description = "The prison id", required = true) final String agencyId) {
+    public List<OffenderOut> getOffendersCurrentlyOutByPrison(@PathVariable @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersCurrentlyOut(agencyId); //not covered by tests ??
     }
 
@@ -261,8 +261,7 @@ public class MovementResource {
     @PreAuthorize("hasRole('ESTABLISHMENT_ROLL')")
     @GetMapping("/agency/{agencyId}/temporary-absences")
     public List<OutOnTemporaryAbsenceSummary> getTemporaryAbsences(
-        @PathVariable("agencyId")
-        @Parameter(description = "The prison id", required = true) final String agencyId) {
+        @PathVariable @Parameter(description = "The prison id", required = true) final String agencyId) {
         return movementsService.getOffendersOutOnTemporaryAbsence(agencyId);
     }
 
@@ -293,8 +292,7 @@ public class MovementResource {
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA')")
     @GetMapping("/offenders/{offenderNumber}/latest-arrival-date")
     public ResponseEntity<LocalDate> getLatestArrivalDateForPrisoner(
-        @PathVariable("offenderNumber")
-        @Parameter(description = "The offender number", required = true) final String offenderNumber) {
+        @PathVariable @Parameter(description = "The offender number", required = true) final String offenderNumber) {
         Optional<LocalDate> arrivalDate = movementsService.getLatestArrivalDate(offenderNumber);
         return ResponseEntity.ok(arrivalDate.orElse(null));
     }

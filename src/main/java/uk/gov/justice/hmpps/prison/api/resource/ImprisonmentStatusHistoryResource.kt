@@ -49,7 +49,7 @@ class ImprisonmentStatusHistoryResource(private val imprisonmentStatusHistorySer
   @GetMapping("/{offenderNo}")
   @VerifyOffenderAccess(overrideRoles = ["GLOBAL_SEARCH", "VIEW_PRISONER_DATA"])
   fun getImprisonmentStatusHistory(
-    @PathVariable("offenderNo") @Parameter(
+    @PathVariable @Parameter(
       description = "The required offender id (mandatory)",
       required = true,
     ) offenderNo: String,

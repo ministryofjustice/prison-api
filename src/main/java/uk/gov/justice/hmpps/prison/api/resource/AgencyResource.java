@@ -130,7 +130,7 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}")
     public Agency getAgency(
-        @PathVariable("agencyId") @Parameter(description = "The ID of the agency", required = true) final String agencyId,
+        @PathVariable @Parameter(description = "The ID of the agency", required = true) final String agencyId,
         @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
         @RequestParam(value = "agencyType", required = false) @Parameter(description = "Agency Type") final String agencyType,
         @RequestParam(value = "withAddresses", defaultValue = "false", required = false) @Parameter(description = "Returns Address Information") final boolean withAddresses,
@@ -149,7 +149,7 @@ public class AgencyResource {
     @GetMapping("/{agencyId}/receptionsWithCapacity")
     @SlowReportQuery
     public List<OffenderCell> getAgencyActiveReceptionsWithCapacity(
-        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @PathVariable @Parameter(required = true) final String agencyId,
         @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute
     ) {
         return agencyService.getReceptionsWithCapacityInAgency(agencyId, attribute);
@@ -164,7 +164,7 @@ public class AgencyResource {
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}/locations/groups")
     @Deprecated(forRemoval = true)
-    public List<LocationGroup> getAvailableLocationGroups(@PathVariable("agencyId") @Parameter(description = "The prison", required = true) final String agencyId) {
+    public List<LocationGroup> getAvailableLocationGroups(@PathVariable @Parameter(description = "The prison", required = true) final String agencyId) {
         return locationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
@@ -178,7 +178,7 @@ public class AgencyResource {
     @GetMapping("/{agencyId}/eventLocations")
     @Deprecated(forRemoval = true)
     public List<Location> getAgencyEventLocations(
-        @PathVariable("agencyId") @Parameter(required = true) final String agencyId,
+        @PathVariable @Parameter(required = true) final String agencyId,
         @RequestHeader(value = "Sort-Fields", required = false) @Parameter(description = "Comma separated list of one or more of the following fields - <b>description, userDescription</b>") final String sortFields,
         @RequestHeader(value = "Sort-Order", defaultValue = "ASC", required = false) @Parameter(description = "Sort order (ASC or DESC) - defaults to ASC.") final Order sortOrder
     ) {
@@ -196,7 +196,7 @@ public class AgencyResource {
     @GetMapping("/{agencyId}/eventLocationsBooked")
     @SlowReportQuery
     public List<LocationSummary> getAgencyEventLocationsBooked(
-        @PathVariable("agencyId") @Parameter(required = true)
+        @PathVariable @Parameter(required = true)
         final String agencyId,
         @RequestParam("bookedOnDay") @org.springframework.format.annotation.DateTimeFormat(iso = DateTimeFormat.ISO.DATE)
         @Parameter(description = "Filter list to only return locations which prisoners will be attending on this day", required = true)
@@ -255,7 +255,7 @@ public class AgencyResource {
     @Operation(summary = "Prison contact detail.", description = "Prison contact detail.")
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prison/{agencyId}")
-    public PrisonContactDetail getPrisonContactDetail(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
+    public PrisonContactDetail getPrisonContactDetail(@PathVariable @Parameter(required = true) final String agencyId) {
         return agencyService.getPrisonContactDetail(agencyId);
     }
 
@@ -267,7 +267,7 @@ public class AgencyResource {
     @Operation(summary = "Return the payment profile data for the given Agency.", description = "Each agency can configure its own pay profile and this endpoint provides its key data, such as min/max pay and bonus rates. Requires VIEW_PRISON_DATA.")
     @PreAuthorize("hasRole('VIEW_PRISON_DATA')")
     @GetMapping("/{agencyId}/pay-profile")
-    public AgencyPrisonerPayProfile getAgencyPayProfile(@PathVariable("agencyId") @Parameter(required = true) final String agencyId) {
+    public AgencyPrisonerPayProfile getAgencyPayProfile(@PathVariable @Parameter(required = true) final String agencyId) {
         return agencyPrisonerPayProfileService.getAgencyPrisonerPayProfile(agencyId);
     }
 }

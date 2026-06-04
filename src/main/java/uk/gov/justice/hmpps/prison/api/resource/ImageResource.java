@@ -53,7 +53,7 @@ public class ImageResource {
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','PRISON_API__HMPPS_INTEGRATION_API')")
     @GetMapping(value = "/{imageId}/data", produces = "image/jpeg")
     public ResponseEntity<byte[]> getImageData(
-        @PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId,
+        @PathVariable @Parameter(description = "The image id of offender", required = true) final Long imageId,
         @RequestParam(value = "fullSizeImage", defaultValue = "false") @Parameter(description = "Return full size image") final boolean fullSizeImage
     ) {
         return imageService.getImageContent(imageId, fullSizeImage)
@@ -70,7 +70,7 @@ public class ImageResource {
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA','PRISON_API__HMPPS_INTEGRATION_API')")
     @GetMapping("/offenders/{offenderNo}")
     @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
-    public List<ImageDetail> getImagesByOffender(@PathVariable("offenderNo") final String offenderNo) {
+    public List<ImageDetail> getImagesByOffender(@PathVariable final String offenderNo) {
         return imageService.findOffenderImagesFor(offenderNo);
     }
 
@@ -82,7 +82,7 @@ public class ImageResource {
     @Operation(summary = "Image detail (with image data).", description = "Requires role VIEW_PRISONER_DATA.")
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     @GetMapping("/{imageId}")
-    public ImageDetail getPrisonerImage(@PathVariable("imageId") @Parameter(description = "The image id of offender", required = true) final Long imageId) {
+    public ImageDetail getPrisonerImage(@PathVariable @Parameter(description = "The image id of offender", required = true) final Long imageId) {
         return imageService.findImageDetail(imageId);
     }
 
@@ -103,7 +103,7 @@ public class ImageResource {
     )
     @ProxyUser
     public ImageDetail putImageMultiPart(
-        @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @PathVariable("offenderNo") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,
+        @PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @Parameter(description = "The offender number relating to this image.", required = true) final String offenderNo,
         @Parameter(description = "The image as a file to upload", required = true) @RequestPart("file") MultipartFile file,
         @Parameter(description = "The source of the image, this should be either GEN for a file upload or DPS_WEBCAM for an webcam upload.", required = true) @RequestPart String imageSource
     )  {

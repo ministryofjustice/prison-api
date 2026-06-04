@@ -219,7 +219,7 @@ class UserResource(
   @GetMapping("/{username}")
   @SlowReportQuery
   fun getUserDetails(
-    @PathVariable("username") @Parameter(description = "The username of the user.", required = true) username: String,
+    @PathVariable @Parameter(description = "The username of the user.", required = true) username: String,
   ): UserDetail = userService.getUserByUsername(username.uppercase(Locale.getDefault()))
 
   @ApiResponses(ApiResponse(responseCode = "200", description = "The list of user details"))

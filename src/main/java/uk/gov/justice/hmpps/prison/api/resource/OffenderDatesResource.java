@@ -53,7 +53,7 @@ public class OffenderDatesResource {
     @PostMapping("/{bookingId}")
     @PreAuthorize("hasRole('RELEASE_DATES_CALCULATOR') and hasAuthority('SCOPE_write')")
     @ProxyUser
-    public ResponseEntity<SentenceCalcDates> updateOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
+    public ResponseEntity<SentenceCalcDates> updateOffenderKeyDates(@PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId,
                                                                     @RequestBody final RequestToUpdateOffenderDates requestToUpdateOffenderDates) {
         return ResponseEntity.status(HttpStatus.CREATED)
             .body(offenderDatesService.updateOffenderKeyDates(bookingId, requestToUpdateOffenderDates));
@@ -70,7 +70,7 @@ public class OffenderDatesResource {
     @GetMapping("/{bookingId}")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDates(@PathVariable("bookingId") @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
+    public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDates(@PathVariable @Parameter(description = "The booking id of offender", required = true) final Long bookingId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(offenderDatesService.getOffenderKeyDates(bookingId));
     }
@@ -87,7 +87,7 @@ public class OffenderDatesResource {
     @GetMapping("/sentence-calculation/{offenderSentCalcId}")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDatesForOffenderSentCalcId(@PathVariable("offenderSentCalcId") @Parameter(description = "The Offender Sent Calc Id id of offender", required = true) final Long offenderSentCalcId) {
+    public ResponseEntity<OffenderCalculatedKeyDates> getOffenderKeyDatesForOffenderSentCalcId(@PathVariable @Parameter(description = "The Offender Sent Calc Id id of offender", required = true) final Long offenderSentCalcId) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(offenderDatesService.getOffenderKeyDatesByOffenderSentCalcId(offenderSentCalcId));
     }
@@ -103,8 +103,8 @@ public class OffenderDatesResource {
     @GetMapping("/calculations/{nomsId}")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable("nomsId") @Parameter(description = "The booking id of offender", required = true) final String nomsId,
-            @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
+    public ResponseEntity<List<SentenceCalculationSummary>> getOffenderCalculations(@PathVariable @Parameter(description = "The booking id of offender", required = true) final String nomsId,
+                                                                                    @Parameter(name = "latestOnly", description = "return only calculations from the latest booking") @RequestParam(value = "latestOnly", required = false, defaultValue = "true") final Boolean latestOnly) {
         return ResponseEntity.status(HttpStatus.OK)
             .body(bookingService.getOffenderSentenceCalculationsForPrisoner(nomsId, latestOnly));
     }
@@ -119,7 +119,7 @@ public class OffenderDatesResource {
     @GetMapping("/latest-tused/{nomsId}")
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
     @ProxyUser
-    public LatestTusedData getOffenderLatestTused(@PathVariable("nomsId") @Parameter(description = "The nomis id of the offender", required = true) final String nomsId) {
+    public LatestTusedData getOffenderLatestTused(@PathVariable @Parameter(description = "The nomis id of the offender", required = true) final String nomsId) {
         return offenderDatesService.getLatestTusedDataFromNomsId(nomsId);
     }
 }

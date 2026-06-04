@@ -57,9 +57,7 @@ public class OffenceResource {
     @ReferenceData(description = "Only offence reference data is returned")
     @Deprecated
     public Page<OffenceDto> getOffencesThatStartWith(
-        @Parameter(required = true, example = "AA1256A", description = "The offence code")
-        @PathVariable("offenceCode")
-        final String offenceCode,
+        @PathVariable @Parameter(required = true, example = "AA1256A", description = "The offence code") final String offenceCode,
         @ParameterObject @PageableDefault(sort = {"code"}, direction = Sort.Direction.ASC) final Pageable pageable) {
         log.debug("Request received to fetch offences that start with offenceCode {}", offenceCode);
         return service.getOffencesThatStartWith(offenceCode, pageable);

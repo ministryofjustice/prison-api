@@ -39,7 +39,7 @@ public class OffenderFinePaymentResource {
     @Operation(summary = "Offender fine payments for a prisoner")
     @GetMapping("/booking/{bookingId}")
     @VerifyBookingAccess(overrideRoles = {"VIEW_PRISONER_DATA"})
-    public List<OffenderFinePaymentDto> getOffenderFinePayments(@PathVariable("bookingId") @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
+    public List<OffenderFinePaymentDto> getOffenderFinePayments(@PathVariable @Parameter(description = "The required booking id (mandatory)", required = true) final Long bookingId) {
         return bookingService.getOffenderFinePayments(bookingId);
     }
 }

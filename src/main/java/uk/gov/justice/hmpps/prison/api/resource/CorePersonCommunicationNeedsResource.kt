@@ -46,7 +46,7 @@ class CorePersonCommunicationNeedsResource(
   @GetMapping("/{offenderNo}/core-person-record/communication-needs")
   @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
   fun getCommunicationNeeds(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
   ): ResponseEntity<CorePersonCommunicationNeeds> {
     val communicationNeeds = prisonerProfileUpdateService.getCommunicationNeeds(offenderNo)
     return ResponseEntity.ok(communicationNeeds)
@@ -64,7 +64,7 @@ class CorePersonCommunicationNeedsResource(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ProxyUser
   fun updateLanguagePreferences(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
     @RequestBody(required = true) @Valid languagePreferences: CorePersonLanguagePreferencesRequest,
   ) {
     prisonerProfileUpdateService.createOrUpdateLanguagePreferences(offenderNo, languagePreferences)
@@ -82,7 +82,7 @@ class CorePersonCommunicationNeedsResource(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ProxyUser
   fun addSecondaryLanguage(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
     @RequestBody(required = true) @Valid secondaryLanguage: CorePersonSecondaryLanguageRequest,
   ) {
     prisonerProfileUpdateService.addOrUpdateSecondaryLanguage(offenderNo, secondaryLanguage)
@@ -100,8 +100,8 @@ class CorePersonCommunicationNeedsResource(
   @ResponseStatus(HttpStatus.NO_CONTENT)
   @ProxyUser
   fun deleteSecondaryLanguage(
-    @PathVariable("offenderNo") @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
-    @PathVariable("languageCode") @Parameter(description = "The code for the secondary language to delete", required = true) languageCode: @NotNull String,
+    @PathVariable @Parameter(description = "The offender number", required = true) offenderNo: @NotNull String,
+    @PathVariable @Parameter(description = "The code for the secondary language to delete", required = true) languageCode: @NotNull String,
   ) {
     prisonerProfileUpdateService.deleteSecondaryLanguage(offenderNo, languageCode)
   }

@@ -36,8 +36,7 @@ public class PrisonerStatusController {
             @ApiResponse(responseCode = "401", description = "Unauthorized.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
             @ApiResponse(responseCode = "404", description = "User not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @VerifyOffenderAccess(overrideRoles = {"GLOBAL_SEARCH", "VIEW_PRISONER_DATA"})
-    public PrisonerInformation getPrisonerInformationById(@Parameter(name = "offenderNo", description = "Offender No (NOMS ID)", required = true, example = "A1234AA")
-                                                         @PathVariable("offenderNo") final String offenderNo) {
+    public PrisonerInformation getPrisonerInformationById(@PathVariable @Parameter(name = "offenderNo", description = "Offender No (NOMS ID)", required = true, example = "A1234AA") final String offenderNo) {
         return service.getPrisonerInformationById(offenderNo);
     }
 }

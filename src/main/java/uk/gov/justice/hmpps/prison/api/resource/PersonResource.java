@@ -40,7 +40,7 @@ public class PersonResource {
     @Operation(summary = "The addresses for person", description = "Requires role ROLE_VIEW_CONTACTS")
     @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/addresses")
-    public List<AddressDto> getPersonAddresses(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<AddressDto> getPersonAddresses(@PathVariable @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getAddresses(personId);
     }
 
@@ -52,7 +52,7 @@ public class PersonResource {
     @Operation(summary = "The phone numbers for person", description = "Requires role ROLE_VIEW_CONTACTS")
     @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/phones")
-    public List<Telephone> getPersonPhones(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<Telephone> getPersonPhones(@PathVariable @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getPhones(personId);
     }
 
@@ -64,7 +64,7 @@ public class PersonResource {
     @Operation(summary = "The emails for person", description = "Requires role ROLE_VIEW_CONTACTS")
     @PreAuthorize("hasRole('VIEW_CONTACTS')")
     @GetMapping("/{personId}/emails")
-    public List<Email> getPersonEmails(@PathVariable("personId") @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
+    public List<Email> getPersonEmails(@PathVariable @Parameter(description = "The persons NOMIS identifier (personId).", required = true) final Long personId) {
         return service.getEmails(personId);
     }
 }
