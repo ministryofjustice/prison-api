@@ -222,6 +222,8 @@ public class MovementsRepository extends RepositoryBase {
             MovementsRepositorySql.GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
             createParams("agencyListFrom", agencies,
                 "agencyListTo", agencies,
+                "fromDate", DateTimeConverter.toDate(from.toLocalDate()),
+                "toDate", DateTimeConverter.toDate(to.toLocalDate()),
                 "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
                 "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
             COURT_EVENT_MAPPER);

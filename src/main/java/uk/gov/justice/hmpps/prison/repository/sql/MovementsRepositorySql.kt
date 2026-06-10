@@ -415,6 +415,7 @@ enum class MovementsRepositorySql(val sql: String) {
                 LEFT JOIN AGENCY_LOCATIONS AL1  ON AL1.AGY_LOC_ID = OB.AGY_LOC_ID
                 LEFT JOIN AGENCY_LOCATIONS AL2  ON AL2.AGY_LOC_ID = CE.AGY_LOC_ID
                 WHERE CE.HOLD_FLAG <>  'Y'
+        AND CE.EVENT_DATE BETWEEN :fromDate AND :toDate
         AND CE.START_TIME BETWEEN :fromDateTime AND :toDateTime
         AND (OB.AGY_LOC_ID IN (:agencyListFrom) OR CE.AGY_LOC_ID IN (:agencyListTo))
     """,
