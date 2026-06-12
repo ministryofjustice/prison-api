@@ -3,7 +3,7 @@ package uk.gov.justice.hmpps.prison.web.filter
 import jakarta.servlet.FilterChain
 import jakarta.servlet.http.HttpServletRequest
 import jakarta.servlet.http.HttpServletResponse
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import org.mockito.Mockito.anyString
 import org.mockito.Mockito.mockStatic
 import org.mockito.Mockito.verify
