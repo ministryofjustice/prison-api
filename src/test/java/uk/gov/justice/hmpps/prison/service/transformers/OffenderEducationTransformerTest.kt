@@ -1,7 +1,7 @@
 package uk.gov.justice.hmpps.prison.service.transformers
 
 import org.assertj.core.api.Assertions.assertThat
-import org.junit.Test
+import org.junit.jupiter.api.Test
 import uk.gov.justice.hmpps.prison.repository.jpa.model.EducationLevel
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEducation
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderEducationAddress
