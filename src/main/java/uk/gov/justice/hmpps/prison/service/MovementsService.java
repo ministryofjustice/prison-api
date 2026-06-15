@@ -10,19 +10,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.Pageable;
-import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.springframework.util.CollectionUtils;
 import org.springframework.validation.annotation.Validated;
-import org.springframework.web.client.HttpClientErrorException;
 import uk.gov.justice.hmpps.prison.api.model.BookingMovement;
 import uk.gov.justice.hmpps.prison.api.model.CourtEvent;
 import uk.gov.justice.hmpps.prison.api.model.CourtEventBasic;
 import uk.gov.justice.hmpps.prison.api.model.CreateExternalMovement;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
-import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
 import uk.gov.justice.hmpps.prison.api.model.OffenderLatestArrivalDate;
@@ -52,6 +48,7 @@ import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -239,125 +236,52 @@ public class MovementsService {
             .collect(toList());
     }
 
-    public TransferSummary getTransferMovementsForAgencies(final List<String> agencyIds,
-                                                           final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
-                                                           final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents, final boolean movements) {
-
-        checkTransferParametersAndThrowIfIncorrect(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
-
+    public TransferSummary getTransferMovementsForAgencies(final String agencyId,
+                                                           final LocalDateTime fromDateTime) {
+        final var onDate = fromDateTime.toLocalDate();
         long timing1 = System.currentTimeMillis();
-        final List<CourtEvent> listOfCourtEvents = courtEvents ?
-            movementsRepository.getCourtEvents(agencyIds, fromDateTime, toDateTime).stream()
+        final List<CourtEvent> listOfCourtEvents = movementsRepository.getCourtEvents(agencyId, onDate).stream()
                 .map(event -> event.toBuilder()
                     .fromAgencyDescription(LocationProcessor.formatLocation(event.getFromAgencyDescription()))
                     .toAgencyDescription(LocationProcessor.formatLocation(event.getToAgencyDescription()))
                     .build())
-                .collect(toList()) :
-            List.of();
+                .collect(toList());
 
         long timing2 = System.currentTimeMillis();
-        final List<ReleaseEvent> listOfReleaseEvents = releaseEvents ?
-            movementsRepository.getOffenderReleases(agencyIds, fromDateTime, toDateTime).stream()
+        final List<ReleaseEvent> listOfReleaseEvents = movementsRepository.getOffenderReleases(agencyId, onDate).stream()
                 .map(event -> event.toBuilder()
                     .fromAgencyDescription(LocationProcessor.formatLocation(event.getFromAgencyDescription()))
                     .build())
-                .collect(toList()) :
-            List.of();
+                .collect(toList());
 
         long timing3 = System.currentTimeMillis();
-        final List<TransferEvent> listOfTransferEvents = transferEvents ?
-            getTransferEvents(agencyIds, fromDateTime, toDateTime) :
-            List.of();
+        final List<TransferEvent> listOfTransferEvents = movementsRepository.getIndividualSchedules(agencyId, onDate).stream()
+            .filter(isTransferAndNotDeleted())
+            .map(scheduled -> scheduled.toBuilder()
+                .fromAgencyDescription(LocationProcessor.formatLocation(scheduled.getFromAgencyDescription()))
+                .toAgencyDescription(LocationProcessor.formatLocation(scheduled.getToAgencyDescription()))
+                .build())
+            .collect(toList());
 
         long timing4 = System.currentTimeMillis();
-        final List<MovementSummary> listOfMovements = movements ?
-            movementsRepository.getCompletedMovementsForAgencies(agencyIds, fromDateTime, toDateTime).stream()
-                .map(event -> event.toBuilder()
-                    .fromAgencyDescription(LocationProcessor.formatLocation(event.getFromAgencyDescription()))
-                    .toAgencyDescription(LocationProcessor.formatLocation(event.getToAgencyDescription()))
-                    .build())
-                .collect(toList()) :
-            List.of();
-
-        long timing5 = System.currentTimeMillis();
         Map<String, String> telemetryMap = new HashMap<>();
-        telemetryMap.put("agencyIds", agencyIds.toString());
-        telemetryMap.put("fromDateTime", fromDateTime.toString());
-        telemetryMap.put("toDateTime", toDateTime.toString());
-        telemetryMap.put("courtEvents", String.valueOf(courtEvents));
-        telemetryMap.put("releaseEvents", String.valueOf(releaseEvents));
-        telemetryMap.put("transferEvents", String.valueOf(transferEvents));
-        telemetryMap.put("movements", String.valueOf(movements));
+        telemetryMap.put("agencyId", agencyId);
+        telemetryMap.put("fromDate", onDate.toString());
         telemetryMap.put("COURT_EVENTS", String.valueOf(timing2 - timing1));
         telemetryMap.put("OFFENDER_RELEASE_DETAILS", String.valueOf(timing3 - timing2));
         telemetryMap.put("OFFENDER_IND_SCHEDULES", String.valueOf(timing4 - timing3));
-        telemetryMap.put("OFFENDER_EXTERNAL_MOVEMENTS", String.valueOf(timing5 - timing4));
         telemetryClient.trackEvent("getTransferMovementsForAgencies", telemetryMap, null);
 
         return TransferSummary.builder()
             .courtEvents(listOfCourtEvents)
             .releaseEvents(listOfReleaseEvents)
             .transferEvents(listOfTransferEvents)
-            .movements(listOfMovements)
+            .movements(Collections.emptyList())
             .build();
-    }
-
-    private void checkTransferParametersAndThrowIfIncorrect(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime,
-                                                            final boolean courtEvents, final boolean releaseEvents, final boolean transferEvents,
-                                                            final boolean movements) {
-        // Needs at least one agency ID specified
-        if (CollectionUtils.isEmpty(agencyIds))
-            logErrorAndThrowBadRequest("No agency location identifiers were supplied");
-
-        // The from time must be before the to time
-        if (fromDateTime.isAfter(toDateTime))
-            logErrorAndThrowBadRequest("The supplied fromDateTime parameter is after the toDateTime value");
-
-        // The time period requested must be shorter than or equal to 24 hours
-        if (toDateTime.isAfter(fromDateTime.plusHours(24)))
-            logErrorAndThrowBadRequest("The supplied time period is more than 24 hours - limit to 24 hours maximum");
-
-        // One of the event/movement type query parameters must be true
-        if (!courtEvents && !releaseEvents && !transferEvents && !movements)
-            logErrorAndThrowBadRequest("At least one query parameter must be true [courtEvents|releaseEvents|transferEvents|movements]");
-    }
-
-    private void logErrorAndThrowBadRequest(final String errorMessage) {
-        log.info("Request parameters supplied were not valid - {}", errorMessage);
-        throw new HttpClientErrorException(HttpStatus.BAD_REQUEST, errorMessage);
-    }
-
-    private List<TransferEvent> getTransferEvents(final List<String> agencyIds, final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
-        final var datesToTry = splitDatesIfTheySpanAcrossDifferentDays(fromDateTime, toDateTime);
-
-        return datesToTry.stream()
-            .flatMap(date -> movementsRepository.getIndividualSchedules(agencyIds, date).stream())
-            .filter(isTransferAndNotDeleted())
-            .filter(isStartTimeBetween(fromDateTime, toDateTime))
-            .map(scheduled -> scheduled.toBuilder()
-                .fromAgencyDescription(LocationProcessor.formatLocation(scheduled.getFromAgencyDescription()))
-                .toAgencyDescription(LocationProcessor.formatLocation(scheduled.getToAgencyDescription()))
-                .build())
-            .collect(toList());
     }
 
     private Predicate<TransferEvent> isTransferAndNotDeleted() {
         return scheduledEvent -> scheduledEvent.getEventClass().equals("EXT_MOV") && !scheduledEvent.getEventStatus().equals("DEL");
-    }
-
-    private Predicate<TransferEvent> isStartTimeBetween(final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
-        return scheduledEvent -> {
-            final var startTime = scheduledEvent.getStartTime();
-            return startTime != null && (startTime.isEqual(fromDateTime) || startTime.isAfter(fromDateTime) &&
-                (startTime.isEqual(toDateTime) || startTime.isBefore(toDateTime)));
-        };
-    }
-
-    private List<LocalDate> splitDatesIfTheySpanAcrossDifferentDays(final LocalDateTime fromDateTime, final LocalDateTime toDateTime) {
-        if (toDateTime.toLocalDate().isAfter(fromDateTime.toLocalDate()))
-            return List.of(fromDateTime.toLocalDate(), toDateTime.toLocalDate());
-
-        return List.of(fromDateTime.toLocalDate());
     }
 
     public List<CourtEventBasic> getUpcomingCourtAppearances() {
