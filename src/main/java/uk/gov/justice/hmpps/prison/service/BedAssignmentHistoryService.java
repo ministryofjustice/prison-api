@@ -114,7 +114,7 @@ public class BedAssignmentHistoryService {
             .description(agencyDescription)
             .assignmentDate(assignment.getAssignmentDate())
             .assignmentEndDate(assignment.getAssignmentEndDate())
-            .assignmentDateTime(assignment.getAssignmentDateTime())
+            .assignmentDateTime(assignment.getAssignmentDate().atTime(assignment.getAssignmentDateTime().toLocalTime()))
             .assignmentEndDateTime(assignment.getAssignmentEndDateTime())
             .assignmentReason(assignment.getAssignmentReason())
             .bookingId(assignment.getOffenderBooking().getBookingId())
