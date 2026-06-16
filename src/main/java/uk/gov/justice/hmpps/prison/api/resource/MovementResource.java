@@ -236,21 +236,16 @@ public class MovementResource {
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid agency identifiers, or from time after the to time, or a time period greater than 24 hours specified, or parameter format not correct.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "400", description = "Invalid agency id, date or parameter format not correct.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Information on scheduled court, transfer and release events, and confirmed movements between two dates/times for a specified number of agencies.",
+    @Operation(summary = "Information on scheduled court, transfer and release events for a specific prison.",
         description = "Planned movements are recorded as events of type court, release or transfers/appointments. When these events are started they are actualised as external movements.")
     @PreAuthorize("hasRole('GLOBAL_SEARCH')")
     @GetMapping("/transfers")
     @SlowReportQuery
-    public TransferSummary getTransfers(@RequestParam("agencyId") @NotEmpty @Parameter(description = "One or more agencyId values eg.agencyId=LEI&agencyId=MDI", required = true) final List<String> agencyIds,
-                                        @RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime fromDateTime,
-                                        @RequestParam("toDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "To date and time in ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime toDateTime,
-                                        @RequestParam(value = "courtEvents", required = false, defaultValue = "false") @Parameter(description = "Set to true to include planned court events") final boolean courtEvents,
-                                        @RequestParam(value = "releaseEvents", required = false, defaultValue = "false") @Parameter(description = "Set to true to include planned release events") final boolean releaseEvents,
-                                        @RequestParam(value = "transferEvents", required = false, defaultValue = "false") @Parameter(description = "Set to true to include planned transfer/appointment events") final boolean transferEvents,
-                                        @RequestParam(value = "movements", required = false, defaultValue = "false") @Parameter(description = "Set to true to include confirmed movements") final boolean movements) {
-        return movementsService.getTransferMovementsForAgencies(agencyIds, fromDateTime, toDateTime, courtEvents, releaseEvents, transferEvents, movements);
+    public TransferSummary getTransfers(@RequestParam("agencyId") @NotEmpty @Parameter(description = "Thye prison e.g. MDI", required = true) final String agencyId,
+                                        @RequestParam("fromDateTime") @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @Parameter(description = "From date and time ISO 8601 format without timezone e.g. YYYY-MM-DDTHH:MM:SS", required = true) final LocalDateTime fromDateTime) {
+        return movementsService.getTransferMovementsForAgencies(agencyId, fromDateTime);
     }
 
     @ApiResponses({

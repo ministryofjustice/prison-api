@@ -19,6 +19,8 @@ import org.springframework.http.HttpMethod.POST
 import org.springframework.http.HttpStatus.OK
 import org.springframework.http.MediaType.APPLICATION_JSON_VALUE
 import org.springframework.http.ResponseEntity
+import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.test.web.reactive.server.expectBodyList
 import org.springframework.web.util.UriComponentsBuilder
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse
 import uk.gov.justice.hmpps.prison.api.model.Movement
@@ -188,7 +190,7 @@ class MovementResourceTest : ResourceTest() {
         .bodyValue(listOf("A6676RS", "Z0021ZZ"))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(Movement::class.java)
+        .expectBodyList<Movement>()
         .returnResult()
         .responseBody!!
 
@@ -214,7 +216,7 @@ class MovementResourceTest : ResourceTest() {
         .bodyValue(listOf("A1181FF", "A6676RS"))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(Movement::class.java)
+        .expectBodyList<Movement>()
         .returnResult()
         .responseBody!!
 
@@ -497,7 +499,7 @@ class MovementResourceTest : ResourceTest() {
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(MovementCount::class.java)
+        .expectBodyList<MovementCount>()
         .returnResult()
         .responseBody!!
 
@@ -592,7 +594,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderMovement::class.java)
+        .expectBodyList<OffenderMovement>()
         .returnResult()
         .responseBody!!
 
@@ -660,7 +662,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderIn::class.java)
+        .expectBodyList<OffenderIn>()
         .returnResult()
         .responseBody!!
 
@@ -707,7 +709,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderIn::class.java)
+        .expectBodyList<OffenderIn>()
         .returnResult()
         .responseBody!!
 
@@ -750,7 +752,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderIn::class.java)
+        .expectBodyList<OffenderIn>()
         .returnResult()
         .responseBody!!
 
@@ -810,7 +812,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderIn::class.java)
+        .expectBodyList<OffenderIn>()
         .returnResult()
         .responseBody!!
 
@@ -883,7 +885,7 @@ class MovementResourceTest : ResourceTest() {
         .header("Content-Type", APPLICATION_JSON_VALUE)
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderInReception::class.java)
+        .expectBodyList<OffenderInReception>()
         .returnResult()
         .responseBody!!
 
@@ -1150,7 +1152,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderOutTodayDto::class.java)
+        .expectBodyList<OffenderOutTodayDto>()
         .returnResult()
         .responseBody!!
 
@@ -1181,7 +1183,7 @@ class MovementResourceTest : ResourceTest() {
         .headers(setAuthorisation("ITAG_USER", listOf()))
         .exchange()
         .expectStatus().isOk
-        .expectBodyList(OffenderOutTodayDto::class.java)
+        .expectBodyList<OffenderOutTodayDto>()
         .returnResult()
         .responseBody!!
 
@@ -1250,63 +1252,51 @@ class MovementResourceTest : ResourceTest() {
   inner class ScheduledMovements {
     @Test
     fun courtEvents() {
-      val response = getScheduledMovements(true, false, false)
+      val response = getScheduledMovements()
       assertThatStatus(response, OK.value())
-      assertThat(getBodyAsJsonContent<Any>(response)).isStrictlyEqualToJson("get_court_events.json")
+      assertThat(getBodyAsJsonContent<Any>(response)).isStrictlyEqualToJson("get_events.json")
     }
 
     @Test
     fun releaseEvents() {
       val fromDateTime = LocalDate.of(2018, 4, 23).atStartOfDay()
-      val toDateTime = LocalDate.of(2018, 4, 23).atTime(20, 10)
-      val response = getScheduledMovements(false, true, false, fromDateTime, toDateTime)
+      val response = getScheduledMovements(fromDateTime)
       assertThatStatus(response, OK.value())
       assertThatJson(response.body!!).isEqualTo("get_release_events.json".readFile())
     }
 
-    @Test
-    fun transferEvents() {
-      val response = getScheduledMovements(false, false, true)
-      assertThatStatus(response, OK.value())
-      assertThat(getBodyAsJsonContent<Any>(response)).isStrictlyEqualToJson("get_transfer_events.json")
-    }
-
     @ParameterizedTest
     @MethodSource("getAgenciesAndTimes")
-    fun `Get the details of the external movements between two times for a list of agencies`(row: MovementParameters) {
-      val a1Param = if (row.agency1.isBlank()) "" else "&agencyId=${row.agency1}"
-      val a2Param = if (row.agency2.isBlank()) "" else "&agencyId=${row.agency2}"
-      val uri =
-        "/api/movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}$a1Param$a2Param&courtEvents=true&releaseEvents=true&transferEvents=true&movements=true"
+    fun `Get the details of the external movements between two times for an agency`(row: MovementParameters) {
+      val a1Param = if (row.agency.isBlank()) "" else "&agencyId=${row.agency}"
+      val uri = "/api/movements/transfers?fromDateTime={fromTime}$a1Param"
       val response = webTestClient.get()
-        .uri(uri, row.fromTime, row.toTime)
+        .uri(uri, row.fromTime)
         .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
         .exchange()
         .expectStatus().isOk
-        //  .expectBody().json("""{ "stuff": 0}""")
-        .expectBody(TransferSummary::class.java)
+        .expectBody<TransferSummary>()
         .returnResult()
         .responseBody!!
 
       assertThat(response.courtEvents).hasSize(row.courtCount)
       assertThat(response.releaseEvents).hasSize(row.releaseCount)
       assertThat(response.transferEvents).hasSize(row.transferCount)
-      assertThat(response.movements).hasSize(row.movementCount)
+      assertThat(response.movements).hasSize(0)
     }
 
     @ParameterizedTest
     @MethodSource("getAgenciesAndTimesValidation")
-    fun `Get the details of the external movements between two times for a list of agencies - validation`(row: MovementParameters) {
-      val a1Param = if (row.agency1.isBlank()) "" else "&agencyId=${row.agency1}"
-      val a2Param = if (row.agency2.isBlank()) "" else "&agencyId=${row.agency2}"
+    fun `Get the details of the external movements between two times for an agency - validation`(row: MovementParameters) {
+      val a1Param = if (row.agency.isBlank()) "" else "&agencyId=${row.agency}"
       val uri =
-        "/api/movements/transfers?fromDateTime={fromTime}&toDateTime={toTime}$a1Param$a2Param&courtEvents=true&releaseEvents=true&transferEvents=true&movements=true"
+        "/api/movements/transfers?fromDateTime={fromTime}$a1Param"
       val response = webTestClient.get()
-        .uri(uri, row.fromTime, row.toTime)
+        .uri(uri, row.fromTime)
         .headers(setClientAuthorisation(listOf("GLOBAL_SEARCH")))
         .exchange()
         .expectStatus().isBadRequest
-        .expectBody(ErrorResponse::class.java)
+        .expectBody<ErrorResponse>()
         .returnResult()
         .responseBody!!
 
@@ -1315,35 +1305,20 @@ class MovementResourceTest : ResourceTest() {
 
     @SuppressWarnings("unused")
     private fun getAgenciesAndTimes() = listOf(
-      MovementParameters("LEI", "", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 2, 1, 1, 0),
-      MovementParameters("MDI", "LEI", "2019-05-01T00:00:00", "2019-05-01T00:00:00", 0, 0, 0, 1),
-      MovementParameters("LEI", "MDI", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 3, 1, 1, 1),
-      MovementParameters("INVAL", "INVAL", "2019-05-01T11:00:00", "2019-05-01T18:00:00", 0, 0, 0, 0),
+      MovementParameters("LEI", "2019-05-01T11:00:00", 1, 1, 0),
+      MovementParameters("MDI", "2019-05-01T00:00:00", 0, 1, 1),
+      MovementParameters("LEI", "2019-05-01T11:00:00", 1, 1, 0),
+      MovementParameters("INVAL", "2019-05-01T11:00:00", 0, 0, 0),
     )
 
     @SuppressWarnings("unused")
     private fun getAgenciesAndTimesValidation() = listOf(
-      MovementParameters("LEI", "MDI", "2019-05-01T17:00:00", "2019-05-01T11:00:00", 0, 0, 0, 0),
-      MovementParameters("LEI", "LEI", "2019-05-01TXX:XX:XX", "2019-05-01TXX:XX:XX", 0, 0, 0, 0),
-      MovementParameters("", "", "2019-05-01T11:00:00", "2019-05-01T17:00:00", 0, 0, 0, 0),
+      MovementParameters("LEI", "2019-05-01TXX:XX:XX", 0, 0, 0),
+      MovementParameters("", "2019-05-01T11:00:00", 0, 0, 0),
     )
 
     private fun getScheduledMovements(
-      courtEvents: Boolean,
-      releaseEvents: Boolean,
-      transferEvents: Boolean,
-    ): ResponseEntity<String> {
-      val fromDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0)
-      val toDateTime = LocalDate.of(2020, 1, 1).atTime(12, 0)
-      return getScheduledMovements(courtEvents, releaseEvents, transferEvents, fromDateTime, toDateTime)
-    }
-
-    private fun getScheduledMovements(
-      courtEvents: Boolean,
-      releaseEvents: Boolean,
-      transferEvents: Boolean,
-      fromDateTime: LocalDateTime,
-      toDateTime: LocalDateTime,
+      fromDateTime: LocalDateTime = LocalDate.of(2020, 1, 1).atTime(9, 0),
     ): ResponseEntity<String> {
       val token = authTokenHelper.getToken(AuthToken.GLOBAL_SEARCH)
       return testRestTemplate.exchange(
@@ -1351,10 +1326,6 @@ class MovementResourceTest : ResourceTest() {
           .fromPath("/api/movements/transfers")
           .queryParam("agencyId", "LEI")
           .queryParam("fromDateTime", fromDateTime)
-          .queryParam("toDateTime", toDateTime)
-          .queryParam("courtEvents", courtEvents)
-          .queryParam("releaseEvents", releaseEvents)
-          .queryParam("transferEvents", transferEvents)
           .build()
           .toUriString(),
         GET,
@@ -1560,11 +1531,8 @@ class MovementResourceTest : ResourceTest() {
   internal fun String.readFile(): String = this@MovementResourceTest::class.java.getResource(this)!!.readText()
 
   data class MovementParameters(
-    val agency1: String,
-    val agency2: String,
+    val agency: String,
     val fromTime: String,
-    val toTime: String,
-    val movementCount: Int,
     val courtCount: Int,
     val transferCount: Int,
     val releaseCount: Int,

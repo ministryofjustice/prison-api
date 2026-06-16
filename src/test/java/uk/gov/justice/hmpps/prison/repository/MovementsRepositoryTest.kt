@@ -297,38 +297,9 @@ class MovementsRepositoryTest(
   }
 
   @Test
-  fun canRetrieveMovementsForAgenciesFromTo() {
-    val fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0)
-    val toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0)
-    val agencies = listOf("LEI", "MDI")
-
-    val movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime)
-
-    assertThat(movements)
-      .extracting("offenderNo", "fromAgency", "toAgency")
-      .contains(tuple("Z0018ZZ", "LEI", "BMI"))
-      .contains(tuple("A9876EC", "BMI", "MDI"))
-      .contains(tuple("A1179MT", "MDI", "LEI"))
-  }
-
-  @Test
-  fun canRetrieveCompletedMovementsByAgency() {
-    val fromTime = LocalDateTime.of(2019, Month.MAY, 1, 11, 0, 0)
-    val toTime = LocalDateTime.of(2019, Month.MAY, 1, 17, 0, 0)
-
-    // Agencies not present in seeded data
-    val agencies = listOf("XXX", "YYY")
-    val movements = repository.getCompletedMovementsForAgencies(agencies, fromTime, toTime)
-    assertThat(movements).isEmpty()
-  }
-
-  @Test
   fun canRetrieveCourtEventsByAgency() {
-    val fromTime = LocalDateTime.of(2017, Month.OCTOBER, 16, 17, 0, 0)
-    val toTime = LocalDateTime.of(2017, Month.OCTOBER, 16, 20, 0, 0)
-    val agencies = listOf("LEI")
-
-    val courtEvents = repository.getCourtEvents(agencies, fromTime, toTime)
+    val fromDate = LocalDate.of(2017, Month.OCTOBER, 16)
+    val courtEvents = repository.getCourtEvents("LEI", fromDate)
 
     assertThat(courtEvents).isNotEmpty()
     assertThat(courtEvents)
@@ -338,11 +309,8 @@ class MovementsRepositoryTest(
 
   @Test
   fun canRetrieveReleaseEventsByAgency() {
-    val fromTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 0, 0, 0)
-    val toTime = LocalDateTime.of(2022, Month.FEBRUARY, 2, 23, 59, 59)
-    val agencies = listOf("LEI", "MDI")
-
-    val releaseEvents = repository.getOffenderReleases(agencies, fromTime, toTime)
+    val fromTime = LocalDate.of(2022, Month.FEBRUARY, 2)
+    val releaseEvents = repository.getOffenderReleases("LEI", fromTime)
 
     assertThat(releaseEvents).isNotEmpty()
     assertThat(releaseEvents)
@@ -360,8 +328,7 @@ class MovementsRepositoryTest(
   @Test
   fun getIndividualSchedules() {
     // Match with specific rows loaded in the seeded data
-    val agencies = listOf("LEI", "MDI")
-    val transferEvents = repository.getIndividualSchedules(agencies, LocalDate.now())
+    val transferEvents = repository.getIndividualSchedules("LEI", LocalDate.now())
 
     assertThat(transferEvents)
       .extracting("eventClass", "eventStatus", "eventType", "offenderNo", "fromAgency", "toAgency")

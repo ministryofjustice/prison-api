@@ -1,5 +1,27 @@
 {
-  "courtEvents": [],
+  "courtEvents": [
+    {
+      "offenderNo": "A1234AA",
+      "createDateTime": "2020-01-01T11:00:00",
+      "eventId": -211,
+      "fromAgency": "LEI",
+      "fromAgencyDescription": "Leeds",
+      "toAgency": "ABDRCT",
+      "toAgencyDescription": "Court 2",
+      "eventDate": "2020-01-01",
+      "startTime": "2020-01-01T11:00:00",
+      "endTime": null,
+      "eventClass": "EXT_MOV",
+      "eventType": "CRT",
+      "eventSubType": "CRT",
+      "eventStatus": "SCH",
+      "judgeName": null,
+      "directionCode": "OUT",
+      "commentText": null,
+      "bookingActiveFlag": true,
+      "bookingInOutStatus": "IN"
+    }
+  ],
   "transferEvents": [
     {
       "offenderNo": "A1234AA",

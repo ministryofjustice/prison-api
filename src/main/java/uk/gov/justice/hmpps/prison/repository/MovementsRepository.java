@@ -8,8 +8,6 @@ import uk.gov.justice.hmpps.prison.api.model.CourtEventDto;
 import uk.gov.justice.hmpps.prison.api.model.Movement;
 import uk.gov.justice.hmpps.prison.api.model.MovementCount;
 import uk.gov.justice.hmpps.prison.api.model.MovementDto;
-import uk.gov.justice.hmpps.prison.api.model.MovementSummary;
-import uk.gov.justice.hmpps.prison.api.model.MovementSummaryDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderIn;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInDto;
 import uk.gov.justice.hmpps.prison.api.model.OffenderInReception;
@@ -47,7 +45,6 @@ public class MovementsRepository extends RepositoryBase {
     private final RowMapper<OffenderInDto> OFFENDER_IN_MAPPER = new DataClassByColumnRowMapper<>(OffenderInDto.class);
     private final RowMapper<OffenderOutDto> OFFENDER_OUT_MAPPER = new DataClassByColumnRowMapper<>(OffenderOutDto.class);
     private final RowMapper<OffenderInReceptionDto> OFFENDER_IN_RECEPTION_MAPPER = new DataClassByColumnRowMapper<>(OffenderInReceptionDto.class);
-    private final RowMapper<MovementSummaryDto> MOVEMENT_SUMMARY_MAPPER = new DataClassByColumnRowMapper<>(MovementSummaryDto.class);
     private final RowMapper<CourtEventDto> COURT_EVENT_MAPPER = new DataClassByColumnRowMapper<>(CourtEventDto.class);
     private final RowMapper<TransferEventDto> OFFENDER_TRANSFER_MAPPER = new DataClassRowMapper<>(TransferEventDto.class);
     private final RowMapper<ReleaseEventDto> OFFENDER_RELEASE_MAPPER = new DataClassByColumnRowMapper<>(ReleaseEventDto.class);
@@ -203,47 +200,30 @@ public class MovementsRepository extends RepositoryBase {
     }
 
 
-    public List<MovementSummary> getCompletedMovementsForAgencies(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
-
-        final var movements = jdbcTemplate.query(
-            MovementsRepositorySql.GET_MOVEMENTS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
-            createParams("agencyListFrom", agencies,
-                "agencyListTo", agencies,
-                "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
-                "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
-            MOVEMENT_SUMMARY_MAPPER);
-        return movements.stream().map(MovementSummaryDto::toMovementSummary).collect(Collectors.toList());
-    }
-
-
-    public List<CourtEvent> getCourtEvents(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
-
+    public List<CourtEvent> getCourtEvents(final String agency, final LocalDate date) {
         final var courts = jdbcTemplate.query(
             MovementsRepositorySql.GET_COURT_EVENTS_BY_AGENCY_AND_TIME_PERIOD.getSql(),
-            createParams("agencyListFrom", agencies,
-                "agencyListTo", agencies,
-                "fromDateTime", DateTimeConverter.fromLocalDateTime(from),
-                "toDateTime", DateTimeConverter.fromLocalDateTime(to)),
+            createParams("agencyFrom", agency,
+                "agencyTo", agency,
+                "date", DateTimeConverter.toDate(date)),
             COURT_EVENT_MAPPER);
         return courts.stream().map(CourtEventDto::toCourtEvent).collect(Collectors.toList());
     }
 
-    public List<TransferEvent> getIndividualSchedules(final List<String> agencies, final LocalDate date) {
+    public List<TransferEvent> getIndividualSchedules(final String agency, final LocalDate date) {
         final var transfers = jdbcTemplate.query(
             MovementsRepositorySql.GET_OFFENDER_INDIVIDUAL_SCHEDULES_BY_DATE.getSql(),
-            createParams("date", DateTimeConverter.toDate(date), "agencyListFrom", agencies, "agencyListTo", agencies),
+            createParams("date", DateTimeConverter.toDate(date), "agencyFrom", agency, "agencyTo", agency),
             OFFENDER_TRANSFER_MAPPER
         );
         return transfers.stream().map(TransferEventDto::toTransferEvent).collect(Collectors.toList());
     }
 
-    public List<ReleaseEvent> getOffenderReleases(final List<String> agencies, final LocalDateTime from, final LocalDateTime to) {
-
+    public List<ReleaseEvent> getOffenderReleases(final String agency, final LocalDate date) {
         final var releases = jdbcTemplate.query(
             MovementsRepositorySql.GET_OFFENDER_RELEASES_BY_AGENCY_AND_DATE.getSql(),
-            createParams("agencyListFrom", agencies,
-                "fromDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(from)),
-                "toDate", DateTimeConverter.fromTimestamp(DateTimeConverter.fromLocalDateTime(to))),
+            createParams("agencyFrom", agency,
+                "date", DateTimeConverter.toDate(date)),
             OFFENDER_RELEASE_MAPPER);
         return releases.stream().map(ReleaseEventDto::toReleaseEvent).collect(Collectors.toList());
     }
