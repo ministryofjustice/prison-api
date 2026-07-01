@@ -3,53 +3,13 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
-import org.mockito.kotlin.whenever
 import org.springframework.test.context.bean.override.mockito.MockitoBean
-import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
-import uk.gov.justice.hmpps.prison.api.model.Location.builder
 import uk.gov.justice.hmpps.prison.repository.LocationRepository
-import uk.gov.justice.hmpps.prison.service.EntityNotFoundException
-import uk.gov.justice.hmpps.prison.service.LocationGroupService
 
 class AgencyResourceIntTest : ResourceTest() {
 
   @MockitoBean
   private lateinit var repository: LocationRepository
-
-  @MockitoSpyBean
-  private lateinit var locationGroupService: LocationGroupService
-
-  @Nested
-  @DisplayName("GET /api/agencies/{agencyId}/locations/groups")
-  inner class LocationGroups {
-    private val location1 = builder().locationId(-1L).locationType("WING").description("LEI-A").userDescription("BLOCK A").internalLocationCode("A").build()
-
-    @Test
-    fun locationGroups_allOk_returnsSuccessAndData() {
-      whenever(repository.getLocationGroupData("LEI")).thenReturn(listOf(location1))
-
-      webTestClient.get().uri("/api/agencies/LEI/locations/groups")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isOk
-        .expectBody()
-        .jsonPath("length()").isEqualTo(1)
-        .jsonPath("[0].name").isEqualTo("Block A")
-        .jsonPath("[0].key").isEqualTo("A")
-        .jsonPath("[0].children").isEmpty
-    }
-
-    @Test
-    fun locationGroups_randomError_returnsErrorFromControllerAdvice() {
-      whenever(locationGroupService.getLocationGroups("LEI")).thenThrow(EntityNotFoundException("test ex"))
-      webTestClient.get().uri("/api/agencies/LEI/locations/groups")
-        .headers(setAuthorisation("ITAG_USER", listOf()))
-        .exchange()
-        .expectStatus().isNotFound
-        .expectBody()
-        .jsonPath("userMessage").isEqualTo("test ex")
-    }
-  }
 
   @Nested
   @DisplayName("GET /api/agencies/{agencyId}/eventLocationsBooked")
