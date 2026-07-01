@@ -21,7 +21,6 @@ import uk.gov.justice.hmpps.prison.api.model.Agency;
 import uk.gov.justice.hmpps.prison.api.model.AgencyPrisonerPayProfile;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.Location;
-import uk.gov.justice.hmpps.prison.api.model.LocationGroup;
 import uk.gov.justice.hmpps.prison.api.model.LocationSummary;
 import uk.gov.justice.hmpps.prison.api.model.OffenderCell;
 import uk.gov.justice.hmpps.prison.api.model.PrisonContactDetail;
@@ -31,7 +30,6 @@ import uk.gov.justice.hmpps.prison.core.ReferenceData;
 import uk.gov.justice.hmpps.prison.core.SlowReportQuery;
 import uk.gov.justice.hmpps.prison.service.AgencyPrisonerPayProfileService;
 import uk.gov.justice.hmpps.prison.service.AgencyService;
-import uk.gov.justice.hmpps.prison.service.LocationGroupService;
 
 import java.time.LocalDate;
 import java.util.Comparator;
@@ -46,16 +44,13 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 @RequestMapping(value = "${api.base.path}/agencies", produces = "application/json")
 public class AgencyResource {
     private final AgencyService agencyService;
-    private final LocationGroupService locationGroupService;
     private final AgencyPrisonerPayProfileService agencyPrisonerPayProfileService;
 
     public AgencyResource(
         final AgencyService agencyService,
-        final LocationGroupService locationGroupService,
         final AgencyPrisonerPayProfileService agencyPrisonerPayProfileService
     ) {
         this.agencyService = agencyService;
-        this.locationGroupService = locationGroupService;
         this.agencyPrisonerPayProfileService = agencyPrisonerPayProfileService;
     }
 
@@ -153,19 +148,6 @@ public class AgencyResource {
         @RequestParam(value = "attribute", required = false) @Parameter(description = "Restricts list of receptions returned to those that have a specified attribute.") final String attribute
     ) {
         return agencyService.getReceptionsWithCapacityInAgency(agencyId, attribute);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of all available Location Groups at agency.", description = "List of all available Location Groups at agency.")
-    @ReferenceData(description = "Agency data is considered non-sensitive")
-    @GetMapping("/{agencyId}/locations/groups")
-    @Deprecated(forRemoval = true)
-    public List<LocationGroup> getAvailableLocationGroups(@PathVariable @Parameter(description = "The prison", required = true) final String agencyId) {
-        return locationGroupService.getLocationGroupsForAgency(agencyId);
     }
 
     @ApiResponses({
