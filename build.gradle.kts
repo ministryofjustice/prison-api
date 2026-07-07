@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.2"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "10.5.6"
   kotlin("plugin.spring") version "2.4.0"
   kotlin("plugin.jpa") version "2.4.0"
   kotlin("plugin.lombok") version "2.4.0"
@@ -11,10 +11,6 @@ configurations {
     exclude(module = "c3p0")
     exclude(module = "tomcat-jdbc")
   }
-}
-
-dependencyCheck {
-  suppressionFiles.add("azure-dependency-check-suppress.xml")
 }
 
 dependencies {
@@ -55,10 +51,6 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc11$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  val appinsightsCore = "core:2.6.4"
-  implementation("io.micrometer:micrometer-registry-azure-monitor:1.17.0")
-  implementation("com.microsoft.azure:applicationinsights-$appinsightsCore")
-
   compileOnly("org.projectlombok:lombok:1.18.46")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
@@ -83,12 +75,12 @@ dependencies {
 
   testImplementation("org.wiremock:wiremock:3.13.2")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.2")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.42") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.45") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.49")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.52")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
-  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.60.1")
+  testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.62.0")
 
   testCompileOnly("org.projectlombok:lombok:1.18.46")
 }
