@@ -3,6 +3,8 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.junit.jupiter.params.ParameterizedTest
+import org.junit.jupiter.params.provider.CsvSource
 import org.springframework.test.context.jdbc.Sql
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase.AFTER_TEST_CLASS
 import org.springframework.test.context.jdbc.Sql.ExecutionPhase.BEFORE_TEST_CLASS
@@ -52,6 +54,22 @@ class CourtResourceTest : ResourceTest() {
         .jsonPath("$.caseReference").isEmpty
         .jsonPath("$.courtLocation").isEqualTo("HMP LEEDS")
         .jsonPath("$.courtEventType").isEqualTo("Court Appearance")
+    }
+
+    @ParameterizedTest
+    @CsvSource(
+      "ROLE_GLOBAL_SEARCH,200",
+      "ROLE_VIEW_PRISONER_DATA,200",
+      "ROLE_RELEASE_DATES_CALCULATOR,200",
+      "ROLE_PRISON_API__CCRD__RO,200",
+      "INVALID,403",
+      "'',403",
+    )
+    fun `returns specific statusCode base on permissions against next-court-event`(role: String, statusCode: Int) {
+      webTestClient.get().uri("/api/court/${BOOKING_ID_MINUS_SIX}/next-court-event")
+        .headers(setClientAuthorisation(mutableListOf(role)))
+        .exchange()
+        .expectStatus().isEqualTo(statusCode)
     }
   }
 

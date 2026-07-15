@@ -762,7 +762,7 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     }
 
     @Test
-    fun `returns success when client has override role ROLE_SYSTEM_USER`() {
+    fun `returns 403 when client has override role ROLE_SYSTEM_USER`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
         .headers(setClientAuthorisation(listOf("ROLE_SYSTEM_USER")))
         .exchange().expectStatus().isForbidden
@@ -772,6 +772,24 @@ class OffenderSentenceResourceImplIntTest : ResourceTest() {
     fun `returns success when client has override role ROLE_VIEW_PRISONER_DATA`() {
       webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
         .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(2)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_PRISON_API__HMPPS_INTEGRATION_API`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__HMPPS_INTEGRATION_API")))
+        .exchange()
+        .expectStatus().isOk
+        .hasListAtLeastSizeOf(2)
+    }
+
+    @Test
+    fun `returns success when client has override role ROLE_PRISON_API__CCRD__RO`() {
+      webTestClient.get().uri("/api/offender-sentences/booking/-20/sentences-and-offences")
+        .headers(setClientAuthorisation(listOf("ROLE_PRISON_API__CCRD__RO")))
         .exchange()
         .expectStatus().isOk
         .hasListAtLeastSizeOf(2)
