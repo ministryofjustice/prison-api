@@ -62,4 +62,12 @@ data class OffenderIn(
 
   @Schema(description = "From address", required = false)
   val fromAddress: String? = null,
+
+  @Schema(
+    description = "Code for the reason for the movement in. Distinguishes an admission that is a transfer " +
+      "from another establishment (INT, TRNCRT, TRNTAP, S, Z) from a genuinely new arrival.",
+    example = "INT",
+    required = false,
+  )
+  val movementReasonCode: String? = null,
 )

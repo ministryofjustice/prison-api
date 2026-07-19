@@ -459,6 +459,7 @@ class MovementsServiceImplTest {
         "TAP",
         "MOVE_RSN",
         null,
+        MovementReason.TRANSFER_VIA_TAP.code,
       ),
     )
 
