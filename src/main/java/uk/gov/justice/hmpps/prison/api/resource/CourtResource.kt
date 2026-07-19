@@ -42,7 +42,7 @@ class CourtResource(private val courtService: CourtService) {
     ),
   )
   @Operation(summary = "Returns the next court event details (if one exists) related to the passed in booking")
-  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR')")
+  @PreAuthorize("hasAnyRole('GLOBAL_SEARCH', 'VIEW_PRISONER_DATA', 'RELEASE_DATES_CALCULATOR', 'PRISON_API__CCRD__RO')")
   @GetMapping("/{bookingId}/next-court-event")
   fun getNextCourtEvent(
     @PathVariable
