@@ -15,6 +15,7 @@
     "fromCity": "Birmingham",
     "toCity": "Leicester",
     "movementType": "ADM",
-    "movementReasonDescription":"Recapture"
+    "movementReasonDescription":"Recapture",
+    "movementReasonCode": "RECA"
   }
 ]
