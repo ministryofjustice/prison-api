@@ -435,7 +435,8 @@ public class MovementsService {
             description,
             m.getMovementType() != null ? m.getMovementType().getCode() : "",
             m.getMovementReason() != null ? m.getMovementReason().getDescription() : "",
-            null);
+            null,
+            m.getMovementReason() != null ? m.getMovementReason().getCode() : null);
     }
 
     public Optional<LocalDate> getLatestArrivalDate(final String offenderNumber) {

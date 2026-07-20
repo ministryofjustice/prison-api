@@ -14,7 +14,8 @@
     "toAgencyDescription": "LEEDS",
     "toAgencyId": "LEI",
     "movementType":"ADM",
-    "movementReasonDescription":"Unconvicted Remand"
+    "movementReasonDescription":"Unconvicted Remand",
+    "movementReasonCode": "N"
   },
   {
     "firstName": "Marcus",
@@ -32,6 +33,7 @@
     "fromCity": "Birmingham",
     "toCity": "Leicester",
     "movementType":"ADM",
-    "movementReasonDescription":"Recapture"
+    "movementReasonDescription":"Recapture",
+    "movementReasonCode": "RECA"
   }
 ]
