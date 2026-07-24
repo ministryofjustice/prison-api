@@ -26,14 +26,14 @@ import uk.gov.justice.hmpps.prison.web.config.PersistenceConfigs
 )
 @Slf4j
 @DisplayName("OffenderBeliefRepository")
-class OffenderBeliefRepositoryTest {
+class OffenderBeliefRepositoryTest(
+  @Autowired private val repository: OffenderBeliefRepository,
+) {
   /*
    * Test data added to migration SQL files R__8_8__OFFENDER_BELIEFS.sql, R__3_6_1__OFFENDER_BOOKINGS.sql, R__1_15__OFFENDERS.sql
    * offender B1101BB
    * has 5 beliefs across 3 bookings (-101, -102 and -103) and 2 aliases (offenders -101 and -102), one having a non-existent booking id which can happen but should not cause any problems
    */
-  @Autowired
-  private lateinit var repository: OffenderBeliefRepository
 
   @Test
   @DisplayName("can get belief history")
@@ -55,5 +55,11 @@ class OffenderBeliefRepositoryTest {
       .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
       .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }
       .containsExactly("MORM", "SCIE")
+  }
+
+  @Test
+  fun `can test first religion based on ordering`() {
+    val belief = repository.findTopByRootOffenderIdOrderByStartDateDescCreateDatetimeDesc(-101)
+    assertThat(belief?.getBeliefCode()?.getDescription()).isEqualTo("Buddhist")
   }
 }

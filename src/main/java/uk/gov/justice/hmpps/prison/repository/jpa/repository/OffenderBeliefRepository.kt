@@ -19,4 +19,14 @@ interface OffenderBeliefRepository : CrudRepository<OffenderBelief, Long> {
   """,
   )
   fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<OffenderBelief>
+
+  fun findTopByRootOffenderIdOrderByStartDateDescCreateDatetimeDesc(rootOffenderId: Long): BeliefDescription?
+}
+
+interface BeliefDescription {
+  fun getBeliefCode(): ProfileCode
+
+  interface ProfileCode {
+    fun getDescription(): String
+  }
 }

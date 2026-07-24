@@ -22,6 +22,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhysicalAttribut
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProfileDetail;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceTerm;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
@@ -42,6 +43,7 @@ public class OffenderTransformer {
     private final Clock clock;
     private final OffenderChargeTransformer offenderChargeTransformer;
     private final OffenderChargeRepository offenderChargeRepository;
+    private final OffenderBeliefRepository offenderBeliefRepository;
 
     public InmateDetail transformWithoutBooking(final Offender offender) {
         return buildOffender(offender, null).build();
@@ -53,6 +55,7 @@ public class OffenderTransformer {
         final var activeConvictedOffences = getActiveConvictedOffences(latestBooking.getBookingId());
         final var sentenceTerms = latestBooking.getActiveFilteredSentenceTerms(Collections.emptyList());
         final var imprisonmentStatus = latestBooking.getActiveImprisonmentStatus().map(OffenderImprisonmentStatus::getImprisonmentStatus).orElse(null);
+        final var religionDescription = offenderBeliefRepository.findTopByRootOffenderIdOrderByStartDateDescCreateDatetimeDesc(latestBooking.getOffender().getRootOffenderId());
 
         return offenderBuilder
             .activeFlag(latestBooking.isActive())
@@ -91,10 +94,10 @@ public class OffenderTransformer {
             .locationDescription(latestBooking.getLocationDescription())
             .latestLocationId(latestBooking.getLatestLocationId())
             .lastPrisonId(latestBooking.getLastPrisonId())
+            .religion(religionDescription != null ? religionDescription.getBeliefCode().getDescription() : null)
             .build()
             .deriveStatus()
-            .splitStatusReason()
-            .updateReligion();
+            .splitStatusReason();
     }
 
     private @NotNull List<OffenceHistoryDetail> getAllConvictedOffences(Long rootOffenderId) {

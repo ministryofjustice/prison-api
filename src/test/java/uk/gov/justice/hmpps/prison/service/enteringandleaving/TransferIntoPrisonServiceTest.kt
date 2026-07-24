@@ -29,6 +29,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderBooking
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderProgramEndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyInternalLocationRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.AgencyLocationRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderChargeRepository
 import uk.gov.justice.hmpps.prison.service.BadRequestException
@@ -57,7 +58,8 @@ class TransferIntoPrisonServiceTest {
   private val teamWorkflowNotificationService: TeamWorkflowNotificationService = mock()
   private val offenderChargeTransformer: OffenderChargeTransformer = mock()
   private val offenderChargeRepository: OffenderChargeRepository = mock()
-  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone(), offenderChargeTransformer, offenderChargeRepository)
+  private val offenderBeliefRepository: OffenderBeliefRepository = mock()
+  private val transformer: OffenderTransformer = OffenderTransformer(Clock.systemDefaultZone(), offenderChargeTransformer, offenderChargeRepository, offenderBeliefRepository)
 
   private val fromPrison = AgencyLocation().apply {
     description = "HMPS Brixton"
@@ -155,6 +157,7 @@ class TransferIntoPrisonServiceTest {
           lastName = "Smith"
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
+          rootOffenderId = 42
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
@@ -299,6 +302,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -323,6 +327,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -349,6 +354,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -444,6 +450,7 @@ class TransferIntoPrisonServiceTest {
           lastName = "Smith"
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
+          rootOffenderId = 42
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
@@ -514,6 +521,7 @@ class TransferIntoPrisonServiceTest {
             lastName = "Smith"
             birthDate = LocalDate.now().minusYears(30)
             gender = Gender("M", "MALE")
+            rootOffenderId = 42
           }
           bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
@@ -586,6 +594,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -610,6 +619,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -636,6 +646,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -660,6 +671,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -692,6 +704,7 @@ class TransferIntoPrisonServiceTest {
           lastName = "Smith"
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
+          rootOffenderId = 42
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
@@ -846,6 +859,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -870,6 +884,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -896,6 +911,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -933,6 +949,7 @@ class TransferIntoPrisonServiceTest {
           lastName = "Smith"
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
+          rootOffenderId = 42
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
@@ -1003,6 +1020,7 @@ class TransferIntoPrisonServiceTest {
             lastName = "Smith"
             birthDate = LocalDate.now().minusYears(30)
             gender = Gender("M", "MALE")
+            rootOffenderId = 42
           }
           bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
@@ -1075,6 +1093,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1099,6 +1118,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1125,6 +1145,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1149,6 +1170,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1181,6 +1203,7 @@ class TransferIntoPrisonServiceTest {
           lastName = "Smith"
           birthDate = LocalDate.now().minusYears(30)
           gender = Gender("M", "MALE")
+          rootOffenderId = 42
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
@@ -1333,6 +1356,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1357,6 +1381,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
@@ -1383,6 +1408,7 @@ class TransferIntoPrisonServiceTest {
               lastName = "Smith"
               birthDate = LocalDate.now().minusYears(30)
               gender = Gender("M", "MALE")
+              rootOffenderId = 42
             }
             bookingBeginDate = LocalDateTime.now().minusDays(1)
           },
