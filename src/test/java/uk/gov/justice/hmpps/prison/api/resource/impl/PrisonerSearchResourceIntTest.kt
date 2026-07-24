@@ -97,7 +97,7 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(description).isEqualTo("H-1-5")
               assertThat(agencyName).isEqualTo("Leeds")
             }
-            assertThat(religion).isEqualTo("Baptist")
+            assertThat(religion).isEqualTo("Mormon")
             with(physicalAttributes!!) {
               assertThat(gender).isEqualTo("Female")
               assertThat(raceCode).isEqualTo("W2")
