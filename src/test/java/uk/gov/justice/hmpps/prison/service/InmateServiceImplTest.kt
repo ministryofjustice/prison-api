@@ -39,6 +39,8 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.MovementTypeAndReason
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository
 import uk.gov.justice.hmpps.prison.service.OffenderAssessmentService.CurrentCsraAssessment
@@ -63,12 +65,14 @@ class InmateServiceImplTest {
   private val offenderRepository: OffenderRepository = mock()
   private val externalMovementRepository: ExternalMovementRepository = mock()
   private val healthService: HealthService = mock()
+  private val offenderImageRepository: OffenderImageRepository = mock()
+  private val offenderBeliefRepository: OffenderBeliefRepository = mock()
 
   private var serviceToTest: InmateService = InmateService(
     repository, caseLoadService, inmateAlertService,
     referenceDomainService, bookingService, agencyService, healthService, userService, authenticationFacade,
     telemetryClient, 100, offenderAssessmentService, offenderLanguageRepository,
-    offenderRepository, externalMovementRepository, null,
+    offenderRepository, externalMovementRepository, offenderImageRepository, offenderBeliefRepository,
   )
 
   @Test

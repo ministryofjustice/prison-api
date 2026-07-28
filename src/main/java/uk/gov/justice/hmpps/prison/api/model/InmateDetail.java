@@ -214,19 +214,6 @@ public class InmateDetail {
 
     public void setProfileInformation(final List<ProfileInformation> profileInformation) {
         this.profileInformation = profileInformation;
-        updateReligion();
-    }
-
-    public InmateDetail updateReligion() {
-        if (profileInformation != null) {
-            religion = profileInformation
-                .stream()
-                .filter(pi -> "RELF".equals(pi.getType()))
-                .findFirst()
-                .map(ProfileInformation::getResultValue)
-                .orElse(null);
-        }
-        return this;
     }
 
     public InmateDetail splitStatusReason() {

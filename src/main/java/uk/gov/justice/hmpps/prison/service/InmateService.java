@@ -44,6 +44,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderImage;
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderLanguage;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRepository;
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderImageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderLanguageRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderRepository;
@@ -95,6 +96,7 @@ public class InmateService {
     private final OffenderImageRepository offenderImageRepository;
     private final HealthService healthService;
     private final TelemetryClient telemetryClient;
+    private final OffenderBeliefRepository offenderBeliefRepository;
 
     public InmateService(final InmateRepository repository,
                           final CaseLoadService caseLoadService,
@@ -111,7 +113,8 @@ public class InmateService {
                           final OffenderLanguageRepository offenderLanguageRepository,
                           final OffenderRepository offenderRepository,
                           final ExternalMovementRepository externalMovementRepository,
-                          final OffenderImageRepository offenderImageRepository
+                          final OffenderImageRepository offenderImageRepository,
+                          final OffenderBeliefRepository offenderBeliefRepository
     ) {
         this.repository = repository;
         this.caseLoadService = caseLoadService;
@@ -129,6 +132,7 @@ public class InmateService {
         this.offenderRepository = offenderRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.offenderImageRepository = offenderImageRepository;
+        this.offenderBeliefRepository = offenderBeliefRepository;
     }
 
     @Deprecated
@@ -223,6 +227,10 @@ public class InmateService {
             inmate.setPhysicalAttributes(getPhysicalAttributes(bookingId));
             inmate.setPhysicalCharacteristics(getPhysicalCharacteristics(bookingId));
             inmate.setProfileInformation(getProfileInformation(bookingId));
+  
+            final var belief = offenderBeliefRepository.findTopByRootOffenderIdOrderByStartDateDescCreateDatetimeDesc(inmate.getRootOffenderId());
+            inmate.setReligion(belief != null ? belief.getBeliefCode().getDescription() : null);
+  
             repository.findAssignedLivingUnit(bookingId).ifPresent(assignedLivingUnit -> {
                 assignedLivingUnit.setAgencyName(LocationProcessor.formatLocation(assignedLivingUnit.getAgencyName()));
                 inmate.setAssignedLivingUnit(assignedLivingUnit);
@@ -292,7 +300,7 @@ public class InmateService {
             .stream()
             .filter(l -> "PREF_SPEAK".equals(l.getType()) && l.getReferenceCode() != null)
             .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
-            .reduce((first, second) -> second);
+            .reduce((_, second) -> second);
     }
 
     private Optional<OffenderLanguage> getFirstPreferredWrittenLanguage(final List<OffenderLanguage> languages) {
@@ -300,7 +308,7 @@ public class InmateService {
             .stream()
             .filter(l -> "PREF_WRITE".equals(l.getType()) && l.getReferenceCode() != null)
             .sorted(Comparator.comparing(right -> right.getReferenceCode().getDescription()))
-            .reduce((first, second) -> second);
+            .reduce((_, second) -> second);
     }
 
     private void setAssessmentsFields(final Long bookingId, final InmateDetail inmate, final boolean csraSummary) {
@@ -338,7 +346,7 @@ public class InmateService {
         final var mapOfAssessments = assessments.stream().collect(Collectors.groupingBy(Assessment::getAssessmentCode));
         final List<Assessment> assessmentsFiltered = new ArrayList<>();
         // get latest assessment for each code
-        mapOfAssessments.forEach((assessmentCode, assessment) -> assessmentsFiltered.add(assessment.getFirst()));
+        mapOfAssessments.forEach((_, assessment) -> assessmentsFiltered.add(assessment.getFirst()));
         return assessmentsFiltered;
     }
 
@@ -375,7 +383,7 @@ public class InmateService {
         final var mapOfAssessments = assessmentsDto.stream().collect(Collectors.groupingBy(AssessmentDto::getAssessmentCode));
         final List<Assessment> assessments = new ArrayList<>();
         // get latest assessment for each code
-        mapOfAssessments.forEach((assessmentCode, assessment) -> assessments.add(createAssessment(assessment.getFirst())));
+        mapOfAssessments.forEach((_, assessment) -> assessments.add(createAssessment(assessment.getFirst())));
         return assessments;
     }
 
@@ -519,8 +527,8 @@ public class InmateService {
     public List<OffenderCategorise> getCategory(final String agencyId, final CategoryInformationType type, final LocalDate date) {
         return switch (type) {
             case UNCATEGORISED -> repository.getUncategorised(agencyId);
-            case CATEGORISED -> repository.getApprovedCategorised(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().minusMonths(1)));
-            case RECATEGORISATIONS -> repository.getRecategorise(agencyId, ObjectUtils.defaultIfNull(date, LocalDate.now().plusMonths(2)));
+            case CATEGORISED -> repository.getApprovedCategorised(agencyId, ObjectUtils.getIfNull(date, LocalDate.now().minusMonths(1)));
+            case RECATEGORISATIONS -> repository.getRecategorise(agencyId, ObjectUtils.getIfNull(date, LocalDate.now().plusMonths(2)));
         };
     }
 
@@ -656,7 +664,7 @@ public class InmateService {
 
     public Page<Alias> findInmateAliases(final Long bookingId, final String orderBy, final Order order, final long offset, final long limit) {
         final var defaultOrderBy = Objects.toString(StringUtils.trimToNull(orderBy), "createDate");
-        final var sortOrder = ObjectUtils.defaultIfNull(order, Order.DESC);
+        final var sortOrder = ObjectUtils.getIfNull(order, Order.DESC);
 
         return repository.findInmateAliasesByBooking(bookingId, defaultOrderBy, sortOrder, offset, limit);
     }
