@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.2"
   kotlin("plugin.spring") version "2.4.10"
   kotlin("plugin.jpa") version "2.4.10"
   kotlin("plugin.lombok") version "2.4.10"
@@ -38,9 +38,6 @@ dependencies {
   val springDocVersion = ":3.0.2"
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui$springDocVersion")
   implementation("org.springdoc:springdoc-openapi-starter-common$springDocVersion")
-  constraints {
-    implementation("org.webjars:swagger-ui:5.32.2")
-  }
 
   implementation("org.apache.commons:commons-lang3:3.20.0")
   implementation("commons-io:commons-io:2.22.0")
