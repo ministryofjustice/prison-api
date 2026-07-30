@@ -11,7 +11,6 @@ import lombok.AllArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -28,17 +27,13 @@ import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
-import uk.gov.justice.hmpps.prison.api.model.PrisonMoveCancellation;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
-import uk.gov.justice.hmpps.prison.api.model.SchedulePrisonToPrisonMove;
-import uk.gov.justice.hmpps.prison.api.model.ScheduledPrisonToPrisonMove;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
 import uk.gov.justice.hmpps.prison.service.CourtHearingsService;
 import uk.gov.justice.hmpps.prison.service.MovementUpdateService;
-import uk.gov.justice.hmpps.prison.service.PrisonToPrisonMoveSchedulingService;
 
 import jakarta.validation.Valid;
 import java.time.LocalDate;
@@ -56,7 +51,6 @@ public class BookingMovementsResource {
 
     private final CourtHearingsService courtHearingsService;
     private final MovementUpdateService movementUpdateService;
-    private final PrisonToPrisonMoveSchedulingService prisonToPrisonMoveSchedulingService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "201", description = "Court hearing created.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CourtHearing.class))}),
@@ -143,55 +137,5 @@ public class BookingMovementsResource {
             dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
         return movementUpdateService.moveToCellSwap(bookingId, reasonCode, dateTime);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "201", description = "The scheduled prison move.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ScheduledPrisonToPrisonMove.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Schedules a future prison to prison move for an offender.",
-        description = """
-            Schedules a future prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
-
-            PGP: unused as of 19/05/2026. Left as still referenced by hmpps-book-secure-move-api, but queried with them.
-            """
-    )
-    @ResponseStatus(HttpStatus.CREATED)
-    @PostMapping("/{bookingId}/prison-to-prison")
-    @ProxyUser
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ScheduledPrisonToPrisonMove prisonToPrison(
-        @PathVariable @Parameter(description = "The offender booking to associate the prison to prison move with.", required = true) final Long bookingId,
-        @RequestBody @Parameter(description = "The prison to prison move to be scheduled for the offender booking.", required = true) final @Valid SchedulePrisonToPrisonMove prisonMove
-    ) {
-        return prisonToPrisonMoveSchedulingService.schedule(bookingId, prisonMove);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK"),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(
-        summary = "Cancels a scheduled prison to prison move for an offender.",
-        description = """
-            Cancels a scheduled prison to prison move for an offender. Requires role PRISON_MOVE_MAINTAINER and scope write.
-
-            PGP: unused as of 19/05/2026. Left as still referenced by hmpps-book-secure-move-api and complements the booking endpoint above.
-            """
-    )
-    @PutMapping("/{bookingId}/prison-to-prison/{eventId}/cancel")
-    @ProxyUser
-    @PreAuthorize("hasRole('PRISON_MOVE_MAINTAINER') and hasAuthority('SCOPE_write')")
-    public ResponseEntity<Void> cancelPrisonToPrisonMove(
-        @PathVariable @Parameter(description = "The offender booking linked to the scheduled event.", required = true) final Long bookingId,
-        @PathVariable @Parameter(description = "The identifier of the scheduled event to be cancelled.", required = true) final Long eventId,
-        @RequestBody @Parameter(description = "The cancellation details.", required = true) @Valid final PrisonMoveCancellation cancellation
-    ) {
-        prisonToPrisonMoveSchedulingService.cancel(bookingId, eventId, cancellation.getReasonCode());
-
-        return ResponseEntity.ok().build();
     }
 }
