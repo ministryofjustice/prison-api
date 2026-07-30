@@ -16,11 +16,22 @@ class OffenderBeliefService(
   fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<Belief> = offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, bookingId).map(this::transformBelief)
 
   private fun transformBelief(offenderBelief: OffenderBelief): Belief = Belief(
-    offenderBelief.booking.bookingId, offenderBelief.beliefId, offenderBelief.beliefCode.id.code,
-    offenderBelief.beliefCode.description, offenderBelief.startDate, offenderBelief.endDate,
-    offenderBelief.changeReason, offenderBelief.comments, offenderBelief.createdByUser.staff.firstName,
-    offenderBelief.createdByUser.staff.lastName, offenderBelief.modifiedByUser?.staff?.firstName,
-    offenderBelief.modifiedByUser?.staff?.lastName, offenderBelief.modifyDatetime?.toLocalDate(), offenderBelief.verified,
+    bookingId = offenderBelief.booking.bookingId,
+    beliefId = offenderBelief.beliefId,
+    beliefCode = offenderBelief.beliefCode.id.code,
+    beliefDescription = offenderBelief.beliefCode.description,
+    startDate = offenderBelief.startDate,
+    endDate = offenderBelief.endDate,
+    changeReason = offenderBelief.changeReason,
+    comments = offenderBelief.comments,
+    addedByFirstName = offenderBelief.createdByUser.staff.firstName,
+    addedByLastName = offenderBelief.createdByUser.staff.lastName,
+    addedByUsername = offenderBelief.createdByUser.username,
+    updatedByFirstName = offenderBelief.modifiedByUser?.staff?.firstName,
+    updatedByLastName = offenderBelief.modifiedByUser?.staff?.lastName,
+    updatedByUsername = offenderBelief.modifiedByUser?.username,
+    updatedDate = offenderBelief.modifyDatetime?.toLocalDate(),
+    verified = offenderBelief.verified,
   )
 }
 
@@ -56,11 +67,17 @@ data class Belief(
   @Schema(description = "Last name of staff member that added belief")
   val addedByLastName: String,
 
+  @Schema(description = "Username of staff member that added belief")
+  val addedByUsername: String,
+
   @Schema(description = "First name of staff member that updated belief")
   val updatedByFirstName: String? = null,
 
   @Schema(description = "Last name of staff member that updated belief")
   val updatedByLastName: String? = null,
+
+  @Schema(description = "Username of staff member that updated belief")
+  val updatedByUsername: String? = null,
 
   @Schema(description = "Date belief was updated")
   val updatedDate: LocalDate? = null,
