@@ -84,6 +84,7 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
       .jsonPath("[0].comments").isEqualTo("Comments")
       .jsonPath("[0].addedByFirstName").isEqualTo("John")
       .jsonPath("[0].addedByLastName").isEqualTo("Smith")
+      .jsonPath("[0].addedByUsername").isEqualTo("johnsmith")
       .jsonPath("[0].verified").isEqualTo(false)
   }
 }
