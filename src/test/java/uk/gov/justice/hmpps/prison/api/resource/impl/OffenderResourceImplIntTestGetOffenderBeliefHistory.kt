@@ -2,7 +2,6 @@ package uk.gov.justice.hmpps.prison.api.resource.impl
 
 import org.junit.jupiter.api.Test
 import org.mockito.ArgumentMatchers.anyString
-import org.mockito.kotlin.anyOrNull
 import org.mockito.kotlin.whenever
 import org.springframework.test.context.bean.override.mockito.MockitoBean
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
@@ -34,7 +33,7 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
     false, LocalDateTime.parse("2024-01-01T00:00:00"), staffUserAccount, null, null,
   )
   private fun stubRepositoryCall() {
-    whenever(offenderBeliefRepository.getOffenderBeliefHistory(anyString(), anyOrNull())).thenReturn(
+    whenever(offenderBeliefRepository.getOffenderBeliefHistory(anyString())).thenReturn(
       listOf(
         offenderBelief,
       ),
@@ -75,8 +74,6 @@ class OffenderResourceImplIntTestGetOffenderBeliefHistory : ResourceTest() {
       .headers(setClientAuthorisation(listOf("ROLE_VIEW_PRISONER_DATA")))
       .exchange()
       .expectBody()
-      .jsonPath("[0].beliefId").isEqualTo(98765)
-      .jsonPath("[0].bookingId").isEqualTo(123456)
       .jsonPath("[0].beliefCode").isEqualTo("SCIE")
       .jsonPath("[0].beliefDescription").isEqualTo("Scientologist")
       .jsonPath("[0].startDate").isEqualTo("2024-01-01")

@@ -13,11 +13,9 @@ import java.time.LocalDate
 class OffenderBeliefService(
   private val offenderBeliefRepository: OffenderBeliefRepository,
 ) {
-  fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<Belief> = offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber, bookingId).map(this::transformBelief)
+  fun getOffenderBeliefHistory(prisonerNumber: String): List<Belief> = offenderBeliefRepository.getOffenderBeliefHistory(prisonerNumber).map(this::transformBelief)
 
   private fun transformBelief(offenderBelief: OffenderBelief): Belief = Belief(
-    bookingId = offenderBelief.booking.bookingId,
-    beliefId = offenderBelief.beliefId,
     beliefCode = offenderBelief.beliefCode.id.code,
     beliefDescription = offenderBelief.beliefCode.description,
     startDate = offenderBelief.startDate,
@@ -37,12 +35,6 @@ class OffenderBeliefService(
 
 @JsonInclude(JsonInclude.Include.NON_NULL)
 data class Belief(
-  @Schema(description = "Prisoner booking id", example = "1123456")
-  val bookingId: Long,
-
-  @Schema(description = "Offender belief id", example = "1123456")
-  val beliefId: Long,
-
   @Schema(description = "Belief Code", example = "SCIE")
   val beliefCode: String,
 

@@ -471,13 +471,13 @@ class PrisonerProfileUpdateServiceTest {
       whenever(booking.bookingId).thenReturn(99L)
       whenever(offender.id).thenReturn(123456L)
       whenever(offenderProfileDetail.code).thenReturn(ZOROASTRIAN_RELIGION)
-      whenever(offenderBeliefRepository.getOffenderBeliefHistory(PRISONER_NUMBER, null)).thenReturn(
+      whenever(offenderBeliefRepository.getOffenderBeliefHistory(PRISONER_NUMBER)).thenReturn(
         listOf(existingBeliefOnLatestBooking, existingBeliefOnPreviousBooking),
       )
 
       prisonerProfileUpdateService.updateReligionOfLatestBooking(PRISONER_NUMBER, request, USERNAME)
 
-      verify(offenderBeliefRepository).getOffenderBeliefHistory(PRISONER_NUMBER, null)
+      verify(offenderBeliefRepository).getOffenderBeliefHistory(PRISONER_NUMBER)
       verify(existingBeliefOnLatestBooking).endDate = LocalDate.now()
       verify(existingBeliefOnPreviousBooking).endDate = LocalDate.now()
     }

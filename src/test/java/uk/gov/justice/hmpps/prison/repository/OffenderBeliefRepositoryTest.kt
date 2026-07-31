@@ -38,23 +38,12 @@ class OffenderBeliefRepositoryTest(
   @Test
   @DisplayName("can get belief history")
   fun canGetBeliefHistory() {
-    val beliefs = repository.getOffenderBeliefHistory("B1101BB", null)
-    assertThat(beliefs).hasSize(4)
+    val beliefs = repository.getOffenderBeliefHistory("B1101BB")
+    assertThat(beliefs).hasSize(5)
       .extracting<ProfileCode, RuntimeException>(OffenderBelief::beliefCode)
       .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
       .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }
-      .containsExactly("BUDD", "MORM", "SCIE", "RC")
-  }
-
-  @Test
-  @DisplayName("can get belief history for one booking")
-  fun canGetBeliefHistoryForOneBooking() {
-    val beliefs = repository.getOffenderBeliefHistory("B1101BB", "-101")
-    assertThat(beliefs).hasSize(2)
-      .extracting<ProfileCode, RuntimeException>(OffenderBelief::beliefCode)
-      .extracting<ProfileCode.PK, RuntimeException> { obj: ProfileCode -> obj.id }
-      .extracting<String, RuntimeException> { obj: ProfileCode.PK -> obj.code }
-      .containsExactly("MORM", "SCIE")
+      .containsExactly("BUDD", "BUDD", "MORM", "SCIE", "RC")
   }
 
   @Test

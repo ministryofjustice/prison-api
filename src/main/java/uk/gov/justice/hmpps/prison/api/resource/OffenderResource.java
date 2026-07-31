@@ -718,9 +718,8 @@ public class OffenderResource {
     @PreAuthorize("hasAnyRole('VIEW_PRISONER_DATA', 'GLOBAL_SEARCH')")
     @Operation(summary = "Get belief history for a prisoner")
     @GetMapping("/{offenderNo}/belief-history")
-    public List<Belief> getOffenderBeliefHistory(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                 @RequestParam(value = "bookingId", required = false) final String bookingId) {
-        return offenderBeliefService.getOffenderBeliefHistory(prisonerNumber, bookingId);
+    public List<Belief> getOffenderBeliefHistory(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber) {
+        return offenderBeliefService.getOffenderBeliefHistory(prisonerNumber);
     }
 
     @ApiResponses({
