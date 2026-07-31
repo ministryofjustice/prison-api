@@ -99,7 +99,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .expectStatus().isNoContent
 
       val booking = offenderRepository.findById(-1001L).get().allBookings.first { it.bookingSequence == 1 }
-      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AA", booking.bookingId.toString())
+      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1234AA")
 
       val historyEntry = history[0]
       assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
@@ -134,7 +134,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .exchange()
         .expectStatus().isNoContent
 
-      val allHistory = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA", null)
+      val allHistory = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA")
 
       val activeBeliefs = allHistory.filter { it.endDate == null }
       assertThat(activeBeliefs).hasSize(1)
@@ -179,7 +179,7 @@ class OffenderResourceImplIntTest_updateReligion : ResourceTest() {
         .expectStatus().isNoContent
 
       val booking = offenderRepository.findById(-1068L).get().allBookings.first { it.bookingSequence == 1 }
-      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA", booking.bookingId.toString())
+      val history = offenderBeliefRepository.getOffenderBeliefHistory("A1068AA")
       val historyEntry = history[0]
       assertThat(historyEntry.beliefCode.id.code).isEqualTo("DRU")
       assertThat(historyEntry.changeReason).isFalse()

@@ -12,13 +12,12 @@ interface OffenderBeliefRepository : CrudRepository<OffenderBelief, Long> {
     """
     SELECT
     belief
-    FROM OffenderBelief belief
+    FROM OffenderBelief belief join fetch belief.beliefCode
     WHERE belief.rootOffender.nomsId = :prisonerNumber
-    AND (:bookingId IS NULL OR belief.booking.bookingId = :bookingId)
     ORDER BY belief.startDate DESC, belief.createDatetime DESC
   """,
   )
-  fun getOffenderBeliefHistory(prisonerNumber: String, bookingId: String?): List<OffenderBelief>
+  fun getOffenderBeliefHistory(prisonerNumber: String): List<OffenderBelief>
 
   fun findTopByRootOffenderIdOrderByStartDateDescCreateDatetimeDesc(rootOffenderId: Long): BeliefDescription?
 }
