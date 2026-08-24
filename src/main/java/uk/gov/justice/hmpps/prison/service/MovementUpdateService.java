@@ -54,7 +54,14 @@ public class MovementUpdateService {
             return transformToCellSwapResult(offenderBooking);
         }
 
-        if (internalLocation.isActiveCellWithSpace() || internalLocation.isActiveReceptionWithSpace()) {
+        // A cell swap location is checked first and on its own: it is a WING rather than a CELL and is
+        // deliberately uncapped, so it satisfies neither of the checks below. Short-circuiting here is
+        // what lets this endpoint serve the cell swap that move-to-cell-swap was added for.
+        // BookingService.validateUpdateLivingUnit already exempts cell swap from its own type check,
+        // and still applies the same-prison check.
+        if (internalLocation.isCellSwap()
+                || internalLocation.isActiveCellWithSpace()
+                || internalLocation.isActiveReceptionWithSpace()) {
             return saveAndReturnInternalMoveResult(bookingId, reasonCode, movementDateTime, internalLocation, lockTimeout);
         }
         throw new IllegalArgumentException(String.format("Location %s is either not a cell or reception, active or is at maximum capacity", internalLocation.getDescription()));

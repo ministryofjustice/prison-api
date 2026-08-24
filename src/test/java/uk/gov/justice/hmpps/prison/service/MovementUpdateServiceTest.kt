@@ -282,6 +282,36 @@ internal class MovementUpdateServiceTest {
     }
 
     @Test
+    fun updatesBookingCellSwap() {
+      mockSuccessForCellSwap()
+
+      service.moveToCellOrReception(SOME_BOOKING_ID, NEW_CELL_SWAP_DESC, SOME_REASON_CODE, SOME_TIME, false)
+
+      verify(bookingService).updateLivingUnit(
+        SOME_BOOKING_ID,
+        cellSwapDestination().get(),
+        false,
+      )
+      verify(bedAssignmentHistoryService)
+        .add(SOME_BOOKING_ID, CELL_SWAP_LOCATION_ID, SOME_REASON_CODE, SOME_TIME)
+    }
+
+    @Test
+    fun cellSwapAtCapacity_stillMoves() {
+      // Cell swap is deliberately uncapped. The gate short-circuits on isCellSwap() before reaching
+      // hasSpace(), so a CSWAP location recorded as full must still accept the move.
+      mockSuccessForCellSwap(fullCellSwapDestination())
+
+      service.moveToCellOrReception(SOME_BOOKING_ID, NEW_CELL_SWAP_DESC, SOME_REASON_CODE, SOME_TIME, false)
+
+      verify(bookingService).updateLivingUnit(
+        SOME_BOOKING_ID,
+        fullCellSwapDestination().get(),
+        false,
+      )
+    }
+
+    @Test
     fun writesToBedAssignmentHistories() {
       mockSuccess()
 
@@ -399,6 +429,26 @@ internal class MovementUpdateServiceTest {
         ),
       )
         .thenReturn(receptionLocation(NEW_LIVING_UNIT_ID, RECEPTION_CODE))
+    }
+
+    private fun mockSuccessForCellSwap(destination: Optional<AgencyInternalLocation> = cellSwapDestination()) {
+      whenever(
+        referenceDomainService.getReferenceCodeByDomainAndCode(
+          anyString(),
+          anyString(),
+          eq(false),
+        ),
+      )
+        .thenReturn(Optional.of(mock(ReferenceCode::class.java)))
+      whenever(offenderBookingRepository.findById(anyLong()))
+        .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, OLD_LIVING_UNIT_ID, OLD_LIVING_UNIT_DESC, true))
+        .thenReturn(anOffenderBooking(SOME_BOOKING_ID, SOME_AGENCY_ID, CELL_SWAP_LOCATION_ID, NEW_CELL_SWAP_DESC, true))
+      whenever(
+        agencyInternalLocationRepository.findOneByDescription(
+          NEW_CELL_SWAP_DESC,
+        ),
+      )
+        .thenReturn(destination)
     }
 
     private fun mockCellNotChanged() {
@@ -712,6 +762,35 @@ internal class MovementUpdateServiceTest {
     )
   }
 
+  /**
+   * A prison's cell swap location as it really is in NOMIS: a WING, uncertified, with no parent and
+   * location code CSWAP - so it satisfies isCellSwap() but neither isActiveCellWithSpace() nor
+   * isActiveReceptionWithSpace().
+   */
+  private fun cellSwapDestination(): Optional<AgencyInternalLocation> = Optional.of(
+    AgencyInternalLocation.builder()
+      .locationId(CELL_SWAP_LOCATION_ID)
+      .locationCode(CELL_SWAP_LOCATION_CODE)
+      .description(NEW_CELL_SWAP_DESC)
+      .locationType("WING")
+      .certifiedFlag(false)
+      .active(true)
+      .build(),
+  )
+
+  private fun fullCellSwapDestination(): Optional<AgencyInternalLocation> = Optional.of(
+    AgencyInternalLocation.builder()
+      .locationId(CELL_SWAP_LOCATION_ID)
+      .locationCode(CELL_SWAP_LOCATION_CODE)
+      .description(NEW_CELL_SWAP_DESC)
+      .locationType("WING")
+      .certifiedFlag(false)
+      .active(true)
+      .capacity(2)
+      .currentOccupancy(2)
+      .build(),
+  )
+
   private fun aLocation(locationId: Long?, locationCode: String?): Optional<AgencyInternalLocation> = Optional.of(
     AgencyInternalLocation.builder()
       .locationId(locationId)
@@ -751,6 +830,10 @@ internal class MovementUpdateServiceTest {
     private const val SOME_REASON_CODE = "ADM"
     private const val CELL_SWAP_LOCATION_CODE = "CSWAP"
     private const val CELL_SWAP_LOCATION_DESCRIPTION = "LEI-CSWAP"
+
+    // The bookings in these tests are at MDI, and moveToCellOrReception resolves by description,
+    // so it needs MDI's own cell swap location rather than the LEI one above.
+    private const val NEW_CELL_SWAP_DESC = "MDI-CSWAP"
     private const val CELL_SWAP_LOCATION_ID = 123L
 
     private val clock: Clock = Clock.fixed(Instant.now(), ZoneId.systemDefault())

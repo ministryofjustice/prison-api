@@ -139,6 +139,28 @@ class BookingMovementsResourceIntTest_moveToCell : ResourceTest() {
   }
 
   @Test
+  fun cellSwapLocation_movesToCellSwap() {
+    // The cell swap location is a WING and is uncapped, so it satisfies neither of the cell/reception
+    // checks. This endpoint accepts it anyway, which is what allows the deprecated
+    // PUT /api/bookings/{bookingId}/move-to-cell-swap to be retired.
+    val dateTime = LocalDateTime.now().minusHours(1)
+
+    val response: ResponseEntity<String> = requestMoveToCell(
+      validToken(),
+      BOOKING_ID_S,
+      CELL_SWAP_DESC,
+      "ADM",
+      dateTime.format(
+        DateTimeFormatter.ISO_LOCAL_DATE_TIME,
+      ),
+    )
+
+    verifySuccessResponse(response, BOOKING_ID, CELL_SWAP, CELL_SWAP_DESC)
+    verifyOffenderBookingLivingUnit(BOOKING_ID, CELL_SWAP)
+    verifyLastBedAssignmentHistory(BOOKING_ID, CELL_SWAP, "ADM", dateTime)
+  }
+
+  @Test
   fun notFound() {
     val dateTime = LocalDateTime.now().minusHours(1)
     val invalidBookingId = "-69854"
@@ -393,5 +415,8 @@ class BookingMovementsResourceIntTest_moveToCell : ResourceTest() {
     private val NEW_CELL = -18L
     private const val NEW_CELL_DESC = "LEI-H-1-4"
     private const val CELL_DIFF_PRISON_S = "MDI-1-1-001"
+
+    private val CELL_SWAP = 14538L
+    private const val CELL_SWAP_DESC = "LEI-CSWAP"
   }
 }
