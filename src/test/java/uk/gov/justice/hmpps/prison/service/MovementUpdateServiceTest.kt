@@ -763,9 +763,12 @@ internal class MovementUpdateServiceTest {
   }
 
   /**
-   * A prison's cell swap location as it really is in NOMIS: a WING, uncertified, with no parent and
-   * location code CSWAP - so it satisfies isCellSwap() but neither isActiveCellWithSpace() nor
+   * A prison's cell swap location as it really is in NOMIS: uncertified, with no parent and location
+   * code CSWAP - so it satisfies isCellSwap() but neither isActiveCellWithSpace() nor
    * isActiveReceptionWithSpace().
+   *
+   * locationType is incidental. It is WING here to match the seed data, but across the live estate
+   * these locations are recorded as WING, HOLD and AREA, and isCellSwap() does not look at it.
    */
   private fun cellSwapDestination(): Optional<AgencyInternalLocation> = Optional.of(
     AgencyInternalLocation.builder()

@@ -54,9 +54,11 @@ public class MovementUpdateService {
             return transformToCellSwapResult(offenderBooking);
         }
 
-        // A cell swap location is checked first and on its own: it is a WING rather than a CELL and is
-        // deliberately uncapped, so it satisfies neither of the checks below. Short-circuiting here is
-        // what lets this endpoint serve the cell swap that move-to-cell-swap was added for.
+        // A cell swap location is checked first and on its own: it is neither a cell nor a reception,
+        // and it is deliberately uncapped, so it satisfies neither of the checks below.
+        // Short-circuiting here is what lets this endpoint serve the cell swap that move-to-cell-swap
+        // was added for. Note isCellSwap() deliberately ignores locationType - across the live estate
+        // these locations are recorded as WING, HOLD and AREA - so do not narrow this to a type.
         // BookingService.validateUpdateLivingUnit already exempts cell swap from its own type check,
         // and still applies the same-prison check.
         if (internalLocation.isCellSwap()
