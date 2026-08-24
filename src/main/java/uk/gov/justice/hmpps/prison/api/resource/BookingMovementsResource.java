@@ -26,7 +26,6 @@ import uk.gov.justice.hmpps.prison.api.model.CellMoveResult;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
-import uk.gov.justice.hmpps.prison.api.model.OffenderBooking;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
@@ -89,7 +88,10 @@ public class BookingMovementsResource {
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "423", description = "Record in use for this booking id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Move Offender to another cell or reception")
+    @Operation(
+        summary = "Move Offender to another cell, reception or cell swap",
+        description = "Pass the destination's description. For a cell swap this is the prison's CSWAP location, described PRISON_ID-CSWAP - for example LEI-CSWAP. A cell swap destination is exempt from the capacity check, since cell swap is deliberately uncapped."
+    )
     @PutMapping("/{bookingId}/living-unit/{internalLocationDescription}")
     @ProxyUser
     @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
@@ -111,14 +113,16 @@ public class BookingMovementsResource {
     }
 
     @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderBooking.class))}),
+        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CellMoveResult.class))}),
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @PutMapping("/{bookingId}/move-to-cell-swap")
     @Operation(
-        summary = "Move the prisoner from current cell to cell swap",
-        description = "Using role MAINTAIN_CELL_MOVEMENTS will no longer check for user access to prisoner booking, this endpoint will be removed in future releases"
+        summary = "Move the prisoner from current cell to cell swap (deprecated)",
+        deprecated = true,
+        description = "Using role MAINTAIN_CELL_MOVEMENTS will no longer check for user access to prisoner booking, this endpoint will be removed in future releases. " +
+            "Use PUT /api/bookings/{bookingId}/living-unit/{internalLocationDescription} instead, passing the prison's cell swap location as the description - PRISON_ID-CSWAP, for example LEI-CSWAP."
     )
     @ProxyUser
     @Deprecated
