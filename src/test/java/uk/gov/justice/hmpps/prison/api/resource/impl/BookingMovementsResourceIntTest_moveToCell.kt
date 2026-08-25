@@ -140,9 +140,10 @@ class BookingMovementsResourceIntTest_moveToCell : ResourceTest() {
 
   @Test
   fun cellSwapLocation_movesToCellSwap() {
-    // The cell swap location is a WING and is uncapped, so it satisfies neither of the cell/reception
-    // checks. This endpoint accepts it anyway, which is what allows the deprecated
-    // PUT /api/bookings/{bookingId}/move-to-cell-swap to be retired.
+    // The cell swap location is uncapped and is neither a cell nor a reception, so it satisfies
+    // neither of those checks. This endpoint accepts it anyway, which is what let the dedicated
+    // PUT /api/bookings/{bookingId}/move-to-cell-swap endpoint be retired - leaving this as the only
+    // integration coverage of a cell swap.
     val dateTime = LocalDateTime.now().minusHours(1)
 
     val response: ResponseEntity<String> = requestMoveToCell(

@@ -27,7 +27,6 @@ import uk.gov.justice.hmpps.prison.api.model.CourtHearing;
 import uk.gov.justice.hmpps.prison.api.model.CourtHearings;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
 import uk.gov.justice.hmpps.prison.api.model.PrisonToCourtHearing;
-import uk.gov.justice.hmpps.prison.api.model.RequestMoveToCellSwap;
 import uk.gov.justice.hmpps.prison.core.HasWriteScope;
 import uk.gov.justice.hmpps.prison.core.ProxyUser;
 import uk.gov.justice.hmpps.prison.security.VerifyBookingAccess;
@@ -110,36 +109,5 @@ public class BookingMovementsResource {
             dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
 
         return movementUpdateService.moveToCellOrReception(bookingId, internalLocationDescription, reasonCode, dateTime, lockTimeout);
-    }
-
-    @ApiResponses({
-        @ApiResponse(responseCode = "200", description = "OK", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = CellMoveResult.class))}),
-        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
-        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @PutMapping("/{bookingId}/move-to-cell-swap")
-    @Operation(
-        summary = "Move the prisoner from current cell to cell swap (deprecated)",
-        deprecated = true,
-        description = "Using role MAINTAIN_CELL_MOVEMENTS will no longer check for user access to prisoner booking, this endpoint will be removed in future releases. " +
-            "Use PUT /api/bookings/{bookingId}/living-unit/{internalLocationDescription} instead, passing the prison's cell swap location as the description - PRISON_ID-CSWAP, for example LEI-CSWAP."
-    )
-    @ProxyUser
-    @Deprecated
-    @VerifyBookingAccess(overrideRoles = {"MAINTAIN_CELL_MOVEMENTS"})
-    @HasWriteScope
-    public CellMoveResult moveToCellSwap(
-        @PathVariable @Parameter(description = "The offender booking id", example = "1200866", required = true) final Long bookingId,
-        @RequestBody final RequestMoveToCellSwap requestMoveToCellSwap
-    ) {
-        final var dateTime = requestMoveToCellSwap.getDateTime();
-        final var reasonCode = requestMoveToCellSwap.getReasonCode();
-
-        log.debug("Received moveToCellSwap request for booking id {}, cell location Cell swap, reasonCode {}, date/time {}",
-            bookingId,
-            reasonCode,
-            dateTime != null ? dateTime.format(ISO_DATE_TIME) : "null");
-
-        return movementUpdateService.moveToCellSwap(bookingId, reasonCode, dateTime);
     }
 }

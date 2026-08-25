@@ -54,9 +54,11 @@ public class MovementUpdateService {
             return transformToCellSwapResult(offenderBooking);
         }
 
-        // A cell swap location is checked first and on its own: it is a WING rather than a CELL and is
-        // deliberately uncapped, so it satisfies neither of the checks below. Short-circuiting here is
-        // what lets this endpoint serve the cell swap that move-to-cell-swap was added for.
+        // A cell swap location is checked first and on its own: it is neither a cell nor a reception,
+        // and it is deliberately uncapped, so it satisfies neither of the checks below. Short-circuiting
+        // here is what lets this endpoint serve cell swap, which until MAPA-316 had an endpoint of its
+        // own. Note isCellSwap() deliberately ignores locationType - across the live estate these
+        // locations are recorded as WING, HOLD and AREA - so do not narrow this to a type.
         // BookingService.validateUpdateLivingUnit already exempts cell swap from its own type check,
         // and still applies the same-prison check.
         if (internalLocation.isCellSwap()
@@ -66,23 +68,6 @@ public class MovementUpdateService {
         }
         throw new IllegalArgumentException(String.format("Location %s is either not a cell or reception, active or is at maximum capacity", internalLocation.getDescription()));
 
-    }
-
-    @Transactional
-    public CellMoveResult moveToCellSwap(final Long bookingId, final String reasonCode, final LocalDateTime dateTime) {
-        final var reason = reasonCode == null ? "ADM" : reasonCode;
-
-        validateInternalMove(reason, dateTime);
-
-        final var movementDateTime = dateTime != null ? dateTime : LocalDateTime.now(clock);
-        final var offenderBooking = getActiveOffenderBooking(bookingId);
-        final var agency = offenderBooking.getAgencyId();
-        final var internalLocation = getCswapLocation(agency);
-
-        if (offenderBooking.getAssignedLivingUnitId().equals(internalLocation.getLocationId()))
-            return transformToCellSwapResult(offenderBooking);
-
-        return saveAndReturnInternalMoveResult(bookingId, reason, movementDateTime, internalLocation, false);
     }
 
     private CellMoveResult saveAndReturnInternalMoveResult(
@@ -147,22 +132,6 @@ public class MovementUpdateService {
                 .assignedLivingUnitId(offenderBooking.getAssignedLivingUnit().getLocationId())
                 .assignedLivingUnitDesc(offenderBooking.getAssignedLivingUnit().getDescription())
                 .build();
-    }
-
-    private AgencyInternalLocation getCswapLocation(final String agency) {
-        final var cellSwapLocations = agencyInternalLocationRepository
-                .findByLocationCodeAndAgencyId("CSWAP", agency)
-                .stream()
-                .filter(AgencyInternalLocation::isCellSwap)
-                .toList();
-
-        if (cellSwapLocations.size() > 1)
-            throw new RuntimeException("There are more than 1 CSWAP locations configured");
-
-        return cellSwapLocations
-                .stream()
-                .findFirst()
-                .orElseThrow(EntityNotFoundException.withMessage(format("CSWAP location not found for %s", agency)));
     }
 
     private AgencyInternalLocation getActiveInternalLocation(final String locationDescription) {
