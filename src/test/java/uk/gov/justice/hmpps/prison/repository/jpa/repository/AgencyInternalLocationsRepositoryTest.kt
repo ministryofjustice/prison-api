@@ -43,9 +43,12 @@ class AgencyInternalLocationsRepositoryTest {
 
   @Test
   fun findCellSwapLocation() {
-    val location = repository.findByLocationCodeAndAgencyId("CSWAP", "LEI")
-      .first()
-    assertThat(location.description).isEqualTo("LEI-CSWAP")
+    // A cell swap is now an ordinary cell move to the prison's CSWAP location, so callers build the
+    // destination key as {prisonId}-CSWAP and the move resolves it with findOneByDescription. Assert
+    // that convention through the same lookup the live path uses.
+    val location = repository.findOneByDescription("LEI-CSWAP").orElseThrow()
+    assertThat(location.locationCode).isEqualTo("CSWAP")
+    assertThat(location.isCellSwap).isTrue()
   }
 
   @Test
