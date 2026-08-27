@@ -21,6 +21,7 @@ class PrisonerSearchServiceTest {
   private val offenderRepository: OffenderRepository = mock()
   private val offenderTransformer: OffenderTransformer = mock()
   private val inmateService: InmateService = mock()
+  private val bookingService: BookingService = mock()
   private val healthService: HealthService = mock()
   private val offenderLanguageRepository: OffenderLanguageRepository = mock()
 
@@ -29,6 +30,7 @@ class PrisonerSearchServiceTest {
     offenderRepository,
     offenderTransformer,
     inmateService,
+    bookingService,
     healthService,
     offenderLanguageRepository,
   )
