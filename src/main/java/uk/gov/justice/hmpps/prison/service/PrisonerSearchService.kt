@@ -3,6 +3,7 @@ package uk.gov.justice.hmpps.prison.service
 import jakarta.transaction.Transactional
 import org.springframework.stereotype.Component
 import uk.gov.justice.hmpps.prison.api.model.InmateDetail
+import uk.gov.justice.hmpps.prison.api.model.MainOffence
 import uk.gov.justice.hmpps.prison.api.model.OffenderLanguageDto
 import uk.gov.justice.hmpps.prison.api.model.PrisonerSearchDetails
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ExternalMovement
@@ -24,6 +25,7 @@ class PrisonerSearchService(
   private val offenderRepository: OffenderRepository,
   private val offenderTransformer: OffenderTransformer,
   private val inmateService: InmateService,
+  private val bookingService: BookingService,
   private val healthService: HealthService,
   private val offenderLanguageRepository: OffenderLanguageRepository,
 ) {
@@ -62,6 +64,7 @@ class PrisonerSearchService(
           allIdentifiers = offender.allIdentifiers?.map { oi -> oi.toModel(detail.offenderNo) }?.sortedBy { it.whenCreated },
           sentenceDetail = detail.sentenceDetail?.apply { additionalDaysAwarded = booking?.additionalDaysAwarded },
           mostSeriousOffence = detail.offenceHistory?.filter { off -> off.bookingId == detail.bookingId }?.filter { it.mostSerious }?.minByOrNull { it.offenceSeverityRanking }?.offenceDescription,
+          mainOffence = findMainOffence(detail.bookingId),
           indeterminateSentence = detail.sentenceTerms?.any { st -> st.lifeSentence && detail.bookingId == st.bookingId },
           aliases = detail.aliases,
           status = detail.status,
@@ -119,6 +122,22 @@ class PrisonerSearchService(
           )
         }
     }
+
+  /**
+   * The main offence of the booking: the most serious active charge, convicted or not.
+   *
+   * [PrisonerSearchDetails.mostSeriousOffence] comes from [InmateDetail.offenceHistory], which
+   * InmateService builds with `convictionsOnly = true`, so anyone without a conviction - every
+   * remand prisoner, and immigration detainees - has no offence there at all. NOMIS does hold one
+   * for them: it maintains `OFFENDER_CHARGES.MOST_SERIOUS_FLAG` whenever a charge or a sentence
+   * changes. This reads that instead, which is the same source `GET /api/bookings/{bookingId}/mainOffence`
+   * serves, so the two always agree.
+   *
+   * `getMainOffenceDetails` orders by offence severity ranking, so the first row is the most serious.
+   */
+  private fun findMainOffence(bookingId: Long?): MainOffence? = bookingId
+    ?.let { bookingService.getMainOffenceDetails(it).firstOrNull() }
+    ?.let { MainOffence(offenceCode = it.offenceCode, offenceDescription = it.offenceDescription) }
 
   private fun findLastMovementTime(
     externalMovements: List<ExternalMovement>?,

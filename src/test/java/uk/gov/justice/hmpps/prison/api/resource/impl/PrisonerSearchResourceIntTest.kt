@@ -133,7 +133,14 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
               assertThat(releaseDate).isEqualTo("2018-04-19")
             }
             assertThat(sentenceDetail?.additionalDaysAwarded).isNull()
+            // Booking -2 is the unsentenced case: an active MOST_SERIOUS_FLAG='Y' charge but no
+            // conviction result, so offenceHistory - which is convictions-only - is empty and
+            // mostSeriousOffence stays null, while mainOffence reads the charge itself.
             assertThat(mostSeriousOffence).isNull()
+            with(mainOffence!!) {
+              assertThat(offenceCode).isEqualTo("M1")
+              assertThat(offenceDescription).isEqualTo("Actual bodily harm")
+            }
             assertThat(indeterminateSentence).isTrue()
             assertThat(aliases).isEmpty()
             assertThat(status).isEqualTo("ACTIVE IN")
@@ -215,7 +222,10 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
                 tuple("PNC", "24/1234567L", "A1234AC", LocalDate.parse("2024-01-01"), "INST"),
               )
             assertThat(identifiers?.first()?.whenCreated?.toLocalDate()).isEqualTo(LocalDate.now())
+            // Booking -3 has charges, but both are MOST_SERIOUS_FLAG='N', so there is no main
+            // offence to report and both fields are legitimately null.
             assertThat(mostSeriousOffence).isNull()
+            assertThat(mainOffence).isNull()
             assertThat(aliases).isEmpty()
             assertThat(militaryRecord).isFalse()
           }
@@ -313,6 +323,19 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(mostSeriousOffence).isEqualTo("Cause exceed max permitted wt of artic' vehicle - No of axles/configuration (No MOT/Manufacturer's Plate)")
+          }
+        }
+    }
+
+    @Test
+    fun `should return the main offence, agreeing with most serious offence where the prisoner is sentenced`() {
+      webTestClient.getPrisonerSearchDetails("A1234AA")
+        .consumeWith { response ->
+          with(response.responseBody!!) {
+            with(mainOffence!!) {
+              assertThat(offenceCode).isEqualTo("RV98011")
+              assertThat(offenceDescription).isEqualTo(mostSeriousOffence)
+            }
           }
         }
     }

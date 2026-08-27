@@ -81,6 +81,13 @@ data class PrisonerSearchDetails(
   @Schema(description = "Most serious offence")
   val mostSeriousOffence: String? = null,
 
+  @Schema(
+    description = "The main offence of the active booking: the most serious active charge, whether or not it has " +
+      "resulted in a conviction. Unlike mostSeriousOffence this is populated for a prisoner without a conviction, " +
+      "such as someone on remand.",
+  )
+  val mainOffence: MainOffence? = null,
+
   @Schema(description = "Currently serving an indeterminate sentence?")
   val indeterminateSentence: Boolean? = null,
 
