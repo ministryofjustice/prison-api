@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.5"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.6"
   kotlin("plugin.spring") version "2.4.10"
   kotlin("plugin.jpa") version "2.4.10"
   kotlin("plugin.lombok") version "2.4.10"
@@ -18,7 +18,7 @@ dependencies {
   annotationProcessor("org.projectlombok:lombok:1.18.46")
   testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
 
-  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.0")
+  implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
   implementation("org.springframework.boot:spring-boot-starter-validation")
   implementation("org.springframework.boot:spring-boot-starter-jdbc")
@@ -27,7 +27,7 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-jackson2")
 
-  implementation("commons-codec:commons-codec:1.22.0")
+  implementation("commons-codec:commons-codec:1.22.1")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   val jsqlParserVersion = ":5.2"
   implementation("com.github.jsqlparser:jsqlparser$jsqlParserVersion")
@@ -41,7 +41,7 @@ dependencies {
 
   implementation("org.apache.commons:commons-lang3:3.20.0")
   implementation("commons-io:commons-io:2.22.0")
-  implementation("com.google.guava:guava:33.6.0-jre")
+  implementation("com.google.guava:guava:33.7.1-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
   // Had to leave oracle at 21.20.0.0 because in 23 fails to compile stored procedures
   val oracleVersion = ":21.20.0.0"
