@@ -38,6 +38,10 @@ public class RequestToReleasePrisoner {
     @Default
     private String toLocationCode = "OUT";
 
+    @Schema(description = "Whether to deactivate sentences upon release, default is false", example = "false")
+    @Default
+    private boolean deactivateSentences = false;
+
     @JsonCreator
     public RequestToReleasePrisoner() {
         toLocationCode = "OUT";

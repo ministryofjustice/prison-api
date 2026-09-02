@@ -45,7 +45,7 @@ class ReleasePrisonerService(
       .also {
         caseNoteMovementService.createReleaseNote(it, movement)
         bedAssignmentMovementService.endBedHistory(it.bookingId, movement.movementTime)
-        sentenceMovementService.deactivateSentences(it.bookingId)
+        sentenceMovementService.deactivateSentences(it.bookingId, request.isDeactivateSentences)
         paymentsMovementService.endPaymentRules(it.bookingId)
         activityMovementService.endActivitiesAndWaitlist(it, movement.fromAgency, movement.movementDate, request.movementReasonCode)
       }
