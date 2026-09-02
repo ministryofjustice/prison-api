@@ -16,4 +16,6 @@ public interface OffenderSentenceRepository extends CrudRepository<OffenderSente
     @EntityGraph(value = "sentence-entity-graph")
     List<OffenderSentence> findByOffenderBooking_BookingIdInAndCalculationType_CalculationTypeNotLikeAndCalculationType_CategoryNot(
         Set<Long> bookingIds, String calculationType, String category);
+
+    List<OffenderSentence> findAllByOffenderBooking_BookingIdAndStatus(Long bookingId, String status);
 }

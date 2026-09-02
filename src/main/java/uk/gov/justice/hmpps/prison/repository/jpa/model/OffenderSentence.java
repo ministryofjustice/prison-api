@@ -19,6 +19,7 @@ import lombok.Builder.Default;
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 import lombok.With;
 import org.hibernate.annotations.BatchSize;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceAndOffences;
@@ -94,6 +95,7 @@ public class OffenderSentence extends AuditableEntity {
     private OffenderCourtCase courtCase;
 
     @Column(name = "SENTENCE_STATUS")
+    @Setter
     private String status;
 
     @ManyToOne(optional = false, fetch = FetchType.LAZY)
