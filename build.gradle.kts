@@ -15,8 +15,8 @@ configurations {
 
 dependencies {
   annotationProcessor("org.springframework.boot:spring-boot-configuration-processor")
-  annotationProcessor("org.projectlombok:lombok:1.18.46")
-  testAnnotationProcessor("org.projectlombok:lombok:1.18.46")
+  annotationProcessor("org.projectlombok:lombok:1.18.48")
+  testAnnotationProcessor("org.projectlombok:lombok:1.18.48")
 
   implementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter:3.0.1")
   implementation("org.springframework.boot:spring-boot-starter-aspectj")
@@ -34,10 +34,7 @@ dependencies {
   implementation("org.ehcache:ehcache:3.12.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
-  // Temporarily pin spring doc at 3.0.2 whilst waiting for 3.0.4 upgrade
-  val springDocVersion = ":3.0.2"
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui$springDocVersion")
-  implementation("org.springdoc:springdoc-openapi-starter-common$springDocVersion")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.0")
 
   implementation("org.apache.commons:commons-lang3:3.20.0")
   implementation("commons-io:commons-io:2.22.0")
@@ -48,13 +45,13 @@ dependencies {
   implementation("com.oracle.database.jdbc:ojdbc11$oracleVersion")
   implementation("org.hibernate.orm:hibernate-community-dialects")
 
-  compileOnly("org.projectlombok:lombok:1.18.46")
+  compileOnly("org.projectlombok:lombok:1.18.48")
 
   // we run on oracle in all environments, but allow instance to be started using hsqldb too
   runtimeOnly("org.hsqldb:hsqldb:2.7.4")
   runtimeOnly("org.flywaydb:flyway-database-hsqldb")
 
-  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.0")
+  testImplementation("uk.gov.justice.service.hmpps:hmpps-kotlin-spring-boot-starter-test:3.0.1")
   testImplementation("org.springframework.boot:spring-boot-test-autoconfigure")
   testImplementation("org.springframework.boot:spring-boot-starter-webflux-test")
   testImplementation("org.springframework.boot:spring-boot-starter-data-jpa-test")
@@ -72,14 +69,14 @@ dependencies {
 
   testImplementation("org.wiremock:wiremock:3.13.2")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:5.1.2")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.45") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.47") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.52")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.54")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.62.0")
 
-  testCompileOnly("org.projectlombok:lombok:1.18.46")
+  testCompileOnly("org.projectlombok:lombok:1.18.48")
 }
 
 kotlin {
