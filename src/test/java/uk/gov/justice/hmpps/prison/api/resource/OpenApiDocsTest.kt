@@ -75,7 +75,7 @@ class OpenApiDocsTest(
       .expectStatus().isOk
       .expectBody()
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.example").isEqualTo("2021-07-16T12:34:56")
-      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.type").isEqualTo("string")
+      .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.type").isEqualTo(["string", "null"])
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.format").isEqualTo("date-time")
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.description").isEqualTo("Movement date time")
       .jsonPath("$.components.schemas.OffenderIn.properties.movementDateTime.pattern").doesNotExist()
