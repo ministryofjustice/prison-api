@@ -153,6 +153,7 @@ class FinanceHoldsService(
       transactionType = releaseHoldTransactionType,
       transactionReferenceNumber = releaseHoldTransaction.clientTransactionId,
       clientUniqueRef = releaseHoldTransaction.clientUniqueReference,
+      holdNumber = holdNumber,
       entryDate = now.toLocalDate(),
       entryDescription = releaseHoldTransaction.description,
       entryAmount = holdToReleaseTransaction.entryAmount,
