@@ -452,7 +452,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.id.transactionId).isEqualTo(releaseTransactionId)
             assertThat(it.clientUniqueRef).isEqualTo("clientRef")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-            assertThat(it.holdNumber).isNull()
+            assertThat(it.holdNumber).isEqualTo(1)
             assertThat(it.holdClearFlag).isEqualTo("Y")
           },
         )
@@ -485,7 +485,7 @@ internal class FinanceHoldsServiceTest {
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
-            assertThat(it.holdNumber).isNull()
+            assertThat(it.holdNumber).isEqualTo(holdNumber)
             assertThat(it.subAccountType).isEqualTo("SPND")
             assertThat(it.transactionType.type).isEqualTo("HOR")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
@@ -726,7 +726,7 @@ internal class FinanceHoldsServiceTest {
             assertThat(it.id.transactionId).isEqualTo(releaseTransactionId)
             assertThat(it.clientUniqueRef).isEqualTo("removeClientRef")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
-            assertThat(it.holdNumber).isNull()
+            assertThat(it.holdNumber).isEqualTo(1)
             assertThat(it.holdClearFlag).isEqualTo("Y")
           },
         )
@@ -769,7 +769,7 @@ internal class FinanceHoldsServiceTest {
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
             assertThat(it.offenderId).isEqualTo(rootOffenderId1)
-            assertThat(it.holdNumber).isNull()
+            assertThat(it.holdNumber).isEqualTo(holdNumber)
             assertThat(it.subAccountType).isEqualTo("SPND")
             assertThat(it.transactionType.type).isEqualTo("HOR")
             assertThat(it.transactionReferenceNumber).isEqualTo("transId")
