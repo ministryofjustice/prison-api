@@ -45,6 +45,34 @@ class PersonResourceTest : ResourceTest() {
         .jsonPath("[0].phones.length()").isEqualTo(1)
         .jsonPath("[1].phones.length()").isEqualTo(2)
     }
+
+    @Test
+    fun `returns creation and modification timestamps for an address phone`() {
+      webTestClient.get().uri("/api/persons/-8/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$..phones[?(@.phoneId == -9)].createDatetime").value<List<String>> {
+          assertThat(it).containsExactly("2023-07-19T10:00:00")
+        }
+        .jsonPath("$..phones[?(@.phoneId == -9)].modifyDatetime").value<List<String>> {
+          assertThat(it).containsExactly("2023-07-20T11:00:00")
+        }
+    }
+
+    @Test
+    fun `returns creation timestamp without modification timestamp for an unmodified address phone`() {
+      webTestClient.get().uri("/api/persons/-8/addresses")
+        .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+        .exchange()
+        .expectStatus().isOk
+        .expectBody()
+        .jsonPath("$..phones[?(@.phoneId == -10)].createDatetime").value<List<String>> {
+          assertThat(it).containsExactly("2023-07-18T09:00:00")
+        }
+        .jsonPath("$..phones[?(@.phoneId == -10)].modifyDatetime").doesNotExist()
+    }
   }
 
   @Nested

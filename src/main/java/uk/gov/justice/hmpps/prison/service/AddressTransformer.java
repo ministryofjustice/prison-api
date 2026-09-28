@@ -77,6 +77,8 @@ public class AddressTransformer {
             .ext(phone.getExtNo())
             .type(phone.getPhoneType())
             .number(phone.getPhoneNo())
+            .createDatetime(phone.getCreateDatetime())
+            .modifyDatetime(phone.getModifyDatetime())
             .build();
     }
 

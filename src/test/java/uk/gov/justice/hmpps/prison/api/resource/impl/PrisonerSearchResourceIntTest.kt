@@ -503,8 +503,8 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(phones).containsExactlyInAnyOrder(
-              Telephone(-16L, "0114 878787", "HOME", "345"),
-              Telephone(-17L, "07878 787878", "MOB", null),
+              Telephone(-16L, "0114 878787", "HOME", "345", LocalDateTime.parse("2023-07-19T10:00:00"), LocalDateTime.parse("2023-07-20T11:00:00")),
+              Telephone(-17L, "07878 787878", "MOB", null, LocalDateTime.parse("2023-07-18T09:00:00"), null),
             )
             assertThat(emailAddresses).containsExactlyInAnyOrder(
               Email(-7L, "prisoner@home.com"),
