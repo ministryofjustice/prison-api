@@ -11,6 +11,8 @@ import lombok.ToString;
 
 import jakarta.validation.constraints.NotBlank;
 
+import java.time.LocalDateTime;
+
 import static io.swagger.v3.oas.annotations.media.Schema.RequiredMode.REQUIRED;
 
 /**
@@ -39,5 +41,11 @@ public class Telephone {
 
     @Schema(description = "Telephone extension number", example = "123")
     private String ext;
+
+    @Schema(description = "Date and time the telephone number was created", example = "2023-07-19T10:00:00")
+    private LocalDateTime createDatetime;
+
+    @Schema(description = "Date and time the telephone number was last modified", example = "2023-07-20T11:00:00")
+    private LocalDateTime modifyDatetime;
 
 }

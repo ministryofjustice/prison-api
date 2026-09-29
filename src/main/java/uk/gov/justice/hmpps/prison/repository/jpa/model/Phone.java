@@ -15,6 +15,8 @@ import jakarta.persistence.Inheritance;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 
+import java.time.LocalDateTime;
+
 @Data
 @SuperBuilder
 @NoArgsConstructor
@@ -39,5 +41,15 @@ public abstract class Phone extends AuditableEntity {
 
     @Column(name = "EXT_NO")
     private String extNo;
+
+    @Override
+    public LocalDateTime getCreateDatetime() {
+        return super.getCreateDatetime();
+    }
+
+    @Override
+    public LocalDateTime getModifyDatetime() {
+        return super.getModifyDatetime();
+    }
 
 }

@@ -4,8 +4,13 @@ import org.assertj.core.api.Assertions.assertThat
 import org.junit.jupiter.api.DisplayName
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
+import org.springframework.beans.factory.annotation.Autowired
+import org.springframework.jdbc.core.JdbcTemplate
 
 class PersonResourceTest : ResourceTest() {
+  @Autowired
+  private lateinit var jdbcTemplate: JdbcTemplate
+
   @Nested
   @DisplayName("GET /api/persons/{personId}/addresses")
   inner class Addresses {
@@ -44,6 +49,54 @@ class PersonResourceTest : ResourceTest() {
         .jsonPath("length()").isEqualTo(2)
         .jsonPath("[0].phones.length()").isEqualTo(1)
         .jsonPath("[1].phones.length()").isEqualTo(2)
+    }
+
+    @Test
+    fun `returns creation and modification timestamps for an address phone`() {
+      jdbcTemplate.update(
+        """
+        INSERT INTO PHONES (PHONE_ID, OWNER_CLASS, OWNER_ID, PHONE_NO, PHONE_TYPE, CREATE_DATETIME, MODIFY_DATETIME)
+        VALUES (-10009, 'ADDR', -15, '07878 7556677', 'MOB', TIMESTAMP '2023-07-19 10:00:00', TIMESTAMP '2023-07-20 11:00:00')
+        """.trimIndent(),
+      )
+      try {
+        webTestClient.get().uri("/api/persons/-8/addresses")
+          .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$..phones[?(@.phoneId == -10009)].createDatetime").value<List<String>> {
+            assertThat(it).containsExactly("2023-07-19T10:00:00")
+          }
+          .jsonPath("$..phones[?(@.phoneId == -10009)].modifyDatetime").value<List<String>> {
+            assertThat(it).containsExactly("2023-07-20T11:00:00")
+          }
+      } finally {
+        jdbcTemplate.update("DELETE FROM PHONES WHERE PHONE_ID = -10009")
+      }
+    }
+
+    @Test
+    fun `returns creation timestamp without modification timestamp for an unmodified address phone`() {
+      jdbcTemplate.update(
+        """
+        INSERT INTO PHONES (PHONE_ID, OWNER_CLASS, OWNER_ID, PHONE_NO, PHONE_TYPE, CREATE_DATETIME, MODIFY_DATETIME)
+        VALUES (-10010, 'ADDR', -15, '01234 567890', 'HOME', TIMESTAMP '2023-07-18 09:00:00', NULL)
+        """.trimIndent(),
+      )
+      try {
+        webTestClient.get().uri("/api/persons/-8/addresses")
+          .headers(setClientAuthorisation(listOf("ROLE_VIEW_CONTACTS")))
+          .exchange()
+          .expectStatus().isOk
+          .expectBody()
+          .jsonPath("$..phones[?(@.phoneId == -10010)].createDatetime").value<List<String>> {
+            assertThat(it).containsExactly("2023-07-18T09:00:00")
+          }
+          .jsonPath("$..phones[?(@.phoneId == -10010)].modifyDatetime").doesNotExist()
+      } finally {
+        jdbcTemplate.update("DELETE FROM PHONES WHERE PHONE_ID = -10010")
+      }
     }
   }
 

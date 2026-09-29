@@ -23,6 +23,7 @@ import uk.gov.justice.hmpps.prison.dsl.NomisDataBuilder
 import uk.gov.justice.hmpps.prison.dsl.OffenderBookingId
 import uk.gov.justice.hmpps.prison.dsl.OffenderId
 import uk.gov.justice.hmpps.prison.repository.jpa.model.SentenceCalculation.NonDtoReleaseDateType
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPhoneRepository
 import java.time.Duration
 import java.time.LocalDate
 import java.time.LocalDateTime
@@ -31,6 +32,9 @@ import java.time.temporal.ChronoUnit
 class PrisonerSearchResourceIntTest : ResourceTest() {
   @Autowired
   private lateinit var builder: NomisDataBuilder
+
+  @Autowired
+  private lateinit var offenderPhoneRepository: OffenderPhoneRepository
 
   @Nested
   @DisplayName("GET /api/prisoner-search/offenders/{offenderNo}")
@@ -499,12 +503,14 @@ class PrisonerSearchResourceIntTest : ResourceTest() {
 
     @Test
     fun `should return offender phones and emails`() {
+      val homePhone = offenderPhoneRepository.findById(-16L).orElseThrow()
+      val mobilePhone = offenderPhoneRepository.findById(-17L).orElseThrow()
       webTestClient.getPrisonerSearchDetails("A1234AI")
         .consumeWith { response ->
           with(response.responseBody!!) {
             assertThat(phones).containsExactlyInAnyOrder(
-              Telephone(-16L, "0114 878787", "HOME", "345"),
-              Telephone(-17L, "07878 787878", "MOB", null),
+              Telephone(-16L, "0114 878787", "HOME", "345", homePhone.createDatetime, homePhone.modifyDatetime),
+              Telephone(-17L, "07878 787878", "MOB", null, mobilePhone.createDatetime, mobilePhone.modifyDatetime),
             )
             assertThat(emailAddresses).containsExactlyInAnyOrder(
               Email(-7L, "prisoner@home.com"),
