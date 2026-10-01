@@ -1777,7 +1777,6 @@ class PrisonerProfileUpdateServiceTest {
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Address with addressId 444444 for prisonerNumber A1234AA not found")
     }
-
   }
 
   private companion object {

@@ -25,8 +25,8 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
-import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country.COUNTRY
