@@ -26,7 +26,9 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
+import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
@@ -1710,12 +1712,85 @@ class PrisonerProfileUpdateServiceTest {
     }
   }
 
+  @Nested
+  inner class AddAddressPhoneNumbers {
+
+    private val address = OffenderAddress.builder().addressId(ADDRESS_ID).build()
+
+    @BeforeEach
+    fun setUp() {
+      whenever(offender.id).thenReturn(OFFENDER_ID)
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(listOf(address))
+      whenever(offenderAddressRepository.save(any<OffenderAddress>())).thenAnswer { invocation ->
+        invocation.getArgument<OffenderAddress>(0).also { savedAddress ->
+          savedAddress.phones.single().phoneId = PHONE_ID
+        }
+      }
+    }
+
+    @Test
+    internal fun `adds phone numbers to address`() {
+      val phones = prisonerProfileUpdateService.addAddressPhoneNumbers(
+        PRISONER_NUMBER,
+        ADDRESS_ID,
+        listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER, PHONE_EXTENSION)),
+      )
+
+      assertThat(phones).containsExactly(
+        Telephone.builder()
+          .phoneId(PHONE_ID)
+          .number(PHONE_NUMBER)
+          .type(PHONE_TYPE)
+          .ext(PHONE_EXTENSION)
+          .build(),
+      )
+      verify(offenderAddressRepository).save(address)
+    }
+
+    @Test
+    internal fun `throws exception when the offender cannot be found`() {
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.addAddressPhoneNumbers(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER)),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA not found")
+    }
+
+    @Test
+    internal fun `throws exception when the address cannot be found for the offender`() {
+      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(emptyList())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.addAddressPhoneNumbers(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER)),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Address with addressId 444444 for prisonerNumber A1234AA not found")
+    }
+
+  }
+
   private companion object {
     const val USERNAME = "username"
     const val PRISONER_NUMBER = "A1234AA"
     const val OFFENDER_ID = 111111L
     const val NEW_OFFENDER_ID = 222222L
     const val NEW_ADDRESS_ID = 333333L
+    const val ADDRESS_ID = 444444L
+    const val PHONE_ID = 555555L
+    const val PHONE_TYPE = "MOB"
+    const val PHONE_NUMBER = "01234 567 890"
+    const val PHONE_EXTENSION = "123"
     const val BIRTH_PLACE = "SHEFFIELD"
     const val BRITISH_NATIONALITY_CODE = "BRIT"
     const val DRUID_RELIGION_CODE = "DRU"

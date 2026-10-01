@@ -943,4 +943,23 @@ public class OffenderResource {
                                          @RequestBody @NotNull @Valid final CreateAddress createAddressRequest) {
         return prisonerProfileUpdateService.createAddress(prisonerNumber, createAddressRequest);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Phone number(s) added to address."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to add phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Prisoner or address not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @Operation(summary = "Add phone numbers for a prisoner's address")
+    @PostMapping("/{offenderNo}/addresses/{addressId}/phone-numbers")
+    @ProxyUser
+    public List<Telephone> addOffenderAddressPhoneNumbers(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @PathVariable("addressId") @Parameter(description = "The address ID", required = true) final Long addressId,
+        @RequestBody @NotNull @Valid final List<OffenderPhoneNumberCreateRequest> phoneNumberRequests
+    ) {
+        return prisonerProfileUpdateService.addAddressPhoneNumbers(prisonerNumber, addressId, phoneNumberRequests);
+    }
 }
