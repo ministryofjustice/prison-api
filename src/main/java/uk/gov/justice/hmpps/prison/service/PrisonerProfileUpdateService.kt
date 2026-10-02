@@ -17,12 +17,15 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguage
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
+import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
 import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
@@ -420,6 +423,38 @@ class PrisonerProfileUpdateService(
     }
 
     return AddressTransformer.translate(addressRepository.save(newAddress))
+  }
+
+  @Transactional
+  fun addAddressPhoneNumbers(
+    prisonerNumber: String,
+    addressId: Long,
+    requests: List<OffenderPhoneNumberCreateRequest>,
+  ): List<Telephone> {
+    val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
+    var address = addressRepository.findByOffenderId(offender.id).firstOrNull { it.addressId == addressId }
+      ?: throw EntityNotFoundException.withMessage(
+        "Address with addressId %s for prisonerNumber %s not found",
+        addressId,
+        prisonerNumber,
+      )
+
+    val existingPhoneIds = address.phones.mapNotNull { it.phoneId }.toSet()
+    requests.forEach { request ->
+      address.addPhone(
+        AddressPhone.builder()
+          .phoneNo(request.phoneNumber)
+          .phoneType(request.phoneNumberType)
+          .extNo(request.extension)
+          .build(),
+      )
+      address = addressRepository.save(address)
+    }
+
+    return AddressTransformer.translatePhones(
+      address.phones.filterNot { it.phoneId in existingPhoneIds }.sortedBy { it.phoneId },
+    )
   }
 
   @Transactional
