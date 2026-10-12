@@ -6,11 +6,11 @@ import jakarta.validation.constraints.NotBlank
 import jakarta.validation.constraints.Size
 
 /**
- * Offender Phone Number Create Request
+ * Offender Phone Number Request
  **/
-@Schema(description = "Offender Phone Number Create Request")
+@Schema(description = "Offender Phone Number Request")
 @JsonInclude(JsonInclude.Include.NON_NULL)
-data class OffenderPhoneNumberCreateRequest(
+data class OffenderPhoneNumberRequest(
   @Schema(description = "Type of offender phone number", example = "BUS", requiredMode = Schema.RequiredMode.REQUIRED)
   @field:NotBlank
   @field:Size(max = 12)

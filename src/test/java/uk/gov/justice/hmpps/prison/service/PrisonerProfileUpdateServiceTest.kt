@@ -2,6 +2,7 @@ package uk.gov.justice.hmpps.prison.service
 
 import org.assertj.core.api.Assertions.assertThat
 import org.assertj.core.api.Assertions.assertThatThrownBy
+import org.hibernate.exception.LockTimeoutException
 import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Nested
 import org.junit.jupiter.api.Test
@@ -26,7 +27,7 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonRecordAlias
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
-import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberRequest
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
@@ -34,6 +35,7 @@ import uk.gov.justice.hmpps.prison.api.model.UpdateReligion
 import uk.gov.justice.hmpps.prison.api.model.UpdateSexualOrientation
 import uk.gov.justice.hmpps.prison.api.model.UpdateSmokerStatus
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
+import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressPhone
 import uk.gov.justice.hmpps.prison.repository.jpa.model.AddressUsageType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.City
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Country
@@ -56,6 +58,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ProfileType
 import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -67,6 +70,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileCodeReposito
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ProfileTypeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
+import java.sql.SQLException
 import java.time.LocalDate
 import java.util.Optional
 
@@ -77,6 +81,7 @@ class PrisonerProfileUpdateServiceTest {
   private val ethnicityRepository: ReferenceCodeRepository<Ethnicity> = mock()
   private val nameTypeRepository: ReferenceCodeRepository<NameType> = mock()
   private val offenderAddressRepository: OffenderAddressRepository = mock()
+  private val addressPhoneRepository: AddressPhoneRepository = mock()
   private val cityRepository: ReferenceCodeRepository<City> = mock()
   private val countyRepository: ReferenceCodeRepository<County> = mock()
   private val countryRepository: ReferenceCodeRepository<Country> = mock()
@@ -90,6 +95,7 @@ class PrisonerProfileUpdateServiceTest {
   private val offenderLanguageRepository: OffenderLanguageRepository = mock()
   private val languageCodeRepository: ReferenceCodeRepository<LanguageReferenceCode> = mock()
   private val offenderIdentifierRepository: OffenderIdentifierRepository = mock()
+  private val referenceDomainService: ReferenceDomainService = mock()
   private val offender: Offender = mock()
   private val booking: OffenderBooking = mock()
   private val offenderProfileDetail: OffenderProfileDetail = mock()
@@ -103,6 +109,7 @@ class PrisonerProfileUpdateServiceTest {
     ethnicityRepository,
     nameTypeRepository,
     offenderAddressRepository,
+    addressPhoneRepository,
     cityRepository,
     countyRepository,
     countryRepository,
@@ -116,6 +123,7 @@ class PrisonerProfileUpdateServiceTest {
     offenderLanguageRepository,
     languageCodeRepository,
     offenderIdentifierRepository,
+    referenceDomainService,
   )
 
   @Nested
@@ -1721,7 +1729,7 @@ class PrisonerProfileUpdateServiceTest {
     fun setUp() {
       whenever(offender.id).thenReturn(OFFENDER_ID)
       whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
-      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(listOf(address))
+      whenever(offenderAddressRepository.findByAddressIdAndOffenderId(ADDRESS_ID, OFFENDER_ID)).thenReturn(address)
       whenever(offenderAddressRepository.save(any<OffenderAddress>())).thenAnswer { invocation ->
         invocation.getArgument<OffenderAddress>(0).also { savedAddress ->
           savedAddress.phones.single().phoneId = PHONE_ID
@@ -1734,7 +1742,7 @@ class PrisonerProfileUpdateServiceTest {
       val phones = prisonerProfileUpdateService.addAddressPhoneNumbers(
         PRISONER_NUMBER,
         ADDRESS_ID,
-        listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER, PHONE_EXTENSION)),
+        listOf(OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER, PHONE_EXTENSION)),
       )
 
       assertThat(phones).containsExactly(
@@ -1756,7 +1764,7 @@ class PrisonerProfileUpdateServiceTest {
         prisonerProfileUpdateService.addAddressPhoneNumbers(
           PRISONER_NUMBER,
           ADDRESS_ID,
-          listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER)),
+          listOf(OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER)),
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
@@ -1765,17 +1773,119 @@ class PrisonerProfileUpdateServiceTest {
 
     @Test
     internal fun `throws exception when the address cannot be found for the offender`() {
-      whenever(offenderAddressRepository.findByOffenderId(OFFENDER_ID)).thenReturn(emptyList())
+      whenever(offenderAddressRepository.findByAddressIdAndOffenderId(ADDRESS_ID, OFFENDER_ID)).thenReturn(null)
 
       assertThatThrownBy {
         prisonerProfileUpdateService.addAddressPhoneNumbers(
           PRISONER_NUMBER,
           ADDRESS_ID,
-          listOf(OffenderPhoneNumberCreateRequest(PHONE_TYPE, PHONE_NUMBER)),
+          listOf(OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER)),
         )
       }
         .isInstanceOf(EntityNotFoundException::class.java)
         .hasMessage("Address with addressId 444444 for prisonerNumber A1234AA not found")
+    }
+  }
+
+  @Nested
+  inner class UpdateAddressPhoneNumber {
+    @Test
+    internal fun `updates the address phone number`() {
+      val phone = AddressPhone.builder()
+        .phoneId(PHONE_ID)
+        .phoneType("HOME")
+        .phoneNo("09876 543 210")
+        .extNo("456")
+        .build()
+      whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", PHONE_TYPE)).thenReturn(true)
+      whenever(offender.id).thenReturn(OFFENDER_ID)
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(addressPhoneRepository.findByAddressIdAndOffenderIdAndPhoneIdForUpdate(ADDRESS_ID, OFFENDER_ID, PHONE_ID))
+        .thenReturn(Optional.of(phone))
+      whenever(addressPhoneRepository.save(phone)).thenReturn(phone)
+
+      val updatedPhone = prisonerProfileUpdateService.updateAddressPhoneNumber(
+        PRISONER_NUMBER,
+        ADDRESS_ID,
+        PHONE_ID,
+        OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER, PHONE_EXTENSION),
+      )
+
+      assertThat(updatedPhone).isNotNull()
+      assertThat(updatedPhone.number).isEqualTo(PHONE_NUMBER)
+      assertThat(updatedPhone.type).isEqualTo(PHONE_TYPE)
+    }
+
+    @Test
+    internal fun `throws exception when the offender cannot be found`() {
+      whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", PHONE_TYPE)).thenReturn(true)
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateAddressPhoneNumber(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          PHONE_ID,
+          OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Prisoner with prisonerNumber A1234AA not found")
+    }
+
+    @Test
+    internal fun `throws exception when the address phone cannot be found for the offender`() {
+      whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", PHONE_TYPE)).thenReturn(true)
+      whenever(offender.id).thenReturn(OFFENDER_ID)
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(addressPhoneRepository.findByAddressIdAndOffenderIdAndPhoneIdForUpdate(ADDRESS_ID, OFFENDER_ID, PHONE_ID))
+        .thenReturn(Optional.empty())
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateAddressPhoneNumber(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          PHONE_ID,
+          OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER),
+        )
+      }
+        .isInstanceOf(EntityNotFoundException::class.java)
+        .hasMessage("Phone number with phoneId 555555 for addressId 444444 and prisonerNumber A1234AA not found")
+    }
+
+    @Test
+    internal fun `throws bad request exception when phone type is not active`() {
+      whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", INVALID_PHONE_TYPE)).thenReturn(false)
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateAddressPhoneNumber(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          PHONE_ID,
+          OffenderPhoneNumberRequest(INVALID_PHONE_TYPE, PHONE_NUMBER),
+        )
+      }
+        .isInstanceOf(BadRequestException::class.java)
+        .hasMessage("Phone number type NOT_REAL is not valid")
+    }
+
+    @Test
+    internal fun `throws database row locked exception when phone is locked`() {
+      whenever(referenceDomainService.isReferenceCodeActive("PHONE_USAGE", PHONE_TYPE)).thenReturn(true)
+      whenever(offender.id).thenReturn(OFFENDER_ID)
+      whenever(offenderRepository.findRootOffenderByNomsId(PRISONER_NUMBER)).thenReturn(Optional.of(offender))
+      whenever(
+        addressPhoneRepository.findByAddressIdAndOffenderIdAndPhoneIdForUpdate(ADDRESS_ID, OFFENDER_ID, PHONE_ID),
+      ).thenThrow(CannotAcquireLockException("test", LockTimeoutException("[ORA-30006]", SQLException())))
+
+      assertThatThrownBy {
+        prisonerProfileUpdateService.updateAddressPhoneNumber(
+          PRISONER_NUMBER,
+          ADDRESS_ID,
+          PHONE_ID,
+          OffenderPhoneNumberRequest(PHONE_TYPE, PHONE_NUMBER),
+        )
+      }.isInstanceOf(DatabaseRowLockedException::class.java)
     }
   }
 
@@ -1788,6 +1898,7 @@ class PrisonerProfileUpdateServiceTest {
     const val ADDRESS_ID = 444444L
     const val PHONE_ID = 555555L
     const val PHONE_TYPE = "MOB"
+    const val INVALID_PHONE_TYPE = "NOT_REAL"
     const val PHONE_NUMBER = "01234 567 890"
     const val PHONE_EXTENSION = "123"
     const val BIRTH_PLACE = "SHEFFIELD"

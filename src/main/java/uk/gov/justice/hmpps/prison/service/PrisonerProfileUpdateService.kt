@@ -17,7 +17,7 @@ import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguage
 import uk.gov.justice.hmpps.prison.api.model.CorePersonSecondaryLanguageRequest
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress
 import uk.gov.justice.hmpps.prison.api.model.CreateAlias
-import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberRequest
 import uk.gov.justice.hmpps.prison.api.model.ReferenceDataValue
 import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.api.model.UpdateAlias
@@ -53,6 +53,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.ReferenceCode.Pk
 import uk.gov.justice.hmpps.prison.repository.jpa.model.StaffUserAccount
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Title.TITLE
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.AddressPhoneRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderAddressRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBeliefRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
@@ -82,6 +83,7 @@ class PrisonerProfileUpdateService(
   private val ethnicityRepository: ReferenceCodeRepository<Ethnicity>,
   private val nameTypeRepository: ReferenceCodeRepository<NameType>,
   private val addressRepository: OffenderAddressRepository,
+  private val addressPhoneRepository: AddressPhoneRepository,
   private val cityRepository: ReferenceCodeRepository<City>,
   private val countyRepository: ReferenceCodeRepository<County>,
   private val countryRepository: ReferenceCodeRepository<Country>,
@@ -95,6 +97,7 @@ class PrisonerProfileUpdateService(
   private val offenderLanguageRepository: OffenderLanguageRepository,
   private val languageCodeRepository: ReferenceCodeRepository<LanguageReferenceCode>,
   private val offenderIdentifierRepository: OffenderIdentifierRepository,
+  private val referenceDomainService: ReferenceDomainService,
 ) {
   @Transactional
   fun updateBirthPlaceOfCurrentAlias(prisonerNumber: String, birthPlace: String?) {
@@ -429,11 +432,11 @@ class PrisonerProfileUpdateService(
   fun addAddressPhoneNumbers(
     prisonerNumber: String,
     addressId: Long,
-    requests: List<OffenderPhoneNumberCreateRequest>,
+    requests: List<OffenderPhoneNumberRequest>,
   ): List<Telephone> {
     val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
-    var address = addressRepository.findByOffenderId(offender.id).firstOrNull { it.addressId == addressId }
+    var address = addressRepository.findByAddressIdAndOffenderId(addressId, offender.id)
       ?: throw EntityNotFoundException.withMessage(
         "Address with addressId %s for prisonerNumber %s not found",
         addressId,
@@ -455,6 +458,40 @@ class PrisonerProfileUpdateService(
     return AddressTransformer.translatePhones(
       address.phones.filterNot { it.phoneId in existingPhoneIds }.sortedBy { it.phoneId },
     )
+  }
+
+  @Transactional
+  fun updateAddressPhoneNumber(
+    prisonerNumber: String,
+    addressId: Long,
+    phoneId: Long,
+    request: OffenderPhoneNumberRequest,
+  ): Telephone {
+    if (!referenceDomainService.isReferenceCodeActive("PHONE_USAGE", request.phoneNumberType)) {
+      throw BadRequestException.withMessage("Phone number type ${request.phoneNumberType} is not valid")
+    }
+
+    val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
+    try {
+      val phone = addressPhoneRepository.findByAddressIdAndOffenderIdAndPhoneIdForUpdate(addressId, offender.id, phoneId)
+        .orElseThrow(
+          EntityNotFoundException.withMessage(
+            "Phone number with phoneId %s for addressId %s and prisonerNumber %s not found",
+            phoneId,
+            addressId,
+            prisonerNumber,
+          ),
+        )
+
+      phone.phoneType = request.phoneNumberType
+      phone.phoneNo = request.phoneNumber
+      phone.extNo = request.extension
+
+      return AddressTransformer.translate(addressPhoneRepository.save(phone))
+    } catch (e: CannotAcquireLockException) {
+      throw processLockError(e, prisonerNumber, "PHONES")
+    }
   }
 
   @Transactional

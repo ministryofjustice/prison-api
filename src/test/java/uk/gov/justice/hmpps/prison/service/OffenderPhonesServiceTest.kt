@@ -9,7 +9,7 @@ import org.mockito.kotlin.any
 import org.mockito.kotlin.mock
 import org.mockito.kotlin.whenever
 import org.springframework.dao.CannotAcquireLockException
-import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberRequest
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.Offender
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhone
@@ -86,7 +86,7 @@ class OffenderPhonesServiceTest {
   fun `addOffenderNumber adds the phone number`() {
     val createdPhone = offenderPhonesService.addOffenderPhoneNumber(
       PRISONER_NUMBER,
-      OffenderPhoneNumberCreateRequest(
+      OffenderPhoneNumberRequest(
         phoneNumberType = PhoneToCreate.TYPE,
         phoneNumber = PhoneToCreate.NUMBER,
         extension = PhoneToCreate.EXTENSION,
@@ -104,7 +104,7 @@ class OffenderPhonesServiceTest {
     assertThatThrownBy {
       offenderPhonesService.addOffenderPhoneNumber(
         PRISONER_NUMBER_NOT_FOUND,
-        OffenderPhoneNumberCreateRequest(
+        OffenderPhoneNumberRequest(
           phoneNumberType = PhoneToCreate.TYPE,
           phoneNumber = PhoneToCreate.NUMBER,
         ),
@@ -118,7 +118,7 @@ class OffenderPhonesServiceTest {
     assertThatThrownBy {
       offenderPhonesService.addOffenderPhoneNumber(
         PRISONER_NUMBER,
-        OffenderPhoneNumberCreateRequest(
+        OffenderPhoneNumberRequest(
           phoneNumberType = INVALID_PHONE_TYPE,
           phoneNumber = PhoneToCreate.NUMBER,
         ),
@@ -131,7 +131,7 @@ class OffenderPhonesServiceTest {
     val updatedPhone = offenderPhonesService.updateOffenderPhoneNumber(
       PRISONER_NUMBER,
       EXISTING_PHONE_ID,
-      OffenderPhoneNumberCreateRequest(
+      OffenderPhoneNumberRequest(
         phoneNumberType = PhoneToCreate.TYPE,
         phoneNumber = PhoneToCreate.NUMBER,
       ),
@@ -148,7 +148,7 @@ class OffenderPhonesServiceTest {
       offenderPhonesService.updateOffenderPhoneNumber(
         PRISONER_NUMBER,
         PHONE_ID_NOT_FOUND,
-        OffenderPhoneNumberCreateRequest(
+        OffenderPhoneNumberRequest(
           phoneNumberType = PhoneToCreate.TYPE,
           phoneNumber = PhoneToCreate.NUMBER,
         ),
@@ -163,7 +163,7 @@ class OffenderPhonesServiceTest {
       offenderPhonesService.updateOffenderPhoneNumber(
         PRISONER_NUMBER_LOCKED_TABLE,
         PHONE_NUMBER_ONE_ID,
-        OffenderPhoneNumberCreateRequest(
+        OffenderPhoneNumberRequest(
           phoneNumberType = PhoneToCreate.TYPE,
           phoneNumber = PhoneToCreate.NUMBER,
         ),
@@ -177,7 +177,7 @@ class OffenderPhonesServiceTest {
       offenderPhonesService.updateOffenderPhoneNumber(
         PRISONER_NUMBER,
         EXISTING_PHONE_ID,
-        OffenderPhoneNumberCreateRequest(
+        OffenderPhoneNumberRequest(
           phoneNumberType = INVALID_PHONE_TYPE,
           phoneNumber = PhoneToCreate.NUMBER,
         ),

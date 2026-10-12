@@ -10,4 +10,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderAddress
 interface OffenderAddressRepository : CrudRepository<OffenderAddress, Long> {
   @EntityGraph(type = EntityGraphType.FETCH, value = "address")
   fun findByOffenderId(offenderId: Long): List<OffenderAddress>
+
+  @EntityGraph(attributePaths = ["phones"])
+  fun findByAddressIdAndOffenderId(addressId: Long, offenderId: Long): OffenderAddress?
 }
