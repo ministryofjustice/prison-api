@@ -83,4 +83,3 @@ generic-service:
 
 generic-prometheus-alerts:
   businessHoursOnly: true
-  alertSeverity: syscon-nonprod
