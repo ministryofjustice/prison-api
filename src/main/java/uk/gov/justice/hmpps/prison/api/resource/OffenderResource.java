@@ -962,4 +962,24 @@ public class OffenderResource {
     ) {
         return prisonerProfileUpdateService.addAddressPhoneNumbers(prisonerNumber, addressId, phoneNumberRequests);
     }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "Phone number updated."),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Prisoner, address, or phone number not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
+    })
+    @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
+    @Operation(summary = "Update a phone number for a prisoner's address")
+    @PutMapping("/{offenderNo}/addresses/{addressId}/phone-numbers/{phoneId}")
+    @ProxyUser
+    public Telephone updateOffenderAddressPhoneNumber(
+        @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
+        @PathVariable("addressId") @Parameter(description = "The address ID", required = true) final Long addressId,
+        @PathVariable("phoneId") @Parameter(description = "The phone number ID", required = true) final Long phoneId,
+        @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest phoneNumberRequest
+    ) {
+        return prisonerProfileUpdateService.updateAddressPhoneNumber(prisonerNumber, addressId, phoneId, phoneNumberRequest);
+    }
 }

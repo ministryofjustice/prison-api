@@ -458,6 +458,37 @@ class PrisonerProfileUpdateService(
   }
 
   @Transactional
+  fun updateAddressPhoneNumber(
+    prisonerNumber: String,
+    addressId: Long,
+    phoneId: Long,
+    request: OffenderPhoneNumberCreateRequest,
+  ): Telephone {
+    val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
+      .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
+    val address = addressRepository.findByOffenderId(offender.id).firstOrNull { it.addressId == addressId }
+      ?: throw EntityNotFoundException.withMessage(
+        "Address with addressId %s for prisonerNumber %s not found",
+        addressId,
+        prisonerNumber,
+      )
+    val phone = address.phones.firstOrNull { it.phoneId == phoneId }
+      ?: throw EntityNotFoundException.withMessage(
+        "Phone number with phoneId %s for addressId %s and prisonerNumber %s not found",
+        phoneId,
+        addressId,
+        prisonerNumber,
+      )
+
+    phone.phoneType = request.phoneNumberType
+    phone.phoneNo = request.phoneNumber
+    phone.extNo = request.extension
+
+    addressRepository.save(address)
+    return AddressTransformer.translate(phone)
+  }
+
+  @Transactional
   fun getCommunicationNeeds(prisonerNumber: String): CorePersonCommunicationNeeds {
     val booking = offenderBookingRepository.findLatestOffenderBookingByNomsId(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s and existing booking not found", prisonerNumber)
