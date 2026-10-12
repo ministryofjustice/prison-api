@@ -4,7 +4,7 @@ import jakarta.transaction.Transactional
 import org.slf4j.LoggerFactory
 import org.springframework.dao.CannotAcquireLockException
 import org.springframework.stereotype.Service
-import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberRequest
 import uk.gov.justice.hmpps.prison.api.model.Telephone
 import uk.gov.justice.hmpps.prison.exception.DatabaseRowLockedException
 import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderPhone
@@ -27,7 +27,7 @@ class OffenderPhonesService(
 
   fun addOffenderPhoneNumber(
     prisonerNumber: String,
-    offenderPhoneNumberRequest: OffenderPhoneNumberCreateRequest,
+    offenderPhoneNumberRequest: OffenderPhoneNumberRequest,
   ): Telephone {
     val offender = offenderRepository.findRootOffenderByNomsId(prisonerNumber)
       .orElseThrowNotFound("Prisoner with prisonerNumber %s not found", prisonerNumber)
@@ -45,7 +45,7 @@ class OffenderPhonesService(
   fun updateOffenderPhoneNumber(
     prisonerNumber: String,
     phoneNumberId: Long,
-    offenderPhoneNumberRequest: OffenderPhoneNumberCreateRequest,
+    offenderPhoneNumberRequest: OffenderPhoneNumberRequest,
   ): Telephone {
     if (!referenceDomainService.isReferenceCodeActive("PHONE_USAGE", offenderPhoneNumberRequest.phoneNumberType)) {
       throw BadRequestException.withMessage("Phone number type ${offenderPhoneNumberRequest.phoneNumberType} is not valid")

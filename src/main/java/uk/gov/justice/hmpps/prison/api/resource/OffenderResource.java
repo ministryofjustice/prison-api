@@ -38,7 +38,7 @@ import uk.gov.justice.hmpps.prison.api.model.MilitaryRecords;
 import uk.gov.justice.hmpps.prison.api.model.OffenderContacts;
 import uk.gov.justice.hmpps.prison.api.model.OffenderDamageObligationResponse;
 import uk.gov.justice.hmpps.prison.api.model.OffenderEmailAddressCreateRequest;
-import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberCreateRequest;
+import uk.gov.justice.hmpps.prison.api.model.OffenderPhoneNumberRequest;
 import uk.gov.justice.hmpps.prison.api.model.OffenderRestrictions;
 import uk.gov.justice.hmpps.prison.api.model.OffenderSentenceDetail;
 import uk.gov.justice.hmpps.prison.api.model.OffenderTransactionHistoryDto;
@@ -859,7 +859,7 @@ public class OffenderResource {
     @PostMapping("/{offenderNo}/phone-numbers")
     @ProxyUser
     public Telephone addOffenderPhoneNumbers(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
-                                                       @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
+                                                       @RequestBody @NotNull @Valid final OffenderPhoneNumberRequest offenderPhoneNumberRequest) {
         return offenderPhonesService.addOffenderPhoneNumber(prisonerNumber, offenderPhoneNumberRequest);
     }
 
@@ -877,7 +877,7 @@ public class OffenderResource {
     @ProxyUser
     public Telephone updateOffenderPhoneNumber(@PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
                                                @PathVariable @Parameter(description = "The phone number ID", required = true) final Long phoneNumberId,
-                                                          @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest offenderPhoneNumberRequest) {
+                                                          @RequestBody @NotNull @Valid final OffenderPhoneNumberRequest offenderPhoneNumberRequest) {
         return offenderPhonesService.updateOffenderPhoneNumber(prisonerNumber, phoneNumberId, offenderPhoneNumberRequest);
     }
 
@@ -958,7 +958,7 @@ public class OffenderResource {
     public List<Telephone> addOffenderAddressPhoneNumbers(
         @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
         @PathVariable("addressId") @Parameter(description = "The address ID", required = true) final Long addressId,
-        @RequestBody @NotNull @Valid final List<OffenderPhoneNumberCreateRequest> phoneNumberRequests
+        @RequestBody @NotNull @Valid final List<OffenderPhoneNumberRequest> phoneNumberRequests
     ) {
         return prisonerProfileUpdateService.addAddressPhoneNumbers(prisonerNumber, addressId, phoneNumberRequests);
     }
@@ -968,6 +968,7 @@ public class OffenderResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "403", description = "Forbidden - user not authorised to update phone numbers.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Prisoner, address, or phone number not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "423", description = "Record in use for this phone ID id (possibly in P-Nomis).", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})
     })
     @PreAuthorize("hasRole('PRISON_API__PRISONER_PROFILE__RW')")
@@ -978,7 +979,7 @@ public class OffenderResource {
         @PathVariable("offenderNo") @Parameter(description = "The prisoner number", required = true) final String prisonerNumber,
         @PathVariable("addressId") @Parameter(description = "The address ID", required = true) final Long addressId,
         @PathVariable("phoneId") @Parameter(description = "The phone number ID", required = true) final Long phoneId,
-        @RequestBody @NotNull @Valid final OffenderPhoneNumberCreateRequest phoneNumberRequest
+        @RequestBody @NotNull @Valid final OffenderPhoneNumberRequest phoneNumberRequest
     ) {
         return prisonerProfileUpdateService.updateAddressPhoneNumber(prisonerNumber, addressId, phoneId, phoneNumberRequest);
     }
