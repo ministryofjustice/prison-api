@@ -54,6 +54,7 @@ class PrisonRollCountService(
         currentlyInCell = residentialLocations.sumOf { it.rollCount.currentlyInCell },
         currentlyOut = residentialLocations.sumOf { it.rollCount.currentlyOut },
         workingCapacity = residentialLocations.sumOf { it.rollCount.workingCapacity },
+        maxCapacity = residentialLocations.sumOf { it.rollCount.maxCapacity },
         netVacancies = residentialLocations.sumOf { it.rollCount.netVacancies },
         outOfOrder = residentialLocations.sumOf { it.rollCount.outOfOrder },
       ),
@@ -224,6 +225,8 @@ data class LocationRollCount(
   val currentlyOut: Int = 0,
   @Schema(description = "Working capacity", required = true)
   val workingCapacity: Int = 0,
+  @Schema(description = "Maximum capacity", required = true)
+  val maxCapacity: Int = 0,
   @Schema(description = "Net vacancies", required = true)
   val netVacancies: Int = 0,
   @Schema(description = "Out of order", required = true)
