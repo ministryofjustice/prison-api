@@ -91,6 +91,7 @@ class PrisonRollCountSummary(
       currentlyInCell = currentlyInCell ?: 0,
       currentlyOut = currentlyOut ?: 0,
       workingCapacity = operationalCapacity ?: 0,
+      maxCapacity = maximumCapacity ?: 0,
       netVacancies = netVacancies ?: 0,
       outOfOrder = outOfOrder ?: 0,
     ),

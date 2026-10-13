@@ -242,6 +242,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
                     "currentlyInCell": 11,
                     "currentlyOut": 0,
                     "workingCapacity": 13,
+                    "maxCapacity": 14,
                     "netVacancies": 1,
                     "outOfOrder": 1
                   },
@@ -258,6 +259,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
                         "currentlyInCell": 3,
                         "currentlyOut": 0,
                         "workingCapacity": 2,
+                        "maxCapacity": 2,
                         "netVacancies": -1,
                         "outOfOrder": 0
                       },
@@ -309,6 +311,7 @@ class PrisonRollCountResourceIntTest : ResourceTest() {
                         "currentlyInCell": 0,
                         "currentlyOut": 0,
                         "workingCapacity": 0,
+                        "maxCapacity": 1,
                         "netVacancies": 0,
                         "outOfOrder": 0
                       },
