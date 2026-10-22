@@ -608,10 +608,6 @@ public class OffenderBooking extends AuditableEntity {
         return getLastMovement().map(ExternalMovement::getMovementSequence).orElse(0L) + 1;
     }
 
-    public void setPreviousMovementsToInactive() {
-        externalMovements.stream().filter(ExternalMovement::isActive).forEach(m -> m.setActive(false));
-    }
-
     public void setPreviousImprisonmentStatusToInactive(final LocalDateTime expiryTime) {
         imprisonmentStatuses.stream().filter(OffenderImprisonmentStatus::isActiveLatestStatus).forEach(m -> m.makeInactive(expiryTime));
     }

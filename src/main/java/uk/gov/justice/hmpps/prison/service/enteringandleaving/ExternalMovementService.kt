@@ -193,6 +193,18 @@ class ExternalMovementService(
     .getOrNull()?.movementReason?.isEscaped
     ?: false
 
+  /**
+   * Eagerly locks (failing fast rather than waiting for the lock) then reloads each active movement before deactivating it,
+   * so that the managed entity reflects the locked database row.
+   */
+  fun deactivatePreviousMovements(booking: OffenderBooking) {
+    booking.externalMovements.filter { it.isActive }.forEach {
+      externalMovementRepository.findByBookingIdAndMovementSequenceWithLock(booking.bookingId, it.movementSequence)
+      entityManager.refresh(it)
+      it.isActive = false
+    }
+  }
+
   private fun OffenderBooking.hasMovementsAfter(movementTime: LocalDateTime) = externalMovementRepository.findAllByOffenderBooking_BookingIdAndActive(this.bookingId, true).any {
     movementTime.isBefore(it.movementDateTime)
   }
@@ -208,7 +220,7 @@ class ExternalMovementService(
     fromCity: City? = null,
     movementReason: MovementTypeAndReason,
     fromAddressId: Long? = null,
-  ): ExternalMovement = this.setPreviousMovementsToInactive().also { entityManager.flush() }.let {
+  ): ExternalMovement = deactivatePreviousMovements(this).also { entityManager.flush() }.let {
     this.addExternalMovement(
       ExternalMovement.builder()
         .movementDate(movementDateTime.toLocalDate())
@@ -236,7 +248,7 @@ class ExternalMovementService(
     escortCode: String? = null,
     commentText: String? = null,
     movementReason: MovementTypeAndReason,
-  ): ExternalMovement = this.setPreviousMovementsToInactive().also { entityManager.flush() }.let {
+  ): ExternalMovement = deactivatePreviousMovements(this).also { entityManager.flush() }.let {
     this.addExternalMovement(
       ExternalMovement.builder()
         .movementDate(movementDateTime.toLocalDate())

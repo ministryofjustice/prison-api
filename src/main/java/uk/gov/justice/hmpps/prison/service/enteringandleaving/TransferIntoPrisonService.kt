@@ -45,7 +45,7 @@ class TransferIntoPrisonService(
   private val transformer: OffenderTransformer,
 ) {
   fun transferInFromPrison(offenderNo: String, request: RequestToTransferIn): InmateDetail {
-    val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsBeingTransferred() }.getOrThrow()
+    val booking = getLatestOffenderBookingWithLock(offenderNo).flatMap { it.assertIsBeingTransferred() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveTransfer() }.getOrThrow()
     val cellLocation =
       getCellLocation(request.cellLocation, transferMovement.toAgency).flatMap { it.assertHasSpaceInCell() }
@@ -84,7 +84,7 @@ class TransferIntoPrisonService(
   }
 
   fun transferInViaCourt(offenderNo: String, request: RequestForCourtTransferIn): InmateDetail {
-    val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
+    val booking = getLatestOffenderBookingWithLock(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveCourtTransfer() }.getOrThrow()
 
     return if (request.agencyId.equals(transferMovement.fromAgency.id)) {
@@ -170,7 +170,7 @@ class TransferIntoPrisonService(
   }
 
   fun transferInAfterTemporaryAbsence(offenderNo: String, request: RequestForTemporaryAbsenceArrival): InmateDetail {
-    val booking = getLatestOffenderBooking(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
+    val booking = getLatestOffenderBookingWithLock(offenderNo).flatMap { it.assertIsOut() }.getOrThrow()
     val transferMovement = booking.getLatestMovement().flatMap { it.assertIsActiveTAPTransfer() }.getOrThrow()
 
     return if (request.agencyId.equals(transferMovement.fromAgency.id)) {
@@ -255,7 +255,7 @@ class TransferIntoPrisonService(
     return transformer.transform(booking)
   }
 
-  private fun getLatestOffenderBooking(offenderNo: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(offenderNo, 1).map { success(it) }
+  private fun getLatestOffenderBookingWithLock(offenderNo: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(offenderNo, 1).map { success(it) }
     .orElse(failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $offenderNo")))
 
   private fun getCellLocation(cellLocation: String?, prison: AgencyLocation): Result<AgencyInternalLocation> = getCellLocation(cellLocation, prison.id)

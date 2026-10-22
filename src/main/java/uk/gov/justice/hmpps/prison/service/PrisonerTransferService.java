@@ -36,6 +36,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderNoPayPeriod
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderPayStatusRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ExternalMovementService;
 import uk.gov.justice.hmpps.prison.service.transformers.OffenderTransformer;
 
 import java.time.LocalDate;
@@ -73,6 +74,7 @@ public class PrisonerTransferService {
     private final CourtEventRepository courtEventRepository;
     private final OffenderIndividualScheduleRepository offenderIndividualScheduleRepository;
     private final ReferenceCodeRepository<EventStatus> eventStatusRepository;
+    private final ExternalMovementService externalMovementService;
 
 
     @VerifyOffenderAccess(overrideRoles = {"TRANSFER_PRISONER"})
@@ -276,7 +278,7 @@ public class PrisonerTransferService {
     }
 
     private void deactivatePreviousMovements(final OffenderBooking booking) {
-        booking.setPreviousMovementsToInactive();
+        externalMovementService.deactivatePreviousMovements(booking);
         // need to ensure the above updates are executed before booking updates as it invokes a trigger that updates the booking status reason
         entityManager.flush();
     }

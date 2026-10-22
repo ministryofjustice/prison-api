@@ -33,7 +33,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeReposi
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.StaffUserAccountRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndDeactivationDateIsNullOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByIdAndTypeAndActiveAndDeactivationDateIsNullOrNull
-import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsIdAndBookingSequenceOrNull
+import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByOffenderNomsIdAndBookingSequenceOrNullWithLock
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByStatusAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findByTypeAndCategoryAndActiveOrNull
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.findOneByDescriptionAndAgencyIdOrNull
@@ -155,7 +155,7 @@ class BookingIntoPrisonService(
   }
 
   fun recallPrisoner(prisonerIdentifier: String, requestToRecall: RequestToRecall): InmateDetail {
-    val booking = previousInactiveBooking(prisonerIdentifier).getOrThrow()
+    val booking = previousInactiveBookingWithLock(prisonerIdentifier).getOrThrow()
     with(requestToRecall) {
       val prison = prison(prisonId).getOrThrow()
       val cellOrReception =
@@ -205,7 +205,7 @@ class BookingIntoPrisonService(
   private fun rootOffenderForUpdate(prisonerIdentifier: String): Result<Offender> = offenderRepository.findRootOffenderByNomsIdForUpdate(prisonerIdentifier).map { success(it) }
     .orElse(failure(EntityNotFoundException.withMessage("No prisoner found for prisoner number $prisonerIdentifier")))
 
-  private fun previousInactiveBooking(prisonerIdentifier: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNull(prisonerIdentifier, 1)?.inActiveOut()
+  private fun previousInactiveBookingWithLock(prisonerIdentifier: String): Result<OffenderBooking> = offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceOrNullWithLock(prisonerIdentifier, 1)?.inActiveOut()
     ?: failure(EntityNotFoundException.withMessage("No bookings found for prisoner number $prisonerIdentifier"))
 
   private fun previousInactiveBooking(offenderBooking: OffenderBooking?): Result<OffenderBooking?> = offenderBooking?.inActiveOut() ?: success(null)

@@ -44,6 +44,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository;
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository;
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ExternalMovementService;
 import uk.gov.justice.hmpps.prison.service.support.LocationProcessor;
 
 import java.time.LocalDate;
@@ -78,6 +79,7 @@ public class MovementsService {
     private final EntityManager entityManager;
     private final int maxBatchSize;
     private final TelemetryClient telemetryClient;
+    private final ExternalMovementService externalMovementService;
 
     public MovementsService(final MovementsRepository movementsRepository,
                             final ExternalMovementRepository externalMovementRepository,
@@ -88,7 +90,8 @@ public class MovementsService {
                             final MovementTypeAndReasonRepository movementTypeAndReasonRepository,
                             final EntityManager entityManager,
                             @Value("${batch.max.size:1000}") final int maxBatchSize,
-                            final TelemetryClient telemetryClient) {
+                            final TelemetryClient telemetryClient,
+                            final ExternalMovementService externalMovementService) {
         this.movementsRepository = movementsRepository;
         this.externalMovementRepository = externalMovementRepository;
         this.courtEventRepository = courtEventRepository;
@@ -99,6 +102,7 @@ public class MovementsService {
         this.entityManager = entityManager;
         this.maxBatchSize = maxBatchSize;
         this.telemetryClient = telemetryClient;
+        this.externalMovementService = externalMovementService;
     }
 
     public List<Movement> getRecentMovementsByDate(final LocalDateTime fromDateTime, final LocalDate movementDate, final List<String> movementTypes) {
@@ -328,7 +332,7 @@ public class MovementsService {
             .orElseThrow(EntityNotFoundException.withMessage("toAgency not found using: %s", createExternalMovement.getToAgencyId()));
 
         // set previous active movements to false
-        offenderBooking.setPreviousMovementsToInactive();
+        externalMovementService.deactivatePreviousMovements(offenderBooking);
         // need to ensure the above updates are executed before booking updates as it invokes a trigger that updates the booking status reason
         entityManager.flush();
 
