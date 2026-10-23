@@ -66,7 +66,7 @@ class OffenderResourceImplIntTest_getOffenderContacts : ResourceTest() {
     assertThat(json)
       .extractingJsonPathStringValue("offenderContacts[0].restrictions[0].startDate").isEqualTo("2021-10-15")
     assertThat(json)
-      .extractingJsonPathStringValue("offenderContacts[0].restrictions[0].expiryDate").isEqualTo("2026-10-13")
+      .extractingJsonPathStringValue("offenderContacts[0].restrictions[0].expiryDate").isEqualTo("2099-12-31")
     assertThat(json)
       .extractingJsonPathBooleanValue("offenderContacts[0].restrictions[0].globalRestriction").isTrue()
     assertThat(json)
