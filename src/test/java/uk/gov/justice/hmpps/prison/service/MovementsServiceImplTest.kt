@@ -45,6 +45,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.repository.ExternalMovementRep
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MovementTypeAndReasonRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.OffenderBookingRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.ReferenceCodeRepository
+import uk.gov.justice.hmpps.prison.service.enteringandleaving.ExternalMovementService
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
@@ -60,6 +61,7 @@ class MovementsServiceImplTest {
   private val movementTypeAndReasonRepository: MovementTypeAndReasonRepository = mock()
   private val entityManager: EntityManager = mock()
   private val telemetryClient: TelemetryClient = mock()
+  private val externalMovementService = ExternalMovementService(externalMovementRepository, movementTypeAndReasonRepository, entityManager)
 
   private val movementsService = MovementsService(
     movementsRepository,
@@ -72,6 +74,7 @@ class MovementsServiceImplTest {
     entityManager,
     1,
     telemetryClient,
+    externalMovementService,
   )
 
   @Test
