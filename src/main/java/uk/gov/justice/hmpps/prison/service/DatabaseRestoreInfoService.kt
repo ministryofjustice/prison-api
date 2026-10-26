@@ -4,6 +4,7 @@ import io.swagger.v3.oas.annotations.media.Schema
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataAccessException
 import org.springframework.stereotype.Service
+import org.springframework.transaction.TransactionException
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MisStopPointRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.RefreshMetadataRepository
 import java.time.LocalDate
@@ -36,6 +37,13 @@ class DatabaseRestoreInfoService(
   } catch (e: DataAccessException) {
     log.debug(
       "Caught {} trying to get backup info - to be expected if not pre-production: {}",
+      e.javaClass.name,
+      e.message,
+    )
+    null
+  } catch (e: TransactionException) {
+    log.info(
+      "Caught {} trying to get backup info - database outage to be expected when pre-production is being refreshed on Sunday: {}",
       e.javaClass.name,
       e.message,
     )

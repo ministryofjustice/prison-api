@@ -659,7 +659,7 @@ enum class InmateRepositorySql(val sql: String) {
 
   INSERT_CATEGORY(
     """
-        Insert into OFFENDER_ASSESSMENTS
+      Insert into OFFENDER_ASSESSMENTS
         (OFFENDER_BOOK_ID,
         ASSESSMENT_SEQ,
         ASSESSMENT_DATE,
@@ -677,7 +677,7 @@ enum class InmateRepositorySql(val sql: String) {
         ASSESSMENT_CREATE_LOCATION,
         PLACE_AGY_LOC_ID
         )
-        VALUES
+      VALUES
         (:bookingId,
         :seq,
         :assessmentDate,
@@ -700,13 +700,13 @@ enum class InmateRepositorySql(val sql: String) {
 
   UPDATE_CATEGORY(
     """
-        update OFFENDER_ASSESSMENTS set
+      update OFFENDER_ASSESSMENTS set
         ASSESSMENT_DATE = :assessmentDate,
         CALC_SUP_LEVEL_TYPE = COALESCE(:category, CALC_SUP_LEVEL_TYPE),
         ASSESS_COMMENT_TEXT = COALESCE(:assessComment, ASSESS_COMMENT_TEXT),
         NEXT_REVIEW_DATE = COALESCE(:reviewDate, NEXT_REVIEW_DATE),
         ASSESS_COMMITTE_CODE = COALESCE(:assessCommitteeCode, ASSESS_COMMITTE_CODE)
-        where OFFENDER_BOOK_ID=:bookingId
+      where OFFENDER_BOOK_ID=:bookingId
         and ASSESSMENT_SEQ=:seq
         and ASSESSMENT_TYPE_ID=:assessmentTypeId
         and ASSESS_STATUS='P'
@@ -715,7 +715,7 @@ enum class InmateRepositorySql(val sql: String) {
 
   APPROVE_CATEGORY(
     """
-        update OFFENDER_ASSESSMENTS set
+      update OFFENDER_ASSESSMENTS set
         ASSESS_STATUS=:assessStatus,
         EVALUATION_DATE=:evaluationDate,
         EVALUATION_RESULT_CODE=:evaluationResultCode,
@@ -726,7 +726,7 @@ enum class InmateRepositorySql(val sql: String) {
         NEXT_REVIEW_DATE=COALESCE(:nextReviewDate, NEXT_REVIEW_DATE),
         REVIEW_PLACE_AGY_LOC_ID=:approvedPlacementAgencyId,
         REVIEW_PLACEMENT_TEXT=:approvedPlacementText
-                where OFFENDER_BOOK_ID=:bookingId
+      where OFFENDER_BOOK_ID=:bookingId
         and ASSESSMENT_SEQ=:seq
         and ASSESSMENT_TYPE_ID=:assessmentTypeId
         and ASSESS_STATUS='P'

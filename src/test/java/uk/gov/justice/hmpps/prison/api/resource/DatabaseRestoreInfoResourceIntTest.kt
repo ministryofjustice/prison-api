@@ -9,6 +9,7 @@ import org.mockito.kotlin.whenever
 import org.springframework.jdbc.datasource.lookup.DataSourceLookupFailureException
 import org.springframework.test.context.bean.override.mockito.MockitoSpyBean
 import org.springframework.test.web.reactive.server.expectBody
+import org.springframework.transaction.CannotCreateTransactionException
 import uk.gov.justice.hmpps.prison.api.resource.impl.ResourceTest
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.MisStopPointRepository
 import uk.gov.justice.hmpps.prison.repository.jpa.repository.RefreshMetadata
@@ -122,8 +123,18 @@ class DatabaseRestoreInfoResourceIntTest : ResourceTest() {
     }
 
     @Test
-    fun `restore details not found when failure`() {
+    fun `restore details not found when data failure`() {
       whenever(refreshMetadataRepository.findAll()).thenThrow(DataSourceLookupFailureException("test"))
+
+      webTestClient.get()
+        .uri("/api/restore-details")
+        .exchange()
+        .expectStatus().isNotFound
+    }
+
+    @Test
+    fun `restore details not found when database unavailable`() {
+      whenever(refreshMetadataRepository.findAll()).thenThrow(CannotCreateTransactionException("test"))
 
       webTestClient.get()
         .uri("/api/restore-details")
