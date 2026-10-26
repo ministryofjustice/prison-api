@@ -1,8 +1,8 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.13"
-  kotlin("plugin.spring") version "2.4.20"
-  kotlin("plugin.jpa") version "2.4.20"
-  kotlin("plugin.lombok") version "2.4.20"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.14"
+  kotlin("plugin.spring") version "2.4.21"
+  kotlin("plugin.jpa") version "2.4.21"
+  kotlin("plugin.lombok") version "2.4.21"
 }
 
 configurations {
@@ -27,14 +27,14 @@ dependencies {
   implementation("org.springframework.boot:spring-boot-starter-flyway")
   implementation("org.springframework.boot:spring-boot-jackson2")
 
-  implementation("commons-codec:commons-codec:1.22.1")
+  implementation("commons-codec:commons-codec:1.23.0")
   // Had to leave jsqlparser at 5.2 because in 5.3 it fails to parse "Between blah AND blah"
   val jsqlParserVersion = ":5.2"
   implementation("com.github.jsqlparser:jsqlparser$jsqlParserVersion")
   implementation("org.ehcache:ehcache:3.12.0")
   runtimeOnly("com.zaxxer:HikariCP")
 
-  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.1.1")
+  implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0")
 
   implementation("org.apache.commons:commons-lang3:3.21.0")
   implementation("commons-io:commons-io:2.22.0")
@@ -61,14 +61,14 @@ dependencies {
   testImplementation("org.springframework.boot:spring-boot-starter-cache-test")
   testImplementation("org.springframework.boot:spring-boot-resttestclient")
   testImplementation("org.springframework.boot:spring-boot-restclient")
-  testImplementation("io.rest-assured:rest-assured:6.0.1")
-  testImplementation("io.rest-assured:json-schema-validator:6.0.1")
-  testImplementation("io.rest-assured:spring-mock-mvc:6.0.1")
+  testImplementation("io.rest-assured:rest-assured:6.3.0")
+  testImplementation("io.rest-assured:json-schema-validator:6.3.0")
+  testImplementation("io.rest-assured:spring-mock-mvc:6.3.0")
   testImplementation("org.springframework.security:spring-security-test")
-  testImplementation("com.google.code.gson:gson:2.14.0")
+  testImplementation("com.google.code.gson:gson:2.15.0")
 
   testImplementation("org.wiremock:wiremock:3.13.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.3.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.4.0")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.48") {
     exclude(group = "io.swagger.core.v3")
   }
