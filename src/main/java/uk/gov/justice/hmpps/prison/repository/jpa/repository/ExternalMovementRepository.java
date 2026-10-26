@@ -1,10 +1,14 @@
 package uk.gov.justice.hmpps.prison.repository.jpa.repository;
 
+import jakarta.persistence.LockModeType;
+import jakarta.persistence.QueryHint;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.EntityGraph;
 import org.springframework.data.jpa.repository.EntityGraph.EntityGraphType;
+import org.springframework.data.jpa.repository.Lock;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.jpa.repository.QueryHints;
 import org.springframework.data.repository.PagingAndSortingRepository;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
@@ -71,4 +75,9 @@ public interface ExternalMovementRepository extends PagingAndSortingRepository<E
     List<ExternalMovement> findAllByOffenderBooking_BookingId(Long bookingId);
 
     Optional<ExternalMovement> findFirstByOffenderBooking_BookingIdOrderByMovementSequenceDesc(Long bookingId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = "1000")})
+    @Query("SELECT em FROM ExternalMovement em WHERE em.offenderBooking.bookingId = :bookingId and em.movementSequence = :movementSequence")
+    ExternalMovement findByBookingIdAndMovementSequenceWithLock(Long bookingId, Long movementSequence);
 }

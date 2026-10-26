@@ -89,4 +89,9 @@ public interface OffenderBookingRepository extends
     order by sc.calculationDate desc limit 1
     """)
     Optional<LatestTusedData> findLatestTusedDataFromNomsId(@NotNull String nomsId);
+
+    @Lock(LockModeType.PESSIMISTIC_WRITE)
+    @QueryHints({@QueryHint(name = "jakarta.persistence.lock.timeout", value = lockWaitTimeMillis)})
+    @Query("SELECT ob FROM OffenderBooking ob join Offender o on ob.rootOffender = o WHERE o.nomsId = :nomisId and ob.bookingSequence = :bookingSequence")
+    Optional<OffenderBooking> findByOffenderNomsIdAndBookingSequenceWithLock(String nomisId, Integer bookingSequence);
 }

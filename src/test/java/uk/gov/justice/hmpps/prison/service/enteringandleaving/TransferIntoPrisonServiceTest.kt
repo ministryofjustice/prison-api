@@ -161,7 +161,7 @@ class TransferIntoPrisonServiceTest {
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           booking,
         ),
@@ -276,7 +276,7 @@ class TransferIntoPrisonServiceTest {
       @Test
       internal fun `will throw exception of booking not found`() {
         whenever(
-          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(
             "A1234AK",
             1,
           ),
@@ -290,7 +290,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception of the current location is not transfer`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -315,7 +315,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not present at all`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf()
@@ -340,7 +340,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not active`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
@@ -367,7 +367,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not a transfer`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
@@ -454,7 +454,7 @@ class TransferIntoPrisonServiceTest {
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           booking,
         ),
@@ -526,7 +526,7 @@ class TransferIntoPrisonServiceTest {
           bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
 
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
           Optional.of(
             bookingWithCourtEventId,
           ),
@@ -568,7 +568,7 @@ class TransferIntoPrisonServiceTest {
       @Test
       internal fun `will throw exception of booking not found`() {
         whenever(
-          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(
             "A1234AK",
             1,
           ),
@@ -582,7 +582,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception of the current movement is not court out`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -607,7 +607,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not present at all`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf()
@@ -632,7 +632,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not active`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
@@ -659,7 +659,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not a court transfer`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -708,7 +708,7 @@ class TransferIntoPrisonServiceTest {
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           booking,
         ),
@@ -833,7 +833,7 @@ class TransferIntoPrisonServiceTest {
       @Test
       internal fun `will throw exception of booking not found`() {
         whenever(
-          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(
             "A1234AK",
             1,
           ),
@@ -847,7 +847,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception of the current movement is not court transfer`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -872,7 +872,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not present at all`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf()
@@ -897,7 +897,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not active`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
@@ -953,7 +953,7 @@ class TransferIntoPrisonServiceTest {
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           booking,
         ),
@@ -1025,7 +1025,7 @@ class TransferIntoPrisonServiceTest {
           bookingBeginDate = LocalDateTime.now().minusDays(1)
         }
 
-        whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+        whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
           Optional.of(
             bookingWithCourtEventId,
           ),
@@ -1067,7 +1067,7 @@ class TransferIntoPrisonServiceTest {
       @Test
       internal fun `will throw exception of booking not found`() {
         whenever(
-          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(
             "A1234AK",
             1,
           ),
@@ -1081,7 +1081,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception of the current movement is not a TAP out`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -1106,7 +1106,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not present at all`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf()
@@ -1131,7 +1131,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not active`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
@@ -1158,7 +1158,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not a TAP out`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -1207,7 +1207,7 @@ class TransferIntoPrisonServiceTest {
         }
         bookingBeginDate = LocalDateTime.now().minusDays(1)
       }
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           booking,
         ),
@@ -1330,7 +1330,7 @@ class TransferIntoPrisonServiceTest {
       @Test
       internal fun `will throw exception of booking not found`() {
         whenever(
-          offenderBookingRepository.findByOffenderNomsIdAndBookingSequence(
+          offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock(
             "A1234AK",
             1,
           ),
@@ -1344,7 +1344,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if the current movement is not a TAP out`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(bookingLastMovementTransfer)
@@ -1369,7 +1369,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not present at all`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf()
@@ -1394,7 +1394,7 @@ class TransferIntoPrisonServiceTest {
 
     @Test
     internal fun `will throw an exception if latest movement is not active`() {
-      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequence("A1234AK", 1)).thenReturn(
+      whenever(offenderBookingRepository.findByOffenderNomsIdAndBookingSequenceWithLock("A1234AK", 1)).thenReturn(
         Optional.of(
           OffenderBooking().apply {
             externalMovements = mutableListOf(
