@@ -91,6 +91,7 @@ springdoc:
     enabled: false
   swagger-ui:
     enabled: false
+    filter: true
     operationsSorter: alpha
     tagsSorter: alpha
   nullable-request-parameter-enabled: false
