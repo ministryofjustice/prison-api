@@ -67,13 +67,13 @@ public class HealthService {
         return new PersonalCareNeeds(returnList);
     }
 
-    public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes) {
+    public List<PersonalCareNeeds> getPersonalCareNeeds(final List<String> offenderNos, final List<String> problemTypes, final boolean showAll) {
         final var problemTypesMap = QueryParamHelper.splitTypes(problemTypes);
 
         // firstly need to exclude any problem sub types not interested in
         final var personalCareNeeds = Lists.partition(offenderNos, maxBatchSize)
             .stream()
-            .map(offenders -> inmateRepository.findPersonalCareNeeds(offenders, problemTypesMap.keySet()))
+            .map(offenders -> inmateRepository.findPersonalCareNeeds(offenders, problemTypesMap.keySet(), showAll))
             .flatMap(List::stream);
 
         // then transform list into map where keys are the offender no and values list of needs for the offender

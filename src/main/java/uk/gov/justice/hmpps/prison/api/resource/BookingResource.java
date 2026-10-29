@@ -459,9 +459,10 @@ public class BookingResource {
     @PostMapping("/offenderNo/personal-care-needs")
     public List<PersonalCareNeeds> getPersonalCareNeedsByPrisonNumbers(
         @RequestBody @NotEmpty(message = "offenderNo: must not be empty") @Parameter(description = "The required offender numbers (mandatory)", required = true) final List<String> offenderNos,
-        @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes
+        @RequestParam(value = "type", required = false) @NotEmpty(message = "type: must not be empty") @Parameter(description = "a list of types and optionally subtypes (joined with +) to search.", example = "DISAB+RM", required = true) final List<String> problemTypes,
+        @RequestParam(value = "showAll", required = false, defaultValue = "false") @Parameter(description = "whether or not to return all personal care needs regardless of start/end date", example = "true") final boolean showAll
     ) {
-        return healthService.getPersonalCareNeeds(offenderNos, problemTypes);
+        return healthService.getPersonalCareNeeds(offenderNos, problemTypes, showAll);
     }
 
     @ApiResponses({

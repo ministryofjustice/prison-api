@@ -391,7 +391,13 @@ public class InmateRepository extends RepositoryBase {
 
 
     public List<PersonalCareNeed> findPersonalCareNeeds(final List<String> offenderNos, final Set<String> problemCodes) {
-        final var sql = InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER.getSql();
+        return findPersonalCareNeeds(offenderNos, problemCodes, false);
+    }
+
+    public List<PersonalCareNeed> findPersonalCareNeeds(final List<String> offenderNos, final Set<String> problemCodes, boolean showAll) {
+        final var sql = showAll
+                ? InmateRepositorySql.FIND_ALL_PERSONAL_CARE_NEEDS_BY_OFFENDER.getSql()
+                : InmateRepositorySql.FIND_PERSONAL_CARE_NEEDS_BY_OFFENDER.getSql();
 
         final var needs = jdbcTemplate.query(
             sql,
