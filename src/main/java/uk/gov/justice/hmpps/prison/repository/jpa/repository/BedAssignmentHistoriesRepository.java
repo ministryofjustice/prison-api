@@ -34,6 +34,10 @@ public interface BedAssignmentHistoriesRepository extends
     @Query("select ba from BedAssignmentHistory ba where ba.livingUnitId = :livingUnitId and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime")
     List<BedAssignmentHistory> findByLivingUnitIdAndDateTimeRange(@Param("livingUnitId") long livingUnitId, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
 
+    @EntityGraph(type = EntityGraphType.FETCH, value = "bed-history-with-location")
+    @Query("select ba from BedAssignmentHistory ba where ba.offenderBooking.offender.nomsId = :offenderNo and (ba.assignmentEndDateTime is null or :fromDate <= ba.assignmentEndDateTime) and :toDate >= ba.assignmentDateTime order by ba.assignmentDate desc, ba.bedAssignmentHistoryPK.offenderBookingId desc, ba.bedAssignmentHistoryPK.sequence desc")
+    List<BedAssignmentHistory> findByOffenderNoAndDateTimeRange(@Param("offenderNo") String offenderNo, @Param("fromDate") LocalDateTime from, @Param("toDate") LocalDateTime to);
+
     @EntityGraph(type = EntityGraphType.FETCH, value = "bed-history-with-booking")
     List<BedAssignmentHistory> findBedAssignmentHistoriesByAssignmentDateAndLivingUnitIdIn(LocalDate assignmentDate, Set<Long> livingUnitIds);
 

@@ -29,6 +29,7 @@ import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import uk.gov.justice.hmpps.kotlin.auth.HmppsAuthenticationHolder;
 import uk.gov.justice.hmpps.prison.api.model.AddressDto;
+import uk.gov.justice.hmpps.prison.api.model.BedAssignment;
 import uk.gov.justice.hmpps.prison.api.model.CreateAddress;
 import uk.gov.justice.hmpps.prison.api.model.Email;
 import uk.gov.justice.hmpps.prison.api.model.ErrorResponse;
@@ -71,6 +72,7 @@ import uk.gov.justice.hmpps.prison.repository.jpa.model.OffenderDamageObligation
 import uk.gov.justice.hmpps.prison.security.VerifyOffenderAccess;
 import uk.gov.justice.hmpps.prison.service.AdjudicationSearchCriteria;
 import uk.gov.justice.hmpps.prison.service.AdjudicationService;
+import uk.gov.justice.hmpps.prison.service.BedAssignmentHistoryService;
 import uk.gov.justice.hmpps.prison.service.Belief;
 import uk.gov.justice.hmpps.prison.service.BookingService;
 import uk.gov.justice.hmpps.prison.service.EntityNotFoundException;
@@ -94,6 +96,7 @@ import uk.gov.justice.hmpps.prison.service.enteringandleaving.ReleasePrisonerSer
 import uk.gov.justice.hmpps.prison.service.enteringandleaving.TransferIntoPrisonService;
 
 import java.time.LocalDate;
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -127,6 +130,7 @@ public class OffenderResource {
     private final OffenderMilitaryRecordService offenderMilitaryRecordService;
     private final OffenderPhonesService offenderPhonesService;
     private final OffenderEmailsService offenderEmailsService;
+    private final BedAssignmentHistoryService bedAssignmentHistoryService;
 
     @ApiResponses({
         @ApiResponse(responseCode = "200", description = "OK"),
@@ -281,6 +285,29 @@ public class OffenderResource {
     @PreAuthorize("hasRole('VIEW_PRISONER_DATA')")
     public PrisonerInPrisonSummary getOffenderPrisonPeriods(@PathVariable @Pattern(regexp = "^[A-Z]\\d{4}[A-Z]{2}$", message = "Offender Number format incorrect") @Parameter(description = "The offenderNo of offender", example = "A1234AA", required = true) final String offenderNo) {
         return movementsService.getPrisonerInPrisonSummary(offenderNo);
+    }
+
+    @ApiResponses({
+        @ApiResponse(responseCode = "200", description = "OK"),
+        @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
+        @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
+    @Operation(
+        summary = "Gets the cell history for a prisoner across all their bookings within a date range",
+        description = "Returns every bed assignment, on any of the prisoner's bookings, that overlaps the date range - " +
+            "including one that started before fromDate or is still open. Most recent first. " +
+            "Unlike /bookings/{bookingId}/cell-history this does not need the booking id, so a period before a release " +
+            "and readmission is covered. Requires a relationship (via caseload) with the prisoner, or the " +
+            "VIEW_PRISONER_DATA or MAINTAIN_CELL_MOVEMENTS role."
+    )
+    @GetMapping("/{offenderNo}/cell-history")
+    @VerifyOffenderAccess(overrideRoles = {"VIEW_PRISONER_DATA", "MAINTAIN_CELL_MOVEMENTS"})
+    @SlowReportQuery
+    public List<BedAssignment> getBedAssignmentsHistoryByOffenderNo(
+        @PathVariable @Parameter(description = "The offenderNo of the prisoner", example = "A1234AA", required = true) final String offenderNo,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("fromDate") @Parameter(description = "From date", example = "2020-03-24T10:10:10", required = true) final LocalDateTime fromDateTime,
+        @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) @RequestParam("toDate") @Parameter(description = "To date", example = "2020-12-01T11:11:11", required = true) final LocalDateTime toDateTime) {
+        return bedAssignmentHistoryService.getBedAssignmentsHistoryForOffender(offenderNo, fromDateTime, toDateTime);
     }
 
     @ApiResponses({

@@ -83,6 +83,17 @@ public class BedAssignmentHistoryService {
             .toList();
     }
 
+    public List<BedAssignment> getBedAssignmentsHistoryForOffender(final String offenderNo, final LocalDateTime from, final LocalDateTime to) {
+        if (from.isAfter(to))
+            throw new IllegalArgumentException("The fromDate should be less then or equal to the toDate");
+
+        return repository
+            .findByOffenderNoAndDateTimeRange(offenderNo, from, to)
+            .stream()
+            .map(this::transform)
+            .toList();
+    }
+
     public List<BedAssignment> getBedAssignmentsHistoryByDateForAgency(final String agencyId, final LocalDate assignmentDate) {
         final var livingUnitIdsForAgency = locationRepository.findAgencyInternalLocationsByAgencyIdAndLocationType(agencyId, "CELL")
             .stream()
