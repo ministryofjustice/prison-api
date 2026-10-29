@@ -12,6 +12,10 @@ import org.springframework.boot.jdbc.test.autoconfigure.JdbcTest
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.test.context.ActiveProfiles
 import org.springframework.test.context.ContextConfiguration
+import org.springframework.test.context.jdbc.Sql
+import org.springframework.test.context.jdbc.Sql.ExecutionPhase
+import org.springframework.test.context.jdbc.SqlConfig
+import org.springframework.test.context.jdbc.SqlConfig.TransactionMode
 import org.springframework.transaction.annotation.Propagation
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.web.client.HttpClientErrorException
@@ -1529,32 +1533,90 @@ class InmateRepositoryTest {
       )
     }
 
-  @get:Test
-  val personalCareNeedsForOffenderNos: Unit
-    get() {
-      val info = repository.findPersonalCareNeeds(
-        listOf("A1234AA", "A1234AB", "A1234AC", "A1234AD"),
-        setOf("DISAB", "MATSTAT"),
-      )
-      assertThat(info).containsExactly(
-        PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
-          .problemStatus("ON")
-          .problemDescription("Preg, acc under 9mths").commentText("P1")
-          .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText("Some Description Text 1")
-          .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText(null)
-          .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AB").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText(null)
-          .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
-        PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
-          .problemDescription("No Disability").commentText("Some Description Text 2")
-          .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
-      )
-    }
+  @Test
+  @Sql(scripts = ["/sql/addingHealthProblems_init.sql"], executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
+  @Sql(scripts = ["/sql/addingHealthProblems_clean.sql"], executionPhase = ExecutionPhase.AFTER_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
+  fun personalCareNeedsForOffenderNosDontShowExpired() {
+    val info = repository.findPersonalCareNeeds(
+      listOf("A1234AA", "A1234AB", "A1234AC", "A1234AD"),
+      setOf("DISAB", "MATSTAT"),
+      false,
+    )
+    assertThat(info).containsExactly(
+      PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
+        .problemStatus("ON")
+        .problemDescription("Preg, acc under 9mths").commentText("P1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-208L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-209L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-210L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-23")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-211L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2011-01-02")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Comment")
+        .startDate(LocalDate.parse("2010-06-22")).endDate(LocalDate.parse("2110-06-22")).offenderNo("A1234AB").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText(null)
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 2")
+        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
+    )
+  }
+
+  @Test
+  @Sql(scripts = ["/sql/addingHealthProblems_init.sql"], executionPhase = ExecutionPhase.BEFORE_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
+  @Sql(scripts = ["/sql/addingHealthProblems_clean.sql"], executionPhase = ExecutionPhase.AFTER_TEST_METHOD, config = SqlConfig(transactionMode = TransactionMode.ISOLATED))
+  fun personalCareNeedsForOffenderNosShowAll() {
+    val info = repository.findPersonalCareNeeds(
+      listOf("A1234AA", "A1234AB", "A1234AC", "A1234AD"),
+      setOf("DISAB", "MATSTAT"),
+      true,
+    )
+    assertThat(info).containsExactly(
+      PersonalCareNeed.builder().personalCareNeedId(-206L).problemType("MATSTAT").problemCode("ACCU9")
+        .problemStatus("ON")
+        .problemDescription("Preg, acc under 9mths").commentText("P1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-208L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-201L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-21")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-209L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-210L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2010-06-23")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-212L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2011-01-02")).endDate(LocalDate.parse("2011-01-03")).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-211L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 1")
+        .startDate(LocalDate.parse("2011-01-02")).endDate(null).offenderNo("A1234AA").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-202L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Comment")
+        .startDate(LocalDate.parse("2010-06-22")).endDate(LocalDate.parse("2110-06-22")).offenderNo("A1234AB").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-203L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText(null)
+        .startDate(LocalDate.parse("2010-06-22")).endDate(null).offenderNo("A1234AC").build(),
+      PersonalCareNeed.builder().personalCareNeedId(-204L).problemType("DISAB").problemCode("ND").problemStatus("ON")
+        .problemDescription("No Disability").commentText("Some Description Text 2")
+        .startDate(LocalDate.parse("2010-06-24")).endDate(null).offenderNo("A1234AD").build(),
+    )
+  }
 
   @get:Test
   val reasonableAdjustment: Unit
