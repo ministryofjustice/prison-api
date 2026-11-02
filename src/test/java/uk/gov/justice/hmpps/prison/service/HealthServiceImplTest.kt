@@ -8,6 +8,7 @@ import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.extension.ExtendWith
 import org.mockito.ArgumentMatchers
 import org.mockito.ArgumentMatchers.any
+import org.mockito.ArgumentMatchers.anyBoolean
 import org.mockito.ArgumentMatchers.anyList
 import org.mockito.ArgumentMatchers.anySet
 import org.mockito.junit.jupiter.MockitoExtension
@@ -90,13 +91,13 @@ class HealthServiceImplTest {
     val adDisab = PersonalCareNeed.builder().problemType("DISAB").problemCode("ND")
       .startDate(LocalDate.parse("2010-06-24")).offenderNo("A1234AD").build()
 
-    whenever(inmateRepository.findPersonalCareNeeds(anyList(), anySet())).thenReturn(
+    whenever(inmateRepository.findPersonalCareNeeds(anyList(), anySet(), anyBoolean())).thenReturn(
       listOf(aaMat, aaDisab, abDisab, acDisab, adDisab),
     )
 
-    val response = serviceToTest.getPersonalCareNeeds(listOf("A1234AA"), problemTypes)
+    val response = serviceToTest.getPersonalCareNeeds(listOf("A1234AA"), problemTypes, false)
 
-    verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA"), setOf("DISAB", "MATSTAT"))
+    verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA"), setOf("DISAB", "MATSTAT"), false)
     assertThat(response).containsExactly(
       PersonalCareNeeds("A1234AA", listOf(aaMat, aaDisab)),
       PersonalCareNeeds("A1234AB", listOf(abDisab)),

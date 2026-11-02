@@ -192,12 +192,34 @@ class BookingResourceImplIntTest : ResourceTest() {
 
     @Test
     fun postPersonalCareNeedsForOffenders() {
-      whenever(inmateRepository.findPersonalCareNeeds(ArgumentMatchers.anyList(), ArgumentMatchers.anySet())).thenReturn(createPersonalCareNeedsForOffenders())
+      whenever(
+        inmateRepository.findPersonalCareNeeds(
+          ArgumentMatchers.anyList(),
+          ArgumentMatchers.anySet(),
+          ArgumentMatchers.anyBoolean(),
+        ),
+      ).thenReturn(createPersonalCareNeedsForOffenders())
       val requestEntity =
         createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
       val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC", POST, requestEntity, String::class.java)
       assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds_offenders.json")
-      verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA", "A1234AB", "A1234AC"), setOf("DISAB", "MATSTAT"))
+      verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA", "A1234AB", "A1234AC"), setOf("DISAB", "MATSTAT"), false)
+    }
+
+    @Test
+    fun postAllPersonalCareNeedsForOffenders() {
+      whenever(
+        inmateRepository.findPersonalCareNeeds(
+          ArgumentMatchers.anyList(),
+          ArgumentMatchers.anySet(),
+          ArgumentMatchers.anyBoolean(),
+        ),
+      ).thenReturn(createPersonalCareNeedsForOffenders())
+      val requestEntity =
+        createHttpEntity(clientToken(listOf("GLOBAL_SEARCH")), listOf("A1234AA", "A1234AB", "A1234AC"))
+      val responseEntity = testRestTemplate.exchange("/api/bookings/offenderNo/personal-care-needs?type=MATSTAT&type=DISAB+RM&type=DISAB+RC&showAll=true", POST, requestEntity, String::class.java)
+      assertThatJsonFileAndStatus(responseEntity, 200, "personalcareneeds_offenders.json")
+      verify(inmateRepository).findPersonalCareNeeds(listOf("A1234AA", "A1234AB", "A1234AC"), setOf("DISAB", "MATSTAT"), true)
     }
 
     @Test
