@@ -35,6 +35,10 @@ dependencies {
   runtimeOnly("com.zaxxer:HikariCP")
 
   implementation("org.springdoc:springdoc-openapi-starter-webmvc-ui:3.2.0")
+  // Temporarily pin swagger-ui for dompurify issues CVE-2026-11680(2-4)
+  constraints {
+    implementation("org.webjars:swagger-ui:5.34.1")
+  }
 
   implementation("org.apache.commons:commons-lang3:3.21.0")
   implementation("commons-io:commons-io:2.22.0")
