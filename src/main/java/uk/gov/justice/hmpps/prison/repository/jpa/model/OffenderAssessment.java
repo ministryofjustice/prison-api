@@ -187,8 +187,10 @@ public class OffenderAssessment extends AuditableEntity {
         }
 
         if (overridingClassification != null && calculatedClassification != null) {
-            // We should display the highest one in order of priority
-            String[] priorities = new String[]{"HI", "STANDARD", "MED", "LOW"};
+            // We should display the highest one in order of priority. HI_SPFC (High Specific) and HI_GEN (High General)
+            // are the new CSRA policy's results and rank above the legacy HI, so a High General or High Specific override
+            // is not hidden by a calculated High.
+            String[] priorities = new String[]{"HI_SPFC", "HI_GEN", "HI", "STANDARD", "MED", "LOW"};
 
             for (String priority : priorities) {
                 if (overridingClassification.getCode().equals(priority)) {

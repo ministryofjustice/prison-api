@@ -175,6 +175,16 @@ class OffenderAssessmentTest {
       Arguments.arguments("LOW", "STANDARD", "STANDARD"),
       Arguments.arguments("LOW", "MED", "MED"),
       Arguments.arguments("LOW", "LOW", "LOW"),
+      // the new High General and High Specific results outrank the legacy High and every lower level
+      Arguments.arguments("HI", "HI_GEN", "HI_GEN"),
+      Arguments.arguments("HI", "HI_SPFC", "HI_SPFC"),
+      Arguments.arguments("STANDARD", "HI_GEN", "HI_GEN"),
+      Arguments.arguments("STANDARD", "HI_SPFC", "HI_SPFC"),
+      Arguments.arguments("HI_GEN", "HI", "HI_GEN"),
+      Arguments.arguments("HI_GEN", "STANDARD", "HI_GEN"),
+      Arguments.arguments("HI_SPFC", "HI_GEN", "HI_SPFC"),
+      Arguments.arguments("HI_GEN", "HI_SPFC", "HI_SPFC"),
+      Arguments.arguments("HI_GEN", "HI_GEN", "HI_GEN"),
     )
 
     @JvmStatic
