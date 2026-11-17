@@ -25,6 +25,7 @@ public class AssessmentDto {
     private String reviewSupLevelTypeDesc;
     private String assessmentCreateLocation;
     private LocalDate approvalDate;
+    private String evaluationResultCode;
     private String overridedSupLevelType;
     private String overridedSupLevelTypeDesc;
     private String calcSupLevelType;

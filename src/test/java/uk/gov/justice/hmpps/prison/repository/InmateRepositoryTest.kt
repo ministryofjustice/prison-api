@@ -1794,6 +1794,34 @@ class InmateRepositoryTest {
     return page.items
   }
 
+  @Test
+  fun findAssessmentsLeavesOutRejectedCsrasButNotRejectedCategories() {
+    // Booking -17 has no seed assessments. Assessment types: -1 CSR, -4 CSRREV, -6 CSR1 (all cell sharing), -2 CATEGORY.
+    // All on the same day, with the rejected CSRA recorded after the approved one (MAPA-527).
+    val rows = listOf(
+      "1, -6, 'HI', 'HI', 'APP'", // CSR Reception, approved High
+      "2, -1, 'STANDARD', null, 'REJ'", // CSR Rating recorded later, rejected Standard (different type)
+      "3, -4, 'HI', 'HI', 'APP'", // CSR Review, approved High
+      "4, -4, 'STANDARD', null, 'REJ'", // CSR Review recorded later, rejected Standard (same type)
+      "5, -2, 'C', null, 'REJ'", // Category, rejected - not a CSRA, so still returned
+    )
+    try {
+      rows.forEach {
+        jdbcTemplate.update(
+          "INSERT INTO OFFENDER_ASSESSMENTS (OFFENDER_BOOK_ID, ASSESSMENT_SEQ, ASSESSMENT_TYPE_ID, CALC_SUP_LEVEL_TYPE, REVIEW_SUP_LEVEL_TYPE, " +
+            "EVALUATION_RESULT_CODE, ASSESSMENT_DATE, ASSESS_STAFF_ID, SCORE, ASSESS_STATUS, MODIFY_USER_ID) " +
+            "VALUES (-17, $it, TO_DATE('2026-10-27', 'YYYY-MM-DD'), -1, 0.00, 'A', 'ITAG_USER')",
+        )
+      }
+
+      val assessments = repository.findAssessments(listOf(-17L), null, emptySet())
+
+      assertThat(assessments).extracting("assessmentSeq").containsExactlyInAnyOrder(1, 3, 5)
+    } finally {
+      jdbcTemplate.update("DELETE FROM OFFENDER_ASSESSMENTS WHERE OFFENDER_BOOK_ID = -17")
+    }
+  }
+
   private fun findOffendersWithAliasesFullResults(query: String?): List<PrisonerDetail> {
     val page = repository.findOffendersWithAliases(query, PageRequest(0L, 1000L))
     return page.items
