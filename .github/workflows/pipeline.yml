@@ -50,6 +50,7 @@ jobs:
       gradle-command: 'BUILD_NUMBER=${{ needs.app_version.outputs.version}} ./gradlew assemble check'
       upload-build-artifacts: ${{ github.ref == 'refs/heads/main' }}
       java-version: "25"
+      test-report-continue-on-error: true
     needs:
       - app_version
   gradle-test-integration:
@@ -60,6 +61,7 @@ jobs:
       gradle-command: './gradlew testIntegration'
       artifact-name: 'integration test results'
       java-version: "25"
+      test-report-continue-on-error: true
   build:
     name: Build docker image from hmpps-github-actions
     if: github.ref == 'refs/heads/main'
