@@ -514,6 +514,7 @@ enum class InmateRepositorySql(val sql: String) {
         WHERE OFF_ASS.ASSESS_STATUS = 'A'
         AND OFF_ASS.OFFENDER_BOOK_ID IN (:bookingIds)
         AND (:assessmentCode IS NULL OR ASS.ASSESSMENT_CODE = :assessmentCode)
+        AND (COALESCE(ASS.CELL_SHARING_ALERT_FLAG, 'N') <> 'Y' OR COALESCE(OFF_ASS.EVALUATION_RESULT_CODE, 'NONE') <> 'REJ')
     """,
   ),
 
@@ -537,6 +538,7 @@ enum class InmateRepositorySql(val sql: String) {
         OFF_ASS.ASSESSMENT_SEQ,
         OFF_ASS.NEXT_REVIEW_DATE,
         OFF_ASS.EVALUATION_DATE AS APPROVAL_DATE,
+        OFF_ASS.EVALUATION_RESULT_CODE,
         OFF_ASS.ASSESS_COMMENT_TEXT,
         OFF_ASS.ASSESS_STAFF_ID,
         OFF_ASS.CREATION_USER,

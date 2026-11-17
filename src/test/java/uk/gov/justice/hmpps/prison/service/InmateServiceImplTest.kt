@@ -184,6 +184,39 @@ class InmateServiceImplTest {
   }
 
   @Test
+  fun testGetInmatesCsraAssessmentsMostRecentLeavesOutRejectedCsras() {
+    val sameDay = LocalDate.of(2026, Month.OCTOBER, 27)
+    // In the order the repository returns them: cell sharing first, then latest date, then highest sequence
+    val data = listOf(
+      // booking 20: Standard recorded later and rejected; the earlier High was approved -> High
+      AssessmentDto.builder().bookingId(20L).offenderNo("OFFENDER20").assessmentCode("CSR").calcSupLevelType("STANDARD")
+        .evaluationResultCode("REJ").assessmentDate(sameDay).cellSharingAlertFlag(true).assessmentSeq(6).build(),
+      AssessmentDto.builder().bookingId(20L).offenderNo("OFFENDER20").assessmentCode("CSRREV").calcSupLevelType("HI")
+        .reviewSupLevelType("HI").evaluationResultCode("APP").assessmentDate(sameDay).cellSharingAlertFlag(true)
+        .assessmentSeq(5).build(),
+      // booking 21: an older rejected CSRA makes no difference -> latest approved Standard
+      AssessmentDto.builder().bookingId(21L).offenderNo("OFFENDER21").assessmentCode("CSR").calcSupLevelType("STANDARD")
+        .reviewSupLevelType("STANDARD").evaluationResultCode("APP").assessmentDate(sameDay).cellSharingAlertFlag(true)
+        .assessmentSeq(3).build(),
+      AssessmentDto.builder().bookingId(21L).offenderNo("OFFENDER21").assessmentCode("CSR").calcSupLevelType("HI")
+        .evaluationResultCode("REJ").assessmentDate(sameDay.minusDays(1)).cellSharingAlertFlag(true).assessmentSeq(2)
+        .build(),
+      // booking 22: the only CSRA was rejected -> no CSRA
+      AssessmentDto.builder().bookingId(22L).offenderNo("OFFENDER22").assessmentCode("CSR").calcSupLevelType("STANDARD")
+        .evaluationResultCode("REJ").assessmentDate(sameDay).cellSharingAlertFlag(true).assessmentSeq(1).build(),
+    )
+    val offenders = mutableListOf("OFFENDER20", "OFFENDER21", "OFFENDER22")
+    whenever(repository.findAssessmentsByOffenderNo(offenders, null, emptySet(), true, true)).thenReturn(data)
+    whenever(authenticationFacade.isOverrideRole(anyVararg())).thenReturn(true)
+
+    val assessments = serviceToTest.getInmatesAssessmentsByCode(offenders, null, true, true, true, true)
+
+    assertThat(assessments.first { it.bookingId == 20L }.classificationCode).isEqualTo("HI")
+    assertThat(assessments.first { it.bookingId == 21L }.classificationCode).isEqualTo("STANDARD")
+    assertThat(assessments.none { it.bookingId == 22L }).isTrue()
+  }
+
+  @Test
   fun testGetInmatesAssessmentsByCodeMostRecent() {
     val data = listOf(
       AssessmentDto.builder().bookingId(10L).offenderNo("OFFENDER10").assessmentCode("THECODE").assessmentDate(

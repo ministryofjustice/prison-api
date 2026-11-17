@@ -451,14 +451,19 @@ public class InmateService {
                         if(!csra){
                             results.add(createAssessment(assessmentForBooking.getFirst()));
                         }else {
-                            final var firstAssessment = createAssessment(
-                                assessmentForBooking
-                                    .stream().filter(assessmentDto -> isCalculatedCsra(assessmentDto) || isReviewedCsra(assessmentDto))
-                                    .findFirst()
-                                    .orElse(assessmentForBooking.getFirst())
-                            );
-                            if (validCsra(firstAssessment)) {
-                                results.add(firstAssessment);
+                            // A CSRA rejected at approval stays active in NOMIS, so leave it out here or a rejected
+                            // CSRA recorded after the approved one would become the prisoner's current CSRA.
+                            final var candidates = assessmentForBooking.stream().filter(assessmentDto -> !isRejectedCsra(assessmentDto)).toList();
+                            if (!candidates.isEmpty()) {
+                                final var firstAssessment = createAssessment(
+                                    candidates
+                                        .stream().filter(assessmentDto -> isCalculatedCsra(assessmentDto) || isReviewedCsra(assessmentDto))
+                                        .findFirst()
+                                        .orElse(candidates.getFirst())
+                                );
+                                if (validCsra(firstAssessment)) {
+                                    results.add(firstAssessment);
+                                }
                             }
                         }
                     } else {
@@ -472,6 +477,10 @@ public class InmateService {
 
     private boolean validCsra(final Assessment firstAssessment) {
         return (firstAssessment.isCellSharingAlertFlag() && !"PEND".equals(firstAssessment.getClassificationCode()));
+    }
+
+    private boolean isRejectedCsra(final AssessmentDto assessmentDto) {
+        return assessmentDto.isCellSharingAlertFlag() && "REJ".equals(assessmentDto.getEvaluationResultCode());
     }
 
     private boolean isReviewedCsra(final AssessmentDto assessmentDto) {
