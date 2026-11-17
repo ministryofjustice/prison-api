@@ -57,6 +57,19 @@ class OpenApiDocsTest(
   }
 
   @Test
+  fun `team assignment authentication errors have the correct response schemas`() {
+    val responses = "$.paths['/api/offender-team-assignments'].get.responses"
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$responses['401'].content").doesNotExist()
+      .jsonPath("$responses['403'].content['application/json'].schema.\$ref").isEqualTo("#/components/schemas/ErrorResponse")
+  }
+
+  @Test
   fun `the open api json contains the version number`() {
     webTestClient.get()
       .uri("/v3/api-docs")

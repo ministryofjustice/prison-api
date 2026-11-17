@@ -9,7 +9,9 @@
 - Follow existing Prison API implementation and pagination patterns.
 - Return flat objects first; related-table expansion is a separate change.
 - No writes to NOMIS, source deletion, new NOMIS tables or production access.
-- This is a plan; no endpoint implementation has been made.
+- The endpoint is implemented with local HSQLDB integration coverage. Actual
+  Oracle account access and representative execution plans remain to be checked
+  in an authorised environment.
 
 ## Existing implementation to reuse
 
