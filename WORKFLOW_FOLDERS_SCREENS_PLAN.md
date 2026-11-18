@@ -5,7 +5,9 @@
 - Branch: `spike/workflow-folders-screens-endpoints`.
 - Independent branch from `origin/main` at `c9c95339b`; do not depend on or
   cherry-pick the offender-team-assignment spike.
-- Planning only: no endpoint, entity, repository or migration is implemented.
+- Implemented locally with entities, repositories, DTOs, service/controller,
+  local schema migrations and focused endpoint/OpenAPI coverage. Oracle access
+  and representative execution plans still require an authorised environment.
 - Assumption: this is another read-only export of suspected-unused NOMIS data.
   Suspected inactivity is not proof that the source is unchanged.
 - Export every row and all columns from the two target tables, including
@@ -97,8 +99,10 @@ Return standard `Page<WorkflowFolderResponse>` and
 Preserve stored values, including nulls, numeric zero and fractional seconds.
 Do not replace null sequences with the database default, derive flags, trim
 strings or convert timestamps to dates. Oracle TIMESTAMP has no timezone:
-use ISO local date-times without inventing UTC or another offset. Document
-nullable fields consistently with the application's actual JSON null handling.
+use ISO local date-times without inventing UTC or another offset, and document
+them as strings with the `local-date-time` OpenAPI format. Always
+include nullable JSON properties explicitly as null, so replay/upserts can
+clear a previously populated value rather than treating it as omitted.
 
 `WORKFLOW_SEQ` is display order, not identity; it can be null or duplicated.
 Do not use it as pagination order or a migration checkpoint.
@@ -107,8 +111,8 @@ Do not use it as pagination order or a migration checkpoint.
 
 | Component | Planned change |
 |---|---|
-| Entities | Add `repository/jpa/model/WorkflowFolder.kt` and `WorkflowScreen.kt`, using existing JPA constructor/proxy conventions. |
-| Composite ID | Define `@Embeddable WorkflowScreenId` in the screen entity file, with scalar workflowCode/moduleName, both `@Column` mappings, `Serializable` and value equality; use `@EmbeddedId`. |
+| Entities | Add `repository/jpa/model/WorkflowFolder.java` and `WorkflowScreen.java`, following the existing Java entity pattern around the package-private AuditableEntity base. |
+| Composite ID | Define nested `@Embeddable WorkflowScreen.PK` in the screen entity file, with scalar workflowCode/moduleName, both `@Column` mappings, `Serializable` and value equality; use `@EmbeddedId`. |
 | Audit mapping | Reuse `AuditableEntity` for its four CREATE/MODIFY fields; map the remaining audit columns explicitly without redeclaring inherited columns. |
 | Folder repository | Add `WorkflowFolderRepository` with Spring Data paging and a flat DTO projection, explicit full-key ordering and matching count query. |
 | Screen repository | Add `WorkflowScreenRepository` with the equivalent paged projection/count, ordered by both embedded-ID properties. |
@@ -139,6 +143,8 @@ queries. Do not fetch all rows and paginate in application memory.
 - Cap size using `spring.data.web.pageable.max-page-size`, currently 5000.
   Construct the effective PageRequest using the capped size.
 - Reject offsets beyond the JPA integer offset limit with HTTP 400, not 500.
+- Reject page number 2147483647 even when the offset fits: Spring Data's
+  next-page calculation would overflow and return incorrect `last` metadata.
 - Return HTTP 200 with empty content for an empty table or representable
   beyond-end page. Do not return 404 for an empty collection.
 - Ordering is always the full source PK; ignore and document supplied `sort`.

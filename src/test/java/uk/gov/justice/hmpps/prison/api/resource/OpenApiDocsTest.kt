@@ -57,6 +57,53 @@ class OpenApiDocsTest(
   }
 
   @Test
+  fun `workflow schemas require every property and preserve nullability and local timestamps`() {
+    val body = webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .returnResult().responseBody!!
+    val schemas = jsonMapper.readTree(body)["components"]["schemas"]
+    for (name in listOf("WorkflowFolderResponse", "WorkflowScreenResponse")) {
+      val schema = schemas[name]
+      val properties = schema["properties"]
+      val required = schema["required"]
+      assertThat((0 until required.size()).map { required[it].stringValue() })
+        .containsExactlyInAnyOrderElementsOf(properties.properties().map { it.key })
+      for (field in listOf("createDatetime", "modifyDatetime", "auditTimestamp")) {
+        assertThat(properties[field]["format"].stringValue()).isEqualTo("local-date-time")
+      }
+      for (field in listOf("modifyDatetime", "auditTimestamp")) {
+        assertThat(properties[field]["type"].toString()).contains("\"string\"", "\"null\"")
+      }
+      assertThat(properties["createDatetime"]["example"].stringValue()).isEqualTo("2020-01-01T10:11:12.123456")
+      assertThat(properties["description"]["type"].toString()).contains("null")
+    }
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    "workflow-folders,PageWorkflowFolderResponse",
+    "workflow-screens,PageWorkflowScreenResponse",
+  )
+  fun `workflow exports document success and error response schemas`(route: String, schema: String) {
+    val responses = "$.paths['/api/$route'].get.responses"
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$responses['200'].content['application/json'].schema.\$ref").isEqualTo("#/components/schemas/$schema")
+      .jsonPath("$responses['400'].content['application/json'].schema.\$ref").isEqualTo("#/components/schemas/ErrorResponse")
+      .jsonPath("$responses['401'].content").doesNotExist()
+      .jsonPath("$responses['403'].content['application/json'].schema.\$ref").isEqualTo("#/components/schemas/ErrorResponse")
+      .jsonPath("$responses['500'].content['application/json'].schema.\$ref").isEqualTo("#/components/schemas/ErrorResponse")
+  }
+
+  @Test
   fun `the open api json contains the version number`() {
     webTestClient.get()
       .uri("/v3/api-docs")
