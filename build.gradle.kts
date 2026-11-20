@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.0.15"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.1.1"
   kotlin("plugin.spring") version "2.4.21"
   kotlin("plugin.jpa") version "2.4.21"
   kotlin("plugin.lombok") version "2.4.21"
@@ -40,7 +40,7 @@ dependencies {
     implementation("org.webjars:swagger-ui:5.34.1")
   }
 
-  implementation("org.apache.commons:commons-lang3:3.21.0")
+  implementation("org.apache.commons:commons-lang3:3.22.0")
   implementation("commons-io:commons-io:2.22.0")
   implementation("com.google.guava:guava:33.8.0-jre")
   implementation("org.apache.commons:commons-text:1.15.0")
@@ -73,10 +73,10 @@ dependencies {
 
   testImplementation("org.wiremock:wiremock:3.13.2")
   testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.4.0")
-  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.48") {
+  testImplementation("io.swagger.parser.v3:swagger-parser:2.1.49") {
     exclude(group = "io.swagger.core.v3")
   }
-  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.55")
+  testImplementation("io.swagger.core.v3:swagger-core-jakarta:2.2.56")
   testImplementation("commons-beanutils:commons-beanutils:1.11.0")
   testImplementation("io.opentelemetry:opentelemetry-sdk-testing:1.65.0")
 

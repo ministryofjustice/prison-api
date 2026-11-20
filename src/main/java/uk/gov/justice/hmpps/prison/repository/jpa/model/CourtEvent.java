@@ -14,6 +14,7 @@ import org.hibernate.annotations.JoinColumnOrFormula;
 import org.hibernate.annotations.JoinColumnsOrFormulas;
 import org.hibernate.annotations.JoinFormula;
 import org.hibernate.annotations.NotFound;
+import org.springframework.beans.factory.ObjectProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Component;
 
@@ -179,8 +180,8 @@ public class CourtEvent extends AuditableEntity {
         private Clock clock;
 
         @Autowired
-        void setClock(final Clock clock) {
-            this.clock = clock;
+        void setClock(final ObjectProvider<Clock> clock) {
+            this.clock = clock.getIfAvailable(Clock::systemDefaultZone);
         }
 
         @PreRemove
