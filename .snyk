@@ -14,6 +14,6 @@ ignore:
   SNYK-JAVA-ORGGLASSFISHJAXB-20883142:
     - '*':
         reason: Suppression for JAXB issue as we don't use JAXB, have no endpoints that accept XML and all SQS/SNS usage is JSON based
-        expires: 2026-11-23T00:00:00.000Z
+        expires: 2027-01-05T00:00:00.000Z
         created: 2026-10-23T12:05:00.000Z
 patch: {}
