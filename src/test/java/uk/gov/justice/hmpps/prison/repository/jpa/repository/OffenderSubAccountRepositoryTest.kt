@@ -29,10 +29,10 @@ class OffenderSubAccountRepositoryTest {
 
   @Test
   fun testFindForUpdate() {
-    val account = repository.findForUpdate(OffenderSubAccountId("LEI", -1001L, 2101L))
+    val account = repository.findByIdWithLock(OffenderSubAccountId("LEI", -1001L, 2101L))
 
     assertThat(account).isPresent
     assertThat(account.get().balance).isEqualByComparingTo("1.24")
-    assertThat(repository.findForUpdate(OffenderSubAccountId("LEI", -1001L, -1L))).isEmpty
+    assertThat(repository.findByIdWithLock(OffenderSubAccountId("LEI", -1001L, -1L))).isEmpty
   }
 }

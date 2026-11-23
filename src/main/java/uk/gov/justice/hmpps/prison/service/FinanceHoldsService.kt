@@ -245,13 +245,13 @@ class FinanceHoldsService(
         ValidationException("Account code ${AccountCode.SPENDS.code} not found")
       }.accountCode
 
-    val offenderSubAccount = offenderSubAccountRepository.findForUpdate(
+    val offenderSubAccount = offenderSubAccountRepository.findByIdWithLock(
       OffenderSubAccountId(prisonId, booking.rootOffender.id, subAccountTypeId),
     ).getOrElse {
       throw ValidationException("Offender sub account not found")
     }
 
-    val offenderTrustAccount = offenderTrustAccountRepository.findForUpdate(
+    val offenderTrustAccount = offenderTrustAccountRepository.findByIdWithLock(
       OffenderTrustAccountId(prisonId, booking.rootOffender.id),
     ).getOrElse {
       throw ValidationException("Offender trust account not found")

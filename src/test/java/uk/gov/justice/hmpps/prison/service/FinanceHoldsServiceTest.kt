@@ -125,7 +125,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountNotFound() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction)
@@ -145,7 +145,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountNotFound() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.addHold("LEI", "AA2134", transaction)
@@ -173,7 +173,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun subAccountHoldBalanceDoesNotExistDoesNotFail() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(
           Optional.of(
             OffenderSubAccount(
               OffenderSubAccountId("ASI", 1, 2101),
@@ -187,7 +187,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun trustAccountHoldBalanceDoesNotExistDoesNotFail() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any()))
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any()))
           .thenReturn(Optional.of(offenderTrustAccount()))
 
         financeHoldsService.addHold("LEI", "AA2134", transaction)
@@ -213,8 +213,8 @@ internal class FinanceHoldsServiceTest {
         financeHoldsService.addHold("LEI", "AA2134", transaction)
 
         inOrder(offenderSubAccountRepository, offenderTrustAccountRepository).apply {
-          verify(offenderSubAccountRepository).findForUpdate(any())
-          verify(offenderTrustAccountRepository).findForUpdate(any())
+          verify(offenderSubAccountRepository).findByIdWithLock(any())
+          verify(offenderTrustAccountRepository).findByIdWithLock(any())
         }
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
@@ -225,9 +225,9 @@ internal class FinanceHoldsServiceTest {
 
         verify(transactionTypeRepository).findById("HOA")
 
-        verify(offenderSubAccountRepository).findForUpdate(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
+        verify(offenderSubAccountRepository).findByIdWithLock(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
 
-        verify(offenderTrustAccountRepository).findForUpdate(
+        verify(offenderTrustAccountRepository).findByIdWithLock(
 
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
@@ -368,8 +368,8 @@ internal class FinanceHoldsServiceTest {
           financeHoldsService.releaseHold("LEI", prisonNumber, transaction, holdNumber)
         }.hasMessage("Hold transaction not found'")
 
-        verify(offenderSubAccountRepository, never()).findForUpdate(any())
-        verify(offenderTrustAccountRepository, never()).findForUpdate(any())
+        verify(offenderSubAccountRepository, never()).findByIdWithLock(any())
+        verify(offenderTrustAccountRepository, never()).findByIdWithLock(any())
       }
 
       @Test
@@ -398,7 +398,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountNotFound() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, holdNumber)
@@ -418,7 +418,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountNotFound() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.releaseHold("LEI", "AA2134", transaction, 1)
@@ -437,7 +437,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun subAccountHoldBalanceDoesNotExist() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(
           Optional.of(
             OffenderSubAccount(
               OffenderSubAccountId("ASI", 1, 2101),
@@ -453,7 +453,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun trustAccountHoldBalanceDoesNotExist() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any()))
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any()))
           .thenReturn(Optional.of(offenderTrustAccount()))
 
         assertThatThrownBy {
@@ -484,8 +484,8 @@ internal class FinanceHoldsServiceTest {
 
         inOrder(offenderTransactionRepository, offenderSubAccountRepository, offenderTrustAccountRepository).apply {
           verify(offenderTransactionRepository).findAddHoldTransactionForUpdate(rootOffenderId1, "LEI", holdNumber)
-          verify(offenderSubAccountRepository).findForUpdate(any())
-          verify(offenderTrustAccountRepository).findForUpdate(any())
+          verify(offenderSubAccountRepository).findByIdWithLock(any())
+          verify(offenderTrustAccountRepository).findByIdWithLock(any())
         }
 
         verify(offenderBookingRepository).findByOffenderNomsIdAndActive("AA2134", true)
@@ -493,8 +493,8 @@ internal class FinanceHoldsServiceTest {
         verify(offenderTransactionRepository).findAddHoldTransactionForUpdate(rootOffenderId1, "LEI", holdNumber)
 
         verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
-        verify(offenderSubAccountRepository).findForUpdate(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
-        verify(offenderTrustAccountRepository).findForUpdate(
+        verify(offenderSubAccountRepository).findByIdWithLock(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
+        verify(offenderTrustAccountRepository).findByIdWithLock(
 
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
@@ -663,7 +663,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderTrustAccountNotFound() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.releaseHoldAndCreateTransaction("LEI", "AA2134", transaction, holdNumber)
@@ -683,7 +683,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun offenderSubAccountNotFound() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(Optional.empty())
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(Optional.empty())
 
         assertThatThrownBy {
           financeHoldsService.releaseHoldAndCreateTransaction("LEI", "AA2134", transaction, 1)
@@ -717,7 +717,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun subAccountHoldBalanceDoesNotExist() {
-        whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(
+        whenever(offenderSubAccountRepository.findByIdWithLock(any())).thenReturn(
           Optional.of(
             OffenderSubAccount(
               OffenderSubAccountId("ASI", 1, 2101),
@@ -733,7 +733,7 @@ internal class FinanceHoldsServiceTest {
 
       @Test
       fun trustAccountHoldBalanceDoesNotExist() {
-        whenever(offenderTrustAccountRepository.findForUpdate(any()))
+        whenever(offenderTrustAccountRepository.findByIdWithLock(any()))
           .thenReturn(Optional.of(offenderTrustAccount()))
 
         assertThatThrownBy {
@@ -777,8 +777,8 @@ internal class FinanceHoldsServiceTest {
         verify(offenderTransactionRepository).findAddHoldTransactionForUpdate(rootOffenderId1, "LEI", holdNumber)
 
         verify(accountCodeRepository).findByCaseLoadTypeAndSubAccountType("INST", "SPND")
-        verify(offenderSubAccountRepository).findForUpdate(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
-        verify(offenderTrustAccountRepository).findForUpdate(
+        verify(offenderSubAccountRepository).findByIdWithLock(OffenderSubAccountId("LEI", rootOffenderId1, 2101L))
+        verify(offenderTrustAccountRepository).findByIdWithLock(
 
           check {
             assertThat(it.prisonId).isEqualTo("LEI")
@@ -920,7 +920,7 @@ internal class FinanceHoldsServiceTest {
   }
 
   fun mockFindTrustAccount(closed: Boolean = false, holdBalance: String? = null) {
-    whenever(offenderTrustAccountRepository.findForUpdate(any()))
+    whenever(offenderTrustAccountRepository.findByIdWithLock(any()))
       .thenReturn(
         Optional.of(
           offenderTrustAccount(closed).apply {
@@ -931,7 +931,7 @@ internal class FinanceHoldsServiceTest {
   }
 
   private fun mockSubAccount(balance: String = "12.34", holdBalance: String = "3.50") {
-    whenever(offenderSubAccountRepository.findForUpdate(any()))
+    whenever(offenderSubAccountRepository.findByIdWithLock(any()))
       .thenReturn(
         Optional.of(
           offenderSubAccount(balance).apply {
