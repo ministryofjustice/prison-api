@@ -26,4 +26,13 @@ class OffenderSubAccountRepositoryTest {
     assertThat(optionalOffenderSubAccount.get().balance).isEqualTo(BigDecimal("1.24"))
     assertThat(optionalOffenderSubAccount.get().holdBalance).isEqualTo(BigDecimal("2.23"))
   }
+
+  @Test
+  fun testFindForUpdate() {
+    val account = repository.findForUpdate(OffenderSubAccountId("LEI", -1001L, 2101L))
+
+    assertThat(account).isPresent
+    assertThat(account.get().balance).isEqualByComparingTo("1.24")
+    assertThat(repository.findForUpdate(OffenderSubAccountId("LEI", -1001L, -1L))).isEmpty
+  }
 }
