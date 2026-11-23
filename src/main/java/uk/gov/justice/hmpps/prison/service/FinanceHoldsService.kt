@@ -56,7 +56,8 @@ class FinanceHoldsService(
     holdTransaction: AddHoldTransaction,
   ): HoldDetails {
     val subAccountType = AccountCode.SPENDS.code
-    val (booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, holdTransaction.clientUniqueReference, subAccountType)
+    val booking = validateBooking(prisonId, nomisId)
+    val (offenderTrustAccount, offenderSubAccount) = validateAccounts(prisonId, booking, holdTransaction.clientUniqueReference, subAccountType)
 
     val addHoldTransactionType = transactionTypeRepository.findById(ADD_HOLD_TRANSACTION_TYPE).get()
 
@@ -133,9 +134,10 @@ class FinanceHoldsService(
 
   fun releaseHold(prisonId: String, nomisId: String, releaseHoldTransaction: ReleaseHoldTransaction, holdNumber: Long): BigDecimal {
     val subAccountType = AccountCode.SPENDS.code
-    val (booking, offenderTrustAccount, offenderSubAccount) = validate(prisonId, nomisId, releaseHoldTransaction.clientUniqueReference, subAccountType)
+    val booking = validateBooking(prisonId, nomisId)
     val holdToReleaseTransaction = offenderTransactionRepository.findAddHoldTransactionForUpdate(booking.rootOffender.id, prisonId, holdNumber)
       .orElseThrow { EntityNotFoundException("Hold transaction not found'") }
+    val (offenderTrustAccount, offenderSubAccount) = validateAccounts(prisonId, booking, releaseHoldTransaction.clientUniqueReference, subAccountType)
     holdToReleaseTransaction.holdClearFlag = "Y"
 
     val now = LocalDateTime.now()
@@ -221,7 +223,7 @@ class FinanceHoldsService(
     )
   }
 
-  private fun validate(prisonId: String, nomisId: String, clientUniqueReference: String, subAccountType: String): Triple<OffenderBooking, OffenderTrustAccount, OffenderSubAccount> {
+  private fun validateBooking(prisonId: String, nomisId: String): OffenderBooking {
     val booking = offenderBookingRepository.findByOffenderNomsIdAndActive(nomisId, true)
       .orElseThrow { EntityNotFoundException("Offender not found active in prison") }
 
@@ -234,25 +236,28 @@ class FinanceHoldsService(
       )
     }
 
-    val offenderTrustAccount = offenderTrustAccountRepository.findById(
-      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
-    )
-    if (offenderTrustAccount.isEmpty) {
-      throw ValidationException("Offender trust account not found")
-    }
-    if (offenderTrustAccount.get().accountClosed) {
-      throw ValidationException("Offender trust account closed")
-    }
+    return booking
+  }
 
+  private fun validateAccounts(prisonId: String, booking: OffenderBooking, clientUniqueReference: String, subAccountType: String): Pair<OffenderTrustAccount, OffenderSubAccount> {
     val subAccountTypeId = accountCodeRepository.findByCaseLoadTypeAndSubAccountType("INST", subAccountType)
       .orElseThrow {
         ValidationException("Account code ${AccountCode.SPENDS.code} not found")
       }.accountCode
 
-    val offenderSubAccount = offenderSubAccountRepository.findById(
+    val offenderSubAccount = offenderSubAccountRepository.findByIdWithLock(
       OffenderSubAccountId(prisonId, booking.rootOffender.id, subAccountTypeId),
     ).getOrElse {
       throw ValidationException("Offender sub account not found")
+    }
+
+    val offenderTrustAccount = offenderTrustAccountRepository.findByIdWithLock(
+      OffenderTrustAccountId(prisonId, booking.rootOffender.id),
+    ).getOrElse {
+      throw ValidationException("Offender trust account not found")
+    }
+    if (offenderTrustAccount.accountClosed) {
+      throw ValidationException("Offender trust account closed")
     }
 
     offenderTransactionRepository.findByClientUniqueRef(clientUniqueReference)
@@ -261,6 +266,6 @@ class FinanceHoldsService(
           throw DuplicateKeyException("Duplicate post - The clientUniqueReference $clientUniqueReference has been used before")
         },
       )
-    return Triple(booking, offenderTrustAccount.get(), offenderSubAccount)
+    return Pair(offenderTrustAccount, offenderSubAccount)
   }
 }

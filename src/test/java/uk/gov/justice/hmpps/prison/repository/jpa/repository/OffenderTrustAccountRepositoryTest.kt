@@ -21,4 +21,13 @@ class OffenderTrustAccountRepositoryTest {
 
     assertThat(optionalOffenderTrustAccount.accountClosed).isFalse
   }
+
+  @Test
+  fun testFindForUpdate() {
+    val account = repository.findByIdWithLock(OffenderTrustAccountId("LEI", -1001L))
+
+    assertThat(account).isPresent
+    assertThat(account.get().accountClosed).isFalse
+    assertThat(repository.findByIdWithLock(OffenderTrustAccountId("LEI", 1L))).isEmpty
+  }
 }
