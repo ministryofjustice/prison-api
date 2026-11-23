@@ -92,7 +92,6 @@ generic-service:
       memory: 2048Mi
 
   env:
-    JAVA_TOOL_OPTIONS: "-XX:+ExitOnOutOfMemoryError -XX:MaxRAMPercentage=50.0 -XX:-UseBASE64Intrinsics"
     JAVA_OPTS: "-Xmx1024m"
     SERVER_PORT: 8080
     APPLICATIONINSIGHTS_CONFIGURATION_FILE: applicationinsights.json
