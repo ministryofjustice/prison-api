@@ -215,10 +215,10 @@ class FinanceHoldsControllerTest : ResourceTest() {
     @Test
     fun happyPath() {
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
-      whenever(offenderSubAccountRepository.findById(any()))
+      whenever(offenderSubAccountRepository.findForUpdate(any()))
         .thenReturn(Optional.of(offenderSubAccount(balance = "12")))
 
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+      whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.of(offenderTrustAccount()))
 
       webTestClient.post()
         .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/add-hold", "LEI", "A1234AA")
@@ -381,11 +381,11 @@ class FinanceHoldsControllerTest : ResourceTest() {
     fun happyPath() {
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
 
-      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
+      whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
 
       whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
         .thenReturn(Optional.of(offenderTransaction()))
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+      whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.of(offenderTrustAccount()))
 
       webTestClient.post()
         .uri("/api/finance-holds/prison/{prisonId}/offenders/{offenderNo}/release-hold/{holdNumber}", "LEI", "A1234AA", 343)
@@ -677,11 +677,11 @@ class FinanceHoldsControllerTest : ResourceTest() {
     fun happyPath() {
       whenever(offenderTransactionRepository.getNextTransactionId()).thenReturn(12345L)
 
-      whenever(offenderSubAccountRepository.findById(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
+      whenever(offenderSubAccountRepository.findForUpdate(any())).thenReturn(Optional.of(offenderSubAccount(balance = "12")))
 
       whenever(offenderTransactionRepository.findAddHoldTransactionForUpdate(any(), any(), any()))
         .thenReturn(Optional.of(offenderTransaction()))
-      whenever(offenderTrustAccountRepository.findById(any())).thenReturn(Optional.of(offenderTrustAccount()))
+      whenever(offenderTrustAccountRepository.findForUpdate(any())).thenReturn(Optional.of(offenderTrustAccount()))
       whenever(
         financeV1Repository.postTransaction(
           any(),
