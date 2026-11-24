@@ -222,7 +222,7 @@ public class OffenderSentenceResource {
     }
 
     @ApiResponses({
-            @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = OffenderSentenceAndOffences.class))}),
+            @ApiResponse(responseCode = "200", description = "Sentence and offence details for a prisoner."),
             @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
     @Operation(summary = "Sentence and offence details  for a prisoner")
     @Tag(name = "integration-api")
