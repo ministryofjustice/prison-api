@@ -1,5 +1,5 @@
 plugins {
-  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.1.1"
+  id("uk.gov.justice.hmpps.gradle-spring-boot") version "11.1.2"
   kotlin("plugin.spring") version "2.4.21"
   kotlin("plugin.jpa") version "2.4.21"
   kotlin("plugin.lombok") version "2.4.21"
@@ -72,7 +72,7 @@ dependencies {
   testImplementation("com.google.code.gson:gson:2.15.0")
 
   testImplementation("org.wiremock:wiremock:3.13.2")
-  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.4.0")
+  testImplementation("net.javacrumbs.json-unit:json-unit-assertj:6.4.1")
   testImplementation("io.swagger.parser.v3:swagger-parser:2.1.49") {
     exclude(group = "io.swagger.core.v3")
   }
