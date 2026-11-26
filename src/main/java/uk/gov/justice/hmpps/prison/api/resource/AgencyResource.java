@@ -43,6 +43,12 @@ import static uk.gov.justice.hmpps.prison.repository.support.StatusFilter.ALL;
 @Tag(name = "agencies")
 @RequestMapping(value = "${api.base.path}/agencies", produces = "application/json")
 public class AgencyResource {
+    // Added to the description of each endpoint that HMPPS Registers replaces
+    private static final String REGISTERS_NOTE = """
+        <p>The HMPPS Registers endpoints need the role HMPPS_REGISTERS_API__R. Agency data rarely changes, so please cache it.
+        HMPPS Registers API documentation: https://agency-register-dev.hmpps.service.justice.gov.uk/swagger-ui/index.html</p>
+        """;
+
     private final AgencyService agencyService;
     private final AgencyPrisonerPayProfileService agencyPrisonerPayProfileService;
 
@@ -59,9 +65,18 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of active agencies.", description = "List of active agencies.")
+    @Operation(summary = "List of active agencies.", description = """
+        <p>List of active agencies.</p>
+        <p>DEPRECATED. Use GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies in HMPPS Registers instead. Differences:</p>
+        <ul>
+        <li>All active agencies come back in one response. There is no paging, so the Page-Offset and Page-Limit headers are not used.</li>
+        <li>agencyType is a name such as PRISON or COURT, not the NOMIS code such as INST or CRT.</li>
+        <li>Prison descriptions are the register's prison names, which deliberately differ from the NOMIS descriptions.</li>
+        </ul>
+        """ + REGISTERS_NOTE, deprecated = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping
+    @Deprecated
     public ResponseEntity<List<Agency>> getAgencies(@RequestHeader(value = "Page-Offset", defaultValue = "0", required = false) @Parameter(description = "Requested offset of first record in returned collection of agency records.") final Long pageOffset,
                                                     @RequestHeader(value = "Page-Limit", defaultValue = "10", required = false) @Parameter(description = "Requested limit to number of agency records returned.") final Long pageLimit) {
         return agencyService.getAgencies(pageOffset, pageLimit).getResponse();
@@ -72,9 +87,25 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "List of agencies by type", description = "List of active agencies by type")
+    @Operation(summary = "List of agencies by type", description = """
+        <p>List of active agencies by type.</p>
+        <p>DEPRECATED. Use GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies/legacy-type/{type} in HMPPS Registers instead.
+        It takes the same NOMIS type codes, such as INST, CRT and HOSPITAL. GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies/type/{type}
+        does the same using the register's type names, such as PRISON and COURT. Differences:</p>
+        <ul>
+        <li>activeOnly works the same way and defaults to true.</li>
+        <li>There are no courtType, jurisdictionCode, areaCode, regionCode or establishmentType filters. Filter the response on courtType, area.code or region.code instead.</li>
+        <li>The register does not hold the NOMIS types TRN, PAR or PNP.</li>
+        <li>Results are sorted by agencyId, not by description.</li>
+        <li>Each agency always includes its addresses, phones, emails, area and region, except that prisons have no phones, emails, area or region here.
+        For those, use GET https://agency-register.hmpps.service.justice.gov.uk/prisons/id/{prisonId}/details.</li>
+        <li>agencyType is a name such as PRISON or COURT, not the NOMIS code, and deactivationDate is called inactiveDate.
+        Address, phone and email fields differ as described on GET /api/agencies/{agencyId}.</li>
+        </ul>
+        """ + REGISTERS_NOTE, deprecated = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/type/{type}")
+    @Deprecated
     public List<Agency> getAgenciesByType(
         @PathVariable("type")
         @Parameter(description = "Agency Type", required = true) final String agencyType,
@@ -121,9 +152,22 @@ public class AgencyResource {
         @ApiResponse(responseCode = "400", description = "Invalid request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "404", description = "Requested resource not found.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))}),
         @ApiResponse(responseCode = "500", description = "Unrecoverable error occurred whilst processing request.", content = {@Content(mediaType = "application/json", schema = @Schema(implementation = ErrorResponse.class))})})
-    @Operation(summary = "Agency detail.", description = "Agency detail.")
+    @Operation(summary = "Agency detail.", description = """
+        <p>Agency detail.</p>
+        <p>DEPRECATED. Use GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies/{agencyId} in HMPPS Registers instead. Differences:</p>
+        <ul>
+        <li>It returns the agency whether it is active or not. There are no activeOnly, agencyType, withAddresses, skipFormatLocation or withAreas parameters.</li>
+        <li>Addresses, phones, emails, area and region are always included, except that a prison has no phones, emails, area or region here.
+        For those, use GET https://agency-register.hmpps.service.justice.gov.uk/prisons/id/{prisonId}/details.</li>
+        <li>agencyType is a name such as PRISON or COURT, not the NOMIS code such as INST or CRT, and deactivationDate is called inactiveDate.</li>
+        <li>Addresses have addressLine1, addressLine2, town, county, postcode and country. Phones have a number but no type or extension.
+        Emails have an address field.</li>
+        <li>For a prison, description is the register's prison name, which deliberately differs from NOMIS, and longDescription is the NOMIS description.</li>
+        </ul>
+        """ + REGISTERS_NOTE, deprecated = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/{agencyId}")
+    @Deprecated
     public Agency getAgency(
         @PathVariable @Parameter(description = "The ID of the agency", required = true) final String agencyId,
         @RequestParam(value = "activeOnly", defaultValue = "true", required = false) @Parameter(description = "Only return active agencies") final boolean activeOnly,
@@ -198,9 +242,10 @@ public class AgencyResource {
     @Operation(summary = "List of prison contact details.", description = """
         <p>List of prison contact details.</p>
         <p>DEPRECATED. This endpoint is quite slow as it currently retrieves address and telephone information for each prison separately.
-        In all the main usages of the endpoint we found that the clients didn't need or use the contact details so have deprecated the endpoint.
-        Use /agencies/prisons to get the list of active prisons.</p>
-        """, deprecated = true)
+        In all the main usages of the endpoint we found that the clients didn't need or use the contact details so have deprecated the endpoint.</p>
+        <p>Use GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies/legacy-type/INST in HMPPS Registers to get the list of active prisons,
+        or GET https://agency-register.hmpps.service.justice.gov.uk/prisons/id/{prisonId}/details for one prison's addresses and department contact details.</p>
+        """ + REGISTERS_NOTE, deprecated = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prison")
     @Deprecated
@@ -217,10 +262,18 @@ public class AgencyResource {
     @Operation(summary = "List of all active prisons.", description = """
         <p>List of active prisons.</p>
         <p>This is the same response as normally generated by calling the /agencies/type/INST endpoint with default parameters, added here for ease of use and speed.</p>
-        """)
+        <p>DEPRECATED. Use GET https://agency-register.hmpps.service.justice.gov.uk/api/agencies/legacy-type/INST in HMPPS Registers instead. Differences:</p>
+        <ul>
+        <li>Prisons are sorted by agencyId, not by description.</li>
+        <li>description is the register's prison name, which deliberately differs from NOMIS, and longDescription is the NOMIS description.</li>
+        <li>agencyType is PRISON, not INST.</li>
+        <li>Each prison also includes its addresses and inactiveDate.</li>
+        </ul>
+        """ + REGISTERS_NOTE, deprecated = true)
     @ReferenceData(description = "Agency data is considered non-sensitive")
     @GetMapping("/prisons")
     @SlowReportQuery
+    @Deprecated
     public List<Prison> getPrisons() {
         return agencyService.getAgenciesByType("INST", true, null, null, null, null, false, false, false)
             .stream()

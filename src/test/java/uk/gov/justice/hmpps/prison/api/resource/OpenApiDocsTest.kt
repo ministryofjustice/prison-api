@@ -125,6 +125,50 @@ class OpenApiDocsTest(
       }
   }
 
+  @ParameterizedTest
+  @CsvSource(
+    value = [
+      "/api/agencies,/api/agencies",
+      "/api/agencies/{agencyId},/api/agencies/{agencyId}",
+      "/api/agencies/type/{type},/api/agencies/legacy-type/{type}",
+      "/api/agencies/prisons,/api/agencies/legacy-type/INST",
+      "/api/agencies/prison,/api/agencies/legacy-type/INST",
+    ],
+  )
+  fun `the agency endpoints that HMPPS Registers replaces are deprecated and name the replacement`(path: String, replacement: String) {
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.paths['$path'].get.deprecated").isEqualTo(true)
+      .jsonPath("$.paths['$path'].get.description").value<String> {
+        assertThat(it).contains("https://agency-register.hmpps.service.justice.gov.uk$replacement")
+        assertThat(it).contains("HMPPS_REGISTERS_API__R")
+      }
+  }
+
+  @ParameterizedTest
+  @CsvSource(
+    value = [
+      "/api/agencies/prison/{agencyId}",
+      "/api/agencies/{agencyId}/receptionsWithCapacity",
+      "/api/agencies/{agencyId}/eventLocationsBooked",
+      "/api/agencies/{agencyId}/pay-profile",
+    ],
+  )
+  fun `the agency endpoints that HMPPS Registers does not replace are not deprecated`(path: String) {
+    webTestClient.get()
+      .uri("/v3/api-docs")
+      .accept(MediaType.APPLICATION_JSON)
+      .exchange()
+      .expectStatus().isOk
+      .expectBody()
+      .jsonPath("$.paths['$path'].get.summary").exists()
+      .jsonPath("$.paths['$path'].get.deprecated").doesNotExist()
+  }
+
   @Test
   fun `the swagger json don't contain any duplicate methods`() {
     webTestClient.get()
