@@ -270,10 +270,11 @@ public class NomisApiV1Resource {
             Requires NOMIS_API_V1, UNILINK or PRISON_API__HMPPS_INTEGRATION_API role.
             """
     )
+    @Tag(name = "canteen-funds-api")
     @Tag(name = "unilink")
     @Tag(name = "integration-api")
     @PostMapping("/prison/{prison_id}/offenders/{noms_id}/transactions")
-    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API') and hasAuthority('SCOPE_write')")
+    @PreAuthorize("hasAnyRole('NOMIS_API_V1', 'UNILINK', 'PRISON_API__HMPPS_INTEGRATION_API', 'PRISON_API__CANTEEN_FUNDS_API__RW') and hasAuthority('SCOPE_write')")
     @ProxyUser
     public Transaction createTransaction(@RequestHeader(value = "X-Client-Name", required = false) @Parameter(name = "X-Client-Name", description = "If present then the value is prepended to the client_unique_ref separated by a dash. When this API is invoked via the Nomis gateway this will already have been created by the gateway.") final String clientName,
                                          @Size(max = 3) @NotNull @PathVariable("prison_id") @Parameter(name = "prison_id", description = "Prison ID", example = "BMI", required = true) final String prisonId,
